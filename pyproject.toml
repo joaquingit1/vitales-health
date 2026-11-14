@@ -11,7 +11,9 @@ dependencies = [
   "numpy>=2.5",
   "scipy>=1.18",
   "rdkit>=2026.9",
-  "tblite>=0.8",
+  # tblite publishes no Windows build. Windows reads computed values from data/pharmacy/xtb-cache;
+  # new entries are computed on Linux or macOS.
+  "tblite>=0.8; sys_platform != 'win32'",
   "jsonschema>=4.26",
   "referencing>=0.37",
 ]
@@ -24,7 +26,7 @@ dev = [
   "mypy>=2.4",
   "ruff>=0.17",
   "mpmath>=1.4",
-  "pyscf>=2.15",
+  "pyscf>=2.15; sys_platform != 'win32'",
   "types-jsonschema>=4.26",
 ]
 
