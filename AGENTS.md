@@ -170,6 +170,9 @@ version stays active. Updates arrive as signed bundles through the ground link, 
   rule it will break.
 - **Verify by evidence, not by redoing.** Run the gate commands, read the review verdict and read the diff of the
   critical paths.
+- **Strong model judges, cheaper model produces.** Reviews, plans and greenlights go to the strongest model; fixes and
+  code go to the cheaper one, and the reviewer answers for their quality. Estimate the total usage of a queue before
+  raising concurrency: a usage limit is a quota, and hitting it mid run loses every job in flight.
 - **Stop at zero blockers.** A review passes when it finds no blocker; majors and minors get fixed but never start
   another round. Every review loop has a cap (SYSTEM.md two reviews, a design one cold review, a build three
   rounds); at the cap the coordinator decides, the loop does not continue.
