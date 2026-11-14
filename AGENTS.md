@@ -141,7 +141,9 @@ version stays active. Updates arrive as signed bundles through the ground link, 
 5. **Run the gates** (charter section 8, and the epic's design section 15) before you hand in. Local green is required,
    not sufficient: CI must be green too. A finding you believe is wrong is a defect in the gate: show why with the
    evidence, then fix the gate with a regression test or file a request. Never bend the work to silence it, and never
-   skip the gate.
+   skip the gate. Gates pass in a clean shell on any machine: every runtime comes from the repository's pins (uv for
+   Python, `devEngines` in `package.json` for Node, run through pnpm), never from a PATH workaround or a tool that
+   only your machine has. A gate that passes only in your shell fails for everyone else.
 6. **Independent review.** Someone other than the author reviews the work and its evidence. Resolve every comment or
    answer it with evidence: say fixed, partly fixed or answered, and show the line that now says it, or the package
    line that proves the reviewer wrong. "Fixed" without evidence counts as not fixed. A problem in the package itself
