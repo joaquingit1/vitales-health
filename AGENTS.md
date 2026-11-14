@@ -138,7 +138,9 @@ version stays active. Updates arrive as signed bundles through the ground link, 
 4. **Build inside the epic's owned paths, tests first on its critical paths.** Integrate early against fakes of the
    ports you depend on; the real module replaces the fake when it is greenlit.
 5. **Run the gates** (charter section 8, and the epic's design section 15) before you hand in. Local green is required,
-   not sufficient: CI must be green too.
+   not sufficient: CI must be green too. A finding you believe is wrong is a defect in the gate: show why with the
+   evidence, then fix the gate with a regression test or file a request. Never bend the work to silence it, and never
+   skip the gate.
 6. **Independent review.** Someone other than the author reviews the work and its evidence. Resolve every comment or
    answer it with evidence: say fixed, partly fixed or answered, and show the line that now says it, or the package
    line that proves the reviewer wrong. "Fixed" without evidence counts as not fixed. A problem in the package itself
