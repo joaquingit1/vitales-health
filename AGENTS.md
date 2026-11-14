@@ -174,7 +174,8 @@ version stays active. Updates arrive as signed bundles through the ground link, 
   code go to the cheaper one, and the reviewer answers for their quality. Estimate the total usage of a queue before
   raising concurrency: a usage limit is a quota, and hitting it mid run loses every job in flight.
 - **Designs are working documents; code is the deliverable.** After SYSTEM.md is settled, designs are frozen and code
-  starts from them; plans are only job tickets (owned files, brief, gates) and are not reviewed. When code or a test
+  starts from them: one coder per unit builds it from its design (E01 alone has a reviewed plan), owning its module
+  folders and writing its own exact gate commands. When code or a test
   proves a design wrong, the coder follows SYSTEM.md and the decisions and lists a design correction with evidence in
   its report; the build review judges it, and the design is corrected afterwards. Count the steps to the first line of
   code before adding one.

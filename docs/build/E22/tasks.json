@@ -1,0 +1,26 @@
+{
+ "epic": "E22",
+ "tasks": [
+  {
+   "id": "T1",
+   "title": "E22 in full from its design",
+   "owned_paths": [
+    "hub/src/crew_health/participation/",
+    "config/participation-rules.json",
+    "hub/tests/participation/",
+    "ui/crew/src/features/participation/",
+    "ui/crew/e2e/participation.spec.ts",
+    "eval/scenarios/e22/"
+   ],
+   "reads": [
+    "docs/tdd/E22.md",
+    "docs/product/tdd/E22.md",
+    "docs/SYSTEM.md",
+    "docs/BUILD-CHARTER.md"
+   ],
+   "depends_on": [],
+   "brief": "You are the only coder on epic E22 (Participation streak, patches and crew goal). Implement it in full from its design docs/tdd/E22.md: every section, and every R, V and D of its acceptance matrix with a test, including end to end tests on the real stack. Build in this order: domain, application, adapters, api, user interface, and run your tests as you go. If an epic you depend on has no code yet, code against its port protocol and the kernel fakes (docs/SYSTEM.md section 10).",
+   "gates": []
+  }
+ ]
+}

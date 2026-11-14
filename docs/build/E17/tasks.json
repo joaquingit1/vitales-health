@@ -1,0 +1,37 @@
+{
+ "epic": "E17",
+ "tasks": [
+  {
+   "id": "T1",
+   "title": "E17 in full from its design",
+   "owned_paths": [
+    "hub/src/crew_health/model/",
+    "model/schemas/model-release.schema.json",
+    "model/schemas/active-pointer.schema.json",
+    "model/policy/promotion-policy.json",
+    "model/policy/deny-packages.json",
+    "hub/tests/model/",
+    "model/build",
+    "model/pins",
+    "model/templates",
+    "model/prompts",
+    "model/tool-catalog",
+    "model/schemas/turn-output.schema.json",
+    "model/schemas/insight-draft.schema.json",
+    "model/schemas/claim-support.schema.json",
+    "model/schemas/stub-script.schema.json",
+    "model/releases",
+    "model/reports"
+   ],
+   "reads": [
+    "docs/tdd/E17.md",
+    "docs/product/tdd/E17.md",
+    "docs/SYSTEM.md",
+    "docs/BUILD-CHARTER.md"
+   ],
+   "depends_on": [],
+   "brief": "You are the only coder on epic E17 (Model integration and tool-use optimization). Implement it in full from its design docs/tdd/E17.md: every section, and every R, V and D of its acceptance matrix with a test, including end to end tests on the real stack. Build in this order: domain, application, adapters, api, user interface, and run your tests as you go. If an epic you depend on has no code yet, code against its port protocol and the kernel fakes (docs/SYSTEM.md section 10).",
+   "gates": []
+  }
+ ]
+}

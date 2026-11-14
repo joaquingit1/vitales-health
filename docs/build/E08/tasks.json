@@ -1,0 +1,23 @@
+{
+ "epic": "E08",
+ "tasks": [
+  {
+   "id": "T1",
+   "title": "E08 in full from its design",
+   "owned_paths": [
+    "adapters/band/",
+    "hub/src/crew_health/sleep/",
+    "hub/tests/sleep/",
+    "eval/scenarios/e08/"
+   ],
+   "reads": [
+    "docs/product/tdd/E08.md",
+    "docs/SYSTEM.md",
+    "docs/BUILD-CHARTER.md"
+   ],
+   "depends_on": [],
+   "brief": "You are the only coder on epic E08 (Wrist activity band and sleep pipeline). Implement it in full from its product brief docs/product/tdd/E08.md and docs/SYSTEM.md (its module, ports and seams; this epic has no design): every section, and every R, V and D of its acceptance matrix with a test, including end to end tests on the real stack. Build in this order: domain, application, adapters, api, user interface, and run your tests as you go. If an epic you depend on has no code yet, code against its port protocol and the kernel fakes (docs/SYSTEM.md section 10).",
+   "gates": []
+  }
+ ]
+}

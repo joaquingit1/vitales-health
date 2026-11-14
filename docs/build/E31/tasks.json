@@ -1,0 +1,25 @@
+{
+ "epic": "E31",
+ "tasks": [
+  {
+   "id": "T1",
+   "title": "E31 in full from its design",
+   "owned_paths": [
+    "hub/src/crew_health/roles/",
+    "config/role-rules.json",
+    "hub/tests/roles/",
+    "ui/crew/src/features/roles/",
+    "ui/crew/e2e/roles/"
+   ],
+   "reads": [
+    "docs/tdd/E31.md",
+    "docs/product/tdd/E31.md",
+    "docs/SYSTEM.md",
+    "docs/BUILD-CHARTER.md"
+   ],
+   "depends_on": [],
+   "brief": "You are the only coder on epic E31 (Who helps). Implement it in full from its design docs/tdd/E31.md: every section, and every R, V and D of its acceptance matrix with a test, including end to end tests on the real stack. Build in this order: domain, application, adapters, api, user interface, and run your tests as you go. If an epic you depend on has no code yet, code against its port protocol and the kernel fakes (docs/SYSTEM.md section 10).",
+   "gates": []
+  }
+ ]
+}
