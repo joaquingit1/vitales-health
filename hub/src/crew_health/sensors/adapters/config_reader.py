@@ -393,7 +393,7 @@ class SensorConfigHolder:
             return findings
         try:
             adopted = load_sensor_config(lambda name: candidate.documents[name].raw)
-        except (ProblemError, KeyError):
+        except ProblemError, KeyError:
             return (Finding("config", None, "", "candidate does not parse; last good retained"),)
         self._current = adopted
         return ()

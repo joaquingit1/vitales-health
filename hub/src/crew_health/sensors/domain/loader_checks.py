@@ -89,7 +89,9 @@ def _check_value_from(entry: LimitEntry, level: HazardLevelFacts, pointer: str) 
     if entry.value_from == "level_value" and limit.value != level.value:
         return [_find(CHECK_4, LIMITS, pointer + "/value", "value differs from the hazard level value")]
     if entry.value_from == "rule_text" and (limit.value is None or not _number_in(level.rule, limit.value)):
-        return [_find(CHECK_4, LIMITS, pointer + "/value", "value does not appear in the hazard level rule text")]
+        return [
+            _find(CHECK_4, LIMITS, pointer + "/value", "value does not appear in the hazard level rule text")
+        ]
     if entry.value_from == "pending" and limit.value is not None:
         return [_find(CHECK_4, LIMITS, pointer + "/value", "pending limit must have a null value")]
     return []
@@ -105,7 +107,11 @@ def _check_copy(entry: LimitEntry, level: HazardLevelFacts, pointer: str) -> lis
         ("window", copy.window, level.window),
     ):
         if mine != theirs:
-            found.append(_find(CHECK_4, LIMITS, f"{pointer}/hazard_level/{name}", "differs from environment-hazards.json"))
+            found.append(
+                _find(
+                    CHECK_4, LIMITS, f"{pointer}/hazard_level/{name}", "differs from environment-hazards.json"
+                )
+            )
     return found
 
 
@@ -141,7 +147,14 @@ def _check_status(entry: LimitEntry, pointer: str) -> list[DomainFinding]:
     pending = limit.status == "threshold_pending"
     found: list[DomainFinding] = []
     if pending != (limit.value is None) or pending != (entry.value_from == "pending"):
-        found.append(_find(CHECK_12, LIMITS, pointer + "/status", "threshold_pending, null value and pending value_from must agree"))
+        found.append(
+            _find(
+                CHECK_12,
+                LIMITS,
+                pointer + "/status",
+                "threshold_pending, null value and pending value_from must agree",
+            )
+        )
     if entry.basis == "sourced" and not limit.source_ids:
         found.append(_find(CHECK_12, LIMITS, pointer + "/source_ids", "a sourced limit names its sources"))
     return found
@@ -159,11 +172,17 @@ def check_limits_against_catalog(
             found.append(_find(CHECK_12, LIMITS, pointer + "/sensor_type_id", "unknown sensor type"))
             continue
         if sensor.aggregation(entry.limit.aggregation_id) is None:
-            found.append(_find(CHECK_12, LIMITS, pointer + "/aggregation_id", "aggregation not on the sensor type"))
+            found.append(
+                _find(CHECK_12, LIMITS, pointer + "/aggregation_id", "aggregation not on the sensor type")
+            )
         if entry.limit.unit != sensor.unit:
             found.append(_find(CHECK_12, LIMITS, pointer + "/unit", "not the catalog unit"))
         if entry.copy.hazard_id != sensor.hazard_id:
-            found.append(_find(CHECK_12, LIMITS, pointer + "/hazard_level/hazard_id", "not the hazard of the sensor type"))
+            found.append(
+                _find(
+                    CHECK_12, LIMITS, pointer + "/hazard_level/hazard_id", "not the hazard of the sensor type"
+                )
+            )
         found.extend(_check_status(entry, pointer))
     return tuple(found)
 
@@ -176,10 +195,21 @@ def _check_units(
     if canonical is None:
         return [_find(CHECK_12, CATALOG, pointer + "/unit", "no sourced unit mapping")]
     if not any(a.unit == sensor.unit and a.conversion == "identity" for a in sensor.accepted_units):
-        found.append(_find(CHECK_12, CATALOG, pointer + "/accepted_units", "the canonical unit must be accepted with identity"))
+        found.append(
+            _find(
+                CHECK_12,
+                CATALOG,
+                pointer + "/accepted_units",
+                "the canonical unit must be accepted with identity",
+            )
+        )
     for index, accepted in enumerate(sensor.accepted_units):
         item = f"{pointer}/accepted_units/{index}"
-        found.extend(_check_accepted(sensor, accepted.unit, accepted.conversion, accepted.factor, item, canonical, units, resolve))
+        found.extend(
+            _check_accepted(
+                sensor, accepted.unit, accepted.conversion, accepted.factor, item, canonical, units, resolve
+            )
+        )
     return found
 
 
@@ -223,7 +253,9 @@ def _check_aggregations(sensor: SensorTypeFacts, pointer: str, bounds: SensorBou
         elif spec.window_seconds is not None:
             found.extend(_check_window(sensor, spec.kind, spec.window_seconds, item, bounds))
     if sensor.display_aggregation_id not in seen:
-        found.append(_find(CHECK_12, CATALOG, pointer + "/display_aggregation_id", "not an aggregation of the type"))
+        found.append(
+            _find(CHECK_12, CATALOG, pointer + "/display_aggregation_id", "not an aggregation of the type")
+        )
     return found
 
 
@@ -233,10 +265,21 @@ def _check_window(
     if kind in ("max", "sum"):
         return []  # scan bound, checked by check_scan_bound against every cadence
     if ceil(window / bounds.aggregate_bucket_s) > bounds.window_max_buckets:
-        return [_find(CHECK_12, CATALOG, pointer + "/window_seconds", "window spans more buckets than sensors.window_max_buckets")]
+        return [
+            _find(
+                CHECK_12,
+                CATALOG,
+                pointer + "/window_seconds",
+                "window spans more buckets than sensors.window_max_buckets",
+            )
+        ]
     interval = sensor.expected_interval_seconds
     if interval is not None and ceil(bounds.aggregate_bucket_s / interval) > bounds.window_scan_max_readings:
-        return [_find(CHECK_12, CATALOG, pointer + "/window_seconds", "an edge bucket would exceed the scan bound")]
+        return [
+            _find(
+                CHECK_12, CATALOG, pointer + "/window_seconds", "an edge bucket would exceed the scan bound"
+            )
+        ]
     return []
 
 
@@ -263,10 +306,19 @@ def check_catalog(
 def _check_provenance(sensor: SensorTypeFacts, pointer: str) -> list[DomainFinding]:
     found: list[DomainFinding] = []
     if sensor.interval_basis == "sourced" and not sensor.interval_source_ids:
-        found.append(_find(CHECK_12, CATALOG, pointer + "/interval_source_ids", "a sourced interval names its sources"))
+        found.append(
+            _find(CHECK_12, CATALOG, pointer + "/interval_source_ids", "a sourced interval names its sources")
+        )
     interval = sensor.expected_interval_seconds
     if interval is not None and sensor.stale_after_seconds < interval:
-        found.append(_find(CHECK_12, CATALOG, pointer + "/stale_after_seconds", "stale before the channel is due to report"))
+        found.append(
+            _find(
+                CHECK_12,
+                CATALOG,
+                pointer + "/stale_after_seconds",
+                "stale before the channel is due to report",
+            )
+        )
     return found
 
 
@@ -290,7 +342,16 @@ def check_scan_bound(
         pointer = f"/limits/{position}/aggregation_id"
         interval = fastest_interval(entry.limit.sensor_type_id)
         if interval is None or interval < 1:
-            found.append(_find(CHECK_12, LIMITS, pointer, "max or sum window needs a known reporting interval"))
+            found.append(
+                _find(CHECK_12, LIMITS, pointer, "max or sum window needs a known reporting interval")
+            )
         elif ceil(spec.window_seconds / interval) > scan_max:
-            found.append(_find(CHECK_12, LIMITS, pointer, "window would scan more readings than sensors.window_scan_max_readings"))
+            found.append(
+                _find(
+                    CHECK_12,
+                    LIMITS,
+                    pointer,
+                    "window would scan more readings than sensors.window_scan_max_readings",
+                )
+            )
     return tuple(found)

@@ -16,7 +16,6 @@ from e23_helpers import (
     SCAN_MAX,
     UCUM,
     assumed_pressure,
-    channel_for,
     evaluation_input,
     point,
     read_dostel1,
@@ -92,7 +91,16 @@ def reading(
     receive: datetime | None = None,
 ) -> ReadingFact:
     return ReadingFact(
-        f"rdg_{seq}", "ch_test", seq, at, receive, state, Decimal(value), quality, origin, "seg_1"  # type: ignore[arg-type]
+        f"rdg_{seq}",
+        "ch_test",
+        seq,
+        at,
+        receive,
+        state,
+        Decimal(value),
+        quality,
+        origin,
+        "seg_1",  # type: ignore[arg-type]
     )
 
 
@@ -111,7 +119,13 @@ def test_conversion_is_exact_finite_and_rounds_once(
     kind = sensor(config, "o2")
     accepted = kind.accepted_units[index % len(kind.accepted_units)]
     result = convert_wire_reading(
-        converter, release, kind, value=value, unit=accepted.unit, canonical_unit=MMHG, pressure=None  # type: ignore[arg-type]
+        converter,
+        release,
+        kind,
+        value=value,
+        unit=accepted.unit,
+        canonical_unit=MMHG,
+        pressure=None,  # type: ignore[arg-type]
     )
     expected = value * (accepted.factor if accepted.factor is not None else Decimal(1))
     assert result.converted.canonical.value == expected  # unrounded internal value
@@ -123,18 +137,28 @@ def test_conversion_is_exact_finite_and_rounds_once(
 @pytest.mark.trace("T-E23-022", "R42", "S5.4")
 @given(unit=st.text(max_size=12))
 @EXAMPLES
-def test_unknown_unit_is_rejected(config: SensorConfig, release: object, converter: object, unit: str) -> None:
+def test_unknown_unit_is_rejected(
+    config: SensorConfig, release: object, converter: object, unit: str
+) -> None:
     kind = sensor(config, "o2")
     if any(a.unit == unit for a in kind.accepted_units):
         return
     with pytest.raises(InvalidUnit):
         convert_wire_reading(
-            converter, release, kind, value=Decimal(1), unit=unit, canonical_unit=MMHG, pressure=None  # type: ignore[arg-type]
+            converter,
+            release,
+            kind,
+            value=Decimal(1),
+            unit=unit,
+            canonical_unit=MMHG,
+            pressure=None,  # type: ignore[arg-type]
         )
 
 
 @pytest.mark.trace("T-E23-022", "C13", "S5.4")
-def test_every_catalog_unit_maps_to_ucum_and_dimensions_agree(config: SensorConfig, units: MemoryUnits) -> None:
+def test_every_catalog_unit_maps_to_ucum_and_dimensions_agree(
+    config: SensorConfig, units: MemoryUnits
+) -> None:
     from e23_helpers import BOUNDS
 
     assert check_catalog(config.sensor_types, BOUNDS, units, ucum_for) == ()
@@ -149,8 +173,13 @@ def test_4646_ppm_at_assumed_760_is_3_531_mmhg_with_basis(
     config: SensorConfig, release: object, converter: object
 ) -> None:
     result = convert_wire_reading(
-        converter, release, sensor(config, "co2"), value=Decimal("4646"), unit="ppm",  # type: ignore[arg-type]
-        canonical_unit=MMHG, pressure=assumed_pressure(),
+        converter,
+        release,
+        sensor(config, "co2"),
+        value=Decimal("4646"),
+        unit="ppm",  # type: ignore[arg-type]
+        canonical_unit=MMHG,
+        pressure=assumed_pressure(),
     )
     assert result.wire_value == Decimal("3.5310")
     assert result.conversion is not None
@@ -174,18 +203,30 @@ def test_ppm_without_a_usable_pressure_is_rejected_never_defaulted(
         context = PressureContext(Quantity(Decimal(760), MMHG), "assumed", "", None)
     with pytest.raises(InvalidValue):
         convert_wire_reading(
-            converter, release, sensor(config, "co2"), value=Decimal(4646), unit="ppm",  # type: ignore[arg-type]
-            canonical_unit=MMHG, pressure=context,
+            converter,
+            release,
+            sensor(config, "co2"),
+            value=Decimal(4646),
+            unit="ppm",  # type: ignore[arg-type]
+            canonical_unit=MMHG,
+            pressure=context,
         )
 
 
 @pytest.mark.trace("T-E23-025", "DE23-11", "AGENTS5")
-def test_non_finite_values_are_rejected_at_every_boundary(config: SensorConfig, release: object, converter: object) -> None:
+def test_non_finite_values_are_rejected_at_every_boundary(
+    config: SensorConfig, release: object, converter: object
+) -> None:
     for bad in ("NaN", "Infinity", "-Infinity"):
         with pytest.raises(InvalidValue):
             convert_wire_reading(
-                converter, release, sensor(config, "o2"), value=Decimal(bad), unit="mmHg",  # type: ignore[arg-type]
-                canonical_unit=MMHG, pressure=None,
+                converter,
+                release,
+                sensor(config, "o2"),
+                value=Decimal(bad),
+                unit="mmHg",  # type: ignore[arg-type]
+                canonical_unit=MMHG,
+                pressure=None,
             )
         with pytest.raises(InvalidValue):
             reading(utc(2026, 1, 1), bad)
@@ -321,10 +362,15 @@ def test_arrival_order_does_not_change_the_result_and_empty_windows_have_no_valu
     assert first == second
     spec = spec_of("mean", window)
     end = first[-1].at
-    assert aggregate_direct(spec, end, first, expected_interval_seconds=None, scan_max=SCAN_MAX) == aggregate_direct(
-        spec, end, second, expected_interval_seconds=None, scan_max=SCAN_MAX
+    assert aggregate_direct(
+        spec, end, first, expected_interval_seconds=None, scan_max=SCAN_MAX
+    ) == aggregate_direct(spec, end, second, expected_interval_seconds=None, scan_max=SCAN_MAX)
+    assert (
+        aggregate_direct(
+            spec, BASE - timedelta(days=1), first, expected_interval_seconds=None, scan_max=SCAN_MAX
+        )
+        is None
     )
-    assert aggregate_direct(spec, BASE - timedelta(days=1), first, expected_interval_seconds=None, scan_max=SCAN_MAX) is None
 
 
 @pytest.mark.trace("T-E23-030", "C13", "S5.4")
@@ -343,7 +389,9 @@ def test_bucketed_equals_direct(
     spec = spec_of(kind, window)
     end = series[-1].at
     layout = bucket_spec_for(spec, bucket) or BucketSpec(bucket, "identity")
-    bucketed = BucketedWindows(bucket, ListStore(series, layout), ListReader(series), series[-1], interval, SCAN_MAX, 10080)
+    bucketed = BucketedWindows(
+        bucket, ListStore(series, layout), ListReader(series), series[-1], interval, SCAN_MAX, 10080
+    )
     direct = DirectWindows(series, interval, SCAN_MAX)
     assert bucketed.stats(spec, end) == direct.stats(spec, end)
 
@@ -352,7 +400,9 @@ def test_bucketed_equals_direct(
 @given(
     raw=st.lists(
         st.tuples(st.integers(0, 600), st.integers(300, 1300), st.integers(0, 20)),
-        min_size=1, max_size=16, unique_by=lambda t: t[0],
+        min_size=1,
+        max_size=16,
+        unique_by=lambda t: t[0],
     ),
     window=st.integers(1, 700),
     bucket=st.integers(1, 120),
@@ -366,7 +416,9 @@ def test_bucketed_energy_mean_equals_direct(
     spec = spec_of("energy_mean", window)
     layout = bucket_spec_for(spec, bucket)
     assert layout is not None and layout.transform == "energy"
-    bucketed = BucketedWindows(bucket, ListStore(series, layout), ListReader(series), series[-1], interval, SCAN_MAX, 10080)
+    bucketed = BucketedWindows(
+        bucket, ListStore(series, layout), ListReader(series), series[-1], interval, SCAN_MAX, 10080
+    )
     direct = DirectWindows(series, interval, SCAN_MAX)
     assert bucketed.stats(spec, series[-1].at) == direct.stats(spec, series[-1].at)
 
@@ -392,37 +444,66 @@ def test_a_late_reading_updates_only_the_buckets_it_touches(
 @pytest.mark.trace("T-E23-030", "C13")
 def test_hold_weights_and_empty_window_have_no_value_and_no_interpolation() -> None:
     """Hand computed: holds 10 for 60 s then 20 for 120 s, window start excluded."""
-    series = (point(BASE, "10"), point(BASE + timedelta(seconds=60), "20"), point(BASE + timedelta(seconds=180), "99"))
+    series = (
+        point(BASE, "10"),
+        point(BASE + timedelta(seconds=60), "20"),
+        point(BASE + timedelta(seconds=180), "99"),
+    )
     stats = aggregate_direct(
-        spec_of("time_weighted_mean", 180), series[-1].at, series, expected_interval_seconds=None, scan_max=SCAN_MAX
+        spec_of("time_weighted_mean", 180),
+        series[-1].at,
+        series,
+        expected_interval_seconds=None,
+        scan_max=SCAN_MAX,
     )
     assert stats is not None
     assert stats.n == 2  # BASE is the excluded window start (E - W, E]
     assert stats.low == Decimal(20)  # only the 20 reading holds before E; nothing assumed before it
-    gap = aggregate_direct(spec_of("mean", 10), BASE + timedelta(seconds=1000), series, expected_interval_seconds=None, scan_max=SCAN_MAX)
+    gap = aggregate_direct(
+        spec_of("mean", 10),
+        BASE + timedelta(seconds=1000),
+        series,
+        expected_interval_seconds=None,
+        scan_max=SCAN_MAX,
+    )
     assert gap is None
 
 
 @pytest.mark.trace("T-E23-030", "T-E23-092", "C13")
 def test_coverage_formula_with_and_without_an_expected_interval() -> None:
     first, last = BASE, BASE + timedelta(seconds=1800)
-    assert coverage(12, first_at=first, last_at=last, window_seconds=3600, expected_interval_seconds=300) == Decimal(1)
-    assert coverage(3, first_at=first, last_at=last, window_seconds=3600, expected_interval_seconds=300) == Decimal("0.25")
-    assert coverage(1, first_at=first, last_at=first, window_seconds=3600, expected_interval_seconds=None) == Decimal(0)
-    assert coverage(5, first_at=first, last_at=last, window_seconds=3600, expected_interval_seconds=None) == Decimal("0.5")
+    assert coverage(
+        12, first_at=first, last_at=last, window_seconds=3600, expected_interval_seconds=300
+    ) == Decimal(1)
+    assert coverage(
+        3, first_at=first, last_at=last, window_seconds=3600, expected_interval_seconds=300
+    ) == Decimal("0.25")
+    assert coverage(
+        1, first_at=first, last_at=first, window_seconds=3600, expected_interval_seconds=None
+    ) == Decimal(0)
+    assert coverage(
+        5, first_at=first, last_at=last, window_seconds=3600, expected_interval_seconds=None
+    ) == Decimal("0.5")
 
 
 # --- limits: T-E23-031 to 036, 063 ----------------------------------------------------------------------
 
 
-def rr1_instants(config: SensorConfig, release: object, converter: object, *, until: datetime) -> list[Instant]:
+def rr1_instants(
+    config: SensorConfig, release: object, converter: object, *, until: datetime
+) -> list[Instant]:
     kind = sensor(config, "co2")
     out = []
     for row in read_rr1_ppm():
         if row.at > until:
             continue
         converted = convert_wire_reading(
-            converter, release, kind, value=row.value, unit="ppm", canonical_unit=MMHG,  # type: ignore[arg-type]
+            converter,
+            release,
+            kind,
+            value=row.value,
+            unit="ppm",
+            canonical_unit=MMHG,  # type: ignore[arg-type]
             pressure=assumed_pressure(),
         )
         out.append(Instant(row.at, converted.converted.canonical.value, converted.converted.canonical.value))
@@ -444,12 +525,20 @@ def test_golden_rr1_co2_window(config: SensorConfig, release: object, converter:
     assert round_wire(stats.low) == Decimal("3.5003")  # (3) at an assumed 760 mmHg
     assert stats.coverage == Decimal(1)  # (4)
     evaluation = evaluate_limits(inp)
-    assert (evaluation.status, evaluation.level, evaluation.limit_id) == ("beyond_limit", "act", "co2_1h_act")  # (5)
+    assert (evaluation.status, evaluation.level, evaluation.limit_id) == (
+        "beyond_limit",
+        "act",
+        "co2_1h_act",
+    )  # (5)
     assert evaluation.coverage == Decimal(1) and evaluation.window_end == end
     from crew_health.sensors.domain.card import format_value
 
-    assert format_value(stats.low, inp.sensor_type.decimals, inp.sensor_type.trim_trailing_zeros) == "3.5"  # (6)
-    assert evaluation.aggregated_value is not None and round_wire(evaluation.aggregated_value) == Decimal("3.5003")
+    assert (
+        format_value(stats.low, inp.sensor_type.decimals, inp.sensor_type.trim_trailing_zeros) == "3.5"
+    )  # (6)
+    assert evaluation.aggregated_value is not None and round_wire(evaluation.aggregated_value) == Decimal(
+        "3.5003"
+    )
     assert evaluation.pending_limit_ids == ()
 
 
@@ -473,7 +562,9 @@ def test_golden_dostel1_two_hour_window_is_threshold_pending(config: SensorConfi
 
 
 @pytest.mark.trace("T-E23-031", "C13", "R35")
-def test_windowed_limit_below_min_coverage_is_insufficient_data_and_crosses_nothing(config: SensorConfig) -> None:
+def test_windowed_limit_below_min_coverage_is_insufficient_data_and_crosses_nothing(
+    config: SensorConfig,
+) -> None:
     end = utc(2014, 10, 7, 15, 36)
     rows = [point(end - timedelta(minutes=m), "3.9") for m in (0, 5, 10)]  # 3 of 12 expected: coverage 0.25
     evaluation = evaluate_limits(evaluation_input(config, "co2", rows, interval=300))
@@ -485,7 +576,10 @@ def test_windowed_limit_below_min_coverage_is_insufficient_data_and_crosses_noth
 def test_only_active_warning_limits_of_the_active_environment_are_evaluated(config: SensorConfig) -> None:
     end = utc(2026, 1, 1, 12)
     rows = [point(end - timedelta(seconds=60 * m), "5") for m in range(0, 1440, 1)]  # dust above both limits
-    for env, expected in (("lunar_surface", {"dust_lunar_act"}), ("mars_surface", {"dust_mars_act", "dust_mars_peak_emergency"})):
+    for env, expected in (
+        ("lunar_surface", {"dust_lunar_act"}),
+        ("mars_surface", {"dust_mars_act", "dust_mars_peak_emergency"}),
+    ):
         inp = evaluation_input(config, "dust", rows, interval=60, environment=env)
         assert {r.limit_id for r in evaluate_limits(inp).results} == expected
     station = evaluation_input(config, "dust", rows, interval=60, environment="station_leo")
@@ -496,13 +590,20 @@ def test_only_active_warning_limits_of_the_active_environment_are_evaluated(conf
 def test_pending_never_raises_and_display_only_never_changes_status(config: SensorConfig) -> None:
     end = utc(2026, 1, 1, 12)
     air_only_display = tuple(
-        replace(limit, status="threshold_pending", value=None) if limit.limit_id == "air_index_watch" else limit
+        replace(limit, status="threshold_pending", value=None)
+        if limit.limit_id == "air_index_watch"
+        else limit
         for limit in config.limits
     )
     inp = evaluation_input(config, "air", [point(end, "9")], interval=None, limits=air_only_display)
     assert evaluate_limits(inp).status == "threshold_pending"  # never within_limit
     no_warning = tuple(limit for limit in config.limits if limit.limit_id != "air_index_watch")
-    assert evaluate_limits(evaluation_input(config, "air", [point(end, "9")], interval=None, limits=no_warning)).status == "no_limit_on_file"
+    assert (
+        evaluate_limits(
+            evaluation_input(config, "air", [point(end, "9")], interval=None, limits=no_warning)
+        ).status
+        == "no_limit_on_file"
+    )
     plain = evaluate_limits(evaluation_input(config, "air", [point(end, "9")], interval=None))
     assert plain.status == "beyond_limit" and plain.level == "watch" and plain.limit_id == "air_index_watch"
     calm = evaluate_limits(evaluation_input(config, "air", [point(end, "0.5")], interval=None))
@@ -532,10 +633,16 @@ def test_clear_holds_is_none_for_stale_non_advancing_untrusted_and_failed(config
 def test_o2_low_emergency_crosses_on_one_reading_without_a_coverage_gate(config: SensorConfig) -> None:
     only = [point(utc(2026, 1, 1, 12), "100")]
     evaluation = evaluate_limits(evaluation_input(config, "o2", only, interval=5))
-    assert (evaluation.status, evaluation.level, evaluation.limit_id) == ("beyond_limit", "emergency", "o2_low_emergency")
+    assert (evaluation.status, evaluation.level, evaluation.limit_id) == (
+        "beyond_limit",
+        "emergency",
+        "o2_low_emergency",
+    )
     by_id = {r.limit_id: r for r in evaluation.results}
     assert by_id["o2_low_emergency"].crossed is True and by_id["o2_low_emergency"].coverage is None
-    assert by_id["o2_low_act"].reason == "insufficient_coverage"  # the windowed limit still waits for its window
+    assert (
+        by_id["o2_low_act"].reason == "insufficient_coverage"
+    )  # the windowed limit still waits for its window
 
 
 @pytest.mark.trace("T-E23-036", "T-E23-063", "C13")
@@ -543,9 +650,15 @@ def test_highest_crossed_level_wins_and_ties_go_to_the_earlier_limit(config: Sen
     end = utc(2026, 1, 1, 12)
     both = evaluate_limits(evaluation_input(config, "noise", [point(end, "120")], interval=None))
     assert (both.level, both.limit_id) == ("emergency", "noise_peak_emergency")
-    twice = tuple(replace(limit, limit_id="x_" + limit.limit_id) for limit in config.limits if limit.limit_id == "o2_low_watch")
+    twice = tuple(
+        replace(limit, limit_id="x_" + limit.limit_id)
+        for limit in config.limits
+        if limit.limit_id == "o2_low_watch"
+    )
     again = tuple(replace(limit, limit_id="y_" + limit.limit_id) for limit in twice)
-    out = evaluate_limits(evaluation_input(config, "o2", [point(end, "100")], interval=5, limits=(*twice, *again)))
+    out = evaluate_limits(
+        evaluation_input(config, "o2", [point(end, "100")], interval=5, limits=(*twice, *again))
+    )
     assert out.limit_id == "x_o2_low_watch"
 
 
@@ -553,16 +666,26 @@ def test_highest_crossed_level_wins_and_ties_go_to_the_earlier_limit(config: Sen
 def test_status_precedence_no_reading_then_stale(config: SensorConfig) -> None:
     empty = evaluate_limits(evaluation_input(config, "o2", [], interval=5, freshness="never_reported"))
     assert empty.status == "no_reading" and empty.level is None and empty.aggregated_value is None
-    stale = evaluate_limits(evaluation_input(config, "o2", [point(utc(2026, 1, 1), "100")], interval=5, freshness="stale"))
+    stale = evaluate_limits(
+        evaluation_input(config, "o2", [point(utc(2026, 1, 1), "100")], interval=5, freshness="stale")
+    )
     assert stale.status == "stale" and stale.level is None  # a crossing is never raised from a stale value
     assert all(r.crossed is None for r in stale.results)
 
 
 @pytest.mark.trace("T-E23-075", "S5.4", "D12")
-def test_near_threshold_crossing_survives_four_place_wire_rounding(config: SensorConfig, release: object, converter: object) -> None:
+def test_near_threshold_crossing_survives_four_place_wire_rounding(
+    config: SensorConfig, release: object, converter: object
+) -> None:
     kind = sensor(config, "o2")
     converted = convert_wire_reading(
-        converter, release, kind, value=Decimal("16.265322"), unit="kPa", canonical_unit=MMHG, pressure=None  # type: ignore[arg-type]
+        converter,
+        release,
+        kind,
+        value=Decimal("16.265322"),
+        unit="kPa",
+        canonical_unit=MMHG,
+        pressure=None,  # type: ignore[arg-type]
     )
     assert converted.wire_value == Decimal("122.0000")  # the stored wire value shows the threshold itself
     assert converted.converted.canonical.value < Decimal(122)  # the unrounded value is below it
@@ -570,25 +693,41 @@ def test_near_threshold_crossing_survives_four_place_wire_rounding(config: Senso
     instant = Instant(at, converted.converted.canonical.value, converted.converted.canonical.value)
     evaluation = evaluate_limits(evaluation_input(config, "o2", [instant], interval=5))
     assert (evaluation.status, evaluation.limit_id) == ("beyond_limit", "o2_low_emergency")
-    assert crosses("below", converted.wire_value, Decimal(122)) is False  # rounding first would have missed it
+    assert (
+        crosses("below", converted.wire_value, Decimal(122)) is False
+    )  # rounding first would have missed it
 
 
 @pytest.mark.trace("T-E23-075", "S5.4", "D12")
 def test_energy_mean_uses_precision_34_and_fails_typed_when_non_finite() -> None:
     quiet = utc(2026, 1, 1)
-    even = (point(quiet, "60"), point(quiet + timedelta(seconds=30), "70"), point(quiet + timedelta(seconds=60), "70"))
-    stats = aggregate_direct(spec_of("energy_mean", 61), even[-1].at, even, expected_interval_seconds=None, scan_max=SCAN_MAX)
+    even = (
+        point(quiet, "60"),
+        point(quiet + timedelta(seconds=30), "70"),
+        point(quiet + timedelta(seconds=60), "70"),
+    )
+    stats = aggregate_direct(
+        spec_of("energy_mean", 61), even[-1].at, even, expected_interval_seconds=None, scan_max=SCAN_MAX
+    )
     assert stats is not None
     assert round_wire(stats.low) == Decimal("67.4036")  # 10 log10((1e6 + 1e7) / 2), checked independently
     constant = tuple(point(quiet + timedelta(seconds=s), "70") for s in (0, 30, 60))
-    flat = aggregate_direct(spec_of("energy_mean", 61), constant[-1].at, constant, expected_interval_seconds=None, scan_max=SCAN_MAX)
+    flat = aggregate_direct(
+        spec_of("energy_mean", 61),
+        constant[-1].at,
+        constant,
+        expected_interval_seconds=None,
+        scan_max=SCAN_MAX,
+    )
     assert flat is not None and round_wire(flat.low) == Decimal("70.0000")
     with pytest.raises(SensorComputationFailure):
         energy(Decimal("99999999999"))
 
 
 @pytest.mark.trace("T-E23-080", "3.7", "AGENTS6")
-def test_two_values_at_one_instant_cross_on_either_variant_clear_needs_both_display_is_worse(config: SensorConfig) -> None:
+def test_two_values_at_one_instant_cross_on_either_variant_clear_needs_both_display_is_worse(
+    config: SensorConfig,
+) -> None:
     at = utc(2026, 1, 1, 12)
     conflict = Instant(at, Decimal("120"), Decimal("150"))  # one source says 120 (crosses 122), one says 150
     out = evaluate_limits(evaluation_input(config, "o2", [conflict], interval=5))
@@ -603,8 +742,12 @@ def test_two_values_at_one_instant_cross_on_either_variant_clear_needs_both_disp
     assert clean.status == "within_limit"
     assert {r.limit_id: r.clear_holds for r in clean.results}["o2_low_watch"] is True
     assert clean.aggregated_value == Decimal("200")  # no crossing: nearer the card mark limit (127 mmHg)
-    unmarked = evaluate_limits(evaluation_input(config, "water", [Instant(at, Decimal("0.2"), Decimal("0.4"))], interval=None))
-    assert unmarked.status == "no_limit_on_file" and unmarked.aggregated_value == Decimal("0.4")  # else the higher value
+    unmarked = evaluate_limits(
+        evaluation_input(config, "water", [Instant(at, Decimal("0.2"), Decimal("0.4"))], interval=None)
+    )
+    assert unmarked.status == "no_limit_on_file" and unmarked.aggregated_value == Decimal(
+        "0.4"
+    )  # else the higher value
 
 
 # --- scan bound: T-E23-083, 092 --------------------------------------------------------------------------
@@ -614,7 +757,7 @@ def peak_type(config: SensorConfig) -> tuple[object, tuple[object, ...]]:
     kind = sensor(config, "noise")
     spec = AggregationSpec("peak_1h", "max", 3600, "hourly peak")
     limit = replace(
-        next(l for l in config.limits if l.limit_id == "noise_peak_emergency"),
+        next(item for item in config.limits if item.limit_id == "noise_peak_emergency"),
         limit_id="noise_hour_peak",
         aggregation_id="peak_1h",
         min_coverage=Decimal(0),
@@ -631,12 +774,22 @@ def test_a_max_window_over_the_scan_bound_is_not_evaluated_and_never_partial(con
     over = evaluation_input(config, "noise", rows, interval=None, kind=kind, limits=limits, scan_max=39)  # type: ignore[arg-type]
     out = evaluate_limits(over)
     assert out.faults == ("WINDOW_SCAN_BOUND",)
-    assert out.results[0].crossed is None and out.results[0].clear_holds is None and out.results[0].reason == "scan_bound"
+    assert (
+        out.results[0].crossed is None
+        and out.results[0].clear_holds is None
+        and out.results[0].reason == "scan_bound"
+    )
     assert out.status == "insufficient_data"
     exact = evaluation_input(config, "noise", rows, interval=None, kind=kind, limits=limits, scan_max=40)  # type: ignore[arg-type]
     assert evaluate_limits(exact).status == "beyond_limit"
     with pytest.raises(WindowScanBound):
-        aggregate_direct(AggregationSpec("p", "max", 3600, "x"), end, [point(r.at, "1") for r in map(lambda p: p, rows)], expected_interval_seconds=None, scan_max=39)
+        aggregate_direct(
+            AggregationSpec("p", "max", 3600, "x"),
+            end,
+            [point(r.at, "1") for r in map(lambda p: p, rows)],
+            expected_interval_seconds=None,
+            scan_max=39,
+        )
 
 
 @pytest.mark.trace("T-E23-092", "AGENTS6")
@@ -674,14 +827,23 @@ def known(at: datetime, uncertainty_ms: int = 0) -> TimeFacts:
 @pytest.mark.trace("T-E23-017", "D3", "R42")
 def test_freshness_comes_from_observation_time_and_a_late_reading_is_not_fresh() -> None:
     window = 300
-    fresh = decide_freshness(now=NOW, stale_after_seconds=window, has_history=True, reference=known(NOW - timedelta(seconds=299)))
+    fresh = decide_freshness(
+        now=NOW, stale_after_seconds=window, has_history=True, reference=known(NOW - timedelta(seconds=299))
+    )
     assert fresh.state == "current" and fresh.clock_state == "trusted"
-    late = decide_freshness(now=NOW, stale_after_seconds=window, has_history=True, reference=known(NOW - timedelta(seconds=301)))
+    late = decide_freshness(
+        now=NOW, stale_after_seconds=window, has_history=True, reference=known(NOW - timedelta(seconds=301))
+    )
     assert late.state == "stale" and late.stale_since == NOW - timedelta(seconds=1)
-    edge = decide_freshness(now=NOW, stale_after_seconds=window, has_history=True, reference=known(NOW - timedelta(seconds=300)))
+    edge = decide_freshness(
+        now=NOW, stale_after_seconds=window, has_history=True, reference=known(NOW - timedelta(seconds=300))
+    )
     assert edge.state == "current"  # stale means strictly greater than the duration
     assert edge.next_check_at == NOW
-    assert decide_freshness(now=NOW, stale_after_seconds=window, has_history=False, reference=None).state == "never_reported"
+    assert (
+        decide_freshness(now=NOW, stale_after_seconds=window, has_history=False, reference=None).state
+        == "never_reported"
+    )
 
 
 @pytest.mark.trace("T-E23-017", "D3", "T-E23-087")
@@ -711,25 +873,43 @@ def test_replay_freshness_only_advancing_observations_refresh_the_reference() ->
     advancing = advance_replay_reference(reference, utc(2014, 10, 7, 15, 41), known(NOW))
     assert advancing == ReplayReference(utc(2014, 10, 7, 15, 41), known(NOW))
     stopped = decide_freshness(
-        now=NOW + timedelta(seconds=301), stale_after_seconds=300, has_history=True,
+        now=NOW + timedelta(seconds=301),
+        stale_after_seconds=300,
+        has_history=True,
         reference=select_reference("REPLAY", None, advancing),
     )
     assert stopped.state == "stale"
     playing = decide_freshness(
-        now=NOW + timedelta(seconds=299), stale_after_seconds=300, has_history=True,
+        now=NOW + timedelta(seconds=299),
+        stale_after_seconds=300,
+        has_history=True,
         reference=select_reference("REPLAY", None, advancing),
     )
     assert playing.state == "current"
-    assert select_reference("REPLAY", known(NOW), None) is None  # dataset observation time is never the reference
+    assert (
+        select_reference("REPLAY", known(NOW), None) is None
+    )  # dataset observation time is never the reference
     assert select_reference("LIVE", known(NOW), advancing) == known(NOW)
 
 
 @pytest.mark.trace("T-E23-017", "T-E23-053", "3.4")
 def test_activation_quiet_watch_anchor_goes_stale_without_inventing_a_reading() -> None:
     anchor = known(NOW)
-    watch = decide_freshness(now=NOW + timedelta(seconds=200), stale_after_seconds=300, has_history=True, reference=None, quiet_anchor=anchor)
+    watch = decide_freshness(
+        now=NOW + timedelta(seconds=200),
+        stale_after_seconds=300,
+        has_history=True,
+        reference=None,
+        quiet_anchor=anchor,
+    )
     assert watch.state == "current"
-    quiet = decide_freshness(now=NOW + timedelta(seconds=301), stale_after_seconds=300, has_history=True, reference=None, quiet_anchor=anchor)
+    quiet = decide_freshness(
+        now=NOW + timedelta(seconds=301),
+        stale_after_seconds=300,
+        has_history=True,
+        reference=None,
+        quiet_anchor=anchor,
+    )
     assert quiet.state == "stale" and quiet.stale_since == NOW + timedelta(seconds=300)
 
 

@@ -233,7 +233,9 @@ def read_rr1_ppm() -> list[CsvRow]:
 def read_dostel1() -> list[CsvRow]:
     with (NASA / "radlab_dostel_sample.csv").open(newline="", encoding="utf-8") as handle:
         return [
-            CsvRow(datetime.fromisoformat(r["timestamp"]).replace(tzinfo=UTC), Decimal(r["absorbed_dose_rate"]))
+            CsvRow(
+                datetime.fromisoformat(r["timestamp"]).replace(tzinfo=UTC), Decimal(r["absorbed_dose_rate"])
+            )
             for r in csv.DictReader(handle)
             if r["instrument_id"] == "DosTel1"
         ]
@@ -250,9 +252,26 @@ def _publish_helpers() -> None:
     """Test modules import these as `e23_helpers`: importlib import mode cannot import conftest directly."""
     helpers = types.ModuleType("e23_helpers")
     for name in (
-        "BOUNDS", "SCAN_MAX", "UCUM", "NASA", "PRODUCT", "EXAMPLES", "ROOT", "assumed_pressure", "channel_for",
-        "document_view", "evaluation_input", "example_bytes", "hours", "point", "read_dostel1", "read_rr1_ppm",
-        "sensor", "ucum_for", "utc", "CsvRow",
+        "BOUNDS",
+        "SCAN_MAX",
+        "UCUM",
+        "NASA",
+        "PRODUCT",
+        "EXAMPLES",
+        "ROOT",
+        "assumed_pressure",
+        "channel_for",
+        "document_view",
+        "evaluation_input",
+        "example_bytes",
+        "hours",
+        "point",
+        "read_dostel1",
+        "read_rr1_ppm",
+        "sensor",
+        "ucum_for",
+        "utc",
+        "CsvRow",
     ):
         setattr(helpers, name, globals()[name])
     sys.modules["e23_helpers"] = helpers
