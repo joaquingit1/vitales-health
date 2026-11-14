@@ -1,0 +1,8 @@
+{
+  "summary": "SIM request POST /v1/warnings/{id}/actions",
+  "description": "Acknowledge a warning. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/WarningAction",
+  "value": {
+    "action": "acknowledge"
+  }
+}

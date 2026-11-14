@@ -1,0 +1,670 @@
+{
+  "summary": "SIM and REPLAY GET /v1/routine/today, station",
+  "description": "Mara's routine for today on station_leo, grouped, with counts and active overrides. Illustrative only: not seed data.",
+  "x-schema": "routine-schedule.schema.json",
+  "value": {
+    "person_id": "mara",
+    "environment_id": "station_leo",
+    "range": "today",
+    "day": {
+      "mission_day": 19,
+      "environment_day": 19,
+      "label": "flight day 19 of 30",
+      "short_label": "Day 19"
+    },
+    "as_of": "2026-11-13T09:10:16Z",
+    "groups": [
+      {
+        "group_id": "today",
+        "label": "Today",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_sta_daily_check",
+            "revision": 1,
+            "item_id": "daily_check",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 19,
+              "label": "flight day 19 of 30",
+              "short_label": "Day 19"
+            },
+            "group": "today",
+            "state": "due",
+            "due_from": "2026-11-13T07:00:00Z",
+            "due_until": "2026-11-14T00:00:00Z",
+            "end_text": "due now",
+            "cause": {
+              "kind": "override",
+              "override_id": "ovr_daily_check_co2",
+              "binding_id": "daily_check.co2_above_limit",
+              "started_by": "sensor_limit",
+              "insight_id": null
+            },
+            "question_set_ids": [
+              "co2_headache_vision"
+            ],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          },
+          {
+            "occurrence_id": "occ_sta_blood_pressure",
+            "revision": 1,
+            "item_id": "blood_pressure",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 19,
+              "label": "flight day 19 of 30",
+              "short_label": "Day 19"
+            },
+            "group": "today",
+            "state": "due",
+            "due_from": "2026-11-13T00:00:00Z",
+            "due_until": "2026-11-14T00:00:00Z",
+            "end_text": "due today",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          },
+          {
+            "occurrence_id": "occ_sta_vision_self_check",
+            "revision": 1,
+            "item_id": "vision_self_check",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 19,
+              "label": "flight day 19 of 30",
+              "short_label": "Day 19"
+            },
+            "group": "today",
+            "state": "later",
+            "due_from": "2026-11-13T13:00:00Z",
+            "due_until": "2026-11-13T15:00:00Z",
+            "end_text": "13:00",
+            "cause": {
+              "kind": "override",
+              "override_id": "ovr_vision_co2",
+              "binding_id": "vision_self_check.co2_above_limit",
+              "started_by": "sensor_limit",
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          },
+          {
+            "occurrence_id": "occ_sta_reaction_test",
+            "revision": 2,
+            "item_id": "reaction_test",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 19,
+              "label": "flight day 19 of 30",
+              "short_label": "Day 19"
+            },
+            "group": "today",
+            "state": "done",
+            "due_from": "2026-11-13T07:30:00Z",
+            "due_until": "2026-11-13T12:00:00Z",
+            "end_text": "done 07:38",
+            "cause": {
+              "kind": "override",
+              "override_id": "ovr_reaction_short_sleep",
+              "binding_id": "reaction_test.short_sleep",
+              "started_by": "rule",
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": "2026-11-13T07:38:00Z",
+            "outcome": {
+              "observation_ids": [
+                "obs_reaction_test_mara"
+              ],
+              "answer_ids": [],
+              "note": null
+            },
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_sta_exercise_log",
+            "revision": 1,
+            "item_id": "exercise_log",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 19,
+              "label": "flight day 19 of 30",
+              "short_label": "Day 19"
+            },
+            "group": "today",
+            "state": "later",
+            "due_from": "2026-11-13T15:00:00Z",
+            "due_until": "2026-11-13T17:00:00Z",
+            "end_text": "15:00",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          },
+          {
+            "occurrence_id": "occ_sta_reaction_retest",
+            "revision": 1,
+            "item_id": "reaction_test",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 19,
+              "label": "flight day 19 of 30",
+              "short_label": "Day 19"
+            },
+            "group": "today",
+            "state": "later",
+            "due_from": "2026-11-13T14:00:00Z",
+            "due_until": "2026-11-13T16:00:00Z",
+            "end_text": "14:00",
+            "cause": {
+              "kind": "assistant",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": "assistant",
+              "insight_id": "ins_sleep_mara_1"
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          }
+        ]
+      },
+      {
+        "group_id": "week",
+        "label": "This week",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_sta_body_mass",
+            "revision": 1,
+            "item_id": "body_mass",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 21,
+              "environment_day": 21,
+              "label": "flight day 21 of 30",
+              "short_label": "Day 21"
+            },
+            "group": "week",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "day 21",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_sta_behavioral_self_check",
+            "revision": 2,
+            "item_id": "behavioral_self_check",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 17,
+              "environment_day": 17,
+              "label": "flight day 17 of 30",
+              "short_label": "Day 17"
+            },
+            "group": "week",
+            "state": "done",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "done day 17",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": "2026-11-11T08:00:00Z",
+            "outcome": {
+              "observation_ids": [
+                "obs_behavioral_self_check_mara"
+              ],
+              "answer_ids": [],
+              "note": null
+            },
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          }
+        ]
+      },
+      {
+        "group_id": "month",
+        "label": "This month",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_sta_cognitive_test",
+            "revision": 1,
+            "item_id": "cognitive_test",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 28,
+              "environment_day": 28,
+              "label": "flight day 28 of 30",
+              "short_label": "Day 28"
+            },
+            "group": "month",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "day 28",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_sta_hearing_check",
+            "revision": 2,
+            "item_id": "hearing_check",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 14,
+              "environment_day": 14,
+              "label": "flight day 14 of 30",
+              "short_label": "Day 14"
+            },
+            "group": "month",
+            "state": "done",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "done day 14",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": "2026-11-08T08:00:00Z",
+            "outcome": {
+              "observation_ids": [
+                "obs_hearing_check_mara"
+              ],
+              "answer_ids": [],
+              "note": null
+            },
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_sta_emergency_drill",
+            "revision": 1,
+            "item_id": "emergency_drill",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 26,
+              "environment_day": 26,
+              "label": "flight day 26 of 30",
+              "short_label": "Day 26"
+            },
+            "group": "month",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "day 26",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          }
+        ]
+      },
+      {
+        "group_id": "walk",
+        "label": "Walks",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_sta_pre_eva_check",
+            "revision": 1,
+            "item_id": "pre_eva_check",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 19,
+              "label": "flight day 19 of 30",
+              "short_label": "Day 19"
+            },
+            "group": "walk",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "no walk planned",
+            "cause": {
+              "kind": "per_eva",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_sta_post_eva_check",
+            "revision": 1,
+            "item_id": "post_eva_check",
+            "person_id": "mara",
+            "environment_id": "station_leo",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 19,
+              "label": "flight day 19 of 30",
+              "short_label": "Day 19"
+            },
+            "group": "walk",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "no walk planned",
+            "cause": {
+              "kind": "per_eva",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          }
+        ]
+      }
+    ],
+    "counts": {
+      "due": 2,
+      "later": 3,
+      "done": 1,
+      "open_today": 5
+    },
+    "days": [
+      {
+        "mission_day": 13,
+        "label": "Day 13",
+        "done": 4,
+        "due": 4
+      },
+      {
+        "mission_day": 14,
+        "label": "Day 14",
+        "done": 3,
+        "due": 4
+      },
+      {
+        "mission_day": 15,
+        "label": "Day 15",
+        "done": 5,
+        "due": 5
+      },
+      {
+        "mission_day": 16,
+        "label": "Day 16",
+        "done": 4,
+        "due": 4
+      },
+      {
+        "mission_day": 17,
+        "label": "Day 17",
+        "done": 3,
+        "due": 4
+      },
+      {
+        "mission_day": 18,
+        "label": "Day 18",
+        "done": 4,
+        "due": 5
+      },
+      {
+        "mission_day": 19,
+        "label": "Day 19",
+        "done": 1,
+        "due": 5
+      }
+    ],
+    "active_overrides": [
+      {
+        "override_id": "ovr_vision_co2",
+        "revision": 1,
+        "item_id": "vision_self_check",
+        "person_id": null,
+        "audience": "everyone_in_location",
+        "binding_id": "vision_self_check.co2_above_limit",
+        "trigger_index": 1,
+        "trigger_text": "Cabin CO2 above the one-hour limit (sensor_limit)",
+        "started_by": "sensor_limit",
+        "source": {
+          "kind": "warning",
+          "ref_id": "wrn_co2_station_1"
+        },
+        "new_cadence": {
+          "word": "daily",
+          "n": null,
+          "note": "while CO2 stays above the limit"
+        },
+        "cadence_text": "While CO2 stays above the limit",
+        "reason_text": "Cabin CO2 above the one-hour limit",
+        "state": "active",
+        "started_at": "2026-11-13T09:08:02Z",
+        "ends": {
+          "kind": "warning_cleared",
+          "at": null,
+          "text": "when the warning clears"
+        },
+        "ended_at": null,
+        "end_reason": null,
+        "basis": "team default",
+        "source_ids": [
+          "C25"
+        ],
+        "config_release_id": "rel_20261113_a",
+        "allowed_actions": []
+      },
+      {
+        "override_id": "ovr_reaction_short_sleep",
+        "revision": 1,
+        "item_id": "reaction_test",
+        "person_id": "mara",
+        "audience": "person",
+        "binding_id": "reaction_test.short_sleep",
+        "trigger_index": 0,
+        "trigger_text": "Sleep under 6 hours",
+        "started_by": "rule",
+        "source": {
+          "kind": "observation",
+          "ref_id": "obs_sleep_mara_d19"
+        },
+        "new_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "short sleep",
+          "note": "one test that morning"
+        },
+        "cadence_text": "One test that morning",
+        "reason_text": "Sleep under 6 hours",
+        "state": "active",
+        "started_at": "2026-11-13T06:30:00Z",
+        "ends": {
+          "kind": "effect_complete",
+          "at": null,
+          "text": "after the added check"
+        },
+        "ended_at": null,
+        "end_reason": null,
+        "basis": "team default",
+        "source_ids": [
+          "RT25"
+        ],
+        "config_release_id": "rel_20261113_a",
+        "allowed_actions": []
+      },
+      {
+        "override_id": "ovr_daily_check_co2",
+        "revision": 1,
+        "item_id": "daily_check",
+        "person_id": null,
+        "audience": "everyone_in_location",
+        "binding_id": "daily_check.co2_above_limit",
+        "trigger_index": 1,
+        "trigger_text": "Cabin CO2 is above the one-hour limit of 3 mmHg (sensor_limit)",
+        "started_by": "sensor_limit",
+        "source": {
+          "kind": "warning",
+          "ref_id": "wrn_co2_station_1"
+        },
+        "new_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "CO2 alert",
+          "note": "add a headache and vision question at the next check and again 2 hours later"
+        },
+        "cadence_text": "Add a headache and vision question at the next check and again 2 hours later",
+        "reason_text": "Cabin CO2 is above the one-hour limit of 3 mmHg",
+        "state": "active",
+        "started_at": "2026-11-13T09:08:02Z",
+        "ends": {
+          "kind": "effect_complete",
+          "at": null,
+          "text": "after the added check"
+        },
+        "ended_at": null,
+        "end_reason": null,
+        "basis": "team default",
+        "source_ids": [
+          "C25"
+        ],
+        "config_release_id": "rel_20261113_a",
+        "allowed_actions": []
+      }
+    ],
+    "misses": {
+      "count": 0,
+      "window_days": 7,
+      "barrier_question_due": false
+    },
+    "config_release_id": "rel_20261113_a"
+  }
+}

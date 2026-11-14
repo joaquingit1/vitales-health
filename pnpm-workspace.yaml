@@ -1,0 +1,4 @@
+packages:
+  - ui/crew
+  - ui/ground
+  - packages/contracts-ts

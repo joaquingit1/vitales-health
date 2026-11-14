@@ -1,0 +1,20 @@
+{
+  "summary": "SIM error ROLE_NOT_ELIGIBLE",
+  "description": "The error envelope for ROLE_NOT_ELIGIBLE. Illustrative only: not seed data.",
+  "x-schema": "error.schema.json",
+  "value": {
+    "code": "ROLE_NOT_ELIGIBLE",
+    "message": "Ilya Brandt is in an eva overlay until 11:40 and medical_officer is an on-site role.",
+    "retryable": false,
+    "field_errors": [
+      {
+        "field": "/person_id",
+        "code": "ROLE_NOT_ELIGIBLE",
+        "message": "not_on_eva_for_on_site"
+      }
+    ],
+    "correlation_id": "cor_rol_9",
+    "current_state": null,
+    "supported_alternative": null
+  }
+}

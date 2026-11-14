@@ -1,0 +1,54 @@
+{
+  "summary": "SIM GET /v1/help-sessions/hlp_lunar_1/ground-message-preview",
+  "description": "Act 6, the For the ground card before the press: the drafted lines, the catch-up and when it would leave. Pressing Tell the ground approves and queues exactly this text for this session revision; the queued message carries the same text_sha256. Illustrative only: not seed data.",
+  "x-schema": "ground-message-preview.schema.json",
+  "value": {
+    "help_session_id": "hlp_lunar_1",
+    "session_revision": 11,
+    "lines": [
+      "Tomas Lind needs help at the airlock. Eye injury or something in the eye.",
+      "Air safe. Tomas Lind responding. No heavy bleeding. Eye injury, chemical or dust in the eye.",
+      "Steps done: Do not rub the eye. Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes. In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels.",
+      "Crew called at 12:02. Ilya Brandt helping."
+    ],
+    "text": "Tomas Lind needs help at the airlock. Eye injury or something in the eye. Air safe. Tomas Lind responding. No heavy bleeding. Eye injury, chemical or dust in the eye. Steps done: Do not rub the eye. Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes. In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels. Crew called at 12:02. Ilya Brandt helping.",
+    "text_sha256": "c746db7e2c1a406d5fecdc4652d317836129e683594d99efba10a15325d3fa57",
+    "catch_up": {
+      "what_happened": [
+        "Tomas Lind needs help at the airlock. Eye injury or something in the eye.",
+        "Air safe. Tomas Lind responding. No heavy bleeding. Eye injury, chemical or dust in the eye."
+      ],
+      "what_was_done": [
+        "12:02 Do not rub the eye.",
+        "12:03 Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes.",
+        "12:03 In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels.",
+        "Crew called at 12:02. Ilya Brandt helping."
+      ],
+      "being_watched": [
+        "Nothing is being watched."
+      ],
+      "advice_welcome": [
+        "A crewmate repeats the sight check and the photo, and keeps both for the log.",
+        "Something stuck in the eye, a chemical in the eye, or any change in sight: call the medical officer at once."
+      ]
+    },
+    "ground_link": {
+      "status": "down",
+      "one_way_delay_s": 10,
+      "next_contact_at": "2026-11-14T11:20:40Z",
+      "last_contact_at": "2026-11-13T09:20:40Z",
+      "source": "demo_switch",
+      "environment_id": "lunar_surface",
+      "delay_text": "Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay.",
+      "delay_source_ids": [
+        "EV01"
+      ],
+      "gap_kind": "planned_line_of_sight",
+      "gap_planned": true
+    },
+    "leaves_at": "2026-11-14T11:20:40Z",
+    "status_text": "Waiting for the next contact in 23 hours. Nothing here waits for it.",
+    "computed_at": "2026-11-13T12:05:00Z",
+    "persisted": false
+  }
+}

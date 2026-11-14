@@ -1,0 +1,11 @@
+{
+  "summary": "SIM request POST /v1/assistant/conversations/{id}/messages",
+  "description": "Reply to the assistant's question with one of its choices. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/MessageCreate",
+  "value": {
+    "reply_to_action": {
+      "message_id": "msg_2",
+      "choice": "Comes and goes, easing now"
+    }
+  }
+}

@@ -1,0 +1,367 @@
+{
+  "summary": "EXAMPLE CONFIG skills-catalog.json",
+  "description": "The pulse check at the wrist (BHF, verbatim from EARTH-INDEPENDENCE.md section 3.5 with names as placeholders) and CPR (teach steps rendered from the not_breathing flow).",
+  "x-schema": "config-skills-catalog.schema.json",
+  "value": {
+    "version": "skills-catalog-example-1",
+    "example": true,
+    "notice": "Unreviewed draft: needs clinician review",
+    "sources": [
+      {
+        "source_id": "SK01",
+        "title": "British Heart Foundation, Checking your pulse",
+        "url": "https://www.bhf.org.uk/informationsupport/tests/checking-your-pulse",
+        "date": "Published 18 October 2024",
+        "quote": "If your pulse feels irregular, you should check for a full 60 seconds."
+      },
+      {
+        "source_id": "SK02",
+        "title": "British Heart Foundation, Your heart rate",
+        "url": "https://www.bhf.org.uk/informationsupport/how-a-healthy-heart-works/your-heart-rate",
+        "date": "Opened 14 November 2026",
+        "quote": "You may be able to tell if you have a normal or irregular heart rate by checking your pulse"
+      },
+      {
+        "source_id": "SK03",
+        "title": "American Heart Association, Adult Basic Life Support, 2025 guidelines",
+        "url": "https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/adult-basic-life-support",
+        "date": "2025",
+        "quote": null,
+        "note": "Rate 100 to 120 a minute, as read in a browser on 14 November 2026 for EARTH-INDEPENDENCE.md; the page refuses automated access. RS01 and RS02 carry the same rate verbatim."
+      }
+    ],
+    "landmarks": [
+      {
+        "landmark_id": "wrist_pulse_point",
+        "body_region": "wrist",
+        "label": "Pulse point at the base of the thumb",
+        "offset": null,
+        "basis": "sourced"
+      },
+      {
+        "landmark_id": "center_of_chest",
+        "body_region": "heart",
+        "label": "Centre of the chest",
+        "offset": null,
+        "basis": "sourced"
+      }
+    ],
+    "skills": [
+      {
+        "skill_id": "pulse_check_wrist",
+        "name": "Pulse check at the wrist",
+        "short_name": "Pulse check",
+        "who_may": "any_crew",
+        "card_title": "{helper_name} checks {subject_name}'s pulse",
+        "freshness": {
+          "cadence": "monthly",
+          "n": null,
+          "due_after_periods": 1,
+          "stale_after_periods": 2,
+          "basis": "team default",
+          "to_be_set_by": "the flight surgeon"
+        },
+        "teach_steps": [
+          {
+            "step_no": 1,
+            "kind": "instruction",
+            "actor": "subject",
+            "text": "{subject_name}: hold your arm out, palm up, elbow slightly bent.",
+            "from_flow_step": null,
+            "text_first_time": null,
+            "landmark_id": null,
+            "body_region": "wrist",
+            "environments": null,
+            "count_seconds": null,
+            "choices": [],
+            "source_ids": [
+              "SK01"
+            ]
+          },
+          {
+            "step_no": 2,
+            "kind": "instruction",
+            "actor": "helper",
+            "text": "{helper_name}: place the pads of your first and middle fingers on the inside of {subject_name}'s wrist, at the base of the thumb.",
+            "from_flow_step": null,
+            "text_first_time": null,
+            "landmark_id": "wrist_pulse_point",
+            "body_region": "wrist",
+            "environments": null,
+            "count_seconds": null,
+            "choices": [],
+            "source_ids": [
+              "SK01"
+            ]
+          },
+          {
+            "step_no": 3,
+            "kind": "instruction",
+            "actor": "helper",
+            "text": "Press lightly. If you cannot feel anything, press slightly harder.",
+            "from_flow_step": null,
+            "text_first_time": null,
+            "landmark_id": "wrist_pulse_point",
+            "body_region": "wrist",
+            "environments": null,
+            "count_seconds": null,
+            "choices": [],
+            "source_ids": [
+              "SK01"
+            ]
+          },
+          {
+            "step_no": 4,
+            "kind": "count",
+            "actor": "helper",
+            "text": "Tap Beat each time you feel one. Keep going for 60 seconds.",
+            "from_flow_step": null,
+            "text_first_time": null,
+            "landmark_id": "wrist_pulse_point",
+            "body_region": "wrist",
+            "environments": null,
+            "count_seconds": 60,
+            "choices": [],
+            "source_ids": [
+              "SK01"
+            ]
+          },
+          {
+            "step_no": 5,
+            "kind": "question",
+            "actor": "helper",
+            "text": "Did it feel regular?",
+            "from_flow_step": null,
+            "text_first_time": null,
+            "landmark_id": null,
+            "body_region": "wrist",
+            "environments": null,
+            "count_seconds": null,
+            "choices": [
+              {
+                "answer": "regular",
+                "label": "Yes"
+              },
+              {
+                "answer": "irregular",
+                "label": "No, it jumped around"
+              },
+              {
+                "answer": "not_sure",
+                "label": "Not sure"
+              }
+            ],
+            "source_ids": [
+              "SK01",
+              "SK02"
+            ]
+          }
+        ],
+        "checks": [
+          {
+            "check_id": "pulse_count_against_cameras",
+            "kind": "count_agreement",
+            "experimental": true,
+            "reference": {
+              "capability_code": "pulse",
+              "what": "The camera pulse read from the subject's face over the same 60 seconds"
+            },
+            "target": null,
+            "tolerance": {
+              "value": 10,
+              "unit": "beats per minute",
+              "basis": "team default",
+              "to_be_set_by": "clinical review"
+            },
+            "update_interval_seconds": null,
+            "update_basis": null,
+            "phrases": {
+              "ok": "Your count {count} · cameras {camera} · they agree",
+              "too_slow": "Your count is {difference} lower than the cameras. Move your fingers a little toward the thumb, and count again.",
+              "too_fast": "Your count is {difference} higher than the cameras. Count again, one tap for each beat.",
+              "mismatch": null,
+              "cannot_see": null,
+              "no_reference": "Cameras: No reading, {reason}. Your count is kept, unchecked."
+            }
+          }
+        ],
+        "what_it_shows": {
+          "does": "You may be able to tell if you have a normal or irregular heart rate by checking your pulse.",
+          "does_not": "It cannot show why. Only an ECG can.",
+          "source_ids": [
+            "SK02",
+            "S03"
+          ]
+        },
+        "drill_scenarios": [
+          {
+            "scenario_id": "drill_pulse_crewmate",
+            "title": "Pulse check on a crewmate's wrist",
+            "practice_on": "crewmate",
+            "needs_supplies": []
+          }
+        ],
+        "source_ids": [
+          "SK01",
+          "SK02"
+        ],
+        "review_state": "unreviewed"
+      },
+      {
+        "skill_id": "cpr",
+        "name": "Chest compressions (CPR)",
+        "short_name": "CPR",
+        "who_may": "any_crew",
+        "card_title": "{helper_name} gives chest compressions",
+        "freshness": {
+          "cadence": "monthly",
+          "n": null,
+          "due_after_periods": 1,
+          "stale_after_periods": 2,
+          "basis": "team default",
+          "to_be_set_by": "the flight surgeon"
+        },
+        "teach_steps": [
+          {
+            "step_no": 1,
+            "kind": "instruction",
+            "actor": "helper",
+            "text": null,
+            "from_flow_step": {
+              "flow_id": "not_breathing",
+              "list": "immediate_steps",
+              "index": 1
+            },
+            "text_first_time": null,
+            "landmark_id": null,
+            "body_region": "heart",
+            "environments": null,
+            "count_seconds": null,
+            "choices": [],
+            "source_ids": [
+              "RS01",
+              "RS02"
+            ]
+          },
+          {
+            "step_no": 2,
+            "kind": "instruction",
+            "actor": "helper",
+            "text": null,
+            "from_flow_step": {
+              "flow_id": "not_breathing",
+              "list": "immediate_steps",
+              "index": 2
+            },
+            "text_first_time": null,
+            "landmark_id": "center_of_chest",
+            "body_region": "heart",
+            "environments": null,
+            "count_seconds": null,
+            "choices": [],
+            "source_ids": [
+              "RS01",
+              "RS02"
+            ]
+          },
+          {
+            "step_no": 3,
+            "kind": "instruction",
+            "actor": "helper",
+            "text": null,
+            "from_flow_step": {
+              "flow_id": "not_breathing",
+              "list": "immediate_steps",
+              "index": 3
+            },
+            "text_first_time": null,
+            "landmark_id": null,
+            "body_region": "heart",
+            "environments": [
+              "station_leo",
+              "transit"
+            ],
+            "count_seconds": null,
+            "choices": [],
+            "source_ids": [
+              "RS04"
+            ]
+          },
+          {
+            "step_no": 4,
+            "kind": "instruction",
+            "actor": "helper",
+            "text": null,
+            "from_flow_step": {
+              "flow_id": "not_breathing",
+              "list": "immediate_steps",
+              "index": 4
+            },
+            "text_first_time": null,
+            "landmark_id": null,
+            "body_region": "heart",
+            "environments": [
+              "station_leo",
+              "transit"
+            ],
+            "count_seconds": null,
+            "choices": [],
+            "source_ids": [
+              "RS04"
+            ]
+          }
+        ],
+        "checks": [
+          {
+            "check_id": "cpr_rate_from_motion",
+            "kind": "compression_rate",
+            "experimental": true,
+            "reference": {
+              "capability_code": null,
+              "what": "Compression rate from the helper's motion in the camera array"
+            },
+            "target": {
+              "min": 100,
+              "max": 120,
+              "unit": "compressions per minute",
+              "source_ids": [
+                "RS01",
+                "RS02",
+                "SK03"
+              ]
+            },
+            "tolerance": null,
+            "update_interval_seconds": 5,
+            "update_basis": "team default",
+            "phrases": {
+              "ok": "Cameras: {rate} a minute · in range",
+              "too_slow": "Cameras: {rate} a minute · push faster",
+              "too_fast": "Cameras: {rate} a minute · slow down a little",
+              "mismatch": null,
+              "cannot_see": "Cameras: can't see the hands",
+              "no_reference": null
+            }
+          }
+        ],
+        "what_it_shows": null,
+        "drill_scenarios": [
+          {
+            "scenario_id": "drill_cpr_manikin",
+            "title": "CPR on a manikin",
+            "practice_on": "manikin",
+            "needs_supplies": [
+              "cpr_manikin"
+            ]
+          }
+        ],
+        "source_ids": [
+          "RS01",
+          "RS02",
+          "RS04",
+          "SK03"
+        ],
+        "review_state": "unreviewed"
+      }
+    ]
+  }
+}

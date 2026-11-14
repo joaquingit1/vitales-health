@@ -1,0 +1,668 @@
+{
+  "summary": "SIM GET /v1/views/habitat, Moon base",
+  "description": "The Habitat screen on lunar_surface. Illustrative only: not seed data.",
+  "x-schema": "habitat-view.schema.json",
+  "value": {
+    "as_of": "2026-11-13T12:10:00Z",
+    "environment": {
+      "environment_id": "lunar_surface",
+      "label": "Lunar surface base",
+      "place": "Moon base",
+      "day_label": "surface day 4",
+      "eva_word": "surface walk",
+      "ground_delay_text": "Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay."
+    },
+    "ground_link": {
+      "status": "down",
+      "one_way_delay_s": 10,
+      "next_contact_at": "2026-11-14T11:20:40Z",
+      "last_contact_at": "2026-11-13T09:20:40Z",
+      "source": "demo_switch",
+      "environment_id": "lunar_surface",
+      "delay_text": "Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay.",
+      "delay_source_ids": [
+        "EV01"
+      ],
+      "gap_kind": "planned_line_of_sight",
+      "gap_planned": true
+    },
+    "sensors": [
+      {
+        "sensor_type_id": "dust",
+        "hazard_id": "dust",
+        "environment_id": "lunar_surface",
+        "name": "Dust",
+        "long_name": "Dust in the air",
+        "body_region": "lungs",
+        "channel_id": "ch_dust_airlock_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_dust_airlock_sim",
+          "channel_id": "ch_dust_airlock_sim",
+          "sensor_type_id": "dust",
+          "hazard_id": "dust",
+          "value": 0.42,
+          "unit": "mg/m3",
+          "original_value": 0.42,
+          "original_unit": "mg/m3",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T12:09:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T12:09:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1009,
+          "quality_status": "accepted",
+          "location": "airlock",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 0.42,
+          "unit": "mg/m³",
+          "text": "0.42"
+        },
+        "context_label": "time-weighted, airlock",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mg/m3",
+          "evaluated_at": "2026-11-13T12:10:00Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 0.42,
+          "aggregation_label": "time-weighted",
+          "window_start": "2026-11-12T12:09:00Z",
+          "window_end": "2026-11-13T12:09:00Z",
+          "coverage": 1.0,
+          "status": "beyond_limit",
+          "level": "act",
+          "limit_id": "dust_lunar_act"
+        },
+        "shown_level": "act",
+        "linked_warning_ids": [
+          "wrn_dust_lunar_1"
+        ],
+        "display_range": [
+          0,
+          0.6
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "dust_lunar_act",
+            "value": 0.3,
+            "unit": "mg/m3",
+            "comparator": "above",
+            "role": "warning",
+            "label": "limit 0.3 mg/m³"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Eye irritation and scratching",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Skin abrasion and irritation, for example from gloves and under fingernails",
+            "body_region": "hand"
+          },
+          {
+            "text": "Lung harm; the respiratory system is believed to be the most sensitive target",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Stuffy nose and sneezing",
+            "body_region": "head"
+          },
+          {
+            "text": "Possible harm to the heart and lungs together (cardiopulmonary)",
+            "body_region": "heart"
+          },
+          {
+            "text": "Possible allergy (research pending)",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Wear a dust mask and goggles in the affected area.",
+          "Vacuum.",
+          "Log it for the ground."
+        ],
+        "here": "Lunar dust limit applies. Lunar dust particles are mostly 0.02 to 5 µm. Apollo crews had eye irritation and nasal congestion. Low gravity keeps dust in the air longer.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: EV08, EV19, EV23.",
+          "source_ids": [
+            "EV01",
+            "EV08",
+            "EV19",
+            "EV23"
+          ]
+        },
+        "series_href": "/v1/sensors/dust/series"
+      },
+      {
+        "sensor_type_id": "rad",
+        "hazard_id": "radiation",
+        "environment_id": "lunar_surface",
+        "name": "Radiation",
+        "long_name": "Radiation dose rate",
+        "body_region": null,
+        "channel_id": "ch_rad_lunar_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_rad_lunar_sim",
+          "channel_id": "ch_rad_lunar_sim",
+          "sensor_type_id": "rad",
+          "hazard_id": "radiation",
+          "value": 13,
+          "unit": "µGy/h",
+          "original_value": 13,
+          "original_unit": "µGy/h",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T12:09:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T12:09:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1010,
+          "quality_status": "accepted",
+          "location": "surface",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 13,
+          "unit": "µGy/h",
+          "text": "13"
+        },
+        "context_label": "surface, now",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "µGy/h",
+          "evaluated_at": "2026-11-13T12:10:00Z",
+          "pending_limit_ids": [
+            "rad_rate_watch",
+            "rad_rate_act"
+          ],
+          "aggregated_value": 13,
+          "aggregation_label": "two-hour mean",
+          "window_start": "2026-11-13T10:09:00Z",
+          "window_end": "2026-11-13T12:09:00Z",
+          "coverage": 1.0,
+          "status": "threshold_pending",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          0,
+          60
+        ],
+        "limit_marks": [],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Higher lifetime risk of cancer",
+            "body_region": null
+          },
+          {
+            "text": "Nausea, vomiting and tiredness after a large solar particle event (acute radiation syndrome)",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Skin injury and loss of blood-forming cells after large doses",
+            "body_region": null
+          },
+          {
+            "text": "Cataract (clouding of the lens of the eye)",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Changes in thinking, movement and behavior",
+            "body_region": "head"
+          },
+          {
+            "text": "Harm to the heart and blood vessels (NASA sets circulatory dose limits)",
+            "body_region": "heart"
+          }
+        ],
+        "todo": [
+          "Nothing to do.",
+          "Wear your personal dosimeter.",
+          "NASA keeps every exposure as low as reasonably achievable, even far below the limits."
+        ],
+        "here": "The lunar surface gives significant protection compared with free space. Designs for stays over 60 days aim below 0.9 mSv per day on planetary surfaces. Surface walks during a solar event are the main danger.",
+        "citation": {
+          "text": "What it can do: EV02, EV05.",
+          "source_ids": [
+            "EV02",
+            "EV05"
+          ]
+        },
+        "series_href": "/v1/sensors/rad/series"
+      },
+      {
+        "sensor_type_id": "co2",
+        "hazard_id": "co2",
+        "environment_id": "lunar_surface",
+        "name": "CO2",
+        "long_name": "Carbon dioxide",
+        "body_region": "head",
+        "channel_id": "ch_co2_lunar_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_co2_lunar_sim",
+          "channel_id": "ch_co2_lunar_sim",
+          "sensor_type_id": "co2",
+          "hazard_id": "co2",
+          "value": 2.1,
+          "unit": "mmHg",
+          "original_value": 2.1,
+          "original_unit": "mmHg",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T12:09:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T12:09:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1011,
+          "quality_status": "accepted",
+          "location": "habitat",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 2.1,
+          "unit": "mmHg",
+          "text": "2.1"
+        },
+        "context_label": "one-hour average",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mmHg",
+          "evaluated_at": "2026-11-13T12:10:00Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 2.1,
+          "aggregation_label": "one-hour average",
+          "window_start": "2026-11-13T11:09:00Z",
+          "window_end": "2026-11-13T12:09:00Z",
+          "coverage": 1.0,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          0,
+          5
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "co2_1h_act",
+            "value": 3,
+            "unit": "mmHg",
+            "comparator": "above",
+            "role": "warning",
+            "label": "limit 3 mmHg"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Headache",
+            "body_region": "head"
+          },
+          {
+            "text": "Shortness of breath",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Tiredness",
+            "body_region": null
+          },
+          {
+            "text": "Vision changes",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Nausea",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Unconsciousness in severe overexposure",
+            "body_region": "head"
+          },
+          {
+            "text": "Poorer sleep",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Nothing to do.",
+          "Keep air moving around your face when you sleep."
+        ],
+        "here": "Same 3 mmHg limit. In a low-pressure habitat the same ppm reading is a lower partial pressure, so always convert with the real cabin pressure.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: C15, C25, EV07.",
+          "source_ids": [
+            "C15",
+            "C25",
+            "EV01",
+            "EV07"
+          ]
+        },
+        "series_href": "/v1/sensors/co2/series"
+      },
+      {
+        "sensor_type_id": "o2",
+        "hazard_id": "oxygen",
+        "environment_id": "lunar_surface",
+        "name": "Oxygen",
+        "long_name": "Oxygen you breathe in",
+        "body_region": "head",
+        "channel_id": "ch_o2_lunar_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_o2_lunar_sim",
+          "channel_id": "ch_o2_lunar_sim",
+          "sensor_type_id": "o2",
+          "hazard_id": "oxygen",
+          "value": 148,
+          "unit": "mmHg",
+          "original_value": 148,
+          "original_unit": "mmHg",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T12:09:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T12:09:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1012,
+          "quality_status": "accepted",
+          "location": "habitat",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 148,
+          "unit": "mmHg",
+          "text": "148"
+        },
+        "context_label": "inspired oxygen",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mmHg",
+          "evaluated_at": "2026-11-13T12:10:00Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 148,
+          "aggregation_label": "inspired oxygen",
+          "window_start": null,
+          "window_end": "2026-11-13T12:09:00Z",
+          "coverage": null,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          100,
+          200
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "o2_low_act",
+            "value": 127,
+            "unit": "mmHg",
+            "comparator": "below",
+            "role": "warning",
+            "label": "low limit 127 mmHg"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Mental changes, at times not noticed by the person",
+            "body_region": "head"
+          },
+          {
+            "text": "Worse color, night and side vision",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Tiredness, nausea, headache, dizziness and mood changes",
+            "body_region": "head"
+          },
+          {
+            "text": "Fast breathing (hyperventilation)",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Poorer sleep",
+            "body_region": null
+          },
+          {
+            "text": "Small areas of lung collapse (absorption atelectasis) when oxygen is above half the air",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Oxygen toxicity: breathing problems or tissue injury",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Fire: materials burn more easily and hotter in oxygen-rich air",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Nothing to do."
+        ],
+        "here": "The habitat may run at lower pressure with more oxygen, for example 8.2 psia and 34% oxygen, to make walks easier. Mild low oxygen is allowed only with a health monitoring plan. A higher oxygen fraction raises fire risk.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: EV01, EV06, EV14.",
+          "source_ids": [
+            "EV01",
+            "EV06",
+            "EV14"
+          ]
+        },
+        "series_href": "/v1/sensors/o2/series"
+      }
+    ],
+    "living_here": [
+      {
+        "hazard_id": "partial_gravity",
+        "name": "Partial gravity",
+        "body_regions": [
+          "ear",
+          "legs",
+          "heart",
+          "lungs"
+        ],
+        "effects": [
+          "Balance and orientation need time to adjust after landing, before hard tasks",
+          "Muscles, bones, inner ear and organs adjust to the new load",
+          "Dizziness or fainting when standing after a long time weightless",
+          "Dust stays in the air longer in low gravity"
+        ],
+        "todo": [
+          "Take the readjustment time before hard tasks.",
+          "Sit or lie down until it passes.",
+          "Tell a crewmate."
+        ],
+        "here": "About one sixth of Earth's gravity."
+      },
+      {
+        "hazard_id": "isolation_confinement",
+        "name": "Isolation and confinement",
+        "body_regions": [],
+        "effects": [
+          "Stress, depression, anxiety, relationship problems and grief",
+          "These can pass with time or help, or develop into a psychiatric disorder",
+          "Sleep loss, body clock problems and work overload make it worse and can lower performance"
+        ],
+        "todo": [
+          "Take the private mood check.",
+          "It is yours.",
+          "Talk to someone you trust.",
+          "Keep your sleep and exercise routine."
+        ],
+        "here": "Small crew in a confined habitat, a few seconds of delay."
+      },
+      {
+        "hazard_id": "circadian_light",
+        "name": "Body clock and light",
+        "body_regions": [
+          "head",
+          "eyes"
+        ],
+        "effects": [
+          "Tiredness",
+          "Thinking problems: inattention, distraction, slow reactions and poor decisions",
+          "Sleep disruption",
+          "Metabolic disturbance",
+          "Blue light before sleep holds back melatonin and makes sleep harder"
+        ],
+        "todo": [
+          "Keep regular sleep times.",
+          "Avoid blue light before sleep.",
+          "Protect your next sleep period.",
+          "Follow the lighting schedule."
+        ],
+        "here": "Habitat lighting and the work schedule set the clock."
+      },
+      {
+        "hazard_id": "distance_autonomy",
+        "name": "Distance from Earth",
+        "body_regions": [],
+        "effects": [
+          "No direct effect on the body. Every medical event is harder because help and supplies come late or not at all",
+          "Without the usual ground support, the crew may not be able to respond to unexpected critical failures"
+        ],
+        "todo": [
+          "Note the time.",
+          "Keep logging.",
+          "Plan as if no answer will come soon."
+        ],
+        "here": "6 to 10 seconds of delay; a three-day trip home."
+      }
+    ],
+    "warnings": [
+      {
+        "warning_id": "wrn_dust_lunar_1",
+        "revision": 1,
+        "definition_id": "dust_lunar_act",
+        "config_release_id": "rel_20261113_a",
+        "level": "act",
+        "raised_by": "sensor_limit",
+        "hazard_id": "dust",
+        "limit_id": "dust_lunar_act",
+        "sensor_type_id": "dust",
+        "channel_id": "ch_dust_airlock_sim",
+        "scope": "habitat",
+        "person_id": null,
+        "environment_id": "lunar_surface",
+        "location": "airlock",
+        "origin_mode": "SIM",
+        "title": "Dust rising after the surface walk",
+        "what": "Dust in the airlock is rising after the walk: the time-weighted average is 0.42 mg/m³. The lunar limit is 0.3 mg/m³.",
+        "why": "Lunar dust is fine and sharp. It irritates the eyes and skin and can harm the lungs.",
+        "steps": [
+          "Wear a dust mask and goggles in the affected area.",
+          "Vacuum.",
+          "Log it for the ground."
+        ],
+        "body_regions": [
+          "lungs"
+        ],
+        "headline": {
+          "fragment": "Dust after the surface walk",
+          "rank": 20,
+          "solo": false
+        },
+        "evidence": [
+          {
+            "kind": "reading",
+            "ref_id": "rdg_dust_airlock_sim",
+            "summary": "Time-weighted average 0.42 mg/m³, airlock, Sim",
+            "observed_at": "2026-11-13T11:55:00Z"
+          }
+        ],
+        "evidence_time": "2026-11-13T11:55:00Z",
+        "evidence_time_label": "11:55",
+        "citation": {
+          "text": "Airlock dust sensor, Sim.",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        "insight_id": null,
+        "state": "raised",
+        "raised_at": "2026-11-13T11:55:00Z",
+        "acknowledgements": [],
+        "cleared_at": null,
+        "clear_reason": null,
+        "resolved": null,
+        "dismissed": null,
+        "notes": [],
+        "previous_warning_id": null,
+        "routine_override_ids": [
+          "ovr_dust_check_lunar"
+        ],
+        "allowed_actions": [
+          "acknowledge",
+          "add_note"
+        ]
+      }
+    ]
+  }
+}

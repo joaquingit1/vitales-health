@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensor-series.schema.json",
+  "title": "SensorSeries",
+  "description": "A time series for one sensor type, aggregated as asked. Points keep their original observed_at, so replay series show their original dates.",
+  "type": "object",
+  "properties": {
+    "sensor_type_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "channel_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "aggregation_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "unit": {
+      "type": "string",
+      "minLength": 1
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "from": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "to": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "t": {
+            "$ref": "common.schema.json#/$defs/instant"
+          },
+          "value": {
+            "type": "number"
+          },
+          "coverage": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "t",
+          "value",
+          "coverage"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "limit_marks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "limit_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "comparator": {
+            "enum": [
+              "above",
+              "at_or_above",
+              "below",
+              "at_or_below"
+            ]
+          },
+          "role": {
+            "enum": [
+              "warning",
+              "display_only"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "limit_id",
+          "value",
+          "unit",
+          "comparator",
+          "role",
+          "label"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "provenance": {
+      "$ref": "common.schema.json#/$defs/provenance"
+    }
+  },
+  "required": [
+    "sensor_type_id",
+    "channel_id",
+    "aggregation_id",
+    "unit",
+    "origin_mode",
+    "from",
+    "to",
+    "points",
+    "limit_marks",
+    "provenance"
+  ],
+  "additionalProperties": false
+}

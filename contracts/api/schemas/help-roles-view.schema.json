@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "help-roles-view.schema.json",
+  "title": "HelpRolesView",
+  "description": "GET /v1/help-sessions/{id}/roles: the session's current RoleAssignments and any role nobody can fill. Shown below the steps, never before them.",
+  "type": "object",
+  "properties": {
+    "help_session_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "assignments": {
+      "type": "array",
+      "items": {
+        "$ref": "role-assignment.schema.json"
+      }
+    },
+    "unfilled": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "role_id",
+          "label",
+          "required"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "help_session_id",
+    "assignments",
+    "unfilled",
+    "as_of"
+  ],
+  "additionalProperties": false
+}

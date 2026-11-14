@@ -1,0 +1,180 @@
+{
+  "summary": "SIM POST /v1/daily-checks/dck_mara_d19/submit",
+  "description": "The submitted check. Submission records one CheckCompletion (section 8). Illustrative only: not seed data.",
+  "x-schema": "daily-check.schema.json",
+  "value": {
+    "daily_check_id": "dck_mara_d19",
+    "revision": 9,
+    "person_id": "mara",
+    "mission_day": 19,
+    "origin_mode": "SIM",
+    "state": "submitted",
+    "started_at": "2026-11-13T09:12:00Z",
+    "submitted_at": "2026-11-13T09:14:00Z",
+    "question_ids": [
+      "symptom_new",
+      "sleep_estimate",
+      "mood",
+      "energy",
+      "stress",
+      "co2_headache",
+      "co2_vision"
+    ],
+    "required_question_ids": [
+      "symptom_new",
+      "sleep_estimate",
+      "mood"
+    ],
+    "missing_question_ids": [],
+    "added_question_ids": [
+      "co2_headache",
+      "co2_vision"
+    ],
+    "answers": [
+      {
+        "answer_id": "ans_symptom_new_d19",
+        "question_id": "symptom_new",
+        "questionnaire_version": "6a0671c1cda20cc0ea5855bfcf6bfbcc568bd1ab4173480db693f04226ad6736",
+        "presence": "absent",
+        "value": "no",
+        "unit": null,
+        "body_region": null,
+        "laterality": null,
+        "actor": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "answered_at": "2026-11-13T09:13:00Z",
+        "origin_mode": "SIM",
+        "supersedes": null
+      },
+      {
+        "answer_id": "ans_sleep_estimate_d19",
+        "question_id": "sleep_estimate",
+        "questionnaire_version": "6a0671c1cda20cc0ea5855bfcf6bfbcc568bd1ab4173480db693f04226ad6736",
+        "presence": "present",
+        "value": 5.2,
+        "unit": "h",
+        "body_region": null,
+        "laterality": null,
+        "actor": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "answered_at": "2026-11-13T09:13:00Z",
+        "origin_mode": "SIM",
+        "supersedes": null
+      },
+      {
+        "answer_id": "ans_mood_d19",
+        "question_id": "mood",
+        "questionnaire_version": "6a0671c1cda20cc0ea5855bfcf6bfbcc568bd1ab4173480db693f04226ad6736",
+        "presence": "present",
+        "value": 5,
+        "unit": null,
+        "body_region": null,
+        "laterality": null,
+        "actor": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "answered_at": "2026-11-13T09:13:00Z",
+        "origin_mode": "SIM",
+        "supersedes": null
+      },
+      {
+        "answer_id": "ans_energy_d19",
+        "question_id": "energy",
+        "questionnaire_version": "6a0671c1cda20cc0ea5855bfcf6bfbcc568bd1ab4173480db693f04226ad6736",
+        "presence": "present",
+        "value": 5,
+        "unit": null,
+        "body_region": null,
+        "laterality": null,
+        "actor": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "answered_at": "2026-11-13T09:13:00Z",
+        "origin_mode": "SIM",
+        "supersedes": null
+      },
+      {
+        "answer_id": "ans_stress_d19",
+        "question_id": "stress",
+        "questionnaire_version": "6a0671c1cda20cc0ea5855bfcf6bfbcc568bd1ab4173480db693f04226ad6736",
+        "presence": "present",
+        "value": 4,
+        "unit": null,
+        "body_region": null,
+        "laterality": null,
+        "actor": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "answered_at": "2026-11-13T09:13:00Z",
+        "origin_mode": "SIM",
+        "supersedes": null
+      },
+      {
+        "answer_id": "ans_co2_headache_d19",
+        "question_id": "co2_headache",
+        "questionnaire_version": "6a0671c1cda20cc0ea5855bfcf6bfbcc568bd1ab4173480db693f04226ad6736",
+        "presence": "absent",
+        "value": "no",
+        "unit": null,
+        "body_region": null,
+        "laterality": null,
+        "actor": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "answered_at": "2026-11-13T09:13:00Z",
+        "origin_mode": "SIM",
+        "supersedes": null
+      },
+      {
+        "answer_id": "ans_co2_vision_d19",
+        "question_id": "co2_vision",
+        "questionnaire_version": "6a0671c1cda20cc0ea5855bfcf6bfbcc568bd1ab4173480db693f04226ad6736",
+        "presence": "absent",
+        "value": "no",
+        "unit": null,
+        "body_region": null,
+        "laterality": null,
+        "actor": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "answered_at": "2026-11-13T09:13:00Z",
+        "origin_mode": "SIM",
+        "supersedes": null
+      }
+    ],
+    "estimates": [
+      {
+        "question_id": "sleep_estimate",
+        "observation_id": "obs_sleep_mara_d19",
+        "value_text": "5.2 h"
+      }
+    ],
+    "optional_parts": {
+      "observation_ids": [],
+      "reaction_test_occurrence_id": "occ_sta_reaction_test",
+      "band_confirmed": null,
+      "journal_entry_exists": false
+    },
+    "due_today_occurrence_ids": [
+      "occ_sta_daily_check",
+      "occ_sta_blood_pressure"
+    ],
+    "allowed_actions": []
+  }
+}

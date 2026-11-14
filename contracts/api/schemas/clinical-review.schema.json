@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "clinical-review.schema.json",
+  "title": "ClinicalReview",
+  "description": "An attributed review (CONTRACTS section 2).",
+  "type": "object",
+  "properties": {
+    "review_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "episode_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "reviewer": {
+      "$ref": "common.schema.json#/$defs/actor"
+    },
+    "role": {
+      "enum": [
+        "crew_medical_officer",
+        "ground"
+      ]
+    },
+    "assessment_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string",
+            "minLength": 1
+          },
+          "decision": {
+            "enum": [
+              "agree",
+              "disagree",
+              "needs_more",
+              "not_assessed"
+            ]
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "item",
+          "decision",
+          "rationale"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "signed_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "review_id",
+    "episode_id",
+    "reviewer",
+    "role",
+    "assessment_id",
+    "decisions",
+    "unresolved",
+    "signed_at"
+  ],
+  "additionalProperties": false
+}

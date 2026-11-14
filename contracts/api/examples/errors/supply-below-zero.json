@@ -1,0 +1,20 @@
+{
+  "summary": "SIM error SUPPLY_BELOW_ZERO",
+  "description": "The error envelope for SUPPLY_BELOW_ZERO. Illustrative only: not seed data.",
+  "x-schema": "error.schema.json",
+  "value": {
+    "code": "SUPPLY_BELOW_ZERO",
+    "message": "eye_rinse_water has 0 left in lunar_surface; a use of 1 would go below zero. Record the restock in kit-map.json first.",
+    "retryable": false,
+    "field_errors": [
+      {
+        "field": "/quantity",
+        "code": "SUPPLY_BELOW_ZERO",
+        "message": "quantity_now is 0."
+      }
+    ],
+    "correlation_id": "cor_sup_9",
+    "current_state": null,
+    "supported_alternative": null
+  }
+}

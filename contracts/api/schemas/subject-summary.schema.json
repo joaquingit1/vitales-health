@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "subject-summary.schema.json",
+  "title": "SubjectSummary",
+  "description": "The readings panel of a help session: the subject's latest readings, allergies and medicines. Readable by the session's opener and helpers while it is open. Medicines carry a name only: there is no dose field.",
+  "type": "object",
+  "properties": {
+    "help_session_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "subject": {
+      "$ref": "common.schema.json#/$defs/person_ref"
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "readings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "observed_at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          },
+          "origin_mode": {
+            "$ref": "common.schema.json#/$defs/origin_mode"
+          },
+          "source_label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          },
+          "age_minutes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "value_text",
+          "observed_at",
+          "origin_mode",
+          "source_label",
+          "body_region",
+          "age_minutes"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "allergies": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": [
+            "recorded",
+            "none_recorded",
+            "unknown"
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "state",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "medicines": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": [
+            "recorded",
+            "none_recorded",
+            "unknown"
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "state",
+        "items"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "help_session_id",
+    "subject",
+    "as_of",
+    "readings",
+    "allergies",
+    "medicines"
+  ],
+  "additionalProperties": false
+}

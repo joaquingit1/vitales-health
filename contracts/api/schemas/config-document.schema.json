@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-document.schema.json",
+  "title": "ConfigDocument",
+  "description": "One configuration document as served by GET /v1/config/{name}. version is the SHA-256 of the raw file bytes, the same value design/tools/bundle-config.py writes.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "$ref": "common.schema.json#/$defs/config_name"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "schema": {
+      "type": "string",
+      "description": "The schema file that validates document, for example config-routine-schedule.schema.json.",
+      "minLength": 1
+    },
+    "release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "loaded_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "document": {
+      "type": "object",
+      "description": "The parsed document. Validated against the named schema before the hub serves it."
+    }
+  },
+  "required": [
+    "name",
+    "version",
+    "schema",
+    "release_id",
+    "loaded_at",
+    "document"
+  ],
+  "additionalProperties": false
+}

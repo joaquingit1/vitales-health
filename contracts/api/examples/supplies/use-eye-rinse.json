@@ -1,0 +1,21 @@
+{
+  "summary": "SIM POST /v1/supplies/eye_rinse_water/uses",
+  "description": "Act 6: one rinse used for Tomas Lind's eye, recorded against the help session. Illustrative only: not seed data.",
+  "x-schema": "supply-use.schema.json",
+  "value": {
+    "supply_use_id": "sup_rinse_1",
+    "supply_id": "eye_rinse_water",
+    "environment_id": "lunar_surface",
+    "quantity": 1,
+    "plan_run_id": null,
+    "help_session_id": "hlp_lunar_1",
+    "step_id": "eye_rinse",
+    "at": "2026-11-13T12:03:05Z",
+    "by": {
+      "kind": "person",
+      "id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "origin_mode": "SIM"
+  }
+}

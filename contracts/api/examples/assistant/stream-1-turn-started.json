@@ -1,0 +1,10 @@
+{
+  "summary": "SIM SSE chunk turn.started",
+  "description": "One data payload on the conversation stream. Illustrative only: not seed data.",
+  "x-schema": "assistant-stream-chunk.schema.json",
+  "value": {
+    "type": "turn.started",
+    "turn_id": "trn_4",
+    "message_id": "msg_6"
+  }
+}

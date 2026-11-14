@@ -1,0 +1,11 @@
+{
+  "summary": "SIM request POST /v1/plan-runs/{id}/actions",
+  "description": "Mark the check another way done with its guided check. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/PlanRunAction",
+  "value": {
+    "action": "step_done",
+    "step_id": "icl10_pulse_by_crewmate",
+    "guided_check_id": "gck_pulse_mara_1",
+    "client_time": "2026-11-13T09:39:05Z"
+  }
+}

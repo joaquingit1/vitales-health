@@ -1,0 +1,11 @@
+{
+  "summary": "SIM request POST /v1/plan-runs/{id}/actions",
+  "description": "Close after the medical officer's review. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/PlanRunAction",
+  "value": {
+    "action": "close",
+    "disposition": "handed_to_medical_officer",
+    "note": "Reviewed by the medical officer after the walk.",
+    "client_time": "2026-11-13T11:55:00Z"
+  }
+}

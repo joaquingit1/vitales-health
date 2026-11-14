@@ -1,0 +1,20 @@
+{
+  "summary": "SIM error CONFIG_INVALID",
+  "description": "The error envelope for CONFIG_INVALID. Illustrative only: not seed data.",
+  "x-schema": "error.schema.json",
+  "value": {
+    "code": "CONFIG_INVALID",
+    "message": "sensor-limits failed the copy check.",
+    "retryable": false,
+    "field_errors": [
+      {
+        "field": "/documents/0/document/limits/0/hazard_level/value",
+        "code": "COPY_DRIFT",
+        "message": "co2_1h_act copies 4; environment-hazards.json says 3."
+      }
+    ],
+    "correlation_id": "cor_rel_b",
+    "current_state": null,
+    "supported_alternative": null
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "summary": "SIM GET /v1/health",
+  "description": "Hub liveness. No person data. Illustrative only: not seed data.",
+  "x-schema": "health.schema.json",
+  "value": {
+    "status": "ok",
+    "hub_version": "0.1.0",
+    "config_release_id": "rel_20261113_a",
+    "assistant_state": "running",
+    "adapters": [
+      {
+        "adapter_id": "adp_replay_osdr",
+        "state": "connected"
+      },
+      {
+        "adapter_id": "adp_sim",
+        "state": "connected"
+      },
+      {
+        "adapter_id": "adp_camera",
+        "state": "connected"
+      }
+    ],
+    "server_time": "2026-11-13T09:10:16Z"
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ground-message.schema.json",
+  "title": "GroundMessage",
+  "description": "A log sent to the ground from a help session (CONTRACTS section 16). A person queues it by pressing Tell the ground; the simulated comms queue sends it when the link allows. It is a side effect: no help step, flow, episode, warning or measurement request waits for it to be sent, acknowledged or answered.",
+  "type": "object",
+  "properties": {
+    "ground_message_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "help_session_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state": {
+      "enum": [
+        "queued",
+        "sent",
+        "acknowledged"
+      ]
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "queued_by": {
+      "$ref": "common.schema.json#/$defs/actor"
+    },
+    "queued_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "sent_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "expected_arrival_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "acknowledged_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "one_way_delay_s": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status_text": {
+      "type": "string",
+      "description": "From help-presentation ground_message queued_template, sent_template or acknowledged_template.",
+      "minLength": 1
+    },
+    "simulated": {
+      "type": "boolean"
+    },
+    "reply": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1
+            },
+            "by": {
+              "$ref": "common.schema.json#/$defs/actor"
+            },
+            "at": {
+              "$ref": "common.schema.json#/$defs/instant"
+            }
+          },
+          "required": [
+            "text",
+            "by",
+            "at"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "leaves_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "catch_up": {
+      "$ref": "common.schema.json#/$defs/catch_up"
+    },
+    "session_revision": {
+      "type": "integer",
+      "description": "The help session revision the text was drafted from. The text equals the GroundMessagePreview text at that revision (CONTRACTS section 26).",
+      "minimum": 1
+    },
+    "text_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "ground_message_id",
+    "revision",
+    "help_session_id",
+    "state",
+    "lines",
+    "text",
+    "queued_by",
+    "queued_at",
+    "sent_at",
+    "expected_arrival_at",
+    "acknowledged_at",
+    "one_way_delay_s",
+    "status_text",
+    "simulated",
+    "reply",
+    "leaves_at",
+    "catch_up",
+    "session_revision",
+    "text_sha256",
+    "allowed_actions"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "sent",
+              "acknowledged"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "sent_at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          },
+          "leaves_at": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "acknowledged"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "acknowledged_at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          }
+        }
+      }
+    }
+  ]
+}

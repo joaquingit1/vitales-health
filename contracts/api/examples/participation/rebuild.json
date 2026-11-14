@@ -1,0 +1,14 @@
+{
+  "summary": "SIM POST /v1/participation/rebuild",
+  "description": "A rebuild: counts and a hash only. Illustrative only: not seed data.",
+  "x-schema": "rebuild-result.schema.json",
+  "value": {
+    "origin_mode": "SIM",
+    "events_read": 74,
+    "events_voided": 0,
+    "views_rebuilt": 4,
+    "changed_day_assignments": 0,
+    "result_sha256": "48f4a5fae5b293d99c8b30df97c8e4fd7c51a4b33bdab1c04a7051f43eea3d8f",
+    "finished_at": "2026-11-13T09:20:00Z"
+  }
+}

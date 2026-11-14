@@ -1,0 +1,11 @@
+{
+  "summary": "SIM request POST /v1/help-sessions/{id}/actions",
+  "description": "Close and hand to the crew medical officer. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/HelpAction",
+  "value": {
+    "action": "close",
+    "disposition": "handed_to_crew_medical_officer",
+    "note": "Rinsed 20 minutes.",
+    "client_time": "2026-11-13T12:30:00Z"
+  }
+}

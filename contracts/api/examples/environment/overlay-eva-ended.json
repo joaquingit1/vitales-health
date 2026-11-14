@@ -1,0 +1,20 @@
+{
+  "summary": "SIM POST /v1/overlays/ovl_eva_ilya_1/end",
+  "description": "Ilya Brandt's walk overlay ended at 11:40. Illustrative only: not seed data.",
+  "x-schema": "activity-overlay.schema.json",
+  "value": {
+    "overlay_id": "ovl_eva_ilya_1",
+    "revision": 2,
+    "person_id": "ilya",
+    "overlay": "eva",
+    "state": "ended",
+    "planned_start": null,
+    "started_at": "2026-11-13T09:20:20Z",
+    "ended_at": "2026-11-13T11:40:00Z",
+    "source": {
+      "kind": "mission_event",
+      "ref_id": "evt_eva_start_1"
+    },
+    "location": null
+  }
+}

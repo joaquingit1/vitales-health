@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "rebuild-result.schema.json",
+  "title": "RebuildResult",
+  "description": "Result of a participation rebuild: counts and a hash, never per-person views.",
+  "type": "object",
+  "properties": {
+    "origin_mode": {
+      "enum": [
+        "LIVE",
+        "SIM"
+      ]
+    },
+    "events_read": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "events_voided": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "views_rebuilt": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "changed_day_assignments": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "result_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "finished_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "origin_mode",
+    "events_read",
+    "events_voided",
+    "views_rebuilt",
+    "changed_day_assignments",
+    "result_sha256",
+    "finished_at"
+  ],
+  "additionalProperties": false
+}

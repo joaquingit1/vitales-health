@@ -1,0 +1,51 @@
+{
+  "summary": "SIM GET /v1/routine/overrides, Moon base",
+  "description": "Active routine overrides on lunar_surface, each with its binding and source. Illustrative only: not seed data.",
+  "x-schema": "list:routine-override.schema.json",
+  "value": {
+    "items": [
+      {
+        "override_id": "ovr_dust_check_lunar",
+        "revision": 1,
+        "item_id": "dust_exposure_check",
+        "person_id": null,
+        "audience": "everyone_in_location",
+        "binding_id": "dust_exposure_check.dust_alert",
+        "trigger_index": 0,
+        "trigger_text": "Habitat dust monitor alert (sensor_limit)",
+        "started_by": "sensor_limit",
+        "source": {
+          "kind": "warning",
+          "ref_id": "wrn_dust_lunar_1"
+        },
+        "new_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "dust alert",
+          "note": "everyone in that area does the check"
+        },
+        "cadence_text": "Everyone in that area does the check",
+        "reason_text": "Habitat dust monitor alert",
+        "state": "active",
+        "started_at": "2026-11-13T11:55:00Z",
+        "ends": {
+          "kind": "effect_complete",
+          "at": null,
+          "text": "after the added check"
+        },
+        "ended_at": null,
+        "end_reason": null,
+        "basis": "team default",
+        "source_ids": [
+          "RT03"
+        ],
+        "config_release_id": "rel_20261113_a",
+        "allowed_actions": []
+      }
+    ],
+    "page": {
+      "next_cursor": null,
+      "total": 1
+    }
+  }
+}

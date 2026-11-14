@@ -1,0 +1,12 @@
+{
+  "summary": "SIM request POST /v1/guided-checks",
+  "description": "Teach Tomas: the pulse check on Mara's wrist. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/GuidedCheckCreate",
+  "value": {
+    "skill_id": "pulse_check_wrist",
+    "helper_person_id": "tomas",
+    "subject_person_id": "mara",
+    "plan_run_id": "prn_icl10_mara_1",
+    "role_assignment_id": "rol_icl10_helper"
+  }
+}

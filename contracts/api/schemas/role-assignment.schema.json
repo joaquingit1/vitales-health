@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "role-assignment.schema.json",
+  "title": "RoleAssignment",
+  "description": "Who does what in a help session or a plan run, proposed by the role engine from role-rules.json, the roster, overlays and SkillRecords (CONTRACTS section 24). Never the subject; nobody in an eva overlay for an on-site role; always a reason; a helper can change it (EI9).",
+  "type": "object",
+  "properties": {
+    "role_assignment_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "help_session_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "plan_run_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "role_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "person": {
+      "$ref": "common.schema.json#/$defs/person_ref"
+    },
+    "skill_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "task_text": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reason_code": {
+      "enum": [
+        "first_officer",
+        "officer_is_subject",
+        "officer_on_eva",
+        "officer_asleep",
+        "second_officer",
+        "freshest_skill",
+        "free_to_help",
+        "changed_by_helper"
+      ]
+    },
+    "reason_text": {
+      "type": "string",
+      "description": "role-rules reason_phrases, rendered.",
+      "minLength": 1
+    },
+    "context_reasons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "reason_code": {
+            "enum": [
+              "first_officer",
+              "officer_is_subject",
+              "officer_on_eva",
+              "officer_asleep",
+              "second_officer",
+              "freshest_skill",
+              "free_to_help",
+              "changed_by_helper"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "reason_code",
+          "text"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Why others were passed over, for example the officers on a walk."
+    },
+    "state": {
+      "enum": [
+        "proposed",
+        "accepted",
+        "changed"
+      ]
+    },
+    "proposed_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "accepted_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "changed_by": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/actor"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "changed_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "replaced_by_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "role_assignment_id",
+    "revision",
+    "help_session_id",
+    "plan_run_id",
+    "role_id",
+    "label",
+    "person",
+    "skill_id",
+    "task_text",
+    "reason_code",
+    "reason_text",
+    "context_reasons",
+    "state",
+    "proposed_at",
+    "accepted_at",
+    "changed_by",
+    "changed_at",
+    "replaced_by_id",
+    "allowed_actions"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "help_session_id": {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            "plan_run_id": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "help_session_id": {
+              "type": "null"
+            },
+            "plan_run_id": {
+              "$ref": "common.schema.json#/$defs/id"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

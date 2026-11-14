@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "daily-check.schema.json",
+  "title": "DailyCheck",
+  "description": "Today's check for one person (CONTRACTS sections 4 and 8).",
+  "type": "object",
+  "properties": {
+    "daily_check_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "person_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "mission_day": {
+      "$ref": "common.schema.json#/$defs/mission_day"
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "state": {
+      "enum": [
+        "started",
+        "submitted",
+        "abandoned"
+      ]
+    },
+    "started_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "submitted_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "question_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "minItems": 1
+    },
+    "required_question_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "minItems": 1
+    },
+    "missing_question_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      }
+    },
+    "added_question_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "description": "Questions added today by routine bindings, for example the CO2 headache and vision question."
+    },
+    "answers": {
+      "type": "array",
+      "items": {
+        "$ref": "answer.schema.json"
+      }
+    },
+    "estimates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "observation_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value_text": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "question_id",
+          "observation_id",
+          "value_text"
+        ],
+        "additionalProperties": false
+      },
+      "description": "One entry per confirm_estimate question: the device estimate the question shows. The client puts value_text into the question text's {value}. The hub formats it with the indicator catalog decimals and unit_display of the question's answer_code."
+    },
+    "optional_parts": {
+      "type": "object",
+      "properties": {
+        "observation_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "reaction_test_occurrence_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "band_confirmed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "journal_entry_exists": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "observation_ids",
+        "reaction_test_occurrence_id",
+        "band_confirmed",
+        "journal_entry_exists"
+      ],
+      "additionalProperties": false
+    },
+    "due_today_occurrence_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "daily_check_id",
+    "revision",
+    "person_id",
+    "mission_day",
+    "origin_mode",
+    "state",
+    "started_at",
+    "submitted_at",
+    "question_ids",
+    "required_question_ids",
+    "missing_question_ids",
+    "added_question_ids",
+    "answers",
+    "estimates",
+    "optional_parts",
+    "due_today_occurrence_ids",
+    "allowed_actions"
+  ],
+  "additionalProperties": false
+}

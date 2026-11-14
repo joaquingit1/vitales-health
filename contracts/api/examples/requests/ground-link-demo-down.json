@@ -1,0 +1,11 @@
+{
+  "summary": "SIM request POST /v1/demo/ground-link",
+  "description": "Demo only, act 3: take the Moon base link down for a planned gap of 26 hours. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/GroundLinkDemoSwitch",
+  "value": {
+    "status": "down",
+    "next_contact_at": "2026-11-14T11:20:40Z",
+    "gap_kind": "planned_line_of_sight",
+    "gap_planned": true
+  }
+}

@@ -1,0 +1,550 @@
+{
+  "summary": "SIM GET /v1/routine/today, transit",
+  "description": "Mara's routine for today on transit, grouped, with counts and active overrides. Illustrative only: not seed data.",
+  "x-schema": "routine-schedule.schema.json",
+  "value": {
+    "person_id": "mara",
+    "environment_id": "transit",
+    "range": "today",
+    "day": {
+      "mission_day": 96,
+      "environment_day": 94,
+      "label": "mission day 96",
+      "short_label": "Day 96"
+    },
+    "as_of": "2026-11-13T09:10:16Z",
+    "groups": [
+      {
+        "group_id": "today",
+        "label": "Today",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_tra_daily_check",
+            "revision": 1,
+            "item_id": "daily_check",
+            "person_id": "mara",
+            "environment_id": "transit",
+            "day": {
+              "mission_day": 96,
+              "environment_day": 94,
+              "label": "mission day 96",
+              "short_label": "Day 96"
+            },
+            "group": "today",
+            "state": "due",
+            "due_from": "2026-11-13T07:00:00Z",
+            "due_until": "2026-11-14T00:00:00Z",
+            "end_text": "due now",
+            "cause": {
+              "kind": "override",
+              "override_id": "ovr_daily_check_spe",
+              "binding_id": "daily_check.solar_particle_event",
+              "started_by": "rule",
+              "insight_id": null
+            },
+            "question_set_ids": [
+              "radiation_symptoms"
+            ],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          },
+          {
+            "occurrence_id": "occ_tra_radiation_dosimeter",
+            "revision": 1,
+            "item_id": "radiation_dosimeter",
+            "person_id": "mara",
+            "environment_id": "transit",
+            "day": {
+              "mission_day": 96,
+              "environment_day": 94,
+              "label": "mission day 96",
+              "short_label": "Day 96"
+            },
+            "group": "today",
+            "state": "due",
+            "due_from": "2026-11-13T08:52:00Z",
+            "due_until": "2026-11-14T00:00:00Z",
+            "end_text": "due now",
+            "cause": {
+              "kind": "override",
+              "override_id": "ovr_dosimeter_spe",
+              "binding_id": "radiation_dosimeter.solar_particle_event",
+              "started_by": "rule",
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          },
+          {
+            "occurrence_id": "occ_tra_exercise_log",
+            "revision": 1,
+            "item_id": "exercise_log",
+            "person_id": "mara",
+            "environment_id": "transit",
+            "day": {
+              "mission_day": 96,
+              "environment_day": 94,
+              "label": "mission day 96",
+              "short_label": "Day 96"
+            },
+            "group": "today",
+            "state": "later",
+            "due_from": "2026-11-13T15:00:00Z",
+            "due_until": "2026-11-13T17:00:00Z",
+            "end_text": "15:00",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          }
+        ]
+      },
+      {
+        "group_id": "week",
+        "label": "This week",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_tra_blood_pressure",
+            "revision": 1,
+            "item_id": "blood_pressure",
+            "person_id": "mara",
+            "environment_id": "transit",
+            "day": {
+              "mission_day": 98,
+              "environment_day": 96,
+              "label": "mission day 98",
+              "short_label": "Day 98"
+            },
+            "group": "week",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "day 98",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_tra_body_mass",
+            "revision": 1,
+            "item_id": "body_mass",
+            "person_id": "mara",
+            "environment_id": "transit",
+            "day": {
+              "mission_day": 100,
+              "environment_day": 98,
+              "label": "mission day 100",
+              "short_label": "Day 100"
+            },
+            "group": "week",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "day 100",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_tra_behavioral_self_check",
+            "revision": 1,
+            "item_id": "behavioral_self_check",
+            "person_id": "mara",
+            "environment_id": "transit",
+            "day": {
+              "mission_day": 99,
+              "environment_day": 97,
+              "label": "mission day 99",
+              "short_label": "Day 99"
+            },
+            "group": "week",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "day 99",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          }
+        ]
+      },
+      {
+        "group_id": "month",
+        "label": "This month",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_tra_hearing_check",
+            "revision": 1,
+            "item_id": "hearing_check",
+            "person_id": "mara",
+            "environment_id": "transit",
+            "day": {
+              "mission_day": 104,
+              "environment_day": 102,
+              "label": "mission day 104",
+              "short_label": "Day 104"
+            },
+            "group": "month",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "day 104",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_tra_cognitive_test",
+            "revision": 1,
+            "item_id": "cognitive_test",
+            "person_id": "mara",
+            "environment_id": "transit",
+            "day": {
+              "mission_day": 110,
+              "environment_day": 108,
+              "label": "mission day 110",
+              "short_label": "Day 110"
+            },
+            "group": "month",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "day 110",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_tra_emergency_drill",
+            "revision": 2,
+            "item_id": "emergency_drill",
+            "person_id": "mara",
+            "environment_id": "transit",
+            "day": {
+              "mission_day": 90,
+              "environment_day": 88,
+              "label": "mission day 90",
+              "short_label": "Day 90"
+            },
+            "group": "month",
+            "state": "done",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "done day 90",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": "2026-11-07T08:00:00Z",
+            "outcome": {
+              "observation_ids": [
+                "obs_emergency_drill_mara"
+              ],
+              "answer_ids": [],
+              "note": null
+            },
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          }
+        ]
+      },
+      {
+        "group_id": "walk",
+        "label": "Walks",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_tra_pre_eva_check",
+            "revision": 1,
+            "item_id": "pre_eva_check",
+            "person_id": "mara",
+            "environment_id": "transit",
+            "day": {
+              "mission_day": 96,
+              "environment_day": 94,
+              "label": "mission day 96",
+              "short_label": "Day 96"
+            },
+            "group": "walk",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "no walk planned",
+            "cause": {
+              "kind": "per_eva",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_tra_post_eva_check",
+            "revision": 1,
+            "item_id": "post_eva_check",
+            "person_id": "mara",
+            "environment_id": "transit",
+            "day": {
+              "mission_day": 96,
+              "environment_day": 94,
+              "label": "mission day 96",
+              "short_label": "Day 96"
+            },
+            "group": "walk",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "no walk planned",
+            "cause": {
+              "kind": "per_eva",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          }
+        ]
+      }
+    ],
+    "counts": {
+      "due": 2,
+      "later": 1,
+      "done": 0,
+      "open_today": 3
+    },
+    "days": [
+      {
+        "mission_day": 90,
+        "label": "Day 90",
+        "done": 4,
+        "due": 4
+      },
+      {
+        "mission_day": 91,
+        "label": "Day 91",
+        "done": 4,
+        "due": 4
+      },
+      {
+        "mission_day": 92,
+        "label": "Day 92",
+        "done": 3,
+        "due": 4
+      },
+      {
+        "mission_day": 93,
+        "label": "Day 93",
+        "done": 4,
+        "due": 4
+      },
+      {
+        "mission_day": 94,
+        "label": "Day 94",
+        "done": 4,
+        "due": 5
+      },
+      {
+        "mission_day": 95,
+        "label": "Day 95",
+        "done": 3,
+        "due": 4
+      },
+      {
+        "mission_day": 96,
+        "label": "Day 96",
+        "done": 0,
+        "due": 3
+      }
+    ],
+    "active_overrides": [
+      {
+        "override_id": "ovr_dosimeter_spe",
+        "revision": 1,
+        "item_id": "radiation_dosimeter",
+        "person_id": null,
+        "audience": "all_crew",
+        "binding_id": "radiation_dosimeter.solar_particle_event",
+        "trigger_index": 0,
+        "trigger_text": "Solar particle event alert (sensor_limit)",
+        "started_by": "rule",
+        "source": {
+          "kind": "warning",
+          "ref_id": "wrn_storm_transit_1"
+        },
+        "new_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "solar particle event",
+          "note": "shelter; read the dosimeter at the start, every hour (team default) and at the end"
+        },
+        "cadence_text": "Shelter; read the dosimeter at the start, every hour (team default) and at the end",
+        "reason_text": "Solar particle event alert",
+        "state": "active",
+        "started_at": "2026-11-13T08:52:00Z",
+        "ends": {
+          "kind": "warning_cleared",
+          "at": null,
+          "text": "when the warning clears"
+        },
+        "ended_at": null,
+        "end_reason": null,
+        "basis": "team default",
+        "source_ids": [
+          "RT03",
+          "RT09"
+        ],
+        "config_release_id": "rel_20261113_a",
+        "allowed_actions": []
+      },
+      {
+        "override_id": "ovr_daily_check_spe",
+        "revision": 1,
+        "item_id": "daily_check",
+        "person_id": null,
+        "audience": "all_crew",
+        "binding_id": "daily_check.solar_particle_event",
+        "trigger_index": 2,
+        "trigger_text": "A solar particle event alert",
+        "started_by": "rule",
+        "source": {
+          "kind": "mission_event",
+          "ref_id": "evt_spe_alert_1"
+        },
+        "new_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "solar particle event",
+          "note": "ask about nausea, vomiting, tiredness and skin each day for the next 3 days"
+        },
+        "cadence_text": "Ask about nausea, vomiting, tiredness and skin each day for the next 3 days",
+        "reason_text": "A solar particle event alert",
+        "state": "active",
+        "started_at": "2026-11-13T08:51:00Z",
+        "ends": {
+          "kind": "days",
+          "at": "2026-11-16T08:51:00Z",
+          "text": "after 3 days"
+        },
+        "ended_at": null,
+        "end_reason": null,
+        "basis": "team default",
+        "source_ids": [
+          "RT09"
+        ],
+        "config_release_id": "rel_20261113_a",
+        "allowed_actions": []
+      }
+    ],
+    "misses": {
+      "count": 0,
+      "window_days": 7,
+      "barrier_question_due": false
+    },
+    "config_release_id": "rel_20261113_a"
+  }
+}

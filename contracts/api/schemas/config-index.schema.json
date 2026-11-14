@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-index.schema.json",
+  "title": "ConfigIndex",
+  "description": "The active configuration release and every document it pins.",
+  "type": "object",
+  "properties": {
+    "release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "activated_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "common.schema.json#/$defs/config_name"
+          },
+          "version": {
+            "$ref": "common.schema.json#/$defs/sha256"
+          },
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "href": {
+            "type": "string",
+            "minLength": 1
+          },
+          "basis_summary": {
+            "type": "string",
+            "description": "Who edits it and whether it holds sourced values, team defaults or both.",
+            "minLength": 1
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "schema",
+          "href",
+          "basis_summary",
+          "bytes"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 18,
+      "maxItems": 18
+    },
+    "model_release_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "release_id",
+    "activated_at",
+    "documents",
+    "model_release_id"
+  ],
+  "additionalProperties": false
+}

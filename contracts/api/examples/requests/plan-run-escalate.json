@@ -1,0 +1,10 @@
+{
+  "summary": "SIM request POST /v1/plan-runs/{id}/actions",
+  "description": "An if_worse step: open Someone needs help on its flow. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/PlanRunAction",
+  "value": {
+    "action": "escalate",
+    "step_id": "icl10_worse_chest",
+    "client_time": "2026-11-13T10:30:00Z"
+  }
+}

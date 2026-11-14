@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ground-message-preview.schema.json",
+  "title": "GroundMessagePreview",
+  "description": "The For the ground card: the message Tell the ground would queue, drafted from the help session as it stands (CONTRACTS section 26). Computed on read and never stored. Pressing Tell the ground approves and queues exactly this text for this session_revision.",
+  "type": "object",
+  "properties": {
+    "help_session_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "session_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "text_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "catch_up": {
+      "$ref": "common.schema.json#/$defs/catch_up"
+    },
+    "ground_link": {
+      "$ref": "ground-link.schema.json"
+    },
+    "leaves_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status_text": {
+      "type": "string",
+      "description": "help-presentation ground_message queued_template with the link up or delayed, waiting_template with it down.",
+      "minLength": 1
+    },
+    "computed_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "persisted": {
+      "const": false
+    }
+  },
+  "required": [
+    "help_session_id",
+    "session_revision",
+    "lines",
+    "text",
+    "text_sha256",
+    "catch_up",
+    "ground_link",
+    "leaves_at",
+    "status_text",
+    "computed_at",
+    "persisted"
+  ],
+  "additionalProperties": false
+}

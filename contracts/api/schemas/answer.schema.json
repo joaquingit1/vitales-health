@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "answer.schema.json",
+  "title": "Answer",
+  "description": "One immutable answer revision (CONTRACTS section 2). A blank is not an answer.",
+  "type": "object",
+  "properties": {
+    "answer_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "question_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "questionnaire_version": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "presence": {
+      "$ref": "common.schema.json#/$defs/presence"
+    },
+    "value": {
+      "type": [
+        "number",
+        "string",
+        "boolean",
+        "null"
+      ]
+    },
+    "unit": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "body_region": {
+      "$ref": "common.schema.json#/$defs/body_region_or_null"
+    },
+    "laterality": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/laterality"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "actor": {
+      "$ref": "common.schema.json#/$defs/actor"
+    },
+    "answered_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "supersedes": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "answer_id",
+    "question_id",
+    "questionnaire_version",
+    "presence",
+    "value",
+    "unit",
+    "body_region",
+    "laterality",
+    "actor",
+    "answered_at",
+    "origin_mode",
+    "supersedes"
+  ],
+  "additionalProperties": false
+}

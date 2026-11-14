@@ -1,0 +1,107 @@
+{
+  "summary": "SIM GET /v1/episodes/epi_mara_racing_1",
+  "description": "Mara's racing heart episode with its red flag answers, requests and the ECG gap. Illustrative only: not seed data.",
+  "x-schema": "episode.schema.json",
+  "value": {
+    "episode_id": "epi_mara_racing_1",
+    "revision": 6,
+    "patient_id": "mara",
+    "origin_mode": "SIM",
+    "concern_text": "My heart has been racing since this morning",
+    "onset": {
+      "at": "2026-11-13T06:30:00Z",
+      "precision": "hour"
+    },
+    "state": "awaiting_review",
+    "urgency_state": "none",
+    "answers": [
+      {
+        "answer_id": "ans_red_chest_1",
+        "question_id": "red_chest",
+        "questionnaire_version": "6a0671c1cda20cc0ea5855bfcf6bfbcc568bd1ab4173480db693f04226ad6736",
+        "presence": "absent",
+        "value": "no",
+        "unit": null,
+        "body_region": "heart",
+        "laterality": null,
+        "actor": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "answered_at": "2026-11-13T09:30:10Z",
+        "origin_mode": "SIM",
+        "supersedes": null
+      },
+      {
+        "answer_id": "ans_red_faint_1",
+        "question_id": "red_faint",
+        "questionnaire_version": "6a0671c1cda20cc0ea5855bfcf6bfbcc568bd1ab4173480db693f04226ad6736",
+        "presence": "absent",
+        "value": "no",
+        "unit": null,
+        "body_region": "head",
+        "laterality": null,
+        "actor": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "answered_at": "2026-11-13T09:30:14Z",
+        "origin_mode": "SIM",
+        "supersedes": null
+      },
+      {
+        "answer_id": "ans_red_breath_1",
+        "question_id": "red_breath",
+        "questionnaire_version": "6a0671c1cda20cc0ea5855bfcf6bfbcc568bd1ab4173480db693f04226ad6736",
+        "presence": "absent",
+        "value": "no",
+        "unit": null,
+        "body_region": "lungs",
+        "laterality": null,
+        "actor": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "answered_at": "2026-11-13T09:30:18Z",
+        "origin_mode": "SIM",
+        "supersedes": null
+      }
+    ],
+    "measurement_request_ids": [
+      "mrq_pulse_1",
+      "mrq_ecg_1"
+    ],
+    "capability_gaps": [
+      {
+        "gap_id": "gap_ecg_1",
+        "episode_id": "epi_mara_racing_1",
+        "capability_code": "ecg_rhythm",
+        "reason": "device_absent",
+        "consequence": "The heart's rhythm stays unknown.",
+        "alternatives": [
+          "Check it another way",
+          "Add an existing ECG report"
+        ],
+        "body_region": "heart",
+        "state": "open",
+        "plan_id": "plan_icl10",
+        "check_another_way_step_ids": [
+          "icl10_pulse_by_crewmate"
+        ]
+      }
+    ],
+    "assessment_ids": [
+      "asm_mara_1"
+    ],
+    "help_session_ids": [],
+    "followup_tasks": [],
+    "created_at": "2026-11-13T09:30:00Z",
+    "allowed_actions": [
+      "add_answer",
+      "share"
+    ]
+  }
+}

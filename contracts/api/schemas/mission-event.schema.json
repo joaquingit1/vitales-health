@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "mission-event.schema.json",
+  "title": "MissionEvent",
+  "description": "Something that happened to the mission or a person and that engines react to: a walk starting or ending, a landing, a space weather alert, a local water source.",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "event_type": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "recorded_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "recorded_by": {
+      "$ref": "common.schema.json#/$defs/actor"
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "person_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "location": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "note": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "occurred_at",
+    "recorded_at",
+    "recorded_by",
+    "origin_mode",
+    "environment_id",
+    "person_ids",
+    "location",
+    "note"
+  ],
+  "additionalProperties": false
+}

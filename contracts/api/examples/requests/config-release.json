@@ -1,0 +1,418 @@
+{
+  "summary": "SIM request POST /v1/config/releases",
+  "description": "A new release that replaces the routine rules; other documents keep their versions. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/ConfigReleaseCreate",
+  "value": {
+    "documents": [
+      {
+        "name": "routine-rules",
+        "document": {
+          "notice": "Unreviewed draft: needs clinician review before live guidance.",
+          "calendar": {
+            "week_days": 7,
+            "month_days": 30,
+            "anchor": "environment_start",
+            "basis": "team default"
+          },
+          "suppressed_overlays": [
+            "sleep",
+            "eva"
+          ],
+          "display_groups": [
+            {
+              "id": "today",
+              "cadence_words": [
+                "daily",
+                "continuous",
+                "as_needed",
+                "after_event"
+              ]
+            },
+            {
+              "id": "week",
+              "cadence_words": [
+                "weekly",
+                "every_n_days"
+              ]
+            },
+            {
+              "id": "month",
+              "cadence_words": [
+                "monthly"
+              ]
+            },
+            {
+              "id": "walk",
+              "cadence_words": [
+                "per_eva"
+              ]
+            },
+            {
+              "id": "phase",
+              "cadence_words": [
+                "mission_phase"
+              ]
+            }
+          ],
+          "item_policies": [
+            {
+              "item_id": "daily_check",
+              "preferred_time": "07:00",
+              "window_minutes": null,
+              "per_eva": null,
+              "basis": "team default"
+            },
+            {
+              "item_id": "exercise_log",
+              "preferred_time": "15:00",
+              "window_minutes": 120,
+              "per_eva": null,
+              "basis": "team default"
+            },
+            {
+              "item_id": "vision_self_check",
+              "preferred_time": "13:00",
+              "window_minutes": 120,
+              "per_eva": null,
+              "basis": "team default"
+            },
+            {
+              "item_id": "reaction_test",
+              "preferred_time": "07:30",
+              "window_minutes": 270,
+              "per_eva": null,
+              "basis": "team default"
+            },
+            {
+              "item_id": "pre_eva_check",
+              "preferred_time": null,
+              "window_minutes": 1440,
+              "per_eva": "before_start",
+              "basis": "team default"
+            },
+            {
+              "item_id": "post_eva_check",
+              "preferred_time": null,
+              "window_minutes": 240,
+              "per_eva": "after_end",
+              "basis": "team default"
+            },
+            {
+              "item_id": "resting_pulse",
+              "preferred_time": "07:30",
+              "window_minutes": 180,
+              "per_eva": "both",
+              "basis": "team default"
+            },
+            {
+              "item_id": "blood_pressure",
+              "preferred_time": null,
+              "window_minutes": null,
+              "per_eva": "both",
+              "basis": "team default"
+            }
+          ],
+          "misses": {
+            "ask_barrier_after_misses": 2,
+            "window_days": 7,
+            "question_id": "barrier_reason",
+            "basis": "team default"
+          },
+          "bindings": [
+            {
+              "binding_id": "daily_check.co2_above_limit",
+              "binds": {
+                "kind": "trigger",
+                "item_id": "daily_check",
+                "trigger_index": 1,
+                "trigger_text": "Cabin CO2 is above the one-hour limit of 3 mmHg (sensor_limit)"
+              },
+              "on": {
+                "kind": "warning_raised",
+                "definition_ids": [
+                  "co2_above_limit"
+                ]
+              },
+              "effect": {
+                "kind": "add_questions",
+                "question_set_id": "co2_headache_vision",
+                "attach_to": "next_occurrence",
+                "repeat_after_minutes": [
+                  120
+                ],
+                "basis": "team default"
+              },
+              "until": {
+                "kind": "effect_complete"
+              },
+              "audience": "everyone_in_location",
+              "basis": "team default"
+            },
+            {
+              "binding_id": "daily_check.solar_particle_event",
+              "binds": {
+                "kind": "trigger",
+                "item_id": "daily_check",
+                "trigger_index": 2,
+                "trigger_text": "A solar particle event alert"
+              },
+              "on": {
+                "kind": "mission_event",
+                "event_types": [
+                  "space_weather_alert"
+                ]
+              },
+              "effect": {
+                "kind": "add_questions",
+                "question_set_id": "radiation_symptoms",
+                "attach_to": "each_occurrence",
+                "repeat_after_minutes": [],
+                "basis": "team default"
+              },
+              "until": {
+                "kind": "days",
+                "days": 3,
+                "basis": "team default"
+              },
+              "audience": "all_crew",
+              "basis": "team default"
+            },
+            {
+              "binding_id": "daily_check.after_walk",
+              "binds": {
+                "kind": "trigger",
+                "item_id": "daily_check",
+                "trigger_index": 3,
+                "trigger_text": "You come back from a spacewalk"
+              },
+              "on": {
+                "kind": "overlay_ended",
+                "overlay": "eva"
+              },
+              "effect": {
+                "kind": "add_questions",
+                "question_set_id": "after_walk",
+                "attach_to": "next_occurrence",
+                "repeat_after_minutes": [],
+                "basis": "team default"
+              },
+              "until": {
+                "kind": "days",
+                "days": 1,
+                "basis": "team default"
+              },
+              "audience": "person",
+              "basis": "team default"
+            },
+            {
+              "binding_id": "vision_self_check.co2_above_limit",
+              "binds": {
+                "kind": "trigger",
+                "item_id": "vision_self_check",
+                "trigger_index": 1,
+                "trigger_text": "Cabin CO2 above the one-hour limit (sensor_limit)"
+              },
+              "on": {
+                "kind": "warning_raised",
+                "definition_ids": [
+                  "co2_above_limit"
+                ]
+              },
+              "effect": {
+                "kind": "replace_cadence",
+                "cadence": {
+                  "word": "daily",
+                  "n": null,
+                  "note": "while CO2 stays above the limit"
+                }
+              },
+              "until": {
+                "kind": "warning_cleared"
+              },
+              "audience": "everyone_in_location",
+              "basis": "team default"
+            },
+            {
+              "binding_id": "reaction_test.short_sleep",
+              "binds": {
+                "kind": "trigger",
+                "item_id": "reaction_test",
+                "trigger_index": 0,
+                "trigger_text": "Sleep under 6 hours"
+              },
+              "on": {
+                "kind": "observation",
+                "code": "sleep_duration",
+                "comparator": "below",
+                "value": 6,
+                "unit": "h"
+              },
+              "effect": {
+                "kind": "add_occurrences",
+                "at_trigger": false,
+                "times": [
+                  {
+                    "day_offset": 0,
+                    "local_time": "07:30"
+                  }
+                ],
+                "every_minutes": null,
+                "at_clear": false,
+                "basis": "team default"
+              },
+              "until": {
+                "kind": "effect_complete"
+              },
+              "audience": "person",
+              "basis": "team default"
+            },
+            {
+              "binding_id": "radiation_dosimeter.solar_particle_event",
+              "binds": {
+                "kind": "trigger",
+                "item_id": "radiation_dosimeter",
+                "trigger_index": 0,
+                "trigger_text": "Solar particle event alert (sensor_limit)"
+              },
+              "on": {
+                "kind": "warning_raised",
+                "definition_ids": [
+                  "radiation_storm_shelter"
+                ]
+              },
+              "effect": {
+                "kind": "add_occurrences",
+                "at_trigger": true,
+                "times": [],
+                "every_minutes": 60,
+                "at_clear": true,
+                "basis": "team default"
+              },
+              "until": {
+                "kind": "warning_cleared"
+              },
+              "audience": "all_crew",
+              "basis": "team default"
+            },
+            {
+              "binding_id": "dust_exposure_check.dust_alert",
+              "binds": {
+                "kind": "trigger",
+                "item_id": "dust_exposure_check",
+                "trigger_index": 0,
+                "trigger_text": "Habitat dust monitor alert (sensor_limit)"
+              },
+              "on": {
+                "kind": "warning_raised",
+                "definition_ids": [
+                  "dust_lunar_act",
+                  "dust_mars_act",
+                  "dust_mars_peak"
+                ]
+              },
+              "effect": {
+                "kind": "add_occurrences",
+                "at_trigger": true,
+                "times": [],
+                "every_minutes": null,
+                "at_clear": false,
+                "basis": "team default"
+              },
+              "until": {
+                "kind": "effect_complete"
+              },
+              "audience": "everyone_in_location",
+              "basis": "team default"
+            },
+            {
+              "binding_id": "blood_pressure.return_to_gravity",
+              "binds": {
+                "kind": "trigger",
+                "item_id": "blood_pressure",
+                "trigger_index": 2,
+                "trigger_text": "Return to gravity (landing on Earth, the Moon or Mars)"
+              },
+              "on": {
+                "kind": "mission_event",
+                "event_types": [
+                  "landing"
+                ]
+              },
+              "effect": {
+                "kind": "replace_cadence",
+                "cadence": {
+                  "word": "daily",
+                  "n": null,
+                  "note": "sitting and standing, with a crewmate ready to help"
+                }
+              },
+              "until": {
+                "kind": "person_stops",
+                "role": "crew_medical_officer"
+              },
+              "audience": "all_crew",
+              "basis": "team default"
+            },
+            {
+              "binding_id": "gravity_arrival_check.landing",
+              "binds": {
+                "kind": "cadence_event",
+                "item_id": "gravity_arrival_check",
+                "environment_id": null,
+                "event_text": "landing on the Moon or Mars"
+              },
+              "on": {
+                "kind": "mission_event",
+                "event_types": [
+                  "landing"
+                ]
+              },
+              "effect": {
+                "kind": "replace_cadence",
+                "cadence": {
+                  "word": "daily",
+                  "n": null,
+                  "note": "daily for the first 5 days"
+                }
+              },
+              "until": {
+                "kind": "days",
+                "days": 5,
+                "basis": "team default"
+              },
+              "audience": "all_crew",
+              "basis": "team default"
+            },
+            {
+              "binding_id": "dust_exposure_check.after_surface_walk",
+              "binds": {
+                "kind": "cadence_event",
+                "item_id": "dust_exposure_check",
+                "environment_id": "lunar_surface",
+                "event_text": "each surface walk or habitat dust alert"
+              },
+              "on": {
+                "kind": "overlay_ended",
+                "overlay": "eva"
+              },
+              "effect": {
+                "kind": "add_occurrences",
+                "at_trigger": true,
+                "times": [],
+                "every_minutes": null,
+                "at_clear": false,
+                "basis": "team default"
+              },
+              "until": {
+                "kind": "effect_complete"
+              },
+              "audience": "person",
+              "basis": "team default"
+            }
+          ]
+        }
+      }
+    ],
+    "note": "Bind one more trigger."
+  }
+}

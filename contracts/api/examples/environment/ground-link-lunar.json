@@ -1,0 +1,19 @@
+{
+  "summary": "SIM GET /v1/ground-link, Moon base",
+  "description": "The fixture's Moon base link from act 3: down by the demo switch for a planned line of sight gap, next contact 26 hours after it went down. one_way_delay_s is kept for when it is back. delay_text is earth_delay of this environment in environment-hazards.json with source IDs moved to delay_source_ids. Illustrative only: not seed data.",
+  "x-schema": "ground-link.schema.json",
+  "value": {
+    "status": "down",
+    "one_way_delay_s": 10,
+    "next_contact_at": "2026-11-14T11:20:40Z",
+    "last_contact_at": "2026-11-13T09:20:40Z",
+    "source": "demo_switch",
+    "environment_id": "lunar_surface",
+    "delay_text": "Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay.",
+    "delay_source_ids": [
+      "EV01"
+    ],
+    "gap_kind": "planned_line_of_sight",
+    "gap_planned": true
+  }
+}

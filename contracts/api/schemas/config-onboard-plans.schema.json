@@ -1,0 +1,1007 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-onboard-plans.schema.json",
+  "title": "onboard-plans.json",
+  "description": "The plan aboard for each kit-map condition and responder flow: ordered stages of steps the crew runs with what is aboard, ending with the log for the ground, which nothing waits for. Written at the event, unreviewed until a clinician checks it. Every step text is rendered verbatim; the model never writes one. Medicines are named only as in the onboard procedure and the schema has no dose property.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "The authors' label for this edition. The served version is the SHA-256 of the file.",
+      "minLength": 1
+    },
+    "example": {
+      "type": "boolean",
+      "description": "True for an illustrative document. The hub refuses to activate an example document when the mission mode is LIVE."
+    },
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review.",
+      "minLength": 1
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_id": {
+            "$ref": "common.schema.json#/$defs/source_id"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "date": {
+            "type": "string",
+            "description": "Date on the source, as the source states it.",
+            "minLength": 1
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "type": "string",
+                "description": "The words this document relies on, copied from the source.",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "type": "string",
+            "description": "How the source was read when no verbatim quote could be copied.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "source_id",
+          "title",
+          "url",
+          "date",
+          "quote"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Sources this document cites that are not yet in the package source registry (sources.csv, NASA-SOURCES.md, RESPONDER-FLOWS.md, DEMO-CONDITIONS.md). The loader resolves every source ID against the registry plus this list.",
+      "uniqueItems": true
+    },
+    "plans": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "description": "Plan ID.",
+            "pattern": "^plan_[a-z0-9_]{1,59}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scope": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "condition_id": {
+                    "type": "string",
+                    "description": "ICL row ID as in condition-assessments-119.csv.",
+                    "pattern": "^ICL[1-9][0-9]{0,2}$"
+                  }
+                },
+                "required": [
+                  "condition_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "flow_id": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  }
+                },
+                "required": [
+                  "flow_id"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "The kit-map condition or the responder flow this plan is for."
+          },
+          "written_for": {
+            "enum": [
+              "condition",
+              "family",
+              "flow"
+            ],
+            "description": "condition: written for this condition. family: the family plan, labeled so. flow: written for a responder flow."
+          },
+          "mode": {
+            "$ref": "common.schema.json#/$defs/plan_mode"
+          },
+          "environments": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/environment_id"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "stage_id": {
+                      "enum": [
+                        "check_another_way",
+                        "do_now",
+                        "watch",
+                        "if_worse",
+                        "medical_officer"
+                      ]
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "step_id": {
+                            "$ref": "common.schema.json#/$defs/config_id"
+                          },
+                          "text": {
+                            "type": "string",
+                            "description": "The step as the crew reads it, rendered verbatim. Never generated by the model.",
+                            "minLength": 1
+                          },
+                          "text_first_time": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "description": "The longer version for someone who has never done it. null until written; the short text is shown instead.",
+                                "minLength": 1
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "who": {
+                            "$ref": "common.schema.json#/$defs/who"
+                          },
+                          "needs": {
+                            "type": "object",
+                            "properties": {
+                              "instruments": {
+                                "type": "array",
+                                "items": {
+                                  "$ref": "common.schema.json#/$defs/config_id"
+                                },
+                                "description": "kit-map instrument IDs the step needs, all of them.",
+                                "uniqueItems": true
+                              },
+                              "supplies": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "supply_id": {
+                                      "$ref": "common.schema.json#/$defs/config_id"
+                                    },
+                                    "per_use": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number",
+                                          "exclusiveMinimum": 0,
+                                          "description": "Units of the supply one run of this step uses, in the supply's unit. null: not set, so cover cannot be computed."
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "basis": {
+                                      "$ref": "common.schema.json#/$defs/basis"
+                                    },
+                                    "to_be_set_by": {
+                                      "$ref": "common.schema.json#/$defs/to_be_set_by"
+                                    }
+                                  },
+                                  "required": [
+                                    "supply_id",
+                                    "per_use",
+                                    "basis",
+                                    "to_be_set_by"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "description": "kit-map supplies the step uses.",
+                                "uniqueItems": true
+                              },
+                              "skills": {
+                                "type": "array",
+                                "items": {
+                                  "$ref": "common.schema.json#/$defs/config_id"
+                                },
+                                "description": "skills-catalog skill IDs someone on board must hold for the step.",
+                                "uniqueItems": true
+                              }
+                            },
+                            "required": [
+                              "instruments",
+                              "supplies",
+                              "skills"
+                            ],
+                            "additionalProperties": false,
+                            "description": "What the step needs. The hub computes availability from the active kit, stock and roster (CONTRACTS section 22)."
+                          },
+                          "substitute_step_id": {
+                            "anyOf": [
+                              {
+                                "$ref": "common.schema.json#/$defs/config_id"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "substitute_only": {
+                            "type": "boolean",
+                            "description": "True for a step shown only in place of a step that names it as substitute_step_id when that step is not aboard."
+                          },
+                          "environments": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "$ref": "common.schema.json#/$defs/environment_id"
+                                },
+                                "description": "Only in these environments; null means every environment of the plan.",
+                                "minItems": 1,
+                                "uniqueItems": true
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "body_region": {
+                            "$ref": "common.schema.json#/$defs/body_region_or_null"
+                          },
+                          "landmark_id": {
+                            "anyOf": [
+                              {
+                                "$ref": "common.schema.json#/$defs/config_id"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "guided_check_skill_id": {
+                            "anyOf": [
+                              {
+                                "$ref": "common.schema.json#/$defs/config_id"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "cannot_replace_text": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "description": "What this check cannot replace, shown beside it, for example: It cannot replace an ECG.",
+                                "minLength": 1
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "recheck": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "cadence": {
+                                    "anyOf": [
+                                      {
+                                        "$ref": "common.schema.json#/$defs/cadence_word"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "n": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": 1
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "interval_seconds": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": 60
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "basis": {
+                                    "$ref": "common.schema.json#/$defs/basis"
+                                  },
+                                  "to_be_set_by": {
+                                    "$ref": "common.schema.json#/$defs/to_be_set_by"
+                                  }
+                                },
+                                "required": [
+                                  "cadence",
+                                  "n",
+                                  "interval_seconds",
+                                  "basis",
+                                  "to_be_set_by"
+                                ],
+                                "additionalProperties": false,
+                                "description": "When to repeat the step. With to_be_set_by set and no cadence or interval, the plan shows the bracketed words and no due time."
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "opens_help": {
+                            "type": "boolean",
+                            "description": "True only in if_worse: the step opens Someone needs help."
+                          },
+                          "opens_flow_id": {
+                            "anyOf": [
+                              {
+                                "$ref": "common.schema.json#/$defs/config_id"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "medicine": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "named_as": {
+                                    "const": "as in the onboard procedure"
+                                  }
+                                },
+                                "required": [
+                                  "named_as"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Present when the step involves a medicine. A medicine is only ever named as in the onboard procedure. This object has no other property: there is no dose, amount, route or frequency anywhere in the contract."
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "replaces_ground_task": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "quote": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "source_id": {
+                                    "$ref": "common.schema.json#/$defs/source_id"
+                                  },
+                                  "page": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": 1
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "quote",
+                                  "source_id",
+                                  "page"
+                                ],
+                                "additionalProperties": false,
+                                "description": "What a NASA source assumed the ground would do, which this onboard step replaces."
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "source_ids": {
+                            "$ref": "common.schema.json#/$defs/source_ids"
+                          },
+                          "basis": {
+                            "$ref": "common.schema.json#/$defs/basis"
+                          },
+                          "review_state": {
+                            "enum": [
+                              "unreviewed",
+                              "reviewed",
+                              "rejected"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "step_id",
+                          "text",
+                          "text_first_time",
+                          "who",
+                          "needs",
+                          "substitute_step_id",
+                          "substitute_only",
+                          "environments",
+                          "body_region",
+                          "landmark_id",
+                          "guided_check_skill_id",
+                          "cannot_replace_text",
+                          "recheck",
+                          "opens_help",
+                          "opens_flow_id",
+                          "medicine",
+                          "replaces_ground_task",
+                          "source_ids",
+                          "basis",
+                          "review_state"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1
+                    }
+                  },
+                  "required": [
+                    "stage_id",
+                    "steps"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "stage_id": {
+                      "const": "return"
+                    },
+                    "environments": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "common.schema.json#/$defs/environment_id"
+                      },
+                      "description": "Environments where this return stage applies. Each must have a return_option in environment-profiles.json.",
+                      "minItems": 1,
+                      "uniqueItems": true
+                    },
+                    "criteria": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "source_ids": {
+                            "$ref": "common.schema.json#/$defs/source_ids"
+                          },
+                          "to_be_set_by": {
+                            "$ref": "common.schema.json#/$defs/to_be_set_by"
+                          }
+                        },
+                        "required": [
+                          "text",
+                          "source_ids",
+                          "to_be_set_by"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1
+                    },
+                    "prepare": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "step_id": {
+                            "$ref": "common.schema.json#/$defs/config_id"
+                          },
+                          "text": {
+                            "type": "string",
+                            "description": "The step as the crew reads it, rendered verbatim. Never generated by the model.",
+                            "minLength": 1
+                          },
+                          "text_first_time": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "description": "The longer version for someone who has never done it. null until written; the short text is shown instead.",
+                                "minLength": 1
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "who": {
+                            "$ref": "common.schema.json#/$defs/who"
+                          },
+                          "needs": {
+                            "type": "object",
+                            "properties": {
+                              "instruments": {
+                                "type": "array",
+                                "items": {
+                                  "$ref": "common.schema.json#/$defs/config_id"
+                                },
+                                "description": "kit-map instrument IDs the step needs, all of them.",
+                                "uniqueItems": true
+                              },
+                              "supplies": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "supply_id": {
+                                      "$ref": "common.schema.json#/$defs/config_id"
+                                    },
+                                    "per_use": {
+                                      "anyOf": [
+                                        {
+                                          "type": "number",
+                                          "exclusiveMinimum": 0,
+                                          "description": "Units of the supply one run of this step uses, in the supply's unit. null: not set, so cover cannot be computed."
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "basis": {
+                                      "$ref": "common.schema.json#/$defs/basis"
+                                    },
+                                    "to_be_set_by": {
+                                      "$ref": "common.schema.json#/$defs/to_be_set_by"
+                                    }
+                                  },
+                                  "required": [
+                                    "supply_id",
+                                    "per_use",
+                                    "basis",
+                                    "to_be_set_by"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "description": "kit-map supplies the step uses.",
+                                "uniqueItems": true
+                              },
+                              "skills": {
+                                "type": "array",
+                                "items": {
+                                  "$ref": "common.schema.json#/$defs/config_id"
+                                },
+                                "description": "skills-catalog skill IDs someone on board must hold for the step.",
+                                "uniqueItems": true
+                              }
+                            },
+                            "required": [
+                              "instruments",
+                              "supplies",
+                              "skills"
+                            ],
+                            "additionalProperties": false,
+                            "description": "What the step needs. The hub computes availability from the active kit, stock and roster (CONTRACTS section 22)."
+                          },
+                          "substitute_step_id": {
+                            "anyOf": [
+                              {
+                                "$ref": "common.schema.json#/$defs/config_id"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "substitute_only": {
+                            "type": "boolean",
+                            "description": "True for a step shown only in place of a step that names it as substitute_step_id when that step is not aboard."
+                          },
+                          "environments": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "$ref": "common.schema.json#/$defs/environment_id"
+                                },
+                                "description": "Only in these environments; null means every environment of the plan.",
+                                "minItems": 1,
+                                "uniqueItems": true
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "body_region": {
+                            "$ref": "common.schema.json#/$defs/body_region_or_null"
+                          },
+                          "landmark_id": {
+                            "anyOf": [
+                              {
+                                "$ref": "common.schema.json#/$defs/config_id"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "guided_check_skill_id": {
+                            "anyOf": [
+                              {
+                                "$ref": "common.schema.json#/$defs/config_id"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "cannot_replace_text": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "description": "What this check cannot replace, shown beside it, for example: It cannot replace an ECG.",
+                                "minLength": 1
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "recheck": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "cadence": {
+                                    "anyOf": [
+                                      {
+                                        "$ref": "common.schema.json#/$defs/cadence_word"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "n": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": 1
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "interval_seconds": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": 60
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "basis": {
+                                    "$ref": "common.schema.json#/$defs/basis"
+                                  },
+                                  "to_be_set_by": {
+                                    "$ref": "common.schema.json#/$defs/to_be_set_by"
+                                  }
+                                },
+                                "required": [
+                                  "cadence",
+                                  "n",
+                                  "interval_seconds",
+                                  "basis",
+                                  "to_be_set_by"
+                                ],
+                                "additionalProperties": false,
+                                "description": "When to repeat the step. With to_be_set_by set and no cadence or interval, the plan shows the bracketed words and no due time."
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "opens_help": {
+                            "type": "boolean",
+                            "description": "True only in if_worse: the step opens Someone needs help."
+                          },
+                          "opens_flow_id": {
+                            "anyOf": [
+                              {
+                                "$ref": "common.schema.json#/$defs/config_id"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "medicine": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "named_as": {
+                                    "const": "as in the onboard procedure"
+                                  }
+                                },
+                                "required": [
+                                  "named_as"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Present when the step involves a medicine. A medicine is only ever named as in the onboard procedure. This object has no other property: there is no dose, amount, route or frequency anywhere in the contract."
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "replaces_ground_task": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "quote": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "source_id": {
+                                    "$ref": "common.schema.json#/$defs/source_id"
+                                  },
+                                  "page": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": 1
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "quote",
+                                  "source_id",
+                                  "page"
+                                ],
+                                "additionalProperties": false,
+                                "description": "What a NASA source assumed the ground would do, which this onboard step replaces."
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "source_ids": {
+                            "$ref": "common.schema.json#/$defs/source_ids"
+                          },
+                          "basis": {
+                            "$ref": "common.schema.json#/$defs/basis"
+                          },
+                          "review_state": {
+                            "enum": [
+                              "unreviewed",
+                              "reviewed",
+                              "rejected"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "step_id",
+                          "text",
+                          "text_first_time",
+                          "who",
+                          "needs",
+                          "substitute_step_id",
+                          "substitute_only",
+                          "environments",
+                          "body_region",
+                          "landmark_id",
+                          "guided_check_skill_id",
+                          "cannot_replace_text",
+                          "recheck",
+                          "opens_help",
+                          "opens_flow_id",
+                          "medicine",
+                          "replaces_ground_task",
+                          "source_ids",
+                          "basis",
+                          "review_state"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1
+                    },
+                    "decided_by": {
+                      "type": "array",
+                      "items": {
+                        "enum": [
+                          "commander",
+                          "crew_medical_officer"
+                        ]
+                      },
+                      "description": "Who decides. The app lists criteria; it never decides.",
+                      "minItems": 1,
+                      "uniqueItems": true
+                    },
+                    "rtdc": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/rtdc"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "stage_id",
+                    "environments",
+                    "criteria",
+                    "prepare",
+                    "decided_by",
+                    "rtdc"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "stage_id": {
+                      "const": "ground_log"
+                    },
+                    "blocking": {
+                      "const": false
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "source_ids": {
+                            "$ref": "common.schema.json#/$defs/source_ids"
+                          }
+                        },
+                        "required": [
+                          "text",
+                          "source_ids"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Extra lines for the catch-up log, for example a request for a private conversation when the link allows. Never a precondition."
+                    }
+                  },
+                  "required": [
+                    "stage_id",
+                    "blocking",
+                    "items"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Always the last stage. The log leaves at the next contact; nothing waits for it."
+                }
+              ]
+            },
+            "description": "Stages in the fixed order of CONTRACTS section 22, each at most once; ground_log is required and last.",
+            "minItems": 1,
+            "contains": {
+              "type": "object",
+              "properties": {
+                "stage_id": {
+                  "const": "ground_log"
+                }
+              },
+              "required": [
+                "stage_id"
+              ]
+            },
+            "minContains": 1,
+            "maxContains": 1
+          },
+          "source_ids": {
+            "$ref": "common.schema.json#/$defs/source_ids"
+          },
+          "review_state": {
+            "enum": [
+              "unreviewed",
+              "reviewed",
+              "rejected"
+            ]
+          },
+          "written_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "checked_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "plan_id",
+          "title",
+          "scope",
+          "written_for",
+          "mode",
+          "environments",
+          "stages",
+          "source_ids",
+          "review_state",
+          "written_by",
+          "checked_by"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "version",
+    "example",
+    "notice",
+    "sources",
+    "plans"
+  ],
+  "additionalProperties": false
+}

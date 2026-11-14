@@ -1,0 +1,126 @@
+{
+  "summary": "SIM and REPLAY GET /v1/routine/overrides, station",
+  "description": "Active routine overrides on station_leo, each with its binding and source. Illustrative only: not seed data.",
+  "x-schema": "list:routine-override.schema.json",
+  "value": {
+    "items": [
+      {
+        "override_id": "ovr_vision_co2",
+        "revision": 1,
+        "item_id": "vision_self_check",
+        "person_id": null,
+        "audience": "everyone_in_location",
+        "binding_id": "vision_self_check.co2_above_limit",
+        "trigger_index": 1,
+        "trigger_text": "Cabin CO2 above the one-hour limit (sensor_limit)",
+        "started_by": "sensor_limit",
+        "source": {
+          "kind": "warning",
+          "ref_id": "wrn_co2_station_1"
+        },
+        "new_cadence": {
+          "word": "daily",
+          "n": null,
+          "note": "while CO2 stays above the limit"
+        },
+        "cadence_text": "While CO2 stays above the limit",
+        "reason_text": "Cabin CO2 above the one-hour limit",
+        "state": "active",
+        "started_at": "2026-11-13T09:08:02Z",
+        "ends": {
+          "kind": "warning_cleared",
+          "at": null,
+          "text": "when the warning clears"
+        },
+        "ended_at": null,
+        "end_reason": null,
+        "basis": "team default",
+        "source_ids": [
+          "C25"
+        ],
+        "config_release_id": "rel_20261113_a",
+        "allowed_actions": []
+      },
+      {
+        "override_id": "ovr_reaction_short_sleep",
+        "revision": 1,
+        "item_id": "reaction_test",
+        "person_id": "mara",
+        "audience": "person",
+        "binding_id": "reaction_test.short_sleep",
+        "trigger_index": 0,
+        "trigger_text": "Sleep under 6 hours",
+        "started_by": "rule",
+        "source": {
+          "kind": "observation",
+          "ref_id": "obs_sleep_mara_d19"
+        },
+        "new_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "short sleep",
+          "note": "one test that morning"
+        },
+        "cadence_text": "One test that morning",
+        "reason_text": "Sleep under 6 hours",
+        "state": "active",
+        "started_at": "2026-11-13T06:30:00Z",
+        "ends": {
+          "kind": "effect_complete",
+          "at": null,
+          "text": "after the added check"
+        },
+        "ended_at": null,
+        "end_reason": null,
+        "basis": "team default",
+        "source_ids": [
+          "RT25"
+        ],
+        "config_release_id": "rel_20261113_a",
+        "allowed_actions": []
+      },
+      {
+        "override_id": "ovr_daily_check_co2",
+        "revision": 1,
+        "item_id": "daily_check",
+        "person_id": null,
+        "audience": "everyone_in_location",
+        "binding_id": "daily_check.co2_above_limit",
+        "trigger_index": 1,
+        "trigger_text": "Cabin CO2 is above the one-hour limit of 3 mmHg (sensor_limit)",
+        "started_by": "sensor_limit",
+        "source": {
+          "kind": "warning",
+          "ref_id": "wrn_co2_station_1"
+        },
+        "new_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "CO2 alert",
+          "note": "add a headache and vision question at the next check and again 2 hours later"
+        },
+        "cadence_text": "Add a headache and vision question at the next check and again 2 hours later",
+        "reason_text": "Cabin CO2 is above the one-hour limit of 3 mmHg",
+        "state": "active",
+        "started_at": "2026-11-13T09:08:02Z",
+        "ends": {
+          "kind": "effect_complete",
+          "at": null,
+          "text": "after the added check"
+        },
+        "ended_at": null,
+        "end_reason": null,
+        "basis": "team default",
+        "source_ids": [
+          "C25"
+        ],
+        "config_release_id": "rel_20261113_a",
+        "allowed_actions": []
+      }
+    ],
+    "page": {
+      "next_cursor": null,
+      "total": 3
+    }
+  }
+}

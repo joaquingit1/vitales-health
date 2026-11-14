@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "handoff.schema.json",
+  "title": "Handoff",
+  "description": "leaves_at: while queued and the link is down, the link's next_contact_at; null once it left or while the link is up or delayed (it leaves now). catch_up: the four-part log for a late reader, set from preview on. No state waits for the ground: delivery, receipt and reply change no plan run, episode or step (EI5).",
+  "type": "object",
+  "properties": {
+    "handoff_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "episode_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "state": {
+      "enum": [
+        "draft",
+        "previewed",
+        "approved",
+        "queued",
+        "in_transit",
+        "delivered",
+        "receipt_recorded",
+        "delivery_failed",
+        "cancelled",
+        "expired"
+      ]
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value_text": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "field",
+          "label",
+          "value_text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "report_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "required": [
+          "report_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "consent_ref": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "recipients": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "approved_by": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/actor"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "approved_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "deliveries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "attempt_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "transport": {
+            "enum": [
+              "simulated_comms_queue",
+              "local_export"
+            ]
+          },
+          "scheduled_at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "in_transit",
+              "delivered",
+              "failed"
+            ]
+          },
+          "delivered_at": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receipt_at": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "attempt_id",
+          "transport",
+          "scheduled_at",
+          "state",
+          "delivered_at",
+          "receipt_at"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "simulated": {
+      "type": "boolean"
+    },
+    "reply": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1
+            },
+            "by": {
+              "$ref": "common.schema.json#/$defs/actor"
+            },
+            "at": {
+              "$ref": "common.schema.json#/$defs/instant"
+            }
+          },
+          "required": [
+            "text",
+            "by",
+            "at"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "timeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          }
+        },
+        "required": [
+          "state",
+          "label",
+          "at"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "leaves_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "catch_up": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/catch_up"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "plan_run_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "handoff_id",
+    "revision",
+    "episode_id",
+    "state",
+    "fields",
+    "attachments",
+    "consent_ref",
+    "recipients",
+    "approved_by",
+    "approved_at",
+    "deliveries",
+    "simulated",
+    "reply",
+    "timeline",
+    "leaves_at",
+    "catch_up",
+    "plan_run_id",
+    "allowed_actions"
+  ],
+  "additionalProperties": false
+}

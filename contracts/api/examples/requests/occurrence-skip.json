@@ -1,0 +1,9 @@
+{
+  "summary": "SIM request POST /v1/routine/occurrences/{id}/actions",
+  "description": "Skip with a reason. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/OccurrenceAction",
+  "value": {
+    "action": "skip",
+    "skip_reason": "no_time"
+  }
+}

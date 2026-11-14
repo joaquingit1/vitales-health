@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-routine-schedule.schema.json",
+  "title": "routine-schedule.json",
+  "description": "Routine measurements and tasks, their cadence per environment and the triggers that change a cadence. Written by the research team; the hub serves it unchanged. Triggers are free text: routine-rules.json binds the ones the scheduler runs automatically.",
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "plain": {
+            "type": "string",
+            "minLength": 1
+          },
+          "why": {
+            "type": "string",
+            "minLength": 1
+          },
+          "who": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "self",
+                "crewmate",
+                "crew_medical_officer",
+                "ground"
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "instrument": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minutes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "skill_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/config_id"
+            },
+            "description": "For a drill: the skills-catalog.json skills it practices. Completing the drill writes a SkillRecord for each participant and skill (CONTRACTS section 24).",
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "cadence": {
+            "type": "object",
+            "properties": {
+              "default": {
+                "$ref": "common.schema.json#/$defs/cadence"
+              },
+              "by_environment": {
+                "type": "object",
+                "properties": {
+                  "station_leo": {
+                    "$ref": "common.schema.json#/$defs/cadence"
+                  },
+                  "transit": {
+                    "$ref": "common.schema.json#/$defs/cadence"
+                  },
+                  "lunar_surface": {
+                    "$ref": "common.schema.json#/$defs/cadence"
+                  },
+                  "mars_surface": {
+                    "$ref": "common.schema.json#/$defs/cadence"
+                  }
+                },
+                "required": [
+                  "station_leo",
+                  "transit",
+                  "lunar_surface",
+                  "mars_surface"
+                ],
+                "additionalProperties": false
+              },
+              "basis": {
+                "$ref": "common.schema.json#/$defs/basis"
+              }
+            },
+            "required": [
+              "default",
+              "by_environment",
+              "basis"
+            ],
+            "additionalProperties": false
+          },
+          "raise_frequency_when": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "trigger": {
+                  "type": "string",
+                  "description": "The trigger in words. A suffix (sensor_limit) or (rule) names what raises it.",
+                  "minLength": 1
+                },
+                "new_cadence": {
+                  "$ref": "common.schema.json#/$defs/cadence"
+                },
+                "source_ids": {
+                  "$ref": "common.schema.json#/$defs/source_ids"
+                },
+                "basis": {
+                  "$ref": "common.schema.json#/$defs/basis"
+                }
+              },
+              "required": [
+                "trigger",
+                "new_cadence",
+                "source_ids",
+                "basis"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          },
+          "source_ids": {
+            "$ref": "common.schema.json#/$defs/source_ids"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "plain",
+          "why",
+          "who",
+          "instrument",
+          "minutes",
+          "steps",
+          "cadence",
+          "raise_frequency_when",
+          "body_region",
+          "source_ids"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/source_id"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1
+          },
+          "date": {
+            "type": "string",
+            "minLength": 1
+          },
+          "access": {
+            "type": "string",
+            "minLength": 1
+          },
+          "saved_as": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "url",
+          "date",
+          "access",
+          "saved_as"
+        ],
+        "additionalProperties": false,
+        "description": "One cited source, as the research files write it."
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "items",
+    "sources"
+  ],
+  "additionalProperties": false
+}

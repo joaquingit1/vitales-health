@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "assistant-status.schema.json",
+  "title": "AssistantStatus",
+  "description": "The local model service as the hub sees it.",
+  "type": "object",
+  "properties": {
+    "state": {
+      "enum": [
+        "running",
+        "stopped",
+        "loading",
+        "unavailable"
+      ]
+    },
+    "model_release": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "model_release_id": {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            "model_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "$ref": "common.schema.json#/$defs/sha256"
+            },
+            "prompt_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tool_catalog_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "mode": {
+              "enum": [
+                "stub",
+                "live"
+              ]
+            }
+          },
+          "required": [
+            "model_release_id",
+            "model_id",
+            "revision",
+            "sha256",
+            "prompt_version",
+            "tool_catalog_version",
+            "mode"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "since": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "last_error": {
+      "anyOf": [
+        {
+          "$ref": "error.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "queue_depth": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "policy_version": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    }
+  },
+  "required": [
+    "state",
+    "model_release",
+    "since",
+    "last_error",
+    "queue_depth",
+    "policy_version"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "skill-record.schema.json",
+  "title": "SkillRecord",
+  "description": "One person's state for one skill, computed from skill.practiced events and the skill's freshness in skills-catalog.json (CONTRACTS section 24). Operational, never health data; never ranked.",
+  "type": "object",
+  "properties": {
+    "person": {
+      "$ref": "common.schema.json#/$defs/person_ref"
+    },
+    "skill_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "skill_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trained_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_practiced_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_practiced_label": {
+      "anyOf": [
+        {
+          "type": "string",
+          "description": "Rendered with the profile's day template, for example flight day 12.",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source": {
+      "anyOf": [
+        {
+          "enum": [
+            "preflight",
+            "drill",
+            "event"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source_ref_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "freshness": {
+      "enum": [
+        "fresh",
+        "due",
+        "stale",
+        "never"
+      ]
+    },
+    "freshness_text": {
+      "type": "string",
+      "description": "ui-copy freshness_words.",
+      "minLength": 1
+    },
+    "freshness_basis": {
+      "$ref": "common.schema.json#/$defs/basis"
+    },
+    "freshness_to_be_set_by": {
+      "$ref": "common.schema.json#/$defs/to_be_set_by"
+    },
+    "due_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stale_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "person",
+    "skill_id",
+    "skill_name",
+    "trained_at",
+    "last_practiced_at",
+    "last_practiced_label",
+    "source",
+    "source_ref_id",
+    "origin_mode",
+    "freshness",
+    "freshness_text",
+    "freshness_basis",
+    "freshness_to_be_set_by",
+    "due_at",
+    "stale_at"
+  ],
+  "additionalProperties": false
+}

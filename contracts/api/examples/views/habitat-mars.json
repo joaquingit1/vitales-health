@@ -1,0 +1,604 @@
+{
+  "summary": "SIM GET /v1/views/habitat, Mars base",
+  "description": "The Habitat screen on mars_surface. Illustrative only: not seed data.",
+  "x-schema": "habitat-view.schema.json",
+  "value": {
+    "as_of": "2026-11-13T09:10:16Z",
+    "environment": {
+      "environment_id": "mars_surface",
+      "label": "Mars surface base",
+      "place": "Mars base",
+      "day_label": "sol 3 on Mars",
+      "eva_word": "surface walk",
+      "ground_delay_text": "Up to 20 minutes one way."
+    },
+    "ground_link": {
+      "status": "delayed",
+      "one_way_delay_s": 1200,
+      "next_contact_at": null,
+      "last_contact_at": null,
+      "source": "schedule",
+      "environment_id": "mars_surface",
+      "delay_text": "Up to 20 minutes one way.",
+      "delay_source_ids": [
+        "EV25"
+      ],
+      "gap_kind": null,
+      "gap_planned": false
+    },
+    "sensors": [
+      {
+        "sensor_type_id": "rad_day",
+        "hazard_id": "radiation",
+        "environment_id": "mars_surface",
+        "name": "Radiation",
+        "long_name": "Radiation dose",
+        "body_region": null,
+        "channel_id": "ch_rad_day_mars_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_rad_day_mars_sim",
+          "channel_id": "ch_rad_day_mars_sim",
+          "sensor_type_id": "rad_day",
+          "hazard_id": "radiation",
+          "value": 0.5,
+          "unit": "mSv/day",
+          "original_value": 0.5,
+          "original_unit": "mSv/day",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T06:00:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T06:00:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1013,
+          "quality_status": "accepted",
+          "location": "surface",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 0.5,
+          "unit": "mSv/day",
+          "text": "0.5"
+        },
+        "context_label": "NASA's surface planning value",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mSv/day",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 0.5,
+          "aggregation_label": "latest",
+          "window_start": null,
+          "window_end": "2026-11-13T06:00:00Z",
+          "coverage": null,
+          "status": "no_limit_on_file",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          0,
+          1
+        ],
+        "limit_marks": [],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Higher lifetime risk of cancer",
+            "body_region": null
+          },
+          {
+            "text": "Nausea, vomiting and tiredness after a large solar particle event (acute radiation syndrome)",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Skin injury and loss of blood-forming cells after large doses",
+            "body_region": null
+          },
+          {
+            "text": "Cataract (clouding of the lens of the eye)",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Changes in thinking, movement and behavior",
+            "body_region": "head"
+          },
+          {
+            "text": "Harm to the heart and blood vessels (NASA sets circulatory dose limits)",
+            "body_region": "heart"
+          }
+        ],
+        "todo": [
+          "Nothing to do.",
+          "Wear your personal dosimeter.",
+          "NASA keeps every exposure as low as reasonably achievable, even far below the limits."
+        ],
+        "here": "About 0.5 mSv per day from the space environment in NASA's surface mission analysis. Extra shielding on Mars helps little unless it is rich in hydrogen.",
+        "citation": {
+          "text": "What it can do: EV02, EV05.",
+          "source_ids": [
+            "EV02",
+            "EV05"
+          ]
+        },
+        "series_href": "/v1/sensors/rad_day/series"
+      },
+      {
+        "sensor_type_id": "dust",
+        "hazard_id": "dust",
+        "environment_id": "mars_surface",
+        "name": "Dust",
+        "long_name": "Dust in the air",
+        "body_region": "lungs",
+        "channel_id": "ch_dust_habitat_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_dust_habitat_sim",
+          "channel_id": "ch_dust_habitat_sim",
+          "sensor_type_id": "dust",
+          "hazard_id": "dust",
+          "value": 0.04,
+          "unit": "mg/m3",
+          "original_value": 0.04,
+          "original_unit": "mg/m3",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1014,
+          "quality_status": "accepted",
+          "location": "habitat",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 0.04,
+          "unit": "mg/m³",
+          "text": "0.04"
+        },
+        "context_label": "time-weighted, habitat",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mg/m3",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 0.04,
+          "aggregation_label": "time-weighted",
+          "window_start": "2026-11-12T09:10:00Z",
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": 1.0,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          0,
+          0.15
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "dust_mars_act",
+            "value": 0.1,
+            "unit": "mg/m3",
+            "comparator": "above",
+            "role": "warning",
+            "label": "limit 0.1 mg/m³"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Eye irritation and scratching",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Skin abrasion and irritation, for example from gloves and under fingernails",
+            "body_region": "hand"
+          },
+          {
+            "text": "Lung harm; the respiratory system is believed to be the most sensitive target",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Stuffy nose and sneezing",
+            "body_region": "head"
+          },
+          {
+            "text": "Possible harm to the heart and lungs together (cardiopulmonary)",
+            "body_region": "heart"
+          },
+          {
+            "text": "Possible allergy (research pending)",
+            "body_region": null
+          },
+          {
+            "text": "Martian dust is likely toxic: highly oxidized, salty, with heavy metals and perchlorate",
+            "body_region": "lungs"
+          }
+        ],
+        "todo": [
+          "Nothing to do."
+        ],
+        "here": "Martian dust limit applies; it is stricter than the lunar limit, and peaks at ingress must stay below 10 mg/m3.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: EV08, EV19, EV23.",
+          "source_ids": [
+            "EV01",
+            "EV08",
+            "EV19",
+            "EV23"
+          ]
+        },
+        "series_href": "/v1/sensors/dust/series"
+      },
+      {
+        "sensor_type_id": "co2",
+        "hazard_id": "co2",
+        "environment_id": "mars_surface",
+        "name": "CO2",
+        "long_name": "Carbon dioxide",
+        "body_region": "head",
+        "channel_id": "ch_co2_mars_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_co2_mars_sim",
+          "channel_id": "ch_co2_mars_sim",
+          "sensor_type_id": "co2",
+          "hazard_id": "co2",
+          "value": 2.7,
+          "unit": "mmHg",
+          "original_value": 2.7,
+          "original_unit": "mmHg",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1015,
+          "quality_status": "accepted",
+          "location": "habitat",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 2.7,
+          "unit": "mmHg",
+          "text": "2.7"
+        },
+        "context_label": "one-hour average",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mmHg",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 2.7,
+          "aggregation_label": "one-hour average",
+          "window_start": "2026-11-13T08:10:00Z",
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": 1.0,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          0,
+          5
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "co2_1h_act",
+            "value": 3,
+            "unit": "mmHg",
+            "comparator": "above",
+            "role": "warning",
+            "label": "limit 3 mmHg"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Headache",
+            "body_region": "head"
+          },
+          {
+            "text": "Shortness of breath",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Tiredness",
+            "body_region": null
+          },
+          {
+            "text": "Vision changes",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Nausea",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Unconsciousness in severe overexposure",
+            "body_region": "head"
+          },
+          {
+            "text": "Poorer sleep",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Nothing to do.",
+          "Keep air moving around your face when you sleep."
+        ],
+        "here": "Same limit and the same conversion care as on the Moon.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: C15, C25, EV07.",
+          "source_ids": [
+            "C15",
+            "C25",
+            "EV01",
+            "EV07"
+          ]
+        },
+        "series_href": "/v1/sensors/co2/series"
+      },
+      {
+        "sensor_type_id": "water",
+        "hazard_id": "perchlorate",
+        "environment_id": "mars_surface",
+        "name": "Water",
+        "long_name": "Local water",
+        "body_region": "neck",
+        "channel_id": "ch_water_ice_sim",
+        "reading_state": "no_reading",
+        "latest_reading": null,
+        "display_value": {
+          "value": null,
+          "unit": "mg/L",
+          "text": "Untested"
+        },
+        "context_label": "from local ice",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mg/L",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "status": "no_reading",
+          "level": null,
+          "limit_id": null,
+          "aggregated_value": null,
+          "aggregation_label": null,
+          "window_start": null,
+          "window_end": null,
+          "coverage": null
+        },
+        "shown_level": "watch",
+        "linked_warning_ids": [
+          "wrn_water_mars_1"
+        ],
+        "display_range": [
+          0,
+          1
+        ],
+        "limit_marks": [],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "The thyroid gland takes up less iodine; long exposure to higher amounts may lower thyroid activity (hypothyroidism)",
+            "body_region": "neck"
+          },
+          {
+            "text": "Low thyroid hormone can affect the skin, heart, lungs, kidneys, gut, nerves and other organs",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Do not drink or cook with local water until it is tested."
+        ],
+        "here": "Martian dust holds 0.5 to 1% perchlorate, 3 to 4 orders of magnitude more than soils on Earth. Water from Martian sources and crops grown in it can carry perchlorate.",
+        "citation": {
+          "text": "What it can do: EV30.",
+          "source_ids": [
+            "EV30"
+          ]
+        },
+        "series_href": "/v1/sensors/water/series"
+      }
+    ],
+    "living_here": [
+      {
+        "hazard_id": "partial_gravity",
+        "name": "Partial gravity",
+        "body_regions": [
+          "ear",
+          "legs",
+          "heart",
+          "lungs"
+        ],
+        "effects": [
+          "Balance and orientation need time to adjust after landing, before hard tasks",
+          "Muscles, bones, inner ear and organs adjust to the new load",
+          "Dizziness or fainting when standing after a long time weightless",
+          "Dust stays in the air longer in low gravity"
+        ],
+        "todo": [
+          "Take the readjustment time before hard tasks.",
+          "Sit or lie down until it passes.",
+          "Tell a crewmate."
+        ],
+        "here": "About three eighths of Earth's gravity, after about six months weightless in transit."
+      },
+      {
+        "hazard_id": "isolation_confinement",
+        "name": "Isolation and confinement",
+        "body_regions": [],
+        "effects": [
+          "Stress, depression, anxiety, relationship problems and grief",
+          "These can pass with time or help, or develop into a psychiatric disorder",
+          "Sleep loss, body clock problems and work overload make it worse and can lower performance"
+        ],
+        "todo": [
+          "Take the private mood check.",
+          "It is yours.",
+          "Talk to someone you trust.",
+          "Keep your sleep and exercise routine."
+        ],
+        "here": "The most isolated: up to 20 minutes of delay and a mission of roughly three years."
+      },
+      {
+        "hazard_id": "circadian_light",
+        "name": "Body clock and light",
+        "body_regions": [
+          "head",
+          "eyes"
+        ],
+        "effects": [
+          "Tiredness",
+          "Thinking problems: inattention, distraction, slow reactions and poor decisions",
+          "Sleep disruption",
+          "Metabolic disturbance",
+          "Blue light before sleep holds back melatonin and makes sleep harder"
+        ],
+        "todo": [
+          "Keep regular sleep times.",
+          "Avoid blue light before sleep.",
+          "Protect your next sleep period.",
+          "Follow the lighting schedule."
+        ],
+        "here": "Habitat lighting and the work schedule set the clock."
+      },
+      {
+        "hazard_id": "distance_autonomy",
+        "name": "Distance from Earth",
+        "body_regions": [],
+        "effects": [
+          "No direct effect on the body. Every medical event is harder because help and supplies come late or not at all",
+          "Without the usual ground support, the crew may not be able to respond to unexpected critical failures"
+        ],
+        "todo": [
+          "Note the time.",
+          "Keep logging.",
+          "Plan as if no answer will come soon."
+        ],
+        "here": "Up to 20 minutes one way; about three years away from Earth."
+      }
+    ],
+    "warnings": [
+      {
+        "warning_id": "wrn_water_mars_1",
+        "revision": 1,
+        "definition_id": "local_water_untested",
+        "config_release_id": "rel_20261113_a",
+        "level": "watch",
+        "raised_by": "rule",
+        "hazard_id": "perchlorate",
+        "limit_id": null,
+        "sensor_type_id": "water",
+        "channel_id": "ch_water_ice_sim",
+        "scope": "habitat",
+        "person_id": null,
+        "environment_id": "mars_surface",
+        "location": "water plant",
+        "origin_mode": "SIM",
+        "title": "Local water not yet tested",
+        "what": "The new water from local ice has not been tested for perchlorate.",
+        "why": "Perchlorate can stop the thyroid taking up iodine. Martian dust and soil carry it.",
+        "steps": [
+          "Do not drink or cook with local water until it is tested."
+        ],
+        "body_regions": [
+          "neck"
+        ],
+        "headline": {
+          "fragment": "Local water untested",
+          "rank": 30,
+          "solo": false
+        },
+        "evidence": [
+          {
+            "kind": "state_fact",
+            "ref_id": "fact_local_water_untested",
+            "summary": "Local water not yet tested",
+            "observed_at": "2026-11-13T06:00:00Z"
+          },
+          {
+            "kind": "mission_event",
+            "ref_id": "evt_water_source_1",
+            "summary": "Local water source added, Sim",
+            "observed_at": "2026-11-13T06:00:00Z"
+          }
+        ],
+        "evidence_time": "2026-11-13T06:00:00Z",
+        "evidence_time_label": "06:00",
+        "citation": {
+          "text": "Rule: local water is tested before first use.",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        "insight_id": null,
+        "state": "raised",
+        "raised_at": "2026-11-13T06:00:01Z",
+        "acknowledgements": [],
+        "cleared_at": null,
+        "clear_reason": null,
+        "resolved": null,
+        "dismissed": null,
+        "notes": [],
+        "previous_warning_id": null,
+        "routine_override_ids": [],
+        "allowed_actions": [
+          "acknowledge",
+          "add_note"
+        ]
+      }
+    ]
+  }
+}

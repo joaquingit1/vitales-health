@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "activity-overlay.schema.json",
+  "title": "ActivityOverlay",
+  "description": "An activity on top of the environment for one person: eva, post_eva, exercise or sleep.",
+  "type": "object",
+  "properties": {
+    "overlay_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "person_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "overlay": {
+      "$ref": "common.schema.json#/$defs/overlay"
+    },
+    "state": {
+      "enum": [
+        "planned",
+        "active",
+        "ended"
+      ]
+    },
+    "planned_start": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ended_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "person",
+            "mission_event",
+            "adapter",
+            "operator"
+          ]
+        },
+        "ref_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "ref_id"
+      ],
+      "additionalProperties": false
+    },
+    "location": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "overlay_id",
+    "revision",
+    "person_id",
+    "overlay",
+    "state",
+    "planned_start",
+    "started_at",
+    "ended_at",
+    "source",
+    "location"
+  ],
+  "additionalProperties": false
+}

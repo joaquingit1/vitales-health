@@ -1,0 +1,143 @@
+{
+  "summary": "EXAMPLE CONFIG indicator-catalog.json",
+  "description": "Personal indicators. Baseline windows are team defaults. The 355 ms lapse line comes from UX-DESIGN.md and is not sourced.",
+  "x-schema": "config-indicator-catalog.schema.json",
+  "value": {
+    "notice": "Unreviewed draft: needs clinician review before live guidance.",
+    "indicators": [
+      {
+        "code": "sleep_duration",
+        "label": "Sleep",
+        "unit_display": "h",
+        "decimals": 1,
+        "body_region": "wrist",
+        "trend_days": 7,
+        "baseline": {
+          "method": "median",
+          "window_days": 14,
+          "min_samples": 5,
+          "basis": "team default"
+        },
+        "better": "neither",
+        "basis": "team default"
+      },
+      {
+        "code": "mood",
+        "label": "Mood",
+        "unit_display": "of 10",
+        "decimals": 0,
+        "body_region": "head",
+        "trend_days": 7,
+        "baseline": {
+          "method": "median",
+          "window_days": 14,
+          "min_samples": 5,
+          "basis": "team default"
+        },
+        "better": "higher",
+        "basis": "team default"
+      },
+      {
+        "code": "stress",
+        "label": "Stress",
+        "unit_display": "of 10",
+        "decimals": 0,
+        "body_region": "head",
+        "trend_days": 7,
+        "baseline": {
+          "method": "median",
+          "window_days": 14,
+          "min_samples": 5,
+          "basis": "team default"
+        },
+        "better": "lower",
+        "basis": "team default"
+      },
+      {
+        "code": "pvt_median",
+        "label": "Reaction time",
+        "unit_display": "ms",
+        "decimals": 0,
+        "body_region": "eyes",
+        "trend_days": 7,
+        "baseline": {
+          "method": "median",
+          "window_days": 14,
+          "min_samples": 5,
+          "basis": "team default"
+        },
+        "better": "lower",
+        "basis": "team default"
+      },
+      {
+        "code": "pvt_lapses",
+        "label": "Lapses",
+        "unit_display": "",
+        "decimals": 0,
+        "body_region": "eyes",
+        "trend_days": 7,
+        "baseline": {
+          "method": "median",
+          "window_days": 14,
+          "min_samples": 5,
+          "basis": "team default"
+        },
+        "better": "lower",
+        "basis": "team default"
+      },
+      {
+        "code": "pulse",
+        "label": "Pulse at rest",
+        "unit_display": "bpm",
+        "decimals": 0,
+        "body_region": "heart",
+        "trend_days": 7,
+        "baseline": {
+          "method": "median",
+          "window_days": 14,
+          "min_samples": 5,
+          "basis": "team default"
+        },
+        "better": "neither",
+        "basis": "team default"
+      },
+      {
+        "code": "respiratory_rate",
+        "label": "Breathing",
+        "unit_display": "per minute",
+        "decimals": 0,
+        "body_region": "lungs",
+        "trend_days": 7,
+        "baseline": {
+          "method": "median",
+          "window_days": 14,
+          "min_samples": 5,
+          "basis": "team default"
+        },
+        "better": "neither",
+        "basis": "team default"
+      },
+      {
+        "code": "spo2",
+        "label": "Blood oxygen",
+        "unit_display": "%",
+        "decimals": 0,
+        "body_region": "hand",
+        "trend_days": 7,
+        "baseline": {
+          "method": "median",
+          "window_days": 14,
+          "min_samples": 5,
+          "basis": "team default"
+        },
+        "better": "neither",
+        "basis": "team default"
+      }
+    ],
+    "reaction_test": {
+      "lapse_ms": 355,
+      "basis": "team default",
+      "note": "The lapse line is the value UX-DESIGN.md draws (355 ms). It is not from a cited source: to be set by clinical review."
+    }
+  }
+}

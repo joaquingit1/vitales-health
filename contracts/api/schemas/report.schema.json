@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "report.schema.json",
+  "title": "Report",
+  "description": "An uploaded report file with its extraction drafts (CONTRACTS section 2). Drafts never act as confirmed findings.",
+  "type": "object",
+  "properties": {
+    "report_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "file_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "original_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "media_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "bytes": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "patient_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "author": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "examination_date": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "report_date": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "access_scope": {
+      "enum": [
+        "self",
+        "self_and_crew_medical_officer",
+        "self_and_ground"
+      ]
+    },
+    "uploaded_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "extraction_drafts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "draft_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "source_span": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "start": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "page",
+              "start",
+              "end"
+            ],
+            "additionalProperties": false
+          },
+          "code": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "value": {
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "extraction_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "review_status": {
+            "enum": [
+              "proposed",
+              "confirmed",
+              "rejected"
+            ]
+          }
+        },
+        "required": [
+          "draft_id",
+          "source_span",
+          "code",
+          "value",
+          "unit",
+          "date",
+          "extraction_version",
+          "review_status"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "report_id",
+    "file_sha256",
+    "original_name",
+    "media_type",
+    "bytes",
+    "patient_id",
+    "author",
+    "examination_date",
+    "report_date",
+    "access_scope",
+    "uploaded_at",
+    "extraction_drafts"
+  ],
+  "additionalProperties": false
+}

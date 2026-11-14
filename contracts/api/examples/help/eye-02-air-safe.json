@@ -1,0 +1,133 @@
+{
+  "summary": "SIM GET /v1/help-sessions/hlp_lunar_1, step 02",
+  "description": "Air safe answered; the next fixed question asks if Tomas is responding. Moon base, Tomas Lind, opened by Mara Okafor. Illustrative only: not seed data.",
+  "x-schema": "help-session.schema.json",
+  "value": {
+    "help_session_id": "hlp_lunar_1",
+    "revision": 2,
+    "state": "open",
+    "opened_at": "2026-11-13T12:02:00Z",
+    "client_opened_at": "2026-11-13T12:01:59Z",
+    "opened_by": {
+      "kind": "person",
+      "id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "entry": {
+      "kind": "button",
+      "ref_id": null
+    },
+    "subject": {
+      "kind": "crewmate",
+      "person_id": "tomas",
+      "display_name": "Tomas Lind"
+    },
+    "place": "airlock",
+    "body_region": null,
+    "helpers": [],
+    "config_pins": [
+      {
+        "name": "help-presentation",
+        "version": "682f54eb73a7b11c2e5df233951bf608cc63a99825f070175f939a8df03b8170"
+      },
+      {
+        "name": "responder-flows",
+        "version": "23865cf8acfbfa869df24a8b0fee732e386ddbb9e4735d19d0920873d92cee64"
+      },
+      {
+        "name": "ui-copy",
+        "version": "296d7bbbb4ac286e63ec8a5968d96fb5cce35e256b9151e415e7b2133fba5f6e"
+      }
+    ],
+    "level": "emergency",
+    "level_basis": "team default",
+    "node": {
+      "kind": "triage",
+      "id": "responding",
+      "question": "Is the person awake and answering you? Say their name loudly and gently shake their shoulders. If you are the person who needs help, answer Yes.",
+      "answers": [
+        {
+          "index": 0,
+          "label": "Yes, they answer"
+        },
+        {
+          "index": 1,
+          "label": "No, or not sure"
+        }
+      ],
+      "flow": null
+    },
+    "path": [
+      {
+        "node_id": "air_safe",
+        "kind": "triage",
+        "answer_index": 0,
+        "answer_label": "Yes: no alarm, smoke or smell",
+        "at": "2026-11-13T12:02:08Z",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        }
+      }
+    ],
+    "log": [
+      {
+        "at": "2026-11-13T12:02:00Z",
+        "text": "Mara Okafor pressed Someone needs help for Tomas Lind",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "kind": "system"
+      },
+      {
+        "at": "2026-11-13T12:02:08Z",
+        "text": "Air safe",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "kind": "answer"
+      }
+    ],
+    "crew_called_at": null,
+    "broadcast_id": "brd_lunar_1",
+    "assistant": {
+      "status": "off",
+      "conversation_id": null,
+      "last_text": null
+    },
+    "ground_message_ids": [],
+    "fixed_buttons": [
+      {
+        "id": "call_crew",
+        "label": "Call crew"
+      },
+      {
+        "id": "tell_ground",
+        "label": "Tell the ground"
+      },
+      {
+        "id": "start_over",
+        "label": "Start over"
+      }
+    ],
+    "closed_at": null,
+    "close": null,
+    "allowed_actions": [
+      "answer",
+      "switch_flow",
+      "call_crew",
+      "join",
+      "start_over",
+      "set_body_region",
+      "set_place",
+      "add_note",
+      "ask_assistant",
+      "close"
+    ]
+  }
+}

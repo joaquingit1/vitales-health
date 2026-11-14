@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "capability-gap.schema.json",
+  "title": "CapabilityGap",
+  "description": "A needed examination or capability that is not available here (CONTRACTS section 2).",
+  "type": "object",
+  "properties": {
+    "gap_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "episode_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "capability_code": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "reason": {
+      "enum": [
+        "no_capability",
+        "device_absent",
+        "operator_absent",
+        "context_inapplicable"
+      ]
+    },
+    "consequence": {
+      "type": "string",
+      "minLength": 1
+    },
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "body_region": {
+      "$ref": "common.schema.json#/$defs/body_region_or_null"
+    },
+    "state": {
+      "enum": [
+        "open",
+        "addressed"
+      ]
+    },
+    "plan_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "description": "The plan aboard for the condition the gap leaves open (CONTRACTS section 22). The gap card offers its check_another_way steps.",
+          "pattern": "^plan_[a-z0-9_]{1,59}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "check_another_way_step_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "description": "Step IDs of that plan's check_another_way stage that can run here. A substitute check never closes the gap: state stays open (EI8).",
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "gap_id",
+    "episode_id",
+    "capability_code",
+    "reason",
+    "consequence",
+    "alternatives",
+    "body_region",
+    "state",
+    "plan_id",
+    "check_another_way_step_ids"
+  ],
+  "additionalProperties": false
+}

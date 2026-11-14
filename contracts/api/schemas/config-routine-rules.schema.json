@@ -1,0 +1,636 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-routine-rules.schema.json",
+  "title": "routine-rules.json",
+  "description": "How the routine scheduler turns routine-schedule.json into occurrences: calendar semantics, due windows, display groups, the bindings that run cadence triggers automatically, and the miss rule. Edited by the team; every value here is a team default unless a source is cited.",
+  "type": "object",
+  "properties": {
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review before live guidance.",
+      "minLength": 1
+    },
+    "calendar": {
+      "type": "object",
+      "properties": {
+        "week_days": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "month_days": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "anchor": {
+          "enum": [
+            "environment_start",
+            "mission_start"
+          ],
+          "description": "Day the interval counts from."
+        },
+        "basis": {
+          "$ref": "common.schema.json#/$defs/basis"
+        }
+      },
+      "required": [
+        "week_days",
+        "month_days",
+        "anchor",
+        "basis"
+      ],
+      "additionalProperties": false
+    },
+    "suppressed_overlays": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/overlay"
+      },
+      "description": "Nothing routine is due while one of these overlays is active. Must contain sleep and eva.",
+      "minItems": 2,
+      "uniqueItems": true,
+      "allOf": [
+        {
+          "contains": {
+            "const": "sleep"
+          }
+        },
+        {
+          "contains": {
+            "const": "eva"
+          }
+        }
+      ]
+    },
+    "display_groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "cadence_words": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/cadence_word"
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "cadence_words"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "item_policies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "preferred_time": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/local_time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "window_minutes": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Length of the due window from preferred_time. null: due all day."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "per_eva": {
+            "anyOf": [
+              {
+                "enum": [
+                  "before_start",
+                  "after_end",
+                  "both"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "basis": {
+            "$ref": "common.schema.json#/$defs/basis"
+          }
+        },
+        "required": [
+          "item_id",
+          "preferred_time",
+          "window_minutes",
+          "per_eva",
+          "basis"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "misses": {
+      "type": "object",
+      "properties": {
+        "ask_barrier_after_misses": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "window_days": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "question_id": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "basis": {
+          "$ref": "common.schema.json#/$defs/basis"
+        }
+      },
+      "required": [
+        "ask_barrier_after_misses",
+        "window_days",
+        "question_id",
+        "basis"
+      ],
+      "additionalProperties": false
+    },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "binding_id": {
+            "$ref": "common.schema.json#/$defs/dotted_id"
+          },
+          "binds": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "trigger"
+                  },
+                  "item_id": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  },
+                  "trigger_index": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "trigger_text": {
+                    "type": "string",
+                    "description": "Copy of raise_frequency_when[i].trigger; the loader rejects a mismatch.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "item_id",
+                  "trigger_index",
+                  "trigger_text"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "cadence_event"
+                  },
+                  "item_id": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  },
+                  "environment_id": {
+                    "anyOf": [
+                      {
+                        "$ref": "common.schema.json#/$defs/environment_id"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "event_text": {
+                    "type": "string",
+                    "description": "Copy of the cadence event or phase words; the loader rejects a mismatch.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "item_id",
+                  "environment_id",
+                  "event_text"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "on": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "warning_raised"
+                  },
+                  "definition_ids": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "common.schema.json#/$defs/config_id"
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "definition_ids"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "mission_event"
+                  },
+                  "event_types": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "common.schema.json#/$defs/config_id"
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "event_types"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "overlay_ended"
+                  },
+                  "overlay": {
+                    "$ref": "common.schema.json#/$defs/overlay"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "overlay"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "overlay_planned"
+                  },
+                  "overlay": {
+                    "$ref": "common.schema.json#/$defs/overlay"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "overlay"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "answer"
+                  },
+                  "question_id": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  },
+                  "presence": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "common.schema.json#/$defs/presence"
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "question_id",
+                  "presence"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "observation"
+                  },
+                  "code": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  },
+                  "comparator": {
+                    "enum": [
+                      "above",
+                      "at_or_above",
+                      "below",
+                      "at_or_below"
+                    ]
+                  },
+                  "value": {
+                    "type": "number"
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "code",
+                  "comparator",
+                  "value",
+                  "unit"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "environment_activated"
+                  },
+                  "environments": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "common.schema.json#/$defs/environment_id"
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "environments"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "effect": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "replace_cadence"
+                  },
+                  "cadence": {
+                    "$ref": "common.schema.json#/$defs/cadence"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "cadence"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "add_occurrences"
+                  },
+                  "at_trigger": {
+                    "type": "boolean",
+                    "description": "One occurrence due at the trigger time."
+                  },
+                  "times": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "day_offset": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "local_time": {
+                          "$ref": "common.schema.json#/$defs/local_time"
+                        }
+                      },
+                      "required": [
+                        "day_offset",
+                        "local_time"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "every_minutes": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "at_clear": {
+                    "type": "boolean",
+                    "description": "One occurrence when the trigger's warning clears."
+                  },
+                  "basis": {
+                    "$ref": "common.schema.json#/$defs/basis"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "at_trigger",
+                  "times",
+                  "every_minutes",
+                  "at_clear",
+                  "basis"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "add_questions"
+                  },
+                  "question_set_id": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  },
+                  "attach_to": {
+                    "enum": [
+                      "next_occurrence",
+                      "each_occurrence"
+                    ]
+                  },
+                  "repeat_after_minutes": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  },
+                  "basis": {
+                    "$ref": "common.schema.json#/$defs/basis"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "question_set_id",
+                  "attach_to",
+                  "repeat_after_minutes",
+                  "basis"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "until": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "warning_cleared"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "effect_complete"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "days"
+                  },
+                  "days": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "basis": {
+                    "$ref": "common.schema.json#/$defs/basis"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "days",
+                  "basis"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "person_stops"
+                  },
+                  "role": {
+                    "enum": [
+                      "crew_medical_officer",
+                      "ground",
+                      "self"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "role"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "mission_event"
+                  },
+                  "event_types": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "common.schema.json#/$defs/config_id"
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "event_types"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "audience": {
+            "enum": [
+              "person",
+              "everyone_in_location",
+              "all_crew"
+            ]
+          },
+          "basis": {
+            "$ref": "common.schema.json#/$defs/basis"
+          }
+        },
+        "required": [
+          "binding_id",
+          "binds",
+          "on",
+          "effect",
+          "until",
+          "audience",
+          "basis"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "notice",
+    "calendar",
+    "suppressed_overlays",
+    "display_groups",
+    "item_policies",
+    "misses",
+    "bindings"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,32 @@
+{
+  "summary": "SIM POST /v1/episodes/epi_mara_racing_1/reviews",
+  "description": "Ilya Brandt, crew medical officer, reviews when back inside from the walk: attributed and signed. The rhythm stays unresolved. Illustrative only: not seed data.",
+  "x-schema": "clinical-review.schema.json",
+  "value": {
+    "review_id": "rev_1",
+    "episode_id": "epi_mara_racing_1",
+    "reviewer": {
+      "kind": "person",
+      "id": "ilya",
+      "display_name": "Ilya Brandt"
+    },
+    "role": "crew_medical_officer",
+    "assessment_id": "asm_mara_1",
+    "decisions": [
+      {
+        "item": "Pulse at rest 96 bpm",
+        "decision": "agree",
+        "rationale": "Camera estimate with two cameras agreeing."
+      },
+      {
+        "item": "Pulse felt by Tomas Lind, 92 in 60 seconds",
+        "decision": "agree",
+        "rationale": "Within the team default tolerance of the camera pulse."
+      }
+    ],
+    "unresolved": [
+      "Rhythm unknown without an ECG"
+    ],
+    "signed_at": "2026-11-13T11:52:00Z"
+  }
+}

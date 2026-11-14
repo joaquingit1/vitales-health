@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "routine-schedule.schema.json",
+  "title": "RoutineSchedule",
+  "description": "Derived per person and environment by the routine scheduler. Never written through the API. GET /v1/routine/today returns range today; GET /v1/routine/week returns range week.",
+  "type": "object",
+  "properties": {
+    "person_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "range": {
+      "enum": [
+        "today",
+        "week"
+      ]
+    },
+    "day": {
+      "type": "object",
+      "properties": {
+        "mission_day": {
+          "$ref": "common.schema.json#/$defs/mission_day"
+        },
+        "environment_day": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "short_label": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "mission_day",
+        "environment_day",
+        "label",
+        "short_label"
+      ],
+      "additionalProperties": false
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "group_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "occurrences": {
+            "type": "array",
+            "items": {
+              "$ref": "routine-occurrence.schema.json"
+            }
+          }
+        },
+        "required": [
+          "group_id",
+          "label",
+          "occurrences"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "due": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "later": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "done": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "open_today": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "due",
+        "later",
+        "done",
+        "open_today"
+      ],
+      "additionalProperties": false
+    },
+    "days": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "mission_day": {
+            "$ref": "common.schema.json#/$defs/mission_day"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "done": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "due": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "mission_day",
+          "label",
+          "done",
+          "due"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "active_overrides": {
+      "type": "array",
+      "items": {
+        "$ref": "routine-override.schema.json"
+      }
+    },
+    "misses": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "window_days": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "barrier_question_due": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "count",
+        "window_days",
+        "barrier_question_due"
+      ],
+      "additionalProperties": false
+    },
+    "config_release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    }
+  },
+  "required": [
+    "person_id",
+    "environment_id",
+    "range",
+    "day",
+    "as_of",
+    "groups",
+    "counts",
+    "days",
+    "active_overrides",
+    "misses",
+    "config_release_id"
+  ],
+  "additionalProperties": false
+}

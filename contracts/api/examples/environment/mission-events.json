@@ -1,0 +1,104 @@
+{
+  "summary": "SIM GET /v1/mission-events",
+  "description": "Mission events across the four demo environments. Illustrative only: not seed data.",
+  "x-schema": "list:mission-event.schema.json",
+  "value": {
+    "items": [
+      {
+        "event_id": "evt_eva_end_1",
+        "event_type": "eva_ended",
+        "occurred_at": "2026-11-13T11:40:00Z",
+        "recorded_at": "2026-11-13T11:40:05Z",
+        "recorded_by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "origin_mode": "SIM",
+        "environment_id": "lunar_surface",
+        "person_ids": [
+          "ilya",
+          "sofia"
+        ],
+        "location": "airlock",
+        "note": null
+      },
+      {
+        "event_id": "evt_eva_start_1",
+        "event_type": "eva_started",
+        "occurred_at": "2026-11-13T09:20:20Z",
+        "recorded_at": "2026-11-13T09:20:25Z",
+        "recorded_by": {
+          "kind": "operator",
+          "id": "op_demo",
+          "display_name": "Demo operator"
+        },
+        "origin_mode": "SIM",
+        "environment_id": "lunar_surface",
+        "person_ids": [
+          "ilya",
+          "sofia"
+        ],
+        "location": "airlock",
+        "note": "Surface walk 1, planned to end at 11:40."
+      },
+      {
+        "event_id": "evt_spe_alert_1",
+        "event_type": "space_weather_alert",
+        "occurred_at": "2026-11-13T08:51:00Z",
+        "recorded_at": "2026-11-13T08:51:02Z",
+        "recorded_by": {
+          "kind": "ground",
+          "id": "grd_space_weather",
+          "display_name": "Space weather desk (Sim)"
+        },
+        "origin_mode": "SIM",
+        "environment_id": "transit",
+        "person_ids": [],
+        "location": null,
+        "note": "Solar particle event expected."
+      },
+      {
+        "event_id": "evt_landing_mars_1",
+        "event_type": "landing",
+        "occurred_at": "2026-11-11T02:00:00Z",
+        "recorded_at": "2026-11-11T02:00:10Z",
+        "recorded_by": {
+          "kind": "operator",
+          "id": "op_demo",
+          "display_name": "Demo operator"
+        },
+        "origin_mode": "SIM",
+        "environment_id": "mars_surface",
+        "person_ids": [
+          "mara",
+          "ilya",
+          "sofia",
+          "tomas"
+        ],
+        "location": null,
+        "note": null
+      },
+      {
+        "event_id": "evt_water_source_1",
+        "event_type": "local_water_source_added",
+        "occurred_at": "2026-11-13T06:00:00Z",
+        "recorded_at": "2026-11-13T06:00:00Z",
+        "recorded_by": {
+          "kind": "operator",
+          "id": "op_demo",
+          "display_name": "Demo operator"
+        },
+        "origin_mode": "SIM",
+        "environment_id": "mars_surface",
+        "person_ids": [],
+        "location": "water plant",
+        "note": "Water from local ice."
+      }
+    ],
+    "page": {
+      "next_cursor": null,
+      "total": 5
+    }
+  }
+}

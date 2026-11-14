@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-sensor-limits.schema.json",
+  "title": "sensor-limits.json",
+  "description": "Machine readable limits. Every number is copied from environment-hazards.json; windows the research could not state numerically are team defaults and say so.",
+  "type": "object",
+  "properties": {
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review before live guidance.",
+      "minLength": 1
+    },
+    "limits": {
+      "type": "array",
+      "items": {
+        "$ref": "sensor-limit.schema.json"
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "notice",
+    "limits"
+  ],
+  "additionalProperties": false
+}

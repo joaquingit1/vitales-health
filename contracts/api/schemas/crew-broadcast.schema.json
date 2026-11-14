@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crew-broadcast.schema.json",
+  "title": "CrewBroadcast",
+  "description": "The emergency line on every crew screen while a help session is open: who needs help, who is helping, where.",
+  "type": "object",
+  "properties": {
+    "broadcast_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "help_session_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "state": {
+      "enum": [
+        "active",
+        "ended"
+      ]
+    },
+    "level": {
+      "enum": [
+        "act",
+        "emergency"
+      ]
+    },
+    "subject": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/person_ref"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "helpers": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/person_ref"
+      }
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role_assignment_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "role_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "person": {
+            "$ref": "common.schema.json#/$defs/person_ref"
+          },
+          "state": {
+            "enum": [
+              "proposed",
+              "accepted",
+              "changed"
+            ]
+          }
+        },
+        "required": [
+          "role_assignment_id",
+          "role_id",
+          "label",
+          "person",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Who does what, from the session's RoleAssignments (CONTRACTS section 24), so every crew screen shows the same roles."
+    },
+    "place": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "started_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "ended_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "broadcast_id",
+    "help_session_id",
+    "state",
+    "level",
+    "subject",
+    "helpers",
+    "roles",
+    "place",
+    "text",
+    "started_at",
+    "ended_at"
+  ],
+  "additionalProperties": false
+}

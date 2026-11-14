@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "supply-use.schema.json",
+  "title": "SupplyUse",
+  "description": "One recorded use. Append-only. A use that would take quantity_now below zero is refused with SUPPLY_BELOW_ZERO (EI12).",
+  "type": "object",
+  "properties": {
+    "supply_use_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "supply_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "quantity": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "plan_run_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "help_session_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "step_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "by": {
+      "$ref": "common.schema.json#/$defs/actor"
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    }
+  },
+  "required": [
+    "supply_use_id",
+    "supply_id",
+    "environment_id",
+    "quantity",
+    "plan_run_id",
+    "help_session_id",
+    "step_id",
+    "at",
+    "by",
+    "origin_mode"
+  ],
+  "additionalProperties": false
+}

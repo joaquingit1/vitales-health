@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crew-health"
+version = "0.1.0"
+requires-python = ">=3.14,<3.15"
+dependencies = ["pydantic>=2", "fastapi", "uvicorn", "jsonschema", "referencing"]
+
+[dependency-groups]
+dev = ["datamodel-code-generator", "pytest", "pytest-cov", "hypothesis", "mypy", "ruff", "import-linter", "httpx", "schemathesis", "types-jsonschema", "pyyaml", "types-pyyaml"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers --strict-config --import-mode=importlib"
+xfail_strict = true
+markers = ["E01: platform foundation", "trace(*ids): requirements and invariants", "hardware: optional physical hardware", "slow: bounded long running validation"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+mypy_path = "hub/src"
+
+[tool.coverage.run]
+branch = true
+source = ["crew_health"]
+
+[tool.crew-health]
+import-contracts = "crew_health.app.import_contracts"
+
+[tool.setuptools.package-data]
+"crew_health.contracts_gen" = ["manifest.json"]
+
+[tool.uv.sources]
+pharmacy = { path = "..", editable = true }

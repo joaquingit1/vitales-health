@@ -1,0 +1,476 @@
+{
+  "summary": "SIM GET /v1/routine/today, Mars base",
+  "description": "Mara's routine for today on mars_surface, grouped, with counts and active overrides. Illustrative only: not seed data.",
+  "x-schema": "routine-schedule.schema.json",
+  "value": {
+    "person_id": "mara",
+    "environment_id": "mars_surface",
+    "range": "today",
+    "day": {
+      "mission_day": 19,
+      "environment_day": 3,
+      "label": "sol 3 on Mars",
+      "short_label": "Sol 3"
+    },
+    "as_of": "2026-11-13T09:10:16Z",
+    "groups": [
+      {
+        "group_id": "today",
+        "label": "Today",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_mar_gravity_arrival_check",
+            "revision": 1,
+            "item_id": "gravity_arrival_check",
+            "person_id": "mara",
+            "environment_id": "mars_surface",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 3,
+              "label": "sol 3 on Mars",
+              "short_label": "Sol 3"
+            },
+            "group": "today",
+            "state": "due",
+            "due_from": "2026-11-13T00:00:00Z",
+            "due_until": "2026-11-14T00:00:00Z",
+            "end_text": "due today",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          },
+          {
+            "occurrence_id": "occ_mar_blood_pressure",
+            "revision": 1,
+            "item_id": "blood_pressure",
+            "person_id": "mara",
+            "environment_id": "mars_surface",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 3,
+              "label": "sol 3 on Mars",
+              "short_label": "Sol 3"
+            },
+            "group": "today",
+            "state": "due",
+            "due_from": "2026-11-13T00:00:00Z",
+            "due_until": "2026-11-14T00:00:00Z",
+            "end_text": "due today",
+            "cause": {
+              "kind": "override",
+              "override_id": "ovr_bp_landing",
+              "binding_id": "blood_pressure.return_to_gravity",
+              "started_by": "rule",
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          },
+          {
+            "occurrence_id": "occ_mar_daily_check",
+            "revision": 1,
+            "item_id": "daily_check",
+            "person_id": "mara",
+            "environment_id": "mars_surface",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 3,
+              "label": "sol 3 on Mars",
+              "short_label": "Sol 3"
+            },
+            "group": "today",
+            "state": "due",
+            "due_from": "2026-11-13T07:00:00Z",
+            "due_until": "2026-11-14T00:00:00Z",
+            "end_text": "due now",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          },
+          {
+            "occurrence_id": "occ_mar_exercise_log",
+            "revision": 1,
+            "item_id": "exercise_log",
+            "person_id": "mara",
+            "environment_id": "mars_surface",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 3,
+              "label": "sol 3 on Mars",
+              "short_label": "Sol 3"
+            },
+            "group": "today",
+            "state": "later",
+            "due_from": "2026-11-13T15:00:00Z",
+            "due_until": "2026-11-13T17:00:00Z",
+            "end_text": "15:00",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          }
+        ]
+      },
+      {
+        "group_id": "week",
+        "label": "This week",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_mar_body_mass",
+            "revision": 1,
+            "item_id": "body_mass",
+            "person_id": "mara",
+            "environment_id": "mars_surface",
+            "day": {
+              "mission_day": 23,
+              "environment_day": 7,
+              "label": "sol 7 on Mars",
+              "short_label": "Sol 7"
+            },
+            "group": "week",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "sol 7",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_mar_behavioral_self_check",
+            "revision": 1,
+            "item_id": "behavioral_self_check",
+            "person_id": "mara",
+            "environment_id": "mars_surface",
+            "day": {
+              "mission_day": 21,
+              "environment_day": 5,
+              "label": "sol 5 on Mars",
+              "short_label": "Sol 5"
+            },
+            "group": "week",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "sol 5",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          }
+        ]
+      },
+      {
+        "group_id": "month",
+        "label": "This month",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_mar_hearing_check",
+            "revision": 1,
+            "item_id": "hearing_check",
+            "person_id": "mara",
+            "environment_id": "mars_surface",
+            "day": {
+              "mission_day": 36,
+              "environment_day": 20,
+              "label": "sol 20 on Mars",
+              "short_label": "Sol 20"
+            },
+            "group": "month",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "sol 20",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_mar_cognitive_test",
+            "revision": 1,
+            "item_id": "cognitive_test",
+            "person_id": "mara",
+            "environment_id": "mars_surface",
+            "day": {
+              "mission_day": 41,
+              "environment_day": 25,
+              "label": "sol 25 on Mars",
+              "short_label": "Sol 25"
+            },
+            "group": "month",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "sol 25",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          }
+        ]
+      },
+      {
+        "group_id": "walk",
+        "label": "Walks",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_mar_pre_eva_check",
+            "revision": 1,
+            "item_id": "pre_eva_check",
+            "person_id": "mara",
+            "environment_id": "mars_surface",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 3,
+              "label": "sol 3 on Mars",
+              "short_label": "Sol 3"
+            },
+            "group": "walk",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "first walk sol 8",
+            "cause": {
+              "kind": "per_eva",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_mar_post_eva_check",
+            "revision": 1,
+            "item_id": "post_eva_check",
+            "person_id": "mara",
+            "environment_id": "mars_surface",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 3,
+              "label": "sol 3 on Mars",
+              "short_label": "Sol 3"
+            },
+            "group": "walk",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "first walk sol 8",
+            "cause": {
+              "kind": "per_eva",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          }
+        ]
+      }
+    ],
+    "counts": {
+      "due": 3,
+      "later": 1,
+      "done": 0,
+      "open_today": 4
+    },
+    "days": [
+      {
+        "mission_day": 13,
+        "label": "day 13",
+        "done": 3,
+        "due": 3
+      },
+      {
+        "mission_day": 14,
+        "label": "day 14",
+        "done": 3,
+        "due": 3
+      },
+      {
+        "mission_day": 15,
+        "label": "day 15",
+        "done": 2,
+        "due": 2
+      },
+      {
+        "mission_day": 16,
+        "label": "day 16",
+        "done": 1,
+        "due": 1
+      },
+      {
+        "mission_day": 17,
+        "label": "Sol 1",
+        "done": 2,
+        "due": 3
+      },
+      {
+        "mission_day": 18,
+        "label": "Sol 2",
+        "done": 3,
+        "due": 4
+      },
+      {
+        "mission_day": 19,
+        "label": "Sol 3",
+        "done": 0,
+        "due": 4
+      }
+    ],
+    "active_overrides": [
+      {
+        "override_id": "ovr_bp_landing",
+        "revision": 1,
+        "item_id": "blood_pressure",
+        "person_id": null,
+        "audience": "all_crew",
+        "binding_id": "blood_pressure.return_to_gravity",
+        "trigger_index": 2,
+        "trigger_text": "Return to gravity (landing on Earth, the Moon or Mars)",
+        "started_by": "rule",
+        "source": {
+          "kind": "mission_event",
+          "ref_id": "evt_landing_mars_1"
+        },
+        "new_cadence": {
+          "word": "daily",
+          "n": null,
+          "note": "sitting and standing, with a crewmate ready to help"
+        },
+        "cadence_text": "Sitting and standing, with a crewmate ready to help",
+        "reason_text": "Return to gravity (landing on Earth, the Moon or Mars)",
+        "state": "active",
+        "started_at": "2026-11-11T02:00:00Z",
+        "ends": {
+          "kind": "person_stops",
+          "at": null,
+          "text": "when the crew medical officer stops it"
+        },
+        "ended_at": null,
+        "end_reason": null,
+        "basis": "team default",
+        "source_ids": [
+          "C09"
+        ],
+        "config_release_id": "rel_20261113_a",
+        "allowed_actions": [
+          "end"
+        ]
+      }
+    ],
+    "misses": {
+      "count": 0,
+      "window_days": 7,
+      "barrier_question_due": false
+    },
+    "config_release_id": "rel_20261113_a"
+  }
+}

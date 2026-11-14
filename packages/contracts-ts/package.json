@@ -1,0 +1,13 @@
+{
+  "name": "@crew-health/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {".": "./src/generated/client.ts"},
+  "scripts": {
+    "generate": "uv run --project ../../hub python -m crew_health.contracts_gen.build --typescript",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {"openapi-fetch": "^0.17.0"},
+  "devDependencies": {"openapi-typescript": "^7.0.0", "typescript": "^5.0.0"}
+}

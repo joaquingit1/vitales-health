@@ -1,0 +1,11 @@
+{
+  "summary": "SIM SSE chunk tool",
+  "description": "One data payload on the conversation stream. Illustrative only: not seed data.",
+  "x-schema": "assistant-stream-chunk.schema.json",
+  "value": {
+    "type": "tool",
+    "turn_id": "trn_4",
+    "tool": "kit_check",
+    "status": "succeeded"
+  }
+}

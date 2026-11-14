@@ -1,0 +1,16 @@
+{
+  "name": "crew-health-workspace",
+  "private": true,
+  "packageManager": "pnpm@12.18.0",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "22.23.4",
+      "onFail": "download"
+    }
+  },
+  "scripts": {
+    "generate": "pnpm -C packages/contracts-ts generate",
+    "typecheck": "pnpm -C packages/contracts-ts typecheck"
+  }
+}

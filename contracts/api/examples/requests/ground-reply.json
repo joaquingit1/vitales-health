@@ -1,0 +1,8 @@
+{
+  "summary": "SIM request POST /v1/ground/messages/{id}/reply",
+  "description": "The ground's reply. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/GroundReply",
+  "value": {
+    "text": "Received. Keep rinsing and send the eye photo when you can."
+  }
+}

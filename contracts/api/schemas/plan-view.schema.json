@@ -1,0 +1,988 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "plan-view.schema.json",
+  "title": "PlanView",
+  "description": "One plan for one environment, computed on read from onboard-plans.json, kit-map.json (kit, supplies, stock), skills-catalog.json, the roster, overlays and SkillRecords (CONTRACTS section 22). Never stored. Identical with the link up, delayed or down except the ground_log stage's link_text and leaves_at (EI2).",
+  "type": "object",
+  "properties": {
+    "plan_id": {
+      "type": "string",
+      "description": "An onboard-plans.json plan ID.",
+      "pattern": "^plan_[a-z0-9_]{1,59}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "condition_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^ICL[1-9][0-9]{0,2}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "flow_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "written_for": {
+      "enum": [
+        "condition",
+        "family",
+        "flow"
+      ]
+    },
+    "mode": {
+      "$ref": "common.schema.json#/$defs/plan_mode"
+    },
+    "mode_text": {
+      "type": "string",
+      "description": "ui-copy plan_mode_words.",
+      "minLength": 1
+    },
+    "tag_text": {
+      "type": "string",
+      "description": "ui-copy plan_lines plan_tag with the review state, for example Onboard plan ICL10 · unreviewed draft.",
+      "minLength": 1
+    },
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "plan_version": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "notice": {
+      "type": "string",
+      "description": "The document notice, for example Unreviewed draft: needs clinician review.",
+      "minLength": 1
+    },
+    "review_state": {
+      "enum": [
+        "unreviewed",
+        "reviewed"
+      ]
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "stage_id": {
+                "enum": [
+                  "check_another_way",
+                  "do_now",
+                  "watch",
+                  "if_worse",
+                  "medical_officer"
+                ]
+              },
+              "label": {
+                "type": "string",
+                "description": "ui-copy plan_stage_words.",
+                "minLength": 1
+              },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "step_id": {
+                      "$ref": "common.schema.json#/$defs/config_id"
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "Verbatim from onboard-plans.json. Never from the model (EI6).",
+                      "minLength": 1
+                    },
+                    "text_first_time": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "who": {
+                      "$ref": "common.schema.json#/$defs/who"
+                    },
+                    "availability": {
+                      "enum": [
+                        "aboard",
+                        "not_aboard",
+                        "substituted",
+                        "needs_skill_holder"
+                      ],
+                      "description": "aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one."
+                    },
+                    "availability_text": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "description": "ui-copy plan_lines not_aboard, substituted or needs_skill_holder, rendered. null when aboard.",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "missing": {
+                      "type": "object",
+                      "properties": {
+                        "instruments": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "common.schema.json#/$defs/config_id"
+                          },
+                          "uniqueItems": true
+                        },
+                        "supplies": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "common.schema.json#/$defs/config_id"
+                          },
+                          "uniqueItems": true
+                        },
+                        "skills": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "common.schema.json#/$defs/config_id"
+                          },
+                          "uniqueItems": true
+                        }
+                      },
+                      "required": [
+                        "instruments",
+                        "supplies",
+                        "skills"
+                      ],
+                      "additionalProperties": false,
+                      "description": "What the step needs that is not here. Empty lists when availability is aboard."
+                    },
+                    "substitute_step_id": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/config_id"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "substitute_only": {
+                      "type": "boolean"
+                    },
+                    "who_can": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "person_id": {
+                            "$ref": "common.schema.json#/$defs/id"
+                          },
+                          "display_name": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "reason_code": {
+                            "enum": [
+                              "any_crew",
+                              "skill_holder",
+                              "medical_officer"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "person_id",
+                          "display_name",
+                          "reason_code"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data."
+                    },
+                    "body_region": {
+                      "$ref": "common.schema.json#/$defs/body_region_or_null"
+                    },
+                    "landmark_id": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/config_id"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "guided_check_skill_id": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/config_id"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "cannot_replace_text": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "recheck": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "cadence": {
+                              "anyOf": [
+                                {
+                                  "$ref": "common.schema.json#/$defs/cadence_word"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "interval_seconds": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": 1
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "basis": {
+                              "$ref": "common.schema.json#/$defs/basis"
+                            },
+                            "to_be_set_by": {
+                              "$ref": "common.schema.json#/$defs/to_be_set_by"
+                            },
+                            "text": {
+                              "type": "string",
+                              "description": "Rendered from ui-copy plan_lines recheck_at or recheck_pending.",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "cadence",
+                            "interval_seconds",
+                            "basis",
+                            "to_be_set_by",
+                            "text"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "opens_help": {
+                      "type": "boolean"
+                    },
+                    "opens_flow_id": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/config_id"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "medicine": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "named_as": {
+                              "const": "as in the onboard procedure"
+                            }
+                          },
+                          "required": [
+                            "named_as"
+                          ],
+                          "additionalProperties": false,
+                          "description": "No dose property exists (EI6)."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "replaces_ground_task": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/form_quote"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "supply_cover_after": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "supply_id": {
+                            "$ref": "common.schema.json#/$defs/config_id"
+                          },
+                          "uses_left": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "supply_id",
+                          "uses_left"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set."
+                    },
+                    "source_ids": {
+                      "$ref": "common.schema.json#/$defs/source_ids"
+                    },
+                    "basis": {
+                      "$ref": "common.schema.json#/$defs/basis"
+                    },
+                    "review_state": {
+                      "enum": [
+                        "unreviewed",
+                        "reviewed"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "step_id",
+                    "text",
+                    "text_first_time",
+                    "who",
+                    "availability",
+                    "availability_text",
+                    "missing",
+                    "substitute_step_id",
+                    "substitute_only",
+                    "who_can",
+                    "body_region",
+                    "landmark_id",
+                    "guided_check_skill_id",
+                    "cannot_replace_text",
+                    "recheck",
+                    "opens_help",
+                    "opens_flow_id",
+                    "medicine",
+                    "replaces_ground_task",
+                    "supply_cover_after",
+                    "source_ids",
+                    "basis",
+                    "review_state"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1
+              }
+            },
+            "required": [
+              "stage_id",
+              "label",
+              "steps"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "stage_id": {
+                "const": "return"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "criteria": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "source_ids": {
+                      "$ref": "common.schema.json#/$defs/source_ids"
+                    },
+                    "to_be_set_by": {
+                      "$ref": "common.schema.json#/$defs/to_be_set_by"
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "source_ids",
+                    "to_be_set_by"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1
+              },
+              "criteria_text": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "description": "ui-copy plan_lines return_criteria_pending when any criterion waits for flight rules.",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "prepare": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "step_id": {
+                      "$ref": "common.schema.json#/$defs/config_id"
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "Verbatim from onboard-plans.json. Never from the model (EI6).",
+                      "minLength": 1
+                    },
+                    "text_first_time": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "who": {
+                      "$ref": "common.schema.json#/$defs/who"
+                    },
+                    "availability": {
+                      "enum": [
+                        "aboard",
+                        "not_aboard",
+                        "substituted",
+                        "needs_skill_holder"
+                      ],
+                      "description": "aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one."
+                    },
+                    "availability_text": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "description": "ui-copy plan_lines not_aboard, substituted or needs_skill_holder, rendered. null when aboard.",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "missing": {
+                      "type": "object",
+                      "properties": {
+                        "instruments": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "common.schema.json#/$defs/config_id"
+                          },
+                          "uniqueItems": true
+                        },
+                        "supplies": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "common.schema.json#/$defs/config_id"
+                          },
+                          "uniqueItems": true
+                        },
+                        "skills": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "common.schema.json#/$defs/config_id"
+                          },
+                          "uniqueItems": true
+                        }
+                      },
+                      "required": [
+                        "instruments",
+                        "supplies",
+                        "skills"
+                      ],
+                      "additionalProperties": false,
+                      "description": "What the step needs that is not here. Empty lists when availability is aboard."
+                    },
+                    "substitute_step_id": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/config_id"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "substitute_only": {
+                      "type": "boolean"
+                    },
+                    "who_can": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "person_id": {
+                            "$ref": "common.schema.json#/$defs/id"
+                          },
+                          "display_name": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "reason_code": {
+                            "enum": [
+                              "any_crew",
+                              "skill_holder",
+                              "medical_officer"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "person_id",
+                          "display_name",
+                          "reason_code"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data."
+                    },
+                    "body_region": {
+                      "$ref": "common.schema.json#/$defs/body_region_or_null"
+                    },
+                    "landmark_id": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/config_id"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "guided_check_skill_id": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/config_id"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "cannot_replace_text": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "recheck": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "cadence": {
+                              "anyOf": [
+                                {
+                                  "$ref": "common.schema.json#/$defs/cadence_word"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "interval_seconds": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": 1
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "basis": {
+                              "$ref": "common.schema.json#/$defs/basis"
+                            },
+                            "to_be_set_by": {
+                              "$ref": "common.schema.json#/$defs/to_be_set_by"
+                            },
+                            "text": {
+                              "type": "string",
+                              "description": "Rendered from ui-copy plan_lines recheck_at or recheck_pending.",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "cadence",
+                            "interval_seconds",
+                            "basis",
+                            "to_be_set_by",
+                            "text"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "opens_help": {
+                      "type": "boolean"
+                    },
+                    "opens_flow_id": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/config_id"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "medicine": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "named_as": {
+                              "const": "as in the onboard procedure"
+                            }
+                          },
+                          "required": [
+                            "named_as"
+                          ],
+                          "additionalProperties": false,
+                          "description": "No dose property exists (EI6)."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "replaces_ground_task": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/form_quote"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "supply_cover_after": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "supply_id": {
+                            "$ref": "common.schema.json#/$defs/config_id"
+                          },
+                          "uses_left": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "supply_id",
+                          "uses_left"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set."
+                    },
+                    "source_ids": {
+                      "$ref": "common.schema.json#/$defs/source_ids"
+                    },
+                    "basis": {
+                      "$ref": "common.schema.json#/$defs/basis"
+                    },
+                    "review_state": {
+                      "enum": [
+                        "unreviewed",
+                        "reviewed"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "step_id",
+                    "text",
+                    "text_first_time",
+                    "who",
+                    "availability",
+                    "availability_text",
+                    "missing",
+                    "substitute_step_id",
+                    "substitute_only",
+                    "who_can",
+                    "body_region",
+                    "landmark_id",
+                    "guided_check_skill_id",
+                    "cannot_replace_text",
+                    "recheck",
+                    "opens_help",
+                    "opens_flow_id",
+                    "medicine",
+                    "replaces_ground_task",
+                    "supply_cover_after",
+                    "source_ids",
+                    "basis",
+                    "review_state"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "decided_by": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "commander",
+                    "crew_medical_officer"
+                  ]
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "who_decides_text": {
+                "type": "string",
+                "description": "ui-copy plan_lines who_decides. The app lists; it does not decide.",
+                "minLength": 1
+              },
+              "trip_text": {
+                "type": "string",
+                "description": "From the active environment's return_option.",
+                "minLength": 1
+              },
+              "trip_source_ids": {
+                "$ref": "common.schema.json#/$defs/source_ids"
+              },
+              "rtdc": {
+                "anyOf": [
+                  {
+                    "$ref": "common.schema.json#/$defs/rtdc"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "stage_id",
+              "label",
+              "criteria",
+              "criteria_text",
+              "prepare",
+              "decided_by",
+              "who_decides_text",
+              "trip_text",
+              "trip_source_ids",
+              "rtdc"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "stage_id": {
+                "const": "ground_log"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "blocking": {
+                "const": false
+              },
+              "row_text": {
+                "type": "string",
+                "description": "ui-copy plan_lines ground_log_row.",
+                "minLength": 1
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "source_ids": {
+                      "$ref": "common.schema.json#/$defs/source_ids"
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "source_ids"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "link_text": {
+                "type": "string",
+                "description": "ui-copy plan_lines ground_log_up or ground_log_down, rendered from the GroundLink. The only part of a PlanView that changes with the link (EI2).",
+                "minLength": 1
+              },
+              "leaves_at": {
+                "anyOf": [
+                  {
+                    "$ref": "common.schema.json#/$defs/instant"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "stage_id",
+              "label",
+              "blocking",
+              "row_text",
+              "items",
+              "link_text",
+              "leaves_at"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "description": "In the fixed order of plan_stage; stages without steps for this environment are left out; ground_log is always last.",
+      "minItems": 1
+    },
+    "plan_aboard": {
+      "type": "boolean",
+      "description": "True when an any_crew step in check_another_way, do_now or watch is aboard or substituted here, and the plan has a watch or check_another_way step (EI3)."
+    },
+    "waits_for_medical_officer": {
+      "type": "boolean",
+      "description": "True when every runnable step outside if_worse needs the medical officer or a skill only a medical officer holds fresh. The planning view's what-if reports changes to it."
+    },
+    "no_return_text": {
+      "anyOf": [
+        {
+          "type": "string",
+          "description": "ui-copy plan_lines no_return, when the environment's return_option is null.",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "plan_id",
+    "title",
+    "condition_id",
+    "flow_id",
+    "written_for",
+    "mode",
+    "mode_text",
+    "tag_text",
+    "environment_id",
+    "release_id",
+    "plan_version",
+    "notice",
+    "review_state",
+    "stages",
+    "plan_aboard",
+    "waits_for_medical_officer",
+    "no_return_text",
+    "as_of"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "condition_id": {
+              "type": "string",
+              "pattern": "^ICL[1-9][0-9]{0,2}$"
+            },
+            "flow_id": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "condition_id": {
+              "type": "null"
+            },
+            "flow_id": {
+              "$ref": "common.schema.json#/$defs/config_id"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

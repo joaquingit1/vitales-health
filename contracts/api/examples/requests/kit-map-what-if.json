@@ -1,0 +1,11 @@
+{
+  "summary": "SIM request POST /v1/kit-map/what-if",
+  "description": "Add a single-lead ECG to the station kit. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/KitMapWhatIf",
+  "value": {
+    "add_instruments": [
+      "ecg_single_lead"
+    ],
+    "environment_id": "station_leo"
+  }
+}

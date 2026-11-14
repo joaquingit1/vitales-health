@@ -1,0 +1,104 @@
+{
+  "summary": "SIM POST /v1/config/releases rejected",
+  "description": "A release the loader refused: the copy check of section 11 found a drifted value. The active release stays. Illustrative only: not seed data.",
+  "x-schema": "config-release.schema.json",
+  "value": {
+    "release_id": "rel_20261113_b",
+    "state": "rejected",
+    "pins": [
+      {
+        "name": "assistant-policy",
+        "version": "5629df57f991935dfe9437e5cfe8f60206cac0fae06b3589b4ec7e0c07fbdf1f"
+      },
+      {
+        "name": "environment-hazards",
+        "version": "3b2a48135467ae678d32841adf5f320b8ef183733f0933000c07d177aff87c24"
+      },
+      {
+        "name": "environment-profiles",
+        "version": "7cef0aac1f1ef46a7687bbabdac975e6e0b1655489a1a9735c41b114baf0ce6b"
+      },
+      {
+        "name": "help-presentation",
+        "version": "682f54eb73a7b11c2e5df233951bf608cc63a99825f070175f939a8df03b8170"
+      },
+      {
+        "name": "indicator-catalog",
+        "version": "aaecb176ad1b3858b36844334f639a59d3fe1d09bf2b5dcdc6540edb6ed933fe"
+      },
+      {
+        "name": "kit-map",
+        "version": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b"
+      },
+      {
+        "name": "onboard-plans",
+        "version": "7aaab248951ab8bcd5bf193b05216727d30a3c2d4485b0dbd09a6626c15c7fe1"
+      },
+      {
+        "name": "participation-rules",
+        "version": "2391ad8383dd428b98d5685c72daf1412aee7e4b466d040d2d5c6cf96978622a"
+      },
+      {
+        "name": "questionnaires",
+        "version": "6a0671c1cda20cc0ea5855bfcf6bfbcc568bd1ab4173480db693f04226ad6736"
+      },
+      {
+        "name": "responder-flows",
+        "version": "23865cf8acfbfa869df24a8b0fee732e386ddbb9e4735d19d0920873d92cee64"
+      },
+      {
+        "name": "role-rules",
+        "version": "7c65b349bf85239e49c23b417694002489fd97a911990285cdefea9a85e136e1"
+      },
+      {
+        "name": "routine-rules",
+        "version": "07af862d1a84cbe672e237713711329c7731937826d4947d713be1bf887ecfff"
+      },
+      {
+        "name": "routine-schedule",
+        "version": "5042bfe826f696446c1b7324f2643951c6e9018bd7e928e33954e1c1e561e220"
+      },
+      {
+        "name": "sensor-catalog",
+        "version": "424f266e3fc638be8c0764d6035e0c642f3a198f3e84c5c485617fb4e3f67de8"
+      },
+      {
+        "name": "sensor-limits",
+        "version": "1cb23bb092e9a45eba1d562f6fac05e27c00d8f3b5b85101fa45b38881f690ed"
+      },
+      {
+        "name": "skills-catalog",
+        "version": "65050135c78bfea42bab863c90b7e4a2c37d47d8aa9c8f551f06cdca25525ec9"
+      },
+      {
+        "name": "ui-copy",
+        "version": "296d7bbbb4ac286e63ec8a5968d96fb5cce35e256b9151e415e7b2133fba5f6e"
+      },
+      {
+        "name": "warning-rules",
+        "version": "d7558dc24c8f23fe07de01f9384b997fa3b5763f2daec85303e33861989f7e1c"
+      }
+    ],
+    "created_at": "2026-11-13T05:55:00Z",
+    "created_by": {
+      "kind": "operator",
+      "id": "op_demo",
+      "display_name": "Demo operator"
+    },
+    "activated_at": null,
+    "activated_by": null,
+    "superseded_at": null,
+    "validation": {
+      "passed": false,
+      "errors": [
+        {
+          "document": "sensor-limits",
+          "pointer": "/limits/0/hazard_level/value",
+          "message": "co2_1h_act copies value 4 but environment-hazards.json hazards co2 levels[0] says 3."
+        }
+      ],
+      "warnings": []
+    },
+    "note": "Rejected: a limit copy drifted from environment-hazards.json."
+  }
+}

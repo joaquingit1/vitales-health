@@ -1,0 +1,275 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-sensor-catalog.schema.json",
+  "title": "sensor-catalog.json",
+  "description": "Team display configuration for habitat sensors: which hazard each sensor type reports on, its names, focus body region, units, display ranges, aggregations, expected reporting interval and when it counts as quiet. Edited by the team. Sampling intervals are sourced where cited; ranges, decimals and stale_after are team defaults.",
+  "type": "object",
+  "properties": {
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review before live guidance.",
+      "minLength": 1
+    },
+    "sensor_types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "hazard_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "name": {
+            "type": "string",
+            "description": "Short name on cards, for example CO2.",
+            "minLength": 1
+          },
+          "long_name": {
+            "type": "string",
+            "description": "Name on the detail page, for example Carbon dioxide.",
+            "minLength": 1
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          },
+          "unit": {
+            "type": "string",
+            "description": "Canonical unit the hub stores and evaluates in, for example mmHg or mg/m3.",
+            "minLength": 1
+          },
+          "unit_display": {
+            "type": "string",
+            "description": "Unit as shown, for example mg/m³. Empty for a unitless index."
+          },
+          "decimals": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4
+          },
+          "trim_trailing_zeros": {
+            "type": "boolean",
+            "description": "After rounding to decimals, drop trailing zeros and a bare decimal point, so 48.0 shows as 48 and 6.2 stays 6.2. Absent means false."
+          },
+          "accepted_units": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "unit": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "conversion": {
+                  "enum": [
+                    "identity",
+                    "scale",
+                    "ppm_to_mmhg"
+                  ],
+                  "description": "ppm_to_mmhg: mmHg = ppm x cabin pressure in mmHg / 1,000,000, using the channel's pressure reading or the assumed pressure recorded in the reading's conversion."
+                },
+                "factor": {
+                  "type": "number",
+                  "description": "For scale: canonical = value x factor."
+                }
+              },
+              "required": [
+                "unit",
+                "conversion"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "aggregations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "common.schema.json#/$defs/config_id"
+                },
+                "kind": {
+                  "enum": [
+                    "latest",
+                    "mean",
+                    "time_weighted_mean",
+                    "energy_mean",
+                    "max",
+                    "sum"
+                  ],
+                  "description": "energy_mean is the equivalent continuous level for decibels: 10 log10 of the time-weighted mean of 10^(L/10)."
+                },
+                "window_seconds": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "label": {
+                  "type": "string",
+                  "description": "Words shown with the value, for example one-hour average.",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "window_seconds",
+                "label"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "display_aggregation_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "display": {
+            "type": "object",
+            "properties": {
+              "range": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "by_environment": {
+                "type": "object",
+                "properties": {
+                  "station_leo": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  },
+                  "transit": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  },
+                  "lunar_surface": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  },
+                  "mars_surface": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [],
+                "additionalProperties": false,
+                "description": "Optional per environment range; missing keys use range."
+              },
+              "basis": {
+                "$ref": "common.schema.json#/$defs/basis"
+              }
+            },
+            "required": [
+              "range",
+              "by_environment",
+              "basis"
+            ],
+            "additionalProperties": false
+          },
+          "expected_interval_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "description": "How often the channel should report. null when the design decides (radiation, water)."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "interval_basis": {
+            "$ref": "common.schema.json#/$defs/basis"
+          },
+          "interval_source_ids": {
+            "$ref": "common.schema.json#/$defs/source_ids"
+          },
+          "stale_after_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "A channel is quiet when now minus its last received_at exceeds this."
+          },
+          "stale_basis": {
+            "$ref": "common.schema.json#/$defs/basis"
+          },
+          "no_reading_label": {
+            "type": "string",
+            "description": "Word shown when no reading exists, for example No reading or Untested.",
+            "minLength": 1
+          },
+          "manual_alternative_item_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "citation_text": {
+            "type": "string",
+            "description": "How the card cites the sensor type.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "hazard_id",
+          "name",
+          "long_name",
+          "body_region",
+          "unit",
+          "unit_display",
+          "decimals",
+          "accepted_units",
+          "aggregations",
+          "display_aggregation_id",
+          "display",
+          "expected_interval_seconds",
+          "interval_basis",
+          "interval_source_ids",
+          "stale_after_seconds",
+          "stale_basis",
+          "no_reading_label",
+          "manual_alternative_item_id",
+          "citation_text"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "notice",
+    "sensor_types"
+  ],
+  "additionalProperties": false
+}

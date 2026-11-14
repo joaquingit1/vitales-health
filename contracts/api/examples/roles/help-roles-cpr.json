@@ -1,0 +1,109 @@
+{
+  "summary": "SIM GET /v1/help-sessions/hlp_station_cpr/roles",
+  "description": "Ilya Brandt, the first medical officer, is the patient: the cascade proposes Sofia Reyes as medical officer, Tomas Lind for compressions (CPR practiced day 12) and Mara Okafor to bring the AED and the restraint board, one role each. The optional second helper and communicator stay unfilled. Illustrative only: not seed data.",
+  "x-schema": "help-roles-view.schema.json",
+  "value": {
+    "help_session_id": "hlp_station_cpr",
+    "assignments": [
+      {
+        "role_assignment_id": "rol_cpr_medical_officer",
+        "revision": 1,
+        "help_session_id": "hlp_station_cpr",
+        "plan_run_id": null,
+        "role_id": "medical_officer",
+        "label": "Medical officer",
+        "person": {
+          "person_id": "sofia",
+          "display_name": "Sofia Reyes"
+        },
+        "skill_id": null,
+        "task_text": null,
+        "reason_code": "second_officer",
+        "reason_text": "Second medical officer",
+        "context_reasons": [
+          {
+            "reason_code": "officer_is_subject",
+            "text": "Ilya Brandt is the patient"
+          }
+        ],
+        "state": "proposed",
+        "proposed_at": "2026-11-13T09:00:25Z",
+        "accepted_at": null,
+        "changed_by": null,
+        "changed_at": null,
+        "replaced_by_id": null,
+        "allowed_actions": [
+          "accept",
+          "reassign"
+        ]
+      },
+      {
+        "role_assignment_id": "rol_cpr_lead_helper",
+        "revision": 1,
+        "help_session_id": "hlp_station_cpr",
+        "plan_run_id": null,
+        "role_id": "lead_helper",
+        "label": "Helps",
+        "person": {
+          "person_id": "tomas",
+          "display_name": "Tomas Lind"
+        },
+        "skill_id": "cpr",
+        "task_text": "Compressions",
+        "reason_code": "freshest_skill",
+        "reason_text": "CPR practiced day 12",
+        "context_reasons": [],
+        "state": "proposed",
+        "proposed_at": "2026-11-13T09:00:25Z",
+        "accepted_at": null,
+        "changed_by": null,
+        "changed_at": null,
+        "replaced_by_id": null,
+        "allowed_actions": [
+          "accept",
+          "reassign"
+        ]
+      },
+      {
+        "role_assignment_id": "rol_cpr_kit_fetcher",
+        "revision": 1,
+        "help_session_id": "hlp_station_cpr",
+        "plan_run_id": null,
+        "role_id": "kit_fetcher",
+        "label": "Brings the kit",
+        "person": {
+          "person_id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "skill_id": null,
+        "task_text": "Bring the AED and the restraint board",
+        "reason_code": "free_to_help",
+        "reason_text": "Free to help",
+        "context_reasons": [],
+        "state": "proposed",
+        "proposed_at": "2026-11-13T09:00:25Z",
+        "accepted_at": null,
+        "changed_by": null,
+        "changed_at": null,
+        "replaced_by_id": null,
+        "allowed_actions": [
+          "accept",
+          "reassign"
+        ]
+      }
+    ],
+    "unfilled": [
+      {
+        "role_id": "second_helper",
+        "label": "Second helper",
+        "required": false
+      },
+      {
+        "role_id": "communicator",
+        "label": "Keeps the log",
+        "required": false
+      }
+    ],
+    "as_of": "2026-11-13T09:00:30Z"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "summary": "SIM GET /v1/warnings, Moon base",
+  "description": "Active warnings for Mara Okafor on lunar_surface, in headline order. Illustrative only: not seed data.",
+  "x-schema": "list:warning.schema.json",
+  "value": {
+    "items": [
+      {
+        "warning_id": "wrn_dust_lunar_1",
+        "revision": 1,
+        "definition_id": "dust_lunar_act",
+        "config_release_id": "rel_20261113_a",
+        "level": "act",
+        "raised_by": "sensor_limit",
+        "hazard_id": "dust",
+        "limit_id": "dust_lunar_act",
+        "sensor_type_id": "dust",
+        "channel_id": "ch_dust_airlock_sim",
+        "scope": "habitat",
+        "person_id": null,
+        "environment_id": "lunar_surface",
+        "location": "airlock",
+        "origin_mode": "SIM",
+        "title": "Dust rising after the surface walk",
+        "what": "Dust in the airlock is rising after the walk: the time-weighted average is 0.42 mg/m³. The lunar limit is 0.3 mg/m³.",
+        "why": "Lunar dust is fine and sharp. It irritates the eyes and skin and can harm the lungs.",
+        "steps": [
+          "Wear a dust mask and goggles in the affected area.",
+          "Vacuum.",
+          "Log it for the ground."
+        ],
+        "body_regions": [
+          "lungs"
+        ],
+        "headline": {
+          "fragment": "Dust after the surface walk",
+          "rank": 20,
+          "solo": false
+        },
+        "evidence": [
+          {
+            "kind": "reading",
+            "ref_id": "rdg_dust_airlock_sim",
+            "summary": "Time-weighted average 0.42 mg/m³, airlock, Sim",
+            "observed_at": "2026-11-13T11:55:00Z"
+          }
+        ],
+        "evidence_time": "2026-11-13T11:55:00Z",
+        "evidence_time_label": "11:55",
+        "citation": {
+          "text": "Airlock dust sensor, Sim.",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        "insight_id": null,
+        "state": "raised",
+        "raised_at": "2026-11-13T11:55:00Z",
+        "acknowledgements": [],
+        "cleared_at": null,
+        "clear_reason": null,
+        "resolved": null,
+        "dismissed": null,
+        "notes": [],
+        "previous_warning_id": null,
+        "routine_override_ids": [
+          "ovr_dust_check_lunar"
+        ],
+        "allowed_actions": [
+          "acknowledge",
+          "add_note"
+        ]
+      }
+    ],
+    "page": {
+      "next_cursor": null,
+      "total": 1
+    }
+  }
+}

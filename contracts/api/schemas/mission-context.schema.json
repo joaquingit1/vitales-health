@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "mission-context.schema.json",
+  "title": "MissionContext",
+  "description": "The mission clock, the active environment, any pending change, the crew and the ground link.",
+  "type": "object",
+  "properties": {
+    "mission_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "mission_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "epoch": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "clock_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "planned_length_days": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "today": {
+      "type": "object",
+      "properties": {
+        "mission_day": {
+          "$ref": "common.schema.json#/$defs/mission_day"
+        },
+        "environment_day": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "short_label": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "mission_day",
+        "environment_day",
+        "label",
+        "short_label"
+      ],
+      "additionalProperties": false
+    },
+    "met": {
+      "$ref": "common.schema.json#/$defs/met"
+    },
+    "mission_time": {
+      "$ref": "common.schema.json#/$defs/local_time"
+    },
+    "active_profile": {
+      "$ref": "environment-profile.schema.json"
+    },
+    "pending_change": {
+      "anyOf": [
+        {
+          "$ref": "environment-profile.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "crew": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/person_ref"
+      },
+      "minItems": 1
+    },
+    "ground_link": {
+      "$ref": "ground-link.schema.json"
+    }
+  },
+  "required": [
+    "mission_id",
+    "mission_mode",
+    "epoch",
+    "clock_version",
+    "planned_length_days",
+    "today",
+    "met",
+    "mission_time",
+    "active_profile",
+    "pending_change",
+    "crew",
+    "ground_link"
+  ],
+  "additionalProperties": false
+}

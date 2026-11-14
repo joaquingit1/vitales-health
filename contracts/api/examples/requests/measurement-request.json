@@ -1,0 +1,15 @@
+{
+  "summary": "SIM request POST /v1/measurement-requests",
+  "description": "The assistant's ECG proposal, as the controller submits it. The kit gate answers KIT_CANNOT_PERFORM on the station. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/MeasurementRequestCreate",
+  "value": {
+    "episode_id": "epi_mara_racing_1",
+    "capability_code": "ecg_rhythm",
+    "reason": "The rhythm needs an ECG.",
+    "decision_affected": "Whether the racing heart is an irregular rhythm",
+    "body_region": "heart",
+    "condition_ids": [
+      "ICL10"
+    ]
+  }
+}

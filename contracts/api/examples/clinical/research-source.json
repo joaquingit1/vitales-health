@@ -1,0 +1,14 @@
+{
+  "summary": "SIM GET /v1/research/sources/C23",
+  "description": "A research workspace source record. Illustrative only: not seed data.",
+  "x-schema": "research-source.schema.json",
+  "value": {
+    "source_id": "C23",
+    "title": "OCHMO-MTB-009 Circadian Desynchrony",
+    "url": "https://www.nasa.gov/ochmo",
+    "date": "2023",
+    "access": "public",
+    "saved_as": null,
+    "status": "approved"
+  }
+}

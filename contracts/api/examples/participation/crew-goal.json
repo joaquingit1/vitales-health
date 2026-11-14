@@ -1,0 +1,17 @@
+{
+  "summary": "SIM GET /v1/crew-goal",
+  "description": "The crew total for the last seven days. No per-person counts. Illustrative only: not seed data.",
+  "x-schema": "crew-goal-view.schema.json",
+  "value": {
+    "mission_id": "demo-mission",
+    "origin_mode": "SIM",
+    "window_first_mission_day": 13,
+    "window_last_mission_day": 19,
+    "completed_total": 23,
+    "due_total": 28,
+    "reached": false,
+    "as_of": "2026-11-13T09:10:16Z",
+    "derivation_version": "participation-1",
+    "mission_clock_version": "clock-1"
+  }
+}

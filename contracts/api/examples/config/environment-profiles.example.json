@@ -1,0 +1,313 @@
+{
+  "summary": "EXAMPLE CONFIG environment-profiles.json",
+  "description": "Profiles for the four environments. Ground delay words on screen come from earth_delay in environment-hazards.json; this document only sets the simulated queue delay.",
+  "x-schema": "config-environment-profiles.schema.json",
+  "value": {
+    "notice": "Unreviewed draft: needs clinician review before live guidance.",
+    "change_confirmation": {
+      "confirmations_required": 1,
+      "basis": "team default"
+    },
+    "mission_event_types": [
+      {
+        "id": "eva_planned",
+        "label": "Walk planned",
+        "starts_overlay": null,
+        "ends_overlay": null,
+        "who_may_record": [
+          "crew",
+          "operator",
+          "ground"
+        ]
+      },
+      {
+        "id": "eva_started",
+        "label": "Walk started",
+        "starts_overlay": "eva",
+        "ends_overlay": null,
+        "who_may_record": [
+          "crew",
+          "operator"
+        ]
+      },
+      {
+        "id": "eva_ended",
+        "label": "Walk ended",
+        "starts_overlay": "post_eva",
+        "ends_overlay": "eva",
+        "who_may_record": [
+          "crew",
+          "operator"
+        ]
+      },
+      {
+        "id": "landing",
+        "label": "Landing",
+        "starts_overlay": null,
+        "ends_overlay": null,
+        "who_may_record": [
+          "operator",
+          "ground"
+        ]
+      },
+      {
+        "id": "space_weather_alert",
+        "label": "Space weather alert from the ground",
+        "starts_overlay": null,
+        "ends_overlay": null,
+        "who_may_record": [
+          "ground",
+          "operator"
+        ]
+      },
+      {
+        "id": "space_weather_all_clear",
+        "label": "Space weather all clear",
+        "starts_overlay": null,
+        "ends_overlay": null,
+        "who_may_record": [
+          "ground",
+          "operator"
+        ]
+      },
+      {
+        "id": "local_water_source_added",
+        "label": "Local water source added",
+        "starts_overlay": null,
+        "ends_overlay": null,
+        "who_may_record": [
+          "crew",
+          "operator"
+        ]
+      },
+      {
+        "id": "local_water_tested",
+        "label": "Local water tested",
+        "starts_overlay": null,
+        "ends_overlay": null,
+        "who_may_record": [
+          "crew",
+          "crew_medical_officer",
+          "operator"
+        ]
+      },
+      {
+        "id": "sleep_started",
+        "label": "Sleep period started",
+        "starts_overlay": "sleep",
+        "ends_overlay": null,
+        "who_may_record": [
+          "crew",
+          "adapter",
+          "operator"
+        ]
+      },
+      {
+        "id": "sleep_ended",
+        "label": "Sleep period ended",
+        "starts_overlay": null,
+        "ends_overlay": "sleep",
+        "who_may_record": [
+          "crew",
+          "adapter",
+          "operator"
+        ]
+      }
+    ],
+    "state_facts": [
+      {
+        "id": "local_water_untested",
+        "label": "Local water not yet tested",
+        "set_by_event_types": [
+          "local_water_source_added"
+        ],
+        "cleared_by_event_types": [
+          "local_water_tested"
+        ],
+        "environments": [
+          "mars_surface"
+        ]
+      }
+    ],
+    "effect_filters": [
+      {
+        "hazard_id": "dust",
+        "effect_index": 6,
+        "effect_starts_with": "Martian dust is likely toxic: ",
+        "only_in": [
+          "mars_surface"
+        ],
+        "basis": "team default"
+      }
+    ],
+    "profiles": [
+      {
+        "environment_id": "station_leo",
+        "label": "Space station",
+        "place": "space station",
+        "day_label": {
+          "counter": "mission_day",
+          "template": "flight day {day} of {total}",
+          "short_template": "Day {day}",
+          "inline_template": "day {day}",
+          "day_length_seconds": 86400,
+          "basis": "team default"
+        },
+        "eva_word": "spacewalk",
+        "comms_queue": {
+          "simulated_one_way_delay_seconds": 2,
+          "basis": "team default",
+          "source_ids": [],
+          "scheduled_status": "up"
+        },
+        "sensor_type_ids": [
+          "co2",
+          "rad",
+          "o2",
+          "noise",
+          "air"
+        ],
+        "overlays": [
+          "eva",
+          "post_eva",
+          "exercise",
+          "sleep"
+        ],
+        "link": {
+          "default_gap_kind": "relay_outage",
+          "sim_schedule": [],
+          "basis": "team default"
+        },
+        "return_option": {
+          "trip_text": "Return from the station: to be set by flight rules.",
+          "source_ids": [],
+          "to_be_set_by": "flight rules"
+        }
+      },
+      {
+        "environment_id": "transit",
+        "label": "Deep-space transit",
+        "place": "deep-space transit",
+        "day_label": {
+          "counter": "mission_day",
+          "template": "mission day {day}",
+          "short_template": "Day {day}",
+          "inline_template": "day {day}",
+          "day_length_seconds": 86400,
+          "basis": "team default"
+        },
+        "eva_word": "spacewalk",
+        "comms_queue": {
+          "simulated_one_way_delay_seconds": 300,
+          "basis": "team default",
+          "source_ids": [],
+          "scheduled_status": "delayed"
+        },
+        "sensor_type_ids": [
+          "rad",
+          "co2",
+          "o2",
+          "noise"
+        ],
+        "overlays": [
+          "eva",
+          "post_eva",
+          "exercise",
+          "sleep"
+        ],
+        "link": {
+          "default_gap_kind": "relay_outage",
+          "sim_schedule": [],
+          "basis": "team default"
+        },
+        "return_option": null
+      },
+      {
+        "environment_id": "lunar_surface",
+        "label": "Lunar surface base",
+        "place": "Moon base",
+        "day_label": {
+          "counter": "environment_day",
+          "template": "surface day {day}",
+          "short_template": "Day {day}",
+          "inline_template": "day {day}",
+          "day_length_seconds": 86400,
+          "basis": "team default"
+        },
+        "eva_word": "surface walk",
+        "comms_queue": {
+          "simulated_one_way_delay_seconds": 10,
+          "basis": "sourced",
+          "source_ids": [
+            "EV01"
+          ],
+          "scheduled_status": "up"
+        },
+        "sensor_type_ids": [
+          "dust",
+          "rad",
+          "co2",
+          "o2"
+        ],
+        "overlays": [
+          "eva",
+          "post_eva",
+          "exercise",
+          "sleep"
+        ],
+        "link": {
+          "default_gap_kind": "planned_line_of_sight",
+          "sim_schedule": [],
+          "basis": "team default"
+        },
+        "return_option": {
+          "trip_text": "A three-day lunar trip",
+          "source_ids": [
+            "EV25"
+          ],
+          "to_be_set_by": null
+        }
+      },
+      {
+        "environment_id": "mars_surface",
+        "label": "Mars surface base",
+        "place": "Mars base",
+        "day_label": {
+          "counter": "environment_day",
+          "template": "sol {day} on Mars",
+          "short_template": "Sol {day}",
+          "inline_template": "sol {day}",
+          "day_length_seconds": 86400,
+          "basis": "team default"
+        },
+        "eva_word": "surface walk",
+        "comms_queue": {
+          "simulated_one_way_delay_seconds": 1200,
+          "basis": "sourced",
+          "source_ids": [
+            "EV25"
+          ],
+          "scheduled_status": "delayed"
+        },
+        "sensor_type_ids": [
+          "rad_day",
+          "dust",
+          "co2",
+          "water"
+        ],
+        "overlays": [
+          "eva",
+          "post_eva",
+          "exercise",
+          "sleep"
+        ],
+        "link": {
+          "default_gap_kind": "conjunction",
+          "sim_schedule": [],
+          "basis": "team default"
+        },
+        "return_option": null
+      }
+    ]
+  }
+}

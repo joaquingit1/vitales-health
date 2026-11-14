@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ground-inbox.schema.json",
+  "title": "GroundInbox",
+  "description": "What the ground console sees: ground messages and handoffs that reached the ground. Never participation data, never journal content. Nothing on board waits for the ground to read them.",
+  "type": "object",
+  "properties": {
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": [
+              "ground_message",
+              "handoff"
+            ]
+          },
+          "ref_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "delivered_at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          },
+          "receipt_at": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "simulated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "ref_id",
+          "delivered_at",
+          "receipt_at",
+          "title",
+          "text",
+          "simulated"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "as_of",
+    "items"
+  ],
+  "additionalProperties": false
+}

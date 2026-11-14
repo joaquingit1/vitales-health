@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensor-status.schema.json",
+  "title": "SensorStatus",
+  "description": "What a sensor card shows for one sensor type in the active environment. shown_level is the highest of the evaluation level and the levels of active warnings linked to this sensor type; null renders as the within limit word.",
+  "type": "object",
+  "properties": {
+    "sensor_type_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "hazard_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "long_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "body_region": {
+      "$ref": "common.schema.json#/$defs/body_region_or_null"
+    },
+    "channel_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reading_state": {
+      "enum": [
+        "current",
+        "stale",
+        "no_reading"
+      ]
+    },
+    "latest_reading": {
+      "anyOf": [
+        {
+          "$ref": "sensor-reading.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "display_value": {
+      "$ref": "common.schema.json#/$defs/number_display"
+    },
+    "context_label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "evaluation": {
+      "$ref": "sensor-evaluation.schema.json"
+    },
+    "shown_level": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/level"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "linked_warning_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "display_range": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "limit_marks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "limit_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "comparator": {
+            "enum": [
+              "above",
+              "at_or_above",
+              "below",
+              "at_or_below"
+            ]
+          },
+          "role": {
+            "enum": [
+              "warning",
+              "display_only"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "limit_id",
+          "value",
+          "unit",
+          "comparator",
+          "role",
+          "label"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "stale_since": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "trace": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "effects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          }
+        },
+        "required": [
+          "text",
+          "body_region"
+        ],
+        "additionalProperties": false
+      },
+      "description": "The hazard's effects after environment-profiles effect filters, source IDs removed."
+    },
+    "todo": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Sentences of what_to_do at shown_level, or at info when shown_level is null."
+    },
+    "here": {
+      "type": "string",
+      "description": "by_environment text of the hazard for the active environment.",
+      "minLength": 1
+    },
+    "citation": {
+      "$ref": "common.schema.json#/$defs/citation"
+    },
+    "series_href": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "sensor_type_id",
+    "hazard_id",
+    "environment_id",
+    "name",
+    "long_name",
+    "body_region",
+    "channel_id",
+    "reading_state",
+    "latest_reading",
+    "display_value",
+    "context_label",
+    "source_label",
+    "origin_mode",
+    "evaluation",
+    "shown_level",
+    "linked_warning_ids",
+    "display_range",
+    "limit_marks",
+    "stale_since",
+    "trace",
+    "effects",
+    "todo",
+    "here",
+    "citation",
+    "series_href"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "reading_state": {
+            "const": "no_reading"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "latest_reading": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

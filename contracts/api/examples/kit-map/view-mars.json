@@ -1,0 +1,479 @@
+{
+  "summary": "SIM GET /v1/kit-map?environment_id=mars_surface",
+  "description": "On the Mars base the kit adds the ultrasound, so ICL100 is measured_here: 1, 3 and 3. Illustrative only: not seed data.",
+  "x-schema": "kit-map-view.schema.json",
+  "value": {
+    "environment_id": "mars_surface",
+    "kit_map_version": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b",
+    "kit_map_label": "kit-map-example-1",
+    "example": true,
+    "kit": [
+      {
+        "instrument_id": "camera_station",
+        "name": "camera station"
+      },
+      {
+        "instrument_id": "pulse_oximeter",
+        "name": "pulse oximeter"
+      },
+      {
+        "instrument_id": "bp_cuff",
+        "name": "blood pressure cuff"
+      },
+      {
+        "instrument_id": "thermometer",
+        "name": "thermometer"
+      },
+      {
+        "instrument_id": "wrist_band",
+        "name": "wrist band"
+      },
+      {
+        "instrument_id": "ultrasound",
+        "name": "ultrasound, including ocular"
+      }
+    ],
+    "candidates": [
+      {
+        "instrument_id": "ecg_single_lead",
+        "name": "single-lead ECG",
+        "aboard": false
+      },
+      {
+        "instrument_id": "ultrasound",
+        "name": "ultrasound, including ocular",
+        "aboard": true
+      },
+      {
+        "instrument_id": "troponin_poc",
+        "name": "point-of-care troponin",
+        "aboard": false
+      },
+      {
+        "instrument_id": "personal_co2_monitor",
+        "name": "personal CO2 monitor",
+        "aboard": false
+      }
+    ],
+    "counts": {
+      "measured_here": 1,
+      "report_only": 3,
+      "needs_test_not_aboard": 3,
+      "total": 7
+    },
+    "regions": [
+      {
+        "region": "head",
+        "counts": {
+          "measured_here": 1,
+          "report_only": 3,
+          "needs_test_not_aboard": 2,
+          "total": 6
+        },
+        "marks": [
+          "measured_here",
+          "report_only",
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "eyes",
+        "counts": {
+          "measured_here": 1,
+          "report_only": 1,
+          "needs_test_not_aboard": 0,
+          "total": 2
+        },
+        "marks": [
+          "measured_here",
+          "report_only"
+        ]
+      },
+      {
+        "region": "neck",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 0,
+          "needs_test_not_aboard": 1,
+          "total": 1
+        },
+        "marks": [
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "shoulder",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 0,
+          "needs_test_not_aboard": 1,
+          "total": 1
+        },
+        "marks": [
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "heart",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 1,
+          "needs_test_not_aboard": 2,
+          "total": 3
+        },
+        "marks": [
+          "report_only",
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "lungs",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 1,
+          "needs_test_not_aboard": 2,
+          "total": 3
+        },
+        "marks": [
+          "report_only",
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "abdomen",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 0,
+          "needs_test_not_aboard": 1,
+          "total": 1
+        },
+        "marks": [
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "back",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 0,
+          "needs_test_not_aboard": 1,
+          "total": 1
+        },
+        "marks": [
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "wrist",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 2,
+          "needs_test_not_aboard": 1,
+          "total": 3
+        },
+        "marks": [
+          "report_only",
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "hand",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 1,
+          "needs_test_not_aboard": 1,
+          "total": 2
+        },
+        "marks": [
+          "report_only",
+          "needs_test_not_aboard"
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "condition_id": "ICL10",
+        "name": "Atrial fibrillation or flutter",
+        "state": "needs_test_not_aboard",
+        "body_regions": [
+          "heart",
+          "head",
+          "hand",
+          "wrist"
+        ],
+        "tests": [
+          {
+            "index": 0,
+            "name": "Single-lead or 12-lead ECG",
+            "instruments": [
+              "ecg_single_lead"
+            ],
+            "needs_no_instrument": false,
+            "fully_aboard": false,
+            "missing": [
+              "ecg_single_lead"
+            ]
+          },
+          {
+            "index": 1,
+            "name": "12-lead ECG",
+            "instruments": [
+              "ecg_12_lead"
+            ],
+            "needs_no_instrument": false,
+            "fully_aboard": false,
+            "missing": [
+              "ecg_12_lead"
+            ]
+          }
+        ],
+        "missing_instruments": [
+          "ecg_single_lead"
+        ],
+        "missing_text": "This kit can't: needs an ECG",
+        "report_only_findings": [],
+        "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/atrial-fibrillation-atrial-flutter-cliff-2023.pdf",
+        "review_state": "unreviewed",
+        "plan_id": "plan_icl10",
+        "plan_written_for": "condition",
+        "plan_aboard": true,
+        "ground_needs": null,
+        "treatment_scope": null,
+        "rtdc": null
+      },
+      {
+        "condition_id": "ICL3",
+        "name": "Acute coronary syndrome",
+        "state": "needs_test_not_aboard",
+        "body_regions": [
+          "heart",
+          "lungs",
+          "neck",
+          "shoulder",
+          "back",
+          "abdomen"
+        ],
+        "tests": [
+          {
+            "index": 0,
+            "name": "12-lead ECG and troponin",
+            "instruments": [
+              "ecg_12_lead",
+              "troponin_poc"
+            ],
+            "needs_no_instrument": false,
+            "fully_aboard": false,
+            "missing": [
+              "ecg_12_lead",
+              "troponin_poc"
+            ]
+          }
+        ],
+        "missing_instruments": [
+          "ecg_12_lead",
+          "troponin_poc"
+        ],
+        "missing_text": "This kit can't: needs a 12-lead ECG and a troponin test",
+        "report_only_findings": [],
+        "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/acute-coronary-syndrome-cliff-2023.pdf",
+        "review_state": "unreviewed",
+        "plan_id": "plan_icl3",
+        "plan_written_for": "condition",
+        "plan_aboard": true,
+        "ground_needs": null,
+        "treatment_scope": null,
+        "rtdc": null
+      },
+      {
+        "condition_id": "ICL14",
+        "name": "Anxiety",
+        "state": "report_only",
+        "body_regions": [
+          "head",
+          "heart",
+          "lungs",
+          "hand"
+        ],
+        "tests": [
+          {
+            "index": 0,
+            "name": "Clinical interview and physical examination",
+            "instruments": [],
+            "needs_no_instrument": true,
+            "fully_aboard": false,
+            "missing": []
+          }
+        ],
+        "missing_instruments": [],
+        "missing_text": null,
+        "report_only_findings": [],
+        "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-anxiety-cliff-2023.pdf",
+        "review_state": "unreviewed",
+        "plan_id": "plan_icl14",
+        "plan_written_for": "condition",
+        "plan_aboard": true,
+        "ground_needs": null,
+        "treatment_scope": null,
+        "rtdc": null
+      },
+      {
+        "condition_id": "ICL95",
+        "name": "Insomnia (space adaptation)",
+        "state": "report_only",
+        "body_regions": [
+          "head",
+          "wrist"
+        ],
+        "tests": [
+          {
+            "index": 0,
+            "name": "Sleep history and sleep diary",
+            "instruments": [],
+            "needs_no_instrument": true,
+            "fully_aboard": false,
+            "missing": []
+          }
+        ],
+        "missing_instruments": [],
+        "missing_text": null,
+        "report_only_findings": [],
+        "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-insomnia-cliff-2023.pdf",
+        "review_state": "unreviewed",
+        "plan_id": "plan_icl95",
+        "plan_written_for": "condition",
+        "plan_aboard": true,
+        "ground_needs": null,
+        "treatment_scope": null,
+        "rtdc": null
+      },
+      {
+        "condition_id": "ICL18",
+        "name": "Sleep disturbance",
+        "state": "report_only",
+        "body_regions": [
+          "eyes",
+          "head",
+          "wrist"
+        ],
+        "tests": [
+          {
+            "index": 0,
+            "name": "Sleep history and behavioral health interview",
+            "instruments": [],
+            "needs_no_instrument": true,
+            "fully_aboard": false,
+            "missing": []
+          }
+        ],
+        "missing_instruments": [],
+        "missing_text": null,
+        "report_only_findings": [],
+        "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-sleep-disturbance-cliff-2023.pdf",
+        "review_state": "unreviewed",
+        "plan_id": "plan_icl18",
+        "plan_written_for": "condition",
+        "plan_aboard": true,
+        "ground_needs": null,
+        "treatment_scope": null,
+        "rtdc": null
+      },
+      {
+        "condition_id": "ICL64",
+        "name": "Headache, CO2 induced",
+        "state": "needs_test_not_aboard",
+        "body_regions": [
+          "head",
+          "lungs"
+        ],
+        "tests": [
+          {
+            "index": 0,
+            "name": "CO2 measured where the person was, and a clinical examination",
+            "instruments": [
+              "personal_co2_monitor"
+            ],
+            "needs_no_instrument": false,
+            "fully_aboard": false,
+            "missing": [
+              "personal_co2_monitor"
+            ]
+          }
+        ],
+        "missing_instruments": [
+          "personal_co2_monitor"
+        ],
+        "missing_text": "This kit can't: needs a personal CO2 monitor",
+        "report_only_findings": [],
+        "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/headache-co2-induced-cliff-2023.pdf",
+        "review_state": "unreviewed",
+        "plan_id": "plan_icl64",
+        "plan_written_for": "condition",
+        "plan_aboard": true,
+        "ground_needs": null,
+        "treatment_scope": null,
+        "rtdc": null
+      },
+      {
+        "condition_id": "ICL100",
+        "name": "Spaceflight associated neuro-ocular syndrome (SANS)",
+        "state": "measured_here",
+        "body_regions": [
+          "eyes",
+          "head"
+        ],
+        "tests": [
+          {
+            "index": 0,
+            "name": "Fundoscopy",
+            "instruments": [
+              "fundoscope"
+            ],
+            "needs_no_instrument": false,
+            "fully_aboard": false,
+            "missing": [
+              "fundoscope"
+            ]
+          },
+          {
+            "index": 1,
+            "name": "OCT",
+            "instruments": [
+              "oct"
+            ],
+            "needs_no_instrument": false,
+            "fully_aboard": false,
+            "missing": [
+              "oct"
+            ]
+          },
+          {
+            "index": 2,
+            "name": "Ocular ultrasound",
+            "instruments": [
+              "ultrasound"
+            ],
+            "needs_no_instrument": false,
+            "fully_aboard": true,
+            "missing": []
+          }
+        ],
+        "missing_instruments": [],
+        "missing_text": null,
+        "report_only_findings": [],
+        "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-flight-associated-neuro-ocular-syndrome-sans-cliff-2023.pdf",
+        "review_state": "unreviewed",
+        "plan_id": "plan_icl100",
+        "plan_written_for": "condition",
+        "plan_aboard": true,
+        "ground_needs": null,
+        "treatment_scope": null,
+        "rtdc": null
+      }
+    ],
+    "plans_aboard": 7,
+    "plans_written_for_condition": 7,
+    "plans_from_family": 0,
+    "plans_to_write": [],
+    "as_of": "2026-11-13T09:10:16Z"
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "habitat-view.schema.json",
+  "title": "HabitatView",
+  "description": "The Habitat screen: sensors, the ground link, conditions of the place and habitat warnings.",
+  "type": "object",
+  "properties": {
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "environment_id": {
+          "$ref": "common.schema.json#/$defs/environment_id"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "place": {
+          "type": "string",
+          "minLength": 1
+        },
+        "day_label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "eva_word": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ground_delay_text": {
+          "type": "string",
+          "description": "Same as GroundLink.delay_text: earth_delay from environment-hazards.json.",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "environment_id",
+        "label",
+        "place",
+        "day_label",
+        "eva_word",
+        "ground_delay_text"
+      ],
+      "additionalProperties": false
+    },
+    "ground_link": {
+      "$ref": "ground-link.schema.json"
+    },
+    "sensors": {
+      "type": "array",
+      "items": {
+        "$ref": "sensor-status.schema.json"
+      }
+    },
+    "living_here": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hazard_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "body_regions": {
+            "$ref": "common.schema.json#/$defs/body_regions"
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "todo": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "here": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "hazard_id",
+          "name",
+          "body_regions",
+          "effects",
+          "todo",
+          "here"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "warning.schema.json"
+      }
+    }
+  },
+  "required": [
+    "as_of",
+    "environment",
+    "ground_link",
+    "sensors",
+    "living_here",
+    "warnings"
+  ],
+  "additionalProperties": false
+}

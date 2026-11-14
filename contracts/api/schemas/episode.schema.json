@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "episode.schema.json",
+  "title": "Episode",
+  "description": "A concern and its follow-up (CONTRACTS sections 2 and 4).",
+  "type": "object",
+  "properties": {
+    "episode_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "patient_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "concern_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "onset": {
+      "type": "object",
+      "properties": {
+        "at": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/instant"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "precision": {
+          "enum": [
+            "exact",
+            "hour",
+            "day",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "at",
+        "precision"
+      ],
+      "additionalProperties": false
+    },
+    "state": {
+      "enum": [
+        "draft",
+        "open",
+        "awaiting_information",
+        "awaiting_review",
+        "followup",
+        "resolved"
+      ]
+    },
+    "urgency_state": {
+      "enum": [
+        "none",
+        "needs_urgent_review",
+        "active_response",
+        "disposition_recorded"
+      ]
+    },
+    "answers": {
+      "type": "array",
+      "items": {
+        "$ref": "answer.schema.json"
+      }
+    },
+    "measurement_request_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "capability_gaps": {
+      "type": "array",
+      "items": {
+        "$ref": "capability-gap.schema.json"
+      }
+    },
+    "assessment_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "help_session_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "followup_tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1
+          },
+          "due_at": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "owner": {
+            "$ref": "common.schema.json#/$defs/actor"
+          },
+          "state": {
+            "enum": [
+              "open",
+              "done",
+              "cancelled"
+            ]
+          }
+        },
+        "required": [
+          "task_id",
+          "action",
+          "due_at",
+          "owner",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "episode_id",
+    "revision",
+    "patient_id",
+    "origin_mode",
+    "concern_text",
+    "onset",
+    "state",
+    "urgency_state",
+    "answers",
+    "measurement_request_ids",
+    "capability_gaps",
+    "assessment_ids",
+    "help_session_ids",
+    "followup_tasks",
+    "created_at",
+    "allowed_actions"
+  ],
+  "additionalProperties": false
+}

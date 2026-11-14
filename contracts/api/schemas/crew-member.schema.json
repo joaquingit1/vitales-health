@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crew-member.schema.json",
+  "title": "CrewMember",
+  "description": "One person on the roster as other crew may see them. Never carries health values or participation data.",
+  "type": "object",
+  "properties": {
+    "person_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/role"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "on_roster_from_day": {
+      "$ref": "common.schema.json#/$defs/mission_day"
+    },
+    "location": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "active_overlays": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/overlay"
+      },
+      "uniqueItems": true
+    },
+    "helping_session_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "medical_officer_rank": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "description": "1 for the crew medical officer, 2 for the second medical officer (NASA-STD-3001 asks for at least two). null for other crew. The role engine's cascade reads it (CONTRACTS section 24).",
+          "minimum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "person_id",
+    "display_name",
+    "roles",
+    "on_roster_from_day",
+    "location",
+    "active_overlays",
+    "helping_session_id",
+    "medical_officer_rank"
+  ],
+  "additionalProperties": false
+}

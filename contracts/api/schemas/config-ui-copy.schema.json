@@ -1,0 +1,1123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-ui-copy.schema.json",
+  "title": "ui-copy.json",
+  "description": "Display words for the fixed vocabulary and the designed states. Clients render these words and never define their own.",
+  "type": "object",
+  "properties": {
+    "level_words": {
+      "type": "object",
+      "properties": {
+        "info": {
+          "type": "string",
+          "minLength": 1
+        },
+        "watch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "act": {
+          "type": "string",
+          "minLength": 1
+        },
+        "emergency": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "info",
+        "watch",
+        "act",
+        "emergency"
+      ],
+      "additionalProperties": false
+    },
+    "raised_by_words": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sensor_limit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assistant": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "rule",
+        "sensor_limit",
+        "assistant"
+      ],
+      "additionalProperties": false
+    },
+    "origin_words": {
+      "type": "object",
+      "properties": {
+        "LIVE": {
+          "type": "string",
+          "minLength": 1
+        },
+        "REPLAY": {
+          "type": "string",
+          "minLength": 1
+        },
+        "SIM": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "LIVE",
+        "REPLAY",
+        "SIM"
+      ],
+      "additionalProperties": false
+    },
+    "body_region_labels": {
+      "type": "object",
+      "properties": {
+        "head": {
+          "type": "string",
+          "minLength": 1
+        },
+        "eyes": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ear": {
+          "type": "string",
+          "minLength": 1
+        },
+        "neck": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shoulder": {
+          "type": "string",
+          "minLength": 1
+        },
+        "heart": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lungs": {
+          "type": "string",
+          "minLength": 1
+        },
+        "abdomen": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flank": {
+          "type": "string",
+          "minLength": 1
+        },
+        "back": {
+          "type": "string",
+          "minLength": 1
+        },
+        "wrist": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hand": {
+          "type": "string",
+          "minLength": 1
+        },
+        "legs": {
+          "type": "string",
+          "minLength": 1
+        },
+        "knee": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ankle": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "head",
+        "eyes",
+        "ear",
+        "neck",
+        "shoulder",
+        "heart",
+        "lungs",
+        "abdomen",
+        "flank",
+        "back",
+        "wrist",
+        "hand",
+        "legs",
+        "knee",
+        "ankle"
+      ],
+      "additionalProperties": false
+    },
+    "overlay_words": {
+      "type": "object",
+      "properties": {
+        "eva": {
+          "type": "string",
+          "minLength": 1
+        },
+        "post_eva": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exercise": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sleep": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "eva",
+        "post_eva",
+        "exercise",
+        "sleep"
+      ],
+      "additionalProperties": false
+    },
+    "cadence_words": {
+      "type": "object",
+      "properties": {
+        "continuous": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "daily": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "every_n_days": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "weekly": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "monthly": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "per_eva": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "after_event": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "mission_phase": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "as_needed": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "continuous",
+        "daily",
+        "every_n_days",
+        "weekly",
+        "monthly",
+        "per_eva",
+        "after_event",
+        "mission_phase",
+        "as_needed"
+      ],
+      "additionalProperties": false
+    },
+    "display_group_labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "occurrence_end_text": {
+      "type": "object",
+      "properties": {
+        "not_due": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "due_now": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "due_today": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "later": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "done_today": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "done_earlier": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "skipped": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "missed": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "no_walk_planned": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "next_walk": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "first_walk": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "suppressed": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "not_due",
+        "due_now",
+        "due_today",
+        "later",
+        "done_today",
+        "done_earlier",
+        "skipped",
+        "missed",
+        "no_walk_planned",
+        "next_walk",
+        "first_walk",
+        "suppressed"
+      ],
+      "additionalProperties": false,
+      "description": "Templates for RoutineOccurrence.end_text; CONTRACTS section 15 says which applies."
+    },
+    "designed_states": {
+      "type": "object",
+      "properties": {
+        "no_reading": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "not_available_here": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "unknown": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "declined": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "sensor_quiet": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "not_done": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "nothing_due": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "assistant_stopped": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "ground_link_down": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "ground_next_contact": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "ground_next_contact_in": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "ground_silence": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "replay_note": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "replay_time": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "threshold_pending": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "no_limit_on_file": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "insufficient_data": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "habitat_fact": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "no_reading",
+        "not_available_here",
+        "unknown",
+        "declined",
+        "sensor_quiet",
+        "not_done",
+        "nothing_due",
+        "assistant_stopped",
+        "ground_link_down",
+        "ground_next_contact",
+        "ground_next_contact_in",
+        "ground_silence",
+        "replay_note",
+        "replay_time",
+        "threshold_pending",
+        "no_limit_on_file",
+        "insufficient_data",
+        "habitat_fact"
+      ],
+      "additionalProperties": false
+    },
+    "skip_reasons": {
+      "type": "object",
+      "properties": {
+        "not_available": {
+          "type": "string",
+          "minLength": 1
+        },
+        "declined": {
+          "type": "string",
+          "minLength": 1
+        },
+        "no_time": {
+          "type": "string",
+          "minLength": 1
+        },
+        "not_needed_now": {
+          "type": "string",
+          "minLength": 1
+        },
+        "other": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "not_available",
+        "declined",
+        "no_time",
+        "not_needed_now",
+        "other"
+      ],
+      "additionalProperties": false
+    },
+    "error_messages": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Keyed by error code."
+    },
+    "within_limit_word": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kit_map_state_words": {
+      "type": "object",
+      "properties": {
+        "measured_here": {
+          "type": "string",
+          "minLength": 1
+        },
+        "report_only": {
+          "type": "string",
+          "minLength": 1
+        },
+        "needs_test_not_aboard": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "measured_here",
+        "report_only",
+        "needs_test_not_aboard"
+      ],
+      "additionalProperties": false
+    },
+    "kit_check_templates": {
+      "type": "object",
+      "properties": {
+        "can": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "cannot": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "can",
+        "cannot"
+      ],
+      "additionalProperties": false
+    },
+    "ground_link_words": {
+      "type": "object",
+      "properties": {
+        "up": {
+          "type": "string",
+          "minLength": 1
+        },
+        "delayed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "down": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "up",
+        "delayed",
+        "down"
+      ],
+      "additionalProperties": false,
+      "description": "Words for GroundLink.status."
+    },
+    "duration_words": {
+      "type": "object",
+      "properties": {
+        "seconds": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "minutes": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "hours": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "seconds",
+        "minutes",
+        "hours"
+      ],
+      "additionalProperties": false
+    },
+    "gap_kind_words": {
+      "type": "object",
+      "properties": {
+        "planned_line_of_sight": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relay_outage": {
+          "type": "string",
+          "minLength": 1
+        },
+        "conjunction": {
+          "type": "string",
+          "minLength": 1
+        },
+        "equipment": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unknown": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "planned_line_of_sight",
+        "relay_outage",
+        "conjunction",
+        "equipment",
+        "unknown"
+      ],
+      "additionalProperties": false
+    },
+    "plan_stage_words": {
+      "type": "object",
+      "properties": {
+        "check_another_way": {
+          "type": "string",
+          "minLength": 1
+        },
+        "do_now": {
+          "type": "string",
+          "minLength": 1
+        },
+        "watch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "if_worse": {
+          "type": "string",
+          "minLength": 1
+        },
+        "medical_officer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "return": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ground_log": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "check_another_way",
+        "do_now",
+        "watch",
+        "if_worse",
+        "medical_officer",
+        "return",
+        "ground_log"
+      ],
+      "additionalProperties": false
+    },
+    "plan_mode_words": {
+      "type": "object",
+      "properties": {
+        "resolve": {
+          "type": "string",
+          "minLength": 1
+        },
+        "talk_through": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stabilize": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prepare_return": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "resolve",
+        "talk_through",
+        "stabilize",
+        "prepare_return"
+      ],
+      "additionalProperties": false
+    },
+    "plan_lines": {
+      "type": "object",
+      "properties": {
+        "ground_log_row": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "ground_log_up": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "ground_log_down": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "no_return": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "who_decides": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "not_aboard": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "substituted": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "needs_skill_holder": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "opens_help": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "plans_aboard": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "plans_to_write": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "plan_tag": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "waiting_for_contact": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "return_criteria_pending": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "recheck_pending": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "recheck_at": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "waits_for_medical_officer": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "ground_log_row",
+        "ground_log_up",
+        "ground_log_down",
+        "no_return",
+        "who_decides",
+        "not_aboard",
+        "substituted",
+        "needs_skill_holder",
+        "opens_help",
+        "plans_aboard",
+        "plans_to_write",
+        "plan_tag",
+        "waiting_for_contact",
+        "return_criteria_pending",
+        "recheck_pending",
+        "recheck_at",
+        "waits_for_medical_officer"
+      ],
+      "additionalProperties": false,
+      "description": "Lines of the plan card, the This kit count and the For the ground card (CONTRACTS section 22)."
+    },
+    "guided_check_words": {
+      "type": "object",
+      "properties": {
+        "beat_button": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "seconds_left": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "unchecked": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "experimental": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "result_agree": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "result_disagree": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "result_no_reference": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "beat_button",
+        "seconds_left",
+        "unchecked",
+        "experimental",
+        "result_agree",
+        "result_disagree",
+        "result_no_reference"
+      ],
+      "additionalProperties": false
+    },
+    "freshness_words": {
+      "type": "object",
+      "properties": {
+        "fresh": {
+          "type": "string",
+          "minLength": 1
+        },
+        "due": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "never": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "fresh",
+        "due",
+        "stale",
+        "never"
+      ],
+      "additionalProperties": false
+    },
+    "supply_words": {
+      "type": "object",
+      "properties": {
+        "cover": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "cover_unknown": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "not_used": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "not_aboard": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "stock": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "not_consumable": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "cover",
+        "cover_unknown",
+        "not_used",
+        "not_aboard",
+        "stock",
+        "not_consumable"
+      ],
+      "additionalProperties": false
+    },
+    "readiness_words": {
+      "type": "object",
+      "properties": {
+        "fresh_count": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "nobody_fresh": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "fresh_count",
+        "nobody_fresh"
+      ],
+      "additionalProperties": false
+    },
+    "catch_up_words": {
+      "type": "object",
+      "properties": {
+        "what_happened": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "what_was_done": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "being_watched": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "advice_welcome": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "step_done_line": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "watch_line": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "advice_line": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "nothing_watched": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "what_happened",
+        "what_was_done",
+        "being_watched",
+        "advice_welcome",
+        "step_done_line",
+        "watch_line",
+        "advice_line",
+        "nothing_watched"
+      ],
+      "additionalProperties": false,
+      "description": "Headings and line templates of the catch-up a late reader sees (CONTRACTS section 26)."
+    }
+  },
+  "required": [
+    "level_words",
+    "raised_by_words",
+    "origin_words",
+    "body_region_labels",
+    "overlay_words",
+    "cadence_words",
+    "display_group_labels",
+    "occurrence_end_text",
+    "designed_states",
+    "skip_reasons",
+    "error_messages",
+    "within_limit_word",
+    "kit_map_state_words",
+    "kit_check_templates",
+    "ground_link_words",
+    "duration_words",
+    "gap_kind_words",
+    "plan_stage_words",
+    "plan_mode_words",
+    "plan_lines",
+    "guided_check_words",
+    "freshness_words",
+    "supply_words",
+    "readiness_words"
+  ],
+  "additionalProperties": false
+}

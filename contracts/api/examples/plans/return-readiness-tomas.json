@@ -1,0 +1,67 @@
+{
+  "summary": "SIM GET /v1/return-readiness?subject=tomas, Moon base",
+  "description": "After the help session Ilya Brandt opened the eye plan for Tomas Lind. Its return stage lists the criterion (to be set by flight rules, so its status is unknown), NASA's modeled chance from the RS32 form's Table 4, the trip and who decides. There is no decision field: the app lists, it does not decide. Illustrative only: not seed data.",
+  "x-schema": "return-readiness.schema.json",
+  "value": {
+    "subject": {
+      "person_id": "tomas",
+      "display_name": "Tomas Lind"
+    },
+    "environment_id": "lunar_surface",
+    "plan_run_id": "prn_eye_tomas_1",
+    "plan_id": "plan_eye_injury",
+    "state": "open",
+    "criteria": [
+      {
+        "text": "Something has pierced the eye.",
+        "status": "unknown",
+        "evidence_ids": [],
+        "source_ids": [
+          "RS30",
+          "RS32"
+        ],
+        "to_be_set_by": "flight rules"
+      }
+    ],
+    "criteria_text": "Criteria: to be set by flight rules",
+    "prepare": [
+      {
+        "step_id": "eye_return_prepare",
+        "text": "What to prepare for the trip: to be set by flight rules.",
+        "state": "open",
+        "by": null,
+        "at": null
+      }
+    ],
+    "decided_by": [
+      "commander",
+      "crew_medical_officer"
+    ],
+    "who_decides_text": "The commander and the medical officer. The app lists; it does not decide.",
+    "trip_text": "A three-day lunar trip",
+    "trip_source_ids": [
+      "EV25"
+    ],
+    "rtdc": {
+      "treated_best": {
+        "min_pct": 0,
+        "max_pct": 0
+      },
+      "treated_worst": {
+        "min_pct": 96,
+        "max_pct": 100
+      },
+      "untreated_best": {
+        "min_pct": 0,
+        "max_pct": 100
+      },
+      "untreated_worst": {
+        "min_pct": 100,
+        "max_pct": 100
+      },
+      "source_id": "RS32",
+      "page": 5
+    },
+    "as_of": "2026-11-13T12:35:00Z"
+  }
+}

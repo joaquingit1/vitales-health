@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "assessment.schema.json",
+  "title": "Assessment",
+  "description": "A model or reviewer assessment over a pinned state snapshot (CONTRACTS sections 2 and 6).",
+  "type": "object",
+  "properties": {
+    "assessment_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "episode_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "origin": {
+      "enum": [
+        "model",
+        "reviewer"
+      ]
+    },
+    "state_snapshot_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "evidence_release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "model_release_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/evidence_ref"
+            }
+          }
+        },
+        "required": [
+          "text",
+          "body_region",
+          "evidence"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/evidence_ref"
+            }
+          }
+        },
+        "required": [
+          "text",
+          "body_region",
+          "evidence"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "missing_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/evidence_ref"
+            }
+          }
+        },
+        "required": [
+          "text",
+          "body_region",
+          "evidence"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "next_step": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "validation_status": {
+      "enum": [
+        "draft",
+        "stale",
+        "reviewed"
+      ]
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "assessment_id",
+    "episode_id",
+    "origin",
+    "state_snapshot_version",
+    "evidence_release_id",
+    "model_release_id",
+    "findings",
+    "hypotheses",
+    "contradictions",
+    "missing_evidence",
+    "next_step",
+    "validation_status",
+    "created_at"
+  ],
+  "additionalProperties": false
+}

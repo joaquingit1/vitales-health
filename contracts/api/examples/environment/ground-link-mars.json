@@ -1,0 +1,19 @@
+{
+  "summary": "SIM GET /v1/ground-link, Mars base",
+  "description": "status and one_way_delay_s follow the profile's comms_queue (source schedule). delay_text is earth_delay of this environment in environment-hazards.json with source IDs moved to delay_source_ids. Illustrative only: not seed data.",
+  "x-schema": "ground-link.schema.json",
+  "value": {
+    "status": "delayed",
+    "one_way_delay_s": 1200,
+    "next_contact_at": null,
+    "last_contact_at": null,
+    "source": "schedule",
+    "environment_id": "mars_surface",
+    "delay_text": "Up to 20 minutes one way.",
+    "delay_source_ids": [
+      "EV25"
+    ],
+    "gap_kind": null,
+    "gap_planned": false
+  }
+}

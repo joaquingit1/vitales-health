@@ -1,0 +1,21 @@
+{
+  "summary": "SIM GET /v1/assistant/status",
+  "description": "The model is running. Illustrative only: not seed data.",
+  "x-schema": "assistant-status.schema.json",
+  "value": {
+    "state": "running",
+    "model_release": {
+      "model_release_id": "mdl_huatuo_3_9b_1",
+      "model_id": "HuatuoGPT-3-9B",
+      "revision": "pinned at kickoff",
+      "sha256": "461e6cc4f10dcae93031a41a09c5992b4a80046294286142b44f4d68a1b7f76d",
+      "prompt_version": "prompt-1",
+      "tool_catalog_version": "tools-1",
+      "mode": "live"
+    },
+    "since": "2026-11-13T07:00:00Z",
+    "last_error": null,
+    "queue_depth": 0,
+    "policy_version": "5629df57f991935dfe9437e5cfe8f60206cac0fae06b3589b4ec7e0c07fbdf1f"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "summary": "SIM POST /v1/journal",
+  "description": "A private journal entry: readable by its author only. Illustrative only: not seed data.",
+  "x-schema": "journal-entry.schema.json",
+  "value": {
+    "entry_id": "jrn_mara_1",
+    "person_id": "mara",
+    "created_at": "2026-11-13T09:15:00Z",
+    "text": "Tired today. Slept badly.",
+    "private": true
+  }
+}

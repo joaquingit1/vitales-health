@@ -1,0 +1,1562 @@
+[
+  {
+    "field_id": "mission_id",
+    "group": "mission",
+    "label": "Mission identifier",
+    "type": "id",
+    "unit": "",
+    "display_condition": "Required context; unknown permitted where appropriate",
+    "sensitivity": "clinical",
+    "validation": "Versioned mission configuration; gravity: Earth, microgravity, lunar, Martian, other, unknown"
+  },
+  {
+    "field_id": "phase",
+    "group": "mission",
+    "label": "Mission phase",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Required context; unknown permitted where appropriate",
+    "sensitivity": "clinical",
+    "validation": "Versioned mission configuration; gravity: Earth, microgravity, lunar, Martian, other, unknown"
+  },
+  {
+    "field_id": "gravity",
+    "group": "mission",
+    "label": "Gravity context",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Required context; unknown permitted where appropriate",
+    "sensitivity": "clinical",
+    "validation": "Versioned mission configuration; gravity: Earth, microgravity, lunar, Martian, other, unknown"
+  },
+  {
+    "field_id": "mission_day",
+    "group": "mission",
+    "label": "Mission day",
+    "type": "integer",
+    "unit": "",
+    "display_condition": "Required context; unknown permitted where appropriate",
+    "sensitivity": "clinical",
+    "validation": "Versioned mission configuration; gravity: Earth, microgravity, lunar, Martian, other, unknown"
+  },
+  {
+    "field_id": "location",
+    "group": "mission",
+    "label": "Current habitat/station",
+    "type": "string",
+    "unit": "",
+    "display_condition": "Required context; unknown permitted where appropriate",
+    "sensitivity": "clinical",
+    "validation": "Versioned mission configuration; gravity: Earth, microgravity, lunar, Martian, other, unknown"
+  },
+  {
+    "field_id": "clock_timezone",
+    "group": "mission",
+    "label": "Display timezone",
+    "type": "IANA timezone",
+    "unit": "",
+    "display_condition": "Required context; unknown permitted where appropriate",
+    "sensitivity": "clinical",
+    "validation": "Versioned mission configuration; gravity: Earth, microgravity, lunar, Martian, other, unknown"
+  },
+  {
+    "field_id": "communications",
+    "group": "mission",
+    "label": "Communications availability",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Required context; unknown permitted where appropriate",
+    "sensitivity": "clinical",
+    "validation": "Versioned mission configuration; gravity: Earth, microgravity, lunar, Martian, other, unknown"
+  },
+  {
+    "field_id": "patient_id",
+    "group": "profile",
+    "label": "Person identifier",
+    "type": "id",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "display_name",
+    "group": "profile",
+    "label": "Preferred display name",
+    "type": "string",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "age",
+    "group": "profile",
+    "label": "Age when clinically relevant",
+    "type": "number",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "relevant_anatomy",
+    "group": "profile",
+    "label": "Relevant anatomy",
+    "type": "array",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "restricted",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "conditions",
+    "group": "profile",
+    "label": "Recorded prior conditions",
+    "type": "array",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "restricted",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "surgeries",
+    "group": "profile",
+    "label": "Relevant procedures",
+    "type": "array",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "medications",
+    "group": "profile",
+    "label": "Medications and supplements",
+    "type": "array",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "restricted",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "allergies",
+    "group": "profile",
+    "label": "Allergies and reactions",
+    "type": "array",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "preflight_reports",
+    "group": "profile",
+    "label": "Baseline reports",
+    "type": "reference[]",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "language",
+    "group": "profile",
+    "label": "Preferred language",
+    "type": "string",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "accessibility",
+    "group": "profile",
+    "label": "Interaction preferences",
+    "type": "object",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "sharing_policy",
+    "group": "profile",
+    "label": "Sharing choices",
+    "type": "object",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "chief_concern",
+    "group": "episode",
+    "label": "Concern in own words",
+    "type": "text",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "onset",
+    "group": "episode",
+    "label": "Onset time and precision",
+    "type": "datetime+precision",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "last_known_well",
+    "group": "episode",
+    "label": "Last known well",
+    "type": "datetime+precision",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "duration",
+    "group": "episode",
+    "label": "Duration",
+    "type": "duration",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "site",
+    "group": "episode",
+    "label": "Site",
+    "type": "code+text",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "laterality",
+    "group": "episode",
+    "label": "Side",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "severity",
+    "group": "episode",
+    "label": "Reported severity",
+    "type": "integer",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "function",
+    "group": "episode",
+    "label": "Effect on usual tasks",
+    "type": "text",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "progression",
+    "group": "episode",
+    "label": "Improving/stable/worsening/unknown",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "triggers",
+    "group": "episode",
+    "label": "Triggers",
+    "type": "array",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "relief",
+    "group": "episode",
+    "label": "Relieving factors",
+    "type": "array",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "associated_symptoms",
+    "group": "episode",
+    "label": "Associated findings with presence states",
+    "type": "array",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "prior_episode",
+    "group": "episode",
+    "label": "Similar previous episode",
+    "type": "object",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "trauma_mechanism",
+    "group": "episode",
+    "label": "Injury mechanism",
+    "type": "text",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "person_goal",
+    "group": "episode",
+    "label": "What the person wants help with",
+    "type": "text",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Severity 0 to 10 if used; answer states present/absent/unknown/declined; onset precision exact/approximate/unknown"
+  },
+  {
+    "field_id": "sleep_duration",
+    "group": "daily",
+    "label": "Sleep duration",
+    "type": "number",
+    "unit": "h",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Nonnegative; scale endpoints enforced; observation interval and method required; no zero default"
+  },
+  {
+    "field_id": "sleep_quality",
+    "group": "daily",
+    "label": "Sleep quality",
+    "type": "number",
+    "unit": "1 to 5",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Nonnegative; scale endpoints enforced; observation interval and method required; no zero default"
+  },
+  {
+    "field_id": "mood",
+    "group": "daily",
+    "label": "Mood",
+    "type": "number",
+    "unit": "0 to 10",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Nonnegative; scale endpoints enforced; observation interval and method required; no zero default"
+  },
+  {
+    "field_id": "stress",
+    "group": "daily",
+    "label": "Stress",
+    "type": "number",
+    "unit": "0 to 10",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Nonnegative; scale endpoints enforced; observation interval and method required; no zero default"
+  },
+  {
+    "field_id": "fatigue",
+    "group": "daily",
+    "label": "Fatigue",
+    "type": "number",
+    "unit": "0 to 10",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Nonnegative; scale endpoints enforced; observation interval and method required; no zero default"
+  },
+  {
+    "field_id": "exercise_duration",
+    "group": "daily",
+    "label": "Exercise duration",
+    "type": "number",
+    "unit": "min",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Nonnegative; scale endpoints enforced; observation interval and method required; no zero default"
+  },
+  {
+    "field_id": "fluid_intake",
+    "group": "daily",
+    "label": "Reported fluid intake",
+    "type": "number",
+    "unit": "mL",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Nonnegative; scale endpoints enforced; observation interval and method required; no zero default"
+  },
+  {
+    "field_id": "urine_volume",
+    "group": "daily",
+    "label": "Reported urine output",
+    "type": "number",
+    "unit": "mL",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Nonnegative; scale endpoints enforced; observation interval and method required; no zero default"
+  },
+  {
+    "field_id": "mass",
+    "group": "daily",
+    "label": "Body mass",
+    "type": "number",
+    "unit": "kg",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Nonnegative; scale endpoints enforced; observation interval and method required; no zero default"
+  },
+  {
+    "field_id": "sleep_start",
+    "group": "daily",
+    "label": "Sleep start",
+    "type": "datetime",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "sleep_end",
+    "group": "daily",
+    "label": "Sleep end",
+    "type": "datetime",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "awakenings",
+    "group": "daily",
+    "label": "Awakenings",
+    "type": "integer",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "sleep_source",
+    "group": "daily",
+    "label": "Self-report/band/clinician",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "exercise_type",
+    "group": "daily",
+    "label": "Exercise type and loading",
+    "type": "code+text",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "appetite",
+    "group": "daily",
+    "label": "Appetite change",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "vomiting_count",
+    "group": "daily",
+    "label": "Vomiting episodes",
+    "type": "integer",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "stool_pattern",
+    "group": "daily",
+    "label": "Stool frequency/appearance",
+    "type": "object",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "urine_pattern",
+    "group": "daily",
+    "label": "Voiding pattern",
+    "type": "object",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "journal",
+    "group": "daily",
+    "label": "Private journal entry",
+    "type": "text",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "private_journal",
+    "validation": "Preserve unknown and declined; do not infer absence"
+  },
+  {
+    "field_id": "pulse",
+    "group": "measurement",
+    "label": "Pulse",
+    "type": "number",
+    "unit": "bpm",
+    "display_condition": "Scheduled, requested or voluntarily entered",
+    "sensitivity": "clinical",
+    "validation": "Store original unit, canonical value and conversion version; temperature site and glucose context required; bounds are data checks, not clinical thresholds"
+  },
+  {
+    "field_id": "respiratory_rate",
+    "group": "measurement",
+    "label": "Respiratory rate",
+    "type": "number",
+    "unit": "breaths/min",
+    "display_condition": "Scheduled, requested or voluntarily entered",
+    "sensitivity": "clinical",
+    "validation": "Store original unit, canonical value and conversion version; temperature site and glucose context required; bounds are data checks, not clinical thresholds"
+  },
+  {
+    "field_id": "spo2",
+    "group": "measurement",
+    "label": "Peripheral oxygen saturation",
+    "type": "number",
+    "unit": "%",
+    "display_condition": "Scheduled, requested or voluntarily entered",
+    "sensitivity": "clinical",
+    "validation": "Store original unit, canonical value and conversion version; temperature site and glucose context required; bounds are data checks, not clinical thresholds"
+  },
+  {
+    "field_id": "systolic_bp",
+    "group": "measurement",
+    "label": "Systolic blood pressure",
+    "type": "number",
+    "unit": "mmHg",
+    "display_condition": "Scheduled, requested or voluntarily entered",
+    "sensitivity": "clinical",
+    "validation": "Store original unit, canonical value and conversion version; temperature site and glucose context required; bounds are data checks, not clinical thresholds"
+  },
+  {
+    "field_id": "diastolic_bp",
+    "group": "measurement",
+    "label": "Diastolic blood pressure",
+    "type": "number",
+    "unit": "mmHg",
+    "display_condition": "Scheduled, requested or voluntarily entered",
+    "sensitivity": "clinical",
+    "validation": "Store original unit, canonical value and conversion version; temperature site and glucose context required; bounds are data checks, not clinical thresholds"
+  },
+  {
+    "field_id": "temperature",
+    "group": "measurement",
+    "label": "Temperature",
+    "type": "number",
+    "unit": "Cel",
+    "display_condition": "Scheduled, requested or voluntarily entered",
+    "sensitivity": "clinical",
+    "validation": "Store original unit, canonical value and conversion version; temperature site and glucose context required; bounds are data checks, not clinical thresholds"
+  },
+  {
+    "field_id": "glucose",
+    "group": "measurement",
+    "label": "Blood glucose",
+    "type": "number",
+    "unit": "mg/dL or mmol/L",
+    "display_condition": "Scheduled, requested or voluntarily entered",
+    "sensitivity": "clinical",
+    "validation": "Store original unit, canonical value and conversion version; temperature site and glucose context required; bounds are data checks, not clinical thresholds"
+  },
+  {
+    "field_id": "pvt_median",
+    "group": "measurement",
+    "label": "Reaction-time median",
+    "type": "number",
+    "unit": "ms",
+    "display_condition": "Scheduled, requested or voluntarily entered",
+    "sensitivity": "clinical",
+    "validation": "Store original unit, canonical value and conversion version; temperature site and glucose context required; bounds are data checks, not clinical thresholds"
+  },
+  {
+    "field_id": "pvt_lapses",
+    "group": "measurement",
+    "label": "Reaction-test lapses",
+    "type": "number",
+    "unit": "count",
+    "display_condition": "Scheduled, requested or voluntarily entered",
+    "sensitivity": "clinical",
+    "validation": "Store original unit, canonical value and conversion version; temperature site and glucose context required; bounds are data checks, not clinical thresholds"
+  },
+  {
+    "field_id": "pvt_false_starts",
+    "group": "measurement",
+    "label": "Reaction-test false starts",
+    "type": "number",
+    "unit": "count",
+    "display_condition": "Scheduled, requested or voluntarily entered",
+    "sensitivity": "clinical",
+    "validation": "Store original unit, canonical value and conversion version; temperature site and glucose context required; bounds are data checks, not clinical thresholds"
+  },
+  {
+    "field_id": "position",
+    "group": "provenance",
+    "label": "Posture/position",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "activity_context",
+    "group": "provenance",
+    "label": "Rest/exercise/recovery/sleep",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "fasting_context",
+    "group": "provenance",
+    "label": "Glucose fasting/meal context",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "temperature_site",
+    "group": "provenance",
+    "label": "Temperature site/method",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "oxygen_support",
+    "group": "provenance",
+    "label": "Oxygen support as recorded",
+    "type": "object",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "device_id",
+    "group": "provenance",
+    "label": "Device identity",
+    "type": "id",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "operator_id",
+    "group": "provenance",
+    "label": "Person taking reading",
+    "type": "id",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "measurement_time",
+    "group": "provenance",
+    "label": "Time measured",
+    "type": "datetime",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "entry_time",
+    "group": "provenance",
+    "label": "Time entered",
+    "type": "datetime",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "quality",
+    "group": "provenance",
+    "label": "Measurement quality",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "quality_reason",
+    "group": "provenance",
+    "label": "Quality reason",
+    "type": "code+text",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "origin_mode",
+    "group": "provenance",
+    "label": "LIVE/REPLAY/SIM",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "method",
+    "group": "provenance",
+    "label": "Acquisition method",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "source_patient",
+    "group": "provenance",
+    "label": "Person measured",
+    "type": "id",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "report_id",
+    "group": "provenance",
+    "label": "Source report",
+    "type": "id",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "supersedes",
+    "group": "provenance",
+    "label": "Corrected observation ID",
+    "type": "id",
+    "unit": "",
+    "display_condition": "Required per applicable observation",
+    "sensitivity": "clinical",
+    "validation": "Server validates patient/operator distinction and mode; observed time differs from entry time; absent values remain absent"
+  },
+  {
+    "field_id": "eva_start",
+    "group": "exposure",
+    "label": "EVA start",
+    "type": "datetime",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "eva_end",
+    "group": "exposure",
+    "label": "EVA end",
+    "type": "datetime",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "suit_event",
+    "group": "exposure",
+    "label": "Suit/pressure incident",
+    "type": "text",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "pressure_profile",
+    "group": "exposure",
+    "label": "Pressure history",
+    "type": "timeseries",
+    "unit": "kPa",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "cabin_co2",
+    "group": "exposure",
+    "label": "Cabin CO2",
+    "type": "timeseries",
+    "unit": "ppm or mmHg",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "cabin_pressure",
+    "group": "exposure",
+    "label": "Cabin pressure",
+    "type": "number",
+    "unit": "kPa",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "ambient_temperature",
+    "group": "exposure",
+    "label": "Ambient temperature",
+    "type": "number",
+    "unit": "Cel",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "humidity",
+    "group": "exposure",
+    "label": "Relative humidity",
+    "type": "number",
+    "unit": "%",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "radiation_dose",
+    "group": "exposure",
+    "label": "Dosimeter quantity and value",
+    "type": "object",
+    "unit": "reported unit",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "noise_exposure",
+    "group": "exposure",
+    "label": "Noise exposure report",
+    "type": "object",
+    "unit": "reported unit",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "dust_exposure",
+    "group": "exposure",
+    "label": "Dust event",
+    "type": "object",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "chemical_exposure",
+    "group": "exposure",
+    "label": "Chemical identity/route/time",
+    "type": "object",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "coexposure",
+    "group": "exposure",
+    "label": "Other people exposed",
+    "type": "object",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "light_exposure",
+    "group": "exposure",
+    "label": "Light exposure",
+    "type": "timeseries",
+    "unit": "lux",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Preserve time interval, instrument, location and actual quantity; do not convert radiation quantities or acoustic metrics without compatible definitions"
+  },
+  {
+    "field_id": "ecg_report",
+    "group": "cardiac",
+    "label": "ECG report",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "rhythm_interpretation",
+    "group": "cardiac",
+    "label": "Clinician ECG interpretation",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "orthostatic_series",
+    "group": "cardiac",
+    "label": "Supervised position-linked readings",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "cardiac_troponin",
+    "group": "cardiac",
+    "label": "Troponin with assay/reference interval",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "echo_report",
+    "group": "cardiac",
+    "label": "Echocardiography report",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "vascular_ultrasound",
+    "group": "cardiac",
+    "label": "Vascular ultrasound report",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "acuity",
+    "group": "eye",
+    "label": "Visual acuity by eye/method",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "refraction",
+    "group": "eye",
+    "label": "Refraction by eye",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "iop",
+    "group": "eye",
+    "label": "Intraocular pressure by eye/device",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "fundus_report",
+    "group": "eye",
+    "label": "Fundus examination",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "oct_report",
+    "group": "eye",
+    "label": "OCT report and comparison",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "ocular_ultrasound",
+    "group": "eye",
+    "label": "Ocular ultrasound report",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "visual_fields",
+    "group": "eye",
+    "label": "Visual-field report",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "slit_lamp",
+    "group": "eye",
+    "label": "Slit-lamp/fluorescein findings",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "cbc",
+    "group": "lab",
+    "label": "CBC with differential",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "electrolytes",
+    "group": "lab",
+    "label": "Electrolytes",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "renal_function",
+    "group": "lab",
+    "label": "Renal function tests",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "liver_chemistry",
+    "group": "lab",
+    "label": "Liver chemistry",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "inflammatory_tests",
+    "group": "lab",
+    "label": "Selected inflammatory tests",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "coagulation",
+    "group": "lab",
+    "label": "Coagulation tests",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "urinalysis",
+    "group": "lab",
+    "label": "Urinalysis",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "urine_culture",
+    "group": "lab",
+    "label": "Urine culture",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "blood_culture",
+    "group": "lab",
+    "label": "Blood culture",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "pathogen_test",
+    "group": "lab",
+    "label": "Pathogen assay",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "lipase",
+    "group": "lab",
+    "label": "Lipase",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "thyroid",
+    "group": "lab",
+    "label": "Thyroid testing",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "blood_gas",
+    "group": "lab",
+    "label": "Blood gas with sample type",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "cooximetry",
+    "group": "lab",
+    "label": "Co-oximetry",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "pregnancy_test",
+    "group": "lab",
+    "label": "Pregnancy test with timing",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "restricted",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "biodosimetry",
+    "group": "lab",
+    "label": "Specialist biodosimetry",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "other_lab",
+    "group": "lab",
+    "label": "Other condition-selected laboratory finding",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "mental_status",
+    "group": "examination",
+    "label": "Clinician mental-status finding",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "neurologic_exam",
+    "group": "examination",
+    "label": "Trained neurologic findings",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "resp_exam",
+    "group": "examination",
+    "label": "Respiratory examination",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "abdominal_exam",
+    "group": "examination",
+    "label": "Abdominal examination",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "skin_exam",
+    "group": "examination",
+    "label": "Skin/wound examination",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "dental_exam",
+    "group": "examination",
+    "label": "Dental examination",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "otoscopy",
+    "group": "examination",
+    "label": "Otoscopy",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "audiometry",
+    "group": "examination",
+    "label": "Calibrated audiometry",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "bladder_residual",
+    "group": "examination",
+    "label": "Postvoid residual",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "strength",
+    "group": "examination",
+    "label": "Measured strength with protocol",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "dxa",
+    "group": "examination",
+    "label": "DXA report",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "imaging",
+    "group": "examination",
+    "label": "Imaging report",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "pathology",
+    "group": "examination",
+    "label": "Pathology report",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "clinical_diagnosis",
+    "group": "examination",
+    "label": "Clinician diagnosis with attribution",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "clinical",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "symptom_duration",
+    "group": "behavioral",
+    "label": "Duration of behavioral symptoms",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "restricted",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "functional_change",
+    "group": "behavioral",
+    "label": "Functional change",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "restricted",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "support_preference",
+    "group": "behavioral",
+    "label": "Preferred support contact/route",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "restricted",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "validated_questionnaire",
+    "group": "behavioral",
+    "label": "Named validated questionnaire and version",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "restricted",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "menstrual_context",
+    "group": "reproductive",
+    "label": "Relevant menstrual history",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "restricted",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "bleeding_context",
+    "group": "reproductive",
+    "label": "Bleeding amount/duration",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "restricted",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "pregnancy_possibility",
+    "group": "reproductive",
+    "label": "Pregnancy possibility, if relevant",
+    "type": "structured finding/report",
+    "unit": "",
+    "display_condition": "Complaint, protocol or clinician indication only",
+    "sensitivity": "restricted",
+    "validation": "Operator, instrument, date, source and interpretation status required; result + unit + lab reference interval when applicable; no automated diagnosis"
+  },
+  {
+    "field_id": "epoch_start",
+    "group": "device",
+    "label": "Activity epoch start",
+    "type": "datetime",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Versioned algorithm and device; gaps/nonwear never automatically sleep; device sequence deduplicated"
+  },
+  {
+    "field_id": "epoch_duration",
+    "group": "device",
+    "label": "Epoch duration",
+    "type": "seconds",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Versioned algorithm and device; gaps/nonwear never automatically sleep; device sequence deduplicated"
+  },
+  {
+    "field_id": "activity_measure",
+    "group": "device",
+    "label": "Activity count definition and value",
+    "type": "object",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Versioned algorithm and device; gaps/nonwear never automatically sleep; device sequence deduplicated"
+  },
+  {
+    "field_id": "wear_status",
+    "group": "device",
+    "label": "Wear/nonwear/unknown",
+    "type": "enum",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Versioned algorithm and device; gaps/nonwear never automatically sleep; device sequence deduplicated"
+  },
+  {
+    "field_id": "band_battery",
+    "group": "device",
+    "label": "Band battery level",
+    "type": "number",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Versioned algorithm and device; gaps/nonwear never automatically sleep; device sequence deduplicated"
+  },
+  {
+    "field_id": "sync_sequence",
+    "group": "device",
+    "label": "Device sequence",
+    "type": "integer",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Versioned algorithm and device; gaps/nonwear never automatically sleep; device sequence deduplicated"
+  },
+  {
+    "field_id": "sleep_algorithm",
+    "group": "device",
+    "label": "Sleep scoring version",
+    "type": "id",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Versioned algorithm and device; gaps/nonwear never automatically sleep; device sequence deduplicated"
+  },
+  {
+    "field_id": "camera_session",
+    "group": "device",
+    "label": "Camera session identity",
+    "type": "id",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Versioned algorithm and device; gaps/nonwear never automatically sleep; device sequence deduplicated"
+  },
+  {
+    "field_id": "camera_frame_quality",
+    "group": "device",
+    "label": "Camera quality metrics",
+    "type": "object",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Versioned algorithm and device; gaps/nonwear never automatically sleep; device sequence deduplicated"
+  },
+  {
+    "field_id": "station_pairing",
+    "group": "device",
+    "label": "Explicit station pairing",
+    "type": "object",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Versioned algorithm and device; gaps/nonwear never automatically sleep; device sequence deduplicated"
+  },
+  {
+    "field_id": "forecast_version",
+    "group": "device",
+    "label": "Forecast model release",
+    "type": "id",
+    "unit": "",
+    "display_condition": "Optional when relevant",
+    "sensitivity": "clinical",
+    "validation": "Versioned algorithm and device; gaps/nonwear never automatically sleep; device sequence deduplicated"
+  }
+]

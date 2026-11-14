@@ -1,0 +1,15 @@
+{
+  "summary": "SIM GET /v1/evidence/passages/psg_c23_1",
+  "description": "One approved passage from the pinned evidence release. Illustrative only: not seed data.",
+  "x-schema": "evidence-passage.schema.json",
+  "value": {
+    "passage_id": "psg_c23_1",
+    "source_id": "C23",
+    "release_id": "evr_1",
+    "text": "Circadian desynchrony can reduce alertness and slow reactions.",
+    "allowed_uses": [
+      "risk_context"
+    ],
+    "status": "approved"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "summary": "SIM POST /v1/handoffs",
+  "description": "The For the ground card in act 5: the drafted log with its catch-up. leaves_at shows when it would leave. Nothing is queued until the person presses Tell the ground. Illustrative only: not seed data.",
+  "x-schema": "handoff.schema.json",
+  "value": {
+    "handoff_id": "hof_mara_1",
+    "revision": 2,
+    "episode_id": "epi_mara_racing_1",
+    "state": "previewed",
+    "fields": [
+      {
+        "field": "concern",
+        "label": "Concern",
+        "value_text": "Heart racing since this morning, comes and goes"
+      },
+      {
+        "field": "pulse",
+        "label": "Pulse at rest",
+        "value_text": "96 bpm, camera, Sim"
+      },
+      {
+        "field": "pulse_felt",
+        "label": "Pulse felt by a crewmate",
+        "value_text": "92 in 60 seconds, felt regular, cameras 96, they agree, Sim"
+      },
+      {
+        "field": "gap",
+        "label": "Not available here",
+        "value_text": "Rhythm: needs an ECG"
+      }
+    ],
+    "attachments": [],
+    "consent_ref": "cns_mara_ground_1",
+    "recipients": [
+      "Flight surgeon"
+    ],
+    "approved_by": null,
+    "approved_at": null,
+    "deliveries": [],
+    "simulated": true,
+    "reply": null,
+    "timeline": [
+      {
+        "state": "previewed",
+        "label": "Previewed on the For the ground card",
+        "at": "2026-11-13T09:41:00Z"
+      }
+    ],
+    "leaves_at": "2026-11-14T11:20:40Z",
+    "catch_up": {
+      "what_happened": [
+        "Mara Okafor: heart racing since this morning, comes and goes, easing. No chest pain, fainting or hard breathing.",
+        "Pulse at rest 96 bpm by camera, Sim. Rhythm: needs an ECG, not aboard."
+      ],
+      "what_was_done": [
+        "09:39 A crewmate feels your pulse at the wrist for 60 seconds while the cameras count it. Tomas Lind counted 92 in 60 seconds, felt regular; cameras 96; they agree."
+      ],
+      "being_watched": [
+        "Measure your pulse at the camera station again, sitting still. Next check: interval to be set by clinical review",
+        "If it keeps coming back or happens more often, tell the medical officer."
+      ],
+      "advice_welcome": [
+        "The heart's rhythm stays unknown."
+      ]
+    },
+    "plan_run_id": "prn_icl10_mara_1",
+    "allowed_actions": [
+      "approve",
+      "cancel"
+    ]
+  }
+}

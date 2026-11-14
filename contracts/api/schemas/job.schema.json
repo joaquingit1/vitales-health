@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "job.schema.json",
+  "title": "Job",
+  "description": "A long running operation. A refresh reconnects to the job; it never starts a second one.",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "kind": {
+      "enum": [
+        "assessment",
+        "report_extraction",
+        "participation_rebuild"
+      ]
+    },
+    "state": {
+      "enum": [
+        "queued",
+        "running",
+        "succeeded",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "progress": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "result_ref": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/evidence_ref"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "error": {
+      "anyOf": [
+        {
+          "$ref": "error.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "updated_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "job_id",
+    "kind",
+    "state",
+    "progress",
+    "result_ref",
+    "error",
+    "created_at",
+    "updated_at"
+  ],
+  "additionalProperties": false
+}

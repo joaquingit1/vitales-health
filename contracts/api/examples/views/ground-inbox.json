@@ -1,0 +1,28 @@
+{
+  "summary": "SIM GET /v1/ground/inbox, after the next contact",
+  "description": "The ground console inbox after the next contact: the act 5 handoff and the act 6 message reached the ground together. Nothing on board waited for the ground to read them. Illustrative only: not seed data.",
+  "x-schema": "ground-inbox.schema.json",
+  "value": {
+    "as_of": "2026-11-14T11:32:00Z",
+    "items": [
+      {
+        "kind": "handoff",
+        "ref_id": "hof_mara_1",
+        "delivered_at": "2026-11-14T11:20:50Z",
+        "receipt_at": "2026-11-14T11:31:00Z",
+        "title": "Mara Okafor: heart racing",
+        "text": "Heart racing since this morning, comes and goes. Pulse at rest 96 bpm, camera, Sim. Pulse felt by a crewmate 92 in 60 seconds, they agree. Rhythm: needs an ECG.",
+        "simulated": true
+      },
+      {
+        "kind": "ground_message",
+        "ref_id": "gm_lunar_1",
+        "delivered_at": "2026-11-14T11:20:51Z",
+        "receipt_at": "2026-11-14T11:30:41Z",
+        "title": "Help: Tomas Lind, airlock",
+        "text": "Tomas Lind needs help at the airlock. Eye injury or something in the eye. Air safe. Tomas Lind responding. No heavy bleeding. Eye injury, chemical or dust in the eye. Steps done: Do not rub the eye. Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes. In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels. Crew called at 12:02. Ilya Brandt helping.",
+        "simulated": true
+      }
+    ]
+  }
+}

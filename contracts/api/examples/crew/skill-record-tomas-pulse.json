@@ -1,0 +1,25 @@
+{
+  "summary": "SIM SkillRecord in skill.practiced",
+  "description": "Tomas Lind's pulse check at the wrist, practiced in a drill on day 12: fresh until the team default cadence passes (to be set by the flight surgeon). Illustrative only: not seed data.",
+  "x-schema": "skill-record.schema.json",
+  "value": {
+    "person": {
+      "person_id": "tomas",
+      "display_name": "Tomas Lind"
+    },
+    "skill_id": "pulse_check_wrist",
+    "skill_name": "Pulse check at the wrist",
+    "trained_at": null,
+    "last_practiced_at": "2026-11-06T15:20:00Z",
+    "last_practiced_label": "day 12",
+    "source": "drill",
+    "source_ref_id": "drl_pulse_1",
+    "origin_mode": "SIM",
+    "freshness": "fresh",
+    "freshness_text": "Fresh",
+    "freshness_basis": "team default",
+    "freshness_to_be_set_by": "the flight surgeon",
+    "due_at": "2026-12-06T15:20:00Z",
+    "stale_at": "2027-01-05T15:20:00Z"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "summary": "SIM request POST /v1/daily-checks/{id}/answers",
+  "description": "Nothing new in the body. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/AnswerCreate",
+  "value": {
+    "question_id": "symptom_new",
+    "presence": "absent",
+    "value": "no",
+    "answered_at": "2026-11-13T09:13:00Z"
+  }
+}

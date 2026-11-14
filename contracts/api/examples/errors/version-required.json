@@ -1,0 +1,14 @@
+{
+  "summary": "SIM error VERSION_REQUIRED",
+  "description": "The error envelope for VERSION_REQUIRED. Illustrative only: not seed data.",
+  "x-schema": "error.schema.json",
+  "value": {
+    "code": "VERSION_REQUIRED",
+    "message": "This action needs If-Match.",
+    "retryable": false,
+    "field_errors": [],
+    "correlation_id": "cor_ack_3",
+    "current_state": null,
+    "supported_alternative": null
+  }
+}

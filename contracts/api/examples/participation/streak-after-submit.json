@@ -1,0 +1,98 @@
+{
+  "summary": "SIM POST /v1/daily-checks/dck_mara_d19/submit",
+  "description": "The submit response: Mara's own streak with today checked. Illustrative only: not seed data.",
+  "x-schema": "streak-view.schema.json",
+  "value": {
+    "patient_id": "mara",
+    "mission_id": "demo-mission",
+    "origin_mode": "SIM",
+    "as_of": "2026-11-13T09:10:16Z",
+    "current_mission_day": 19,
+    "today": "checked",
+    "current_streak_days": 19,
+    "longest_streak_days": 19,
+    "completed_days_total": 19,
+    "first_mission_day": 1,
+    "days": [
+      {
+        "mission_day": 1,
+        "status": "checked"
+      },
+      {
+        "mission_day": 2,
+        "status": "checked"
+      },
+      {
+        "mission_day": 3,
+        "status": "checked"
+      },
+      {
+        "mission_day": 4,
+        "status": "checked"
+      },
+      {
+        "mission_day": 5,
+        "status": "checked"
+      },
+      {
+        "mission_day": 6,
+        "status": "checked"
+      },
+      {
+        "mission_day": 7,
+        "status": "checked"
+      },
+      {
+        "mission_day": 8,
+        "status": "checked"
+      },
+      {
+        "mission_day": 9,
+        "status": "checked"
+      },
+      {
+        "mission_day": 10,
+        "status": "checked"
+      },
+      {
+        "mission_day": 11,
+        "status": "checked"
+      },
+      {
+        "mission_day": 12,
+        "status": "checked"
+      },
+      {
+        "mission_day": 13,
+        "status": "checked"
+      },
+      {
+        "mission_day": 14,
+        "status": "checked"
+      },
+      {
+        "mission_day": 15,
+        "status": "checked"
+      },
+      {
+        "mission_day": 16,
+        "status": "checked"
+      },
+      {
+        "mission_day": 17,
+        "status": "checked"
+      },
+      {
+        "mission_day": 18,
+        "status": "checked"
+      },
+      {
+        "mission_day": 19,
+        "status": "checked"
+      }
+    ],
+    "derivation_version": "participation-1",
+    "mission_clock_version": "clock-1",
+    "event_cursor": "4183"
+  }
+}

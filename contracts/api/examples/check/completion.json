@@ -1,0 +1,22 @@
+{
+  "summary": "SIM CheckCompletion recorded on submit",
+  "description": "The participation event the submit wrote. It carries no value or answer. Illustrative only: not seed data.",
+  "x-schema": "check-completion.schema.json",
+  "value": {
+    "completion_id": "6f1d3c2a-8b4e-4f7a-9c1d-2e3f4a5b6c7d",
+    "patient_id": "mara",
+    "mission_id": "demo-mission",
+    "origin_mode": "SIM",
+    "basis": "daily_check",
+    "basis_ref": "dck_mara_d19",
+    "occurred_at": "2026-11-13T09:14:00Z",
+    "original_offset": "+00:00",
+    "mission_clock_version": "clock-1",
+    "mission_day": 19,
+    "completion_rule_version": "participation-1",
+    "status": "accepted",
+    "status_reason": null,
+    "idempotency_key": "dck_mara_d19-submit",
+    "created_at": "2026-11-13T09:14:00Z"
+  }
+}

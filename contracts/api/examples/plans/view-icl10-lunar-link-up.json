@@ -1,0 +1,608 @@
+{
+  "summary": "SIM GET /v1/conditions/ICL10/plan, Moon base, link up",
+  "description": "The same plan at the same hub time with the link up. Only the ground stage's link_text and leaves_at differ (EI2). Illustrative only: not seed data.",
+  "x-schema": "plan-view.schema.json",
+  "value": {
+    "plan_id": "plan_icl10",
+    "title": "Racing heart that comes and goes",
+    "condition_id": "ICL10",
+    "flow_id": null,
+    "written_for": "condition",
+    "mode": "stabilize",
+    "mode_text": "Stabilize and watch",
+    "tag_text": "Onboard plan ICL10 · unreviewed draft",
+    "environment_id": "lunar_surface",
+    "release_id": "rel_20261113_a",
+    "plan_version": "7aaab248951ab8bcd5bf193b05216727d30a3c2d4485b0dbd09a6626c15c7fe1",
+    "notice": "Unreviewed draft: needs clinician review",
+    "review_state": "unreviewed",
+    "stages": [
+      {
+        "stage_id": "check_another_way",
+        "label": "Check it another way",
+        "steps": [
+          {
+            "step_id": "icl10_pulse_by_crewmate",
+            "text": "A crewmate feels your pulse at the wrist for 60 seconds while the cameras count it.",
+            "text_first_time": null,
+            "who": "skill:pulse_check_wrist",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "skill_holder"
+              }
+            ],
+            "body_region": "wrist",
+            "landmark_id": "wrist_pulse_point",
+            "guided_check_skill_id": "pulse_check_wrist",
+            "cannot_replace_text": "It cannot replace an ECG.",
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "C05",
+              "SK01",
+              "SK02"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          }
+        ]
+      },
+      {
+        "stage_id": "do_now",
+        "label": "Now",
+        "steps": [
+          {
+            "step_id": "icl10_note_episodes",
+            "text": "Note when it starts and stops, how often it happens and what you were doing.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": null,
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "C02"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "icl10_avoid_triggers",
+            "text": "Avoid things that can trigger it, such as stress, caffeine and alcohol. This can help if it is not caused by a health condition.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": null,
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "C01"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "icl10_add_ecg_report",
+            "text": "Add an existing ECG report if there is one.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": null,
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [],
+            "basis": "team default",
+            "review_state": "unreviewed"
+          }
+        ]
+      },
+      {
+        "stage_id": "watch",
+        "label": "Watch",
+        "steps": [
+          {
+            "step_id": "icl10_pulse_at_cameras",
+            "text": "Measure your pulse at the camera station again, sitting still.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": "icl10_pulse_at_oximeter",
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": "heart",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": {
+              "cadence": null,
+              "interval_seconds": null,
+              "basis": "team default",
+              "to_be_set_by": "clinical review",
+              "text": "Next check: interval to be set by clinical review"
+            },
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "C03",
+              "C05"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "icl10_pulse_at_oximeter",
+            "text": "Measure your pulse with the kit oximeter: hand warm, relaxed and below heart level, sitting still, until it shows one steady number.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": true,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": "hand",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": {
+              "cadence": null,
+              "interval_seconds": null,
+              "basis": "team default",
+              "to_be_set_by": "clinical review",
+              "text": "Next check: interval to be set by clinical review"
+            },
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "C08"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "icl10_tell_mo_if_recurs",
+            "text": "If it keeps coming back or happens more often, tell the medical officer.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": null,
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "C01"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          }
+        ]
+      },
+      {
+        "stage_id": "if_worse",
+        "label": "If it gets worse",
+        "steps": [
+          {
+            "step_id": "icl10_worse_chest",
+            "text": "Chest pain or discomfort with the racing heart",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": null,
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": true,
+            "opens_flow_id": "chest_pain",
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "C01",
+              "C02"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "icl10_worse_breath",
+            "text": "Shortness of breath or difficulty breathing",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": null,
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": true,
+            "opens_flow_id": "breathing_difficulty",
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "C01",
+              "C02"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "icl10_worse_faint",
+            "text": "Feeling faint or fainting",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": null,
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": true,
+            "opens_flow_id": "fainting",
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "C01"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "icl10_worse_persists",
+            "text": "It is still there and does not go away (how long: threshold to be set by clinical review)",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": null,
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": true,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "C01"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "icl10_worse_heart_attack",
+            "text": "Any heart attack symptom",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": null,
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": true,
+            "opens_flow_id": "chest_pain",
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "C10"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          }
+        ]
+      },
+      {
+        "stage_id": "medical_officer",
+        "label": "Medical officer",
+        "steps": [
+          {
+            "step_id": "icl10_mo_review",
+            "text": "The medical officer reviews. Anything more, as in the onboard procedure.",
+            "text_first_time": null,
+            "who": "crew_medical_officer",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [],
+            "body_region": null,
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [],
+            "basis": "team default",
+            "review_state": "unreviewed"
+          }
+        ]
+      },
+      {
+        "stage_id": "ground_log",
+        "label": "Log for the ground",
+        "blocking": false,
+        "row_text": "Log for the ground. It leaves at the next contact. Nothing here waits for it.",
+        "items": [],
+        "link_text": "Ground link up · the log goes now",
+        "leaves_at": null
+      }
+    ],
+    "plan_aboard": true,
+    "waits_for_medical_officer": false,
+    "no_return_text": null,
+    "as_of": "2026-11-13T09:36:00Z"
+  }
+}

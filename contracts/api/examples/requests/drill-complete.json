@@ -1,0 +1,8 @@
+{
+  "summary": "SIM request POST /v1/drills/{id}/complete",
+  "description": "Complete the drill. No measurement is accepted. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/DrillComplete",
+  "value": {
+    "client_time": "2026-11-06T15:20:00Z"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "summary": "SIM POST /v1/drills/drl_pulse_1/complete",
+  "description": "Day 12 on the station: Tomas Lind practiced the pulse check on a crewmate's wrist. Completion wrote his SkillRecord and counts toward practice patches; no drill number is stored (EI10). Illustrative only: not seed data.",
+  "x-schema": "drill.schema.json",
+  "value": {
+    "drill_id": "drl_pulse_1",
+    "revision": 2,
+    "scenario_id": "drill_pulse_crewmate",
+    "skill_ids": [
+      "pulse_check_wrist"
+    ],
+    "participants": [
+      {
+        "person_id": "tomas",
+        "display_name": "Tomas Lind"
+      }
+    ],
+    "routine_occurrence_id": "occ_drill_d12",
+    "state": "completed",
+    "started_at": "2026-11-06T15:00:00Z",
+    "completed_at": "2026-11-06T15:20:00Z",
+    "abandoned_at": null,
+    "stores_measurements": false,
+    "origin_mode": "SIM",
+    "allowed_actions": []
+  }
+}

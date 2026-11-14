@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-source.schema.json",
+  "title": "ResearchSource",
+  "description": "A source in the research workspace (CONTRACTS section 4, Evidence and model releases). No patient context.",
+  "type": "object",
+  "properties": {
+    "source_id": {
+      "$ref": "common.schema.json#/$defs/source_id"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "url": {
+      "type": "string",
+      "minLength": 1
+    },
+    "date": {
+      "type": "string",
+      "minLength": 1
+    },
+    "access": {
+      "type": "string",
+      "minLength": 1
+    },
+    "saved_as": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "enum": [
+        "discovered",
+        "captured",
+        "extracted",
+        "technically_checked",
+        "clinically_reviewed",
+        "approved",
+        "superseded",
+        "withdrawn"
+      ]
+    }
+  },
+  "required": [
+    "source_id",
+    "title",
+    "url",
+    "date",
+    "access",
+    "saved_as",
+    "status"
+  ],
+  "additionalProperties": false
+}

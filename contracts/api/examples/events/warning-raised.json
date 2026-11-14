@@ -1,0 +1,87 @@
+{
+  "summary": "REPLAY one event, warning.raised",
+  "description": "One event as it appears in the stream. Illustrative only: not seed data.",
+  "x-schema": "event.schema.json",
+  "value": {
+    "seq": 4181,
+    "event_id": "evn_4181",
+    "type": "warning.raised",
+    "occurred_at": "2026-11-13T09:08:02Z",
+    "emitted_at": "2026-11-13T09:08:02Z",
+    "scope": {
+      "kind": "habitat",
+      "person_id": null,
+      "environment_id": "station_leo"
+    },
+    "config_release_id": "rel_20261113_a",
+    "correlation_id": null,
+    "data": {
+      "warning_id": "wrn_co2_station_1",
+      "revision": 1,
+      "definition_id": "co2_above_limit",
+      "config_release_id": "rel_20261113_a",
+      "level": "act",
+      "raised_by": "sensor_limit",
+      "hazard_id": "co2",
+      "limit_id": "co2_1h_act",
+      "sensor_type_id": "co2",
+      "channel_id": "ch_co2_cabin_replay",
+      "scope": "habitat",
+      "person_id": null,
+      "environment_id": "station_leo",
+      "location": "cabin",
+      "origin_mode": "REPLAY",
+      "title": "CO2 above the habitat limit",
+      "what": "The one-hour average CO2 is 3.5 mmHg. The habitat limit is 3 mmHg.",
+      "why": "High CO2 can cause headaches, shortness of breath and tiredness, and can disturb sleep. It is a limit for the cabin air, not a diagnosis.",
+      "steps": [
+        "Tell the crew and the ground.",
+        "Move to a well-ventilated module.",
+        "Report headache, breathlessness or tiredness.",
+        "The flight control team finds and repairs the CO2 scrubbers or switches on extra scrubbing."
+      ],
+      "body_regions": [
+        "head"
+      ],
+      "headline": {
+        "fragment": "CO2 above the limit",
+        "rank": 20,
+        "solo": false
+      },
+      "evidence": [
+        {
+          "kind": "reading",
+          "ref_id": "rdg_co2_cabin_replay",
+          "summary": "One-hour mean 3.5 mmHg (4,606 ppm at an assumed 760 mmHg), replayed from 7 Oct 2014. Another mission's cabin, not anyone's exposure.",
+          "observed_at": "2014-10-07T15:36:00Z"
+        }
+      ],
+      "evidence_time": "2014-10-07T15:36:00Z",
+      "evidence_time_label": "15:36, replay time",
+      "citation": {
+        "text": "CO2 sensor, Replay of ISS cabin data, 7 Oct 2014. Limit: NASA-STD-3001 Volume 2, Revision F (EV01).",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "insight_id": null,
+      "state": "raised",
+      "raised_at": "2026-11-13T09:08:02Z",
+      "acknowledgements": [],
+      "cleared_at": null,
+      "clear_reason": null,
+      "resolved": null,
+      "dismissed": null,
+      "notes": [],
+      "previous_warning_id": null,
+      "routine_override_ids": [
+        "ovr_daily_check_co2",
+        "ovr_vision_co2"
+      ],
+      "allowed_actions": [
+        "acknowledge",
+        "add_note"
+      ]
+    }
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "assistant-stream-chunk.schema.json",
+  "title": "AssistantStreamChunk",
+  "description": "One SSE data payload on GET /v1/assistant/conversations/{id}/stream.",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "turn.started"
+        },
+        "turn_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "message_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        }
+      },
+      "required": [
+        "type",
+        "turn_id",
+        "message_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "token"
+        },
+        "turn_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "message_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "delta": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "turn_id",
+        "message_id",
+        "delta"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "tool"
+        },
+        "turn_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "tool": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "status": {
+          "enum": [
+            "started",
+            "succeeded",
+            "failed"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "turn_id",
+        "tool",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "message.completed"
+        },
+        "message": {
+          "$ref": "assistant-message.schema.json"
+        }
+      },
+      "required": [
+        "type",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "turn.failed"
+        },
+        "turn_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "error": {
+          "$ref": "error.schema.json"
+        }
+      },
+      "required": [
+        "type",
+        "turn_id",
+        "error"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

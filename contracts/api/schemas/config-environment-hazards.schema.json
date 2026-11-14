@@ -1,0 +1,351 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-environment-hazards.schema.json",
+  "title": "environment-hazards.json",
+  "description": "The environments, hazards, effects, sourced levels and what to do. Written by the research team; the hub serves it unchanged. Levels and effects have no IDs of their own: other documents point at them by hazard ID plus array index and copy the value they rely on so the loader can detect drift.",
+  "type": "object",
+  "properties": {
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review before live guidance.",
+      "minLength": 1
+    },
+    "environments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/hazard_environment_key"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "gravity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "earth_delay": {
+            "type": "string",
+            "minLength": 1
+          },
+          "what_is_different": {
+            "type": "string",
+            "minLength": 1
+          },
+          "hazard_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/config_id"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "gravity",
+          "earth_delay",
+          "what_is_different",
+          "hazard_ids"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 4
+    },
+    "hazards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "sensed",
+              "condition"
+            ],
+            "description": "sensed: a habitat sensor can report it. condition: a condition of the place, shown under Living here."
+          },
+          "plain": {
+            "type": "string",
+            "minLength": 1
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "effect": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "body_region": {
+                  "$ref": "common.schema.json#/$defs/body_region_or_null"
+                },
+                "source_ids": {
+                  "$ref": "common.schema.json#/$defs/source_ids"
+                }
+              },
+              "required": [
+                "effect",
+                "body_region",
+                "source_ids"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "by_environment": {
+            "type": "object",
+            "properties": {
+              "station_leo": {
+                "type": "string"
+              },
+              "transit": {
+                "type": "string"
+              },
+              "lunar_surface": {
+                "type": "string"
+              },
+              "mars_surface": {
+                "type": "string"
+              },
+              "eva": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "station_leo",
+              "transit",
+              "lunar_surface",
+              "mars_surface",
+              "eva"
+            ],
+            "additionalProperties": false,
+            "description": "Text per environment key, including eva for being outside."
+          },
+          "sensor": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "measures": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "other_units": {
+                    "type": "string"
+                  },
+                  "hackathon_options": {
+                    "type": "string"
+                  },
+                  "cannot_tell": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "measures",
+                  "unit",
+                  "other_units",
+                  "hackathon_options",
+                  "cannot_tell"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "levels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "level": {
+                  "$ref": "common.schema.json#/$defs/level"
+                },
+                "rule": {
+                  "type": "string",
+                  "description": "The rule in words. A number the hub uses must equal value or appear in this text.",
+                  "minLength": 1
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unit": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "window": {
+                  "type": "string",
+                  "description": "Averaging period in words. Not machine readable: sensor-limits.json gives the window in seconds.",
+                  "minLength": 1
+                },
+                "quote": {
+                  "type": "string"
+                },
+                "source_ids": {
+                  "$ref": "common.schema.json#/$defs/source_ids"
+                }
+              },
+              "required": [
+                "level",
+                "rule",
+                "value",
+                "unit",
+                "window",
+                "quote",
+                "source_ids"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "what_to_do": {
+            "type": "object",
+            "properties": {
+              "info": {
+                "type": "string",
+                "minLength": 1
+              },
+              "watch": {
+                "type": "string",
+                "minLength": 1
+              },
+              "act": {
+                "type": "string",
+                "minLength": 1
+              },
+              "emergency": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "info",
+              "watch",
+              "act",
+              "emergency"
+            ],
+            "additionalProperties": false,
+            "description": "What to do at each level. Warning steps are these sentences, split as in CONTRACTS section 14."
+          },
+          "routine_hint": {
+            "type": "string"
+          },
+          "source_ids": {
+            "$ref": "common.schema.json#/$defs/source_ids"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "plain",
+          "effects",
+          "by_environment",
+          "sensor",
+          "levels",
+          "what_to_do",
+          "routine_hint",
+          "source_ids"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "sensed"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "sensor": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "minItems": 1
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/source_id"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1
+          },
+          "date": {
+            "type": "string",
+            "minLength": 1
+          },
+          "access": {
+            "type": "string",
+            "minLength": 1
+          },
+          "saved_as": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "url",
+          "date",
+          "access",
+          "saved_as"
+        ],
+        "additionalProperties": false,
+        "description": "One cited source, as the research files write it."
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "notice",
+    "environments",
+    "hazards",
+    "sources"
+  ],
+  "additionalProperties": false
+}

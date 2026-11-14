@@ -1,0 +1,290 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-responder-flows.schema.json",
+  "title": "responder-flows.json",
+  "description": "The fixed first screen (triage) and the twenty responder flows of Someone needs help. Written by the research team; the hub serves it unchanged and runs it as the help state machine (CONTRACTS section 16). There is no dose field anywhere: a medicine appears only as a step whose kit reads as in the onboard procedure.",
+  "type": "object",
+  "properties": {
+    "triage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "goes_to": {
+                  "$ref": "common.schema.json#/$defs/config_id"
+                }
+              },
+              "required": [
+                "answer",
+                "goes_to"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "id",
+          "question",
+          "answers"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "plain": {
+            "type": "string",
+            "minLength": 1
+          },
+          "entry": {
+            "type": "string",
+            "minLength": 1
+          },
+          "immediate_steps": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "measurements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "what": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "how": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "instrument": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "what",
+                "how",
+                "instrument"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "treatment_steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "step": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "who": {
+                  "enum": [
+                    "any crew",
+                    "crew medical officer",
+                    "ground"
+                  ]
+                },
+                "kit": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_ids": {
+                  "$ref": "common.schema.json#/$defs/source_ids"
+                }
+              },
+              "required": [
+                "step",
+                "who",
+                "kit",
+                "source_ids"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "step": {
+                        "pattern": "[Mm]edicine"
+                      }
+                    },
+                    "required": [
+                      "step"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "kit": {
+                        "const": "as in the onboard procedure"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "call_ground_when": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assistant_may": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "assistant_must_never": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "body_regions": {
+            "$ref": "common.schema.json#/$defs/body_regions"
+          },
+          "environment_notes": {
+            "type": "object",
+            "properties": {
+              "station_leo": {
+                "type": "string"
+              },
+              "transit": {
+                "type": "string"
+              },
+              "lunar_surface": {
+                "type": "string"
+              },
+              "mars_surface": {
+                "type": "string"
+              },
+              "eva": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "station_leo",
+              "transit",
+              "lunar_surface",
+              "mars_surface",
+              "eva"
+            ],
+            "additionalProperties": false,
+            "description": "Text per environment key, including eva for being outside."
+          },
+          "source_ids": {
+            "$ref": "common.schema.json#/$defs/source_ids"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "plain",
+          "entry",
+          "immediate_steps",
+          "questions",
+          "measurements",
+          "treatment_steps",
+          "call_ground_when",
+          "assistant_may",
+          "assistant_must_never",
+          "body_regions",
+          "environment_notes",
+          "source_ids"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/source_id"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1
+          },
+          "date": {
+            "type": "string",
+            "minLength": 1
+          },
+          "access": {
+            "type": "string",
+            "minLength": 1
+          },
+          "saved_as": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "url",
+          "date",
+          "access",
+          "saved_as"
+        ],
+        "additionalProperties": false,
+        "description": "One cited source, as the research files write it."
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "triage",
+    "flows",
+    "sources"
+  ],
+  "additionalProperties": false
+}

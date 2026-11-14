@@ -1,0 +1,395 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-environment-profiles.schema.json",
+  "title": "environment-profiles.json",
+  "description": "What the hub and the screens need per environment beyond environment-hazards.json: day labels, the simulated comms queue delay, the walk word, the ordered sensor types, effect filters, the mission event vocabulary and the confirmation rule for environment changes. Edited by the team.",
+  "type": "object",
+  "properties": {
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review before live guidance.",
+      "minLength": 1
+    },
+    "change_confirmation": {
+      "type": "object",
+      "properties": {
+        "confirmations_required": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Crew confirmations a proposed environment needs before it becomes active."
+        },
+        "basis": {
+          "$ref": "common.schema.json#/$defs/basis"
+        }
+      },
+      "required": [
+        "confirmations_required",
+        "basis"
+      ],
+      "additionalProperties": false
+    },
+    "mission_event_types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "starts_overlay": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/overlay"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ends_overlay": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/overlay"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "who_may_record": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/role"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "starts_overlay",
+          "ends_overlay",
+          "who_may_record"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "state_facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "set_by_event_types": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/config_id"
+            },
+            "minItems": 1
+          },
+          "cleared_by_event_types": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/config_id"
+            },
+            "minItems": 1
+          },
+          "environments": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/environment_id"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "set_by_event_types",
+          "cleared_by_event_types",
+          "environments"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Boolean facts about the place that rules read, set and cleared only by mission events."
+    },
+    "effect_filters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hazard_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "effect_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "effect_starts_with": {
+            "type": "string",
+            "description": "First words of the effect, copied so the loader detects drift.",
+            "minLength": 1
+          },
+          "only_in": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/environment_id"
+            },
+            "minItems": 1
+          },
+          "basis": {
+            "$ref": "common.schema.json#/$defs/basis"
+          }
+        },
+        "required": [
+          "hazard_id",
+          "effect_index",
+          "effect_starts_with",
+          "only_in",
+          "basis"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "environment_id": {
+            "$ref": "common.schema.json#/$defs/environment_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "place": {
+            "type": "string",
+            "description": "The place in words, for example space station.",
+            "minLength": 1
+          },
+          "day_label": {
+            "type": "object",
+            "properties": {
+              "counter": {
+                "enum": [
+                  "mission_day",
+                  "environment_day"
+                ]
+              },
+              "template": {
+                "type": "string",
+                "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                "minLength": 1,
+                "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+              },
+              "short_template": {
+                "type": "string",
+                "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                "minLength": 1,
+                "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+              },
+              "inline_template": {
+                "type": "string",
+                "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                "minLength": 1,
+                "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+              },
+              "day_length_seconds": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "basis": {
+                "$ref": "common.schema.json#/$defs/basis"
+              }
+            },
+            "required": [
+              "counter",
+              "template",
+              "short_template",
+              "inline_template",
+              "day_length_seconds",
+              "basis"
+            ],
+            "additionalProperties": false
+          },
+          "eva_word": {
+            "type": "string",
+            "minLength": 1
+          },
+          "comms_queue": {
+            "type": "object",
+            "properties": {
+              "simulated_one_way_delay_seconds": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Delay the simulated comms queue applies to ground messages and handoffs in this environment. The delay words on screen come from earth_delay in environment-hazards.json, never from here."
+              },
+              "basis": {
+                "$ref": "common.schema.json#/$defs/basis"
+              },
+              "source_ids": {
+                "$ref": "common.schema.json#/$defs/source_ids"
+              },
+              "scheduled_status": {
+                "enum": [
+                  "up",
+                  "delayed"
+                ],
+                "description": "GroundLink.status while the link follows this profile (source schedule). A team choice: delayed when a spoken exchange is impractical."
+              }
+            },
+            "required": [
+              "simulated_one_way_delay_seconds",
+              "basis",
+              "source_ids",
+              "scheduled_status"
+            ],
+            "additionalProperties": false
+          },
+          "sensor_type_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/config_id"
+            },
+            "description": "Sensor types shown in this environment, in display order.",
+            "uniqueItems": true
+          },
+          "overlays": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/overlay"
+            },
+            "uniqueItems": true
+          },
+          "link": {
+            "type": "object",
+            "properties": {
+              "default_gap_kind": {
+                "$ref": "common.schema.json#/$defs/gap_kind"
+              },
+              "sim_schedule": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "starts_at": {
+                      "$ref": "common.schema.json#/$defs/instant"
+                    },
+                    "ends_at": {
+                      "$ref": "common.schema.json#/$defs/instant"
+                    },
+                    "status": {
+                      "enum": [
+                        "up",
+                        "delayed",
+                        "down"
+                      ]
+                    },
+                    "gap_kind": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/gap_kind"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "planned": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "starts_at",
+                    "ends_at",
+                    "status",
+                    "gap_kind",
+                    "planned"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Simulated contact windows for GroundLink source schedule. Empty: the link follows comms_queue.scheduled_status."
+              },
+              "basis": {
+                "$ref": "common.schema.json#/$defs/basis"
+              }
+            },
+            "required": [
+              "default_gap_kind",
+              "sim_schedule",
+              "basis"
+            ],
+            "additionalProperties": false
+          },
+          "return_option": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "trip_text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source_ids": {
+                    "$ref": "common.schema.json#/$defs/source_ids"
+                  },
+                  "to_be_set_by": {
+                    "$ref": "common.schema.json#/$defs/to_be_set_by"
+                  }
+                },
+                "required": [
+                  "trip_text",
+                  "source_ids",
+                  "to_be_set_by"
+                ],
+                "additionalProperties": false,
+                "description": "Going home from here. null where return is not an option (Mars, transit): plans there have no return stage and say so. Plans may hold a return stage only for environments where this is not null (EI11)."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "environment_id",
+          "label",
+          "place",
+          "day_label",
+          "eva_word",
+          "comms_queue",
+          "sensor_type_ids",
+          "overlays",
+          "link",
+          "return_option"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 4,
+      "maxItems": 4
+    }
+  },
+  "required": [
+    "notice",
+    "change_confirmation",
+    "mission_event_types",
+    "state_facts",
+    "effect_filters",
+    "profiles"
+  ],
+  "additionalProperties": false
+}

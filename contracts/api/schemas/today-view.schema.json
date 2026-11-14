@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "today-view.schema.json",
+  "title": "TodayView",
+  "description": "Everything the Today screen draws, joined by the hub from state and the active configuration.",
+  "type": "object",
+  "properties": {
+    "person": {
+      "$ref": "common.schema.json#/$defs/person_ref"
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "environment_id": {
+          "$ref": "common.schema.json#/$defs/environment_id"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "place": {
+          "type": "string",
+          "minLength": 1
+        },
+        "day_label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "eva_word": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ground_delay_text": {
+          "type": "string",
+          "description": "Same as GroundLink.delay_text: earth_delay from environment-hazards.json.",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "environment_id",
+        "label",
+        "place",
+        "day_label",
+        "eva_word",
+        "ground_delay_text"
+      ],
+      "additionalProperties": false
+    },
+    "headline": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "warning_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        }
+      },
+      "required": [
+        "text",
+        "warning_ids"
+      ],
+      "additionalProperties": false
+    },
+    "insight": {
+      "anyOf": [
+        {
+          "$ref": "insight.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "warning.schema.json"
+      }
+    },
+    "sensors": {
+      "type": "array",
+      "items": {
+        "$ref": "sensor-status.schema.json"
+      }
+    },
+    "routine": {
+      "type": "object",
+      "properties": {
+        "counts": {
+          "type": "object",
+          "properties": {
+            "due": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "later": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "done": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "open_today": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "due",
+            "later",
+            "done",
+            "open_today"
+          ],
+          "additionalProperties": false
+        },
+        "next": {
+          "type": "array",
+          "items": {
+            "$ref": "routine-occurrence.schema.json"
+          }
+        },
+        "week": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "mission_day": {
+                "$ref": "common.schema.json#/$defs/mission_day"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "done": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "due": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "mission_day",
+              "label",
+              "done",
+              "due"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "counts",
+        "next",
+        "week"
+      ],
+      "additionalProperties": false
+    },
+    "needs_attention_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Active warnings for this person plus open routine occurrences today (due or later)."
+    },
+    "daily_check": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": [
+            "not_started",
+            "started",
+            "submitted"
+          ]
+        },
+        "daily_check_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "state",
+        "daily_check_id"
+      ],
+      "additionalProperties": false
+    },
+    "streak": {
+      "$ref": "streak-view.schema.json"
+    },
+    "crew_goal": {
+      "$ref": "crew-goal-view.schema.json"
+    },
+    "broadcasts": {
+      "type": "array",
+      "items": {
+        "$ref": "crew-broadcast.schema.json"
+      }
+    },
+    "assistant_state": {
+      "enum": [
+        "running",
+        "stopped",
+        "loading",
+        "unavailable"
+      ]
+    },
+    "config_release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    }
+  },
+  "required": [
+    "person",
+    "as_of",
+    "environment",
+    "headline",
+    "insight",
+    "warnings",
+    "sensors",
+    "routine",
+    "needs_attention_count",
+    "daily_check",
+    "streak",
+    "crew_goal",
+    "broadcasts",
+    "assistant_state",
+    "config_release_id"
+  ],
+  "additionalProperties": false
+}

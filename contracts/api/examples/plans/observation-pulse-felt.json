@@ -1,0 +1,34 @@
+{
+  "summary": "SIM GET /v1/observations/obs_pulse_mara_felt_1",
+  "description": "The pulse Tomas Lind felt, recorded as what it is: crewmate_palpation, operator Tomas, region wrist. It says nothing about the rhythm. Illustrative only: not seed data.",
+  "x-schema": "observation.schema.json",
+  "value": {
+    "schema_version": "1.0",
+    "observation_id": "obs_pulse_mara_felt_1",
+    "patient_id": "mara",
+    "operator_id": "tomas",
+    "mission_id": "demo-mission",
+    "episode_id": "epi_mara_racing_1",
+    "code": "pulse",
+    "value": 92,
+    "unit": "bpm",
+    "original_value": 92,
+    "original_unit": "bpm",
+    "observed_at": "2026-11-13T09:39:00Z",
+    "entered_at": "2026-11-13T09:39:05Z",
+    "origin_mode": "SIM",
+    "acquisition_method": "crewmate_palpation",
+    "quality_status": "accepted",
+    "quality_rule_version": "guided-check-1",
+    "device_id": null,
+    "context": {
+      "activity": "rest",
+      "gravity": "lunar",
+      "count_seconds": "60",
+      "guided_check_id": "gck_pulse_mara_1",
+      "camera_agreement": "agree"
+    },
+    "body_region": "wrist",
+    "supersedes": null
+  }
+}

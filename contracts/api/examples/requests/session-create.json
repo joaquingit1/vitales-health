@@ -1,0 +1,10 @@
+{
+  "summary": "SIM request POST /v1/sessions",
+  "description": "Sign in as crew with a local PIN. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/SessionCreate",
+  "value": {
+    "kind": "crew",
+    "person_id": "mara",
+    "credential": "illustrative-pin"
+  }
+}

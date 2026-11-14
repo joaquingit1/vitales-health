@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "coaching-sample.schema.json",
+  "title": "CoachingSample",
+  "description": "One camera coaching sample during CPR (CONTRACTS section 23). Help session samples are appended to the session log; drill samples are shown live and dropped when the drill ends (EI10).",
+  "type": "object",
+  "properties": {
+    "sample_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "help_session_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "drill_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "skill_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "check_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "kind": {
+      "enum": [
+        "compression_rate",
+        "hand_position"
+      ]
+    },
+    "rate_per_min": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "description": "null when the quality gate failed; never a guessed number."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "cannot_see_hands",
+            "quality_gate_failed"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "in_band": {
+      "anyOf": [
+        {
+          "type": "boolean",
+          "description": "True when rate_per_min is within the skill check's target. null without a rate."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "direction": {
+      "anyOf": [
+        {
+          "enum": [
+            "too_slow",
+            "too_fast"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "text": {
+      "type": "string",
+      "description": "The skill check's phrase, rendered.",
+      "minLength": 1
+    },
+    "experimental": {
+      "type": "boolean"
+    },
+    "persisted": {
+      "type": "boolean",
+      "description": "False for drill samples."
+    }
+  },
+  "required": [
+    "sample_id",
+    "help_session_id",
+    "drill_id",
+    "skill_id",
+    "check_id",
+    "at",
+    "kind",
+    "rate_per_min",
+    "reason",
+    "in_band",
+    "direction",
+    "text",
+    "experimental",
+    "persisted"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "rate_per_min": {
+            "type": "null"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "in_band": {
+            "type": "null"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}
