@@ -715,7 +715,8 @@
     "crew_health.clock.module": "f3477b30463775da1187f644bd15bacb33f059f120df7c86f2fd0d88efbff38c",
     "crew_health.config.module": "63f12106f518b5545586dd1f5ce62b0890c0631ed0ea2ee2550559dede4a4837",
     "crew_health.events.module": "e9793132a2a4d61f6deb269dadcaf6e6cd1e1e364f0220081044f1a9a08ab5ca",
-    "crew_health.knowledge.module": "229a6ebe1e6cf8795d97f5e0e6131c078e59c85296bb38a03469d80f8905957a",
+    "crew_health.guidance.module": "28a6a6a2803c18244d6eb215fe1293ed5f45a30768bf724ade2ec52532e0d553",
+    "crew_health.kitmap.module": "fad25a19a8d8fc95999e318a0bac786f85dd66bb931bfb04e48bd678a747f3b4",
     "crew_health.platform.module": "f2d69c33296054e2783b5604edf4bac3211cb8da2bb3dfb4b2334ed757ac141a",
     "crew_health.records.module": "f37574d7a5e0ac1230ed584945df40420960c81274145b7f571247bdc2ea41c3"
   },

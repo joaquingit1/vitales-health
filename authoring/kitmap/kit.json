@@ -1,0 +1,41 @@
+{
+ "version": "kit-map-icl119-draft-1",
+ "example": false,
+ "notice": "Not clinically reviewed: each row was drafted by one model from NASA's Clinical Findings Forms and checked against them by another. Needs clinician review before live guidance.",
+ "catalog_from": "contracts/api/examples/kit-map.example.json",
+ "catalog_basis": "Instruments, capabilities, kits and candidates are the package example's team defaults; the kit is the one the PRD names (DEMO-CONDITIONS.md line 14), with the example's Mars ultrasound.",
+ "added_instrument_capability": {
+  "operator_requirement": "crew_medical_officer",
+  "expected_duration_seconds": null,
+  "basis": "team default",
+  "body_region": null
+ },
+ "instrument_merges": [
+  {
+   "from": "pregnancy_test",
+   "to": "urine_pregnancy_test",
+   "basis": "check.json: the checking model found pregnancy_test the same test as urine_pregnancy_test (instrument verdict and ICL123 reason); one ID is kept and rows point at it"
+  }
+ ],
+ "q26_region_map": {
+  "basis": "Coordinator decision Q26: a form region maps to a body_region value only when it lies within it (mouth, nose, brain: head; throat, cervical spine: neck; lumbar spine: back; kidney: flank; pelvis: abdomen; lower extremity: legs; upper extremity: the part it names). Applied on top of the enum candidates; a region not listed here adds nothing.",
+  "regions": {
+   "brain": ["head"],
+   "mouth": ["head"],
+   "nasal": ["head"],
+   "ear nose and throat": ["head", "neck"],
+   "throat": ["neck"],
+   "cervical spine": ["neck"],
+   "cervical radiculopathy and lumbar radiculopathy": ["neck", "back"],
+   "thoracic or lumbar": ["back"],
+   "kidney": ["flank"],
+   "pelvis": ["abdomen"],
+   "pelvic": ["abdomen"],
+   "lower extremity": ["legs"],
+   "finger joints": ["hand"]
+  }
+ },
+ "source_ids": ["S13"],
+ "drafts": "authoring/kitmap/adjudication/draft.json",
+ "checks": "authoring/kitmap/adjudication/check.json"
+}
