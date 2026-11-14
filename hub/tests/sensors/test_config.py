@@ -528,3 +528,10 @@ def test_scan_bound_rule_without_catalog_documents(config: SensorConfig) -> None
     assert len(check_scan_bound(table, (entry,), lambda _id: 0, 99)) == 1
     assert check_limits_against_catalog((entry,), table) == ()
     assert check_limits_against_hazards((), {}) == ()
+
+
+@pytest.mark.trace("T-E23-072", "SYSTEM6.4", "AGENTS3")
+def test_the_sensor_domain_imports_only_its_own_domain_the_pure_kernel_and_the_standard_library() -> None:
+    from crew_health.app.import_contracts import check_features
+
+    check_features(ROOT / "hub/src/crew_health", ("sensors",))  # raises ValueError on any edge outside S6.4

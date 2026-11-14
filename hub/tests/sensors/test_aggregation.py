@@ -922,3 +922,82 @@ def test_window_end_never_moves_backward(a: int | None, b: int | None) -> None:
     result = advance_window_end(first, second)
     assert result is None or (first is None or result >= first) and (second is None or result >= second)
     assert advance_window_end(first, None) == first
+
+
+@pytest.mark.trace("T-E23-031", "T-E23-033", "C13")
+@pytest.mark.parametrize(
+    ("comparator", "below", "equal", "above"),
+    [
+        ("above", False, False, True),
+        ("at_or_above", False, True, True),
+        ("below", True, False, False),
+        ("at_or_below", True, True, False),
+    ],
+)
+def test_each_comparator_at_the_threshold(comparator: str, below: bool, equal: bool, above: bool) -> None:
+    threshold = Decimal(3)
+    assert crosses(comparator, Decimal("2.9999"), threshold) is below  # type: ignore[arg-type]
+    assert crosses(comparator, threshold, threshold) is equal  # type: ignore[arg-type]
+    assert crosses(comparator, Decimal("3.0001"), threshold) is above  # type: ignore[arg-type]
+
+
+@pytest.mark.trace("T-E23-031", "C13")
+def test_coverage_exactly_at_min_coverage_is_evaluated(config: SensorConfig) -> None:
+    end = utc(2014, 10, 7, 15, 36)
+    nine = [point(end - timedelta(minutes=5 * n), "3.9") for n in range(9)]  # 9 x 300 s / 3600 s = 0.75
+    evaluation = evaluate_limits(evaluation_input(config, "co2", nine, interval=300))
+    assert evaluation.status == "beyond_limit" and evaluation.coverage == Decimal("0.75")
+    eight = evaluate_limits(evaluation_input(config, "co2", nine[:8], interval=300))
+    assert eight.status == "insufficient_data"
+
+
+@pytest.mark.trace("T-E23-080", "3.7")
+def test_the_per_limit_value_is_the_variant_nearer_to_crossing(config: SensorConfig) -> None:
+    at = utc(2026, 1, 1, 12)
+    low_side = evaluate_limits(
+        evaluation_input(config, "o2", [Instant(at, Decimal("130"), Decimal("140"))], interval=5)
+    )
+    assert {r.limit_id: r.value for r in low_side.results}["o2_low_watch"] == Decimal(
+        "130"
+    )  # "below": the lower variant
+    high_side = evaluate_limits(
+        evaluation_input(config, "noise", [Instant(at, Decimal("100"), Decimal("110"))], interval=None)
+    )
+    assert {r.limit_id: r.value for r in high_side.results}["noise_peak_emergency"] == Decimal(
+        "110"
+    )  # "above": the higher
+
+
+@pytest.mark.trace("T-E23-022", "S5.4", "DE23-6")
+def test_a_pressure_is_handed_to_the_converter_only_for_a_ppm_conversion(
+    config: SensorConfig, release: object
+) -> None:
+    from crew_health.kernel.testing import MemoryWireConverter
+    from crew_health.kernel.units import ConvertedQuantity
+
+    seen: list[object] = []
+
+    def record(value, indicator, rel, to, pressure):  # type: ignore[no-untyped-def]
+        seen.append(pressure)
+        return ConvertedQuantity(value, Quantity(value.value, to), "x", "m", pressure, "r")
+
+    spy = MemoryWireConverter(record)
+    convert_wire_reading(
+        spy,
+        release,
+        sensor(config, "o2"),
+        value=Decimal(1),
+        unit="kPa",
+        canonical_unit=MMHG,
+        pressure=assumed_pressure(),
+    )  # type: ignore[arg-type]
+    convert_wire_reading(
+        spy,
+        release,
+        sensor(config, "co2"),
+        value=Decimal(1),
+        unit="ppm",
+        canonical_unit=MMHG,
+        pressure=assumed_pressure(),
+    )  # type: ignore[arg-type]
+    assert seen[0] is None and seen[1] is not None
