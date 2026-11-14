@@ -1,0 +1,59 @@
+# Lint job of docs/DEPLOYMENT.md section 8: any warning fails (AGENTS.md code rule 10).
+# Scope today: the hub (hub/) and the generated TypeScript contracts package. The crew and ground apps join when
+# E03 and E16 create them. The potency engine is not covered yet: its dev tools are not installed by a plain sync and
+# its contract script flags the verbatim form quotes that decision Q26 allows (filed for the engine team).
+# Generated contract code under hub/src/crew_health/contracts_gen/ is excluded from ruff and from mypy file discovery,
+# as in E01's own gates; its generator build.py and __init__.py are checked.
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GENERATED: hub/src/crew_health/contracts_gen/schemas,hub/src/crew_health/contracts_gen/enums.py
+
+jobs:
+  lint:
+    # All three operating systems: code runs natively on each (AGENTS.md portability rule), and mypy checks
+    # platform-dependent branches (sys.platform) differently on each one.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.12.19"
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - name: Install locked dependencies
+        run: |
+          uv sync --project hub --locked
+          pnpm install --frozen-lockfile
+      - name: ruff check
+        run: uv run --project hub --locked ruff check --extend-exclude "$GENERATED" hub
+      - name: ruff format
+        run: uv run --project hub --locked ruff format --check --extend-exclude "$GENERATED" hub
+      - name: mypy strict
+        run: uv run --project hub --locked mypy --config-file hub/pyproject.toml --strict --exclude 'contracts_gen/schemas/' hub/src hub/tests
+      - name: import contracts
+        run: |
+          uv run --project hub --locked python -m crew_health.app.import_contracts --output "$RUNNER_TEMP/imports.ini"
+          uv run --project hub --locked lint-imports --config "$RUNNER_TEMP/imports.ini"
+      - name: TypeScript contracts typecheck
+        run: pnpm -C packages/contracts-ts typecheck
