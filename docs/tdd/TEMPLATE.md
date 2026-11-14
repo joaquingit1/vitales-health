@@ -4,8 +4,9 @@ Technical design for epic Exx. Read first: `AGENTS.md`, `docs/SYSTEM.md`, `docs/
 `docs/requests/COORDINATOR-DECISIONS.md`. Then the brief (`docs/product/tdd/Exx.md`), PRD.md, USE-CASES.md,
 CONTRACTS.md, `api/openapi.yaml`, the epic's work packages in `backlog.json` (all under `docs/product/`) and
 `docs/BUILD-CHARTER.md`. Use SYSTEM.md's shared mechanisms by section number and never define your own. Cite package
-sections and requirement IDs instead of restating them. Write "None" under a section that fixes no decision. Run
-`scripts/design_lint.py docs/tdd/Exx.md` before hand-in; it must pass.
+sections and requirement IDs instead of restating them. Write "None" under a section that fixes no decision. Before
+hand-in, run `scripts/design_lint.py docs/tdd/Exx.md` (it must pass) and check the design against every item of
+`docs/tdd/REVIEW-CHECKLIST.md`, the list the reviewer will use: anticipate the review instead of waiting for it.
 
 ## 1. Scope
 
@@ -75,6 +76,11 @@ missing optional part (charter section 5).
 
 Hazards (what can harm a crew member or mislead them), causes, mitigations and the test for each; authorization rules
 (SYSTEM.md 8.3, 8.4); private data handling; what the assistant may and may not do in this epic.
+
+### 10.1 Failure and edge cases
+
+A table with one row per item of the "Failure and edge cases" list in `docs/tdd/REVIEW-CHECKLIST.md`: the behavior of
+this epic in that case and the test ID, or "None" with the reason it cannot happen here.
 
 ## 11. Performance and resources
 

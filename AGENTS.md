@@ -133,7 +133,8 @@ version stays active. Updates arrive as signed bundles through the ground link, 
    resolutions by section number and never defines its own. No design is written or revised before SYSTEM.md covers
    the seams it touches; a missing seam goes to the coordinator. Anything decided in
    `docs/requests/COORDINATOR-DECISIONS.md` is settled for every epic. A design passes `scripts/design_lint.py` before
-   review.
+   review, and its author checks it against `docs/tdd/REVIEW-CHECKLIST.md`, the same list the reviewer uses. The
+   review catches what the author could not foresee; a finding under a checklist item is the author's miss.
 3. **Read the epic's design** (`docs/tdd/Exx.md`): it is the spec. If it is wrong or missing something, fix the design
    or file a request. Do not route around it in code.
 4. **Build inside the epic's owned paths, tests first on its critical paths.** Integrate early against fakes of the
@@ -143,9 +144,10 @@ version stays active. Updates arrive as signed bundles through the ground link, 
 6. **One cross-model review.** The model or person that did not build it reviews the artifact and the evidence, not the
    builder's rationale, and defaults to reject. The builder resolves every comment or answers it with evidence. A
    second review happens only if the first found blockers. A problem in the package is raised once, to the
-   coordinator, not in each design. A later round checks that each comment is resolved and reviews only the changed
-   text, against the same criteria; it raises a new blocker only if the change introduced it or it makes the design
-   unsafe. Each answer says fixed, partly fixed or answered, and shows the evidence: the line that now says it, or
+   coordinator, not in each design. A later round first checks that each comment is resolved, then reviews the whole
+   artifact again and reports every real blocker and major, marking each new one as introduced by the revision or
+   present before. A review is never narrowed to make rounds converge; rounds converge when authors stop leaving
+   defects. Each answer says fixed, partly fixed or answered, and shows the evidence: the line that now says it, or
    the package line that proves the reviewer wrong. "Fixed" without evidence counts as not fixed.
 7. **Done** means: the gates pass, the critical path tests pass, the review is resolved, the board is updated and
    `AI-USE-LOG.md` has a row for every AI run that produced the work. Say what you verified and how; report failing
