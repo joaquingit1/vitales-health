@@ -173,6 +173,9 @@ version stays active. Updates arrive as signed bundles through the ground link, 
 - **Strong model judges, cheaper model produces.** Reviews, plans and greenlights go to the strongest model; fixes and
   code go to the cheaper one, and the reviewer answers for their quality. Estimate the total usage of a queue before
   raising concurrency: a usage limit is a quota, and hitting it mid run loses every job in flight.
+- **Freeze designs once the shared contract settles.** After SYSTEM.md is settled, a unit's design is frozen; its
+  remaining conflicts and open review findings are settled in the plan's briefs (SYSTEM.md and the decisions win,
+  then the review), and the reviewer reviews the plan. Count the steps to the first line of code before adding one.
 - **Stop at zero blockers.** A review passes when it finds no blocker; majors and minors get fixed but never start
   another round. Every review loop has a cap (SYSTEM.md two reviews, a design one cold review, a build three
   rounds); at the cap the coordinator decides, the loop does not continue.
