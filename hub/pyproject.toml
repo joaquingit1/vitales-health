@@ -26,6 +26,12 @@ line-length = 110
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP"]
+# ruff format keeps code within line-length; long strings and comments are not hand wrapped.
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+# Fixed here so isort agrees whether ruff runs from hub/ or from the root with --config.
+known-first-party = ["crew_health"]
 
 [tool.mypy]
 python_version = "3.14"
