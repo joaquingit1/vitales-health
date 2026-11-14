@@ -1,11 +1,11 @@
 # Build board
 
-Who builds what in Crew Health Check, and what can start now. Generated from the repository and the build pipeline (Sat 20:47); only the "Claimed by" column is edited by hand.
+Who builds what in Crew Health Check, and what can start now. Generated from the repository and the build pipeline (Sat 20:52); only the "Claimed by" column is edited by hand.
 
 | Status | Meaning | Epics |
 |---|---|---|
-| 🔨 In progress | Being built (by the person named, or by an agent) | E01 T2, E02, E05, E10, E18, E20, E21, E23, E24, E26, E27, E30, E31 |
-| 🔎 In review | Code done; reviewed, fixed or being checked before merge | E01 T1 |
+| 🔨 In progress | Being built (by the person named, or by an agent) | E02, E05, E10, E18, E20, E21, E23, E24, E26, E27, E30, E31 |
+| 🔎 In review | Code done; reviewed, fixed or being checked before merge | E01 T1, E01 T2 |
 | ⬜ Open | Free to claim and start now | E03, E04, E06, E07, E08, E09, E11, E12, E13, E14, E15, E16, E17, E19, E22, E25, E28, E29, E32, E33 |
 | 🔒 Locked | Waits for the E01 foundation (E01 T1); you may claim it now and start when it opens | none |
 | ✅ Built | Reviewed, checked and merged | none |
@@ -22,7 +22,7 @@ Hard dependencies (✅ when built) are what an epic needs to pass its acceptance
 | Epic | Title | Status | Claimed by | Hard dependencies | Unblocks | Files | Design |
 |---|---|---|---|---|---|---|---|
 | E01 T1 | Platform, identities and durable records: foundation (workspaces, contract types, kernel ports and fakes, module registry) | 🔎 In review | agent | none | every epic | [tasks](E01/tasks.json) | [design](../tdd/E01.md) |
-| E01 T2 | Platform, identities and durable records: everything after the foundation | 🔨 In progress | agent | E01 T1 | none | [tasks](E01/tasks.json) | [design](../tdd/E01.md) |
+| E01 T2 | Platform, identities and durable records: everything after the foundation | 🔎 In review | agent | E01 T1 | none | [tasks](E01/tasks.json) | [design](../tdd/E01.md) |
 | E02 | Consent, authentication and privacy | 🔨 In progress | agent | E01 | E03, E04, E05, E06, E07, E08, E09, E11, E12, E13, E15, E15-core, E16, E19, E21, E23, E26, E27, E28, E30, E31, E32, E33 | [tasks](E02/tasks.json) | [design](../tdd/E02.md) |
 | E03 | Crew experience and daily check | ⬜ Open (agents #1) |  | E01, E02 | E04, E22 | [tasks](E03/tasks.json) | [design](../tdd/E03.md) |
 | E04 | Guided complaint intake | ⬜ Open (agents #13) |  | E01, E02, E03, E23, E15-core | E15 | [tasks](E04/tasks.json) | [design](../tdd/E04.md) |
