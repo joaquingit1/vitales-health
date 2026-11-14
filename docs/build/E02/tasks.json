@@ -1,0 +1,260 @@
+{
+  "epic": "E02",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Local authentication, roster and identity policy",
+      "owned_paths": [
+        "hub/src/crew_health/identity/domain/access.py",
+        "hub/src/crew_health/identity/domain/session.py",
+        "hub/src/crew_health/identity/domain/routing.py",
+        "hub/src/crew_health/identity/application/ports.py",
+        "hub/src/crew_health/identity/application/service.py",
+        "hub/src/crew_health/identity/adapters/repository.py",
+        "hub/src/crew_health/identity/adapters/credentials.py",
+        "hub/src/crew_health/identity/adapters/migrations/0001_identity.sql",
+        "hub/src/crew_health/identity/api/router.py",
+        "hub/src/crew_health/identity/cli.py",
+        "hub/src/crew_health/identity/schemas/roster-bootstrap.schema.json",
+        "hub/tests/identity/test_sessions.py",
+        "hub/tests/identity/test_routing.py",
+        "hub/tests/identity/test_bounds.py"
+      ],
+      "reads": [
+        "AGENTS.md",
+        "docs/SYSTEM.md",
+        "docs/requests/COORDINATOR-DECISIONS.md",
+        "docs/DEPLOYMENT.md",
+        "docs/BUILD-CHARTER.md",
+        "docs/tdd/E02.md",
+        "docs/requests/E02.md",
+        "docs/tdd/reviews/E02.astra-c1.md",
+        "docs/tdd/reviews/E02.response-c1.md",
+        "docs/build/E02/PLAN.md",
+        "docs/product/tdd/E02.md",
+        "docs/product/CONTRACTS.md",
+        "docs/product/api/openapi.yaml",
+        "docs/product/VALIDATION.md",
+        "docs/tdd/E01.md",
+        "docs/tdd/E05.md",
+        "docs/tdd/E20.md",
+        "docs/tdd/E23.md",
+        "docs/tdd/E31.md",
+        "docs/product/api/schemas/requests.schema.json",
+        "docs/product/api/schemas/session.schema.json",
+        "docs/product/api/schemas/crew-member.schema.json",
+        "docs/product/api/schemas/common.schema.json",
+        "docs/product/api/schemas/error.schema.json",
+        "docs/product/api/schemas/config-ui-copy.schema.json",
+        "docs/product/api/examples/requests/session-create.json",
+        "docs/product/api/examples/session/create-crew.json",
+        "docs/product/api/examples/session/station-screen.json",
+        "docs/product/api/examples/config/ui-copy.example.json"
+      ],
+      "depends_on": [],
+      "brief": "Read AGENTS.md, docs/SYSTEM.md and docs/requests/COORDINATOR-DECISIONS.md first, in that order, then every reads entry. This brief stands alone; the supervisor writes no product code. Work only in owned_paths, including tests. All these implementation files are absent at planning time: create them only after rechecking the current tree and ownership. Do not overwrite concurrent work, create another epic's module, edit root/shared configuration or add unlisted initializers. Any missing shared signature, schema, source file or gate is a blocking coordinator request in the existing E02 request process, not permission to invent it. The supervisor owns that request document; return the exact proposed request without editing it. Source of truth is E02 design sections 1.1, 2, 12, 13 and the section numbers below. Use exact shared mechanisms: SYSTEM 5.1 IDs, 5.2/5.3 clock and mission time, 5.4 Quantity/UCUM, 5.5 ProblemError and ErrorEnvelope mapping, 5.6 validated release pins, 5.7 UoW/read snapshots/audiences, 5.8 full target/parameter/body command identity and current ResultVisibility, 5.9 reference-only hash-chained audit, 5.10 bounded scheduler, 5.11 settings and 5.12 registration. Never replace them. SYSTEM 6 requires uv --project hub and pnpm; SYSTEM 8.3/8.4 separates role, membership, consent and clinical authority; SYSTEM 9/10 supplies dependencies and kernel.testing. Unit tests may use those existing kernel fakes only at declared ports. Real-stack acceptance never mocks hub services. Use configuration/explicit fixture adapters for content; no runtime sample fallback, literal UI words, domain settings or invented clinical values. Every parser/policy has property tests and independently stated expected authorization, not expected values derived from the input document. All pending requests remain pending until accepted and propagated; no request is a contract. Run gates exactly, report failures and unavailable prerequisites, and never skip/xfail missing acceptance. A done task has its owned tests, types/lints/import rules green, evidence for each assigned T/R/V/D, and no unresolved blocker inside its enabled behavior. Whole-epic greenlight additionally requires all task gates, the full suites, independent review, CI and the coordinator's AI-use row (R-E02-18). No em/en dashes or spaced hyphen dash in any output.\n\nBuild only E02 design 3.2/3.4 authentication and roster, the pure 3.3 access truth table, identity-owned parts of 3.1/4/5/6/8/11, and their tests. Leave persisted grants to T2, vault to T3, UI to T4, module registration and real-stack acceptance to T5. No getContext: D16 assigns it to E23. Before starting, require E01's actual kernel.testing, StorageSession/platform, generated effective models, operation-role table and toolchain, and resolved R-E02-5/9/22. Inspect the provider-owned paths from E01 section 13 once they exist. In particular do not invent the return type of require_roles or the missing RosterMember, SessionRevocation, namespace, bootstrap and CLI bindings. Freeze agreed application declarations before T2/T3 start. No new public endpoint, event or role.\n\nUse SessionContext exactly SYSTEM 5.7. Implement the agreed require_roles(operation_id: str), RosterPort.crew(at), members(), person_ids() and session liveness only after R-E02-9 supplies their complete types. Roster extensions in E22/E31 remain requested, never aliases. Table names and constraints are E02 section 5: identity_person, identity_credential, identity_session, identity_adapter_token, identity_device, identity_auth_bucket, identity_access_generation. Use only StorageSession on these tables and expand-only 0001_identity.sql. Every mutation uses the agreed reference-only local ReplicationChange with export_projection=None, never a credential/token/verifier/digest in a replication body. No home-writer designation grants roster export. T5 owns registration of prefixes/settings/audiences, so return the exact agreed declarations and bounds in your handoff rather than edit module.py.\n\nThe router implements only POST /v1/sessions createSession (SessionCreate to 201 Session with token once), GET /v1/sessions/current getCurrentSession (Session without token), DELETE /v1/sessions/current deleteCurrentSession (Idempotency-Key, 204), and GET /v1/crew listCrew (CrewMember/page). Copy roles/statuses/headers from the opened OpenAPI, not a role-name list from memory. SessionCreate has crew/station/ground/operator/editor; adapter tokens do not use it. SessionContext has adapter but no acting officer kind. Editor has attributed operator actor. Crew requires person_id; non-person kinds reject it. Use identity_credential for one principal per non-person kind, Argon2id with the exact section 11 bounded descriptors, separate aggregate principal/client/global attempt reservations, a dummy verifier for unknown principals and generation recheck before issuance. Password changes, session termination and audit commit together; do not implement administrative reset or recovery beyond R-E02-16. Old-epoch sessions end before serving, background requests never renew human presence, and flight refuses ground sign-in. Device enrollment/revocation is the DEPLOYMENT 5.2 CLI interim through the agreed E20 binding, never invented device HTTP routes.\n\nWrite tests first: test_sessions.py covers T009/010/012/015/019 (R02, durable-session and no-secret invariants); test_routing.py covers pure T001 plus T004/005 (R29/V08/V09/D09 policy), including station rejection before patient validation, all LIVE/REPLAY/SIM partitions, demo_operator only in explicit demo profile and verified-officer manual capture without E05/E26. It cannot claim acquisition integration before T5. test_bounds.py covers T020/021: property tests of IDs, every section 11 identity bound, independent rate limits under rotating IDs/clients and concurrent KDF work, roster mission-day boundaries and nullable fields, and a scratch ui-copy.json error_messages edit through E01's mapper without changing a safety mapping. Read config-ui-copy.schema.json and example, never create config/ui-copy.json. Credential fixtures are explicit test/demo input, not runtime defaults.\n\nFaults: crash/disk-full at attempt reservation, issuance and change commits; audit failure rolls back; retry of ended sign-out remains unauthenticated; in-flight verification loses to credential generation change; clock regression, restart and missing configuration deny safely; no unknown patient inferred from a partial/disagreeing reading; incapacitated/absent subject and ground outage do not disable verified manual-care policy. Positive and adversarial policy expectations both required. Full runtime fallback is T5/T4, not a mock-router pass. Done requires these owned gates and a typed interface handoff for T2/T3/T5; incomplete shared bindings block acceptance rather than introduce permissive stubs.",
+      "gates": [
+        "uv run --project hub pytest -c hub/pyproject.toml -q hub/tests/identity/test_sessions.py hub/tests/identity/test_routing.py hub/tests/identity/test_bounds.py",
+        "uv run --project hub ruff check hub/src/crew_health/identity/domain/access.py hub/src/crew_health/identity/domain/session.py hub/src/crew_health/identity/domain/routing.py hub/src/crew_health/identity/application/ports.py hub/src/crew_health/identity/application/service.py hub/src/crew_health/identity/adapters/repository.py hub/src/crew_health/identity/adapters/credentials.py hub/src/crew_health/identity/api/router.py hub/src/crew_health/identity/cli.py hub/tests/identity/test_sessions.py hub/tests/identity/test_routing.py hub/tests/identity/test_bounds.py",
+        "uv run --project hub ruff format --check hub/src/crew_health/identity/domain/access.py hub/src/crew_health/identity/domain/session.py hub/src/crew_health/identity/domain/routing.py hub/src/crew_health/identity/application/ports.py hub/src/crew_health/identity/application/service.py hub/src/crew_health/identity/adapters/repository.py hub/src/crew_health/identity/adapters/credentials.py hub/src/crew_health/identity/api/router.py hub/src/crew_health/identity/cli.py hub/tests/identity/test_sessions.py hub/tests/identity/test_routing.py hub/tests/identity/test_bounds.py",
+        "uv run --project hub mypy --strict hub/src/crew_health/identity/domain/access.py hub/src/crew_health/identity/domain/session.py hub/src/crew_health/identity/domain/routing.py hub/src/crew_health/identity/application/ports.py hub/src/crew_health/identity/application/service.py hub/src/crew_health/identity/adapters/repository.py hub/src/crew_health/identity/adapters/credentials.py hub/src/crew_health/identity/api/router.py hub/src/crew_health/identity/cli.py",
+        "uv run --project hub python -m crew_health.app.import_contracts --output /tmp/e02-t1-imports.ini",
+        "uv run --project hub lint-imports --config /tmp/e02-t1-imports.ini"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Object and field consent with durable revocation and expiry",
+      "owned_paths": [
+        "hub/src/crew_health/consent/domain/grants.py",
+        "hub/src/crew_health/consent/application/ports.py",
+        "hub/src/crew_health/consent/application/service.py",
+        "hub/src/crew_health/consent/adapters/repository.py",
+        "hub/src/crew_health/consent/adapters/migrations/0001_consent.sql",
+        "hub/src/crew_health/consent/cli.py",
+        "hub/tests/consent/test_grants.py",
+        "hub/tests/privacy/test_policy.py"
+      ],
+      "reads": [
+        "AGENTS.md",
+        "docs/SYSTEM.md",
+        "docs/requests/COORDINATOR-DECISIONS.md",
+        "docs/DEPLOYMENT.md",
+        "docs/BUILD-CHARTER.md",
+        "docs/tdd/E02.md",
+        "docs/requests/E02.md",
+        "docs/tdd/reviews/E02.astra-c1.md",
+        "docs/tdd/reviews/E02.response-c1.md",
+        "docs/build/E02/PLAN.md",
+        "docs/product/tdd/E02.md",
+        "docs/product/CONTRACTS.md",
+        "docs/product/api/openapi.yaml",
+        "docs/product/VALIDATION.md",
+        "docs/tdd/E01.md",
+        "docs/tdd/E03.md",
+        "docs/tdd/E05.md",
+        "docs/tdd/E13.md",
+        "docs/tdd/E22.md",
+        "docs/tdd/E26.md",
+        "docs/tdd/E31.md",
+        "docs/product/api/schemas/config-ui-copy.schema.json",
+        "docs/product/api/examples/config/ui-copy.example.json",
+        "hub/src/crew_health/identity/application/ports.py"
+      ],
+      "depends_on": [
+        "T1"
+      ],
+      "brief": "Read AGENTS.md, docs/SYSTEM.md and docs/requests/COORDINATOR-DECISIONS.md first, in that order, then every reads entry. This brief stands alone; the supervisor writes no product code. Work only in owned_paths, including tests. All these implementation files are absent at planning time: create them only after rechecking the current tree and ownership. Do not overwrite concurrent work, create another epic's module, edit root/shared configuration or add unlisted initializers. Any missing shared signature, schema, source file or gate is a blocking coordinator request in the existing E02 request process, not permission to invent it. The supervisor owns that request document; return the exact proposed request without editing it. Source of truth is E02 design sections 1.1, 2, 12, 13 and the section numbers below. Use exact shared mechanisms: SYSTEM 5.1 IDs, 5.2/5.3 clock and mission time, 5.4 Quantity/UCUM, 5.5 ProblemError and ErrorEnvelope mapping, 5.6 validated release pins, 5.7 UoW/read snapshots/audiences, 5.8 full target/parameter/body command identity and current ResultVisibility, 5.9 reference-only hash-chained audit, 5.10 bounded scheduler, 5.11 settings and 5.12 registration. Never replace them. SYSTEM 6 requires uv --project hub and pnpm; SYSTEM 8.3/8.4 separates role, membership, consent and clinical authority; SYSTEM 9/10 supplies dependencies and kernel.testing. Unit tests may use those existing kernel fakes only at declared ports. Real-stack acceptance never mocks hub services. Use configuration/explicit fixture adapters for content; no runtime sample fallback, literal UI words, domain settings or invented clinical values. Every parser/policy has property tests and independently stated expected authorization, not expected values derived from the input document. All pending requests remain pending until accepted and propagated; no request is a contract. Run gates exactly, report failures and unavailable prerequisites, and never skip/xfail missing acceptance. A done task has its owned tests, types/lints/import rules green, evidence for each assigned T/R/V/D, and no unresolved blocker inside its enabled behavior. Whole-epic greenlight additionally requires all task gates, the full suites, independent review, CI and the coordinator's AI-use row (R-E02-18). No em/en dashes or spaced hyphen dash in any output.\n\nBuild the consent module's single concern: E02 3.3 and persisted grant lifecycle in 3.1/4/5, including 3.5 sharing policy, 8/8.1 configuration behavior and section 11 consent bounds. T1 owns authentication/identity policy; T3 owns keys; record owners project fields and own their clinical data; E22 alone owns crew-goal consent; E31 alone owns action authority. Leave all registration to T5. Do not add consent HTTP routes: R-E02-1 is pending. CLI grant/revoke uses the same application path and only the agreed E20 discovery binding. Require R-E02-5/9 exact field/purpose/recipient interfaces, R-E02-21 clock fence, R-E02-10 help-membership binding for that integration, and R-E02-22 before dependent implementation. Do not implement ConsentQueries.purposes or a second clock/fence mechanism.\n\nUse ConsentQueries.allows(view, *, subject_person_id: str, recipient: str, scope: tuple[str, str]) -> bool as documented in E02 2/E01 2/E05 2; the exact view union and field/action projection result must come from the accepted R-E02-9 binding. A true boolean is insufficient to return fields. consent_grant and its columns/indexes are exactly E02 section 5. Only an authenticated subject creates/revokes a grant, with mission/origin, exact object, recipient, purpose, explicit fields/actions, policy, revision and absolute validity. Empty/unknown dimensions deny; revision conflict never merges. The subject may read own data, but an officer/helper/station is not a general chart reader. Accepted tasks need current consent; the limited open help summary uses actual same-subject membership and access audit, never readable_by. Report recipients receive only owner-approved immutable snapshots through their owners, never vault rows. No journal export. No roster/consent recipient export until R-E02-11 catalogue support exists; still declare local reference changes under SYSTEM 5.7.\n\nCreation of finite consent schedules SYSTEM 5.10 AbsoluteDeadline in its UoW. The supplied expiry handler checks revision/generation and commits terminal state, audit, invalidation and completion. ReadSnapshot checks are pure and deny at expiry before sweep. Follow E02 3.1 exactly: no hidden UoW or mutation from allows/AudienceRule. R-E02-21 must publish the atomic clock/startup fence, including sub-tolerance regressions, before positive finite grants are enabled. Correction cannot reactivate them; renewal is a new owner grant ID. Never remove finite expiry or replace it with null to pass a test. Revocation retains audit/history, fences unsent streams using SYSTEM 5.7.1, and rechecks saved-result visibility through SYSTEM 5.8. Revocation or storage errors are not evaluator failures.\n\nTests first in test_grants.py: T003/007/010/013 (R02/E02-03) plus consent T012/020/021. Exercise property-based field intersection and removal monotonicity; positive narrow grant; wrong purpose/recipient/object/mission/origin; empty, future, expired, revoked and null expiry; same key on another target/parameter conflict; late identical replay with revoked access denies; stale revision and concurrent revoke/action. The c1.3 regression first observes expiry via read-only authorization, holds the sweep, moves time back or restarts, reauthenticates and still denies with no read-side write. Force failure in the clock fence and in audit; neither allows access. test_policy.py covers T001/002/017/018: uninvolved/station/wrong-subject/closed-help denial, subject/opener/helper positive limited panel, names only/no doses, report field-grant positive plus journal denial, acting assignment not a role or chart grant, D10 owner authentication without taking E22 state ownership. Test current schemas/facts only; pending provider facts cannot be invented for integration.\n\nChange a scratch ui-copy.json error_messages label using E01's generated mapper to prove consent content is configuration-driven; no extra consent configuration document. Bounds are consent.active_per_subject_max, consent.fields_max and inherited finite storage/scheduler/identity paging bounds from E02 11. Crash/retry, disk full, uncertain time, delayed grant rows, incapacitated subject, absent providers and long transport outage must preserve the fail-closed and emergency exceptions. Unit fakes are allowed only from fixed ports; T5 owns real HTTP/SSE/sharing acceptance. Done requires every owned gate and exact service declarations for T5; missing expiry/provider integration remains blocking.",
+      "gates": [
+        "uv run --project hub pytest -c hub/pyproject.toml -q hub/tests/consent/test_grants.py hub/tests/privacy/test_policy.py",
+        "uv run --project hub ruff check hub/src/crew_health/consent/domain/grants.py hub/src/crew_health/consent/application/ports.py hub/src/crew_health/consent/application/service.py hub/src/crew_health/consent/adapters/repository.py hub/src/crew_health/consent/cli.py hub/tests/consent/test_grants.py hub/tests/privacy/test_policy.py",
+        "uv run --project hub ruff format --check hub/src/crew_health/consent/domain/grants.py hub/src/crew_health/consent/application/ports.py hub/src/crew_health/consent/application/service.py hub/src/crew_health/consent/adapters/repository.py hub/src/crew_health/consent/cli.py hub/tests/consent/test_grants.py hub/tests/privacy/test_policy.py",
+        "uv run --project hub mypy --strict hub/src/crew_health/consent/domain/grants.py hub/src/crew_health/consent/application/ports.py hub/src/crew_health/consent/application/service.py hub/src/crew_health/consent/adapters/repository.py hub/src/crew_health/consent/cli.py",
+        "uv run --project hub python -m crew_health.app.import_contracts --output /tmp/e02-t2-imports.ini",
+        "uv run --project hub lint-imports --config /tmp/e02-t2-imports.ini"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "Concrete private vault adapter and shared durability integration",
+      "owned_paths": [
+        "hub/src/crew_health/identity/adapters/vault.py",
+        "hub/tests/privacy/test_private_protocol.py"
+      ],
+      "reads": [
+        "AGENTS.md",
+        "docs/SYSTEM.md",
+        "docs/requests/COORDINATOR-DECISIONS.md",
+        "docs/DEPLOYMENT.md",
+        "docs/BUILD-CHARTER.md",
+        "docs/tdd/E02.md",
+        "docs/requests/E02.md",
+        "docs/tdd/reviews/E02.astra-c1.md",
+        "docs/tdd/reviews/E02.response-c1.md",
+        "docs/build/E02/PLAN.md",
+        "docs/product/tdd/E02.md",
+        "docs/product/CONTRACTS.md",
+        "docs/product/api/openapi.yaml",
+        "docs/product/VALIDATION.md",
+        "docs/tdd/E01.md",
+        "docs/tdd/E03.md",
+        "docs/tdd/E20.md",
+        "hub/src/crew_health/identity/application/ports.py"
+      ],
+      "depends_on": [
+        "T1"
+      ],
+      "brief": "Read AGENTS.md, docs/SYSTEM.md and docs/requests/COORDINATOR-DECISIONS.md first, in that order, then every reads entry. This brief stands alone; the supervisor writes no product code. Work only in owned_paths, including tests. All these implementation files are absent at planning time: create them only after rechecking the current tree and ownership. Do not overwrite concurrent work, create another epic's module, edit root/shared configuration or add unlisted initializers. Any missing shared signature, schema, source file or gate is a blocking coordinator request in the existing E02 request process, not permission to invent it. The supervisor owns that request document; return the exact proposed request without editing it. Source of truth is E02 design sections 1.1, 2, 12, 13 and the section numbers below. Use exact shared mechanisms: SYSTEM 5.1 IDs, 5.2/5.3 clock and mission time, 5.4 Quantity/UCUM, 5.5 ProblemError and ErrorEnvelope mapping, 5.6 validated release pins, 5.7 UoW/read snapshots/audiences, 5.8 full target/parameter/body command identity and current ResultVisibility, 5.9 reference-only hash-chained audit, 5.10 bounded scheduler, 5.11 settings and 5.12 registration. Never replace them. SYSTEM 6 requires uv --project hub and pnpm; SYSTEM 8.3/8.4 separates role, membership, consent and clinical authority; SYSTEM 9/10 supplies dependencies and kernel.testing. Unit tests may use those existing kernel fakes only at declared ports. Real-stack acceptance never mocks hub services. Use configuration/explicit fixture adapters for content; no runtime sample fallback, literal UI words, domain settings or invented clinical values. Every parser/policy has property tests and independently stated expected authorization, not expected values derived from the input document. All pending requests remain pending until accepted and propagated; no request is a contract. Run gates exactly, report failures and unavailable prerequisites, and never skip/xfail missing acceptance. A done task has its owned tests, types/lints/import rules green, evidence for each assigned T/R/V/D, and no unresolved blocker inside its enabled behavior. Whole-epic greenlight additionally requires all task gates, the full suites, independent review, CI and the coordinator's AI-use row (R-E02-18). No em/en dashes or spaced hyphen dash in any output.\n\nBuild only identity/adapters/vault.py implementing SYSTEM 5.8.1 PrivateKeyVault, with E02 5.1/5.2, 9, 10, 11 and T014. Leave identity credentials/authentication to T1, grants to T2, PrivateRecordCoordinator and orchestration to E01, PrivateStore/PrivateReferenceWriter to E03/E09, and registration to T5. R-E02-20 is a hard precondition: no supported concrete backend currently exists. Do not begin a substitute production backend or call a protocol fake complete. Require the coordinator's named backend, schema/path ownership, secure-destruction operation, independent current-generation proof, snapshot-exclusion evidence, bounded replica descriptor and E01 all-writer barrier/recovery binding. Missing E09 design/registration also blocks report integration evidence. This task cannot declare completion while c1.2 remains open.\n\nImplement exactly PrivateKeyVault.create_entry_key(*, owner_person_id, entry_id), revoke(*, owner_person_id, entry_ids, command_key), revocation(revocation_id), is_revoked(*, entry_id), fingerprint(*, owner_person_id, canonical_identity_and_body), encrypt(*, key_id, plaintext, associated_data), decrypt(session, *, reference, blob, associated_data), with the precise types from SYSTEM 5.8.1. Use its PrivateIntent, SealedPrivateRef, SealedBlob, RevocationReceipt and related result types verbatim. No raw-key-returning API, PrivateKeys/DataKey, PrivateCipher or retired coordinator. A cryptographic backend library remains adapter-only and is installed by the toolchain owner, never by editing hub/pyproject.toml yourself. No identity, consent or private database tables are owned by this task. Backend records are exactly those accepted under R-E02-20; do not improvise table names or migrations.\n\nDistinct random DEK and live entry wrapping key per entry/version, fresh nonce, owner/entry/version associated data and per-owner keyed HMAC follow DEPLOYMENT 5.4 and SYSTEM 7.4. Credentials authorize access and never derive erased keys. Every decrypt verifies current session, live hub reference and current vault generation through accepted provider bindings, with no other module's table access. Every allocation/deletion joins E01's all-writer barrier, ordered before hub UoW. The vault never reacquires the barrier or starts a second coordinator. Revoke persists the shared intent, immediately denies unwrap, destroys only the targeted entry wrapping keys, and reports complete only after all registered key-bearing replicas attest. Missing replica stays pending; no silent eviction. Recovery uses E01's intents/scheduler and the current backend, never restored key mirrors.\n\nWrite test_private_protocol.py first for T014 (R20/E02-02, D4/D18, record durability and erasure invariants), plus relevant T006/008/012/020 checks. Use the real accepted local backend in its isolated test domain and real E01 coordinator/SQLite in a temporary directory. Protocol tests may use kernel.testing while writing policy, but the gate must additionally fail if the real backend is unavailable. Exercise journal writes, report upload/version publication, false/stale extraction completion and orphan disposal through actual E03/E09 reference writers. Fault every seal/hub/receipt and intent/destruction/replica receipt boundary; duplicate retry never creates another entry or false acceptance. Backup A/B, delete A, restore old paired data against current vault: A denied and B still readable. Reject old vault image, absent media after laptop loss, unknown current generation and credential reset as private-owner proof. Concurrent paired backup must block allocation/deletion for journal and report versions; snapshots contain no keys or fingerprint secrets. No plaintext, private hash or sensitive errors in logs.\n\nBound operations with private.recovery_batch, identity.vault_call_timeout_ms and the accepted finite replica descriptor, respecting E02 11 and SYSTEM 5.11. Storage/integrity failure propagates; no successful empty result. Optional model/devices/ground are absent. Platform-specific secure deletion/exclusion evidence is mandatory in addition to test results; do not claim SQL DELETE or unlink erases all copies. Return accepted protocol/adapter registration details to T5 without editing module.py. Done requires the real-adapter fault gate, lints/types/import rules, E01 barrier integration and documented supported-platform evidence; otherwise report precisely which prerequisite blocks it.",
+      "gates": [
+        "uv run --project hub pytest -c hub/pyproject.toml -q hub/tests/privacy/test_private_protocol.py",
+        "uv run --project hub ruff check hub/src/crew_health/identity/adapters/vault.py hub/tests/privacy/test_private_protocol.py",
+        "uv run --project hub ruff format --check hub/src/crew_health/identity/adapters/vault.py hub/tests/privacy/test_private_protocol.py",
+        "uv run --project hub mypy --strict hub/src/crew_health/identity/adapters/vault.py",
+        "uv run --project hub python -m crew_health.app.import_contracts --output /tmp/e02-t3-imports.ini",
+        "uv run --project hub lint-imports --config /tmp/e02-t3-imports.ini"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Local privacy lock and browser fallback acceptance",
+      "owned_paths": [
+        "ui/crew/src/features/identity/sessionLock.ts",
+        "ui/crew/src/features/identity/sessionLock.test.ts",
+        "ui/crew/src/features/identity/sessionLock.spec.ts"
+      ],
+      "reads": [
+        "AGENTS.md",
+        "docs/SYSTEM.md",
+        "docs/requests/COORDINATOR-DECISIONS.md",
+        "docs/DEPLOYMENT.md",
+        "docs/BUILD-CHARTER.md",
+        "docs/tdd/E02.md",
+        "docs/requests/E02.md",
+        "docs/tdd/reviews/E02.astra-c1.md",
+        "docs/tdd/reviews/E02.response-c1.md",
+        "docs/build/E02/PLAN.md",
+        "docs/product/tdd/E02.md",
+        "docs/product/CONTRACTS.md",
+        "docs/product/api/openapi.yaml",
+        "docs/product/VALIDATION.md",
+        "docs/tdd/E03.md",
+        "docs/tdd/E20.md",
+        "docs/tdd/E26.md",
+        "docs/product/api/schemas/session.schema.json",
+        "docs/product/api/schemas/config-ui-copy.schema.json",
+        "docs/product/api/examples/config/ui-copy.example.json",
+        "docs/product/api/examples/session/create-crew.json"
+      ],
+      "depends_on": [
+        "T5"
+      ],
+      "brief": "Read AGENTS.md, docs/SYSTEM.md and docs/requests/COORDINATOR-DECISIONS.md first, in that order, then every reads entry. This brief stands alone; the supervisor writes no product code. Work only in owned_paths, including tests. All these implementation files are absent at planning time: create them only after rechecking the current tree and ownership. Do not overwrite concurrent work, create another epic's module, edit root/shared configuration or add unlisted initializers. Any missing shared signature, schema, source file or gate is a blocking coordinator request in the existing E02 request process, not permission to invent it. The supervisor owns that request document; return the exact proposed request without editing it. Source of truth is E02 design sections 1.1, 2, 12, 13 and the section numbers below. Use exact shared mechanisms: SYSTEM 5.1 IDs, 5.2/5.3 clock and mission time, 5.4 Quantity/UCUM, 5.5 ProblemError and ErrorEnvelope mapping, 5.6 validated release pins, 5.7 UoW/read snapshots/audiences, 5.8 full target/parameter/body command identity and current ResultVisibility, 5.9 reference-only hash-chained audit, 5.10 bounded scheduler, 5.11 settings and 5.12 registration. Never replace them. SYSTEM 6 requires uv --project hub and pnpm; SYSTEM 8.3/8.4 separates role, membership, consent and clinical authority; SYSTEM 9/10 supplies dependencies and kernel.testing. Unit tests may use those existing kernel fakes only at declared ports. Real-stack acceptance never mocks hub services. Use configuration/explicit fixture adapters for content; no runtime sample fallback, literal UI words, domain settings or invented clinical values. Every parser/policy has property tests and independently stated expected authorization, not expected values derived from the input document. All pending requests remain pending until accepted and propagated; no request is a contract. Run gates exactly, report failures and unavailable prerequisites, and never skip/xfail missing acceptance. A done task has its owned tests, types/lints/import rules green, evidence for each assigned T/R/V/D, and no unresolved blocker inside its enabled behavior. Whole-epic greenlight additionally requires all task gates, the full suites, independent review, CI and the coordinator's AI-use row (R-E02-18). No em/en dashes or spaced hyphen dash in any output.\n\nBuild only E02 7's sessionLock integration and its unit/Playwright tests. E03 owns SignIn, StationHome, router, stores and drafts; E20 owns offline queue encryption/storage; E26 owns emergency content. Do not duplicate or edit those modules, add a new sign-in flow, save tokens, or implement queue crypto. R-E02-6/7/22 must provide actual callable hooks, the real shell and its pnpm test configuration before implementation. E03 7.2 names behavior and sessionEpoch, but resetAll/usePrivateDraft are not published callable interfaces. Use only the accepted hook and generated @crew-health/contracts types; do not write a Session type. T5 must supply the real composed hub for browser gates. Typecheck/lint are the UI equivalents of Python mypy/ruff; no Python module is owned here.\n\nConsume createSession/getCurrentSession/deleteCurrentSession/getHealth and Session.created_at/expires_at exactly as E02 3.2/6 specifies. The interim local budget comes from their elapsed difference, with the elapsed cap starting at request dispatch. Background polling/SSE cannot extend it. No new wire policy or guessed idle setting, and no private mount without the validated deadline. On expiry, sign-out, 401, account change, connection loss, pagehide, tab hiding or suspend, increment the shell epoch, abort work, clear tokens/stores/drafts/private DOM before changing the route. Old responses/events are discarded before store mutation. Back/bfcache/resume stays covered until reauthentication. Only trusted human activity counts and never exceeds the absolute session cap. Server logout is best effort after local clearing. Original-owner encrypted queued clinical commands remain quarantined; journal/report drafts are memory-only and visibly unaccepted. No other owner or officer can recover those commands.\n\nConfiguration is ui-copy.json through config-ui-copy.schema.json; existing designed_states, error_messages and origin_words only, with specific lock words awaiting the E03 request. Use designed_states.not_available_here for generic unavailable only where the shell already does so. Never hardcode clinical/security copy or weaken labels. SYSTEM 5.6 pins and E03 8 apply to configuration. Missing copy/policy disables private surfaces, not signed emergency cache.\n\nTests first: sessionLock.test.ts and sessionLock.spec.ts carry T011 (R02/E02-03), T016 (R29/emergency fallback) and T021 (configuration). Unit tests cover deadline boundary, expired/delayed sign-in response, background traffic, owner switch and cancelled late callbacks. Playwright must run against T5's normal composed hub and temporary real SQLite, using E03's real shell and E20 queue. No HTTP response mock, service worker fake or store replacement counts as acceptance. Sign in owner A, display legitimate private content, then disconnect/hide/suspend/expire/switch to B; prove no private repaint through late response, Back or bfcache. Restart browser and verify B cannot decrypt/replay A's pending commands; A's later permitted retry keeps immutable command identity. A wrong/lost unlock secret stays visibly unaccepted. Do not save screenshots containing the journal canary.\n\nWarm E26's real signed cache, stop the hub/auth/storage/model/devices/link and show fixed help within the charter 500 ms budget; verify the configured printed-card fallback without inventing a screen. Repeat under bounded KDF load before stopping the hub. Edit a scratch ui-copy label through the real release path and prove visible change; corrupt candidate preserves last good release, no safety mapping edit. Optional external processes may be absent; core hub/shell/queue must be real. Done requires all listed pnpm gates, no skipped browser scenario and the precise offline lock/fallback evidence; unavailable hook/configuration/provider is a blocker, never a copied substitute.",
+      "gates": [
+        "pnpm -C ui/crew typecheck",
+        "pnpm -C ui/crew lint",
+        "pnpm -C ui/crew test",
+        "pnpm -C ui/crew exec playwright test src/features/identity/sessionLock.spec.ts"
+      ]
+    },
+    {
+      "id": "T5",
+      "title": "E02 module registration and real-stack privacy acceptance",
+      "owned_paths": [
+        "hub/src/crew_health/identity/module.py",
+        "hub/src/crew_health/consent/module.py",
+        "hub/tests/privacy/test_streams.py",
+        "hub/tests/privacy/test_canary.py",
+        "eval/scenarios/E02/test_privacy_acceptance.py"
+      ],
+      "reads": [
+        "AGENTS.md",
+        "docs/SYSTEM.md",
+        "docs/requests/COORDINATOR-DECISIONS.md",
+        "docs/DEPLOYMENT.md",
+        "docs/BUILD-CHARTER.md",
+        "docs/tdd/E02.md",
+        "docs/requests/E02.md",
+        "docs/tdd/reviews/E02.astra-c1.md",
+        "docs/tdd/reviews/E02.response-c1.md",
+        "docs/build/E02/PLAN.md",
+        "docs/product/tdd/E02.md",
+        "docs/product/CONTRACTS.md",
+        "docs/product/api/openapi.yaml",
+        "docs/product/VALIDATION.md",
+        "docs/tdd/E01.md",
+        "docs/tdd/E03.md",
+        "docs/tdd/E05.md",
+        "docs/tdd/E12.md",
+        "docs/tdd/E13.md",
+        "docs/tdd/E20.md",
+        "docs/tdd/E21.md",
+        "docs/tdd/E22.md",
+        "docs/tdd/E23.md",
+        "docs/tdd/E26.md",
+        "docs/product/DEMO-PLAN.md",
+        "docs/product/api/schemas/requests.schema.json",
+        "docs/product/api/schemas/config-ui-copy.schema.json",
+        "hub/src/crew_health/identity/application/ports.py",
+        "hub/src/crew_health/consent/application/ports.py",
+        "hub/src/crew_health/identity/adapters/vault.py"
+      ],
+      "depends_on": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "brief": "Read AGENTS.md, docs/SYSTEM.md and docs/requests/COORDINATOR-DECISIONS.md first, in that order, then every reads entry. This brief stands alone; the supervisor writes no product code. Work only in owned_paths, including tests. All these implementation files are absent at planning time: create them only after rechecking the current tree and ownership. Do not overwrite concurrent work, create another epic's module, edit root/shared configuration or add unlisted initializers. Any missing shared signature, schema, source file or gate is a blocking coordinator request in the existing E02 request process, not permission to invent it. The supervisor owns that request document; return the exact proposed request without editing it. Source of truth is E02 design sections 1.1, 2, 12, 13 and the section numbers below. Use exact shared mechanisms: SYSTEM 5.1 IDs, 5.2/5.3 clock and mission time, 5.4 Quantity/UCUM, 5.5 ProblemError and ErrorEnvelope mapping, 5.6 validated release pins, 5.7 UoW/read snapshots/audiences, 5.8 full target/parameter/body command identity and current ResultVisibility, 5.9 reference-only hash-chained audit, 5.10 bounded scheduler, 5.11 settings and 5.12 registration. Never replace them. SYSTEM 6 requires uv --project hub and pnpm; SYSTEM 8.3/8.4 separates role, membership, consent and clinical authority; SYSTEM 9/10 supplies dependencies and kernel.testing. Unit tests may use those existing kernel fakes only at declared ports. Real-stack acceptance never mocks hub services. Use configuration/explicit fixture adapters for content; no runtime sample fallback, literal UI words, domain settings or invented clinical values. Every parser/policy has property tests and independently stated expected authorization, not expected values derived from the input document. All pending requests remain pending until accepted and propagated; no request is a contract. Run gates exactly, report failures and unavailable prerequisites, and never skip/xfail missing acceptance. A done task has its owned tests, types/lints/import rules green, evidence for each assigned T/R/V/D, and no unresolved blocker inside its enabled behavior. Whole-epic greenlight additionally requires all task gates, the full suites, independent review, CI and the coordinator's AI-use row (R-E02-18). No em/en dashes or spaced hyphen dash in any output.\n\nBuild only SYSTEM 5.12 composition registration for the two existing E02 modules and their privacy acceptance evidence. Own no implementation fixes outside the two module.py files. T1/T2/T3 provide frozen interfaces; return defects to their owners rather than duplicate services. T4 follows this task and independently owns the real-browser local-lock/emergency-cache tests, so do not wait on T4 to run HTTP acceptance. Read E02 PLAN.md's entire scenario matrix. E01 5.12 create_app(settings), real platform/SQLite, source configuration, E21 fixture and all required record providers must exist. Require R-E02-5/6/8/9/10/11/19/20/21/22 as applicable; no unaccepted export catalogue, help-membership fact or snapshot contract can be invented. Recheck provider designs when delivered; product briefs alone are not port agreements.\n\nidentity/module.py and consent/module.py each expose register(registry: ModuleRegistry) -> None, with no import-time I/O. Use provide/requires and late bind exactly SYSTEM 5.12; no factory cycles or central app edits. Register only the agreed application ports, the four identity routes, exact E02 settings in section 11, ID prefixes from the accepted record declarations, local audience/replication registrations, scheduler handlers and startup hooks. T3 is the sole concrete PrivateKeyVault provider; E03/E09 register their own PrivateReferenceWriter. No invented record_kind, handler, projection or internal-command identifier: copy accepted provider declarations after R-E02-22, or stop that binding. Bind STATE_SWEEP/recovery before SERVE and propagate missing validation/storage as failure, never suppress a loader check. No new public identity/consent event. GroundLink consumers remain limited by SYSTEM 6.4; E02 does not read it for a view.\n\nWrite test_streams.py first for T008/010/013: authenticated real HTTP/SSE, separate-process CLI revocation with no further HTTP request, current generation checks before delivery/heartbeat, old buffered field payload denied, terminal expiry under clock regression/restart and mission-life replay. test_canary.py covers T006/017: legitimate owner writeJournal/listJournal responses plus real output scans across prompts/retrieval/logs/errors/events/export/sync/paired-backup; positive approved report snapshot and revoked/wrong-recipient/extra-field denial. Retain reference-only history. Do not scan an empty/nonexistent surface and declare it safe.\n\nIn eval/scenarios/E02/test_privacy_acceptance.py implement every HTTP scenario row in PLAN.md: R02/R20/R29, all three E02 work packages and V08/V09/V25/V26/V64/D09/D13/D24/D26. Load fixtures/demo-mara-fd19 explicitly once E21 supplies it; no fixture edits or inline medical values. Drive createSession/getCurrentSession/deleteCurrentSession/listCrew, E01 recordObservation/getObservation, E03 writeJournal/listJournal, E05 recordAttempt, E13 openConversation/sendMessage through E12, E26 openHelpSession/getHelpSubject/actOnHelpSession/previewGroundMessage/queueGroundMessage/getGroundMessage, and E16/E29 previewHandoff/approveHandoff/getGroundLog as the scenario requires. These names are copied from docs/product/api/openapi.yaml, not new operations. Read their request/response definitions before constructing each payload. New consent/deletion HTTP operations remain forbidden; their accepted owner CLI and coordinator paths establish state, then assertions drive the real API. No direct SQL grant creation, monkeypatched access check, fake repository or dependency override inside the hub.\n\nHTTP uses create_app(settings) through its real composition root and temporary real SQLite with normal middleware, audit, outbox, ledger and generated schemas. For external model/device/link absence or fake, use only a documented provider adapter fake; preserve real E05/E12/E13/E26/E29 logic. Fail if required modules are missing, including the E06/E14/E22 acquisition/baseline/participation assertions for D09. A camera policy denial alone cannot pass that positive scenario. V25 must reach the actual tool gateway. V64/D24 must demonstrate permitted limited summary during the session and denial after close. D13/D26 must demonstrate explicit approval, queued next-contact timestamp, continued care/ticks during outage, delivered-only ground access, simulator attribution and canary exclusion. T017 must include successful narrow report delivery as well as cancellation on revocation. Missing implementations cannot become skip/xfail/deny-only placeholders.\n\nCritical paths additionally test accepted observation/session/grant/journal durability across process death, disk full and retry; first-read expiry followed by clock rollback before sweep; restored pre-revocation data; concurrent clients/CLI; invalid configuration preserving last good release; incapacitated-subject manual capture with E05/E26/model/devices/link absent; long-outage authorization at materialize/send/apply; and scratch ui-copy changes through real identity/consent errors. Preserve valid disagreeing readings and units at their owning boundaries. Do not let storage failure look like authorization success. Real vault evidence comes from T3 and is rerun, not replaced. T4 owns the timed browser emergency-cache and local-lock proofs, so your HTTP completion does not claim them.\n\nDone requires all owned tests and end-to-end rows, generated import contracts, exact whole-hub gates and no missing scenario providers. The coverage command measures only identity/consent domain/application at >=95% and the shared validation/mutation gate must enforce full access-decision condition coverage and >=90% killed mutations as E02 15 specifies. If E01 has not supplied that enforceable gate, report R-E02-22 blocked instead of treating mutation execution as success. Run the full hub suite after fixes and retain failed/blocked evidence. CI and independent build review are still required after T4; this task does not edit CI or another epic's tests.",
+      "gates": [
+        "uv run --project hub pytest -c hub/pyproject.toml -q hub/tests/privacy/test_streams.py hub/tests/privacy/test_canary.py eval/scenarios/E02/test_privacy_acceptance.py",
+        "uv run --project hub ruff check hub/src/crew_health/identity/module.py hub/src/crew_health/consent/module.py hub/tests/privacy/test_streams.py hub/tests/privacy/test_canary.py eval/scenarios/E02/test_privacy_acceptance.py",
+        "uv run --project hub ruff format --check hub/src/crew_health/identity/module.py hub/src/crew_health/consent/module.py hub/tests/privacy/test_streams.py hub/tests/privacy/test_canary.py eval/scenarios/E02/test_privacy_acceptance.py",
+        "uv run --project hub mypy --strict hub/src/crew_health/identity/module.py hub/src/crew_health/consent/module.py",
+        "uv run --project hub python -m crew_health.app.import_contracts --output /tmp/e02-t5-imports.ini",
+        "uv run --project hub lint-imports --config /tmp/e02-t5-imports.ini",
+        "uv run --project hub python scripts/validate_hub.py interfaces generated trace safety mutations",
+        "uv run --project hub pytest -c hub/pyproject.toml -q hub/tests",
+        "uv run --project hub pytest -c hub/pyproject.toml -q hub/tests/identity hub/tests/consent hub/tests/privacy --cov=crew_health.identity.domain --cov=crew_health.identity.application --cov=crew_health.consent.domain --cov=crew_health.consent.application --cov-branch --cov-fail-under=95"
+      ]
+    }
+  ]
+}
