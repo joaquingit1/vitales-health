@@ -44,8 +44,8 @@ Hard dependencies (✅ when built) are what an epic needs to pass its acceptance
 | E20 | Accessibility, resilience and packaging | ⬜ Open (agents #1) |  | E01 | none | [tasks](E20/tasks.json) | [design](../tdd/E20.md) |
 | E21 | Integration, evidence and demonstration | ⬜ Open (agents #7) |  | E01, E02 | none | [tasks](E21/tasks.json) | [design](../tdd/E21.md) |
 | E22 | Participation streak, patches and crew goal | ⬜ Open (agents #15) |  | E01, E03, E23 | none | [tasks](E22/tasks.json) | [design](../tdd/E22.md) |
-| E23 | Environment profile and habitat sensors | ⬜ Open (agents #8) |  | E01, E02 | E04, E15-core, E22, E24, E25, E26, E27, E28, E29, E31, E32, E33 | [tasks](E23/tasks.json) | [design](../tdd/E23.md) |
-| E24 | Warnings engine | ⬜ Open (agents #16) |  | E01, E23 | none | [tasks](E24/tasks.json) | [design](../tdd/E24.md) |
+| E23 | Environment profile and habitat sensors | ⬜ Open (agents #8) | @fedegutman | E01, E02 | E04, E15-core, E22, E24, E25, E26, E27, E28, E29, E31, E32, E33 | [tasks](E23/tasks.json) | [design](../tdd/E23.md) |
+| E24 | Warnings engine | ⬜ Open (agents #16) | @fedegutman | E01, E23 | none | [tasks](E24/tasks.json) | [design](../tdd/E24.md) |
 | E25 | Routine scheduler and task guidance | ⬜ Open (agents #17) |  | E01, E23 | none | [tasks](E25/tasks.json) | [design](../tdd/E25.md) |
 | E26 | Someone needs help | ⬜ Open (agents #18) |  | E01, E02, E23, E27-guidance | E28 | [tasks](E26/tasks.json) | [design](../tdd/E26.md) |
 | E27 | Kit map: what this ship can test | ⬜ Open (agents #2) |  | E01, E02, E23, E27-guidance | E11, E12, E13, E26, E27, E28, E30, E32 | [tasks](E27/tasks.json) | [design](../tdd/E27.md) |
