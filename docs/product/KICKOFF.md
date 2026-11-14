@@ -85,10 +85,11 @@ After the demo freeze only fixes for a failing assertion, copy errors and the re
 
 | Time | What | Owner |
 |---|---|---|
-| Sun 14:00 to 17:00 | Record the run on the frozen build, following the shot list in [PITCH.md](PITCH.md). Real run, waiting time trimmed, every shot captioned in English | Presenter |
+| Sun 10:30 to 12:00 | Insurance takes of every shot on the latest green build, following [DEMO-PLAN.md](DEMO-PLAN.md); fallbacks locked at 12:00 | Presenter |
+| Sun 14:00 to 15:30 | Freeze and tag `demo-freeze` at 14:00, then the final takes. Real runs, waiting time trimmed, every shot captioned in English | Presenter |
 | Sat afternoon to Sun 12:00 | The venue camera study with consenting adult volunteers, crewmate pulse counts against the cameras on [N] pairs, the CPR rate on a manikin against a metronome (experimental), the assistant's turn time on the M3, rules alone against rules plus the assistant on the frozen scenarios | Stream D, with C |
 | Sun 14:00 to 18:00 | Result panel and How we know: the kit map counts and how many conditions have a plan aboard, the venue study with its denominators, failures, the HealthBench and scenario numbers as measured | Stream D |
-| Sun 17:00 to 19:00 | Edit to 30 seconds or less, upload publicly with no login, check it in a private window | Presenter |
+| Sun 15:30 to 18:00 | Edit to 30 seconds or less (checked on the exported file), upload publicly with no login by 18:00, check it in a private window | Presenter |
 | Sun 18:00 to 20:00 | Fill every project page field (section 7), save | Submission owner |
 | Sun 20:00 | Submitted. Everything after this is an improvement saved over a complete submission | Everyone |
 | Sun 22:00 | Final check: every link in a private window, the video length, the AI disclosure, the names | Submission owner |

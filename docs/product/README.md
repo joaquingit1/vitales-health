@@ -12,7 +12,7 @@ This package is the working plan for the event, covering the expanded assessment
 
 ## Start here
 
-1. [PITCH.md](PITCH.md): the front door. The pitch, what a judge sees, the demo story, the 30-second video, the seven slides, the project page fields and the rules that bind the demo.
+1. [PITCH.md](PITCH.md): the front door. The pitch, what a judge sees, the demo story, the 30-second video (shot list and build priority in [DEMO-PLAN.md](DEMO-PLAN.md)), the seven slides, the project page fields and the rules that bind the demo.
 2. [KICKOFF.md](KICKOFF.md): how the team starts on Saturday at 09:00.
 3. [PRD.md](PRD.md): what we build. How it answers the challenge, the NASA data used, the experience, 62 requirements, scope and stages.
 4. [USE-CASES.md](USE-CASES.md): the binding design for every flow: seven rules (the seventh: the ground is a reader, never a step), the actors (the Helper and the sensor monitor among them), the four environments, the warning levels, the routine rules and use cases UC01 to UC26.

@@ -93,17 +93,7 @@ The model decides what to ask and request, so a live run can differ from this pa
 
 ## The 30-second video
 
-The official guide limits the video to 30 seconds. Video beats slides here: the rings are an image and the hands are motion. One idea: what the ship can't test, and the crewmate's hands that handle it anyway. The spoken words total about 72, which fits 30 seconds at a calm pace. Team names appear as a caption so the voice can start on the hook.
-
-| Time | Picture | Voice | Caption (English, on screen) |
-|---|---|---|---|
-| 0:00 to 0:02 | The team at the table, the kit in front of them, the body on the laptop | "We're [team name]." | "[Team name]: [names] · Health Monitoring Software for Astronauts" |
-| 0:02 to 0:06 | Close on the body: lime dots, then open dashed rings appear one by one; the count settles | "Every health app shows what it measures. Ours shows what your ship can't test." | "[C] of NASA's 119 mission conditions need a test this ship doesn't carry" |
-| 0:06 to 0:09 | Moon base. The Habitat line turns to "Ground link down · next contact in 26 h"; nothing else moves | "Then we cut Earth off for a day." | "Moon base · no ground for a day · nothing else changes" |
-| 0:09 to 0:14 | "My heart is racing." The camera tiles sweep, a Live pulse; the dashed ring on the heart: "Rhythm needs an ECG. Not aboard." | "Its offline AI measures what the kit can." | "Medical AI on this laptop · a camera array · rhythm: needs an ECG, not aboard" |
-| 0:14 to 0:21 | The figure lights the base of the thumb; a crewmate's fingers on a wrist, tapping Beat; "Your count 92 · cameras 96 · they agree" | "So it teaches a crewmate to check another way, and the cameras check the count." | "A crewmate, not a doctor · taught on the body · checked by the cameras" |
-| 0:21 to 0:26 | The plan aboard: Now, Watch, If worse, Medical officer; "The log goes at the next contact." One second of Someone needs help on the Moon with the AI stopped | "[Every one] of NASA's 119 conditions has a plan aboard. Earth gets the log." | "Built from NASA's Clinical Findings Forms · help works with the AI off" |
-| 0:26 to 0:30 | End card: the body with its rings; "Measures what it can. Shows what it can't. Teaches the crew the rest." | "For the Moon, Mars, and any clinic far from a doctor." | "NASA data: exploration condition list and Clinical Findings Forms · ISS cabin CO2 (OSDR) · NASA-STD-3001" |
+The official guide limits the video to 30 seconds; a longer one makes the project ineligible for Global Judging. One idea: what the ship can't test, and the crewmate who checks it anyway, with the camera checking the count. The wow moment, the shot list with its 72 spoken words, the build priority behind each shot and the recording plan are in [DEMO-PLAN.md](DEMO-PLAN.md).
 
 Say "Every one" only if the server's count is 119 of 119 at the frozen release; otherwise say the computed number. The video is cut from a real run. Waiting time is trimmed and the project page says so, with the measured turn time. English captions on every shot; nobody under 18 in any frame; no NASA logos, flags or mission identifiers; the Replay and Sim words stay visible wherever a value is on screen. The CPR camera rate stays out of the video. If a frame contains AI-generated imagery it carries a visible watermark (our figure is drawn by code from an open body mesh, so it needs none).
 
