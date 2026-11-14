@@ -171,6 +171,10 @@ version stays active. Updates arrive as signed bundles through the ground link, 
 - **Settle shared things before fanning out.** Seams, package contradictions and product questions are decided once,
   before the agents that depend on them start. Thirty agents each deciding a contradiction their own way produce
   thirty findings.
+- **Parallelize everything the dependency map allows.** Start each piece the moment its hard dependencies are met
+  (SYSTEM.md section 9), and wait only on a real dependency: a seam with its provider, a file another agent owns, or
+  code that must exist first. Keep the map explicit (section 9, each design's seam table and owned paths) so that
+  this is decidable without guessing.
 - **Follow the dependencies.** Two agents never edit the same file. Designs that share a seam are revised one at a
   time, provider first (SYSTEM.md section 9): two sides of a seam changed in parallel never meet.
 - **Spend effort where it changes the outcome.** Lighter models and effort for mechanical work; top effort, and one
