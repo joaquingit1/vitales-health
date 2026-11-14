@@ -30,6 +30,9 @@ engine.
 | D15 | AGENTS.md rule 1 says no configuration edit test edits a safety mapping (E23 open question 2). | A test that changes a sourced threshold value in a scratch copy of the configuration, consistently in `environment-hazards.json` and `sensor-limits.json` so loader check 4 passes, is not a safety mapping edit. A safety mapping is which level a limit or rule raises and who may raise or lower a level; tests never edit those. The shipped documents are never edited by a test. |
 | D16 | Owner of `getContext` (Q-E02-13). | E23 owns `getContext`, built in the `mission` module, which alone may read the ground link for views (SYSTEM.md `ground-link-readers`). `person` and `roles` come from E02's `SessionContext`, `config_release_id` and `config_versions` from E01's `ConfigReleaseReader`, `assistant_state` from E13's `AssistantStatusPort` when installed (`unavailable` when absent), `model_release_id` from the same port once request R-E23-17 adds it. E02 does not build it. |
 
+| D17 | CONTRACTS calls model turns Jobs, but the closed public Job schema has no model-turn kind. | E01 owns one durable internal worker-task mechanism. Only assessment, report_extraction and participation_rebuild tasks expose public Job resources and job.progress events. Assistant turns use their existing turn_id, conversation stream and cancellation operation; forecasts use internal tasks and existing forecast records. Refresh never starts duplicate work. All kinds use bounded execution, pinned inputs, durable identity, cancellation generations and current object/field authorization. No onboard capability depends on a ground role. |
+| D18 | Private reports and extraction versions live outside hub.sqlite, while CONTRACTS 1108 requires one transaction for commands and D4 covers only journals. | Extend D4 through E01's PrivateRecordCoordinator to report uploads and immutable extraction versions. Seal private content first, atomically commit hub references and command/task identity with audit, then acknowledge only after the paired-store barrier. E09 confirms only validated source spans and values into clinical observations in a hub transaction. All private writers and deletions join the paired-backup barrier. Deletion revokes source/draft version keys and prevents late publication; confirmed clinical records remain append only with deleted-source provenance. Preserve current owner/grant checks and every report identity, unit, upload and confirmation validation. No ground role is required. |
+
 ## A2. Product decisions
 
 The owner delegated open product questions to the coordinator on 14 November; owner answers are marked. "Applies to"
@@ -86,7 +89,7 @@ relative to `docs/product/`; numbers refer to the unchanged files. Repeated cons
 | `CONTRACTS.md:531` | Q11, Q14 | Permit only deterministic E32 dose proposals/confirmations under Q11/Q14; keep assistant-invented doses prohibited and the names-only SubjectSummary unchanged. |
 | `CONTRACTS.md:659` | D12 | Preserve contracted wire units and original quantities; use sourced UCUM mapping and explicit pressure context; round sensor canonical output once, half even, to four decimals. |
 | `CONTRACTS.md:661` | D3 | Keep original observation time immutable and add corrected-clock provenance internally; never substitute arrival time; REPLAY retains original date. |
-| `CONTRACTS.md:668` | D3 | Freshness uses corrected observed_at; retain received_at only as transport provenance. Only fresh observations after raising may clear. |
+| `CONTRACTS.md:668` | D3, D14 | LIVE/SIM freshness uses corrected observed_at. REPLAY uses hub receive time of the latest accepted reading advancing E, retained across restart/loops; windows keep original observation dates. Only eligible observations after raising may clear within their origin partition. |
 | `CONTRACTS.md:782` | D1 | Retain active warning definition pins; definition removal cannot clear/lower. Only pinned clearing rules or an authorized medical-officer resolution with reason may end it. |
 | `CONTRACTS.md:1134` | Q8 | Preserve manual and available camera observations with method/origin and disagreement; retry stays incomplete; never close a gap or infer a diagnosis. |
 | `CONTRACTS.md:1155` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
@@ -316,12 +319,20 @@ relative to `docs/product/`; numbers refer to the unchanged files. Repeated cons
 | `VALIDATION.md:227` | Q5, Q6, Q8 | Use the Q8 manual reference for camera validation and preserve separately configured teach timing. Without a manikin CPR teaching is SIM rehearsal and earns no CPR quality claim. |
 | `CONTRACTS.md:210` | D6 | Cache for 24 hours, retain durable identity for mission life, bind target/semantic parameters as well as body, and authorize stored-result visibility before replay. |
 | `api/openapi.yaml:11657` | D6 | Effective Idempotency-Key description includes resource/parameter identity, mission-life durable receipt and current access checks. |
-| `CONTRACTS.md:1108` | D4 | Hub changes still commit atomically; journal uses a sealed private write then hub-reference transaction and acknowledgment only after both stores. |
+| `CONTRACTS.md:1108` | D4, D18 | Hub changes still commit atomically; journal/report uploads and extraction versions use sealed private writes, hub-reference transactions and acknowledgment only after both stores. Confirmations remain atomic hub records. |
 | `CONTRACTS.md:1114` | D4 | Separate journal storage obeys the two-store recovery and paired-backup barrier, never independent uncoordinated commits. |
 | `CONTRACTS.md:783` | D1 | An active rule/sensor warning's manual resolution requires a medical officer and reason; assistant cannot resolve it. |
-| `api/schemas/sensor-channel.schema.json:5` | D3 | Derive freshness from corrected observed_at; last_received_at remains a transport field. |
+| `api/schemas/sensor-channel.schema.json:5` | D3, D14 | LIVE/SIM use corrected observed_at; REPLAY uses the durable receive reference of the latest accepted reading advancing E. last_received_at alone cannot make a repeated/late row fresh. |
 | `CONTRACTS.md:519` | D12 | Effective releases pin the 18 base documents plus the accepted unit-mapping document and decision-overlay version. |
 | `CONTRACTS.md:748` | D13 | Attempt rule evaluation inside the transaction savepoint; a typed computation failure preserves valid capture with durable pending evaluation and a visible fault, never clears a warning. |
+
+| `CONTRACTS.md:203` | D17 | Public Job IDs apply to the three public kinds; assistant work reconnects with existing turn identity and internal durable tasks. |
+| `CONTRACTS.md:954` | D17 | A model-turn job is an internal worker task; keep existing conversation stream/cancellation and no duplicate work on refresh. |
+| `CONTRACTS.md:1112` | D17 | Long work uses the shared task runner; only assessment, report_extraction and participation_rebuild expose public Jobs. |
+| `api/openapi.yaml:10168` | D17 | Interpret model-turn job as the internal task bound to turn_id; retain AssistantMessage response and conversation stream/cancel endpoints. |
+| `CONTRACTS.md:234` | D6 | DUPLICATE_COMMAND with null current_state means rejected identity reuse; an authorized identical accepted replay carries the closed accepted_command receipt of SYSTEM 5.8. |
+| `api/schemas/error.schema.json:90` | D6 | Allow the closed accepted_command receipt in current_state for an authorized matching durable replay. Mismatched identities always return null; no clinical values or body fingerprints are exposed. |
+| `CONTRACTS.md:1085` | D9 | Medical-officer status does not grant every plan run; require current object/field sharing for clinical reads. |
 
 # Part B. Medicine potency engine
 

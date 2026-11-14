@@ -151,7 +151,7 @@ Legacy RS-232 and infrared medical devices existed on ISS [VC18]; the adapter la
 The hub never runs on a flight computer and never writes to one. Where a vehicle exposes telemetry, an integration
 node (a payload laptop or the habitat's data system gateway, as HDTN sat on the JSL [VC10]) runs the LIVE habitat
 adapter, reads the feed one way and pushes readings to the site hub with an adapter token. Vehicle alarms reach the
-hub as mission events recorded by the crew or by that adapter (E24 request R-E24-9), never by inference. Failure of
+hub as mission events recorded by the crew or by that adapter (E24 request R-SYS-35), never by inference. Failure of
 the integration node is a quiet feed (T4). Nothing in the minimum setup needs it. We cannot claim to read Orion,
 Gateway, HLS or LTV sensors today: their interfaces are not public (vehicle-computing.md 3.9;
 surface-mobility-comms.md 7.7).
@@ -266,7 +266,21 @@ clients must not mint replacement keys for them. No promise of recovering post-b
 no surviving copy is made. The recovery screen reports the verified cutoff and unresolved accepted-record gaps.
 A tested local current recovery medium enables offline recovery without a ground role; a peer is optional.
 
+Restore also fences authorization **before reads, authentication, exports or replay**, not just writes. E02 reconciles
+its current credential/device/session revocation and object/field consent checkpoint from the protected local current
+recovery journal (or an authenticated authorized peer). A backup's grant/session row is not evidence of current access.
+Until reconciliation, old sessions/credentials are invalid and cross-person/private reads, sync, export and ground
+transmission stay denied. Local operator recovery can re-enroll a present owner against current recovery material and
+obtain fresh object-specific grants; it cannot resurrect another person's old sharing or grant itself chart access.
+If current grant history cannot be proved, treat it as revoked and ask the owner to grant anew locally. Fixed help,
+printed procedures and new local manual capture under newly verified identities remain available without ground.
+Test a backup taken before grant/session/device revocation, restore it after revocation, and attempt every read/export
+path: none succeeds from the old rows; an explicitly renewed local owner grant restores only its selected fields.
+
 ### 4.3 Exchange protocol
+
+SYSTEM 5.7.1 defines the closed projection catalog, export/apply ports, producer registrations and transactional
+cursors used by every transport. There is no arbitrary projection name or raw-record fallback.
 
 1. **Authorize before materializing.** The owning module evaluates recipient identity, purpose, object consent and
    field grant using SYSTEM 8.3. Recheck at export, before transmission, and at import/read. LAN, files, backups of
@@ -276,8 +290,9 @@ A tested local current recovery medium enables offline recovery without a ground
    contiguous `delivery_seq` for each authorized projection. An internal scan cursor advances over the local log even
    when all records are excluded; neither excluded IDs, hashes, counts nor skip markers go to the recipient. A wire
    vector is `{stream_id: highest_contiguous_delivery_seq}`, not the raw origin vector. This permits filtering without
-   gaps or leaking excluded records. Origin identity for a permitted record is inside its projection; revisions of the
-   same allowed object remain idempotent by origin identity plus projection hash.
+   gaps or leaking excluded records. Permitted source node/incarnation and a recipient/policy-bound opaque origin token travel with the projection;
+   raw origin_seq never leaves the sender. Revisions remain idempotent by opaque token plus projection hash, without
+   revealing gaps or counts of excluded local entries.
 3. **Send and apply.** Send bounded pages in delivery order. The receiver validates destination, signature, policy
    epoch, schema, source incarnation and projection type. Apply projection, receipt cursor, local audit and authorized
    local event in one transaction. A missing causal reference is either an explicitly redacted/absent optional link or
@@ -308,7 +323,8 @@ facts use their role-specific projections. Local source vectors remain internal 
 |---|---|---|
 | Observations, sensor readings, answers, notes, attachments, mission events, reference-only audit receipts | Append only, only authorized projections | Union of distinct record IDs; never a conflict (surface-mobility-comms.md 7.4 item 1) |
 | Supersession of an observation | Home node of the observation | A correction is a new record; both stay visible |
-| Housekeeping: routine occurrence actions, card dismissals, acknowledgements, reschedules | Any node, per person action | Deterministic last writer wins by HLC; the losing write is kept in history (7.4 item 2). Routine special case (E25 R-E25-17): a person's completion with `completed_at` inside the window beats a timer miss recorded by a node that did not see it |
+| Routine completions, actions, overrides and reschedules | Any authorized node captures immutable facts/proposals; only the current ownership epoch mutates occurrences | SYSTEM 8.5.1: former owners retain/forward facts after fencing; the current owner validates observation time, grant, window and epoch chain. An on-time completion reconciles a miss with both facts retained; unknown/late facts never fill misses. Reschedules require current revision; no HLC mutation merge |
+| Nonclinical card dismissals and acknowledgements | Authorized person's home owner; peers submit immutable proposals | Owner validates current access and applies; HLC orders display history only, never safety state or ownership |
 | Warnings | The node with the sensor or the rule input | Never merged; a replica shows origin node and age. A warning is cleared only by its own node's rule (7.4 item 5) |
 | Help sessions, crew broadcasts | Home node (where opened) | Single writer. A peer's actions arrive as proposals and are shown, never applied automatically |
 | Episodes, urgency, assessments, reviews, plan runs, guided checks, medication proposals, dose confirmations, administrations, handoffs | Home node | Never auto merged. If two nodes hold diverging versions (for example after a re-homing during a sortie), both are kept and a medical officer chooses ("two versions, choose") |
@@ -413,9 +429,48 @@ medical communications (medical-systems-standards.md 1.2 and 3.4 [EV02]).
 | On the device | Exposure | Mitigation |
 |---|---|---|
 | Configuration cache (help flows, plans, copy) | Mission content, no personal data | None needed |
-| Queued commands of the last signed-in person | Answers and help actions not yet accepted | Encrypted in IndexedDB with a non-extractable WebCrypto key; partitioned by person; replayed only under that person's session; quarantined under the original owner grant if revoked; a medical officer receives no automatic access; never silently discarded |
+| Queued commands of the last signed-in person | Answers and help actions not yet accepted | Encrypted in IndexedDB; only the owner-wrapped key persists, with a non-extractable in-memory key while unlocked (5.5.1); partitioned by person; replayed only under that person's session; quarantined under the original owner grant if revoked; a medical officer receives no automatic access; never silently discarded |
 | Rendered views | Only while a session is open and unlocked | Idle lock; tokens expire; revocation ends sessions |
 | Journal, private reports | Never cached on a client | n/a |
+
+#### 5.5.1 Owner queue-key lifecycle
+
+E20 owns the client queue crypto/storage mechanism; E02 supplies authenticated owner/device identity and revocation
+state. On first enrollment of an owner on that browser, generate a random 256-bit queue encryption key and a separate
+random owner unlock secret with at least 128 bits of entropy. The UI has the owner retain that secret as local
+recovery material; it is never the short sign-in PIN, session bearer token or a shared device secret. Derive a wrapping
+key using HKDF-SHA-256 with a fresh stored salt and the fixed queue-wrap domain separator. Wrap the queue key with
+AES-256-GCM, binding owner ID, device ID and key generation as associated data. Persist only the salt, nonce, wrapped
+key, owner/device/generation and encrypted commands in IndexedDB. Import the unwrapped queue key as a non-extractable
+WebCrypto key in owner-session memory; never persist an unwrapped CryptoKey in IndexedDB or service-worker storage.
+Generated raw bytes are discarded after import/wrap; no logs or crash reports contain secrets.
+
+Unlock requires the original owner's unlock secret and an owner-specific screen. With the hub reachable it also
+requires that owner's authenticated session and current device/grant status. With the hub down it opens only that
+owner's pending local commands for review or additional capture; it grants no hub record access or replay authority.
+The browser uses its own OS/browser secure random source, never a seeded demo generator. Every command has a unique
+nonce and associated data binding owner, device, key generation and immutable command key; nonce reuse is rejected.
+Plaintext is bounded by the command setting and never put in a view cache. Fixed emergency content remains available
+without unlocking any person's queue; private reports and journals are still excluded from persistent queues.
+
+Lock, sign-out, session expiry, owner switch or revocation removes in-memory keys, plaintext and worker references
+before showing station or another owner. Owner B cannot unlock owner A's wrapped key with B's credential or key;
+no cross-owner recovery exists for officers/operators. After browser restart, A unlocks the persisted wrapper, signs
+in when the hub returns, and replays the original ciphertext-derived command identity exactly once using SYSTEM 5.8.
+Hub authorization and revocation are rechecked before every replay, independent of successful local decryption.
+
+An ordinary hub credential change does not replace the independent queue key. Changing the owner unlock secret
+atomically rewraps each retained generation after verifying the old wrapper and new wrapper; ciphertext and command
+keys stay unchanged. Queue-key rotation retains each old wrapped generation until all its commands are acknowledged
+or explicitly deleted by the owner; never silently drop an unsent command. Revocation locks the queue and blocks
+replay, retaining ciphertext quarantined for the original owner. Reauthorization by that same owner/device policy can
+resume; it never transfers plaintext to the next crew member. Loss of the unlock secret leaves pending ciphertext
+unrecoverable, visibly unaccepted; no guessed default key or replacement command is minted. Owner deletion destroys
+wrappers only after an explicit choice about pending commands. All key transitions are local and need no ground role.
+
+Acceptance: A queues sensitive input, browser restarts, B signs in and cannot decrypt or replay it, A unlocks later
+and receives one acceptance despite repeated retries. Also test lock/owner switch while decrypting, wrong secret,
+credential change, rewrap interruption, revocation before replay and lost secret; cached help remains usable throughout.
 
 ### 5.6 Audit
 
@@ -568,8 +623,8 @@ incarnations; never resume old counters or custody. A lost/replaced machine need
 writer and current recovery material, not ground permission. Unknown current heads remain visible reconciliation work;
 printed help, static emergency entry and new local records remain available.
 
-Backup and restore share SYSTEM 5.8.1's barrier, manifest, reference checks and crash matrix; `integrity_check` alone
-cannot prove journal consistency or recover keys. A separate current vault recovery device, when used, participates
+Backup and restore share SYSTEM 5.8.1's all-writer barrier for journals, report uploads, extraction versions and deletions, manifest, reference checks and crash matrix; `integrity_check` alone
+cannot prove private-record consistency or recover keys. A separate current vault recovery device, when used, participates
 in deletion acknowledgments and cannot be a historical backup. Test restoring a pre-deletion backup with retained
 and revoked entries, and a sequence-80 backup after a peer has sequence 100, including duplicate command retries.
 
@@ -609,6 +664,12 @@ GitHub Actions, one workflow per concern; every gate produces its evidence as an
 The reference deployment measurements (SYSTEM.md 8.7) need the real laptop and camera and are recorded by hand into
 `eval/` with the machine described; CI checks that the record exists and is not older than the build it describes.
 
+### 8.1 Shared architecture document gate
+
+Run the exact design_lint command in SYSTEM 12.1 as well as the implementation gates above. R-SYS-22 files the shared
+mode and regression coverage; until implemented, report the current template/internal-enum failures explicitly and
+withhold greenlight. Neither a section renumber nor a suppressed warning substitutes for a correct gate.
+
 ## 9. Targets and fallbacks mapped to tiers and mechanisms
 
 PRD section 11 targets:
@@ -617,7 +678,7 @@ PRD section 11 targets:
 |---|---|---|
 | Someone needs help first screen in 500 ms, model stopped, under load | T0 | Help guidance depends on E01, E02, E23 and the early E27-guidance rule; first screen rendered from the client cache before any network call; hub serves it without touching the model; e2e latency check under combined load (SYSTEM.md 8.7) |
 | Warnings never raised or lowered by the assistant | T0 | Domain types and transitions in E24, SQLite constraints, API roles (E24 section 9) |
-| Sensors: no stale or offline reading shown as current; Replay shows its original date | T4 | Freshness states from `observed_at`; origin and age on every value; E23 freshness sweep before ingest resumes |
+| Sensors: no stale or offline reading shown as current; Replay shows its original date | T4 | LIVE/SIM freshness uses corrected observed_at (D3); REPLAY uses the durable hub receive time of the latest accepted reading advancing E (D14). Original date/origin remain visible; stop, loop and restart tests; E23 sweep before ingest |
 | Routine: no misses filled in | T0 | Deterministic occurrences; timers only on the person's current hub (4.4) |
 | Configuration: nothing held in client code | T0 | Codegen from contracts; client renders served text; CI `contracts` job |
 | Data durability: no lost accepted record, idempotent commands | T0 | WAL with `synchronous=FULL`; one command one transaction; 24 hour idempotency cache plus the durable command ledger (SYSTEM.md 8.6); `faults` job |

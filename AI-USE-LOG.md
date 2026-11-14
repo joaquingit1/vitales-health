@@ -30,3 +30,11 @@ marked "checked by coordinator" was accepted only after its gate commands passed
 | Sat 16:29 | Supervisor SYSTEM | Codex CLI, GPT-6 Astra | Cold design review | Review with verdict | docs/tdd/reviews/ | Coordinator |
 | Sat 16:32 | Supervisor E02 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E02.md | Cold review (GPT-6 Astra), design lint |
 | Sat 16:32 | Supervisor E20 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E20.md | Cold review (GPT-6 Astra), design lint |
+| Sat 16:35 | Supervisor E10 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E10.md | Cold review (GPT-6 Astra), design lint |
+| Sat 16:47 | Supervisor E02 | Codex CLI, GPT-6 Astra | Cold design review | Review with verdict | docs/tdd/reviews/ | Coordinator |
+| Sat 16:48 | Supervisor E01 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E01.md | Cold review (GPT-6 Astra), design lint |
+| Sat 16:48 | Supervisor E21 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E21.md | Cold review (GPT-6 Astra), design lint |
+| Sat 16:51 | Supervisor E05 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E05.md | Cold review (GPT-6 Astra), design lint |
+| Sat 16:51 | Supervisor SYSTEM | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/SYSTEM.md | Cold review (GPT-6 Astra), design lint |
+| Sat 16:53 | Supervisor E03 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E03.md | Cold review (GPT-6 Astra), design lint |
+| Sat 16:53 | Supervisor E12 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E12.md | Cold review (GPT-6 Astra), design lint |
