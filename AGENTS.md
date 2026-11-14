@@ -170,12 +170,14 @@ version stays active. Updates arrive as signed bundles through the ground link, 
   rule it will break.
 - **Verify by evidence, not by redoing.** Run the gate commands, read the review verdict and read the diff of the
   critical paths.
-- **Strong model judges, cheaper model produces.** Reviews, plans and greenlights go to the strongest model; fixes and
+- **Strong model judges, cheaper model produces.** Reviews and greenlights go to the strongest model; plans, fixes and
   code go to the cheaper one, and the reviewer answers for their quality. Estimate the total usage of a queue before
   raising concurrency: a usage limit is a quota, and hitting it mid run loses every job in flight.
-- **Freeze designs once the shared contract settles.** After SYSTEM.md is settled, a unit's design is frozen; its
-  remaining conflicts and open review findings are settled in the plan's briefs (SYSTEM.md and the decisions win,
-  then the review), and the reviewer reviews the plan. Count the steps to the first line of code before adding one.
+- **Designs are working documents; code is the deliverable.** After SYSTEM.md is settled, designs are frozen and code
+  starts from them; plans are only job tickets (owned files, brief, gates) and are not reviewed. When code or a test
+  proves a design wrong, the coder follows SYSTEM.md and the decisions and lists a design correction with evidence in
+  its report; the build review judges it, and the design is corrected afterwards. Count the steps to the first line of
+  code before adding one.
 - **Stop at zero blockers.** A review passes when it finds no blocker; majors and minors get fixed but never start
   another round. Every review loop has a cap (SYSTEM.md two reviews, a design one cold review, a build three
   rounds); at the cap the coordinator decides, the loop does not continue.
