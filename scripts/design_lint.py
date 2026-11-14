@@ -412,7 +412,13 @@ class Package:
         ids = set(re.findall(r"\b[RVD]\d{2,3}\b", "\n".join([*validation.lines, *prd.lines])))
         for document in (validation, prd):
             for line in document.lines:
-                for epic in re.findall(r"\bE\d{2}\b", line) if line.startswith("|") else []:
+                if not line.startswith("|"):
+                    continue
+                # A row that names an epic in its first cell is that epic's row; the other epics in it are its
+                # dependencies, not owners of its requirements.
+                cells = line.split("|")
+                own = re.findall(r"\bE\d{2}\b", cells[1]) if len(cells) > 2 else []
+                for epic in own or re.findall(r"\bE\d{2}\b", line):
                     requirements.setdefault(epic, set()).update(re.findall(r"\b[RVD]\d{2,3}\b", line))
         return cls(
             root,
@@ -1256,6 +1262,8 @@ def read_owned(doc: Document) -> list[OwnedPath]:
         for token in codes(cell) or [clean(cell)]:
             output.extend(OwnedPath(doc, row.line, p) for p in expand_braces(token) if "/" in p)
     in_fence = False
+    # A bullet's leading directory glob; bare one-segment names after it are its children.
+    parent: str | None = None
     for n, line in ownership_lines(doc):
         if line.strip().startswith(("```", "~~~")):
             in_fence = not in_fence
@@ -1269,6 +1277,9 @@ def read_owned(doc: Document) -> list[OwnedPath]:
         if n in table_lines or line.startswith("|") or reading:
             continue
         declaration = line.split(";", 1)[0]
+        bullet = declaration.lstrip().startswith("- ")
+        if bullet or not declaration.startswith("  "):
+            parent = None
         if in_fence:
             tokens = re.findall(r"[\w./*{},?\[\]-]+", declaration)
         elif (
@@ -1279,9 +1290,15 @@ def read_owned(doc: Document) -> list[OwnedPath]:
             tokens = codes(declaration)
         else:
             continue
-        for token in tokens:
-            if "/" in token and not re.search(r"\s|://|[<>]", token):
-                output.extend(OwnedPath(doc, n, p) for p in expand_braces(token))
+        for i, token in enumerate(tokens):
+            if "/" not in token or re.search(r"\s|://|[<>]", token):
+                continue
+            path = token
+            if bullet and i == 0 and token.endswith(("/**", "/")):
+                parent = token.removesuffix("**")
+            elif parent is not None and not in_fence and token.rstrip("/").count("/") == 0:
+                path = parent + token
+            output.extend(OwnedPath(doc, n, p) for p in expand_braces(path))
     return output
 
 

@@ -542,3 +542,35 @@ def test_numeric_literal_enums_are_compared_by_value(package: dl.Package) -> Non
     assert not findings(package, {"3": "Record.state: Literal[1, 2]"}, 3)
     assert findings(package, {"3": "Record.state: Literal[1, 3]"}, 3)
     assert findings(package, {"3": 'Record.state: Literal["1", "2"]'}, 3)
+
+
+def test_epic_table_rows_credit_only_their_own_epic(package: dl.Package) -> None:
+    prd = package.root / "docs/product/PRD.md"
+    prd.write_text(prd.read_text() + "| E98 Other epic | B | S2 | E01, E99 | R07, R36 |\n", encoding="utf-8")
+    reloaded = dl.Package.load(package.root)
+    assert {"R07", "R36"} <= reloaded.requirements["E98"]
+    assert not {"R07", "R36"} & reloaded.requirements.get("E99", set())
+    assert "R01" in reloaded.requirements["E99"]
+
+
+def test_bare_children_of_a_parent_glob_resolve_under_it(package: dl.Package) -> None:
+    peer = dl.Document.parse(
+        package.root / "docs/tdd/E98.md",
+        design_text(
+            {
+                "13": "- `hub/src/x/workbench/**`: `domain/` (`a.py`,\n  `b.py`), `application/` (`c.py`,\n"
+                "  `d.py`), `adapters/` (`exa.py`,\n  `disk.py`)\n- `hub/tests/workbench/**`"
+            }
+        ),
+    )
+    assert {p.pattern for p in dl.read_owned(peer)} == {
+        "hub/src/x/workbench/**",
+        "hub/src/x/workbench/domain/",
+        "hub/src/x/workbench/application/",
+        "hub/src/x/workbench/adapters/",
+        "hub/tests/workbench/**",
+    }
+    own = dl.Document.parse(package.root / "docs/tdd/E99.md", design_text({"13": "- `adapters/habitat/**`"}))
+    lint = dl.Linter(package)
+    dl.ownership(lint, [own], [own, peer])
+    assert not lint.findings
