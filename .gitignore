@@ -36,3 +36,6 @@ data/pharmacy/xtb-cache/
 
 # OS
 .DS_Store
+
+# Review passes are the owner's local workflow, kept outside the repository
+docs/tdd/reviews

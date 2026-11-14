@@ -13,8 +13,7 @@ and it must be fully usable with the minimum setup of **one laptop and its webca
 cameras, crew tablets, a pulse oximeter, a blood pressure cuff, a thermometer, a wrist band, habitat sensor feeds, the
 local medical model, the forecasting model, a ground link) adds capability; none of it is required for the system to
 work. The deployment architecture (where the hub runs, which clients exist, how nodes sync, how the ground link works)
-is specified in `docs/DEPLOYMENT.md`, written from the research in
-`crew-health-build-2026-11-14/research/`.
+is specified in `docs/DEPLOYMENT.md`.
 
 Non-negotiables:
 
@@ -116,14 +115,12 @@ end-to-end scenario in `eval/`.
 
 1. **Technical design first.** Each epic gets a TDD in `docs/tdd/Exx.md` from its brief
    (`tdd/Exx.md` in the package), the PRD, CONTRACTS.md and this charter, using `docs/tdd/TEMPLATE.md`.
-2. **Cross-model review.** The model that did not write the TDD reviews it (Opus writes, GPT-6 Astra reviews, or the
-   reverse) and returns either "greenlight" or numbered comments. The author resolves every comment or answers it with
-   evidence. Questions only the user can answer go to the coordinator, who asks the user.
+2. **Independent review.** Someone other than the author reviews the TDD and returns either "greenlight" or numbered
+   comments. The author resolves every comment or answers it with evidence (AGENTS.md section 5).
 3. **Build.** The builder implements the greenlit TDD inside its owned files only, test first on the critical paths.
-4. **Cross-model build review.** The other model reviews the code cold (artifact and evidence, not the builder's
-   rationale), default to reject, then the builder fixes.
-5. **Greenlight** by the coordinator when the epic's gate commands pass (section 8), the review is resolved and the
-   backlog is updated.
+4. **Independent build review.** Someone other than the builder reviews the code cold (artifact and evidence, not the
+   builder's rationale), default to reject, then the builder fixes.
+5. **Greenlight** when the epic's gate commands pass (section 8) and the review is resolved.
 6. **Requests.** Anyone who needs a contract, configuration shape, charter or package change writes the exact proposal
    and the reason in `docs/requests/<epic or role>.md`, picks the least surprising interim behavior inside the existing
    contract, and reports it. Nobody edits files they do not own.
