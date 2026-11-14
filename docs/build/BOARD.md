@@ -41,7 +41,7 @@ Hard dependencies (✅ when built) are what an epic needs to pass its acceptance
 | E17 | Model integration and tool-use optimization | ⬜ Open (agents #11) |  | E01, E12 | none | [tasks](E17/tasks.json) | [design](../tdd/E17.md) |
 | E18 | HealthBench and clinical evaluation | 🔨 In progress | agent | E01 | none | [tasks](E18/tasks.json) | [design](../tdd/E18.md) |
 | E19 | Research and content workbench | ⬜ Open (agents #4) |  | E01, E02, E10 | none | [tasks](E19/tasks.json) | [design](../tdd/E19.md) |
-| E20 | Accessibility, resilience and packaging | ⬜ Open (agents #1) |  | E01 | none | [tasks](E20/tasks.json) | [design](../tdd/E20.md) |
+| E20 | Accessibility, resilience and packaging | ⬜ Open (agents #1) | @pgentil | E01 | none | [tasks](E20/tasks.json) | [design](../tdd/E20.md) |
 | E21 | Integration, evidence and demonstration | ⬜ Open (agents #5) |  | E01, E02 | none | [tasks](E21/tasks.json) | [design](../tdd/E21.md) |
 | E22 | Participation streak, patches and crew goal | ⬜ Open (agents #12) |  | E01, E03, E23 | none | [tasks](E22/tasks.json) | [design](../tdd/E22.md) |
 | E23 | Environment profile and habitat sensors | 🔨 In progress | @fedegutman | E01, E02 | E04, E15-core, E22, E24, E25, E26, E27, E28, E29, E31, E32, E33 | [tasks](E23/tasks.json) | [design](../tdd/E23.md) |
