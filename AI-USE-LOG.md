@@ -27,3 +27,6 @@ marked "checked by coordinator" was accepted only after its gate commands passed
 | Sat 15:16 | Design author (E23) | Claude Code, Claude Opus 5.5 | Fixes for the two r4 minors | Revised design, requests, response | docs/tdd/E23.md, docs/requests/E23.md, docs/tdd/reviews/E23.response-r4.md | Greenlit by r4 |
 | Sat 15:18 | Design author (E23) | Claude Code, Claude Opus 5.5 | getContext added to E23 by owner ruling D10; request R-E23-17 | Revised design, requests, coordinator decision | docs/tdd/E23.md, docs/requests/E23.md, docs/requests/COORDINATOR-DECISIONS.md | Added after the r4 greenlight; not yet reviewed |
 | Sat 16:10 | Supervisor SYSTEM | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/SYSTEM.md | Cold review (GPT-6 Astra), design lint |
+| Sat 16:29 | Supervisor SYSTEM | Codex CLI, GPT-6 Astra | Cold design review | Review with verdict | docs/tdd/reviews/ | Coordinator |
+| Sat 16:32 | Supervisor E02 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E02.md | Cold review (GPT-6 Astra), design lint |
+| Sat 16:32 | Supervisor E20 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E20.md | Cold review (GPT-6 Astra), design lint |
