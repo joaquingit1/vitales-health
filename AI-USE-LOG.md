@@ -74,3 +74,4 @@ marked "checked by coordinator" was accepted only after its gate commands passed
 | Sat 17:48 | Coder E06 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E06/ | Plan review (GPT-6 Astra) |
 | Sat 17:52 | Coder E01 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E01/ | Plan review (GPT-6 Astra) |
 | Sat 18:01 | Supervisor E01 | Codex CLI, GPT-6 Astra | Review of the build plan | Plan review with verdict | docs/build/E01/ | Coordinator |
+| Sat 18:08 | Federico Gutman | Claude Code, Claude Opus 5.5 | File the E24 requests against the frozen design | R-E24-1 to R-E24-33 (18 and 27 settled) | docs/requests/E24.md | Joaquin (PR review) |
