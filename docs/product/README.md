@@ -47,6 +47,7 @@ Every Markdown document also has a generated web version, linked from [the readi
 - `api/`: the endpoint contract: OpenAPI 3.1 in `api/openapi.yaml`, JSON Schemas in `api/schemas/` and examples in `api/examples/`. `api/examples/config/` holds an example of every configuration document, `onboard-plans`, `skills-catalog` and `role-rules` among them.
 - `input-dictionary.csv` / `.json`: 156 logical optional input fields/groups.
 - `condition-assessments-119.csv` / `.json`: indicative workups for 119 active NASA model entries.
+- `cliff/`: the confirming test candidates for the 119 conditions, quoted verbatim from NASA's Clinical Findings Forms, with each form's saved text, URL and SHA-256 (`cliff/METHOD.md`).
 - `expanded-inventory-assessments-792.csv`: broader overlapping inventories, provisionally mapped.
 - `assessment-families.csv` / `.json`: 51 planning families, including a generic review fallback.
 - `tool-catalog.json`: 23 tool interface sketches; nested schemas belong in the TDDs.
