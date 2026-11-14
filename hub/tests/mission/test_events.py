@@ -236,3 +236,49 @@ def test_check_record_requires_a_role_among_who_may_record() -> None:
     assert rules.check_record(event_type="x", roles={"operator", "crew"}, **kwargs).id == "x"  # type: ignore[arg-type]
     with pytest.raises(UnauthorizedScope):
         rules.check_record(event_type="x", roles=set(), **kwargs)  # type: ignore[arg-type]
+
+
+@pytest.mark.trace("T-E23-015", "T-E23-067", "3.6")
+def test_equal_time_events_are_ordered_by_event_id_and_untrusted_time_never_orders_state(
+    station: Station,
+) -> None:
+    config = (facts.StateFactConfig("f", "F", ("set_it",), ("clear_it",), ("mars_surface",)),)
+    first = facts.apply_event(
+        config,
+        {},
+        event_type="set_it",
+        environment_id="mars_surface",
+        at=START,
+        event_id="e2",
+        origin_mode="SIM",
+    )
+    state = {"f": first[0]}
+
+    def clear(event_id: str) -> tuple[facts.FactState, ...]:
+        return facts.apply_event(
+            config,
+            state,
+            event_type="clear_it",
+            environment_id="mars_surface",
+            at=START,
+            event_id=event_id,
+            origin_mode="SIM",
+        )
+
+    assert clear("e1") == () and clear("e2") == ()
+    assert clear("e3")[0].value is False
+    init(station, "mars_surface")
+    with station.run(crew().actor) as uow:  # a future time that still carries an instant orders nothing
+        record_event(
+            station.services,
+            uow,
+            crew(),
+            event_type="local_water_source_added",
+            occurred_at=START,
+            person_ids=(),
+            location=None,
+            note=None,
+            origin_mode="SIM",
+            time=EventTimeFacts("future", START),
+        )
+    assert station.store.fact_rows == {}

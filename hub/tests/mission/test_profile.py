@@ -471,3 +471,33 @@ def _placeholder(station: Station) -> rules.ProfileRecord:
         release_id="r",
         lists=rules.ProfileLists((), (), (), (), (), ()),
     )
+
+
+@pytest.mark.trace("T-E23-008", "I-M3", "T-E23-006")
+def test_due_exactly_at_effective_at_and_only_proposers_may_propose(station: Station) -> None:
+    start(station)
+    effective = START + timedelta(hours=1)
+    proposal = propose(station, effective_at=effective)
+    counted = replace(proposal, confirmations=(rules.Confirmation("per_a", START),))
+    assert rules.due(counted, effective - timedelta(microseconds=1)) is False
+    assert rules.due(counted, effective) is True  # at or after, so the exact instant counts
+    with pytest.raises(UnauthorizedScope):
+        with station.run(crew().actor) as uow:
+            propose_change(
+                station.services,
+                uow,
+                crew(),
+                environment_id="transit",
+                reason="phase_plan",
+                effective_at=None,
+            )
+    with pytest.raises(UnauthorizedScope):
+        with station.run(station_session().actor) as uow:
+            propose_change(
+                station.services,
+                uow,
+                station_session(),
+                environment_id="transit",
+                reason="phase_plan",
+                effective_at=None,
+            )

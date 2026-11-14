@@ -404,3 +404,28 @@ def test_overlay_rules_hold_for_any_sequence_of_operations(steps: list[tuple[str
                 assert r.ended_at >= r.started_at  # I-O2
             if r.state == "planned":
                 assert r.started_at is None
+
+
+@pytest.mark.trace("T-E23-011", "T-E23-012", "T-E23-067", "I-O4")
+def test_event_effect_rules_in_detail() -> None:
+    effects, skipped = rules.plan_event_effects("eva", None, {"post_eva"})
+    assert [(e.action, e.kind) for e in effects] == [
+        ("end", "post_eva"),
+        ("start", "eva"),
+    ] and not skipped  # I-O4
+    assert rules.plan_event_effects("eva", None, {"eva"}) == ((), True)
+    assert rules.plan_event_effects("post_eva", "eva", set()) == ((), True)
+    both, _ = rules.plan_event_effects("post_eva", "eva", {"eva"})
+    assert [(e.action, e.kind) for e in both] == [("end", "eva"), ("start", "post_eva")]  # I-O3 together
+    t = START
+    assert rules.event_is_newer(None, None, t, "a") and rules.event_is_newer(
+        t, "b", t + timedelta(seconds=1), "a"
+    )
+    assert not rules.event_is_newer(t, "b", t - timedelta(seconds=1), "z")
+    assert rules.event_is_newer(t, "b", t, "c") and not rules.event_is_newer(t, "b", t, "a")
+    assert not rules.event_is_newer(t, "b", t, "b")
+    started = rules.OverlayRecord(
+        "o", 1, "p", "sleep", "active", None, t, None, "person", None, None, "r", None, None
+    )
+    assert rules.intervals([started], {"sleep"}, t, t + timedelta(hours=1)) == (started,)
+    assert rules.intervals([started], {"sleep"}, t - timedelta(hours=2), t - timedelta(seconds=1)) == ()
