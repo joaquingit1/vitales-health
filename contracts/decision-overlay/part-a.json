@@ -1,0 +1,13 @@
+{
+  "version": "part-a-d12-1",
+  "edits": [
+    {
+      "id": "d12-unit-mapping-schema",
+      "decision": "D12",
+      "a3": ["CONTRACTS.md:86", "CONTRACTS.md:659"],
+      "op": "add_file",
+      "target": "api/schemas/config-unit-mapping.schema.json",
+      "source": "config-unit-mapping.schema.json"
+    }
+  ]
+}

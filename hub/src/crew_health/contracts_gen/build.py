@@ -1,4 +1,4 @@
-"""SYSTEM 6.5 verified base generation; D19 keeps effective equal to base."""
+"""SYSTEM 6.5 generation from the verified base plus the traced D12 decision overlay."""
 
 from __future__ import annotations
 
@@ -7,11 +7,19 @@ import ast
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
 from collections.abc import Mapping
+from dataclasses import dataclass
 from pathlib import Path
+
+OVERLAY_DIRECTORY = "contracts/decision-overlay"
+OVERLAY_EDITS = "part-a.json"
+DECISIONS = "docs/requests/COORDINATOR-DECISIONS.md"
+# Parsing bound for the overlay edit list; the overlay holds accepted A3 edits only.
+MAX_OVERLAY_EDITS = 1024
 
 
 def object_map(value: object) -> dict[str, object]:
@@ -63,7 +71,7 @@ def source_files(package: Path) -> tuple[str, ...]:
 def verify_base(root: Path) -> dict[str, str]:
     contracts = root / "contracts"
     listed: dict[str, str] = {}
-    for line in (contracts / "SHA256SUMS").read_text().splitlines():
+    for line in (contracts / "SHA256SUMS").read_text(encoding="utf-8").splitlines():
         match = re.fullmatch(r"([0-9a-f]{64})  ((?:api|reference)/[^\s]+)", line)
         if match is None or match[2] in listed or ".." in Path(match[2]).parts:
             raise ValueError("invalid SHA inventory")
@@ -106,14 +114,153 @@ def verify_base(root: Path) -> dict[str, str]:
     return listed
 
 
+@dataclass(frozen=True, slots=True)
+class Overlay:
+    """A verified D12 decision overlay: hashed files and edits traced to accepted A3 rows."""
+
+    version: str
+    manifest_sha256: str
+    files: Mapping[str, str]
+    additions: Mapping[str, str]
+    traces: tuple[Mapping[str, object], ...]
+
+    def effective(self, base: Mapping[str, str]) -> dict[str, str]:
+        result = dict(base)
+        for target, source in sorted(self.additions.items()):
+            result[target] = self.files[source]
+        return dict(sorted(result.items()))
+
+    def record(self) -> dict[str, object]:
+        return {
+            "version": self.version,
+            "manifest_sha256": self.manifest_sha256,
+            "files": dict(sorted(self.files.items())),
+            "traces": [dict(trace) for trace in self.traces],
+        }
+
+
+def accepted_traces(root: Path) -> tuple[frozenset[str], dict[str, frozenset[str]]]:
+    """Accepted Part A decision IDs and the A3 superseded-line table (line -> decisions)."""
+    text = (root / DECISIONS).read_text(encoding="utf-8")
+    part_a = text.split("\n# Part B.", 1)[0]
+    head, separator, table = part_a.partition("\n## A3.")
+    if not separator:
+        raise ValueError("A3 superseded-line table is missing")
+    decisions = frozenset(re.findall(r"(?m)^\| ([DQ]\d+) \|", head))
+    rows: dict[str, frozenset[str]] = {}
+    for line, column in re.findall(r"(?m)^\| `([^`]+)` \| ([^|]+) \|", table):
+        cited = frozenset(part.strip() for part in column.split(","))
+        rows[line] = rows.get(line, frozenset()) | cited
+    if not decisions or not rows:
+        raise ValueError("accepted decision tables are empty")
+    return decisions, rows
+
+
+def _overlay_inventory(root: Path, directory: Path) -> tuple[str, str, dict[str, str]]:
+    manifest_path = directory / "manifest.json"
+    if not manifest_path.is_file():
+        raise ValueError("D12 overlay requires the manifest binding: manifest.json is missing")
+    manifest = load_json(manifest_path)
+    if set(manifest) != {"version", "base_inventory_sha256", "files"}:
+        raise ValueError("overlay manifest fields differ from the binding")
+    version, bound = manifest["version"], manifest["base_inventory_sha256"]
+    if not isinstance(version, str) or not version:
+        raise ValueError("overlay version is missing")
+    if bound != digest((root / "contracts/SHA256SUMS").read_bytes()):
+        raise ValueError("overlay is bound to a different base inventory")
+    files = object_map(manifest["files"])
+    if not all(isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{64}", sha) for sha in files.values()):
+        raise ValueError("overlay file hashes are invalid")
+    actual = {p.relative_to(directory).as_posix() for p in directory.rglob("*") if p.is_file()} - {
+        "manifest.json"
+    }
+    if actual != files.keys() or OVERLAY_EDITS not in files:
+        raise ValueError("overlay inventory differs from its manifest")
+    for name, sha in sorted(files.items()):
+        if digest((directory / name).read_bytes()) != sha:
+            raise ValueError("overlay hash mismatch: " + name)
+    hashes = {name: str(sha) for name, sha in files.items()}
+    return version, digest(manifest_path.read_bytes()), hashes
+
+
+def _traced_edit(
+    edit: object, decisions: frozenset[str], rows: Mapping[str, frozenset[str]]
+) -> dict[str, object]:
+    record = object_map(edit)
+    if set(record) != {"id", "decision", "a3", "op", "target", "source"}:
+        raise ValueError("unsupported overlay edit fields")
+    if record["op"] != "add_file":
+        raise ValueError("unsupported overlay operation")
+    decision, lines = record["decision"], string_list(record["a3"])
+    if not isinstance(decision, str) or decision not in decisions:
+        raise ValueError("overlay edit cites no accepted Part A decision: " + str(record["id"]))
+    if not lines or any(decision not in rows.get(line, frozenset()) for line in lines):
+        raise ValueError("untraced overlay edit: " + str(record["id"]))
+    return record
+
+
+def verify_overlay(root: Path, base: Mapping[str, str]) -> Overlay | None:
+    """None keeps D19's base-only interim; any present overlay must verify completely."""
+    directory = root / OVERLAY_DIRECTORY
+    if not directory.exists():
+        return None
+    version, manifest_sha256, files = _overlay_inventory(root, directory)
+    document = load_json(directory / OVERLAY_EDITS)
+    if set(document) != {"version", "edits"} or document["version"] != version:
+        raise ValueError("overlay edits version differs from its manifest")
+    edits = document["edits"]
+    if not isinstance(edits, list) or not 1 <= len(edits) <= MAX_OVERLAY_EDITS:
+        raise ValueError("overlay edit list is empty or exceeds its bound")
+    decisions, rows = accepted_traces(root)
+    additions: dict[str, str] = {}
+    traces: list[Mapping[str, object]] = []
+    identifiers: set[object] = set()
+    for edit in edits:
+        record = _traced_edit(edit, decisions, rows)
+        target, source = record["target"], record["source"]
+        if (
+            not isinstance(target, str)
+            or not re.fullmatch(r"api/schemas/[a-z0-9-]+\.schema\.json", target)
+            or target in base
+            or target in additions
+            or not isinstance(source, str)
+            or source not in files
+            or source == OVERLAY_EDITS
+            or record["id"] in identifiers
+        ):
+            raise ValueError("overlay edit target or source invalid: " + str(record["id"]))
+        identifiers.add(record["id"])
+        additions[target] = source
+        traces.append(record)
+    if set(additions.values()) != files.keys() - {OVERLAY_EDITS}:
+        raise ValueError("overlay file is not bound to a traced edit")
+    return Overlay(version, manifest_sha256, files, additions, tuple(traces))
+
+
+def effective_tree(
+    root: Path, overlay: Overlay | None, effective: Mapping[str, str], destination: Path
+) -> Path:
+    """Materialize the effective API tree and re-verify every byte against the effective inventory."""
+    api = destination / "api"
+    shutil.copytree(root / "contracts/api", api)
+    if overlay is not None:
+        for target, source in sorted(overlay.additions.items()):
+            (destination / target).write_bytes((root / OVERLAY_DIRECTORY / source).read_bytes())
+    actual = {
+        p.relative_to(destination).as_posix(): digest(p.read_bytes()) for p in api.rglob("*") if p.is_file()
+    }
+    if actual != {name: sha for name, sha in effective.items() if name.startswith("api/")}:
+        raise ValueError("effective contract tree differs from its verified inventory")
+    return api
+
+
 def string_list(value: object) -> tuple[str, ...]:
     if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
         raise ValueError("expected string inventory")
     return tuple(str(v) for v in value)
 
 
-def enum_source(root: Path) -> bytes:
-    schemas = root / "contracts/api/schemas"
+def enum_source(root: Path, schemas: Path) -> bytes:
     common = object_map(load_json(schemas / "common.schema.json")["$defs"])
     error = object_map(load_json(schemas / "error.schema.json")["properties"])
     event = object_map(load_json(schemas / "event.schema.json")["properties"])
@@ -176,14 +323,15 @@ def run(command: list[str], *, cwd: Path) -> None:
     subprocess.run(command, cwd=cwd, check=True, timeout=300)
 
 
-def python_outputs(root: Path, destination: Path) -> None:
+def python_outputs(root: Path, api: Path, destination: Path) -> None:
+    schemas = api / "schemas"
     run(
         [
             sys.executable,
             "-m",
             "datamodel_code_generator",
             "--input",
-            str(root / "contracts/api/schemas"),
+            str(schemas),
             "--input-file-type",
             "jsonschema",
             "--output",
@@ -206,12 +354,12 @@ def python_outputs(root: Path, destination: Path) -> None:
         ],
         cwd=root,
     )
-    preserve_instant_pattern(root, destination / "schemas/common_schema.py")
-    (destination / "enums.py").write_bytes(enum_source(root))
+    preserve_instant_pattern(schemas, destination / "schemas/common_schema.py")
+    (destination / "enums.py").write_bytes(enum_source(root, schemas))
 
 
-def preserve_instant_pattern(root: Path, generated: Path) -> None:
-    common = object_map(load_json(root / "contracts/api/schemas/common.schema.json")["$defs"])
+def preserve_instant_pattern(schemas: Path, generated: Path) -> None:
+    common = object_map(load_json(schemas / "common.schema.json")["$defs"])
     pattern = object_map(common["instant"])["pattern"]
     if not isinstance(pattern, str):
         raise ValueError("instant pattern is missing")
@@ -244,16 +392,17 @@ def preserve_instant_pattern(root: Path, generated: Path) -> None:
         + ast.unparse(tree)
         + "\n",
         encoding="utf-8",
+        newline="\n",
     )
 
 
-def typescript_outputs(root: Path, destination: Path) -> None:
+def typescript_outputs(root: Path, api: Path, destination: Path) -> None:
     run(
         [
             "pnpm",
             "exec",
             "openapi-typescript",
-            str(root / "contracts/api/openapi.yaml"),
+            str(api / "openapi.yaml"),
             "--output",
             str(destination / "api.ts"),
         ],
@@ -264,7 +413,9 @@ def typescript_outputs(root: Path, destination: Path) -> None:
         'import createClient from "openapi-fetch";\n'
         'import type { paths } from "./api.js";\n'
         'export type * from "./api.js";\n'
-        "export const client = createClient<paths>;\n"
+        "export const client = createClient<paths>;\n",
+        encoding="utf-8",
+        newline="\n",
     )
 
 
@@ -275,6 +426,8 @@ def publish(
     *,
     modules: Mapping[str, str],
     source_hashes: Mapping[str, str],
+    effective: Mapping[str, str] | None = None,
+    overlay: Mapping[str, object] | None = None,
 ) -> None:
     outputs = {
         p.relative_to(staging).as_posix(): digest(p.read_bytes())
@@ -303,31 +456,35 @@ def publish(
     data: dict[str, object] = {
         "sources": dict(source_hashes),
         "base": dict(base),
-        "effective": dict(base),
-        "overlay": None,
+        "effective": dict(base if effective is None else effective),
+        "overlay": None if overlay is None else dict(overlay),
         "modules": dict(modules),
         "outputs": outputs,
     }
     if "schemas/common_schema.py" in outputs:
         binding = "api/schemas/common.schema.json#/$defs/instant/pattern"
         data["constraint_bindings"] = {binding: "schemas/common_schema.py:Instant._validate_wire_pattern"}
-    manifest.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
+    manifest.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
 
 
 def build(root: Path, *, typescript: bool = False, output: Path | None = None) -> None:
     root = root.resolve()
     base = verify_base(root)
-    if (root / "contracts/decision-overlay").exists():
-        raise ValueError("D12 overlay integration requires the allocated manifest binding")
+    overlay = verify_overlay(root, base)
+    effective = dict(base) if overlay is None else overlay.effective(base)
     target = root / (
         "packages/contracts-ts/src/generated" if typescript else "hub/src/crew_health/contracts_gen"
     )
-    with tempfile.TemporaryDirectory(prefix="crew-health-generation-") as directory:
+    with (
+        tempfile.TemporaryDirectory(prefix="crew-health-generation-") as directory,
+        tempfile.TemporaryDirectory(prefix="crew-health-effective-") as contract,
+    ):
         staging = Path(directory)
+        api = effective_tree(root, overlay, effective, Path(contract))
         if typescript:
-            typescript_outputs(root, staging)
+            typescript_outputs(root, api, staging)
         else:
-            python_outputs(root, staging)
+            python_outputs(root, api, staging)
         from crew_health.app.import_contracts import discover
 
         modules = discover(root / "hub/src/crew_health", max_modules=128)
@@ -338,6 +495,8 @@ def build(root: Path, *, typescript: bool = False, output: Path | None = None) -
             base,
             modules=modules,
             source_hashes=source_hashes,
+            effective=effective,
+            overlay=None if overlay is None else overlay.record(),
         )
 
 

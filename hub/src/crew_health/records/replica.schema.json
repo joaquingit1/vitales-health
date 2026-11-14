@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crew-health.records.local-reference.v1",
+  "description": "Local recovery references only. R-E01-17 recipient projection bindings remain disabled.",
+  "type": "object",
+  "properties": {"record_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"}},
+  "required": ["record_id"],
+  "additionalProperties": false
+}

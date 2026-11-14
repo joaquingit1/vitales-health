@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:crew-health:hub-settings:1",
+  "type": "object",
+  "required": ["settings"],
+  "additionalProperties": false,
+  "properties": {
+    "settings": {
+      "type": "array", "maxItems": 1024,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["key", "kind", "unit", "minimum", "maximum", "basis", "value"],
+        "properties": {
+          "key": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["integer", "quantity", "boolean", "text"]},
+          "unit": {"type": ["string", "null"]},
+          "minimum": {"type": ["string", "null"]},
+          "maximum": {"type": ["string", "null"]},
+          "basis": {"type": "string", "minLength": 1},
+          "value": {"type": ["string", "integer", "boolean", "object"]}
+        }
+      }
+    }
+  }
+}
