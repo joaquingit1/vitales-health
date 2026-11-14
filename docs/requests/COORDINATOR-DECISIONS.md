@@ -1,7 +1,52 @@
 # Coordinator decisions on the open requests
 
-Binding for every builder. Where a decision below names a value, field or rule, use it exactly; where it leaves a
-choice to the implementer, the implementer documents the choice in the spec and in the report.
+Binding for every builder, designer and reviewer. Where a decision below names a value, field or rule, use it exactly;
+where it leaves a choice to the implementer, the implementer documents the choice in the spec and in the report. A
+decided point is not raised again in a design or a review. Part A applies to every epic; Part B is the medicine potency
+engine.
+
+# Part A. System and product decisions
+
+## A1. Package conflicts, settled
+
+| ID | Conflict | Decision |
+|---|---|---|
+| D1 | CONTRACTS.md section 11 lets a warning whose definition disappears clear with `config_changed`. | Unsafe; overridden. An active warning keeps the definition version it was raised under. A release that edits or removes the definition never clears or lowers it: it clears only by its pinned clearing rule or by a medical officer's resolution with a reason, and it shows "definition withdrawn" when its definition is gone. New evaluations use the new release. |
+| D2 | Radiation storm shelter: USE-CASES.md says Emergency, the example warning rule sets `act`, and V74 holds everything below Emergency during sleep. | Emergency. A storm shelter call wakes everyone. The example rule is corrected to `emergency`. |
+| D3 | Freshness: CONTRACTS.md computes it from `last_received_at`, yet says a late arrival is never fresh. | Freshness is computed from the time the value was observed (`observed_at` on the hub's corrected clock), never from when it arrived. A late reading is shown with its observation time and is fresh only if that time is inside the window. Only readings observed after a warning was raised, and fresh by that rule, can count toward clearing it. |
+| D4 | One command is one transaction, yet the journal lives in `private.sqlite`. | Two-store protocol: the sealed entry is written to `private.sqlite` with its idempotency key and a keyed fingerprint, then the hub record that references it commits in one hub transaction. The command is acknowledged only after both. Startup recovery completes or discards an orphan private entry by its idempotency key. |
+| D5 | Error format: the charter asks for RFC 9457, the package defines a closed ErrorEnvelope. | As SYSTEM.md 5.5 and R-SYS-1: the ErrorEnvelope on the wire, an RFC 9457 view in logs. |
+| D6 | Idempotency keys kept 24 hours versus long ground outages. | As SYSTEM.md 5.8 and 8.6: the durable command ledger. |
+| D7 | "Every number in configuration" versus ordinary operational constants. | Domain content is configuration; queue sizes, timeouts, batch sizes and retries are hub settings (SYSTEM.md 5.11). |
+
+## A2. Product decisions
+
+The owner delegated open product questions to the coordinator on 14 November; owner answers are marked. "Applies to"
+names the designs that must follow the decision.
+
+| ID | Question | Decision | Applies to |
+|---|---|---|---|
+| Q1 | Clinician review of evidence and pathway content. | No clinician this weekend. Content ships labeled "not clinically reviewed"; the review step stays in the workflow and blocks nothing at runtime. Nothing on board waits for a ground clinician. | E10, E19, E27, E28 |
+| Q2 | Redistribution of non-NASA sources. | NASA documents ship in full; other sources ship metadata only (title, citation, link, content hash) until permission is documented. | E10, E19 |
+| Q3 | Exa for the research workbench. | **Owner: yes**, when `EXA_API_KEY` is set in the environment (never in the repository); only generalized public research questions, never crew data; without a key, local sources only. | E19 |
+| Q4 | Acting medical officer and urgent cases. | **Owner: yes.** The crew member E31 assigns and who accepts the medical officer duty may disposition urgent cases, shown as acting and audited with the assignment. | E11, E15, E26, E31 |
+| Q5 | CPR manikin and volunteers. | Team members only, as consenting adults. Without a manikin, CPR teaching runs in rehearsal mode labeled SIM and no CPR quality result is claimed. | E30 |
+| Q6 | Consent wording. | Written into configuration with provenance by the coordinator; a team member reads it to each volunteer, who agrees before any trial. | E30 |
+| Q7 | Authorship of plans and kit map rows. | One model drafts from the package sources, the other model checks against the sources; each carries provenance and the visible label "not clinically reviewed"; runtime use is not blocked on sign off. | E27, E28 |
+| Q8 | Checking camera vitals. | Laptop webcam; reference is a manual 30 second pulse count by a second person, plus a pulse oximeter when available. The camera never vetoes a manual reading: both are recorded and a disagreement is flagged without blame. No accuracy claim beyond what we measure. | E06, E27, E30 |
+| Q9 | "Act now" while the person sleeps. | Goes at once to someone awake (medical officer or crew member on duty); the sleeper is woken only if nobody awake acknowledges within a configured time. Lower levels wait for wake. Emergency wakes everyone. | E24, E26 |
+| Q11 | Potency compensation. | **Owner:** on in every mode, LIVE included, with no outside authorization (space missions have no pharmacist). When a lot has lost potency, the proposal warns that the medicine has degraded (estimate and interval) and gives the new recommended dose next to the label dose, for the medical officer to confirm. The engine's gates still apply: never for `do_not_use` lots, estimates outside the validated range or with low sensor coverage, toxic degradants or fixed dose devices; a per product opt out in the formulary; every dose limit caps the amount with the shortfall stated. The `live_compensation_authorizations` gate is removed. | E32 |
+| Q14 | Acting medical officer and doses. | For products marked `any_trained_crew`, or a medicine the active onboard plan step names for that condition, the acting officer may confirm the recommended dose (compensated when the engine recommends it). Never an allergy or interaction override. The record shows acting, with the assignment. | E28, E32 |
+| Q15 | Crew goal and privacy. | Opt in per member, off until chosen; the crew view shows only progress toward the goal, never per person counts. | E22 |
+| Q16 | Acting officer, clinical review and resolution. | A clinical review, yes, shown as acting. A `clinician_assessed` resolution waits for a crew medical officer; the episode stays open and visible meanwhile. | E15, E31 |
+| Q17 | NASA-STD-3001 contrast and clock. | The reference design system stays the default look. A flight readability theme (ink-3 at 6:1 or better, a short clock kept on narrow screens) is selectable in configuration, off by default; the deviation is stated where we describe what we claim. | E03, E20, E21 |
+| Q18 | `patient_instruction` evidence passages without review. | Ship labeled "not clinically reviewed", like the plans. | E10 |
+| Q19 | Supply low threshold default. | None in the release: the alert is inactive until set. The demo fixture sets a SIM value labeled team default. | E32, E18 |
+| Q21 | Next engine fix round. | After the walking skeleton runs end to end: TV-H-5, the two packaged fits, performance. | pharmacy |
+| Q23 | Where the product package lives. | `docs/product/` is the living source of truth; accepted requests are applied there. | all |
+| Q24 | Local copies of NASA source documents. | **Owner:** later, never in bulk: one request at a time with a pause between requests. | E10 |
+
+# Part B. Medicine potency engine
 
 ## 0. Why the independent tests fail: root causes found
 
