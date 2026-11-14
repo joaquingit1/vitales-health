@@ -1,0 +1,381 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/lot-decision.schema.json",
+  "title": "Engine output: decision for one lot.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision_id",
+    "lot_id",
+    "product_id",
+    "as_of_utc",
+    "as_of_s",
+    "state",
+    "reasons",
+    "ordering_key",
+    "estimate_ids",
+    "forecast_ids",
+    "adjustment",
+    "alternative_lot_ids",
+    "alternative_product_ids",
+    "past_labeled_expiry",
+    "pins"
+  ],
+  "properties": {
+    "decision_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "lot_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "product_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "as_of_utc": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+    },
+    "as_of_s": {
+      "type": "number",
+      "minimum": 0
+    },
+    "state": {
+      "enum": [
+        "in_specification",
+        "adjust",
+        "do_not_use"
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Reason"
+      }
+    },
+    "ordering_key": {
+      "$ref": "#/$defs/OrderingKey"
+    },
+    "estimate_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+      }
+    },
+    "forecast_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+      }
+    },
+    "adjustment": {
+      "$ref": "#/$defs/AdjustmentEligibility"
+    },
+    "alternative_lot_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+      }
+    },
+    "alternative_product_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+      }
+    },
+    "past_labeled_expiry": {
+      "type": "boolean"
+    },
+    "pins": {
+      "$ref": "#/$defs/Pins"
+    }
+  },
+  "$defs": {
+    "AdjustmentEligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The engine-level part of decision 9 (the dose-rule part is the dose layer's).",
+      "required": [
+        "eligible",
+        "checks",
+        "estimate_bases",
+        "assay_ids_used",
+        "degradant_profile_reviewed"
+      ],
+      "properties": {
+        "eligible": {
+          "type": "boolean"
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EligibilityCheck"
+          }
+        },
+        "estimate_bases": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "measured_model",
+                  "assay_updated",
+                  "computed",
+                  "class_prior"
+                ]
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "assay_ids_used": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "degradant_profile_reviewed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ConfigPin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "version",
+        "sha256"
+      ],
+      "properties": {
+        "document_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "EligibilityCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "passed",
+        "detail"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "detail": {
+          "type": "string"
+        }
+      }
+    },
+    "OrderingKey": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Lot ordering (decision 8). Sort ascending by (state_rank, primary is None, primary if not None else 0.0, lot_id); see spec 11.5.",
+      "required": [
+        "state_rank",
+        "primary",
+        "lot_id"
+      ],
+      "properties": {
+        "state_rank": {
+          "type": "integer"
+        },
+        "primary": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lot_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        }
+      }
+    },
+    "Pins": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Everything needed to reproduce an output bit for bit (decision 12).",
+      "required": [
+        "engine_version",
+        "config",
+        "sensor_series",
+        "observations_sha256",
+        "seed_hex",
+        "rng",
+        "numpy_version",
+        "rdkit_version",
+        "tblite_version",
+        "computed_cache_keys"
+      ],
+      "properties": {
+        "engine_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "config": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConfigPin"
+          }
+        },
+        "sensor_series": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SeriesPin"
+          }
+        },
+        "observations_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "seed_hex": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "rng": {
+          "enum": [
+            "numpy.PCG64"
+          ]
+        },
+        "numpy_version": {
+          "type": "string"
+        },
+        "rdkit_version": {
+          "type": "string"
+        },
+        "tblite_version": {
+          "type": "string"
+        },
+        "computed_cache_keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Reason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "ingredient_id",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "enum": [
+            "within_specification",
+            "below_lower_limit",
+            "above_upper_limit",
+            "degradant_above_limit",
+            "degradant_unidentified_above_limit",
+            "inspection_found_change",
+            "adjustment_not_allowed_by_product",
+            "fixed_dose_device",
+            "toxic_degradant",
+            "estimate_outside_validated_range",
+            "estimate_coverage_low",
+            "degradant_profile_not_reviewed",
+            "computed_only",
+            "assay_model_conflict",
+            "regime_switch",
+            "radiosensitive_dose_exceeded",
+            "mc_not_converged",
+            "past_labeled_expiry"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "blocking",
+            "warning",
+            "info"
+          ]
+        },
+        "ingredient_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "degradant_unidentified_above_limit"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "severity": {
+                "const": "warning"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "SeriesPin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "series_id",
+        "sha256"
+      ],
+      "properties": {
+        "series_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}

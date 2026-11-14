@@ -1,0 +1,382 @@
+{
+  "document_id": "packages",
+  "schema": "pharmacy/packages.schema.json",
+  "version": "0.1.0",
+  "review_state": "draft",
+  "notice": "Draft configuration for the Crew Health Check potency engine. Every value carries its basis and source IDs (research notes in reports/crew-health-medications-2026-11-14/research). team_default values are placeholders that the named role must replace before operational use.",
+  "packages": [
+    {
+      "package_id": "original_blister",
+      "name": "Original manufacturer blister in carton",
+      "kind": "blister",
+      "description": "Push-through blister (high barrier) kept in its carton.",
+      "protective": true,
+      "light_transmission_visible": {
+        "value": 0.0,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "packaging engineer",
+        "note": "Carton blocks light."
+      },
+      "light_transmission_uv": {
+        "value": 0.0,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "packaging engineer",
+        "note": "Carton blocks light."
+      },
+      "moisture_model": {
+        "kind": "sealed_constant",
+        "sealed_rh_percent": {
+          "value": 35.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [
+            "MDP07"
+          ],
+          "to_be_set_by": "packaging engineer",
+          "note": "Internal RH at sealing; no primary blister MVTR source was found."
+        },
+        "mvtr_mg_per_day": null,
+        "mvtr_test_temperature_k": null,
+        "mvtr_test_delta_rh_percent": null,
+        "permeation_activation_energy_j_per_mol": null,
+        "headspace_capacity_mg_per_percent_rh": null,
+        "contents": [],
+        "initial_internal_rh_percent": null
+      },
+      "basis": "team_default",
+      "source_ids": [
+        "MDP07"
+      ],
+      "note": "Cold-formed foil WVTR 0.005 g mm/(m2 day) supports near-constant RH."
+    },
+    {
+      "package_id": "original_bottle",
+      "name": "Original 60 cc HDPE bottle",
+      "kind": "bottle",
+      "description": "Manufacturer HDPE bottle, closed, no desiccant.",
+      "protective": true,
+      "light_transmission_visible": {
+        "value": 0.05,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "packaging engineer",
+        "note": "Opaque white HDPE."
+      },
+      "light_transmission_uv": {
+        "value": 0.01,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "packaging engineer",
+        "note": "Opaque white HDPE."
+      },
+      "moisture_model": {
+        "kind": "first_order_exchange",
+        "sealed_rh_percent": null,
+        "mvtr_mg_per_day": {
+          "value": 1.3,
+          "unit": "mg/day",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP07"
+          ],
+          "to_be_set_by": null,
+          "note": "60 cc HDPE bottle admits about 1.3 mg water per day."
+        },
+        "mvtr_test_temperature_k": {
+          "value": 311.15,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [
+            "MDP07"
+          ],
+          "to_be_set_by": "packaging engineer",
+          "note": "Assumed equal to the WVTR table condition (38 C)."
+        },
+        "mvtr_test_delta_rh_percent": {
+          "value": 90.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [
+            "MDP07"
+          ],
+          "to_be_set_by": "packaging engineer",
+          "note": "Assumed 90 %RH outside, dry inside."
+        },
+        "permeation_activation_energy_j_per_mol": {
+          "value": 40000.0,
+          "unit": "J/mol",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "packaging engineer",
+          "note": "Water permeation through polyolefins."
+        },
+        "headspace_capacity_mg_per_percent_rh": {
+          "value": 0.0005,
+          "unit": "mg/percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "packaging engineer",
+          "note": "60 mL air at 25 C: 1.38 mg at saturation."
+        },
+        "contents": [
+          {
+            "name": "tablets (microcrystalline-cellulose-like matrix)",
+            "dry_mass_g": {
+              "value": 30.0,
+              "unit": "g",
+              "basis": "team_default",
+              "source_ids": [],
+              "to_be_set_by": "packaging engineer",
+              "note": "60 tablets of 0.5 g."
+            },
+            "sorption_slope_mg_per_g_per_percent_rh": {
+              "value": 0.60095,
+              "unit": "mg/(g percent)",
+              "basis": "team_default",
+              "source_ids": [
+                "MDS25"
+              ],
+              "to_be_set_by": "packaging engineer",
+              "note": "GAB slope at 40 %RH with typical MCC constants (Xm 0.029, C 17, K 0.80)."
+            }
+          }
+        ],
+        "initial_internal_rh_percent": {
+          "value": 35.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "packaging engineer",
+          "note": "RH at filling."
+        }
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDP07"
+      ],
+      "note": ""
+    },
+    {
+      "package_id": "repackaged_bag",
+      "name": "Re-closable zip-lock bag (NASA repackaging)",
+      "kind": "bag",
+      "description": "Polypropylene zip-lock bag; not a USP protective container.",
+      "protective": false,
+      "light_transmission_visible": {
+        "value": 0.9,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "packaging engineer",
+        "note": "Clear film."
+      },
+      "light_transmission_uv": {
+        "value": 0.7,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "packaging engineer",
+        "note": "Clear film."
+      },
+      "moisture_model": {
+        "kind": "first_order_exchange",
+        "sealed_rh_percent": null,
+        "mvtr_mg_per_day": {
+          "value": 216.0,
+          "unit": "mg/day",
+          "basis": "derived",
+          "source_ids": [
+            "MDP07"
+          ],
+          "to_be_set_by": null,
+          "note": "PP WVTR 0.54 g mm/(m2 day) x 0.02 m2 / 0.05 mm (geometry team default)."
+        },
+        "mvtr_test_temperature_k": {
+          "value": 311.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP07"
+          ],
+          "to_be_set_by": null,
+          "note": "WVTR table condition 38 C."
+        },
+        "mvtr_test_delta_rh_percent": {
+          "value": 90.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP07"
+          ],
+          "to_be_set_by": null,
+          "note": "WVTR table condition 90 %RH."
+        },
+        "permeation_activation_energy_j_per_mol": {
+          "value": 40000.0,
+          "unit": "J/mol",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "packaging engineer",
+          "note": "Water permeation through polyolefins."
+        },
+        "headspace_capacity_mg_per_percent_rh": {
+          "value": 0.0005,
+          "unit": "mg/percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "packaging engineer",
+          "note": "About 60 mL of air."
+        },
+        "contents": [
+          {
+            "name": "tablets (microcrystalline-cellulose-like matrix)",
+            "dry_mass_g": {
+              "value": 5.0,
+              "unit": "g",
+              "basis": "team_default",
+              "source_ids": [],
+              "to_be_set_by": "packaging engineer",
+              "note": "10 tablets of 0.5 g."
+            },
+            "sorption_slope_mg_per_g_per_percent_rh": {
+              "value": 0.60095,
+              "unit": "mg/(g percent)",
+              "basis": "team_default",
+              "source_ids": [
+                "MDS25"
+              ],
+              "to_be_set_by": "packaging engineer",
+              "note": "GAB slope at 40 %RH with typical MCC constants (Xm 0.029, C 17, K 0.80)."
+            }
+          }
+        ],
+        "initial_internal_rh_percent": null
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDP06",
+        "MDP07"
+      ],
+      "note": "Bag geometry 0.02 m2 and 0.05 mm are team defaults (packaging engineer)."
+    },
+    {
+      "package_id": "original_vial",
+      "name": "Glass vial or ampoule in carton",
+      "kind": "vial",
+      "description": "Type I glass, sealed.",
+      "protective": true,
+      "light_transmission_visible": {
+        "value": 0.0,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "packaging engineer",
+        "note": "Carton blocks light."
+      },
+      "light_transmission_uv": {
+        "value": 0.0,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "packaging engineer",
+        "note": "Carton blocks light."
+      },
+      "moisture_model": {
+        "kind": "none",
+        "sealed_rh_percent": null,
+        "mvtr_mg_per_day": null,
+        "mvtr_test_temperature_k": null,
+        "mvtr_test_delta_rh_percent": null,
+        "permeation_activation_energy_j_per_mol": null,
+        "headspace_capacity_mg_per_percent_rh": null,
+        "contents": [],
+        "initial_internal_rh_percent": null
+      },
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Liquids do not exchange water vapor through glass."
+    },
+    {
+      "package_id": "auto_injector",
+      "name": "Epinephrine auto-injector in carrier tube",
+      "kind": "auto_injector",
+      "description": "Single-dose auto-injector with a viewing window.",
+      "protective": true,
+      "light_transmission_visible": {
+        "value": 0.05,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "packaging engineer",
+        "note": "Viewing window only."
+      },
+      "light_transmission_uv": {
+        "value": 0.01,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "packaging engineer",
+        "note": "Viewing window only."
+      },
+      "moisture_model": {
+        "kind": "none",
+        "sealed_rh_percent": null,
+        "mvtr_mg_per_day": null,
+        "mvtr_test_temperature_k": null,
+        "mvtr_test_delta_rh_percent": null,
+        "permeation_activation_energy_j_per_mol": null,
+        "headspace_capacity_mg_per_percent_rh": null,
+        "contents": [],
+        "initial_internal_rh_percent": null
+      },
+      "basis": "team_default",
+      "source_ids": [
+        "MDD61"
+      ],
+      "note": ""
+    },
+    {
+      "package_id": "prefilled_syringe",
+      "name": "Prefilled syringe in carton",
+      "kind": "syringe",
+      "description": "Single-use prefilled syringe.",
+      "protective": true,
+      "light_transmission_visible": {
+        "value": 0.0,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "packaging engineer",
+        "note": "Carton blocks light."
+      },
+      "light_transmission_uv": {
+        "value": 0.0,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "packaging engineer",
+        "note": "Carton blocks light."
+      },
+      "moisture_model": {
+        "kind": "none",
+        "sealed_rh_percent": null,
+        "mvtr_mg_per_day": null,
+        "mvtr_test_temperature_k": null,
+        "mvtr_test_delta_rh_percent": null,
+        "permeation_activation_energy_j_per_mol": null,
+        "headspace_capacity_mg_per_percent_rh": null,
+        "contents": [],
+        "initial_internal_rh_percent": null
+      },
+      "basis": "team_default",
+      "source_ids": [],
+      "note": ""
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/test-vectors.schema.json",
+  "title": "Pharmacy engine test vectors",
+  "description": "Machine-readable test vectors transcribed from the research notes. Published numbers are copied verbatim (raw cell text is kept next to every parsed number). See docs/ENGINE-SPEC.md section 14.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["document_id", "schema", "version", "description", "extracted_from", "vectors"],
+  "properties": {
+    "document_id": {"type": "string", "pattern": "^vectors-[a-z0-9-]+$"},
+    "schema": {"const": "pharmacy/test-vectors.schema.json"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "description": {"type": "string"},
+    "extracted_from": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["note", "section"],
+        "properties": {
+          "note": {"enum": ["degradation-science.md", "space-pharmacy.md", "dosing-safety.md"]},
+          "section": {"type": "string"}
+        }
+      }
+    },
+    "vectors": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/Vector"}}
+  },
+  "$defs": {
+    "Tolerance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["abs", "rel", "unit", "basis"],
+      "properties": {
+        "abs": {"type": ["number", "null"], "minimum": 0},
+        "rel": {"type": ["number", "null"], "minimum": 0},
+        "unit": {"type": ["string", "null"]},
+        "basis": {"type": "string", "description": "Why this tolerance: the note's suggested tolerance, published rounding, or machine precision."}
+      }
+    },
+    "Vector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vector_id", "kind", "description", "target", "inputs", "expected",
+        "published_expected_text", "our_recomputation", "tolerance",
+        "source_ids", "source_status", "status", "note"
+      ],
+      "properties": {
+        "vector_id": {"type": "string", "pattern": "^(TV|V)[A-Z0-9-]*[A-Za-z0-9]$"},
+        "kind": {
+          "enum": ["worked_example", "derived_check", "property", "dataset", "rule"],
+          "description": "worked_example: published inputs and published output. derived_check: analytic value computed by the research team (labelled DERIVED in the note). property: an invariant to test with property-based tests. dataset: measured observations for validation. rule: a regulatory rule with its worked values."
+        },
+        "description": {"type": "string"},
+        "target": {
+          "type": ["string", "null"],
+          "description": "Dotted name of the engine function the vector exercises (for example pharmacy.exposure.mean_kinetic_temperature), or 'oracle:<name>' for a tests/oracle helper, or null for validation datasets consumed by tests/validation."
+        },
+        "inputs": {"type": "object", "description": "Free-form JSON. Units are spelled in key names (for example temperatures_c, k_per_min)."},
+        "expected": {"type": "object", "description": "Values the test asserts, in the units named by the keys. For datasets: the observations."},
+        "published_expected_text": {"type": ["string", "null"], "description": "Verbatim published wording of the expected output, when there is one."},
+        "our_recomputation": {"type": ["object", "null"], "description": "The research team's recomputation, as stated in the note."},
+        "tolerance": {"oneOf": [{"$ref": "#/$defs/Tolerance"}, {"type": "null"}]},
+        "source_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^(MDS|MDP|MDD)[0-9]{2,3}$"}},
+        "source_status": {"type": "string", "description": "Status label copied from the note (read, abstract, cited-only, READ, READ (abstract), CITED, DERIVED, computed)."},
+        "status": {
+          "enum": ["reproduces", "known_mismatch", "unverified"],
+          "description": "reproduces: the note's recomputation matches the published value within the tolerance (worked examples), or the dataset's internal summaries agree with its raw values as far as the note checked. known_mismatch: the note documents a disagreement; tests must assert the documented behaviour, never tune the engine to the published number. unverified: the inputs or recomputation are not available in the notes (for example the dataset lives outside the repository)."
+        },
+        "note": {"type": "string"}
+      }
+    }
+  }
+}

@@ -1,0 +1,677 @@
+{
+ "document_id": "vectors-validation-terrestrial",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "Terrestrial long-term references V13 (space-pharmacy.md, Validation datasets).",
+ "extracted_from": [
+  {
+   "note": "space-pharmacy.md",
+   "section": "Validation datasets: V13"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "V13-LYON",
+   "kind": "dataset",
+   "description": "Lyon 2006 Table 1: shelf-life extension outcomes by product group (SLEP)",
+   "target": null,
+   "inputs": {
+    "columns": [
+     {
+      "key": "group",
+      "header": "Group"
+     },
+     {
+      "key": "products",
+      "header": "Products"
+     },
+     {
+      "key": "lots_per_product",
+      "header": "Lots per product"
+     },
+     {
+      "key": "total_lots",
+      "header": "Total lots"
+     },
+     {
+      "key": "initially_extended",
+      "header": "Initially extended"
+     },
+     {
+      "key": "terminated",
+      "header": "Terminated"
+     },
+     {
+      "key": "average_extension_months",
+      "header": "Average extension (months)"
+     }
+    ],
+    "parse_conventions": "Parsed with only the empty cell as null: 'All' (initially extended) means every lot and 'None' (terminated) means zero lots, so both stay strings. 'a to b' as {low, high}."
+   },
+   "expected": {
+    "row_count": 8,
+    "rows": [
+     {
+      "raw": {
+       "group": "1A",
+       "products": "15",
+       "lots_per_product": "10 to 242",
+       "total_lots": "466",
+       "initially_extended": "All",
+       "terminated": "None",
+       "average_extension_months": "58"
+      },
+      "parsed": {
+       "group": "1A",
+       "products": 15,
+       "lots_per_product": {
+        "low": 10,
+        "high": 242
+       },
+       "total_lots": 466,
+       "initially_extended": "All",
+       "terminated": "None",
+       "average_extension_months": 58
+      }
+     },
+     {
+      "raw": {
+       "group": "1B",
+       "products": "25",
+       "lots_per_product": "5 to 9",
+       "total_lots": "164",
+       "initially_extended": "All",
+       "terminated": "None",
+       "average_extension_months": "65"
+      },
+      "parsed": {
+       "group": "1B",
+       "products": 25,
+       "lots_per_product": {
+        "low": 5,
+        "high": 9
+       },
+       "total_lots": 164,
+       "initially_extended": "All",
+       "terminated": "None",
+       "average_extension_months": 65
+      }
+     },
+     {
+      "raw": {
+       "group": "1C",
+       "products": "23",
+       "lots_per_product": "3 to 4",
+       "total_lots": "85",
+       "initially_extended": "All",
+       "terminated": "None",
+       "average_extension_months": "55"
+      },
+      "parsed": {
+       "group": "1C",
+       "products": 23,
+       "lots_per_product": {
+        "low": 3,
+        "high": 4
+       },
+       "total_lots": 85,
+       "initially_extended": "All",
+       "terminated": "None",
+       "average_extension_months": 55
+      }
+     },
+     {
+      "raw": {
+       "group": "2",
+       "products": "20",
+       "lots_per_product": "3 to 41",
+       "total_lots": "254",
+       "initially_extended": "All",
+       "terminated": "41",
+       "average_extension_months": "58"
+      },
+      "parsed": {
+       "group": "2",
+       "products": 20,
+       "lots_per_product": {
+        "low": 3,
+        "high": 41
+       },
+       "total_lots": 254,
+       "initially_extended": "All",
+       "terminated": 41,
+       "average_extension_months": 58
+      }
+     },
+     {
+      "raw": {
+       "group": "3",
+       "products": "13",
+       "lots_per_product": "3 to 169",
+       "total_lots": "278",
+       "initially_extended": "256",
+       "terminated": "None",
+       "average_extension_months": "44"
+      },
+      "parsed": {
+       "group": "3",
+       "products": 13,
+       "lots_per_product": {
+        "low": 3,
+        "high": 169
+       },
+       "total_lots": 278,
+       "initially_extended": 256,
+       "terminated": "None",
+       "average_extension_months": 44
+      }
+     },
+     {
+      "raw": {
+       "group": "4",
+       "products": "16",
+       "lots_per_product": "8 to 687",
+       "total_lots": "1675",
+       "initially_extended": "1402",
+       "terminated": "431",
+       "average_extension_months": "76"
+      },
+      "parsed": {
+       "group": "4",
+       "products": 16,
+       "lots_per_product": {
+        "low": 8,
+        "high": 687
+       },
+       "total_lots": 1675,
+       "initially_extended": 1402,
+       "terminated": 431,
+       "average_extension_months": 76
+      }
+     },
+     {
+      "raw": {
+       "group": "5",
+       "products": "10",
+       "lots_per_product": "2 to 21",
+       "total_lots": "83",
+       "initially_extended": "23",
+       "terminated": "7",
+       "average_extension_months": "38"
+      },
+      "parsed": {
+       "group": "5",
+       "products": 10,
+       "lots_per_product": {
+        "low": 2,
+        "high": 21
+       },
+       "total_lots": 83,
+       "initially_extended": 23,
+       "terminated": 7,
+       "average_extension_months": 38
+      }
+     },
+     {
+      "raw": {
+       "group": "Total",
+       "products": "122",
+       "lots_per_product": "2 to 687",
+       "total_lots": "3005",
+       "initially_extended": "2650",
+       "terminated": "479",
+       "average_extension_months": "66"
+      },
+      "parsed": {
+       "group": "Total",
+       "products": 122,
+       "lots_per_product": {
+        "low": 2,
+        "high": 687
+       },
+       "total_lots": 3005,
+       "initially_extended": 2650,
+       "terminated": 479,
+       "average_extension_months": 66
+      }
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP61"
+   ],
+   "source_status": "READ (by sub-search)",
+   "status": "unverified",
+   "note": "In this table 'None' is a count (zero lots terminated) and 'All' means all lots initially extended; do not read either as missing data. Use: terrestrial long-term reference (space-pharmacy.md V13)."
+  },
+  {
+   "vector_id": "V13-CANTRELL",
+   "kind": "dataset",
+   "description": "Cantrell 2012: active ingredients 28 to 40 years past expiry, single time point",
+   "target": null,
+   "inputs": {
+    "conditions": "28 to 40 years past expiry, single time point; % LC derived from declared and measured mg",
+    "columns": [
+     {
+      "key": "product",
+      "header": "Product"
+     },
+     {
+      "key": "ingredient",
+      "header": "Ingredient"
+     },
+     {
+      "key": "declared_mg",
+      "header": "Declared (mg)"
+     },
+     {
+      "key": "measured_mg",
+      "header": "Measured (mg)"
+     },
+     {
+      "key": "percent_lc",
+      "header": "% LC"
+     }
+    ],
+    "parse_conventions": "'x (y)' in the measured column as {value, paren_value}: the note does not say what the parenthesized number is (likely SD). Blank product cells carry the product forward."
+   },
+   "expected": {
+    "row_count": 19,
+    "rows": [
+     {
+      "raw": {
+       "product": "Somnafac",
+       "ingredient": "methaqualone",
+       "declared_mg": "200",
+       "measured_mg": "240.3 (20.6)",
+       "percent_lc": "120.2"
+      },
+      "parsed": {
+       "product": "Somnafac",
+       "ingredient": "methaqualone",
+       "declared_mg": 200,
+       "measured_mg": {
+        "value": 240.3,
+        "paren_value": 20.6
+       },
+       "percent_lc": 120.2,
+       "product_carried_forward": false
+      }
+     },
+     {
+      "raw": {
+       "product": "Fiorinal with codeine",
+       "ingredient": "codeine",
+       "declared_mg": "7.5",
+       "measured_mg": "7.4 (0.3)",
+       "percent_lc": "98.7"
+      },
+      "parsed": {
+       "product": "Fiorinal with codeine",
+       "ingredient": "codeine",
+       "declared_mg": 7.5,
+       "measured_mg": {
+        "value": 7.4,
+        "paren_value": 0.3
+       },
+       "percent_lc": 98.7,
+       "product_carried_forward": false
+      }
+     },
+     {
+      "raw": {
+       "product": "",
+       "ingredient": "butalbital",
+       "declared_mg": "50",
+       "measured_mg": "51.1 (1.6)",
+       "percent_lc": "102.2"
+      },
+      "parsed": {
+       "product": "Fiorinal with codeine",
+       "ingredient": "butalbital",
+       "declared_mg": 50,
+       "measured_mg": {
+        "value": 51.1,
+        "paren_value": 1.6
+       },
+       "percent_lc": 102.2,
+       "product_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product": "",
+       "ingredient": "aspirin",
+       "declared_mg": "200",
+       "measured_mg": "2.28 (0.10)",
+       "percent_lc": "1.1"
+      },
+      "parsed": {
+       "product": "Fiorinal with codeine",
+       "ingredient": "aspirin",
+       "declared_mg": 200,
+       "measured_mg": {
+        "value": 2.28,
+        "paren_value": 0.1
+       },
+       "percent_lc": 1.1,
+       "product_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product": "",
+       "ingredient": "phenacetin",
+       "declared_mg": "130",
+       "measured_mg": "142.8 (7.1)",
+       "percent_lc": "109.8"
+      },
+      "parsed": {
+       "product": "Fiorinal with codeine",
+       "ingredient": "phenacetin",
+       "declared_mg": 130,
+       "measured_mg": {
+        "value": 142.8,
+        "paren_value": 7.1
+       },
+       "percent_lc": 109.8,
+       "product_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product": "",
+       "ingredient": "caffeine",
+       "declared_mg": "40",
+       "measured_mg": "51.2 (4.8)",
+       "percent_lc": "128.0"
+      },
+      "parsed": {
+       "product": "Fiorinal with codeine",
+       "ingredient": "caffeine",
+       "declared_mg": 40,
+       "measured_mg": {
+        "value": 51.2,
+        "paren_value": 4.8
+       },
+       "percent_lc": 128.0,
+       "product_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product": "Codempiral No. 3",
+       "ingredient": "codeine",
+       "declared_mg": "32.4",
+       "measured_mg": "29.3 (2.6)",
+       "percent_lc": "90.4"
+      },
+      "parsed": {
+       "product": "Codempiral No. 3",
+       "ingredient": "codeine",
+       "declared_mg": 32.4,
+       "measured_mg": {
+        "value": 29.3,
+        "paren_value": 2.6
+       },
+       "percent_lc": 90.4,
+       "product_carried_forward": false
+      }
+     },
+     {
+      "raw": {
+       "product": "",
+       "ingredient": "phenobarbital",
+       "declared_mg": "16.2",
+       "measured_mg": "15.2 (0.2)",
+       "percent_lc": "93.8"
+      },
+      "parsed": {
+       "product": "Codempiral No. 3",
+       "ingredient": "phenobarbital",
+       "declared_mg": 16.2,
+       "measured_mg": {
+        "value": 15.2,
+        "paren_value": 0.2
+       },
+       "percent_lc": 93.8,
+       "product_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product": "",
+       "ingredient": "aspirin",
+       "declared_mg": "226.8",
+       "measured_mg": "1.53 (0.04)",
+       "percent_lc": "0.7"
+      },
+      "parsed": {
+       "product": "Codempiral No. 3",
+       "ingredient": "aspirin",
+       "declared_mg": 226.8,
+       "measured_mg": {
+        "value": 1.53,
+        "paren_value": 0.04
+       },
+       "percent_lc": 0.7,
+       "product_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product": "",
+       "ingredient": "phenacetin",
+       "declared_mg": "162",
+       "measured_mg": "87.8 (2.7)",
+       "percent_lc": "54.2"
+      },
+      "parsed": {
+       "product": "Codempiral No. 3",
+       "ingredient": "phenacetin",
+       "declared_mg": 162,
+       "measured_mg": {
+        "value": 87.8,
+        "paren_value": 2.7
+       },
+       "percent_lc": 54.2,
+       "product_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product": "Bamadex",
+       "ingredient": "meprobamate",
+       "declared_mg": "300",
+       "measured_mg": "390.8 (44.9)",
+       "percent_lc": "130.3"
+      },
+      "parsed": {
+       "product": "Bamadex",
+       "ingredient": "meprobamate",
+       "declared_mg": 300,
+       "measured_mg": {
+        "value": 390.8,
+        "paren_value": 44.9
+       },
+       "percent_lc": 130.3,
+       "product_carried_forward": false
+      }
+     },
+     {
+      "raw": {
+       "product": "",
+       "ingredient": "amphetamine",
+       "declared_mg": "15",
+       "measured_mg": "8.1 (0.9)",
+       "percent_lc": "54.0"
+      },
+      "parsed": {
+       "product": "Bamadex",
+       "ingredient": "amphetamine",
+       "declared_mg": 15,
+       "measured_mg": {
+        "value": 8.1,
+        "paren_value": 0.9
+       },
+       "percent_lc": 54.0,
+       "product_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product": "Obocell",
+       "ingredient": "amphetamine",
+       "declared_mg": "5",
+       "measured_mg": "2.2 (0.1)",
+       "percent_lc": "44.0"
+      },
+      "parsed": {
+       "product": "Obocell",
+       "ingredient": "amphetamine",
+       "declared_mg": 5,
+       "measured_mg": {
+        "value": 2.2,
+        "paren_value": 0.1
+       },
+       "percent_lc": 44.0,
+       "product_carried_forward": false
+      }
+     },
+     {
+      "raw": {
+       "product": "Nebralin",
+       "ingredient": "pentobarbital",
+       "declared_mg": "90",
+       "measured_mg": "105.1 (7.4)",
+       "percent_lc": "116.8"
+      },
+      "parsed": {
+       "product": "Nebralin",
+       "ingredient": "pentobarbital",
+       "declared_mg": 90,
+       "measured_mg": {
+        "value": 105.1,
+        "paren_value": 7.4
+       },
+       "percent_lc": 116.8,
+       "product_carried_forward": false
+      }
+     },
+     {
+      "raw": {
+       "product": "Seconal",
+       "ingredient": "secobarbital",
+       "declared_mg": "100",
+       "measured_mg": "90.5 (7.1)",
+       "percent_lc": "90.5"
+      },
+      "parsed": {
+       "product": "Seconal",
+       "ingredient": "secobarbital",
+       "declared_mg": 100,
+       "measured_mg": {
+        "value": 90.5,
+        "paren_value": 7.1
+       },
+       "percent_lc": 90.5,
+       "product_carried_forward": false
+      }
+     },
+     {
+      "raw": {
+       "product": "Hycomine",
+       "ingredient": "hydrocodone",
+       "declared_mg": "5",
+       "measured_mg": "5.2 (0.4)",
+       "percent_lc": "104.0"
+      },
+      "parsed": {
+       "product": "Hycomine",
+       "ingredient": "hydrocodone",
+       "declared_mg": 5,
+       "measured_mg": {
+        "value": 5.2,
+        "paren_value": 0.4
+       },
+       "percent_lc": 104.0,
+       "product_carried_forward": false
+      }
+     },
+     {
+      "raw": {
+       "product": "",
+       "ingredient": "chlorpheniramine",
+       "declared_mg": "2",
+       "measured_mg": "6.1 (0.2)",
+       "percent_lc": "305.0"
+      },
+      "parsed": {
+       "product": "Hycomine",
+       "ingredient": "chlorpheniramine",
+       "declared_mg": 2,
+       "measured_mg": {
+        "value": 6.1,
+        "paren_value": 0.2
+       },
+       "percent_lc": 305.0,
+       "product_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product": "",
+       "ingredient": "acetaminophen",
+       "declared_mg": "250",
+       "measured_mg": "249.2 (38.3)",
+       "percent_lc": "99.7"
+      },
+      "parsed": {
+       "product": "Hycomine",
+       "ingredient": "acetaminophen",
+       "declared_mg": 250,
+       "measured_mg": {
+        "value": 249.2,
+        "paren_value": 38.3
+       },
+       "percent_lc": 99.7,
+       "product_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product": "",
+       "ingredient": "caffeine",
+       "declared_mg": "30",
+       "measured_mg": "30.3 (1.8)",
+       "percent_lc": "101.0"
+      },
+      "parsed": {
+       "product": "Hycomine",
+       "ingredient": "caffeine",
+       "declared_mg": 30,
+       "measured_mg": {
+        "value": 30.3,
+        "paren_value": 1.8
+       },
+       "percent_lc": 101.0,
+       "product_carried_forward": true
+      }
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP62"
+   ],
+   "source_status": "READ (summary fetch, by sub-search)",
+   "status": "unverified",
+   "note": "%LC is derived by the research team from declared and measured mg; the transcriber's recomputation agrees with every row within 0.050 points (rounding). Read through a summary fetch; re-verify against the published table before use. Use: sanity bounds for very long storage of sealed products; aspirin hydrolysis as a known fast-loss case."
+  }
+ ]
+}

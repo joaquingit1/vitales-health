@@ -1,0 +1,227 @@
+{
+ "document_id": "vectors-numerics",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "Numerical verification vectors (degradation-science.md 9.5).",
+ "extracted_from": [
+  {
+   "note": "degradation-science.md",
+   "section": "9.5"
+  },
+  {
+   "note": "degradation-science.md",
+   "section": "8.6"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "TV-GCI-1",
+   "kind": "worked_example",
+   "description": "Celik et al. 2008 Table 1 GCI procedure, case 1 (monotonic).",
+   "target": "oracle:gci",
+   "inputs": {
+    "phi1": 6.063,
+    "phi2": 5.972,
+    "phi3": 5.863,
+    "r21": 1.5,
+    "r32": 1.333,
+    "procedure": "p = (1/ln r21) |ln|eps32/eps21| + q(p)|, q(p) = ln[(r21^p - s)/(r32^p - s)], s = sign(eps32/eps21); phi_ext = (r21^p phi1 - phi2)/(r21^p - 1); e_a = |(phi1 - phi2)/phi1|; e_ext = |(phi_ext - phi1)/phi_ext|; GCI_fine = 1.25 e_a/(r21^p - 1)"
+   },
+   "expected": {
+    "p": 1.53,
+    "phi_ext21": 6.1685,
+    "e_a21_percent": 1.5,
+    "e_ext21_percent": 1.7,
+    "gci_fine21_percent": 2.2
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "p": 1.537,
+    "phi_ext21": 6.1682,
+    "e_a21_percent": 1.5,
+    "e_ext21_percent": 1.71,
+    "gci_fine21_percent": 2.17,
+    "foundation_values": {
+     "p": 1.537168595116931,
+     "phi_ext21": 6.168200684131676,
+     "e_a21_percent": 1.5009071416790254,
+     "e_ext21_percent": 1.705532772341796,
+     "gci_fine21_percent": 2.1689073917960777
+    },
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; fixed-point iteration on p"
+   },
+   "tolerance": {
+    "abs": 0.06,
+    "rel": null,
+    "unit": "p dimensionless, phi_ext in phi units, the three error measures in percent points",
+    "basis": "published values are rounded (p to 2 decimals, percentages to 1 decimal); the note's recomputation agrees with every published key within 0.05 (largest gaps: case 1 p 0.007 and GCI 0.03 points, case 2 e_ext 0.05 points). Assert against our_recomputation within half a unit of its last digit and against the published values within 0.06"
+   },
+   "source_ids": [
+    "MDS48"
+   ],
+   "source_status": "read (equations reconstructed, Table 1 recomputed)",
+   "status": "reproduces",
+   "note": "Safety factor 1.25 for three grids (MDS50). Used to verify the GCI helper in tests/oracle before it judges the engine integrator."
+  },
+  {
+   "vector_id": "TV-GCI-2",
+   "kind": "worked_example",
+   "description": "Celik et al. 2008 Table 1 GCI procedure, case 2 (p < 1).",
+   "target": "oracle:gci",
+   "inputs": {
+    "phi1": 10.788,
+    "phi2": 10.725,
+    "phi3": 10.605,
+    "r21": 2.0,
+    "r32": 2.143,
+    "procedure": "p = (1/ln r21) |ln|eps32/eps21| + q(p)|, q(p) = ln[(r21^p - s)/(r32^p - s)], s = sign(eps32/eps21); phi_ext = (r21^p phi1 - phi2)/(r21^p - 1); e_a = |(phi1 - phi2)/phi1|; e_ext = |(phi_ext - phi1)/phi_ext|; GCI_fine = 1.25 e_a/(r21^p - 1)"
+   },
+   "expected": {
+    "p": 0.75,
+    "phi_ext21": 10.8801,
+    "e_a21_percent": 0.6,
+    "e_ext21_percent": 0.9,
+    "gci_fine21_percent": 1.1
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "p": 0.752,
+    "phi_ext21": 10.8801,
+    "e_a21_percent": 0.58,
+    "e_ext21_percent": 0.85,
+    "gci_fine21_percent": 1.07,
+    "foundation_values": {
+     "p": 0.7517439468104248,
+     "phi_ext21": 10.880128560533224,
+     "e_a21_percent": 0.5839822024471691,
+     "e_ext21_percent": 0.8467598523367901,
+     "gci_fine21_percent": 1.0674888827078919
+    },
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; fixed-point iteration on p"
+   },
+   "tolerance": {
+    "abs": 0.06,
+    "rel": null,
+    "unit": "p dimensionless, phi_ext in phi units, the three error measures in percent points",
+    "basis": "published values are rounded (p to 2 decimals, percentages to 1 decimal); the note's recomputation agrees with every published key within 0.05 (largest gaps: case 1 p 0.007 and GCI 0.03 points, case 2 e_ext 0.05 points). Assert against our_recomputation within half a unit of its last digit and against the published values within 0.06"
+   },
+   "source_ids": [
+    "MDS48"
+   ],
+   "source_status": "read (equations reconstructed, Table 1 recomputed)",
+   "status": "reproduces",
+   "note": "Safety factor 1.25 for three grids (MDS50). Used to verify the GCI helper in tests/oracle before it judges the engine integrator."
+  },
+  {
+   "vector_id": "TV-GCI-3",
+   "kind": "worked_example",
+   "description": "Celik et al. 2008 Table 1 GCI procedure, case 3 (oscillatory).",
+   "target": "oracle:gci",
+   "inputs": {
+    "phi1": 6.0042,
+    "phi2": 5.9624,
+    "phi3": 6.0909,
+    "r21": 2.0,
+    "r32": 2.143,
+    "procedure": "p = (1/ln r21) |ln|eps32/eps21| + q(p)|, q(p) = ln[(r21^p - s)/(r32^p - s)], s = sign(eps32/eps21); phi_ext = (r21^p phi1 - phi2)/(r21^p - 1); e_a = |(phi1 - phi2)/phi1|; e_ext = |(phi_ext - phi1)/phi_ext|; GCI_fine = 1.25 e_a/(r21^p - 1)"
+   },
+   "expected": {
+    "p": 1.51,
+    "phi_ext21": 6.0269,
+    "e_a21_percent": 0.7,
+    "e_ext21_percent": 0.4,
+    "gci_fine21_percent": 0.5
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "p": 1.508,
+    "phi_ext21": 6.0269,
+    "e_a21_percent": 0.7,
+    "e_ext21_percent": 0.38,
+    "gci_fine21_percent": 0.47,
+    "foundation_values": {
+     "p": 1.5075911171606364,
+     "phi_ext21": 6.026876120070194,
+     "e_a21_percent": 0.6961793411278818,
+     "e_ext21_percent": 0.3762499779061373,
+     "gci_fine21_percent": 0.4720887060348132
+    },
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; fixed-point iteration on p"
+   },
+   "tolerance": {
+    "abs": 0.06,
+    "rel": null,
+    "unit": "p dimensionless, phi_ext in phi units, the three error measures in percent points",
+    "basis": "published values are rounded (p to 2 decimals, percentages to 1 decimal); the note's recomputation agrees with every published key within 0.05 (largest gaps: case 1 p 0.007 and GCI 0.03 points, case 2 e_ext 0.05 points). Assert against our_recomputation within half a unit of its last digit and against the published values within 0.06"
+   },
+   "source_ids": [
+    "MDS48"
+   ],
+   "source_status": "read (equations reconstructed, Table 1 recomputed)",
+   "status": "reproduces",
+   "note": "Safety factor 1.25 for three grids (MDS50). Used to verify the GCI helper in tests/oracle before it judges the engine integrator."
+  },
+  {
+   "vector_id": "TV-MC-1",
+   "kind": "worked_example",
+   "description": "Number of simulations for a coverage estimate with a target Monte Carlo standard error.",
+   "target": "oracle:coverage_simulation_count",
+   "inputs": {
+    "expected_coverage": 0.95,
+    "target_mcse": 0.005,
+    "formula": "n_sim = E(Cov)(1 - E(Cov)) / MCSE^2"
+   },
+   "expected": {
+    "n_sim": 1900
+   },
+   "published_expected_text": "1,900 simulations give Monte Carlo SE 0.5% on a 95% coverage estimate",
+   "our_recomputation": {
+    "n_sim": 1900
+   },
+   "tolerance": {
+    "abs": 0.5,
+    "rel": null,
+    "unit": "simulations",
+    "basis": "exact arithmetic (0.95 * 0.05 / 0.005^2 = 1900)"
+   },
+   "source_ids": [
+    "MDS54"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Used to size interval-coverage studies."
+  },
+  {
+   "vector_id": "TV-MC-2",
+   "kind": "worked_example",
+   "description": "JCGM 101 minimum number of trials and adaptive batch size for p = 0.95.",
+   "target": "pharmacy.uncertainty.jcgm_batch_size",
+   "inputs": {
+    "coverage_probability": 0.95
+   },
+   "expected": {
+    "minimum_m_non_adaptive": 200000,
+    "j": 2000,
+    "batch_m": 10000
+   },
+   "published_expected_text": "M \"at least 10^4 times greater than 1/(1-p)\"; adaptive batches of M = max(J, 10^4), J the smallest integer at least 100/(1-p)",
+   "our_recomputation": {
+    "minimum_m_non_adaptive": "10^4 / (1 - 0.95) = 2 x 10^5",
+    "j": "100/(1-p) = 2000",
+    "batch_m": "max(2000, 10^4) = 10^4"
+   },
+   "tolerance": {
+    "abs": 0,
+    "rel": null,
+    "unit": "trials",
+    "basis": "exact integers"
+   },
+   "source_ids": [
+    "MDS56"
+   ],
+   "source_status": "read; arithmetic ours",
+   "status": "reproduces",
+   "note": "Compute J with exact rational arithmetic: in float64, 100/(1-0.95) = 1999.9999999999995 and 1/(1-0.95) * 1e4 = 199999.99999999997, so a naive ceil or floor can be off by one. Use fractions.Fraction or round to the nearest integer when 1/(1-p) is integral within 1e-9."
+  }
+ ]
+}

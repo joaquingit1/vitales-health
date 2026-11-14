@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/inputs.schema.json",
+  "title": "Runtime inputs: sensor series, assays and inspections up to as_of.",
+  "type": "object",
+  "additionalProperties": false,
+  "description": "Everything the hub hands the engine besides configuration (spec 12.1).",
+  "required": [
+    "schema",
+    "as_of_utc",
+    "sensor_series",
+    "assays",
+    "inspections"
+  ],
+  "properties": {
+    "schema": {
+      "const": "pharmacy/inputs.schema.json"
+    },
+    "as_of_utc": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+    },
+    "sensor_series": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SensorSeriesRecord"
+      }
+    },
+    "assays": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AssayRecord"
+      }
+    },
+    "inspections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/InspectionRecord"
+      }
+    }
+  },
+  "$defs": {
+    "AssayRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "JSON form of ``AssayObservation`` (same members).",
+      "required": [
+        "assay_id",
+        "lot_id",
+        "ingredient_id",
+        "measured_at_utc",
+        "measured_at_s",
+        "measurand",
+        "value_percent",
+        "sd_percent",
+        "site",
+        "method",
+        "laboratory",
+        "note"
+      ],
+      "properties": {
+        "assay_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lot_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "ingredient_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "measured_at_utc": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+        },
+        "measured_at_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "measurand": {
+          "enum": [
+            "total",
+            "active"
+          ]
+        },
+        "value_percent": {
+          "type": "number"
+        },
+        "sd_percent": {
+          "type": "number"
+        },
+        "site": {
+          "enum": [
+            "onboard",
+            "ground"
+          ]
+        },
+        "method": {
+          "type": "string"
+        },
+        "laboratory": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "InspectionRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "JSON form of ``InspectionObservation`` (same members).",
+      "required": [
+        "inspection_id",
+        "lot_id",
+        "inspected_at_utc",
+        "inspected_at_s",
+        "finding",
+        "inspector_role",
+        "note"
+      ],
+      "properties": {
+        "inspection_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lot_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "inspected_at_utc": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+        },
+        "inspected_at_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "finding": {
+          "enum": [
+            "no_change",
+            "color_change",
+            "cracking",
+            "crystals",
+            "cloudiness",
+            "precipitate",
+            "particles",
+            "swollen_package",
+            "phase_separation",
+            "other"
+          ]
+        },
+        "inspector_role": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "SensorPointRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "t_utc",
+        "t_s",
+        "value"
+      ],
+      "properties": {
+        "t_utc": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+        },
+        "t_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "value": {
+          "type": "number"
+        }
+      }
+    },
+    "SensorSeriesRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "series_id",
+        "sensor_id",
+        "zone_id",
+        "quantity",
+        "unit",
+        "points"
+      ],
+      "properties": {
+        "series_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "sensor_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "zone_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "quantity": {
+          "enum": [
+            "temperature_k",
+            "relative_humidity",
+            "dose_rate_gy_per_s",
+            "illuminance_lux",
+            "uv_w_per_m2"
+          ]
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SensorPointRecord"
+          }
+        }
+      }
+    }
+  }
+}

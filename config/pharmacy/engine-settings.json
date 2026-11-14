@@ -1,0 +1,766 @@
+{
+  "document_id": "engine-settings",
+  "schema": "pharmacy/engine-settings.schema.json",
+  "version": "0.3.0",
+  "review_state": "draft",
+  "notice": "Draft configuration for the Crew Health Check potency engine. Every value carries its basis and source IDs (research notes in reports/crew-health-medications-2026-11-14/research). team_default values are placeholders that the named role must replace before operational use.",
+  "reference_conditions": {
+    "temperature_k": {
+      "value": 298.15,
+      "unit": "K",
+      "basis": "sourced",
+      "source_ids": [
+        "MDS01"
+      ],
+      "to_be_set_by": null,
+      "note": "ICH Q1A(R2) long-term storage temperature, 25 C."
+    },
+    "relative_humidity_percent": {
+      "value": 40.0,
+      "unit": "percent",
+      "basis": "derived",
+      "source_ids": [
+        "MDP01",
+        "MDP02"
+      ],
+      "to_be_set_by": null,
+      "note": "Midpoint of the Du 2011 ground-control chamber (36 to 44 %RH). Calibration integrates internal package RH before conversion to this reference."
+    }
+  },
+  "mean_kinetic_temperature": {
+    "activation_energy_j_per_mol": {
+      "value": 83144.0,
+      "unit": "J/mol",
+      "basis": "sourced",
+      "source_ids": [
+        "MDS05",
+        "MDS06"
+      ],
+      "to_be_set_by": null,
+      "note": "USP default heat of activation for MKT (dH/R = 10000 K). Display only."
+    },
+    "windows": [
+      {
+        "window_id": "crt_30_days",
+        "duration_s": {
+          "value": 2592000.0,
+          "unit": "s",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS06",
+            "MDS09"
+          ],
+          "to_be_set_by": null,
+          "note": "30-day rolling window for controlled room temperature (USP <1079.2> as reported secondhand)."
+        }
+      },
+      {
+        "window_id": "cold_chain_24_hours",
+        "duration_s": {
+          "value": 86400.0,
+          "unit": "s",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS06",
+            "MDS09"
+          ],
+          "to_be_set_by": null,
+          "note": "24-hour window for cold-chain products (USP <1079.2> as reported secondhand)."
+        }
+      }
+    ]
+  },
+  "monte_carlo": {
+    "coverage_probability": {
+      "value": 0.9,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "pharmacist and flight surgeon",
+      "note": "Coverage probability of the reported interval; matches the 5th and 95th percentiles used by decisions."
+    },
+    "n_dig": {
+      "value": 2,
+      "unit": "1",
+      "basis": "sourced",
+      "source_ids": [
+        "MDS56"
+      ],
+      "to_be_set_by": null,
+      "note": "JCGM 101 7.9.2: significant decimal digits for the numerical tolerance."
+    },
+    "max_batches": {
+      "value": 100,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Upper bound on adaptive batches (10^6 draws at p = 0.90)."
+    },
+    "min_batches": {
+      "value": 2,
+      "unit": "1",
+      "basis": "derived",
+      "source_ids": [
+        "MDS56"
+      ],
+      "to_be_set_by": null,
+      "note": "JCGM 101 7.9.4 needs at least two batch results for a standard deviation."
+    },
+    "reported_quantiles": [
+      0.025,
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95,
+      0.975
+    ],
+    "rng": "numpy.PCG64"
+  },
+  "decision": {
+    "lower_quantile": {
+      "value": 0.05,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "pharmacist and flight surgeon",
+      "note": "Lower quantile compared with the lower specification limit (design brief decision)."
+    },
+    "upper_quantile": {
+      "value": 0.95,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "pharmacist and flight surgeon",
+      "note": "Upper quantile compared with the upper specification limit (design brief decision)."
+    },
+    "degradant_quantile": {
+      "value": 0.95,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "pharmacist and flight surgeon",
+      "note": "Quantile of each tracked degradant compared with its limit."
+    }
+  },
+  "update": {
+    "ess_floor": {
+      "value": 1000,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Minimum effective sample size after assay reweighting before batches are added."
+    },
+    "conflict_tail_probability": {
+      "value": 0.001,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "pharmacist and flight surgeon",
+      "note": "Two-sided prior-predictive tail probability below which an assay conflicts with the model."
+    },
+    "fallback": "reanchor",
+    "ground_inter_laboratory_sd_percent": {
+      "value": 1.0,
+      "unit": "percent",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "pharmacist and flight surgeon",
+      "note": "Extra standard deviation for ground laboratory assays (between-laboratory component)."
+    },
+    "onboard_method_sd_percent": {
+      "value": 3.0,
+      "unit": "percent",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "pharmacist and flight surgeon",
+      "note": "Extra standard deviation for onboard assays (unvalidated method)."
+    }
+  },
+  "extrapolation": {
+    "ln_k_sd_per_kelvin": {
+      "value": 0.05,
+      "unit": "1/K",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Model-form standard deviation of ln k added per kelvin outside the validated temperature range."
+    },
+    "ln_k_sd_per_percent_rh": {
+      "value": 0.02,
+      "unit": "1/percent",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Model-form standard deviation of ln k added per %RH outside the validated humidity range."
+    },
+    "flag_share_threshold": {
+      "value": 0.01,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Share of nominal Theta accrued outside the validated range that raises outside_validated_range."
+    },
+    "max_time_extrapolation_ratio": {
+      "value": 2.0,
+      "unit": "1",
+      "basis": "sourced",
+      "source_ids": [
+        "MDS02"
+      ],
+      "to_be_set_by": null,
+      "note": "ICH Q1E: extrapolated shelf life up to twice the period covered by long-term data."
+    }
+  },
+  "basis": {
+    "share_threshold": {
+      "value": 0.01,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "A pathway contributes to the estimate basis when its nominal share of Theta is at least this."
+    }
+  },
+  "rate_law_defaults": [
+    {
+      "dose_form_family": "solid",
+      "kind": "F1",
+      "basis": "derived",
+      "source_ids": [
+        "MDP01",
+        "MDP02"
+      ],
+      "to_be_set_by": null,
+      "note": "Du 2011 control series are consistent with first order; class priors are first-order fits."
+    },
+    {
+      "dose_form_family": "solution",
+      "kind": "F1",
+      "basis": "derived",
+      "source_ids": [
+        "MDS85",
+        "MDS86",
+        "MDS95"
+      ],
+      "to_be_set_by": null,
+      "note": "Reference solution studies are pseudo-first order at kit-relevant concentrations."
+    },
+    {
+      "dose_form_family": "suspension",
+      "kind": "F1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "No suspension data in the notes; first order assumed."
+    },
+    {
+      "dose_form_family": "semisolid",
+      "kind": "F1",
+      "basis": "derived",
+      "source_ids": [
+        "MDP01",
+        "MDP02"
+      ],
+      "to_be_set_by": null,
+      "note": "Du 2011 semisolid control series fitted first order."
+    }
+  ],
+  "forecast": {
+    "default_projection": "repeat_last_window",
+    "window_s": {
+      "value": 2592000.0,
+      "unit": "s",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "pharmacist and flight surgeon",
+      "note": "Last 30 days of recorded conditions repeat into the future."
+    },
+    "horizon_s": {
+      "value": 315360000.0,
+      "unit": "s",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Forecast horizon, 10 years."
+    },
+    "time_tolerance_s": {
+      "value": 1.0,
+      "unit": "s",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Bisection tolerance of crossing times."
+    }
+  },
+  "radiation": {
+    "include_in_potency": false,
+    "dose_rate_safety_factor": {
+      "value": 10.0,
+      "unit": "1",
+      "basis": "derived",
+      "source_ids": [
+        "MDS59",
+        "MDS67"
+      ],
+      "to_be_set_by": null,
+      "note": "Sterilization data are delivered at 0.1 to 1 Gy/s, about 10^9 times the habitat dose rate; the upper bound multiplies the dose by 10 to cover unknown dose-rate effects (DERIVED in degradation-science.md section 5)."
+    },
+    "radiosensitive_dose_threshold_gy": {
+      "value": 0.9,
+      "unit": "Gy",
+      "basis": "derived",
+      "source_ids": [
+        "MDP11",
+        "MDP12"
+      ],
+      "to_be_set_by": null,
+      "note": "Highest cumulative dose tested on kit solids without effect (GCRSim, 864.4 to 932.4 mGy); radiosensitive products beyond it are flagged as untested."
+    }
+  },
+  "computed_layer": {
+    "rdkit_embed_seed": {
+      "value": 20261114,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "chemistry lead",
+      "note": "ETKDGv3 random seed for every conformer embedding."
+    },
+    "xtb_method": "GFN2-xTB",
+    "xtb_accuracy": {
+      "value": 1.0,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "chemistry lead",
+      "note": "tblite accuracy setting (default)."
+    },
+    "xtb_electronic_temperature_k": {
+      "value": 300.0,
+      "unit": "K",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "chemistry lead",
+      "note": "tblite electronic temperature (default)."
+    },
+    "xtb_n_conformers": {
+      "value": 10,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "chemistry lead",
+      "note": "ETKDGv3 conformers embedded per molecule; the lowest-energy optimized parent and the lowest-energy radical built from any parent conformer are used (spec 7.4)."
+    },
+    "xtb_spin_polarization_scale": {
+      "value": 1.0,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "chemistry lead",
+      "note": "Scale of tblite's spin-polarization interaction for open-shell species (radical and H atom); 1 is the published parametrization, 0 turns it off (spec 7.4)."
+    },
+    "optimizer_gtol_eh_per_bohr": {
+      "value": 0.0001,
+      "unit": "Eh/bohr",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "chemistry lead",
+      "note": "Largest gradient component at convergence."
+    },
+    "optimizer_max_steps": {
+      "value": 500,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "chemistry lead",
+      "note": "Maximum L-BFGS-B iterations."
+    },
+    "same_molecule_sd_log10": {
+      "value": 0.3,
+      "unit": "log10",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "chemistry lead",
+      "note": "Ingredient identical to the anchor molecule: formulation and package differences only."
+    },
+    "unparameterized_substituent_sd_log10": {
+      "value": 0.5,
+      "unit": "log10",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "chemistry lead",
+      "note": "Added when a substituent has no constant."
+    },
+    "ortho_substituent_sd_log10": {
+      "value": 0.5,
+      "unit": "log10",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "chemistry lead",
+      "note": "Added for ortho substituents (Hammett does not apply)."
+    },
+    "heteroaromatic_ring_sd_log10": {
+      "value": 0.5,
+      "unit": "log10",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "chemistry lead",
+      "note": "Added when the reacting ring is heteroaromatic."
+    }
+  },
+  "numerics": {
+    "series_relative_tolerance": {
+      "value": 1e-15,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Stopping tolerance of the humidity-integral series."
+    },
+    "series_max_terms": {
+      "value": 500,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Maximum series terms before ConvergenceError."
+    },
+    "inverse_absolute_tolerance": {
+      "value": 1e-14,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Absolute tolerance on alpha for bracketed inverses (D2, D4)."
+    },
+    "small_alpha_series_threshold": {
+      "value": 0.1,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Below this alpha the D2 and D4 inverses start from their series."
+    },
+    "worker_threads": {
+      "value": 0,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Thread-pool workers for fixed segment chunks; 0 uses the CPU count. Partial sums are reduced in chunk order."
+    },
+    "compression_relative_tolerance": {
+      "value": 1e-07,
+      "unit": "1",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "engine lead",
+      "note": "Maximum relative pathway Theta error on the fixed support-spanning probe set per estimate; exceeding it selects exact evaluation."
+    }
+  },
+  "validated_range": {
+    "temperature_below_min_margin_k": {
+      "value": 10.0,
+      "unit": "K",
+      "basis": "team_default",
+      "source_ids": [],
+      "to_be_set_by": "chemistry lead",
+      "note": "Measured models include storage down to the study minimum minus this margin. The upper limit is unchanged."
+    }
+  },
+  "q3b": {
+    "reporting": [
+      {
+        "dose_upper_mg": {
+          "value": 1000,
+          "unit": "mg",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) maximum daily dose band upper boundary."
+        },
+        "upper_inclusive": true,
+        "percent": {
+          "value": 0.1,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 1
+        },
+        "tdi": null
+      },
+      {
+        "dose_upper_mg": null,
+        "upper_inclusive": true,
+        "percent": {
+          "value": 0.05,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 2
+        },
+        "tdi": null
+      }
+    ],
+    "identification": [
+      {
+        "dose_upper_mg": {
+          "value": 1,
+          "unit": "mg",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) maximum daily dose band upper boundary."
+        },
+        "upper_inclusive": false,
+        "percent": {
+          "value": 1.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 1
+        },
+        "tdi": {
+          "value": 5,
+          "unit": "ug",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 0
+        }
+      },
+      {
+        "dose_upper_mg": {
+          "value": 10,
+          "unit": "mg",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) maximum daily dose band upper boundary."
+        },
+        "upper_inclusive": true,
+        "percent": {
+          "value": 0.5,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 1
+        },
+        "tdi": {
+          "value": 20,
+          "unit": "ug",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 0
+        }
+      },
+      {
+        "dose_upper_mg": {
+          "value": 2000,
+          "unit": "mg",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) maximum daily dose band upper boundary."
+        },
+        "upper_inclusive": true,
+        "percent": {
+          "value": 0.2,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 1
+        },
+        "tdi": {
+          "value": 2,
+          "unit": "mg",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 0
+        }
+      },
+      {
+        "dose_upper_mg": null,
+        "upper_inclusive": true,
+        "percent": {
+          "value": 0.1,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 2
+        },
+        "tdi": null
+      }
+    ],
+    "qualification": [
+      {
+        "dose_upper_mg": {
+          "value": 10,
+          "unit": "mg",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) maximum daily dose band upper boundary."
+        },
+        "upper_inclusive": false,
+        "percent": {
+          "value": 1.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 1
+        },
+        "tdi": {
+          "value": 50,
+          "unit": "ug",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 0
+        }
+      },
+      {
+        "dose_upper_mg": {
+          "value": 100,
+          "unit": "mg",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) maximum daily dose band upper boundary."
+        },
+        "upper_inclusive": true,
+        "percent": {
+          "value": 0.5,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 1
+        },
+        "tdi": {
+          "value": 200,
+          "unit": "ug",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 0
+        }
+      },
+      {
+        "dose_upper_mg": {
+          "value": 2000,
+          "unit": "mg",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) maximum daily dose band upper boundary."
+        },
+        "upper_inclusive": true,
+        "percent": {
+          "value": 0.2,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 1
+        },
+        "tdi": {
+          "value": 3,
+          "unit": "mg",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 0
+        }
+      },
+      {
+        "dose_upper_mg": null,
+        "upper_inclusive": true,
+        "percent": {
+          "value": 0.15,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS04"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH Q3B(R2) Attachment 1; decimals are the precision of the threshold as written in this unit.",
+          "decimals": 2
+        },
+        "tdi": null
+      }
+    ]
+  }
+}

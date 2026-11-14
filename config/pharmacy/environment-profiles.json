@@ -1,0 +1,1256 @@
+{
+  "document_id": "environment-profiles",
+  "schema": "pharmacy/environment-profiles.schema.json",
+  "version": "0.1.0",
+  "review_state": "draft",
+  "notice": "Draft configuration for the Crew Health Check potency engine. Every value carries its basis and source IDs (research notes in reports/crew-health-medications-2026-11-14/research). team_default values are placeholders that the named role must replace before operational use.",
+  "profiles": [
+    {
+      "profile_id": "station",
+      "name": "Space station medical kit",
+      "description": "ISS-like cabin; kit inside a stowage locker.",
+      "temperature": {
+        "setpoint_k": {
+          "value": 296.15,
+          "unit": "K",
+          "basis": "derived",
+          "source_ids": [
+            "MDP21",
+            "MDP27",
+            "MDP05"
+          ],
+          "to_be_set_by": null,
+          "note": "Kit 20 to 26 C midpoint."
+        },
+        "diurnal_amplitude_k": {
+          "value": 0.5,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Daily cycle amplitude."
+        },
+        "ou_sd_k": {
+          "value": 0.7,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Stationary sd of the Ornstein-Uhlenbeck component."
+        },
+        "ou_time_constant_s": {
+          "value": 21600.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Correlation time of the OU component."
+        },
+        "nominal_min_k": {
+          "value": 291.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27",
+            "MDP05"
+          ],
+          "to_be_set_by": null,
+          "note": "Nominal lower bound."
+        },
+        "nominal_max_k": {
+          "value": 300.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27",
+            "MDP05"
+          ],
+          "to_be_set_by": null,
+          "note": "Nominal upper bound."
+        }
+      },
+      "relative_humidity": {
+        "setpoint_percent": {
+          "value": 35.0,
+          "unit": "percent",
+          "basis": "derived",
+          "source_ids": [
+            "MDP27",
+            "MDP01"
+          ],
+          "to_be_set_by": null,
+          "note": "Between kit 23 to 25 %RH and cabin 25 to 70 %RH."
+        },
+        "diurnal_amplitude_percent": {
+          "value": 2.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Daily cycle amplitude."
+        },
+        "ou_sd_percent": {
+          "value": 4.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Stationary sd of the OU component."
+        },
+        "ou_time_constant_s": {
+          "value": 43200.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Correlation time of the OU component."
+        },
+        "nominal_min_percent": {
+          "value": 25.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP27",
+            "MDP01"
+          ],
+          "to_be_set_by": null,
+          "note": "Nominal lower bound."
+        },
+        "nominal_max_percent": {
+          "value": 70.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP27",
+            "MDP01"
+          ],
+          "to_be_set_by": null,
+          "note": "Nominal upper bound."
+        }
+      },
+      "radiation": {
+        "absorbed_dose_rate_gy_per_day": {
+          "value": 0.000126,
+          "unit": "Gy/day",
+          "basis": "derived",
+          "source_ids": [
+            "MDP01",
+            "MDP36"
+          ],
+          "to_be_set_by": null,
+          "note": "110.7 mGy over 880 days at the Du kits."
+        },
+        "absorbed_dose_rate_sd_gy_per_day": null,
+        "dose_equivalent_rate_sv_per_day": {
+          "value": 0.00068,
+          "unit": "Sv/day",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP01",
+            "MDP36"
+          ],
+          "to_be_set_by": null,
+          "note": "Dose equivalent (not used for chemistry)."
+        },
+        "dosimeter_material": "passive dosimeters in the kits",
+        "note": "110.7 mGy over 880 days at the Du kits."
+      },
+      "light": null,
+      "atmosphere": {
+        "total_pressure_kpa": {
+          "value": 101.3,
+          "unit": "kPa",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Sea-level cabin."
+        },
+        "oxygen_fraction": {
+          "value": 0.21,
+          "unit": "1",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Air."
+        }
+      },
+      "sensor_defaults": {
+        "sampling_interval_s": {
+          "value": 1800.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "One reading every 30 minutes."
+        },
+        "temperature_noise_sd_k": {
+          "value": 0.1,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Reading noise."
+        },
+        "rh_noise_sd_percent": {
+          "value": 1.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Reading noise."
+        },
+        "dose_rate_noise_relative_sd": {
+          "value": 0.1,
+          "unit": "1",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Relative reading noise of the dosimeter."
+        },
+        "dropout_probability": {
+          "value": 0.001,
+          "unit": "1",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Independent probability that a reading is lost."
+        },
+        "temperature_resolution_k": {
+          "value": 0.01,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Quantization step."
+        },
+        "rh_resolution_percent": {
+          "value": 0.1,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Quantization step."
+        },
+        "dose_rate_resolution_gy_per_s": {
+          "value": 1e-12,
+          "unit": "Gy/s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Quantization step."
+        },
+        "sensor_bias_temperature_sd_k": {
+          "value": 0.2,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Per-sensor calibration bias sd (simulator truth)."
+        },
+        "sensor_bias_rh_sd_percent": {
+          "value": 2.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Per-sensor calibration bias sd (simulator truth)."
+        }
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDP01",
+        "MDP21",
+        "MDP27"
+      ],
+      "note": ""
+    },
+    {
+      "profile_id": "transit",
+      "name": "Deep-space transit vehicle",
+      "description": "Interplanetary cruise inside the crew vehicle.",
+      "temperature": {
+        "setpoint_k": {
+          "value": 296.15,
+          "unit": "K",
+          "basis": "derived",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Station cabin range assumed."
+        },
+        "diurnal_amplitude_k": {
+          "value": 0.5,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Daily cycle amplitude."
+        },
+        "ou_sd_k": {
+          "value": 0.7,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Stationary sd of the Ornstein-Uhlenbeck component."
+        },
+        "ou_time_constant_s": {
+          "value": 21600.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Correlation time of the OU component."
+        },
+        "nominal_min_k": {
+          "value": 291.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Nominal lower bound."
+        },
+        "nominal_max_k": {
+          "value": 300.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Nominal upper bound."
+        }
+      },
+      "relative_humidity": {
+        "setpoint_percent": {
+          "value": 35.0,
+          "unit": "percent",
+          "basis": "derived",
+          "source_ids": [
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Station cabin range assumed."
+        },
+        "diurnal_amplitude_percent": {
+          "value": 2.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Daily cycle amplitude."
+        },
+        "ou_sd_percent": {
+          "value": 4.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Stationary sd of the OU component."
+        },
+        "ou_time_constant_s": {
+          "value": 43200.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Correlation time of the OU component."
+        },
+        "nominal_min_percent": {
+          "value": 25.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Nominal lower bound."
+        },
+        "nominal_max_percent": {
+          "value": 70.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Nominal upper bound."
+        }
+      },
+      "radiation": {
+        "absorbed_dose_rate_gy_per_day": {
+          "value": 0.00048,
+          "unit": "Gy/day",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP37",
+            "MDP39"
+          ],
+          "to_be_set_by": null,
+          "note": "MSL RAD cruise inside the spacecraft, about 16 g/cm2."
+        },
+        "absorbed_dose_rate_sd_gy_per_day": {
+          "value": 8e-05,
+          "unit": "Gy/day",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP37",
+            "MDP39"
+          ],
+          "to_be_set_by": null,
+          "note": "Reported uncertainty."
+        },
+        "dose_equivalent_rate_sv_per_day": {
+          "value": 0.00175,
+          "unit": "Sv/day",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP37",
+            "MDP39"
+          ],
+          "to_be_set_by": null,
+          "note": "Dose equivalent (not used for chemistry)."
+        },
+        "dosimeter_material": "silicon (RAD)",
+        "note": "MSL RAD cruise inside the spacecraft, about 16 g/cm2."
+      },
+      "light": null,
+      "atmosphere": {
+        "total_pressure_kpa": {
+          "value": 56.5,
+          "unit": "kPa",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP28"
+          ],
+          "to_be_set_by": null,
+          "note": "8.2 psia exploration atmosphere."
+        },
+        "oxygen_fraction": {
+          "value": 0.34,
+          "unit": "1",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP28"
+          ],
+          "to_be_set_by": null,
+          "note": "34% O2 exploration atmosphere."
+        }
+      },
+      "sensor_defaults": {
+        "sampling_interval_s": {
+          "value": 1800.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "One reading every 30 minutes."
+        },
+        "temperature_noise_sd_k": {
+          "value": 0.1,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Reading noise."
+        },
+        "rh_noise_sd_percent": {
+          "value": 1.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Reading noise."
+        },
+        "dose_rate_noise_relative_sd": {
+          "value": 0.1,
+          "unit": "1",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Relative reading noise of the dosimeter."
+        },
+        "dropout_probability": {
+          "value": 0.001,
+          "unit": "1",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Independent probability that a reading is lost."
+        },
+        "temperature_resolution_k": {
+          "value": 0.01,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Quantization step."
+        },
+        "rh_resolution_percent": {
+          "value": 0.1,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Quantization step."
+        },
+        "dose_rate_resolution_gy_per_s": {
+          "value": 1e-12,
+          "unit": "Gy/s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Quantization step."
+        },
+        "sensor_bias_temperature_sd_k": {
+          "value": 0.2,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Per-sensor calibration bias sd (simulator truth)."
+        },
+        "sensor_bias_rh_sd_percent": {
+          "value": 2.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Per-sensor calibration bias sd (simulator truth)."
+        }
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDP37",
+        "MDP28"
+      ],
+      "note": ""
+    },
+    {
+      "profile_id": "moon",
+      "name": "Lunar surface base pharmacy",
+      "description": "Pharmacy cabinet in a lunar surface habitat.",
+      "temperature": {
+        "setpoint_k": {
+          "value": 295.15,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Habitat setpoint assumed like the station."
+        },
+        "diurnal_amplitude_k": {
+          "value": 0.5,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Daily cycle amplitude."
+        },
+        "ou_sd_k": {
+          "value": 0.7,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Stationary sd of the Ornstein-Uhlenbeck component."
+        },
+        "ou_time_constant_s": {
+          "value": 21600.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Correlation time of the OU component."
+        },
+        "nominal_min_k": {
+          "value": 291.15,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Nominal lower bound."
+        },
+        "nominal_max_k": {
+          "value": 300.15,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Nominal upper bound."
+        }
+      },
+      "relative_humidity": {
+        "setpoint_percent": {
+          "value": 40.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Habitat RH assumed like the station."
+        },
+        "diurnal_amplitude_percent": {
+          "value": 2.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Daily cycle amplitude."
+        },
+        "ou_sd_percent": {
+          "value": 4.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Stationary sd of the OU component."
+        },
+        "ou_time_constant_s": {
+          "value": 43200.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Correlation time of the OU component."
+        },
+        "nominal_min_percent": {
+          "value": 25.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Nominal lower bound."
+        },
+        "nominal_max_percent": {
+          "value": 70.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Nominal upper bound."
+        }
+      },
+      "radiation": {
+        "absorbed_dose_rate_gy_per_day": {
+          "value": 0.000412,
+          "unit": "Gy/day",
+          "basis": "derived",
+          "source_ids": [
+            "MDP35"
+          ],
+          "to_be_set_by": null,
+          "note": "Chang'e-4 LND 13.2 +- 1 uGy/h in silicon at the unshielded surface; habitat shielding would lower it."
+        },
+        "absorbed_dose_rate_sd_gy_per_day": {
+          "value": 3.12e-05,
+          "unit": "Gy/day",
+          "basis": "derived",
+          "source_ids": [
+            "MDP35"
+          ],
+          "to_be_set_by": null,
+          "note": "Reported uncertainty."
+        },
+        "dose_equivalent_rate_sv_per_day": {
+          "value": 0.001369,
+          "unit": "Sv/day",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP35"
+          ],
+          "to_be_set_by": null,
+          "note": "Dose equivalent (not used for chemistry)."
+        },
+        "dosimeter_material": "water (silicon x 1.30)",
+        "note": "Chang'e-4 LND 13.2 +- 1 uGy/h in silicon at the unshielded surface; habitat shielding would lower it."
+      },
+      "light": null,
+      "atmosphere": {
+        "total_pressure_kpa": {
+          "value": 56.5,
+          "unit": "kPa",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP28"
+          ],
+          "to_be_set_by": null,
+          "note": "8.2 psia exploration atmosphere."
+        },
+        "oxygen_fraction": {
+          "value": 0.34,
+          "unit": "1",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP28"
+          ],
+          "to_be_set_by": null,
+          "note": "34% O2 exploration atmosphere."
+        }
+      },
+      "sensor_defaults": {
+        "sampling_interval_s": {
+          "value": 1800.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "One reading every 30 minutes."
+        },
+        "temperature_noise_sd_k": {
+          "value": 0.1,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Reading noise."
+        },
+        "rh_noise_sd_percent": {
+          "value": 1.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Reading noise."
+        },
+        "dose_rate_noise_relative_sd": {
+          "value": 0.1,
+          "unit": "1",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Relative reading noise of the dosimeter."
+        },
+        "dropout_probability": {
+          "value": 0.001,
+          "unit": "1",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Independent probability that a reading is lost."
+        },
+        "temperature_resolution_k": {
+          "value": 0.01,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Quantization step."
+        },
+        "rh_resolution_percent": {
+          "value": 0.1,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Quantization step."
+        },
+        "dose_rate_resolution_gy_per_s": {
+          "value": 1e-12,
+          "unit": "Gy/s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Quantization step."
+        },
+        "sensor_bias_temperature_sd_k": {
+          "value": 0.2,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Per-sensor calibration bias sd (simulator truth)."
+        },
+        "sensor_bias_rh_sd_percent": {
+          "value": 2.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Per-sensor calibration bias sd (simulator truth)."
+        }
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDP35",
+        "MDP28"
+      ],
+      "note": "Temperature and RH are team defaults until a habitat design is chosen."
+    },
+    {
+      "profile_id": "mars",
+      "name": "Mars surface base pharmacy",
+      "description": "Pharmacy shelf in a Mars surface habitat under cabin lighting.",
+      "temperature": {
+        "setpoint_k": {
+          "value": 295.15,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Habitat setpoint assumed like the station."
+        },
+        "diurnal_amplitude_k": {
+          "value": 0.5,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Daily cycle amplitude."
+        },
+        "ou_sd_k": {
+          "value": 0.7,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Stationary sd of the Ornstein-Uhlenbeck component."
+        },
+        "ou_time_constant_s": {
+          "value": 21600.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Correlation time of the OU component."
+        },
+        "nominal_min_k": {
+          "value": 291.15,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Nominal lower bound."
+        },
+        "nominal_max_k": {
+          "value": 300.15,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Nominal upper bound."
+        }
+      },
+      "relative_humidity": {
+        "setpoint_percent": {
+          "value": 40.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Habitat RH assumed like the station."
+        },
+        "diurnal_amplitude_percent": {
+          "value": 2.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Daily cycle amplitude."
+        },
+        "ou_sd_percent": {
+          "value": 4.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Stationary sd of the OU component."
+        },
+        "ou_time_constant_s": {
+          "value": 43200.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Correlation time of the OU component."
+        },
+        "nominal_min_percent": {
+          "value": 25.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Nominal lower bound."
+        },
+        "nominal_max_percent": {
+          "value": 70.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Nominal upper bound."
+        }
+      },
+      "radiation": {
+        "absorbed_dose_rate_gy_per_day": {
+          "value": 0.00021,
+          "unit": "Gy/day",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP37"
+          ],
+          "to_be_set_by": null,
+          "note": "MSL RAD at Gale crater, about 21 g/cm2 of atmosphere."
+        },
+        "absorbed_dose_rate_sd_gy_per_day": {
+          "value": 4e-05,
+          "unit": "Gy/day",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP37"
+          ],
+          "to_be_set_by": null,
+          "note": "Reported uncertainty."
+        },
+        "dose_equivalent_rate_sv_per_day": {
+          "value": 0.00064,
+          "unit": "Sv/day",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP37"
+          ],
+          "to_be_set_by": null,
+          "note": "Dose equivalent (not used for chemistry)."
+        },
+        "dosimeter_material": "silicon (RAD)",
+        "note": "MSL RAD at Gale crater, about 21 g/cm2 of atmosphere."
+      },
+      "light": {
+        "illuminance_lux": {
+          "value": 500.0,
+          "unit": "lx",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Cabin lighting at the shelf."
+        },
+        "uv_w_per_m2": {
+          "value": 0.1,
+          "unit": "W/m2",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Near-UV from LED cabin lighting."
+        },
+        "hours_on_per_day": {
+          "value": 16.0,
+          "unit": "h",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Lights-on period."
+        }
+      },
+      "atmosphere": {
+        "total_pressure_kpa": {
+          "value": 56.5,
+          "unit": "kPa",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP28"
+          ],
+          "to_be_set_by": null,
+          "note": "8.2 psia exploration atmosphere."
+        },
+        "oxygen_fraction": {
+          "value": 0.34,
+          "unit": "1",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP28"
+          ],
+          "to_be_set_by": null,
+          "note": "34% O2 exploration atmosphere."
+        }
+      },
+      "sensor_defaults": {
+        "sampling_interval_s": {
+          "value": 1800.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "One reading every 30 minutes."
+        },
+        "temperature_noise_sd_k": {
+          "value": 0.1,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Reading noise."
+        },
+        "rh_noise_sd_percent": {
+          "value": 1.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Reading noise."
+        },
+        "dose_rate_noise_relative_sd": {
+          "value": 0.1,
+          "unit": "1",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Relative reading noise of the dosimeter."
+        },
+        "dropout_probability": {
+          "value": 0.001,
+          "unit": "1",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Independent probability that a reading is lost."
+        },
+        "temperature_resolution_k": {
+          "value": 0.01,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Quantization step."
+        },
+        "rh_resolution_percent": {
+          "value": 0.1,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Quantization step."
+        },
+        "dose_rate_resolution_gy_per_s": {
+          "value": 1e-12,
+          "unit": "Gy/s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Quantization step."
+        },
+        "sensor_bias_temperature_sd_k": {
+          "value": 0.2,
+          "unit": "K",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Per-sensor calibration bias sd (simulator truth)."
+        },
+        "sensor_bias_rh_sd_percent": {
+          "value": 2.0,
+          "unit": "percent",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Per-sensor calibration bias sd (simulator truth)."
+        }
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDP37",
+        "MDP28"
+      ],
+      "note": ""
+    }
+  ],
+  "spe_templates": [
+    {
+      "template_id": "aug1972_behind_10_g_cm2",
+      "description": "August 1972 event behind 10 g/cm2 (skin dose).",
+      "total_absorbed_dose_gy": {
+        "value": 0.715,
+        "unit": "Gy",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP40"
+        ],
+        "to_be_set_by": null,
+        "note": "0.71 (female) and 0.72 (male) Gy skin dose, mean."
+      },
+      "rise_s": {
+        "value": 7200.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Linear rise to peak."
+      },
+      "decay_time_constant_s": {
+        "value": 36000.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP40"
+        ],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Exponential decay; MDP40 quotes a 10-hour increment."
+      },
+      "shielding_g_per_cm2": {
+        "value": 10.0,
+        "unit": "g/cm2",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP40"
+        ],
+        "to_be_set_by": null,
+        "note": "Aluminum-equivalent shielding."
+      }
+    },
+    {
+      "template_id": "aug1972_behind_20_g_cm2",
+      "description": "August 1972 event behind 20 g/cm2 (skin dose).",
+      "total_absorbed_dose_gy": {
+        "value": 0.11,
+        "unit": "Gy",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP40"
+        ],
+        "to_be_set_by": null,
+        "note": "0.11 Gy skin dose."
+      },
+      "rise_s": {
+        "value": 7200.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Linear rise to peak."
+      },
+      "decay_time_constant_s": {
+        "value": 36000.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP40"
+        ],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Exponential decay."
+      },
+      "shielding_g_per_cm2": {
+        "value": 20.0,
+        "unit": "g/cm2",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP40"
+        ],
+        "to_be_set_by": null,
+        "note": "Aluminum-equivalent shielding."
+      }
+    },
+    {
+      "template_id": "mars_surface_sep_2017",
+      "description": "September 2017 SEP at Gale crater.",
+      "total_absorbed_dose_gy": {
+        "value": 5e-05,
+        "unit": "Gy",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP37"
+        ],
+        "to_be_set_by": null,
+        "note": "50 uGy in the less-shielded detector."
+      },
+      "rise_s": {
+        "value": 21600.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Linear rise to peak."
+      },
+      "decay_time_constant_s": {
+        "value": 86400.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Exponential decay."
+      },
+      "shielding_g_per_cm2": null
+    }
+  ],
+  "thermal_failure_templates": [
+    {
+      "template_id": "tcs_failure_hot",
+      "description": "Thermal control loop failure: cabin warms to 45 C for 5 days.",
+      "target_temperature_k": {
+        "value": 318.15,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Plateau temperature."
+      },
+      "target_rh_percent": null,
+      "ramp_s": {
+        "value": 43200.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Ramp up."
+      },
+      "hold_s": {
+        "value": 432000.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Plateau."
+      },
+      "recover_s": {
+        "value": 43200.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Ramp back to setpoint."
+      }
+    },
+    {
+      "template_id": "tcs_failure_cold",
+      "description": "Heater failure: cabin cools to -5 C for 2 days (liquids freeze).",
+      "target_temperature_k": {
+        "value": 268.15,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Plateau temperature."
+      },
+      "target_rh_percent": null,
+      "ramp_s": {
+        "value": 43200.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Ramp down."
+      },
+      "hold_s": {
+        "value": 172800.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Plateau."
+      },
+      "recover_s": {
+        "value": 43200.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "habitat environmental control lead",
+        "note": "Ramp back to setpoint."
+      }
+    }
+  ]
+}

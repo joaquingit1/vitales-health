@@ -1,0 +1,89 @@
+{
+ "document_id": "vectors-fitting",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "Kinetic fitting against published datasets (degradation-science.md 9.6).",
+ "extracted_from": [
+  {
+   "note": "degradation-science.md",
+   "section": "9.6"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "TV-FIT-1",
+   "kind": "worked_example",
+   "description": "AccelStab reduced Sestak-Berggren fit of the antigenicity dataset.",
+   "target": "pharmacy.fit.fit_stability_study",
+   "inputs": {
+    "dataset": {
+     "package": "AccelStab",
+     "package_version": "2.3.2",
+     "source": "CRAN",
+     "name": "antigenicity",
+     "columns": [
+      "time",
+      "Celsius",
+      "K",
+      "conc",
+      "N.days"
+     ],
+     "temperatures_c": [
+      5,
+      20,
+      32,
+      37
+     ],
+     "filter": "time <= 0.5",
+     "embedded_in_repository": false
+    },
+    "model": "reduced one-step Sestak-Berggren (AccelStab): Y depends on C0, k3 and t exp(k1 - k2/T); k2 = Ea/R",
+    "starting_values": {
+     "k1": 50,
+     "k2": 10000,
+     "k3": 3,
+     "c0": 100
+    }
+   },
+   "expected": {
+    "k1": {
+     "estimate": 42.405,
+     "se": 4.043
+    },
+    "k2": {
+     "estimate": 11966.547,
+     "se": 1139.513
+    },
+    "k3": {
+     "estimate": 8.472,
+     "se": 1.109
+    },
+    "c0": {
+     "estimate": 98.058,
+     "se": 1.602
+    },
+    "residual_standard_error": 3.939,
+    "residual_df": 50,
+    "implied_ea_kj_per_mol": 99.5
+   },
+   "published_expected_text": "k1 = 42.405 (SE 4.043), k2 = 11966.547 (SE 1139.513), k3 = 8.472 (SE 1.109), c0 = 98.058 (SE 1.602); residual SE 3.939 on 50 df; same estimates from starting values k1 = 50, k2 = 10000, k3 = 3, c0 = 100",
+   "our_recomputation": {
+    "implied_ea_kj_per_mol": 99.5,
+    "foundation_ea_kj_per_mol": 99.49540769987381,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": null,
+    "rel": 0.001,
+    "unit": null,
+    "basis": "published to 3 decimals; not checked by the foundation"
+   },
+   "source_ids": [
+    "MDS22"
+   ],
+   "source_status": "read (vignette; equation printed as an image)",
+   "status": "unverified",
+   "note": "The dataset ships in the CRAN AccelStab package and is not in the research notes or this repository; the exact model algebra must be taken from the package source. Skip unless the dataset is supplied. Vaccine data: tests the fitting code, not the chemistry."
+  }
+ ]
+}

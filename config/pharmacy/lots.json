@@ -1,0 +1,838 @@
+{
+  "document_id": "lots",
+  "schema": "pharmacy/lots.schema.json",
+  "version": "0.1.0",
+  "review_state": "draft",
+  "notice": "Draft configuration for the Crew Health Check potency engine. Every value carries its basis and source IDs (research notes in reports/crew-health-medications-2026-11-14/research). team_default values are placeholders that the named role must replace before operational use.",
+  "lots": [
+    {
+      "lot_id": "lot-apap-001",
+      "product_id": "acetaminophen_325_tab",
+      "manufacturer_lot": "LOTAPAP001",
+      "manufactured_at_utc": "2027-06-24T00:00:00Z",
+      "labeled_expiry_utc": "2029-06-23T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "acetaminophen",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-06-24T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "original_bottle",
+          "from_utc": "2027-06-24T00:00:00Z"
+        },
+        {
+          "package_id": "repackaged_bag",
+          "from_utc": "2027-12-11T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Repackaged into a zip-lock bag 30 days before launch."
+    },
+    {
+      "lot_id": "lot-apap-002",
+      "product_id": "acetaminophen_325_tab",
+      "manufacturer_lot": "LOTAPAP002",
+      "manufactured_at_utc": "2027-06-24T00:00:00Z",
+      "labeled_expiry_utc": "2029-06-23T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "acetaminophen",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-06-24T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "original_bottle",
+          "from_utc": "2027-06-24T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Kept in the original bottle."
+    },
+    {
+      "lot_id": "lot-asa-001",
+      "product_id": "aspirin_325_tab",
+      "manufacturer_lot": "LOTASA001",
+      "manufactured_at_utc": "2027-05-05T00:00:00Z",
+      "labeled_expiry_utc": "2029-05-04T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "aspirin",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-05-05T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "original_bottle",
+          "from_utc": "2027-05-05T00:00:00Z"
+        },
+        {
+          "package_id": "repackaged_bag",
+          "from_utc": "2027-12-11T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Demonstration lot for the Moon base scenario."
+    },
+    {
+      "lot_id": "lot-ibu-001",
+      "product_id": "ibuprofen_400_tab",
+      "manufacturer_lot": "LOTIBU001",
+      "manufactured_at_utc": "2027-07-14T00:00:00Z",
+      "labeled_expiry_utc": "2029-07-13T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "ibuprofen",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-07-14T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "original_bottle",
+          "from_utc": "2027-07-14T00:00:00Z"
+        },
+        {
+          "package_id": "repackaged_bag",
+          "from_utc": "2027-12-11T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Demonstration lot for the Moon base scenario."
+    },
+    {
+      "lot_id": "lot-amc-001",
+      "product_id": "amoxicillin_clavulanate_875_125_tab",
+      "manufacturer_lot": "LOTAMC001",
+      "manufactured_at_utc": "2027-08-13T00:00:00Z",
+      "labeled_expiry_utc": "2029-08-12T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "amoxicillin",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        },
+        {
+          "ingredient_id": "clavulanic_acid",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-08-13T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "original_blister",
+          "from_utc": "2027-08-13T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Demonstration lot for the Moon base scenario."
+    },
+    {
+      "lot_id": "lot-amc-002",
+      "product_id": "amoxicillin_clavulanate_875_125_tab",
+      "manufacturer_lot": "LOTAMC002",
+      "manufactured_at_utc": "2027-08-13T00:00:00Z",
+      "labeled_expiry_utc": "2029-08-12T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "amoxicillin",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        },
+        {
+          "ingredient_id": "clavulanic_acid",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-08-13T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "original_blister",
+          "from_utc": "2027-08-13T00:00:00Z"
+        },
+        {
+          "package_id": "repackaged_bag",
+          "from_utc": "2027-12-11T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Removed from blisters and bagged 30 days before launch."
+    },
+    {
+      "lot_id": "lot-pmz-tab-001",
+      "product_id": "promethazine_25_tab",
+      "manufacturer_lot": "LOTPMZTAB001",
+      "manufactured_at_utc": "2027-06-04T00:00:00Z",
+      "labeled_expiry_utc": "2029-06-03T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "promethazine",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-06-04T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "original_bottle",
+          "from_utc": "2027-06-04T00:00:00Z"
+        },
+        {
+          "package_id": "repackaged_bag",
+          "from_utc": "2027-12-11T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Demonstration lot for the Moon base scenario."
+    },
+    {
+      "lot_id": "lot-pmz-inj-001",
+      "product_id": "promethazine_25mg_ml_inj",
+      "manufacturer_lot": "LOTPMZINJ001",
+      "manufactured_at_utc": "2027-06-04T00:00:00Z",
+      "labeled_expiry_utc": "2029-06-03T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "promethazine",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-06-04T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "original_vial",
+          "from_utc": "2027-06-04T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Demonstration lot for the Moon base scenario."
+    },
+    {
+      "lot_id": "lot-epi-ai-001",
+      "product_id": "epinephrine_0_3mg_autoinjector",
+      "manufacturer_lot": "LOTEPIAI001",
+      "manufactured_at_utc": "2027-03-16T00:00:00Z",
+      "labeled_expiry_utc": "2029-03-15T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "epinephrine",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-03-16T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "auto_injector",
+          "from_utc": "2027-03-16T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Demonstration lot for the Moon base scenario."
+    },
+    {
+      "lot_id": "lot-epi-ai-002",
+      "product_id": "epinephrine_0_3mg_autoinjector",
+      "manufacturer_lot": "LOTEPIAI002",
+      "manufactured_at_utc": "2027-10-12T00:00:00Z",
+      "labeled_expiry_utc": "2029-10-11T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "epinephrine",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-10-12T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "auto_injector",
+          "from_utc": "2027-10-12T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Newer lot of the same product."
+    },
+    {
+      "lot_id": "lot-epi-syr-001",
+      "product_id": "epinephrine_0_1mg_ml_syringe",
+      "manufacturer_lot": "LOTEPISYR001",
+      "manufactured_at_utc": "2027-05-15T00:00:00Z",
+      "labeled_expiry_utc": "2029-05-14T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "epinephrine",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-05-15T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "prefilled_syringe",
+          "from_utc": "2027-05-15T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Demonstration lot for the Moon base scenario."
+    },
+    {
+      "lot_id": "lot-vitc-001",
+      "product_id": "ascorbic_acid_500_tab",
+      "manufacturer_lot": "LOTVITC001",
+      "manufactured_at_utc": "2027-09-12T00:00:00Z",
+      "labeled_expiry_utc": "2029-09-11T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "ascorbic_acid",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-09-12T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "original_bottle",
+          "from_utc": "2027-09-12T00:00:00Z"
+        },
+        {
+          "package_id": "repackaged_bag",
+          "from_utc": "2027-12-11T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Demonstration lot for the Moon base scenario."
+    },
+    {
+      "lot_id": "lot-levo-001",
+      "product_id": "levofloxacin_500_tab",
+      "manufacturer_lot": "LOTLEVO001",
+      "manufactured_at_utc": "2027-08-03T00:00:00Z",
+      "labeled_expiry_utc": "2029-08-02T00:00:00Z",
+      "quantity": {
+        "value": 30,
+        "unit": "units"
+      },
+      "initial_assay": [
+        {
+          "ingredient_id": "levofloxacin",
+          "mean_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Certificate of analysis not available; release at label claim assumed."
+          },
+          "sd_percent": {
+            "value": 1.5,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Release assay standard uncertainty."
+          }
+        }
+      ],
+      "custody": [
+        {
+          "zone_id": "ground_storage",
+          "from_utc": "2027-08-03T00:00:00Z",
+          "to_utc": "2028-01-10T00:00:00Z"
+        },
+        {
+          "zone_id": "transit_kit",
+          "from_utc": "2028-01-10T00:00:00Z",
+          "to_utc": "2028-01-15T00:00:00Z"
+        },
+        {
+          "zone_id": "moon_base_pharmacy",
+          "from_utc": "2028-01-15T00:00:00Z",
+          "to_utc": null
+        }
+      ],
+      "package_history": [
+        {
+          "package_id": "original_blister",
+          "from_utc": "2027-08-03T00:00:00Z"
+        }
+      ],
+      "status": "active",
+      "basis": "team_default",
+      "source_ids": [],
+      "note": "Demonstration lot for the Moon base scenario."
+    }
+  ]
+}

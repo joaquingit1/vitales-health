@@ -1,0 +1,325 @@
+{
+ "document_id": "vectors-humidity",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "Humidity, packaging and ASAP vectors (degradation-science.md 9.3).",
+ "extracted_from": [
+  {
+   "note": "degradation-science.md",
+   "section": "9.3"
+  },
+  {
+   "note": "degradation-science.md",
+   "section": "3.4"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "TV-H-1",
+   "kind": "worked_example",
+   "description": "Water-loss rate ratio for an aqueous product in a semi-permeable container at the same temperature.",
+   "target": "oracle:water_loss_ratio",
+   "inputs": {
+    "pairs": [
+     {
+      "rh_alternative_percent": 60,
+      "rh_reference_percent": 25
+     },
+     {
+      "rh_alternative_percent": 60,
+      "rh_reference_percent": 40
+     },
+     {
+      "rh_alternative_percent": 65,
+      "rh_reference_percent": 35
+     },
+     {
+      "rh_alternative_percent": 75,
+      "rh_reference_percent": 25
+     }
+    ],
+    "formula": "(100 - rh_reference) / (100 - rh_alternative)"
+   },
+   "expected": {
+    "ratios": [
+     1.9,
+     1.5,
+     1.9,
+     3.0
+    ]
+   },
+   "published_expected_text": "1.9; 1.5; 1.9; 3.0",
+   "our_recomputation": {
+    "ratios": [
+     1.875,
+     1.5,
+     1.857,
+     3.0
+    ],
+    "statement": "match at the published 1-decimal rounding"
+   },
+   "tolerance": {
+    "abs": 0.05,
+    "rel": null,
+    "unit": null,
+    "basis": "published 1-decimal rounding"
+   },
+   "source_ids": [
+    "MDS01"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Linear permeation law with internal water activity near 1 (the note's derivation)."
+  },
+  {
+   "vector_id": "TV-H-2",
+   "kind": "worked_example",
+   "description": "Waterman humidity illustration: shelf life at 75% RH from 5.0 years at 60% RH with B = 0.09.",
+   "target": "pharmacy.kinetics.rate_constant",
+   "inputs": {
+    "b_per_percent_rh": 0.09,
+    "shelf_life_years_at_60": 5.0,
+    "rh_from_percent": 60.0,
+    "rh_to_percent": 75.0,
+    "same_temperature": true,
+    "packaging": "none"
+   },
+   "expected": {
+    "shelf_life_years_at_75": 1.296
+   },
+   "published_expected_text": "\"with B equal to 0.09, a shelf life at 60% RH of 5.0 years would drop to only 1.2 years at 75% RH\"",
+   "our_recomputation": {
+    "shelf_life_years_at_75": 1.296,
+    "b_needed_for_1_2_years": 0.095,
+    "foundation_shelf_life_years": 1.2962013032294577,
+    "foundation_b_for_1_2": 0.09514109037600972,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": 0.1,
+    "rel": null,
+    "unit": "year",
+    "basis": "note's tolerance 0.1 year; assert the engine gives 1.296, never 1.2"
+   },
+   "source_ids": [
+    "MDS13"
+   ],
+   "source_status": "read",
+   "status": "known_mismatch",
+   "note": "Published 1.2 years does not reproduce: 5.0 / exp(0.09 * 15) = 1.296 years; 1.2 would need B = 0.095. Record the discrepancy; do not tune the engine to 1.2."
+  },
+  {
+   "vector_id": "TV-H-3",
+   "kind": "derived_check",
+   "description": "Fu et al. MLNA humidity-corrected Arrhenius model evaluated at three label conditions.",
+   "target": "pharmacy.kinetics.rate_constant",
+   "inputs": {
+    "model": "ln k = -11991 (1/T) + 0.0298 (%RH) + 29.8823",
+    "minus_ea_over_r_k": -11991.0,
+    "b_per_percent_rh": 0.0298,
+    "intercept_ln_k": 29.8823,
+    "conditions": [
+     {
+      "temperature_c": 25.0,
+      "temperature_k": 298.15,
+      "rh_percent": 60.0
+     },
+     {
+      "temperature_c": 30.0,
+      "temperature_k": 303.15,
+      "rh_percent": 65.0
+     },
+     {
+      "temperature_c": 40.0,
+      "temperature_k": 313.15,
+      "rh_percent": 75.0
+     }
+    ],
+    "k_units": "not stated in the abstract (likely percent per day)"
+   },
+   "expected": {
+    "k": [
+     0.000194,
+     0.0004371,
+     0.002082
+    ],
+    "activation_energy_kj_per_mol": 99.7
+   },
+   "published_expected_text": "the equation itself (fit R^2 0.94, CV(RMSE) 7.9%)",
+   "our_recomputation": {
+    "k": [
+     0.000194,
+     0.0004371,
+     0.002082
+    ],
+    "activation_energy_kj_per_mol": 99.7,
+    "foundation_k": [
+     0.00019398861847933795,
+     0.0004370880468232631,
+     0.002082359676185753
+    ],
+    "foundation_ea_kj_per_mol": 99.6987212542755,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": null,
+    "rel": 0.0005,
+    "unit": null,
+    "basis": "4 significant figures in the note"
+   },
+   "source_ids": [
+    "MDS18"
+   ],
+   "source_status": "abstract; computed values DERIVED",
+   "status": "reproduces",
+   "note": "Engine form: k_ref at a chosen T_ref and RH_ref with Ea = 11991 R and B = 0.0298."
+  },
+  {
+   "vector_id": "TV-H-4",
+   "kind": "derived_check",
+   "description": "Waterman Fig. 5 hypothetical tablet: open-dish shelf life to 0.5% degradant.",
+   "target": "pharmacy.kinetics.rate_constant",
+   "inputs": {
+    "activation_energy_kcal_per_mol": 30.0,
+    "ln_a": 38.5,
+    "b_per_percent_rh": 0.07,
+    "gas_constant_cal_per_mol_k": 1.986,
+    "k_units": "percent degradant per day",
+    "specification_percent": 0.5,
+    "conditions": [
+     {
+      "temperature_c": 30.0,
+      "rh_percent": 75.0,
+      "report_unit": "days"
+     },
+     {
+      "temperature_c": 25.0,
+      "rh_percent": 60.0,
+      "report_unit": "years"
+     },
+     {
+      "temperature_c": 30.0,
+      "rh_percent": 65.0,
+      "report_unit": "years"
+     },
+     {
+      "temperature_c": 40.0,
+      "rh_percent": 75.0,
+      "report_unit": "days"
+     }
+    ],
+    "shelf_life_formula": "0.5 / k (days)"
+   },
+   "expected": {
+    "shelf_life": [
+     {
+      "value": 218,
+      "unit": "days"
+     },
+     {
+      "value": 3.94,
+      "unit": "years"
+     },
+     {
+      "value": 1.2,
+      "unit": "years"
+     },
+     {
+      "value": 44.5,
+      "unit": "days"
+     }
+    ]
+   },
+   "published_expected_text": "no open-dish value published (the figure gives packaged shelf lives only)",
+   "our_recomputation": {
+    "open_dish": "30 degC/75% RH 218 days; 25 degC/60% RH 3.94 years; 30/65 1.20 years; 40/75 44.5 days",
+    "foundation_values": [
+     218.35296520872507,
+     3.939964033831915,
+     1.2038572891807717,
+     44.47317906755753
+    ],
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; years = days / 365.25"
+   },
+   "tolerance": {
+    "abs": null,
+    "rel": 0.005,
+    "unit": null,
+    "basis": "3 significant figures"
+   },
+   "source_ids": [
+    "MDS13"
+   ],
+   "source_status": "read; computed values DERIVED",
+   "status": "reproduces",
+   "note": "Usable as a demo product config, not as a published validation point. The year conversion (365.25 d) is a foundation choice; the note does not state it."
+  },
+  {
+   "vector_id": "TV-H-5",
+   "kind": "worked_example",
+   "description": "Waterman Table II hypothetical lots: 6-month degradant levels and fitted parameters.",
+   "target": "pharmacy.fit.fit_stability_study",
+   "inputs": {
+    "lots": [
+     {
+      "lot": 1,
+      "degradant_6_months_percent": {
+       "25_60": 0.04,
+       "30_65": 0.08,
+       "40_75": 0.35
+      }
+     },
+     {
+      "lot": 2,
+      "degradant_6_months_percent": {
+       "25_60": 0.08,
+       "30_65": 0.1,
+       "40_75": 0.22
+      }
+     }
+    ]
+   },
+   "expected": {
+    "lot_1": {
+     "ea_kcal_per_mol": {
+      "mean": 29,
+      "sd": 2
+     },
+     "b_per_percent_rh": {
+      "mean": 0.031,
+      "sd": 0.005
+     },
+     "shelf_life_years_to_0_4_percent_at_30_65": {
+      "mean": 2.6,
+      "sd": 0.4
+     }
+    },
+    "lot_2": {
+     "ea_kcal_per_mol": {
+      "mean": 21,
+      "sd": 2
+     },
+     "b_per_percent_rh": {
+      "mean": 0.029,
+      "sd": 0.005
+     },
+     "shelf_life_years_to_0_4_percent_at_30_65": {
+      "mean": 1.6,
+      "sd": 0.3
+     }
+    }
+   },
+   "published_expected_text": "Lot 1: 0.04, 0.08, 0.35%; Ea 29 ± 2 kcal/mol; B 0.031 ± 0.005; 2.6 ± 0.4 years to 0.4% at 30/65. Lot 2: 0.08, 0.10, 0.22%; 21 ± 2; 0.029 ± 0.005; 1.6 ± 0.3 years",
+   "our_recomputation": {
+    "statement": "not reproduced: the table summarizes a fuller ASAP dataset that is not published"
+   },
+   "tolerance": null,
+   "source_ids": [
+    "MDS13"
+   ],
+   "source_status": "read",
+   "status": "known_mismatch",
+   "note": "Not reproducible from the published table. Use only as a plausibility range check (fitted Ea and B of the right size); keep out of pass/fail tests on exact values."
+  }
+ ]
+}

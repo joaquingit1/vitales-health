@@ -1,0 +1,1229 @@
+{
+  "document_id": "formulary",
+  "schema": "pharmacy/formulary.schema.json",
+  "version": "0.1.0",
+  "review_state": "draft",
+  "notice": "Draft configuration for the Crew Health Check potency engine. Every value carries its basis and source IDs (research notes in reports/crew-health-medications-2026-11-14/research). team_default values are placeholders that the named role must replace before operational use.",
+  "products": [
+    {
+      "product_id": "acetaminophen_325_tab",
+      "name": "Acetaminophen 325 mg tablet",
+      "dose_form": "tablet",
+      "dose_form_family": "solid",
+      "route": "oral",
+      "ingredients": [
+        {
+          "ingredient_id": "acetaminophen",
+          "name": "Acetaminophen",
+          "smiles": "CC(=O)NC1=CC=C(C=C1)O",
+          "pubchem_cid": 1983,
+          "molar_mass_g_per_mol": {
+            "value": 151.16,
+            "unit": "g/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "PubChem molecular weight (free form)."
+          },
+          "salt_form_note": "",
+          "strength": {
+            "value": 325,
+            "unit": "mg",
+            "per": "tablet"
+          },
+          "concentration_mol_per_kg": null,
+          "specification": {
+            "lower_percent": {
+              "value": 90.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDS33"
+              ],
+              "to_be_set_by": null,
+              "note": "USP acetaminophen tablets 90.0 to 110.0%."
+            },
+            "upper_percent": {
+              "value": 110.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDS33"
+              ],
+              "to_be_set_by": null,
+              "note": "USP acetaminophen tablets 90.0 to 110.0%."
+            }
+          },
+          "degradants": [
+            {
+              "degradant_id": "4_aminophenol",
+              "name": "4-Aminophenol",
+              "smiles": "NC1=CC=C(C=C1)O",
+              "formed_by_class_id": "amide_hydrolysis",
+              "yield_mol_per_mol": {
+                "value": 1.0,
+                "unit": "mol/mol",
+                "basis": "team_default",
+                "source_ids": [],
+                "to_be_set_by": "chemistry lead",
+                "note": "Stoichiometric yield assumed."
+              },
+              "molar_mass_g_per_mol": {
+                "value": 109.13,
+                "unit": "g/mol",
+                "basis": "sourced",
+                "source_ids": [
+                  "MDX01"
+                ],
+                "to_be_set_by": null,
+                "note": "Molecular weight."
+              },
+              "limit_percent": {
+                "value": 0.15,
+                "unit": "percent",
+                "basis": "team_default",
+                "source_ids": [
+                  "MDS04",
+                  "MDD58"
+                ],
+                "to_be_set_by": "pharmacist and flight surgeon",
+                "note": "ICH Q3B qualification threshold for > 2 g/day (MDS04); replace with the USP <227> limit for 4-aminophenol, which was not read."
+              },
+              "toxicity_flag": "toxic",
+              "basis": "sourced",
+              "source_ids": [
+                "MDD58",
+                "MDD59"
+              ],
+              "note": "Principal degradant controlled by USP <227>; nephrotoxic in animals."
+            }
+          ],
+          "racemization": null,
+          "source_ids": [
+            "MDX01"
+          ]
+        }
+      ],
+      "default_package_id": "original_bottle",
+      "fixed_dose_device": false,
+      "narrow_therapeutic_index": false,
+      "radiosensitive": false,
+      "degradant_profile_reviewed": false,
+      "potency_adjustment": {
+        "allowed": true,
+        "reason": null
+      },
+      "freezing_point_k": null,
+      "do_not_freeze": false,
+      "regime_thresholds": {
+        "phase_change_temperature_k": null,
+        "deliquescence_rh_percent": null
+      },
+      "photostable_per_q1b": null,
+      "solution_ph": null,
+      "inspection_criteria": [
+        "discoloration",
+        "cracking or crumbling",
+        "crystals on surface",
+        "unusual odor"
+      ],
+      "formulary_membership": {
+        "pack": "ISS medical kit",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01"
+        ],
+        "note": ""
+      },
+      "label_shelf_life_months_text": "24 months (team default)",
+      "basis": "derived",
+      "source_ids": [
+        "MDS33",
+        "MDP05",
+        "MDD58"
+      ],
+      "note": ""
+    },
+    {
+      "product_id": "aspirin_325_tab",
+      "name": "Aspirin 325 mg tablet",
+      "dose_form": "tablet",
+      "dose_form_family": "solid",
+      "route": "oral",
+      "ingredients": [
+        {
+          "ingredient_id": "aspirin",
+          "name": "Aspirin (acetylsalicylic acid)",
+          "smiles": "CC(=O)OC1=CC=CC=C1C(=O)O",
+          "pubchem_cid": 2244,
+          "molar_mass_g_per_mol": {
+            "value": 180.16,
+            "unit": "g/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "PubChem molecular weight (free form)."
+          },
+          "salt_form_note": "",
+          "strength": {
+            "value": 325,
+            "unit": "mg",
+            "per": "tablet"
+          },
+          "concentration_mol_per_kg": null,
+          "specification": {
+            "lower_percent": {
+              "value": 90.0,
+              "unit": "percent",
+              "basis": "team_default",
+              "source_ids": [],
+              "to_be_set_by": "pharmacist and flight surgeon",
+              "note": "Specification not read in the notes; 90 to 110% assumed."
+            },
+            "upper_percent": {
+              "value": 110.0,
+              "unit": "percent",
+              "basis": "team_default",
+              "source_ids": [],
+              "to_be_set_by": "pharmacist and flight surgeon",
+              "note": "Specification not read in the notes; 90 to 110% assumed."
+            }
+          },
+          "degradants": [
+            {
+              "degradant_id": "salicylic_acid",
+              "name": "Salicylic acid",
+              "smiles": "C1=CC=C(C(=C1)C(=O)O)O",
+              "formed_by_class_id": "ester_hydrolysis",
+              "yield_mol_per_mol": {
+                "value": 1.0,
+                "unit": "mol/mol",
+                "basis": "team_default",
+                "source_ids": [],
+                "to_be_set_by": "chemistry lead",
+                "note": "Stoichiometric yield assumed."
+              },
+              "molar_mass_g_per_mol": {
+                "value": 138.12,
+                "unit": "g/mol",
+                "basis": "sourced",
+                "source_ids": [
+                  "MDX01"
+                ],
+                "to_be_set_by": null,
+                "note": "Molecular weight."
+              },
+              "limit_percent": null,
+              "toxicity_flag": "unknown",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP05"
+              ],
+              "note": "Free salicylic acid below 0.05% after 550 days on ISS (MDP05)."
+            }
+          ],
+          "racemization": null,
+          "source_ids": [
+            "MDX01"
+          ]
+        }
+      ],
+      "default_package_id": "original_bottle",
+      "fixed_dose_device": false,
+      "narrow_therapeutic_index": false,
+      "radiosensitive": false,
+      "degradant_profile_reviewed": false,
+      "potency_adjustment": {
+        "allowed": true,
+        "reason": null
+      },
+      "freezing_point_k": null,
+      "do_not_freeze": false,
+      "regime_thresholds": {
+        "phase_change_temperature_k": null,
+        "deliquescence_rh_percent": null
+      },
+      "photostable_per_q1b": null,
+      "solution_ph": null,
+      "inspection_criteria": [
+        "discoloration",
+        "cracking or crumbling",
+        "crystals on surface",
+        "unusual odor",
+        "vinegar odor"
+      ],
+      "formulary_membership": {
+        "pack": "ISS medical kit",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01"
+        ],
+        "note": ""
+      },
+      "label_shelf_life_months_text": "24 months (team default)",
+      "basis": "derived",
+      "source_ids": [
+        "MDP05"
+      ],
+      "note": ""
+    },
+    {
+      "product_id": "ibuprofen_400_tab",
+      "name": "Ibuprofen 400 mg tablet",
+      "dose_form": "tablet",
+      "dose_form_family": "solid",
+      "route": "oral",
+      "ingredients": [
+        {
+          "ingredient_id": "ibuprofen",
+          "name": "Ibuprofen",
+          "smiles": "CC(C)CC1=CC=C(C=C1)C(C)C(=O)O",
+          "pubchem_cid": 3672,
+          "molar_mass_g_per_mol": {
+            "value": 206.28,
+            "unit": "g/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "PubChem molecular weight (free form)."
+          },
+          "salt_form_note": "",
+          "strength": {
+            "value": 400,
+            "unit": "mg",
+            "per": "tablet"
+          },
+          "concentration_mol_per_kg": null,
+          "specification": {
+            "lower_percent": {
+              "value": 90.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP02"
+              ],
+              "to_be_set_by": null,
+              "note": "USP range reported in Du 2011."
+            },
+            "upper_percent": {
+              "value": 110.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP02"
+              ],
+              "to_be_set_by": null,
+              "note": "USP range reported in Du 2011."
+            }
+          },
+          "degradants": [],
+          "racemization": null,
+          "source_ids": [
+            "MDX01"
+          ]
+        }
+      ],
+      "default_package_id": "original_bottle",
+      "fixed_dose_device": false,
+      "narrow_therapeutic_index": false,
+      "radiosensitive": false,
+      "degradant_profile_reviewed": false,
+      "potency_adjustment": {
+        "allowed": true,
+        "reason": null
+      },
+      "freezing_point_k": null,
+      "do_not_freeze": false,
+      "regime_thresholds": {
+        "phase_change_temperature_k": null,
+        "deliquescence_rh_percent": null
+      },
+      "photostable_per_q1b": null,
+      "solution_ph": null,
+      "inspection_criteria": [
+        "discoloration",
+        "cracking or crumbling",
+        "crystals on surface",
+        "unusual odor"
+      ],
+      "formulary_membership": {
+        "pack": "ISS medical kit",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01"
+        ],
+        "note": ""
+      },
+      "label_shelf_life_months_text": null,
+      "basis": "derived",
+      "source_ids": [
+        "MDP02",
+        "MDP11"
+      ],
+      "note": ""
+    },
+    {
+      "product_id": "amoxicillin_clavulanate_875_125_tab",
+      "name": "Amoxicillin 875 mg / clavulanate 125 mg tablet",
+      "dose_form": "tablet",
+      "dose_form_family": "solid",
+      "route": "oral",
+      "ingredients": [
+        {
+          "ingredient_id": "amoxicillin",
+          "name": "Amoxicillin",
+          "smiles": "CC1([C@@H](N2[C@H](S1)[C@@H](C2=O)NC(=O)[C@@H](C3=CC=C(C=C3)O)N)C(=O)O)C",
+          "pubchem_cid": 33613,
+          "molar_mass_g_per_mol": {
+            "value": 365.4,
+            "unit": "g/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "PubChem molecular weight (free form)."
+          },
+          "salt_form_note": "trihydrate; strength as anhydrous amoxicillin",
+          "strength": {
+            "value": 875,
+            "unit": "mg",
+            "per": "tablet"
+          },
+          "concentration_mol_per_kg": null,
+          "specification": {
+            "lower_percent": {
+              "value": 90.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP02"
+              ],
+              "to_be_set_by": null,
+              "note": "USP range reported in Du 2011."
+            },
+            "upper_percent": {
+              "value": 120.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP02"
+              ],
+              "to_be_set_by": null,
+              "note": "USP range reported in Du 2011."
+            }
+          },
+          "degradants": [],
+          "racemization": null,
+          "source_ids": [
+            "MDX01"
+          ]
+        },
+        {
+          "ingredient_id": "clavulanic_acid",
+          "name": "Clavulanic acid",
+          "smiles": "C1[C@@H]2N(C1=O)[C@H](/C(=C/CO)/O2)C(=O)O",
+          "pubchem_cid": 5280980,
+          "molar_mass_g_per_mol": {
+            "value": 199.16,
+            "unit": "g/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "PubChem molecular weight (free form)."
+          },
+          "salt_form_note": "potassium salt; strength as clavulanic acid",
+          "strength": {
+            "value": 125,
+            "unit": "mg",
+            "per": "tablet"
+          },
+          "concentration_mol_per_kg": null,
+          "specification": {
+            "lower_percent": {
+              "value": 90.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP02"
+              ],
+              "to_be_set_by": null,
+              "note": "USP range reported in Du 2011."
+            },
+            "upper_percent": {
+              "value": 120.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP02"
+              ],
+              "to_be_set_by": null,
+              "note": "USP range reported in Du 2011."
+            }
+          },
+          "degradants": [],
+          "racemization": null,
+          "source_ids": [
+            "MDX01"
+          ]
+        }
+      ],
+      "default_package_id": "original_blister",
+      "fixed_dose_device": false,
+      "narrow_therapeutic_index": false,
+      "radiosensitive": true,
+      "degradant_profile_reviewed": false,
+      "potency_adjustment": {
+        "allowed": true,
+        "reason": null
+      },
+      "freezing_point_k": null,
+      "do_not_freeze": false,
+      "regime_thresholds": {
+        "phase_change_temperature_k": null,
+        "deliquescence_rh_percent": null
+      },
+      "photostable_per_q1b": null,
+      "solution_ph": null,
+      "inspection_criteria": [
+        "discoloration",
+        "cracking or crumbling",
+        "crystals on surface",
+        "unusual odor"
+      ],
+      "formulary_membership": {
+        "pack": "ISS medical kit",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01"
+        ],
+        "note": ""
+      },
+      "label_shelf_life_months_text": null,
+      "basis": "derived",
+      "source_ids": [
+        "MDP02",
+        "MDP07",
+        "MDS57"
+      ],
+      "note": "Clavulanate is the least stable common kit API (MDS57) and radiosensitive at kGy doses (MDP07)."
+    },
+    {
+      "product_id": "promethazine_25_tab",
+      "name": "Promethazine HCl 25 mg tablet",
+      "dose_form": "tablet",
+      "dose_form_family": "solid",
+      "route": "oral",
+      "ingredients": [
+        {
+          "ingredient_id": "promethazine",
+          "name": "Promethazine",
+          "smiles": "CC(CN1C2=CC=CC=C2SC3=CC=CC=C31)N(C)C",
+          "pubchem_cid": 4927,
+          "molar_mass_g_per_mol": {
+            "value": 284.4,
+            "unit": "g/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "PubChem molecular weight (free form)."
+          },
+          "salt_form_note": "hydrochloride; strength as HCl",
+          "strength": {
+            "value": 25,
+            "unit": "mg",
+            "per": "tablet"
+          },
+          "concentration_mol_per_kg": null,
+          "specification": {
+            "lower_percent": {
+              "value": 95.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP02"
+              ],
+              "to_be_set_by": null,
+              "note": "USP range reported in Du 2011."
+            },
+            "upper_percent": {
+              "value": 110.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP02"
+              ],
+              "to_be_set_by": null,
+              "note": "USP range reported in Du 2011."
+            }
+          },
+          "degradants": [
+            {
+              "degradant_id": "promethazine_sulfoxide",
+              "name": "Promethazine sulfoxide",
+              "smiles": null,
+              "formed_by_class_id": "thioether_s_oxidation",
+              "yield_mol_per_mol": {
+                "value": 1.0,
+                "unit": "mol/mol",
+                "basis": "team_default",
+                "source_ids": [],
+                "to_be_set_by": "chemistry lead",
+                "note": "Stoichiometric yield assumed."
+              },
+              "molar_mass_g_per_mol": null,
+              "limit_percent": null,
+              "toxicity_flag": "unknown",
+              "basis": "team_default",
+              "source_ids": [],
+              "note": "Expected S-oxidation product; not quantified in the notes."
+            }
+          ],
+          "racemization": null,
+          "source_ids": [
+            "MDX01"
+          ]
+        }
+      ],
+      "default_package_id": "original_bottle",
+      "fixed_dose_device": false,
+      "narrow_therapeutic_index": false,
+      "radiosensitive": false,
+      "degradant_profile_reviewed": false,
+      "potency_adjustment": {
+        "allowed": true,
+        "reason": null
+      },
+      "freezing_point_k": null,
+      "do_not_freeze": false,
+      "regime_thresholds": {
+        "phase_change_temperature_k": null,
+        "deliquescence_rh_percent": null
+      },
+      "photostable_per_q1b": null,
+      "solution_ph": null,
+      "inspection_criteria": [
+        "discoloration",
+        "cracking or crumbling",
+        "crystals on surface",
+        "unusual odor"
+      ],
+      "formulary_membership": {
+        "pack": "ISS medical kit",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01"
+        ],
+        "note": ""
+      },
+      "label_shelf_life_months_text": null,
+      "basis": "derived",
+      "source_ids": [
+        "MDP02",
+        "MDP11"
+      ],
+      "note": ""
+    },
+    {
+      "product_id": "promethazine_25mg_ml_inj",
+      "name": "Promethazine HCl 25 mg/mL injection",
+      "dose_form": "injection solution",
+      "dose_form_family": "solution",
+      "route": "intramuscular",
+      "ingredients": [
+        {
+          "ingredient_id": "promethazine",
+          "name": "Promethazine",
+          "smiles": "CC(CN1C2=CC=CC=C2SC3=CC=CC=C31)N(C)C",
+          "pubchem_cid": 4927,
+          "molar_mass_g_per_mol": {
+            "value": 284.4,
+            "unit": "g/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "PubChem molecular weight (free form)."
+          },
+          "salt_form_note": "hydrochloride",
+          "strength": {
+            "value": 25,
+            "unit": "mg",
+            "per": "mL"
+          },
+          "concentration_mol_per_kg": {
+            "value": 0.0879044,
+            "unit": "mol/kg",
+            "basis": "derived",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "25 mg/mL, density 1 kg/L."
+          },
+          "specification": {
+            "lower_percent": {
+              "value": 95.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP02"
+              ],
+              "to_be_set_by": null,
+              "note": "USP range reported in Du 2011."
+            },
+            "upper_percent": {
+              "value": 110.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP02"
+              ],
+              "to_be_set_by": null,
+              "note": "USP range reported in Du 2011."
+            }
+          },
+          "degradants": [],
+          "racemization": null,
+          "source_ids": [
+            "MDX01"
+          ]
+        }
+      ],
+      "default_package_id": "original_vial",
+      "fixed_dose_device": false,
+      "narrow_therapeutic_index": false,
+      "radiosensitive": true,
+      "degradant_profile_reviewed": false,
+      "potency_adjustment": {
+        "allowed": false,
+        "reason": "Injection: dose adjustment by volume not configured."
+      },
+      "freezing_point_k": {
+        "value": 272.65,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Aqueous injection freezes near -0.5 C."
+      },
+      "do_not_freeze": true,
+      "regime_thresholds": {
+        "phase_change_temperature_k": null,
+        "deliquescence_rh_percent": null
+      },
+      "photostable_per_q1b": null,
+      "solution_ph": null,
+      "inspection_criteria": [
+        "discolored (pinkish or brown color)",
+        "cloudy",
+        "contains particles or precipitate"
+      ],
+      "formulary_membership": {
+        "pack": "ISS medical kit",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01"
+        ],
+        "note": ""
+      },
+      "label_shelf_life_months_text": null,
+      "basis": "derived",
+      "source_ids": [
+        "MDP02"
+      ],
+      "note": ""
+    },
+    {
+      "product_id": "epinephrine_0_3mg_autoinjector",
+      "name": "Epinephrine 0.3 mg auto-injector",
+      "dose_form": "auto-injector solution",
+      "dose_form_family": "solution",
+      "route": "intramuscular",
+      "ingredients": [
+        {
+          "ingredient_id": "epinephrine",
+          "name": "Epinephrine",
+          "smiles": "CNC[C@@H](C1=CC(=C(C=C1)O)O)O",
+          "pubchem_cid": 5816,
+          "molar_mass_g_per_mol": {
+            "value": 183.2,
+            "unit": "g/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "PubChem molecular weight (free form)."
+          },
+          "salt_form_note": "",
+          "strength": {
+            "value": 0.3,
+            "unit": "mg",
+            "per": "dose"
+          },
+          "concentration_mol_per_kg": {
+            "value": 0.00545852,
+            "unit": "mol/kg",
+            "basis": "derived",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "1 mg/mL, density 1 kg/L."
+          },
+          "specification": {
+            "lower_percent": {
+              "value": 90.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDS34"
+              ],
+              "to_be_set_by": null,
+              "note": "USP Epinephrine Injection 90.0 to 115.0%."
+            },
+            "upper_percent": {
+              "value": 115.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDS34"
+              ],
+              "to_be_set_by": null,
+              "note": "USP Epinephrine Injection 90.0 to 115.0%."
+            }
+          },
+          "degradants": [
+            {
+              "degradant_id": "adrenochrome",
+              "name": "Adrenochrome",
+              "smiles": null,
+              "formed_by_class_id": "catechol_autoxidation",
+              "yield_mol_per_mol": {
+                "value": 1.0,
+                "unit": "mol/mol",
+                "basis": "team_default",
+                "source_ids": [],
+                "to_be_set_by": "chemistry lead",
+                "note": "Stoichiometric yield assumed."
+              },
+              "molar_mass_g_per_mol": null,
+              "limit_percent": null,
+              "toxicity_flag": "unknown",
+              "basis": "sourced",
+              "source_ids": [
+                "MDD61"
+              ],
+              "note": "Colored oxidation product behind the pink or brown discoloration criterion."
+            }
+          ],
+          "racemization": {
+            "initial_active_fraction": {
+              "value": 0.995,
+              "unit": "1",
+              "basis": "team_default",
+              "source_ids": [
+                "MDS108"
+              ],
+              "to_be_set_by": "pharmacist and flight surgeon",
+              "note": "L-isomer share at release."
+            }
+          },
+          "source_ids": [
+            "MDX01"
+          ]
+        }
+      ],
+      "default_package_id": "auto_injector",
+      "fixed_dose_device": true,
+      "narrow_therapeutic_index": false,
+      "radiosensitive": true,
+      "degradant_profile_reviewed": false,
+      "potency_adjustment": {
+        "allowed": false,
+        "reason": "Fixed-dose device."
+      },
+      "freezing_point_k": {
+        "value": 272.65,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Aqueous injection freezes near -0.5 C."
+      },
+      "do_not_freeze": true,
+      "regime_thresholds": {
+        "phase_change_temperature_k": null,
+        "deliquescence_rh_percent": null
+      },
+      "photostable_per_q1b": null,
+      "solution_ph": null,
+      "inspection_criteria": [
+        "discolored (pinkish or brown color)",
+        "cloudy",
+        "contains particles or precipitate"
+      ],
+      "formulary_membership": {
+        "pack": "ISS medical kit",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01"
+        ],
+        "note": ""
+      },
+      "label_shelf_life_months_text": null,
+      "basis": "derived",
+      "source_ids": [
+        "MDS34",
+        "MDS108",
+        "MDD61"
+      ],
+      "note": ""
+    },
+    {
+      "product_id": "epinephrine_0_1mg_ml_syringe",
+      "name": "Epinephrine 0.1 mg/mL 10 mL prefilled syringe",
+      "dose_form": "injection solution",
+      "dose_form_family": "solution",
+      "route": "intravenous",
+      "ingredients": [
+        {
+          "ingredient_id": "epinephrine",
+          "name": "Epinephrine",
+          "smiles": "CNC[C@@H](C1=CC(=C(C=C1)O)O)O",
+          "pubchem_cid": 5816,
+          "molar_mass_g_per_mol": {
+            "value": 183.2,
+            "unit": "g/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "PubChem molecular weight (free form)."
+          },
+          "salt_form_note": "",
+          "strength": {
+            "value": 0.1,
+            "unit": "mg",
+            "per": "mL"
+          },
+          "concentration_mol_per_kg": {
+            "value": 0.000545852,
+            "unit": "mol/kg",
+            "basis": "derived",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "0.1 mg/mL, density 1 kg/L."
+          },
+          "specification": {
+            "lower_percent": {
+              "value": 90.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDS34"
+              ],
+              "to_be_set_by": null,
+              "note": "USP Epinephrine Injection 90.0 to 115.0%."
+            },
+            "upper_percent": {
+              "value": 115.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDS34"
+              ],
+              "to_be_set_by": null,
+              "note": "USP Epinephrine Injection 90.0 to 115.0%."
+            }
+          },
+          "degradants": [
+            {
+              "degradant_id": "adrenochrome",
+              "name": "Adrenochrome",
+              "smiles": null,
+              "formed_by_class_id": "catechol_autoxidation",
+              "yield_mol_per_mol": {
+                "value": 1.0,
+                "unit": "mol/mol",
+                "basis": "team_default",
+                "source_ids": [],
+                "to_be_set_by": "chemistry lead",
+                "note": "Stoichiometric yield assumed."
+              },
+              "molar_mass_g_per_mol": null,
+              "limit_percent": null,
+              "toxicity_flag": "unknown",
+              "basis": "sourced",
+              "source_ids": [
+                "MDD61"
+              ],
+              "note": "Colored oxidation product."
+            }
+          ],
+          "racemization": {
+            "initial_active_fraction": {
+              "value": 0.995,
+              "unit": "1",
+              "basis": "team_default",
+              "source_ids": [
+                "MDS108"
+              ],
+              "to_be_set_by": "pharmacist and flight surgeon",
+              "note": "L-isomer share at release."
+            }
+          },
+          "source_ids": [
+            "MDX01"
+          ]
+        }
+      ],
+      "default_package_id": "prefilled_syringe",
+      "fixed_dose_device": false,
+      "narrow_therapeutic_index": false,
+      "radiosensitive": true,
+      "degradant_profile_reviewed": false,
+      "potency_adjustment": {
+        "allowed": false,
+        "reason": "High-alert emergency drug; adjustment not configured."
+      },
+      "freezing_point_k": {
+        "value": 272.65,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Aqueous injection freezes near -0.5 C."
+      },
+      "do_not_freeze": true,
+      "regime_thresholds": {
+        "phase_change_temperature_k": null,
+        "deliquescence_rh_percent": null
+      },
+      "photostable_per_q1b": null,
+      "solution_ph": null,
+      "inspection_criteria": [
+        "discolored (pinkish or brown color)",
+        "cloudy",
+        "contains particles or precipitate"
+      ],
+      "formulary_membership": {
+        "pack": "ISS medical kit",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01"
+        ],
+        "note": ""
+      },
+      "label_shelf_life_months_text": null,
+      "basis": "derived",
+      "source_ids": [
+        "MDS34",
+        "MDS108"
+      ],
+      "note": ""
+    },
+    {
+      "product_id": "ascorbic_acid_500_tab",
+      "name": "Ascorbic acid 500 mg tablet",
+      "dose_form": "tablet",
+      "dose_form_family": "solid",
+      "route": "oral",
+      "ingredients": [
+        {
+          "ingredient_id": "ascorbic_acid",
+          "name": "Ascorbic acid",
+          "smiles": "C([C@@H]([C@@H]1C(=C(C(=O)O1)O)O)O)O",
+          "pubchem_cid": 54670067,
+          "molar_mass_g_per_mol": {
+            "value": 176.12,
+            "unit": "g/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "PubChem molecular weight (free form)."
+          },
+          "salt_form_note": "",
+          "strength": {
+            "value": 500,
+            "unit": "mg",
+            "per": "tablet"
+          },
+          "concentration_mol_per_kg": null,
+          "specification": {
+            "lower_percent": {
+              "value": 90.0,
+              "unit": "percent",
+              "basis": "team_default",
+              "source_ids": [],
+              "to_be_set_by": "pharmacist and flight surgeon",
+              "note": "Specification not read in the notes; 90 to 110% assumed."
+            },
+            "upper_percent": {
+              "value": 110.0,
+              "unit": "percent",
+              "basis": "team_default",
+              "source_ids": [],
+              "to_be_set_by": "pharmacist and flight surgeon",
+              "note": "Specification not read in the notes; 90 to 110% assumed."
+            }
+          },
+          "degradants": [],
+          "racemization": null,
+          "source_ids": [
+            "MDX01"
+          ]
+        }
+      ],
+      "default_package_id": "original_bottle",
+      "fixed_dose_device": false,
+      "narrow_therapeutic_index": false,
+      "radiosensitive": false,
+      "degradant_profile_reviewed": false,
+      "potency_adjustment": {
+        "allowed": true,
+        "reason": null
+      },
+      "freezing_point_k": null,
+      "do_not_freeze": false,
+      "regime_thresholds": {
+        "phase_change_temperature_k": null,
+        "deliquescence_rh_percent": null
+      },
+      "photostable_per_q1b": null,
+      "solution_ph": null,
+      "inspection_criteria": [
+        "discoloration",
+        "cracking or crumbling",
+        "crystals on surface",
+        "unusual odor",
+        "yellow or brown discoloration"
+      ],
+      "formulary_membership": {
+        "pack": null,
+        "basis": "team_default",
+        "source_ids": [],
+        "note": "Demonstration product chosen by the team."
+      },
+      "label_shelf_life_months_text": null,
+      "basis": "derived",
+      "source_ids": [
+        "MDS111"
+      ],
+      "note": "Demonstration product (enediol oxidation); not on the 2023 ISS formulary."
+    },
+    {
+      "product_id": "levofloxacin_500_tab",
+      "name": "Levofloxacin 500 mg tablet",
+      "dose_form": "tablet",
+      "dose_form_family": "solid",
+      "route": "oral",
+      "ingredients": [
+        {
+          "ingredient_id": "levofloxacin",
+          "name": "Levofloxacin",
+          "smiles": "C[C@H]1COC2=C3N1C=C(C(=O)C3=CC(=C2N4CCN(CC4)C)F)C(=O)O",
+          "pubchem_cid": 149096,
+          "molar_mass_g_per_mol": {
+            "value": 361.4,
+            "unit": "g/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDX01"
+            ],
+            "to_be_set_by": null,
+            "note": "PubChem molecular weight (free form)."
+          },
+          "salt_form_note": "hemihydrate",
+          "strength": {
+            "value": 500,
+            "unit": "mg",
+            "per": "tablet"
+          },
+          "concentration_mol_per_kg": null,
+          "specification": {
+            "lower_percent": {
+              "value": 90.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP02"
+              ],
+              "to_be_set_by": null,
+              "note": "Range set in the Du 2011 study."
+            },
+            "upper_percent": {
+              "value": 110.0,
+              "unit": "percent",
+              "basis": "sourced",
+              "source_ids": [
+                "MDP02"
+              ],
+              "to_be_set_by": null,
+              "note": "Range set in the Du 2011 study."
+            }
+          },
+          "degradants": [],
+          "racemization": null,
+          "source_ids": [
+            "MDX01"
+          ]
+        }
+      ],
+      "default_package_id": "original_blister",
+      "fixed_dose_device": false,
+      "narrow_therapeutic_index": false,
+      "radiosensitive": false,
+      "degradant_profile_reviewed": false,
+      "potency_adjustment": {
+        "allowed": true,
+        "reason": null
+      },
+      "freezing_point_k": null,
+      "do_not_freeze": false,
+      "regime_thresholds": {
+        "phase_change_temperature_k": null,
+        "deliquescence_rh_percent": null
+      },
+      "photostable_per_q1b": null,
+      "solution_ph": null,
+      "inspection_criteria": [
+        "discoloration",
+        "cracking or crumbling",
+        "crystals on surface",
+        "unusual odor"
+      ],
+      "formulary_membership": {
+        "pack": "ISS medical kit",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01"
+        ],
+        "note": ""
+      },
+      "label_shelf_life_months_text": null,
+      "basis": "derived",
+      "source_ids": [
+        "MDP02"
+      ],
+      "note": ""
+    }
+  ]
+}

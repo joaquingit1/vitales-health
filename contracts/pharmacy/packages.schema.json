@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/packages.schema.json",
+  "title": "Packages and their moisture and light models.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_id",
+    "schema",
+    "version",
+    "review_state",
+    "notice",
+    "packages"
+  ],
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "schema": {
+      "const": "pharmacy/packages.schema.json"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "review_state": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ]
+    },
+    "notice": {
+      "type": "string"
+    },
+    "packages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PackageDoc"
+      }
+    }
+  },
+  "$defs": {
+    "MoistureModelDoc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "sealed_rh_percent",
+        "mvtr_mg_per_day",
+        "mvtr_test_temperature_k",
+        "mvtr_test_delta_rh_percent",
+        "permeation_activation_energy_j_per_mol",
+        "headspace_capacity_mg_per_percent_rh",
+        "contents",
+        "initial_internal_rh_percent"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "none",
+            "sealed_constant",
+            "first_order_exchange"
+          ]
+        },
+        "sealed_rh_percent": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mvtr_mg_per_day": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mvtr_test_temperature_k": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mvtr_test_delta_rh_percent": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "permeation_activation_energy_j_per_mol": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "headspace_capacity_mg_per_percent_rh": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SorbingComponent"
+          }
+        },
+        "initial_internal_rh_percent": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "PackageDoc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_id",
+        "name",
+        "kind",
+        "description",
+        "protective",
+        "light_transmission_visible",
+        "light_transmission_uv",
+        "moisture_model",
+        "basis",
+        "source_ids",
+        "note"
+      ],
+      "properties": {
+        "package_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "blister",
+            "bottle",
+            "bag",
+            "vial",
+            "syringe",
+            "auto_injector",
+            "ampoule",
+            "tube"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "protective": {
+          "type": "boolean"
+        },
+        "light_transmission_visible": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "light_transmission_uv": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "moisture_model": {
+          "$ref": "#/$defs/MoistureModelDoc"
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "SorbingComponent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "dry_mass_g",
+        "sorption_slope_mg_per_g_per_percent_rh"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dry_mass_g": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "sorption_slope_mg_per_g_per_percent_rh": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    }
+  }
+}

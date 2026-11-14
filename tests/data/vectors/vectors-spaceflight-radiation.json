@@ -1,0 +1,187 @@
+{
+ "document_id": "vectors-spaceflight-radiation",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "Spaceflight and radiation vectors (degradation-science.md 9.7).",
+ "extracted_from": [
+  {
+   "note": "degradation-science.md",
+   "section": "9.7"
+  },
+  {
+   "note": "degradation-science.md",
+   "section": "5.2"
+  },
+  {
+   "note": "degradation-science.md",
+   "section": "5.5"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "TV-SF-1",
+   "kind": "worked_example",
+   "description": "Reichard 2023 first-order rates: half-lives and flight to ground ratio.",
+   "target": "oracle:first_order_half_life",
+   "inputs": {
+    "k_ground_per_month": 0.00317,
+    "k_flight_per_month": 0.00478,
+    "published_sign": "rates printed as -0.00317 and -0.00478 per month"
+   },
+   "expected": {
+    "half_life_ground_months": 219,
+    "half_life_flight_months": 145,
+    "rate_ratio": 1.5
+   },
+   "published_expected_text": "half-lives 219 and 145 months; \"~1.5 increase in degradation rate\"",
+   "our_recomputation": {
+    "half_life_ground_months": 218.7,
+    "half_life_flight_months": 145.0,
+    "rate_ratio": 1.508,
+    "foundation": {
+     "ground": 218.6584165804244,
+     "flight": 145.00987041003037,
+     "ratio": 1.5078864353312305
+    },
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": 0.5,
+    "rel": null,
+    "unit": "month (ratio to 1 decimal: 0.05)",
+    "basis": "published integers and the 1-decimal ratio"
+   },
+   "source_ids": [
+    "MDS61",
+    "MDP06"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "MDS61 and MDP06 are the same paper in the two notes."
+  },
+  {
+   "vector_id": "TV-SF-2",
+   "kind": "dataset",
+   "description": "Du et al. kit counts failing API content, ground vs flight.",
+   "target": null,
+   "inputs": {
+    "days": [
+     13,
+     353,
+     596,
+     880
+    ]
+   },
+   "expected": {
+    "failed_ground": [
+     0,
+     2,
+     8,
+     16
+    ],
+    "failed_flight": [
+     1,
+     11,
+     17,
+     24
+    ]
+   },
+   "published_expected_text": "(0, 1), (2, 11), (8, 17), (16, 24)",
+   "our_recomputation": {
+    "grid_count_flight_payload_2": 9,
+    "grid_count_flight_payload_4": 23
+   },
+   "tolerance": null,
+   "source_ids": [
+    "MDS57",
+    "MDP01",
+    "MDP02"
+   ],
+   "source_status": "read",
+   "status": "known_mismatch",
+   "note": "Table III gives 11 and 24 flight failures at payloads 2 and 4; counting the Table S II grid gives 9 and 23 (space-pharmacy.md V2). External validation target for a fleet-level model (counts, not potencies); assert against the documented range 9 to 11 and 23 to 24, not a single number."
+  },
+  {
+   "vector_id": "TV-RAD-1",
+   "kind": "dataset",
+   "description": "Metoprolol tartrate 1 mg/mL gamma irradiation: first-order dose constant.",
+   "target": "pharmacy.fit.fit_first_order_loglinear",
+   "inputs": {
+    "dose_kgy": [
+     0,
+     10,
+     25,
+     50
+    ],
+    "concentration_ug_per_ml": [
+     1054.41,
+     498.27,
+     134.33,
+     16.96
+    ]
+   },
+   "expected": {
+    "k_per_kgy": 0.082,
+    "reproducing_fit": "intercept fixed at ln(1054.41)"
+   },
+   "published_expected_text": "\"The loss in metoprolol tartrate follows an exponential decay for both EB and γ irradiations.\"",
+   "our_recomputation": {
+    "k_per_kgy": 0.082,
+    "foundation_k_free_intercept_per_kgy": 0.08319134627798294,
+    "foundation_k_fixed_intercept_per_kgy": 0.08232583754344251,
+    "foundation_reproducing_method": "intercept fixed at ln(1054.41)",
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": 0.0005,
+    "rel": null,
+    "unit": "per kGy",
+    "basis": "the note's 2 significant figures"
+   },
+   "source_ids": [
+    "MDS68"
+   ],
+   "source_status": "read; k DERIVED",
+   "status": "reproduces",
+   "note": "Least-squares dose constant (DERIVED in the note; the note does not state the fit form). Assert with the reproducing fit form only: the free-intercept value rounds to 0.083 and falls outside the 0.0005 tolerance. Log-linear OLS gives 0.08319 per kGy with a free intercept and 0.08233 per kGy with the intercept fixed at ln(1054.41); the intercept fixed at ln(1054.41) fit reproduces 0.082. About 0.10 to 0.13 per kGy for e-beam and about 0.007 per kGy with mannitol (MDS68)."
+  },
+  {
+   "vector_id": "TV-RAD-2",
+   "kind": "property",
+   "description": "Solid oral products at simulated GCR doses: the radiation term must stay negligible.",
+   "target": "pharmacy.chemistry.radiolysis.k_dose_direct",
+   "inputs": {
+    "doses_gy": [
+     0.45,
+     0.9
+    ],
+    "dosage_form_family": "solid",
+    "storage_months": [
+     2,
+     18,
+     34
+    ]
+   },
+   "expected": {
+    "max_loss_fraction_at_1_gy": 0.0001,
+    "no_difference_from_controls": true
+   },
+   "published_expected_text": "\"All samples show comparable degradation, revealing that GCR exposure does not facilitate the degradation of the drugs.\"",
+   "our_recomputation": {
+    "statement": "engine radiation term must predict < 0.01% loss at 1 Gy for solids"
+   },
+   "tolerance": {
+    "abs": null,
+    "rel": null,
+    "unit": null,
+    "basis": "inequality: 1 - exp(-k_D * 1 Gy) < 1e-4 for every solid product in the formulary, central and upper-bound terms"
+   },
+   "source_ids": [
+    "MDS62"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Negative control for any radiation term (see also space-pharmacy.md V9)."
+  }
+ ]
+}

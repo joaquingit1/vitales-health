@@ -1,0 +1,1338 @@
+{
+ "document_id": "vectors-validation-radiation",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "Radiation datasets V9 to V12 (space-pharmacy.md, Validation datasets).",
+ "extracted_from": [
+  {
+   "note": "space-pharmacy.md",
+   "section": "Validation datasets: V9, V10, V11, V12"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "V9",
+   "kind": "dataset",
+   "description": "V9. 2018 GCRSim irradiation and 34-month storage (MDP12 raw data; MDP11)",
+   "target": null,
+   "inputs": {
+    "conditions": "Irradiation 15 June 2018 at NSRL. Replicates A and B per arm. Arms: JSC control, traveling control (shipped to NSRL, not irradiated), 0.5 Gy nominal, 1.0 Gy nominal. Values are API %LC.",
+    "columns": [
+     {
+      "key": "product_usp_range",
+      "header": "Product (USP range)"
+     },
+     {
+      "key": "analysis",
+      "header": "Analysis"
+     },
+     {
+      "key": "jsc_control",
+      "header": "JSC control"
+     },
+     {
+      "key": "traveling_control",
+      "header": "Traveling control"
+     },
+     {
+      "key": "0_5_gy",
+      "header": "0.5 Gy"
+     },
+     {
+      "key": "1_0_gy",
+      "header": "1.0 Gy"
+     }
+    ],
+    "nominal_doses_gy": [
+     0.5,
+     1.0
+    ],
+    "delivered_doses_mgy": {
+     "0_5_gy": {
+      "low": 422.7,
+      "high": 465.3
+     },
+     "1_0_gy": {
+      "low": 864.4,
+      "high": 932.4
+     }
+    },
+    "parse_conventions": "Arm cells 'A, B' as {values: [replicate A, replicate B]} in %LC; blank product cells carry the product forward (product_usp_range_carried_forward = true)."
+   },
+   "expected": {
+    "row_count": 12,
+    "rows": [
+     {
+      "raw": {
+       "product_usp_range": "Acetaminophen 500 mg tablet (90 to 110)",
+       "analysis": "1 Aug 2018",
+       "jsc_control": "95.3, 100.4",
+       "traveling_control": "97.08, 97.73",
+       "0_5_gy": "100.18, 96.51",
+       "1_0_gy": "95.76, 103.67"
+      },
+      "parsed": {
+       "product_usp_range": {
+        "product": "Acetaminophen 500 mg tablet",
+        "usp_range_low_percent": 90,
+        "usp_range_high_percent": 110
+       },
+       "analysis": "1 Aug 2018",
+       "jsc_control": {
+        "values": [
+         95.3,
+         100.4
+        ]
+       },
+       "traveling_control": {
+        "values": [
+         97.08,
+         97.73
+        ]
+       },
+       "0_5_gy": {
+        "values": [
+         100.18,
+         96.51
+        ]
+       },
+       "1_0_gy": {
+        "values": [
+         95.76,
+         103.67
+        ]
+       },
+       "product_usp_range_carried_forward": false
+      }
+     },
+     {
+      "raw": {
+       "product_usp_range": "",
+       "analysis": "Nov to Dec 2019",
+       "jsc_control": "103.22, 101.85",
+       "traveling_control": "102.18, 102.81",
+       "0_5_gy": "102.45, 99.86",
+       "1_0_gy": "102.4, 99.32"
+      },
+      "parsed": {
+       "product_usp_range": {
+        "product": "Acetaminophen 500 mg tablet",
+        "usp_range_low_percent": 90,
+        "usp_range_high_percent": 110
+       },
+       "analysis": "Nov to Dec 2019",
+       "jsc_control": {
+        "values": [
+         103.22,
+         101.85
+        ]
+       },
+       "traveling_control": {
+        "values": [
+         102.18,
+         102.81
+        ]
+       },
+       "0_5_gy": {
+        "values": [
+         102.45,
+         99.86
+        ]
+       },
+       "1_0_gy": {
+        "values": [
+         102.4,
+         99.32
+        ]
+       },
+       "product_usp_range_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product_usp_range": "",
+       "analysis": "Apr to May 2021",
+       "jsc_control": "94.72, 96.17",
+       "traveling_control": "92.97, 93.24",
+       "0_5_gy": "94.36, 94.49",
+       "1_0_gy": "94.94, 94.28"
+      },
+      "parsed": {
+       "product_usp_range": {
+        "product": "Acetaminophen 500 mg tablet",
+        "usp_range_low_percent": 90,
+        "usp_range_high_percent": 110
+       },
+       "analysis": "Apr to May 2021",
+       "jsc_control": {
+        "values": [
+         94.72,
+         96.17
+        ]
+       },
+       "traveling_control": {
+        "values": [
+         92.97,
+         93.24
+        ]
+       },
+       "0_5_gy": {
+        "values": [
+         94.36,
+         94.49
+        ]
+       },
+       "1_0_gy": {
+        "values": [
+         94.94,
+         94.28
+        ]
+       },
+       "product_usp_range_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product_usp_range": "Ibuprofen 400 mg tablet (90 to 110)",
+       "analysis": "1 Aug 2018",
+       "jsc_control": "103.85, 106.6",
+       "traveling_control": "109.32, 103.84",
+       "0_5_gy": "106.6, 109.31",
+       "1_0_gy": "104.38, 106.43"
+      },
+      "parsed": {
+       "product_usp_range": {
+        "product": "Ibuprofen 400 mg tablet",
+        "usp_range_low_percent": 90,
+        "usp_range_high_percent": 110
+       },
+       "analysis": "1 Aug 2018",
+       "jsc_control": {
+        "values": [
+         103.85,
+         106.6
+        ]
+       },
+       "traveling_control": {
+        "values": [
+         109.32,
+         103.84
+        ]
+       },
+       "0_5_gy": {
+        "values": [
+         106.6,
+         109.31
+        ]
+       },
+       "1_0_gy": {
+        "values": [
+         104.38,
+         106.43
+        ]
+       },
+       "product_usp_range_carried_forward": false
+      }
+     },
+     {
+      "raw": {
+       "product_usp_range": "",
+       "analysis": "Nov to Dec 2019",
+       "jsc_control": "98.24, 102.94",
+       "traveling_control": "97.21, 101.37",
+       "0_5_gy": "96.98, 96.96",
+       "1_0_gy": "95.15, 95.37"
+      },
+      "parsed": {
+       "product_usp_range": {
+        "product": "Ibuprofen 400 mg tablet",
+        "usp_range_low_percent": 90,
+        "usp_range_high_percent": 110
+       },
+       "analysis": "Nov to Dec 2019",
+       "jsc_control": {
+        "values": [
+         98.24,
+         102.94
+        ]
+       },
+       "traveling_control": {
+        "values": [
+         97.21,
+         101.37
+        ]
+       },
+       "0_5_gy": {
+        "values": [
+         96.98,
+         96.96
+        ]
+       },
+       "1_0_gy": {
+        "values": [
+         95.15,
+         95.37
+        ]
+       },
+       "product_usp_range_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product_usp_range": "",
+       "analysis": "Apr to May 2021",
+       "jsc_control": "97.01, 96.81",
+       "traveling_control": "97.22, 97.55",
+       "0_5_gy": "97.67, 97.54",
+       "1_0_gy": "97.85, 97.84"
+      },
+      "parsed": {
+       "product_usp_range": {
+        "product": "Ibuprofen 400 mg tablet",
+        "usp_range_low_percent": 90,
+        "usp_range_high_percent": 110
+       },
+       "analysis": "Apr to May 2021",
+       "jsc_control": {
+        "values": [
+         97.01,
+         96.81
+        ]
+       },
+       "traveling_control": {
+        "values": [
+         97.22,
+         97.55
+        ]
+       },
+       "0_5_gy": {
+        "values": [
+         97.67,
+         97.54
+        ]
+       },
+       "1_0_gy": {
+        "values": [
+         97.85,
+         97.84
+        ]
+       },
+       "product_usp_range_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product_usp_range": "Promethazine 25 mg tablet (95 to 110)",
+       "analysis": "1 Aug 2018",
+       "jsc_control": "99.17, 104.66",
+       "traveling_control": "107.32, 104.33",
+       "0_5_gy": "103, 109.53",
+       "1_0_gy": "108.33, 107.3"
+      },
+      "parsed": {
+       "product_usp_range": {
+        "product": "Promethazine 25 mg tablet",
+        "usp_range_low_percent": 95,
+        "usp_range_high_percent": 110
+       },
+       "analysis": "1 Aug 2018",
+       "jsc_control": {
+        "values": [
+         99.17,
+         104.66
+        ]
+       },
+       "traveling_control": {
+        "values": [
+         107.32,
+         104.33
+        ]
+       },
+       "0_5_gy": {
+        "values": [
+         103,
+         109.53
+        ]
+       },
+       "1_0_gy": {
+        "values": [
+         108.33,
+         107.3
+        ]
+       },
+       "product_usp_range_carried_forward": false
+      }
+     },
+     {
+      "raw": {
+       "product_usp_range": "",
+       "analysis": "Nov to Dec 2019",
+       "jsc_control": "100.2, 101.39",
+       "traveling_control": "100.09, 100.68",
+       "0_5_gy": "104.02, 101",
+       "1_0_gy": "102.3, 100.53"
+      },
+      "parsed": {
+       "product_usp_range": {
+        "product": "Promethazine 25 mg tablet",
+        "usp_range_low_percent": 95,
+        "usp_range_high_percent": 110
+       },
+       "analysis": "Nov to Dec 2019",
+       "jsc_control": {
+        "values": [
+         100.2,
+         101.39
+        ]
+       },
+       "traveling_control": {
+        "values": [
+         100.09,
+         100.68
+        ]
+       },
+       "0_5_gy": {
+        "values": [
+         104.02,
+         101
+        ]
+       },
+       "1_0_gy": {
+        "values": [
+         102.3,
+         100.53
+        ]
+       },
+       "product_usp_range_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product_usp_range": "",
+       "analysis": "Apr to May 2021",
+       "jsc_control": "88, 88.86",
+       "traveling_control": "88.13, 87.67",
+       "0_5_gy": "87.23, 87.26",
+       "1_0_gy": "87.37, 87.29"
+      },
+      "parsed": {
+       "product_usp_range": {
+        "product": "Promethazine 25 mg tablet",
+        "usp_range_low_percent": 95,
+        "usp_range_high_percent": 110
+       },
+       "analysis": "Apr to May 2021",
+       "jsc_control": {
+        "values": [
+         88,
+         88.86
+        ]
+       },
+       "traveling_control": {
+        "values": [
+         88.13,
+         87.67
+        ]
+       },
+       "0_5_gy": {
+        "values": [
+         87.23,
+         87.26
+        ]
+       },
+       "1_0_gy": {
+        "values": [
+         87.37,
+         87.29
+        ]
+       },
+       "product_usp_range_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product_usp_range": "Amoxicillin 500 mg capsule (90 to 120)",
+       "analysis": "1 Sep 2018",
+       "jsc_control": "100.16, 97.44",
+       "traveling_control": "100.96, 100.04",
+       "0_5_gy": "101.57, 99.31",
+       "1_0_gy": "98.74, 102.42"
+      },
+      "parsed": {
+       "product_usp_range": {
+        "product": "Amoxicillin 500 mg capsule",
+        "usp_range_low_percent": 90,
+        "usp_range_high_percent": 120
+       },
+       "analysis": "1 Sep 2018",
+       "jsc_control": {
+        "values": [
+         100.16,
+         97.44
+        ]
+       },
+       "traveling_control": {
+        "values": [
+         100.96,
+         100.04
+        ]
+       },
+       "0_5_gy": {
+        "values": [
+         101.57,
+         99.31
+        ]
+       },
+       "1_0_gy": {
+        "values": [
+         98.74,
+         102.42
+        ]
+       },
+       "product_usp_range_carried_forward": false
+      }
+     },
+     {
+      "raw": {
+       "product_usp_range": "",
+       "analysis": "1 Dec 2018 (sheet date; labeled 2019 in the file)",
+       "jsc_control": "102.08, 98.58",
+       "traveling_control": "101.51, 100.02",
+       "0_5_gy": "99.68, 97.11",
+       "1_0_gy": "98.97, 93.72"
+      },
+      "parsed": {
+       "product_usp_range": {
+        "product": "Amoxicillin 500 mg capsule",
+        "usp_range_low_percent": 90,
+        "usp_range_high_percent": 120
+       },
+       "analysis": "1 Dec 2018 (sheet date; labeled 2019 in the file)",
+       "jsc_control": {
+        "values": [
+         102.08,
+         98.58
+        ]
+       },
+       "traveling_control": {
+        "values": [
+         101.51,
+         100.02
+        ]
+       },
+       "0_5_gy": {
+        "values": [
+         99.68,
+         97.11
+        ]
+       },
+       "1_0_gy": {
+        "values": [
+         98.97,
+         93.72
+        ]
+       },
+       "product_usp_range_carried_forward": true
+      }
+     },
+     {
+      "raw": {
+       "product_usp_range": "",
+       "analysis": "1 Jul 2021",
+       "jsc_control": "96.42, 93.83",
+       "traveling_control": "94.64, 94.25",
+       "0_5_gy": "89.97, 95.26",
+       "1_0_gy": "95.23, 95.03"
+      },
+      "parsed": {
+       "product_usp_range": {
+        "product": "Amoxicillin 500 mg capsule",
+        "usp_range_low_percent": 90,
+        "usp_range_high_percent": 120
+       },
+       "analysis": "1 Jul 2021",
+       "jsc_control": {
+        "values": [
+         96.42,
+         93.83
+        ]
+       },
+       "traveling_control": {
+        "values": [
+         94.64,
+         94.25
+        ]
+       },
+       "0_5_gy": {
+        "values": [
+         89.97,
+         95.26
+        ]
+       },
+       "1_0_gy": {
+        "values": [
+         95.23,
+         95.03
+        ]
+       },
+       "product_usp_range_carried_forward": true
+      }
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP12",
+    "MDP11"
+   ],
+   "source_status": "READ",
+   "status": "known_mismatch",
+   "note": "Known mismatch: promethazine in Apr to May 2021 is below its own 95 to 110 range in every arm, including both controls (time trend, not radiation). The amoxicillin second analysis date is the sheet date; the file labels it 2019. Calibration anchor for the computed layer: the amoxicillin JSC control series (sealed capsule, three time points) is a measured trend the computed layer is calibrated against, so keep it out of any validation set used to judge that layer. Delivered doses 422.7 to 465.3 mGy and 864.4 to 932.4 mGy. Lots: acetaminophen Major NDC 00904-1988-60; amoxicillin Sandoz NDC 00781-2613-01, expiry 31 December 2019; ibuprofen Amneal NDC 65162-0464-10; promethazine Amneal NDC 65162-0521-10, expiry 29 February 2020. Storage at controlled room temperature with MKT within range. Promethazine in 2021 is below its own 95 to 110 range in every arm, including controls. Use: negative control for any radiation term; time trend for sealed and blister-packed products."
+  },
+  {
+   "vector_id": "V10",
+   "kind": "dataset",
+   "description": "V10. 2006 gamma and titanium exposure (MDP07 Table 4, unpublished NASA data)",
+   "target": null,
+   "inputs": {
+    "columns": [
+     {
+      "key": "product",
+      "header": "Product"
+     },
+     {
+      "key": "control",
+      "header": "Control"
+     },
+     {
+      "key": "9_36_kgy_gamma",
+      "header": "9.36 kGy gamma"
+     },
+     {
+      "key": "35_8_kgy_gamma",
+      "header": "35.8 kGy gamma"
+     },
+     {
+      "key": "17_gy_titanium",
+      "header": "17 Gy titanium"
+     }
+    ],
+    "units": "%LC",
+    "parse_conventions": "'not reported' parses to null."
+   },
+   "expected": {
+    "row_count": 7,
+    "rows": [
+     {
+      "raw": {
+       "product": "Amoxicillin (Augmentin)",
+       "control": "111.5",
+       "9_36_kgy_gamma": "104.8",
+       "35_8_kgy_gamma": "101.5",
+       "17_gy_titanium": "109.1"
+      },
+      "parsed": {
+       "product": "Amoxicillin (Augmentin)",
+       "control": 111.5,
+       "9_36_kgy_gamma": 104.8,
+       "35_8_kgy_gamma": 101.5,
+       "17_gy_titanium": 109.1
+      }
+     },
+     {
+      "raw": {
+       "product": "Clavulanate (Augmentin)",
+       "control": "96.9",
+       "9_36_kgy_gamma": "88.1",
+       "35_8_kgy_gamma": "83.3",
+       "17_gy_titanium": "94.5"
+      },
+      "parsed": {
+       "product": "Clavulanate (Augmentin)",
+       "control": 96.9,
+       "9_36_kgy_gamma": 88.1,
+       "35_8_kgy_gamma": 83.3,
+       "17_gy_titanium": 94.5
+      }
+     },
+     {
+      "raw": {
+       "product": "Promethazine tablet",
+       "control": "96.2",
+       "9_36_kgy_gamma": "94",
+       "35_8_kgy_gamma": "not reported",
+       "17_gy_titanium": "96.3"
+      },
+      "parsed": {
+       "product": "Promethazine tablet",
+       "control": 96.2,
+       "9_36_kgy_gamma": 94,
+       "35_8_kgy_gamma": null,
+       "17_gy_titanium": 96.3
+      }
+     },
+     {
+      "raw": {
+       "product": "Promethazine injection",
+       "control": "98.3",
+       "9_36_kgy_gamma": "96.8",
+       "35_8_kgy_gamma": "90.3",
+       "17_gy_titanium": "93.7"
+      },
+      "parsed": {
+       "product": "Promethazine injection",
+       "control": 98.3,
+       "9_36_kgy_gamma": 96.8,
+       "35_8_kgy_gamma": 90.3,
+       "17_gy_titanium": 93.7
+      }
+     },
+     {
+      "raw": {
+       "product": "Promethazine suppository",
+       "control": "97.6",
+       "9_36_kgy_gamma": "95.8",
+       "35_8_kgy_gamma": "89.5",
+       "17_gy_titanium": "95.6"
+      },
+      "parsed": {
+       "product": "Promethazine suppository",
+       "control": 97.6,
+       "9_36_kgy_gamma": 95.8,
+       "35_8_kgy_gamma": 89.5,
+       "17_gy_titanium": 95.6
+      }
+     },
+     {
+      "raw": {
+       "product": "Sulfamethoxazole",
+       "control": "97.9",
+       "9_36_kgy_gamma": "94.2",
+       "35_8_kgy_gamma": "93.1",
+       "17_gy_titanium": "96"
+      },
+      "parsed": {
+       "product": "Sulfamethoxazole",
+       "control": 97.9,
+       "9_36_kgy_gamma": 94.2,
+       "35_8_kgy_gamma": 93.1,
+       "17_gy_titanium": 96
+      }
+     },
+     {
+      "raw": {
+       "product": "Trimethoprim",
+       "control": "96.8",
+       "9_36_kgy_gamma": "97.9",
+       "35_8_kgy_gamma": "81.4",
+       "17_gy_titanium": "93.6"
+      },
+      "parsed": {
+       "product": "Trimethoprim",
+       "control": 96.8,
+       "9_36_kgy_gamma": 97.9,
+       "35_8_kgy_gamma": 81.4,
+       "17_gy_titanium": 93.6
+      }
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP07"
+   ],
+   "source_status": "READ",
+   "status": "unverified",
+   "note": "Unpublished NASA data reproduced in MDP07 Table 4. Use: high-dose bound; shows that losses of 5 to 15 points need kilogray doses."
+  },
+  {
+   "vector_id": "V11",
+   "kind": "dataset",
+   "description": "V11. 2006 NSRL protons and iron, 1000 MeV/n (MDP07 Table 5; source MDP78)",
+   "target": null,
+   "inputs": {
+    "columns": [
+     {
+      "key": "product",
+      "header": "Product"
+     },
+     {
+      "key": "0_gy",
+      "header": "0 Gy"
+     },
+     {
+      "key": "fe_0_1",
+      "header": "Fe 0.1"
+     },
+     {
+      "key": "fe_10",
+      "header": "Fe 10"
+     },
+     {
+      "key": "fe_50",
+      "header": "Fe 50"
+     },
+     {
+      "key": "h_0_1",
+      "header": "H 0.1"
+     },
+     {
+      "key": "h_10",
+      "header": "H 10"
+     },
+     {
+      "key": "h_50",
+      "header": "H 50"
+     }
+    ],
+    "units": "%LC",
+    "ions": {
+     "fe": "iron",
+     "h": "protons"
+    },
+    "energy_mev_per_nucleon": 1000,
+    "column_doses_gy": [
+     0,
+     0.1,
+     10,
+     50
+    ]
+   },
+   "expected": {
+    "row_count": 20,
+    "rows": [
+     {
+      "raw": {
+       "product": "Acetaminophen",
+       "0_gy": "98.8",
+       "fe_0_1": "96.2",
+       "fe_10": "94.7",
+       "fe_50": "94",
+       "h_0_1": "96.7",
+       "h_10": "95.2",
+       "h_50": "94.8"
+      },
+      "parsed": {
+       "product": "Acetaminophen",
+       "0_gy": 98.8,
+       "fe_0_1": 96.2,
+       "fe_10": 94.7,
+       "fe_50": 94,
+       "h_0_1": 96.7,
+       "h_10": 95.2,
+       "h_50": 94.8
+      }
+     },
+     {
+      "raw": {
+       "product": "Atorvastatin",
+       "0_gy": "100.2",
+       "fe_0_1": "100.4",
+       "fe_10": "97.8",
+       "fe_50": "98.6",
+       "h_0_1": "97.3",
+       "h_10": "98.5",
+       "h_50": "96"
+      },
+      "parsed": {
+       "product": "Atorvastatin",
+       "0_gy": 100.2,
+       "fe_0_1": 100.4,
+       "fe_10": 97.8,
+       "fe_50": 98.6,
+       "h_0_1": 97.3,
+       "h_10": 98.5,
+       "h_50": 96
+      }
+     },
+     {
+      "raw": {
+       "product": "Amoxicillin",
+       "0_gy": "116.1",
+       "fe_0_1": "116.2",
+       "fe_10": "109.8",
+       "fe_50": "115.8",
+       "h_0_1": "115.6",
+       "h_10": "112",
+       "h_50": "114.4"
+      },
+      "parsed": {
+       "product": "Amoxicillin",
+       "0_gy": 116.1,
+       "fe_0_1": 116.2,
+       "fe_10": 109.8,
+       "fe_50": 115.8,
+       "h_0_1": 115.6,
+       "h_10": 112,
+       "h_50": 114.4
+      }
+     },
+     {
+      "raw": {
+       "product": "Clavulanate",
+       "0_gy": "93.5",
+       "fe_0_1": "88.6",
+       "fe_10": "79.4",
+       "fe_50": "83.4",
+       "h_0_1": "88.1",
+       "h_10": "48",
+       "h_50": "78.2"
+      },
+      "parsed": {
+       "product": "Clavulanate",
+       "0_gy": 93.5,
+       "fe_0_1": 88.6,
+       "fe_10": 79.4,
+       "fe_50": 83.4,
+       "h_0_1": 88.1,
+       "h_10": 48,
+       "h_50": 78.2
+      }
+     },
+     {
+      "raw": {
+       "product": "Ciprofloxacin 3 mg/mL solution",
+       "0_gy": "96.9",
+       "fe_0_1": "96",
+       "fe_10": "95.9",
+       "fe_50": "96.1",
+       "h_0_1": "96.1",
+       "h_10": "94.5",
+       "h_50": "96.4"
+      },
+      "parsed": {
+       "product": "Ciprofloxacin 3 mg/mL solution",
+       "0_gy": 96.9,
+       "fe_0_1": 96,
+       "fe_10": 95.9,
+       "fe_50": 96.1,
+       "h_0_1": 96.1,
+       "h_10": 94.5,
+       "h_50": 96.4
+      }
+     },
+     {
+      "raw": {
+       "product": "Ciprofloxacin 0.3% ointment",
+       "0_gy": "99",
+       "fe_0_1": "96.4",
+       "fe_10": "94.6",
+       "fe_50": "95",
+       "h_0_1": "94.8",
+       "h_10": "91.7",
+       "h_50": "94.8"
+      },
+      "parsed": {
+       "product": "Ciprofloxacin 0.3% ointment",
+       "0_gy": 99,
+       "fe_0_1": 96.4,
+       "fe_10": 94.6,
+       "fe_50": 95,
+       "h_0_1": 94.8,
+       "h_10": 91.7,
+       "h_50": 94.8
+      }
+     },
+     {
+      "raw": {
+       "product": "Ciprofloxacin 500 mg tablet",
+       "0_gy": "99.1",
+       "fe_0_1": "100.9",
+       "fe_10": "100.1",
+       "fe_50": "100.2",
+       "h_0_1": "100.3",
+       "h_10": "99.3",
+       "h_50": "99.5"
+      },
+      "parsed": {
+       "product": "Ciprofloxacin 500 mg tablet",
+       "0_gy": 99.1,
+       "fe_0_1": 100.9,
+       "fe_10": 100.1,
+       "fe_50": 100.2,
+       "h_0_1": 100.3,
+       "h_10": 99.3,
+       "h_50": 99.5
+      }
+     },
+     {
+      "raw": {
+       "product": "Clotrimazole",
+       "0_gy": "99.5",
+       "fe_0_1": "98.6",
+       "fe_10": "98.8",
+       "fe_50": "98.7",
+       "h_0_1": "98.8",
+       "h_10": "98.9",
+       "h_50": "98.2"
+      },
+      "parsed": {
+       "product": "Clotrimazole",
+       "0_gy": 99.5,
+       "fe_0_1": 98.6,
+       "fe_10": 98.8,
+       "fe_50": 98.7,
+       "h_0_1": 98.8,
+       "h_10": 98.9,
+       "h_50": 98.2
+      }
+     },
+     {
+      "raw": {
+       "product": "Ibuprofen",
+       "0_gy": "101.4",
+       "fe_0_1": "102.3",
+       "fe_10": "102.3",
+       "fe_50": "102.6",
+       "h_0_1": "102.5",
+       "h_10": "102.6",
+       "h_50": "102.8"
+      },
+      "parsed": {
+       "product": "Ibuprofen",
+       "0_gy": 101.4,
+       "fe_0_1": 102.3,
+       "fe_10": 102.3,
+       "fe_50": 102.6,
+       "h_0_1": 102.5,
+       "h_10": 102.6,
+       "h_50": 102.8
+      }
+     },
+     {
+      "raw": {
+       "product": "Levothyroxine",
+       "0_gy": "94.1",
+       "fe_0_1": "96.6",
+       "fe_10": "93.5",
+       "fe_50": "95.3",
+       "h_0_1": "93.4",
+       "h_10": "94.2",
+       "h_50": "94.4"
+      },
+      "parsed": {
+       "product": "Levothyroxine",
+       "0_gy": 94.1,
+       "fe_0_1": 96.6,
+       "fe_10": 93.5,
+       "fe_50": 95.3,
+       "h_0_1": 93.4,
+       "h_10": 94.2,
+       "h_50": 94.4
+      }
+     },
+     {
+      "raw": {
+       "product": "Mupirocin",
+       "0_gy": "100.5",
+       "fe_0_1": "99.6",
+       "fe_10": "100.2",
+       "fe_50": "100.3",
+       "h_0_1": "100.3",
+       "h_10": "99.7",
+       "h_50": "99"
+      },
+      "parsed": {
+       "product": "Mupirocin",
+       "0_gy": 100.5,
+       "fe_0_1": 99.6,
+       "fe_10": 100.2,
+       "fe_50": 100.3,
+       "h_0_1": 100.3,
+       "h_10": 99.7,
+       "h_50": 99
+      }
+     },
+     {
+      "raw": {
+       "product": "Phenazopyridine",
+       "0_gy": "98",
+       "fe_0_1": "96.2",
+       "fe_10": "94.2",
+       "fe_50": "92.5",
+       "h_0_1": "96.6",
+       "h_10": "94.5",
+       "h_50": "93.9"
+      },
+      "parsed": {
+       "product": "Phenazopyridine",
+       "0_gy": 98,
+       "fe_0_1": 96.2,
+       "fe_10": 94.2,
+       "fe_50": 92.5,
+       "h_0_1": 96.6,
+       "h_10": 94.5,
+       "h_50": 93.9
+      }
+     },
+     {
+      "raw": {
+       "product": "Promethazine tablet",
+       "0_gy": "97",
+       "fe_0_1": "96.2",
+       "fe_10": "96.1",
+       "fe_50": "95.3",
+       "h_0_1": "97.3",
+       "h_10": "93.9",
+       "h_50": "96.3"
+      },
+      "parsed": {
+       "product": "Promethazine tablet",
+       "0_gy": 97,
+       "fe_0_1": 96.2,
+       "fe_10": 96.1,
+       "fe_50": 95.3,
+       "h_0_1": 97.3,
+       "h_10": 93.9,
+       "h_50": 96.3
+      }
+     },
+     {
+      "raw": {
+       "product": "Promethazine injection",
+       "0_gy": "99.2",
+       "fe_0_1": "99.6",
+       "fe_10": "97.3",
+       "fe_50": "98.7",
+       "h_0_1": "97.8",
+       "h_10": "98.4",
+       "h_50": "98.8"
+      },
+      "parsed": {
+       "product": "Promethazine injection",
+       "0_gy": 99.2,
+       "fe_0_1": 99.6,
+       "fe_10": 97.3,
+       "fe_50": 98.7,
+       "h_0_1": 97.8,
+       "h_10": 98.4,
+       "h_50": 98.8
+      }
+     },
+     {
+      "raw": {
+       "product": "Promethazine suppository",
+       "0_gy": "103.5",
+       "fe_0_1": "102.3",
+       "fe_10": "103.1",
+       "fe_50": "103.3",
+       "h_0_1": "102.1",
+       "h_10": "102.9",
+       "h_50": "103.6"
+      },
+      "parsed": {
+       "product": "Promethazine suppository",
+       "0_gy": 103.5,
+       "fe_0_1": 102.3,
+       "fe_10": 103.1,
+       "fe_50": 103.3,
+       "h_0_1": 102.1,
+       "h_10": 102.9,
+       "h_50": 103.6
+      }
+     },
+     {
+      "raw": {
+       "product": "Riboflavin",
+       "0_gy": "100.8",
+       "fe_0_1": "99.6",
+       "fe_10": "98.7",
+       "fe_50": "96.9",
+       "h_0_1": "100.4",
+       "h_10": "98.8",
+       "h_50": "97.7"
+      },
+      "parsed": {
+       "product": "Riboflavin",
+       "0_gy": 100.8,
+       "fe_0_1": 99.6,
+       "fe_10": 98.7,
+       "fe_50": 96.9,
+       "h_0_1": 100.4,
+       "h_10": 98.8,
+       "h_50": 97.7
+      }
+     },
+     {
+      "raw": {
+       "product": "Silver sulfadiazine",
+       "0_gy": "98.6",
+       "fe_0_1": "97.7",
+       "fe_10": "96.8",
+       "fe_50": "95.9",
+       "h_0_1": "98",
+       "h_10": "97.1",
+       "h_50": "96.5"
+      },
+      "parsed": {
+       "product": "Silver sulfadiazine",
+       "0_gy": 98.6,
+       "fe_0_1": 97.7,
+       "fe_10": 96.8,
+       "fe_50": 95.9,
+       "h_0_1": 98,
+       "h_10": 97.1,
+       "h_50": 96.5
+      }
+     },
+     {
+      "raw": {
+       "product": "Temazepam",
+       "0_gy": "100.5",
+       "fe_0_1": "100.4",
+       "fe_10": "100.2",
+       "fe_50": "100.2",
+       "h_0_1": "100.1",
+       "h_10": "99.8",
+       "h_50": "99.8"
+      },
+      "parsed": {
+       "product": "Temazepam",
+       "0_gy": 100.5,
+       "fe_0_1": 100.4,
+       "fe_10": 100.2,
+       "fe_50": 100.2,
+       "h_0_1": 100.1,
+       "h_10": 99.8,
+       "h_50": 99.8
+      }
+     },
+     {
+      "raw": {
+       "product": "Sulfamethoxazole",
+       "0_gy": "100.7",
+       "fe_0_1": "97.5",
+       "fe_10": "95.9",
+       "fe_50": "96.2",
+       "h_0_1": "100.5",
+       "h_10": "97.5",
+       "h_50": "96.5"
+      },
+      "parsed": {
+       "product": "Sulfamethoxazole",
+       "0_gy": 100.7,
+       "fe_0_1": 97.5,
+       "fe_10": 95.9,
+       "fe_50": 96.2,
+       "h_0_1": 100.5,
+       "h_10": 97.5,
+       "h_50": 96.5
+      }
+     },
+     {
+      "raw": {
+       "product": "Trimethoprim",
+       "0_gy": "101.5",
+       "fe_0_1": "98.2",
+       "fe_10": "96.5",
+       "fe_50": "97.1",
+       "h_0_1": "101.3",
+       "h_10": "98.5",
+       "h_50": "97.3"
+      },
+      "parsed": {
+       "product": "Trimethoprim",
+       "0_gy": 101.5,
+       "fe_0_1": 98.2,
+       "fe_10": 96.5,
+       "fe_50": 97.1,
+       "h_0_1": 101.3,
+       "h_10": 98.5,
+       "h_50": 97.3
+      }
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP07",
+    "MDP78"
+   ],
+   "source_status": "READ (MDP07); MDP78 CITED",
+   "status": "unverified",
+   "note": "Clavulanate is the known sensitive case (48 %LC at H 10 Gy). Use: check that the engine's radiation term stays near zero for these products up to 50 Gy, with clavulanate as the known sensitive case."
+  },
+  {
+   "vector_id": "V12",
+   "kind": "dataset",
+   "description": "V12. Gamma radiation of ciprofloxacin (MDP18)",
+   "target": null,
+   "inputs": {
+    "columns": [
+     {
+      "key": "sample",
+      "header": "Sample"
+     },
+     {
+      "key": "25_gy",
+      "header": "25 Gy"
+     },
+     {
+      "key": "800_gy",
+      "header": "800 Gy"
+     }
+    ],
+    "parse_conventions": "'a to b% loss' as {low, high, text}; 'x% loss' as {value, text}; values are percent loss, not %LC."
+   },
+   "expected": {
+    "row_count": 2,
+    "rows": [
+     {
+      "raw": {
+       "sample": "Packaged ciprofloxacin formulations",
+       "25_gy": "0.2 to 1% loss",
+       "800_gy": "3.8 to 5.2% loss"
+      },
+      "parsed": {
+       "sample": "Packaged ciprofloxacin formulations",
+       "25_gy": {
+        "low": 0.2,
+        "high": 1,
+        "text": "% loss"
+       },
+       "800_gy": {
+        "low": 3.8,
+        "high": 5.2,
+        "text": "% loss"
+       }
+      }
+     },
+     {
+      "raw": {
+       "sample": "Ciprofloxacin API solution, 100 ppm",
+       "25_gy": "1.4% loss",
+       "800_gy": "44.38% loss"
+      },
+      "parsed": {
+       "sample": "Ciprofloxacin API solution, 100 ppm",
+       "25_gy": {
+        "value": 1.4,
+        "text": "% loss"
+       },
+       "800_gy": {
+        "value": 44.38,
+        "text": "% loss"
+       }
+      }
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP18",
+    "MDP07"
+   ],
+   "source_status": "READ (by sub-search); literature points CITED in MDP07",
+   "status": "unverified",
+   "note": "Literature points CITED in MDP07: moxifloxacin and levofloxacin 2 mg/mL lose about 10% and 20% at 5 and 15 kGy; ciprofloxacin 0.033 mg/mL loses 66% at 500 Gy. Use: dose thresholds for a radiosensitivity flag on aqueous products."
+  }
+ ]
+}

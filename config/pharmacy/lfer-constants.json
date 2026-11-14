@@ -1,0 +1,684 @@
+{
+  "document_id": "lfer-constants",
+  "schema": "pharmacy/lfer-constants.schema.json",
+  "version": "0.2.0",
+  "review_state": "draft",
+  "notice": "Draft configuration for the Crew Health Check potency engine. Every value carries its basis and source IDs (research notes in reports/crew-health-medications-2026-11-14/research). team_default values are placeholders that the named role must replace before operational use.",
+  "hammett_substituents": [
+    {
+      "substituent_id": "dimethylamino",
+      "fragment_smiles": "*N(C)C",
+      "sigma_meta": {
+        "value": -0.211,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": -0.83,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "amino",
+      "fragment_smiles": "*N",
+      "sigma_meta": {
+        "value": -0.161,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": -0.66,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "butylamino",
+      "fragment_smiles": "*NCCCC",
+      "sigma_meta": {
+        "value": -0.34,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": -0.51,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "hydroxy",
+      "fragment_smiles": "*O",
+      "sigma_meta": {
+        "value": 0.12,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": -0.37,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "methoxy",
+      "fragment_smiles": "*OC",
+      "sigma_meta": {
+        "value": 0.115,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": -0.268,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "ethoxy",
+      "fragment_smiles": "*OCC",
+      "sigma_meta": {
+        "value": 0.015,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": -0.25,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "methyl",
+      "fragment_smiles": "*C",
+      "sigma_meta": {
+        "value": -0.069,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": -0.17,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "trimethylsilyl",
+      "fragment_smiles": "*[Si](C)(C)C",
+      "sigma_meta": {
+        "value": -0.04,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": -0.07,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "fluoro",
+      "fragment_smiles": "*F",
+      "sigma_meta": {
+        "value": 0.337,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": 0.062,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "chloro",
+      "fragment_smiles": "*Cl",
+      "sigma_meta": {
+        "value": 0.373,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": 0.227,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "bromo",
+      "fragment_smiles": "*Br",
+      "sigma_meta": {
+        "value": 0.393,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": 0.232,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "iodo",
+      "fragment_smiles": "*I",
+      "sigma_meta": {
+        "value": 0.353,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": 0.276,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "ethoxycarbonyl",
+      "fragment_smiles": "*C(=O)OCC",
+      "sigma_meta": {
+        "value": 0.37,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": 0.45,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "trifluoromethyl",
+      "fragment_smiles": "*C(F)(F)F",
+      "sigma_meta": {
+        "value": 0.43,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": 0.54,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "cyano",
+      "fragment_smiles": "*C#N",
+      "sigma_meta": {
+        "value": 0.56,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": 0.66,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    },
+    {
+      "substituent_id": "nitro",
+      "fragment_smiles": "*[N+](=O)[O-]",
+      "sigma_meta": {
+        "value": 0.71,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia; differs from Hansch, Leo and Taft 1991 (MDX04)."
+      },
+      "sigma_para": {
+        "value": 0.778,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Hammett 1937 via Wikipedia."
+      }
+    }
+  ],
+  "hammett_series": [
+    {
+      "series_id": "hammett_benzoate_alkaline",
+      "class_id": "ester_hydrolysis",
+      "ring_attachment_map": 1,
+      "rho": {
+        "value": 2.494,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX02"
+        ],
+        "to_be_set_by": null,
+        "note": "Alkaline hydrolysis of ethyl benzoates (rho' 2.24 in the same table)."
+      },
+      "reaction": "Substituted benzoate esters, ring attached to the acyl carbon (map 1)."
+    },
+    {
+      "series_id": "hammett_phenyl_ester",
+      "class_id": "ester_hydrolysis",
+      "ring_attachment_map": 2,
+      "rho": null,
+      "reaction": "Aryl esters, ring attached to the alkoxy oxygen (map 2). rho not sourced: anchor only."
+    }
+  ],
+  "taft_substituents": [
+    {
+      "substituent_id": "hydrogen",
+      "fragment_smiles": "*[H]",
+      "sigma_star": {
+        "value": 0.49,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft polar constant via Anslyn and Dougherty (2006) p. 455."
+      },
+      "steric_es": {
+        "value": 1.24,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft steric constant via Anslyn and Dougherty (2006) p. 455."
+      }
+    },
+    {
+      "substituent_id": "methyl",
+      "fragment_smiles": "*C",
+      "sigma_star": {
+        "value": 0.0,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft polar constant via Anslyn and Dougherty (2006) p. 455."
+      },
+      "steric_es": {
+        "value": 0.0,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft steric constant via Anslyn and Dougherty (2006) p. 455."
+      }
+    },
+    {
+      "substituent_id": "ethyl",
+      "fragment_smiles": "*CC",
+      "sigma_star": {
+        "value": -0.1,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft polar constant via Anslyn and Dougherty (2006) p. 455."
+      },
+      "steric_es": {
+        "value": -0.07,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft steric constant via Anslyn and Dougherty (2006) p. 455."
+      }
+    },
+    {
+      "substituent_id": "isopropyl",
+      "fragment_smiles": "*C(C)C",
+      "sigma_star": {
+        "value": -0.19,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft polar constant via Anslyn and Dougherty (2006) p. 455."
+      },
+      "steric_es": {
+        "value": -0.47,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft steric constant via Anslyn and Dougherty (2006) p. 455."
+      }
+    },
+    {
+      "substituent_id": "tert_butyl",
+      "fragment_smiles": "*C(C)(C)C",
+      "sigma_star": {
+        "value": -0.3,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft polar constant via Anslyn and Dougherty (2006) p. 455."
+      },
+      "steric_es": {
+        "value": -1.54,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft steric constant via Anslyn and Dougherty (2006) p. 455."
+      }
+    },
+    {
+      "substituent_id": "benzyl",
+      "fragment_smiles": "*Cc1ccccc1",
+      "sigma_star": {
+        "value": 0.22,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft polar constant via Anslyn and Dougherty (2006) p. 455."
+      },
+      "steric_es": {
+        "value": -0.38,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft steric constant via Anslyn and Dougherty (2006) p. 455."
+      }
+    },
+    {
+      "substituent_id": "phenyl",
+      "fragment_smiles": "*c1ccccc1",
+      "sigma_star": {
+        "value": 0.6,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft polar constant via Anslyn and Dougherty (2006) p. 455."
+      },
+      "steric_es": {
+        "value": -2.55,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Taft steric constant via Anslyn and Dougherty (2006) p. 455."
+      }
+    }
+  ],
+  "taft_series": [
+    {
+      "series_id": "taft_ester_acyl",
+      "class_id": "ester_hydrolysis",
+      "substituent_attachment_map": 3,
+      "rho_star": {
+        "value": 2.48,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Base-catalyzed ester hydrolysis, about 2.48 by construction of sigma*."
+      },
+      "delta": {
+        "value": 1.0,
+        "unit": "1",
+        "basis": "sourced",
+        "source_ids": [
+          "MDX03"
+        ],
+        "to_be_set_by": null,
+        "note": "Steric sensitivity 1 by definition (acid-catalyzed reference reaction)."
+      },
+      "reaction": "Aliphatic esters R-C(=O)OR': the acyl substituent R (map 3)."
+    }
+  ],
+  "evans_polanyi": [
+    {
+      "class_id": "phenol_autoxidation",
+      "alpha": {
+        "value": 0.5,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "chemistry lead",
+        "note": "Evans-Polanyi transfer coefficient."
+      },
+      "max_abs_delta_bde_kj_per_mol": {
+        "value": 30.0,
+        "unit": "kJ/mol",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "chemistry lead",
+        "note": "Applicability domain of the linear Evans-Polanyi relation for this class: beyond this BDE difference from the reference the shift is not applied at that site and the pathway is flagged (spec 7.3.4)."
+      },
+      "bond": "O-H",
+      "reference_smiles": "Oc1ccccc1",
+      "reference_note": "Phenol O-H computed with the same method."
+    },
+    {
+      "class_id": "catechol_autoxidation",
+      "alpha": {
+        "value": 0.5,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "chemistry lead",
+        "note": "Evans-Polanyi transfer coefficient."
+      },
+      "max_abs_delta_bde_kj_per_mol": {
+        "value": 30.0,
+        "unit": "kJ/mol",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "chemistry lead",
+        "note": "Applicability domain of the linear Evans-Polanyi relation for this class: beyond this BDE difference from the reference the shift is not applied at that site and the pathway is flagged (spec 7.3.4)."
+      },
+      "bond": "O-H",
+      "reference_smiles": "Oc1ccccc1O",
+      "reference_note": "Catechol O-H computed with the same method."
+    },
+    {
+      "class_id": "amine_alpha_oxidation",
+      "alpha": {
+        "value": 0.5,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "chemistry lead",
+        "note": "Evans-Polanyi transfer coefficient."
+      },
+      "max_abs_delta_bde_kj_per_mol": {
+        "value": 30.0,
+        "unit": "kJ/mol",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "chemistry lead",
+        "note": "Applicability domain of the linear Evans-Polanyi relation for this class: beyond this BDE difference from the reference the shift is not applied at that site and the pathway is flagged (spec 7.3.4)."
+      },
+      "bond": "C-H",
+      "reference_smiles": "CN(C)C",
+      "reference_note": "Trimethylamine alpha C-H computed with the same method."
+    }
+  ]
+}

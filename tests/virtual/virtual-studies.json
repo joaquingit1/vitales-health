@@ -1,0 +1,552 @@
+{
+ "document_id": "virtual-studies",
+ "schema": "tests/virtual/virtual-studies.schema.json",
+ "version": "0.1.0",
+ "review_state": "draft",
+ "notice": "Virtual stability study designs for spec 15.8 (B3). Every value carries its basis and source IDs; team_default values are placeholders that the named role must replace.",
+ "mission_seed_base": {
+  "value": 20261114,
+  "unit": "1",
+  "basis": "sourced",
+  "source_ids": [],
+  "to_be_set_by": null,
+  "note": "Spec 15.8: replicate r uses mission seed 20261114 + r."
+ },
+ "designs": [
+  {
+   "design_id": "ich",
+   "name": "ICH Q1A(R2) long-term, intermediate and accelerated",
+   "package": "declared",
+   "conditions": [
+    {
+     "condition_id": "long_term",
+     "temperature_k": {
+      "value": 298.15,
+      "unit": "K",
+      "basis": "sourced",
+      "source_ids": [
+       "MDS01"
+      ],
+      "to_be_set_by": null,
+      "note": "ICH Q1A(R2) long term storage temperature."
+     },
+     "rh_percent": {
+      "value": 60.0,
+      "unit": "percent",
+      "basis": "sourced",
+      "source_ids": [
+       "MDS01"
+      ],
+      "to_be_set_by": null,
+      "note": "ICH Q1A(R2) long term storage humidity."
+     },
+     "pull_months": {
+      "value": [
+       0,
+       3,
+       6,
+       9,
+       12,
+       18,
+       24
+      ],
+      "unit": "month",
+      "basis": "sourced",
+      "source_ids": [
+       "MDS01"
+      ],
+      "to_be_set_by": null,
+      "note": "ICH Q1A(R2) testing frequency."
+     }
+    },
+    {
+     "condition_id": "intermediate",
+     "temperature_k": {
+      "value": 303.15,
+      "unit": "K",
+      "basis": "sourced",
+      "source_ids": [
+       "MDS01"
+      ],
+      "to_be_set_by": null,
+      "note": "ICH Q1A(R2) intermediate storage temperature."
+     },
+     "rh_percent": {
+      "value": 65.0,
+      "unit": "percent",
+      "basis": "sourced",
+      "source_ids": [
+       "MDS01"
+      ],
+      "to_be_set_by": null,
+      "note": "ICH Q1A(R2) intermediate storage humidity."
+     },
+     "pull_months": {
+      "value": [
+       0,
+       6,
+       9,
+       12
+      ],
+      "unit": "month",
+      "basis": "sourced",
+      "source_ids": [
+       "MDS01"
+      ],
+      "to_be_set_by": null,
+      "note": "ICH Q1A(R2) testing frequency."
+     }
+    },
+    {
+     "condition_id": "accelerated",
+     "temperature_k": {
+      "value": 313.15,
+      "unit": "K",
+      "basis": "sourced",
+      "source_ids": [
+       "MDS01"
+      ],
+      "to_be_set_by": null,
+      "note": "ICH Q1A(R2) accelerated storage temperature."
+     },
+     "rh_percent": {
+      "value": 75.0,
+      "unit": "percent",
+      "basis": "sourced",
+      "source_ids": [
+       "MDS01"
+      ],
+      "to_be_set_by": null,
+      "note": "ICH Q1A(R2) accelerated storage humidity."
+     },
+     "pull_months": {
+      "value": [
+       0,
+       3,
+       6
+      ],
+      "unit": "month",
+      "basis": "sourced",
+      "source_ids": [
+       "MDS01"
+      ],
+      "to_be_set_by": null,
+      "note": "ICH Q1A(R2) testing frequency."
+     }
+    }
+   ],
+   "isoconversion_pull_fractions": null,
+   "isoconversion_max_days": null,
+   "chamber": {
+    "temperature_sd_k": {
+     "value": 1.0,
+     "unit": "K",
+     "basis": "sourced",
+     "source_ids": [
+      "MDS01"
+     ],
+     "to_be_set_by": null,
+     "note": "ICH chamber tolerance +-2 C read as +-2 sd (the ground_storage convention)."
+    },
+    "rh_sd_percent": {
+     "value": 2.5,
+     "unit": "percent",
+     "basis": "sourced",
+     "source_ids": [
+      "MDS01"
+     ],
+     "to_be_set_by": null,
+     "note": "ICH chamber tolerance +-5 %RH read as +-2 sd."
+    },
+    "ou_time_constant_s": {
+     "value": 21600.0,
+     "unit": "s",
+     "basis": "team_default",
+     "source_ids": [],
+     "to_be_set_by": "stability lead",
+     "note": "Correlation time of the chamber control fluctuation."
+    },
+    "sampling_interval_s": {
+     "value": 3600.0,
+     "unit": "s",
+     "basis": "team_default",
+     "source_ids": [],
+     "to_be_set_by": "stability lead",
+     "note": "Chamber logger interval; the truth grid of the study."
+    }
+   },
+   "assay": {
+    "sd_percent": {
+     "value": 1.0,
+     "unit": "percent",
+     "basis": "team_default",
+     "source_ids": [],
+     "to_be_set_by": "stability lead",
+     "note": "Assay standard deviation per replicate (HPLC, typical)."
+    },
+    "replicates": {
+     "value": 2,
+     "unit": "1",
+     "basis": "team_default",
+     "source_ids": [],
+     "to_be_set_by": "stability lead",
+     "note": "Replicate assays per pull."
+    }
+   },
+   "basis": "sourced",
+   "source_ids": [
+    "MDS01"
+   ],
+   "note": "Product in its declared (default) package."
+  },
+  {
+   "design_id": "isoconversion",
+   "name": "Isoconversion (ASAP-style) open-dish design",
+   "package": "open_dish",
+   "conditions": [
+    {
+     "condition_id": "c50_75",
+     "temperature_k": {
+      "value": 323.15,
+      "unit": "K",
+      "basis": "team_default",
+      "source_ids": [
+       "MDS14"
+      ],
+      "to_be_set_by": "stability lead",
+      "note": "Isoconversion condition inside the 50 to 80 C span of MDS14."
+     },
+     "rh_percent": {
+      "value": 75.0,
+      "unit": "percent",
+      "basis": "team_default",
+      "source_ids": [
+       "MDS14"
+      ],
+      "to_be_set_by": "stability lead",
+      "note": "Isoconversion condition inside the 10 to 75 %RH span of MDS14."
+     },
+     "pull_months": null
+    },
+    {
+     "condition_id": "c60_40",
+     "temperature_k": {
+      "value": 333.15,
+      "unit": "K",
+      "basis": "team_default",
+      "source_ids": [
+       "MDS14"
+      ],
+      "to_be_set_by": "stability lead",
+      "note": "Isoconversion condition inside the 50 to 80 C span of MDS14."
+     },
+     "rh_percent": {
+      "value": 40.0,
+      "unit": "percent",
+      "basis": "team_default",
+      "source_ids": [
+       "MDS14"
+      ],
+      "to_be_set_by": "stability lead",
+      "note": "Isoconversion condition inside the 10 to 75 %RH span of MDS14."
+     },
+     "pull_months": null
+    },
+    {
+     "condition_id": "c70_10",
+     "temperature_k": {
+      "value": 343.15,
+      "unit": "K",
+      "basis": "team_default",
+      "source_ids": [
+       "MDS14"
+      ],
+      "to_be_set_by": "stability lead",
+      "note": "Isoconversion condition inside the 50 to 80 C span of MDS14."
+     },
+     "rh_percent": {
+      "value": 10.0,
+      "unit": "percent",
+      "basis": "team_default",
+      "source_ids": [
+       "MDS14"
+      ],
+      "to_be_set_by": "stability lead",
+      "note": "Isoconversion condition inside the 10 to 75 %RH span of MDS14."
+     },
+     "pull_months": null
+    },
+    {
+     "condition_id": "c70_75",
+     "temperature_k": {
+      "value": 343.15,
+      "unit": "K",
+      "basis": "team_default",
+      "source_ids": [
+       "MDS14"
+      ],
+      "to_be_set_by": "stability lead",
+      "note": "Isoconversion condition inside the 50 to 80 C span of MDS14."
+     },
+     "rh_percent": {
+      "value": 75.0,
+      "unit": "percent",
+      "basis": "team_default",
+      "source_ids": [
+       "MDS14"
+      ],
+      "to_be_set_by": "stability lead",
+      "note": "Isoconversion condition inside the 10 to 75 %RH span of MDS14."
+     },
+     "pull_months": null
+    },
+    {
+     "condition_id": "c80_40",
+     "temperature_k": {
+      "value": 353.15,
+      "unit": "K",
+      "basis": "team_default",
+      "source_ids": [
+       "MDS14"
+      ],
+      "to_be_set_by": "stability lead",
+      "note": "Isoconversion condition inside the 50 to 80 C span of MDS14."
+     },
+     "rh_percent": {
+      "value": 40.0,
+      "unit": "percent",
+      "basis": "team_default",
+      "source_ids": [
+       "MDS14"
+      ],
+      "to_be_set_by": "stability lead",
+      "note": "Isoconversion condition inside the 10 to 75 %RH span of MDS14."
+     },
+     "pull_months": null
+    }
+   ],
+   "isoconversion_pull_fractions": {
+    "value": [
+     0.0,
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25
+    ],
+    "unit": "1",
+    "basis": "team_default",
+    "source_ids": [
+     "MDS14"
+    ],
+    "to_be_set_by": "stability lead",
+    "note": "Pull times as fractions of the truth's time to the specification edge at the condition; the last pull brackets the edge (spec 15.8)."
+   },
+   "isoconversion_max_days": {
+    "value": 90.0,
+    "unit": "day",
+    "basis": "team_default",
+    "source_ids": [],
+    "to_be_set_by": "stability lead",
+    "note": "Longest pull of an isoconversion condition (slow conditions are cut here)."
+   },
+   "chamber": {
+    "temperature_sd_k": {
+     "value": 0.5,
+     "unit": "K",
+     "basis": "team_default",
+     "source_ids": [],
+     "to_be_set_by": "stability lead",
+     "note": "Oven control fluctuation."
+    },
+    "rh_sd_percent": {
+     "value": 1.0,
+     "unit": "percent",
+     "basis": "team_default",
+     "source_ids": [],
+     "to_be_set_by": "stability lead",
+     "note": "Saturated-salt or humidity-controlled chamber fluctuation."
+    },
+    "ou_time_constant_s": {
+     "value": 3600.0,
+     "unit": "s",
+     "basis": "team_default",
+     "source_ids": [],
+     "to_be_set_by": "stability lead",
+     "note": "Correlation time of the oven control fluctuation."
+    },
+    "sampling_interval_s": {
+     "value": 1800.0,
+     "unit": "s",
+     "basis": "team_default",
+     "source_ids": [],
+     "to_be_set_by": "stability lead",
+     "note": "Logger interval; the truth grid of the study."
+    }
+   },
+   "assay": {
+    "sd_percent": {
+     "value": 0.5,
+     "unit": "percent",
+     "basis": "team_default",
+     "source_ids": [],
+     "to_be_set_by": "stability lead",
+     "note": "Assay standard deviation per replicate."
+    },
+    "replicates": {
+     "value": 2,
+     "unit": "1",
+     "basis": "team_default",
+     "source_ids": [],
+     "to_be_set_by": "stability lead",
+     "note": "Replicate assays per pull."
+    }
+   },
+   "basis": "team_default",
+   "source_ids": [
+    "MDS14"
+   ],
+   "note": "Open dish: internal RH equals chamber RH."
+  }
+ ],
+ "products": [
+  {
+   "role": "vs1_solid",
+   "product_source": "formulary",
+   "product_id": "aspirin_325_tab",
+   "validation_row": null,
+   "dose_form_family": "solid",
+   "basis": "team_default",
+   "source_ids": [],
+   "to_be_set_by": "B3 with the chemistry lead",
+   "note": "Solid with one destructive thermal pathway (ester hydrolysis) in the B2 pathway table."
+  },
+  {
+   "role": "vs1_solution",
+   "product_source": "validation_row",
+   "product_id": "b3_v1_row_05",
+   "validation_row": 5,
+   "dose_form_family": "solution",
+   "basis": "team_default",
+   "source_ids": [
+    "MDP02"
+   ],
+   "to_be_set_by": "B3 with the chemistry lead",
+   "note": "Ciprofloxacin ophthalmic solution built from V1 row 5 (tests/validation): the only V1 liquid with one destructive thermal pathway (amine alpha-oxidation) in the B2 pathway table; lidocaine (row 22) has two and the formulary has no single-pathway solution."
+  },
+  {
+   "role": "vs1_semisolid",
+   "product_source": "validation_row",
+   "product_id": "b3_v1_row_10",
+   "validation_row": 10,
+   "dose_form_family": "semisolid",
+   "basis": "team_default",
+   "source_ids": [
+    "MDP02"
+   ],
+   "to_be_set_by": "B3 with the chemistry lead",
+   "note": "Triamcinolone acetonide cream built from V1 row 10; the formulary has no semisolid (request B3-R12)."
+  },
+  {
+   "role": "closed_loop",
+   "product_source": "formulary",
+   "product_id": "aspirin_325_tab",
+   "validation_row": null,
+   "dose_form_family": "solid",
+   "basis": "team_default",
+   "source_ids": [],
+   "to_be_set_by": "B3",
+   "note": "VS-2 to VS-5 product; its demo lot lot-asa-001 carries the custody and package history."
+  }
+ ],
+ "closed_loop": {
+  "lot_id": "lot-asa-001",
+  "ingredient_id": "aspirin",
+  "assessment_days": {
+   "value": [
+    100,
+    250,
+    399
+   ],
+   "unit": "day",
+   "basis": "team_default",
+   "source_ids": [],
+   "to_be_set_by": "B3",
+   "note": "Demo assessment times: day 100 is before the day-180 excursion, days 250 and 399 after it."
+  },
+  "excursion_day": {
+   "value": 180,
+   "unit": "day",
+   "basis": "team_default",
+   "source_ids": [],
+   "to_be_set_by": "B3",
+   "note": "Day of the demo's thermal-control failure (45 C)."
+  },
+  "assay_day": {
+   "value": 200,
+   "unit": "day",
+   "basis": "sourced",
+   "source_ids": [],
+   "to_be_set_by": null,
+   "note": "Spec 15.8 VS-5: one simulated onboard assay at day 200."
+  },
+  "width_day": {
+   "value": 250,
+   "unit": "day",
+   "basis": "sourced",
+   "source_ids": [],
+   "to_be_set_by": null,
+   "note": "Spec 15.8 VS-5: interval width compared at day 250."
+  },
+  "environment_days": {
+   "value": 400,
+   "unit": "day",
+   "basis": "sourced",
+   "source_ids": [],
+   "to_be_set_by": null,
+   "note": "Spec 15.8 VS-4: 400-day histories per profile."
+  }
+ },
+ "replicates": {
+  "vs1": {
+   "value": 500,
+   "unit": "1",
+   "basis": "sourced",
+   "source_ids": [],
+   "to_be_set_by": null,
+   "note": "Spec 15.8 VS-1 (environment variable B3_VS1_REPLICATES overrides for local runs)."
+  },
+  "vs2": {
+   "value": 500,
+   "unit": "1",
+   "basis": "team_default",
+   "source_ids": [],
+   "to_be_set_by": "B3",
+   "note": "VS-2 replicates per truth kind (spec silent; request B3-R15)."
+  },
+  "vs3": {
+   "value": 500,
+   "unit": "1",
+   "basis": "sourced",
+   "source_ids": [],
+   "to_be_set_by": null,
+   "note": "Spec 15.8 VS-3."
+  },
+  "vs4": {
+   "value": 500,
+   "unit": "1",
+   "basis": "team_default",
+   "source_ids": [],
+   "to_be_set_by": "B3",
+   "note": "VS-4 replicates per profile (spec silent)."
+  },
+  "vs5": {
+   "value": 500,
+   "unit": "1",
+   "basis": "team_default",
+   "source_ids": [],
+   "to_be_set_by": "B3",
+   "note": "VS-5 replicates (spec: VS-3 plus one assay)."
+  }
+ }
+}

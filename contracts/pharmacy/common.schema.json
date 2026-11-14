@@ -1,0 +1,642 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/common.schema.json",
+  "title": "Shared definitions",
+  "description": "Building blocks referenced by the other pharmacy schemas: provenance-carrying values, parameter distributions, validated ranges and identifier patterns.",
+  "$defs": {
+    "SourceId": {
+      "type": "string",
+      "pattern": "^(MDS|MDP|MDD|MDX)[0-9]{2,3}$"
+    },
+    "Identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "UtcTimestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "SourcedValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A number with its provenance. ``to_be_set_by`` names who must replace a placeholder.",
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "source_ids",
+        "to_be_set_by",
+        "note"
+      ],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SourceId"
+          }
+        },
+        "to_be_set_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "const": "team_default"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "to_be_set_by": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Prior": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A parameter distribution with provenance. normal: value ~ N(mu, sigma^2). truncated_normal: the same restricted to [lower, upper] (either bound may be null). lognormal: ln(value) ~ N(mu, sigma^2), so ``mu`` and ``sigma`` are in natural-log units and ``unit`` names the unit of the value itself. fixed: value = mu, sigma must be 0.",
+      "required": [
+        "family",
+        "mu",
+        "sigma",
+        "lower",
+        "upper",
+        "unit",
+        "basis",
+        "source_ids",
+        "to_be_set_by",
+        "note"
+      ],
+      "properties": {
+        "family": {
+          "enum": [
+            "normal",
+            "lognormal",
+            "truncated_normal",
+            "fixed"
+          ]
+        },
+        "mu": {
+          "type": "number"
+        },
+        "sigma": {
+          "type": "number"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SourceId"
+          }
+        },
+        "to_be_set_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "const": "team_default"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "to_be_set_by": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "family": {
+                "const": "fixed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "sigma": {
+                "const": 0
+              },
+              "lower": {
+                "type": "null"
+              },
+              "upper": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "sigma": {
+                "exclusiveMinimum": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "family": {
+                "enum": [
+                  "normal",
+                  "lognormal"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "lower": {
+                "type": "null"
+              },
+              "upper": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "family": {
+                "const": "truncated_normal"
+              }
+            }
+          },
+          "then": {
+            "anyOf": [
+              {
+                "properties": {
+                  "lower": {
+                    "type": "number"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "upper": {
+                    "type": "number"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "source_ids",
+        "to_be_set_by",
+        "note"
+      ],
+      "properties": {
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SourceId"
+          }
+        },
+        "to_be_set_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "const": "team_default"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "to_be_set_by": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ValidatedRangeDoc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature_min_k",
+        "temperature_max_k",
+        "rh_min_percent",
+        "rh_max_percent",
+        "basis",
+        "source_ids",
+        "to_be_set_by",
+        "note"
+      ],
+      "properties": {
+        "temperature_min_k": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "temperature_max_k": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rh_min_percent": {
+          "type": "number"
+        },
+        "rh_max_percent": {
+          "type": "number"
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SourceId"
+          }
+        },
+        "to_be_set_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "const": "team_default"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "to_be_set_by": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CalibrationProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Reproducible derivation of a prior or multiplier (spec 9.5). Rows are dataset row identifiers, not list offsets. Statistics have unique names. Absence of this record means no reproducible calibration has been recorded.",
+      "required": [
+        "basis",
+        "source_ids",
+        "to_be_set_by",
+        "note",
+        "method",
+        "vector_id",
+        "rows",
+        "statistics",
+        "engine_version"
+      ],
+      "properties": {
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SourceId"
+          }
+        },
+        "to_be_set_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "allOf": [
+            {
+              "type": "string"
+            },
+            {
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          ]
+        },
+        "method": {
+          "allOf": [
+            {
+              "type": "string"
+            },
+            {
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          ]
+        },
+        "vector_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "rows": {
+          "allOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          ]
+        },
+        "statistics": {
+          "allOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/CalibrationStatistic"
+              }
+            },
+            {
+              "minItems": 1
+            }
+          ]
+        },
+        "engine_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "const": "team_default"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "to_be_set_by": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CalibrationStatistic": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One named numerical result of an offline calibration, with an explicit unit.",
+      "required": [
+        "name",
+        "value",
+        "unit"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

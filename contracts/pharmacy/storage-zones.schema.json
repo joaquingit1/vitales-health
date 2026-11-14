@@ -1,0 +1,439 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/storage-zones.schema.json",
+  "title": "Storage zones, their sensors, gap policy and worst-case bounds.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_id",
+    "schema",
+    "version",
+    "review_state",
+    "notice",
+    "zones"
+  ],
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "schema": {
+      "const": "pharmacy/storage-zones.schema.json"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "review_state": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ]
+    },
+    "notice": {
+      "type": "string"
+    },
+    "zones": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/StorageZoneDoc"
+      }
+    }
+  },
+  "$defs": {
+    "DeclaredConditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature_k",
+        "relative_humidity_percent",
+        "dose_rate_gy_per_s",
+        "illuminance_lux",
+        "uv_w_per_m2"
+      ],
+      "properties": {
+        "temperature_k": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Prior"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "relative_humidity_percent": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Prior"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dose_rate_gy_per_s": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Prior"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "illuminance_lux": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Prior"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uv_w_per_m2": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Prior"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ForecastProjectionDoc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "window_s"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "repeat_last_window",
+            "declared_constant"
+          ]
+        },
+        "window_s": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "GapBounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature_k",
+        "relative_humidity_percent",
+        "dose_rate_gy_per_s",
+        "illuminance_lux",
+        "uv_w_per_m2"
+      ],
+      "properties": {
+        "temperature_k": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "relative_humidity_percent": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dose_rate_gy_per_s": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "illuminance_lux": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uv_w_per_m2": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "GapPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "bounds"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "worst_case",
+            "last_plus_bound"
+          ]
+        },
+        "bounds": {
+          "$ref": "#/$defs/GapBounds"
+        }
+      }
+    },
+    "SensorSpecDoc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sensor_id",
+        "quantity",
+        "unit",
+        "calibration_offset",
+        "calibration_standard_uncertainty",
+        "resolution",
+        "max_hold_s"
+      ],
+      "properties": {
+        "sensor_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "quantity": {
+          "enum": [
+            "temperature_k",
+            "relative_humidity",
+            "dose_rate_gy_per_s",
+            "illuminance_lux",
+            "uv_w_per_m2"
+          ]
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "calibration_offset": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "calibration_standard_uncertainty": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "resolution": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "max_hold_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "StorageZoneDoc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "zone_id",
+        "name",
+        "kind",
+        "environment_profile_id",
+        "location_note",
+        "shielding_note",
+        "sensors",
+        "declared_conditions",
+        "light_exposure",
+        "gap_policy",
+        "gap_limit_s",
+        "min_coverage_fraction",
+        "worst_case",
+        "time_above_thresholds_k",
+        "rate_multiplier",
+        "forecast_projection",
+        "basis",
+        "source_ids",
+        "note"
+      ],
+      "properties": {
+        "zone_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "sensed",
+            "declared"
+          ]
+        },
+        "environment_profile_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "location_note": {
+          "type": "string"
+        },
+        "shielding_note": {
+          "type": "string"
+        },
+        "sensors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SensorSpecDoc"
+          }
+        },
+        "declared_conditions": {
+          "$ref": "#/$defs/DeclaredConditions"
+        },
+        "light_exposure": {
+          "type": "boolean"
+        },
+        "gap_policy": {
+          "$ref": "#/$defs/GapPolicy"
+        },
+        "gap_limit_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "min_coverage_fraction": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "worst_case": {
+          "$ref": "#/$defs/WorstCase"
+        },
+        "time_above_thresholds_k": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourcedValue"
+          }
+        },
+        "rate_multiplier": {
+          "$ref": "common.schema.json#/$defs/Prior"
+        },
+        "rate_multiplier_calibration": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/CalibrationProvenance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "forecast_projection": {
+          "$ref": "#/$defs/ForecastProjectionDoc"
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "WorstCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature_max_k",
+        "temperature_min_k",
+        "rh_max_percent",
+        "rh_min_percent",
+        "dose_rate_max_gy_per_s",
+        "illuminance_max_lux",
+        "uv_max_w_per_m2"
+      ],
+      "properties": {
+        "temperature_max_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "temperature_min_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "rh_max_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "rh_min_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "dose_rate_max_gy_per_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "illuminance_max_lux": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "uv_max_w_per_m2": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    }
+  }
+}

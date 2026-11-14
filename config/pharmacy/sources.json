@@ -1,0 +1,1976 @@
+{
+  "document_id": "sources",
+  "schema": "pharmacy/sources.schema.json",
+  "version": "0.1.0",
+  "review_state": "draft",
+  "notice": "Draft configuration for the Crew Health Check potency engine. Every value carries its basis and source IDs (research notes in reports/crew-health-medications-2026-11-14/research). team_default values are placeholders that the named role must replace before operational use.",
+  "sources": [
+    {
+      "source_id": "MDS01",
+      "citation": "ICH Q1A(R2) Stability Testing of New Drug Substances and Products (Step 4, 6 Feb 2003). ICH (2003).",
+      "url": "https://database.ich.org/sites/default/files/Q1A%28R2%29%20Guideline.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS02",
+      "citation": "ICH Q1E Evaluation for Stability Data (Step 4, 6 Feb 2003). ICH (2003).",
+      "url": "https://database.ich.org/sites/default/files/Q1E%20Guideline.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS03",
+      "citation": "ICH Q1B Photostability Testing of New Drug Substances and Products (Step 4, 6 Nov 1996). ICH (1996).",
+      "url": "https://database.ich.org/sites/default/files/Q1B%20Guideline.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS04",
+      "citation": "ICH Q3B(R2) Impurities in New Drug Products (Step 4, 2 Jun 2006). ICH (2006).",
+      "url": "https://database.ich.org/sites/default/files/Q3B%28R2%29%20Guideline.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS05",
+      "citation": "USP 35 to NF 30, Second Supplement, general chapter <1150> Pharmaceutical Stability (third-party mirror). United States Pharmacopeia (2012).",
+      "url": "https://www.drugfuture.com/Pharmacopoeia/usp35/PDF/5686-5688%20%5B1150%5D%20Pharmaceutical%20Stability.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS06",
+      "citation": "USP general chapter <1079.2> Mean Kinetic Temperature in the Evaluation of Temperature Excursions During Storage and Transportation of Drug Products. USP-NF (doi 10.31003/USPNF_M13855_02_01) (2020 (official), 2023 record).",
+      "url": "https://doi.usp.org/USPNF/USPNF_M13855_02_01.html",
+      "status": "cited-only (preview only)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS07",
+      "citation": "Tong C, Lock A. A Computational Procedure for Mean Kinetic Temperature Using Unequally Spaced Data. JSM Proceedings, Biopharmaceutical Section (American Statistical Association), pp. 2065 onward (2015).",
+      "url": "https://ww2.amstat.org/meetings/proceedings/2015/data/assets/pdf/234053.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS08",
+      "citation": "Jenkins D, Cancel A, Layloff T. Mean kinetic temperature evaluations through simulated temperature excursions and risk assessment with oral dosage usage for health programs. BMC Public Health 22:300 (2022).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8842539/",
+      "status": "read (quotes used are from the abstract)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS09",
+      "citation": "ECA Academy news: USP Stimuli Article on the Correct Use of MKT (2018); USP pre-posts revision to <1079.2> (21 Feb 2023). gmp-compliance.org (2018, 2023).",
+      "url": "https://www.gmp-compliance.org/gmp-news/usp-stimuli-article-on-the-correct-use-of-mean-kinetic-temperature",
+      "status": "read (secondary)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS10",
+      "citation": "LogTag Analyzer 3 user guide: Mean Kinetic Temperature. LogTag Recorders (vendor documentation) (n.d.).",
+      "url": "https://help.logtagrecorders.com/LTA3/Topics/UserGuide/Chapter2-Using_Analyzer/Mean_Kinetic_Temperature.htm",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS11",
+      "citation": "Haynes JD. Worldwide virtual temperatures for product stability testing. J Pharm Sci 60(6):927-929 (1971).",
+      "url": null,
+      "status": "cited-only (cited in MDS01)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS12",
+      "citation": "Waterman KC. ASAP: Accelerated Stability Assessment Program, Improved Protocol and Data Analysis for Accelerated Shelf-Life Estimation of Solid Dosage Forms. AIChE Annual Meeting 2008 proceedings (paper 601a) (2008).",
+      "url": "https://skoge.folk.ntnu.no/prost/proceedings/aiche-2008/data/papers/P135574.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS13",
+      "citation": "Waterman KC. The Application of the Accelerated Stability Assessment Program (ASAP) to Quality by Design (QbD) for Drug Product Stability. AAPS PharmSciTech 12(3):932-937 (2011).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3167263",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS14",
+      "citation": "Waterman KC, Carella AJ, Gumkowski MJ, Lukulay P, MacDonald BC, Roy MC, Shamblin SL. Improved protocol and data analysis for accelerated shelf-life estimation of solid dosage forms. Pharm Res 24(4):780-790 (2007).",
+      "url": null,
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS15",
+      "citation": "Waterman KC, MacDonald BC. Package selection for moisture protection for solid, oral drug products. J Pharm Sci 99(11):4437-4452 (2010).",
+      "url": null,
+      "status": "abstract (Eq. 3 cited-only)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS16",
+      "citation": "Scrivens G. Mean Kinetic Relative Humidity: A New Concept for Assessing the Impact of Variable Relative Humidity on Pharmaceuticals. Pharmaceutical Technology (2012).",
+      "url": "https://pharmtech.com/view/mean-kinetic-relative-humidity-new-concept-assessing-impact-variable-relative-humidity-pharmaceutica",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS17",
+      "citation": "Genton D, Kesselring UW. Effect of temperature and relative humidity on nitrazepam stability in solid state. J Pharm Sci 66(5):676-680 (1977).",
+      "url": null,
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS18",
+      "citation": "Fu M, Perlman M, Lu Q, Varga C. Pharmaceutical solid-state kinetic stability investigation by using moisture-modified Arrhenius equation and JMP statistical software. J Pharm Biomed Anal 107:370-377 (2015).",
+      "url": null,
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS19",
+      "citation": "Clancy D, Hodnett N, Orr R, Owen M, Peterson J. Kinetic Model Development for Accelerated Stability Studies. AAPS PharmSciTech 18(4):1158-1176 (2017).",
+      "url": null,
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS20",
+      "citation": "Chau J, Altan S, Burggraeve A, et al. A Bayesian Approach to Kinetic Modeling of Accelerated Stability Studies and Shelf Life Determination. AAPS PharmSciTech 24(8):250 (2023).",
+      "url": null,
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS21",
+      "citation": "Campa C, Pronce T, Paludi M, Weusten J, Conway L, Savery J, Richards C, Clenet D. Use of Stability Modeling to Support Accelerated Vaccine Development and Supply. Vaccines 9(10):1114 (2021).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8539070/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS22",
+      "citation": "AccelStab: Accelerated Stability Kinetic Modelling, R package version 2.3.2, and vignette. CRAN (2025).",
+      "url": "https://CRAN.R-project.org/package=AccelStab",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS23",
+      "citation": "Chen Y, Li Y. A new model for predicting moisture uptake by packaged solid pharmaceuticals. Int J Pharm 255(1-2):217-225 (2003).",
+      "url": null,
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS24",
+      "citation": "Remmelgas J. Predicting Moisture Uptake in Solid Dosage Packaging. Pharmaceutical Technology 41(1):44-49 (2017).",
+      "url": "https://pharmtech.com/view/predicting-moisture-uptake-solid-dosage-packaging",
+      "status": "read (equations are images)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS25",
+      "citation": "Crouter A, Briens L. The Effect of Moisture on the Flowability of Pharmaceutical Excipients. AAPS PharmSciTech 15(1):65-74 (2014).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3909156/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS26",
+      "citation": "Maafi M, Al-Qarni MA. Photokinetics of Dacarbazine and Nifedipine under polychromatic light irradiation and their application as new reliable actinometers for the ultraviolet range. Sci Rep 12:7622 (2022).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9090909/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS27",
+      "citation": "Baertschi SW, Alsante KM, Tonnesen HH. A critical assessment of the ICH guideline on photostability testing of new drug substances and products (Q1B): recommendation for revision. J Pharm Sci 99:2934-2940 (2010).",
+      "url": null,
+      "status": "cited-only",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS28",
+      "citation": "Khawam A, Flanagan DR. Solid-state kinetic models: basics and mathematical fundamentals. J Phys Chem B 110:17315-17328 (2006).",
+      "url": null,
+      "status": "cited-only",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS29",
+      "citation": "Ng WL. Thermal decomposition in the solid state. Aust J Chem 28(6):1169-1178 (1975).",
+      "url": null,
+      "status": "cited-only",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS30",
+      "citation": "Vyazovkin S, Burnham AK, Criado JM, Perez-Maqueda LA, Popescu C, Sbirrazzuoli N. ICTAC Kinetics Committee recommendations for performing kinetic computations on thermal analysis data. Thermochim Acta 520:1-19 (2011).",
+      "url": "https://hal.science/hal-01350051",
+      "status": "cited-only (bot wall)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS31",
+      "citation": "Farjas J, Roura P. Simple approximate analytical solution for non-isothermal single-step transformations: kinetic analysis. arXiv 0811.1432 (2008).",
+      "url": "https://arxiv.org/pdf/0811.1432",
+      "status": "read (Greek symbols lost in extraction)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS32",
+      "citation": "USP 35 monograph: Amoxicillin Capsules (third-party mirror). United States Pharmacopeia (2012).",
+      "url": "https://www.drugfuture.com/Pharmacopoeia/USP35/data/v35300/usp35nf30s0_m4110.html",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS33",
+      "citation": "USP 35 monograph: Acetaminophen Tablets (third-party mirror). United States Pharmacopeia (2012).",
+      "url": "https://www.drugfuture.com/Pharmacopoeia/USP35/data/v35300/usp35nf30s0_m200.html",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS34",
+      "citation": "USP 35 monograph: Epinephrine Injection (third-party mirror). United States Pharmacopeia (2012).",
+      "url": "https://drugfuture.com/Pharmacopoeia/USP35/data/v35300/usp35nf30s0_m29530.html",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS35",
+      "citation": "Assessing the Credibility of Computational Modeling and Simulation in Medical Device Submissions (final guidance, 17 Nov 2023). US FDA (2023).",
+      "url": "https://www.fda.gov/media/154985/download",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS36",
+      "citation": "ASME V&V 40-2018 Assessing Credibility of Computational Modeling through Verification and Validation: Application to Medical Devices. ASME (2018).",
+      "url": null,
+      "status": "cited-only (definitions reprinted in MDS35)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS37",
+      "citation": "NASA-STD-7009B Standard for Models and Simulations (approved 2024-03-05). NASA (2024).",
+      "url": "https://standards.nasa.gov/sites/default/files/standards/NASA/B/1/NASA-STD-7009B-Final-3-5-2024.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS38",
+      "citation": "NASA-HDBK-7009B NASA Handbook for Models and Simulations (approved 2026-02-03). NASA (2026).",
+      "url": "https://standards.nasa.gov/system/files/tmp/NASA-HDBK-7009B_Final%2002-03-2026.pdf",
+      "status": "read (section 5.5.2.2)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS39",
+      "citation": "GAMP 5 Guide, 2nd Edition; and ISPE Pharmaceutical Engineering, \"What You Need to Know About GAMP 5 Guide 2nd Edition\" (Jan/Feb 2023). ISPE (2022, 2023).",
+      "url": "https://ispe.org/pharmaceutical-engineering/january-february-2023/what-you-need-know-about-gampr-5-guide-2nd-edition",
+      "status": "guide cited-only; article read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS40",
+      "citation": "McDowall RD. Understanding and Interpreting the New GAMP 5 Software Categories. Spectroscopy (2009).",
+      "url": "https://spectroscopyonline.com/understanding-and-interpreting-new-gamp-5-software-categories",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS41",
+      "citation": "Data Integrity and Compliance With Drug CGMP: Questions and Answers (Dec 2018). US FDA (2018).",
+      "url": "https://www.fda.gov/media/119267/download",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS42",
+      "citation": "'GXP' Data Integrity Guidance and Definitions, Revision 1 (March 2018). MHRA (2018).",
+      "url": "https://assets.publishing.service.gov.uk/media/5aa2b9ede5274a3e391e37f3/MHRA_GxP_data_integrity_guide_March_edited_Final.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS43",
+      "citation": "21 CFR 11.10 Controls for closed systems (text current 2026-11-01). eCFR (2026).",
+      "url": "https://www.ecfr.gov/current/title-21/chapter-I/subchapter-A/part-11/subpart-B/section-11.10",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS44",
+      "citation": "Computer Software Assurance for Production and Quality Management System Software (3 Feb 2026). US FDA (2026).",
+      "url": "https://www.fda.gov/media/188844/download",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS45",
+      "citation": "ICH M15 General Principles for Model-Informed Drug Development (Step 4 Jan 2026; FDA guidance June 2026). ICH / US FDA (2026).",
+      "url": "https://www.fda.gov/media/184747/download",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS46",
+      "citation": "ICH Q1 Stability Testing of Drug Substances and Drug Products, Step 2 draft endorsed 11 April 2025 (FDA-hosted copy). ICH / US FDA (2025).",
+      "url": "https://www.fda.gov/media/187161/download",
+      "status": "read (13.2.4, 14.1, Annex 2, glossary)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS47",
+      "citation": "ICH Q1 EWG Work Plan (Feb 2026) and ICH Assembly Singapore minutes. ICH (2026).",
+      "url": "https://database.ich.org/sites/default/files/ICH52_Q1_EWG_WorkPlan_2026_0318.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS48",
+      "citation": "Celik IB, Ghia U, Roache PJ, Freitas CJ. Procedure for Estimation and Reporting of Uncertainty Due to Discretization in CFD Applications. J Fluids Eng 130(7):078001 (2008).",
+      "url": "https://www.asme.org/wwwasmeorg/media/resourcefiles/shop/journals/jfenumaccuracy.pdf",
+      "status": "read (equations reconstructed, Table 1 recomputed)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS49",
+      "citation": "Roache PJ. Perspective: A Method for Uniform Reporting of Grid Refinement Studies. J Fluids Eng 116(3):405-413 (1994).",
+      "url": null,
+      "status": "cited-only",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS50",
+      "citation": "Examining Spatial (Grid) Convergence. NASA Glenn NPARC Alliance (n.d.).",
+      "url": "https://www.grc.nasa.gov/WWW/wind/valid/tutorial/spatconv.html",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS51",
+      "citation": "ASME V&V 20-2009 (cited-only); Romero V. Relationships between ASME VV 10 & 20, AIAA CFD, and Real Space Model Validation Frameworks, SAND2020-5230C. ASME; Sandia (2009; 2020).",
+      "url": "https://www.osti.gov/servlets/purl/1783664",
+      "status": "V&V 20 cited-only; Romero read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS52",
+      "citation": "Salari K, Knupp P. Code Verification by the Method of Manufactured Solutions, SAND2000-1444. Sandia National Laboratories (2000).",
+      "url": "https://www.osti.gov/servlets/purl/759450",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS53",
+      "citation": "Talts S, Betancourt M, Simpson D, Vehtari A, Gelman A. Validating Bayesian Inference Algorithms with Simulation-Based Calibration. arXiv 1804.06788 (2018).",
+      "url": "https://arxiv.org/abs/1804.06788",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS54",
+      "citation": "Morris TP, White IR, Crowther MJ. Using simulation studies to evaluate statistical methods. Stat Med 38(11):2074-2102 (2019).",
+      "url": "https://arxiv.org/abs/1712.03198",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS55",
+      "citation": "JCGM 100:2008 Guide to the expression of uncertainty in measurement (GUM). BIPM / JCGM (2008).",
+      "url": "https://www.bipm.org/documents/20126/2071204/JCGM_100_2008_E.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS56",
+      "citation": "JCGM 101:2008 GUM Supplement 1: Propagation of distributions using a Monte Carlo method. BIPM / JCGM (2008).",
+      "url": "https://www.bipm.org/documents/20126/2071204/JCGM_101_2008_E.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS57",
+      "citation": "Du B, Daniels VR, Vaksman Z, et al. Evaluation of physical and chemical changes in pharmaceuticals flown on space missions. AAPS J 13:299-308 (2011).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3085701/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS58",
+      "citation": "Wotring VE. Chemical potency and degradation products of medications stored over 550 Earth days at the International Space Station. AAPS J 18:210-216 (2016).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4706284/",
+      "status": "abstract read; body via tool extraction",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS59",
+      "citation": "Blue RS, Bayuse TM, Daniels VR, et al. Supplying a pharmacy for NASA exploration spaceflight: challenges and current understanding. npj Microgravity 5:14 (2019).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6565689/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS60",
+      "citation": "Blue RS, Chancellor JC, Antonsen EL, et al. Limitations in predicting radiation-induced pharmaceutical instability during long-duration spaceflight. npj Microgravity 5:15 (2019).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6554299/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS61",
+      "citation": "Reichard JF, Phelps SE, Lehnhardt KR, Young M, Easter BD. The effect of long-term spaceflight on drug potency and the risk of medication failure. npj Microgravity 9:35 (2023).",
+      "url": "https://www.nature.com/articles/s41526-023-00271-6",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS62",
+      "citation": "Plante I, Daniels V, Young M, Gaza R, Wu H, Reichard JF, et al. The long-term stability of solid-state oral pharmaceuticals exposed to simulated intravehicular space radiation. npj Microgravity 11:17 (PMID 40382322) (2025).",
+      "url": "https://www.nature.com/articles/s41526-025-00469-w",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS63",
+      "citation": "Kim MY, Plante I. An Assessment of How Radiation Incurred During a Mars Mission Could Affect Food and Pharmaceuticals. NASA JSC / Wyle report (2015).",
+      "url": "https://three.jsc.nasa.gov/articles/Food_and_Pharmaceuticals_Paper.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS64",
+      "citation": "Daniels V, et al. Radiation Impact on Pharmaceutical Stability: Retrospective Data Review. NASA HRP IWS (NTRS 20170009940) (2018).",
+      "url": "https://ntrs.nasa.gov/citations/20170009940",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS65",
+      "citation": "Chuong MC, Prasad D, LeDuc B, Du B, Putcha L. Stability of vitamin B complex in multivitamin and multimineral supplement tablets after space flight. J Pharm Biomed Anal 55:1197-1200 (PMID 21515013) (2011).",
+      "url": null,
+      "status": "abstract; NSRL arm cited-only",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS66",
+      "citation": "Bhayani D, Mehta P, et al. Ground-based selected ionizing space radiation effects on stability of APIs and their formulations. J Pharm Biomed Anal 220:115019 (PMID 36084472) (2022).",
+      "url": null,
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS67",
+      "citation": "Marciniec B, Dettlaff K. Radiation sterilization of drugs. In: Trends in Radiation Sterilization of Health Care Products, pp. 187-230. IAEA (2008).",
+      "url": "https://www-pub.iaea.org/MTCD/Publications/PDF/Pub1313_web.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS68",
+      "citation": "Slegers C, Tilquin B. (gamma and e-beam radiolysis of metoprolol tartrate solutions). Radiat Phys Chem 75:1006-1017 (2006).",
+      "url": "https://www.farm.ucl.ac.be/Full-texts-FARM/Slegers-2006-3.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS69",
+      "citation": "Maquille A, Habib Jiwan JL, Tilquin B. (radiation sterilization of frozen and liquid drug solutions). Eur J Pharm Biopharm 69:358-363 (2008).",
+      "url": "https://www.farm.ucl.ac.be/Full-texts-FARM/Maquille-2008-1.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS70",
+      "citation": "Engalytcheff A, Deridder V, Debuyst R, Tilquin B. (radicals in irradiated solid beta-blockers). Radiat Res 160:103-109 (2003).",
+      "url": "https://www.farm.ucl.ac.be/Abstracts-FARM/Engalytcheff-2003-1.htm",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS71",
+      "citation": "Dettlaff K, Talik P, et al. (e-beam sterilization of itraconazole). AAPS PharmSciTech 16:21 (2015).",
+      "url": null,
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS72",
+      "citation": "Dettlaff K, Ogrodowczyk M, et al. (radiation sterilization of eplerenone). BioMed Res Int 2014:571376 (2014).",
+      "url": null,
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS73",
+      "citation": "Wzgarda A, Dettlaff K, et al. (radiation sterilization of perindopril). Iran J Pharm Res 16(3):1007 (2017).",
+      "url": null,
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS74",
+      "citation": "Janiaczyk M, et al. (radiation sterilization of diclofenac and aceclofenac). Pharmaceutics 14:1331 (2022).",
+      "url": null,
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS75",
+      "citation": "Guideline on the sterilisation of the medicinal product, active substance, excipient and primary container (EMA/CHMP/CVMP/QWP/850374/2015). EMA (2019).",
+      "url": null,
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS76",
+      "citation": "Note for guidance: The use of ionising radiation in the manufacture of medicinal products (3AQ4a). EMA (n.d.).",
+      "url": null,
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS77",
+      "citation": "Berger T, et al. DOSIS and DOSIS 3D: radiation measurements with the DOSTEL instruments onboard the Columbus Laboratory of the ISS. J Space Weather Space Clim 7:A8 (2017).",
+      "url": "https://elib.dlr.de/111501/1/ME-SBA-Berger-DOSIS-DOSIS-3D-SWSC-2017.pdf",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS78",
+      "citation": "Zeitlin C, et al. Measurements of energetic particle radiation in transit to Mars on the Mars Science Laboratory. Science 340:1080-1084 (2013).",
+      "url": null,
+      "status": "not read (abstract via DLR)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS79",
+      "citation": "Guo J, et al. Variations of dose rate observed by MSL/RAD in transit to Mars (and Mars surface dose rate variations). Astron Astrophys; arXiv 1503.06631, 1507.03473 (2015).",
+      "url": "https://arxiv.org/abs/1503.06631",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS80",
+      "citation": "Hassler DM, et al. Mars' surface radiation environment measured with the Mars Science Laboratory's Curiosity rover. Science 343:1244797 (2014).",
+      "url": null,
+      "status": "read (third-party copy)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS81",
+      "citation": "Zhang S, et al. First measurements of the radiation dose on the lunar surface. Sci Adv 6:eaaz1334 (2020).",
+      "url": null,
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS82",
+      "citation": "George SP, Gaza R, Matthia D, et al. Space radiation measurements during the Artemis I lunar mission. Nature (2024).",
+      "url": null,
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS83",
+      "citation": "SwRI press release on the MSL RAD cruise dose (Zeitlin et al. 2013). Southwest Research Institute (2013).",
+      "url": "https://www.swri.org/newsroom/press-releases/swri-led-team-calculates-the-radiation-exposure-associated-trip-mars",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS84",
+      "citation": "Not obtained: Jacobs GP 1995 J Biomater Appl 10:59-96 (review of ionizing radiation effects on drugs); Silindir M, Ozer Y 2009 FABAD J Pharm Sci 34:43-53; ISO 11137; Boess C, Bogl KW 1996. various (various).",
+      "url": null,
+      "status": "cited-only",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS85",
+      "citation": "Delattre V, et al. A Laboratory Module for Physical Chemistry and Analytical Chemistry: The Kinetics of Aspirin Hydrolysis and Its Quantitation in Pharmaceutical Tablets. J Chem Educ 102(2):746-753 (2025).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11823444/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS86",
+      "citation": "Kamalpersad K, Luna G, Sunderland B, Czarniak P. An Evaluation of Amoxicillin/Clavulanate Stability in Aqueous Systems, Including Its Suitability for Outpatient Parenteral Antimicrobial Therapy (OPAT). Drug Des Devel Ther 18:4291-4301 (2024).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11440154/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS87",
+      "citation": "Mack I, et al. Insufficient Stability of Clavulanic Acid in Widely Used Child-Appropriate Formulations. Antibiotics 10(2):225 (2021).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7927114/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS88",
+      "citation": "Fawaz S, et al. Suitability of Amoxicillin-Clavulanic Acid for Administration via Prolonged Infusion. Drug Des Devel Ther 14:103-109 (2020).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6959504/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS89",
+      "citation": "Feng L, et al. Kinetics of L-ascorbic acid degradation and non-enzymatic browning development in hot-compressed water. Front Nutr 9:1022254 (2022 (PubMed date)).",
+      "url": "https://www.frontiersin.org/articles/10.3389/fnut.2022.1022254/full",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS90",
+      "citation": "Modhave D, et al. Assessing Drug Product Shelf Life Using the Accelerated Stability Assessment Program: A Case Study of a GLPG4399 Capsule Formulation. Pharmaceutics 16(11):1400 (2024).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11597223/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS91",
+      "citation": "Pech J, et al. Predictive Modeling of Drug Product Stability in Pharmaceutical Blister Packs. Pharmaceutics 17(9):1233 (2025).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12473751/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS92",
+      "citation": "Robnik B, et al. Understanding and Kinetic Modeling of Complex Degradation Pathways in the Solid Dosage Form: The Case of Saxagliptin. Pharmaceutics 11(9):452 (2019).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6781548/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS93",
+      "citation": "Alsante KM, et al. Recent trends in product development and regulatory issues on impurities in active pharmaceutical ingredient (API) and drug products. Part 1. AAPS PharmSciTech 15(1):198-212 (2014 (online 2013)).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3909161/",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS94",
+      "citation": "Scrivens G. Stability Predictions by ASAP (slide deck, Pfizer). SlideShare (n.d.).",
+      "url": "https://www.slideshare.net/scrivens_g/stability-predictions-by-asap",
+      "status": "read",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS95",
+      "citation": "Chen G, Ye J, Bao H, Yang P. Determination of the rate constants and activation energy of acetaminophen hydrolysis by capillary electrophoresis. J Pharm Biomed Anal 29(5):843-850 (2002).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/12093517/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS96",
+      "citation": "Li LL, Zhan XC, Tao JL. Evaluation of the stability of aspirin in solid state by the programmed humidifying and non-isothermal experiments. Arch Pharm Res 31(3):381-389 (2008).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18409054/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS97",
+      "citation": "He P, Gao QY, Yin GK. Kinetics of solid-state decomposition of aspirin (in Chinese). Hua Xi Yi Ke Da Xue Xue Bao 20(2):153-156 (1989).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/2591925/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS98",
+      "citation": "Snavely MJ, Price JC, Jun HW. The Stability of Aspirin in a Moisture Containing Direct Compression Tablet Formulation. Drug Dev Ind Pharm 19(6):729-738 (1993).",
+      "url": "https://hero.epa.gov/hero/index.cfm/reference/details/reference_id/5321221",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS99",
+      "citation": "Carstensen JT, Attarchi F. Decomposition of aspirin in the solid state in the presence of limited amounts of moisture II: Kinetics and salting-in of aspirin in aqueous acetic acid solutions. J Pharm Sci 77(4):314-317 (1988).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/3379588/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS100",
+      "citation": "Kishore AK, Nagwekar JB. Influence of temperature and hydrophobic group-associated icebergs on the activation energy of drug decomposition and its implication in drug shelf-life prediction. Pharm Res 7(7):730-735 (1990).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/2395801/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS101",
+      "citation": "Mochizuki K, Takayama K. Prediction of color changes in acetaminophen solution using the time-temperature superposition principle. Drug Dev Ind Pharm 42(7):1050-1057 (2016).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26559666/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS102",
+      "citation": "Vahdat L, Sunderland B. The influence of potassium clavulanate on the rate of amoxicillin sodium degradation in phosphate and acetate buffers in the liquid state. Drug Dev Ind Pharm 35(4):471-479 (2009).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/19048426/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS103",
+      "citation": "Vahdat L, Sunderland VB. Kinetics of amoxicillin and clavulanate degradation alone and in combination in aqueous solution under frozen conditions. Int J Pharm 342:95-104 (2007).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17592747/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS104",
+      "citation": "Chadha R, et al. Kinetic studies of the degradation of an aminopenicillin antibiotic (amoxicillin trihydrate) in aqueous solution using heat conduction microcalorimetry. J Pharm Pharmacol 55(11):1495-1503 (2003).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/14713360/",
+      "status": "abstract (Ea not in abstract)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS105",
+      "citation": "Cielecka-Piontek J, et al. Solid-state stability and compatibility studies of clavulanate potassium. Pharm Dev Technol 20(2):146-152 (2015).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24219797/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS106",
+      "citation": "Hajratwala BR. Kinetics of sulfite-induced anaerobic degradation of epinephrine. J Pharm Sci 64(1):45-48 (1975).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/237107/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS107",
+      "citation": "Zarghi A, et al. An ion-pair high-performance liquid chromatography method for stability studies of epinephrine acid tartrate in injectable solution. Boll Chim Farm 140(2):115-118 (2001).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/11417386/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS108",
+      "citation": "Stepensky D, et al. Long-term stability study of L-adrenaline injections: Kinetics of sulfonation and racemization pathways of drug degradation. J Pharm Sci 93(4):969-980 (2004).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/14999733/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS109",
+      "citation": "Church WH, Hu SS, Henry AJ. Thermal degradation of injectable epinephrine. Am J Emerg Med 12(3):306-309 (1994).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/8179736/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS110",
+      "citation": "Rachid O, et al. Epinephrine doses delivered from auto-injectors stored at excessively high temperatures. Drug Dev Ind Pharm 42(1):131-135 (2016).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25997362/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS111",
+      "citation": "Legrand P, et al. Accelerated Stability Assessment Program to Predict Long-term Stability of Drugs: Application to Ascorbic Acid and to a Cyclic Hexapeptide. AAPS PharmSciTech 22(7):234 (2021).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34498167/",
+      "status": "abstract (parameters not found)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS112",
+      "citation": "Shephard AB, Nichols SC, Braithwaite A. Moisture induced solid phase degradation of L-ascorbic acid Part 1: a kinetic study using tristimulus colorimetry and a quantitative HPLC assay. Talanta 48(3):585-593 (1999).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18967499/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS113",
+      "citation": "Stavchansky S, Wallace JE, Wu P. Thermal and photolytic degradation studies of promethazine hydrochloride: a stability-indicating assay. J Pharm Sci 72(5):546-548 (1983).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/6864503/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS114",
+      "citation": "Underberg WJ. Oxidative degradation of pharmaceutically important phenothiazines III: Kinetics and mechanism of promethazine oxidation. J Pharm Sci 67(8):1133-1138 (1978).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27627/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS115",
+      "citation": "Shah S, et al. Degradation of active drugs in medicinal vials exposed to temperature extremes encountered during military operations: the Military Medication Temperature Effect Study. BMJ Mil Health (2026).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42580819/",
+      "status": "abstract",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS116",
+      "citation": "Anderson G, Scott M. Determination of product shelf life and activation energy for five drugs of abuse. Clin Chem 37(3):398-402 (1991).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/2004447/",
+      "status": "abstract (Ea values not found)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS117",
+      "citation": "Hajratwala BR. Sulfite Induced Anaerobic Degradation of Epinephrine in Lidocaine Hydrochloride Injection. Drug Dev Ind Pharm 3(1):65-72 (1977).",
+      "url": null,
+      "status": "cited-only (search snippet of abstract; title from Crossref)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS118",
+      "citation": "MacFaul PA, Ruston L, Wood JM. Activation energies for the decomposition of pharmaceuticals and their application to predicting hydrolytic stability in drug discovery. Med Chem Commun 2:140-142 (2011).",
+      "url": null,
+      "status": "cited-only (search snippet)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS119",
+      "citation": "Koshy KT, Lach JL. Stability of Aqueous Solutions of N-Acetyl-p-aminophenol. J Pharm Sci 50(2):113-118 (1961).",
+      "url": null,
+      "status": "not accessed (title from Crossref)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS120",
+      "citation": "Grimm W. Storage Conditions for Stability Testing in the EC, Japan and USA; the Most Important Market for Drug Products. Drug Dev Ind Pharm 19(20):2795-2830 (1993).",
+      "url": null,
+      "status": "cited-only (cited in MDS07 for the 83.144 kJ/mol choice)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS121",
+      "citation": "Kennon L. Use of Models in Determining Chemical Pharmaceutical Stability. J Pharm Sci 53(7):815-818 (1964).",
+      "url": null,
+      "status": "cited-only (cited in MDS16; title from Crossref)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS122",
+      "citation": "US patent 10,653,697 B2. Compositions and methods of use of cis-4-[2-{[(3S,4R)-3-fluorooxan-4-yl]amino}-8-(2,4,6-trichloroanilino)-9H-purin-9-yl]-1-methylcyclohexane-1-carboxamide (assignee Celgene Corp). USPTO (2020 (issued May 19)).",
+      "url": "https://patents.google.com/patent/US10653697B2/en",
+      "status": "read (Table 26 and surrounding text)",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDS123",
+      "citation": "TA Instruments application note M142 (aspirin hydrolysis by isothermal microcalorimetry; exact title not retrieved). TA Instruments (n.d.).",
+      "url": null,
+      "status": "cited-only",
+      "note_file": "degradation-science.md"
+    },
+    {
+      "source_id": "MDP01",
+      "citation": "Du B, Daniels VR, Vaksman Z, Boyd JL, Crady C, Putcha L. Evaluation of physical and chemical changes in pharmaceuticals flown on space missions. AAPS J 13(2):299-308 (2011).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3085701/",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP02",
+      "citation": "Du 2011 electronic supplementary material, Tables S I to S IV (Word files MOESM1 to MOESM4). Springer (2011).",
+      "url": "https://static-content.springer.com/esm/art%3A10.1208%2Fs12248-011-9270-0/MediaObjects/12248_2011_9270_MOESM3_ESM.doc",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP03",
+      "citation": "Du-2011-drug degridation_for-repo_03142022.csv (Reichard J). Figshare, CC0 (2022).",
+      "url": "https://doi.org/10.6084/m9.figshare.19394249.v1",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP04",
+      "citation": "Wu_Wotring_Cory_Studies_for_repo.csv (Reichard J). Figshare, CC0 (2022).",
+      "url": "https://doi.org/10.6084/m9.figshare.19394252.v1",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP05",
+      "citation": "Wotring VE. Chemical potency and degradation products of medications stored over 550 Earth days at the International Space Station. AAPS J 18(1):210-216 (2016).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4706284/",
+      "status": "READ (summary fetch with exact quotes)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP06",
+      "citation": "Reichard JF, Phelps SE, Lehnhardt KR, Young M, Easter BD. The effect of long-term spaceflight on drug potency and the risk of medication failure. npj Microgravity 9:35 (2023).",
+      "url": "https://www.nature.com/articles/s41526-023-00271-6",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP07",
+      "citation": "Reichard J, Lehnhardt K, Easter B, Lemery J, Elgart SR, Wotring V. Evidence Report: Risk of Ineffective or Toxic Medication During Long-Duration Exploration Spaceflight. NASA HRP (NTRS 20230018496) (2023).",
+      "url": "https://ntrs.nasa.gov/api/citations/20230018496/downloads/Pharm%20evidence%20report_12-20-23_FINAL.pdf",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP08",
+      "citation": "Blue RS et al. Supplying a pharmacy for NASA exploration spaceflight: challenges and current understanding. npj Microgravity 5:14 (2019).",
+      "url": "https://www.nature.com/articles/s41526-019-0075-2",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP09",
+      "citation": "Blue RS et al. Limitations in predicting radiation-induced pharmaceutical instability during long-duration spaceflight. npj Microgravity 5:15 (2019).",
+      "url": "https://www.nature.com/articles/s41526-019-0076-1",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP10",
+      "citation": "Diaz TE et al. Expiration analysis of the International Space Station formulary for exploration mission planning. npj Microgravity 10:76 (2024).",
+      "url": "https://www.nature.com/articles/s41526-024-00414-3",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP11",
+      "citation": "Plante I, Daniels V, Young M, Gaza R, Wu H, Reichard JF. The long-term stability of solid-state oral pharmaceuticals exposed to simulated intravehicular space radiation. npj Microgravity (doi 10.1038/s41526-025-00469-w) (2025).",
+      "url": "https://www.nature.com/articles/s41526-025-00469-w",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP12",
+      "citation": "Long-Term stability of irradiated solid-state pharmaceuticals (Reichard J, Plante I), raw xlsx. Figshare, CC BY 4.0 (2024).",
+      "url": "https://doi.org/10.6084/m9.figshare.26045470.v1",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP13",
+      "citation": "Daniels V, Du J, Crady C, Satterfield R, Putcha L. Space Environment Effects on Stability of Medications Flown on Space Shuttles and the International Space Station (ISS). NASA NTRS 20070022875 (2007).",
+      "url": "https://ntrs.nasa.gov/citations/20070022875",
+      "status": "READ (abstract)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP14",
+      "citation": "Nowadly C, Lovett D, Brawley H, Babcock L, Shennara K, Rezentes C, Lehnhardt K, Reichard JF. Limited Degradation of Active Pharmaceutical Ingredient After Spaceflight on the International Space Station. Wilderness & Environmental Medicine (2026).",
+      "url": "https://doi.org/10.1177/10806032261466966",
+      "status": "READ (abstract, Europe PMC, PMID 42550782)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP15",
+      "citation": "UHPLC-MS/MS Tracks Drug Potency on the International Space Station. LCGC International (2026).",
+      "url": "https://www.chromatographyonline.com/view/uhplc-ms-ms-tracks-drug-potency-international-space-station",
+      "status": "READ (summary fetch)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP16",
+      "citation": "Bogomolov VV, Kondratenko SN, Kovachevich IV. Testing stability of tableted acetaminophen and furosemide after 6-month storage in space flight. Aviakosm Ekolog Med (2015).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26087581/",
+      "status": "READ (abstract)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP17",
+      "citation": "Dormán G et al. Repetitive stability study of remdesivir/cyclodextrin complex on the international space station. Scientific Reports (2025).",
+      "url": "https://www.nature.com/articles/s41598-024-81428-5",
+      "status": "READ (abstract)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP18",
+      "citation": "Patel et al. Pilot degradation study of gamma irradiated ciprofloxacin in its primary packaging material for space pharmaceutical applications. Scientific Reports 16:12758 (2026).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13096110/",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP19",
+      "citation": "OCHMO-MTB-012 Pharmaceutical Care, Revision B. NASA OCHMO (2026).",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/01/ochmo-mtb-012-pharmaceutical-care.pdf",
+      "status": "READ (local text copy RT22)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP20",
+      "citation": "NASA-STD-3001 Volume 1 Revision C. NASA (2023).",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/11/nasa-std-3001-vol-1-rev-c-with-signature.pdf",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP21",
+      "citation": "NASA-STD-3001 Volume 2 Revision F. NASA (2026).",
+      "url": "https://standards.nasa.gov/system/files/tmp/NASA-STD-3001%20Vol%202%20Rev%20F.pdf",
+      "status": "READ",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP22",
+      "citation": "ISS Integrated Medical Group Medical Checklist, JSC-48522-E4, ISS All Expeditions. NASA JSC (third-party mirror) (2001).",
+      "url": "https://newspaceeconomy.ca/wp-content/uploads/2022/11/163533main_iss_med_cl.pdf",
+      "status": "READ (local text copy RS08)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP23",
+      "citation": "Toxic Exposure (Ammonia) Clinical Finding Form. NASA IMM (2020).",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/toxic-exposure-ammonia-cliff.pdf",
+      "status": "READ (local text copy RS42)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP24",
+      "citation": "Smoke Inhalation Clinical Finding Form. NASA IMM (not stated).",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/smoke-inhalation-cliff.pdf",
+      "status": "READ (local text copy RS44)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP25",
+      "citation": "ISS CHeCS Medical Hardware Catalog v10.0. NASA (NTRS 20110022379) (2011).",
+      "url": "https://ntrs.nasa.gov/api/citations/20110022379/downloads/20110022379.pdf",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP26",
+      "citation": "Human Exploration of Mars Design Reference Architecture 5.0 Addendum, NASA/SP-2009-566-ADD. NASA (2009).",
+      "url": "https://www.nasa.gov/pdf/373667main_NASA-SP-2009-566-ADD.pdf",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP27",
+      "citation": "Perry J et al. Integrated Atmosphere Resource Recovery and Environmental Monitoring Technology Demonstration for Deep Space Exploration. AIAA/ICES (NTRS 20120015343) (2012).",
+      "url": "https://ntrs.nasa.gov/api/citations/20120015343/downloads/20120015343.pdf",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP28",
+      "citation": "Norcross J et al. Evidence Report: Risk of Hypobaric Hypoxia from the Exploration Atmosphere. NASA HRP (NTRS 20150021491) (2015).",
+      "url": "https://ntrs.nasa.gov/api/citations/20150021491/downloads/20150021491.pdf",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP29",
+      "citation": "ECLS System Options for Mars Transit and Mars Surface Missions (ICES-2023-265). NASA MSFC (NTRS 20230009095) (2023).",
+      "url": "https://ntrs.nasa.gov/api/citations/20230009095/downloads/20230009095_Presentation.pdf",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP30",
+      "citation": "Curley S et al. Deep Space Habitat ECLSS Design Concept. NASA JSC (NTRS 20120008179) (2012).",
+      "url": "https://ntrs.nasa.gov/api/citations/20120008179/downloads/20120008179.pdf",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP31",
+      "citation": "SpaceX Dragon ECLSS (ICES-2020-333). ICES (2020).",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/SpaceX%20Dragon%20capsule%20ICES-2020-333.pdf",
+      "status": "CITED (search snippet)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP32",
+      "citation": "MELFI facility page. JAXA (not stated).",
+      "url": "https://humans-in-space.jaxa.jp/en/biz-lab/experiment/facility/pm/melfi/",
+      "status": "CITED (search snippet)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP33",
+      "citation": "Berger T et al. DOSIS and DOSIS 3D: long-term dose monitoring onboard the Columbus Laboratory of the ISS. J Space Weather Space Clim 6, A39 (2016).",
+      "url": "https://elib.dlr.de/107982/",
+      "status": "READ (abstract, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP34",
+      "citation": "Berger T, Matthiä D et al. Long term variations of galactic cosmic radiation on board the ISS, on the Moon and on the surface of Mars. J Space Weather Space Clim 10, 34 (2020).",
+      "url": "https://elib.dlr.de/135372/1/ME-SBA-2020-Berger%20Matthi%C3%A4%20Long%20term%20GCR%20variations%20JSWSC%2010%2C%2034%202020.pdf",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP35",
+      "citation": "Zhang S et al. First measurements of the radiation dose on the lunar surface. Science Advances 6(39):eaaz1334 (2020).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7518862/",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP36",
+      "citation": "Kroupa M, George SP et al. Space radiation measurements during the Artemis I lunar mission. Nature (doi 10.1038/s41586-024-07927-7) (2024).",
+      "url": "https://www.osti.gov/pages/servlets/purl/2447574",
+      "status": "READ (accepted manuscript, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP37",
+      "citation": "Hassler DM et al. Mars' surface radiation environment measured with the Mars Science Laboratory's Curiosity rover. Science 343:1244797 (2014).",
+      "url": "https://www.scienceintheclassroom.org/node/324",
+      "status": "READ (annotated full text, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP38",
+      "citation": "Zeitlin C et al. Measurements of energetic particle radiation in transit to Mars on the Mars Science Laboratory. Science 340:1080 (2013).",
+      "url": "https://doi.org/10.1126/science.1235989",
+      "status": "CITED (in MDP37 and MDP39)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP39",
+      "citation": "Guo J et al. Variations of dose rate observed by MSL/RAD in transit to Mars. Astronomy and Astrophysics 577, A58 (2015).",
+      "url": "https://arxiv.org/pdf/1503.06631",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP40",
+      "citation": "Evidence Report: Risk of Acute Radiation Syndromes due to Solar Particle Events. NASA HRP (NTRS 20160003870) (2016).",
+      "url": "https://ntrs.nasa.gov/api/citations/20160003870/downloads/20160003870.pdf",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP41",
+      "citation": "Weyland MD et al. Analyses of risks associated with radiation exposure from past major solar particle events, NASA TP-3137. NASA (1991).",
+      "url": "https://ntrs.nasa.gov/api/citations/19910021747/downloads/19910021747.pdf",
+      "status": "READ (partial, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP42",
+      "citation": "Zeitlin C et al. Analysis of the radiation hazard observed by RAD on the surface of Mars during the September 2017 solar particle event. Geophysical Research Letters (2018).",
+      "url": "https://www.bexus.org/et/people/forstner/publication/zeitlin-2018",
+      "status": "READ (abstract, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP43",
+      "citation": "Why Space Radiation Matters. NASA (2025).",
+      "url": "https://www.nasa.gov/missions/analog-field-testing/why-space-radiation-matters/",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP44",
+      "citation": "Guideline on the sterilisation of the medicinal product, active substance, excipient and primary container (EMA/CHMP/CVMP/QWP/850374/2015). EMA (2019).",
+      "url": "https://www.ema.europa.eu/en/documents/scientific-guideline/guideline-sterilisation-medicinal-product-active-substance-excipient-and-primary-container_en.pdf",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP45",
+      "citation": "Dello Russo C et al. Physiological adaptations affecting drug pharmacokinetics in space: what do we really know?. Br J Pharmacol (2022).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9314132/",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP46",
+      "citation": "Kast J et al. Drugs in space: pharmacokinetics and pharmacodynamics in astronauts. Eur J Pharm Sci 109S:S2-S8 (2017).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28533143/",
+      "status": "READ (abstract, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP47",
+      "citation": "Polyakov et al. Pharmacokinetics under antiorthostatic hypokinesia and spaceflight. Drug Metab Pers Ther (2021).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35737299/",
+      "status": "READ (abstract, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP48",
+      "citation": "Gandia P et al. Acetaminophen pharmacokinetics in head-down bed rest. J Clin Pharmacol (2003).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/14551178/",
+      "status": "READ (abstract, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP49",
+      "citation": "Gandia P et al. Promethazine intramuscular and oral pharmacokinetics in bed rest. J Clin Pharmacol (2006).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/16920895/",
+      "status": "READ (abstract, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP50",
+      "citation": "Putcha L et al. Bioavailability of intranasal scopolamine in normal subjects. J Pharm Sci (1996).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/8863287/",
+      "status": "READ (abstract, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP51",
+      "citation": "Wu L et al. Dose escalation pharmacokinetics of intranasal scopolamine gel. J Clin Pharmacol (2015).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25187210/",
+      "status": "READ (abstract, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP52",
+      "citation": "Boyd JL et al. Scopolamine dosage forms with dextroamphetamine. J Gravit Physiol (2007).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18372722/",
+      "status": "READ (abstract, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP53",
+      "citation": "Putcha L, Cintrón NM. Pharmacokinetic consequences of spaceflight. Ann NY Acad Sci (1991).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/11537657/",
+      "status": "READ (abstract, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP54",
+      "citation": "Moskaleva N et al. Spaceflight effects on cytochrome P450 content in mouse liver. PLoS One (2015).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26561010/",
+      "status": "READ (abstract, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP55",
+      "citation": "Eyal S, Derendorf H. Medications in space: in search of a pharmacologist's guide to the galaxy. Pharm Res (2019).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31414302/",
+      "status": "READ (abstract, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP56",
+      "citation": "Nelson et al. Spaceflight-guided pharmacogenomics (systematic review). Frontiers in Physiology (2026).",
+      "url": "https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2026.1879838/full",
+      "status": "READ (partial, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP57",
+      "citation": "Hirway et al. Rapid dosimetry modeling of spaceflight drug disposition. NASA NTRS 20250002393 (HESI abstract) (2025).",
+      "url": "https://ntrs.nasa.gov/citations/20250002393",
+      "status": "READ (abstract page, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP58",
+      "citation": "Risk of Therapeutic Failure due to Ineffectiveness of Medication (Standing Review Panel material). NASA NTRS 20110015816 (2011).",
+      "url": "https://ntrs.nasa.gov/api/citations/20110015816/downloads/20110015816.pdf",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP59",
+      "citation": "Wotring V et al. In-flight pharmacokinetic and pharmacodynamic responses (Rx Metabolism protocol). NASA NTRS 20150021496 (2015).",
+      "url": "https://ntrs.nasa.gov/citations/20150021496",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP60",
+      "citation": "INSCOP bed rest abstracts (Putcha, Du, Daniels). NASA NTRS 20090002615 (about 2010).",
+      "url": "https://ntrs.nasa.gov/citations/20090002615",
+      "status": "CITED (search snippet)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP61",
+      "citation": "Lyon RC et al. Stability profiles of drug products extended beyond labeled expiration dates. J Pharm Sci 95(7):1549-1560 (2006).",
+      "url": "https://zenodo.org/record/1229249",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP62",
+      "citation": "Cantrell L et al. Stability of active ingredients in long-expired prescription medications. Arch Intern Med 172(21):1685-1687 (2012).",
+      "url": "https://jamanetwork.com/journals/jamainternalmedicine/fullarticle/1377417",
+      "status": "READ (summary fetch, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP63",
+      "citation": "Courtney B et al. Maximizing state and local medical countermeasure stockpile investments through the Shelf-Life Extension Program. Biosecur Bioterror 7(1):101-107 (2009).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/19379109/",
+      "status": "CITED (citation only)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP64",
+      "citation": "Expiration Dating Extension. FDA (2026).",
+      "url": "https://www.fda.gov/emergency-preparedness-and-response/mcm-legal-regulatory-and-policy-framework/expiration-dating-extension",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP65",
+      "citation": "Shelf-Life Extension Program. Defense Health Agency (2024).",
+      "url": "https://health.mil/Military-Health-Topics/Health-Readiness/Medical-Logistics/Shelf-Life-Extension-Program",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP66",
+      "citation": "Audit of the CDC's Shelf Life Extension Program, A-04-11-01001. HHS OIG (2011).",
+      "url": "https://oig.hhs.gov/reports/all/2011/audit-of-the-centers-for-disease-control-and-preventions-shelf-life-extension-program/",
+      "status": "READ (summary, by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP67",
+      "citation": "Allen M. The Myth of Drug Expiration Dates. ProPublica (2017).",
+      "url": "https://www.propublica.org/article/the-myth-of-drug-expiration-dates",
+      "status": "READ (by sub-search; figures inside CITED)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP68",
+      "citation": "ICH Q1A(R2) Stability Testing of New Drug Substances and Products. ICH (2003).",
+      "url": "https://database.ich.org/sites/default/files/Q1A%28R2%29%20Guideline.pdf",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP69",
+      "citation": "WHO TRS 1010 Annex 10, Stability testing of active pharmaceutical ingredients and finished pharmaceutical products. WHO (2018).",
+      "url": "https://cdn.who.int/media/docs/default-source/medicines/norms-and-standards/guidelines/regulatory-standards/trs1010-annex10-who-stability-testing-of-active-pharmaceutical-ingredients.pdf",
+      "status": "READ (by sub-search)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP70",
+      "citation": "USP <1079.2> Mean Kinetic Temperature in the Evaluation of Temperature Excursions During Storage and Transportation of Drug Products. USP (2023).",
+      "url": "https://doi.usp.org/USPNF/USPNF_M13855_02_01.html",
+      "status": "CITED (title only)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP71",
+      "citation": "USP <659> controlled room temperature definition (secondary report). ECA GMP news (not stated).",
+      "url": "https://www.gmp-compliance.org/gmp-news/usp-proposes-to-revise-the-definition-of-controlled-room-temperature-in-chapter-659",
+      "status": "CITED",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP72",
+      "citation": "HRR Gap ExMC 4.16: Lack of technique or procedure to draw injectable medication into a syringe without bubble formation or bubble removal prior to medication delivery (CLOSED). NASA Human Research Roadmap (not stated).",
+      "url": "https://humanresearchroadmap.nasa.gov/gaps/?i=440",
+      "status": "READ (summary fetch)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP73",
+      "citation": "Hailey M, Bayuse T. Effectiveness of needleless vial adaptors and blunt cannulas for drug administration in a microgravity environment (NASA/TM-2010-214794). NASA JSC (2010).",
+      "url": "https://humanresearchroadmap.nasa.gov/gaps/closureDocumentation/1-Hailey-M_TM-2010-214794.pdf",
+      "status": "CITED (scanned PDF, text not extractable)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP74",
+      "citation": "Darquenne C, Prisk GK et al. aerosol deposition in reduced gravity (parabolic flight studies). J Appl Physiol and others (1997 to 2014).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3747654/",
+      "status": "CITED (search results)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP75",
+      "citation": "Wotring VE. Medication use by U.S. crewmembers on the International Space Station. FASEB J 29(11):4417-4423 (2015).",
+      "url": null,
+      "status": "CITED (in MDP19 and MDP07)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP76",
+      "citation": "Putcha L et al. Pharmaceutical use by U.S. astronauts on Space Shuttle missions. Aviat Space Environ Med (1999).",
+      "url": null,
+      "status": "CITED (in MDP19 and MDP07)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP77",
+      "citation": "Non-peer-reviewed NASA reports: Wu and Chow 2016; Cory et al. 2016; Cory, James and Mangiaracina 2017; Khan and Wotring 2014. NASA (2014 to 2017).",
+      "url": null,
+      "status": "CITED (described in MDP07; values READ in MDP04)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP78",
+      "citation": "Lloyd, Putcha 2007 NSRL radiation data, as cited by Daniels 2019. NASA (unpublished) (2007).",
+      "url": null,
+      "status": "CITED",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP79",
+      "citation": "Inline microgravity air trap device and an intravenous assembly incorporating an inline microgravity air trap device (US 10737018). USPTO (not stated).",
+      "url": "https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/10737018",
+      "status": "CITED (search snippet)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDP80",
+      "citation": "A study on the stability of ritonavir form III processed in orbit and returned to Earth. npj Microgravity (2026).",
+      "url": "https://www.nature.com/articles/s41526-026-00594-0",
+      "status": "CITED (search snippet)",
+      "note_file": "space-pharmacy.md"
+    },
+    {
+      "source_id": "MDD01",
+      "citation": "FHIR R5 Resource Medication. HL7 International (2023).",
+      "url": "https://hl7.org/fhir/R5/medication.html",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD02",
+      "citation": "FHIR R5 Resource MedicationKnowledge. HL7 International (2023).",
+      "url": "https://hl7.org/fhir/R5/medicationknowledge.html",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD03",
+      "citation": "FHIR R5 Resource MedicationRequest; CodeSystem medicationrequest-intent. HL7 International (2023).",
+      "url": "https://hl7.org/fhir/R5/medicationrequest.html",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD04",
+      "citation": "FHIR R5 Resource MedicationAdministration; CodeSystem administration-subpotent-reason. HL7 International (2023).",
+      "url": "https://hl7.org/fhir/R5/medicationadministration.html",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD05",
+      "citation": "FHIR R5 Resource MedicationDispense. HL7 International (2023).",
+      "url": "https://hl7.org/fhir/R5/medicationdispense.html",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD06",
+      "citation": "FHIR R5 Datatype Dosage. HL7 International (2023).",
+      "url": "https://hl7.org/fhir/R5/dosage.html",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD07",
+      "citation": "FHIR R5 Datatypes Quantity and Ratio. HL7 International (2023).",
+      "url": "https://hl7.org/fhir/R5/datatypes.html",
+      "status": "Read (StructureDefinitions)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD08",
+      "citation": "FHIR R5 Resource DetectedIssue; ValueSets detectedissue-category and detectedissue-mitigation-action. HL7 International (2023).",
+      "url": "https://hl7.org/fhir/R5/detectedissue.html",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD09",
+      "citation": "HL7 Terminology CodeSystem v3 ActCode (version 11.0.0). HL7 International (2023).",
+      "url": "https://terminology.hl7.org/CodeSystem-v3-ActCode.html",
+      "status": "Read (JSON)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD10",
+      "citation": "FHIR R5 Resource ClinicalUseDefinition. HL7 International (2023).",
+      "url": "https://hl7.org/fhir/R5/clinicalusedefinition.html",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD11",
+      "citation": "FHIR R5 Resources InventoryItem and InventoryReport. HL7 International (2023).",
+      "url": "https://hl7.org/fhir/R5/inventoryitem.html",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD12",
+      "citation": "FHIR R5 Resources Provenance and AuditEvent. HL7 International (2023).",
+      "url": "https://hl7.org/fhir/R5/provenance.html",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD13",
+      "citation": "RxNorm Overview. U.S. National Library of Medicine (2025).",
+      "url": "https://www.nlm.nih.gov/research/umls/rxnorm/overview.html",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD14",
+      "citation": "The Unified Code for Units of Measure, Version 2.2. Regenstrief Institute and UCUM Organization (2024).",
+      "url": "https://ucum.org/ucum",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD15",
+      "citation": "ISMP List of High-Alert Medications in Acute Care Settings (web page 2024; list PDF 2018). Institute for Safe Medication Practices (2024; 2018).",
+      "url": "https://www.ismp.org/recommendations/high-alert-medications-acute-list",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD16",
+      "citation": "ISMP List of Error-Prone Abbreviations, Symbols, and Dose Designations (web page). Institute for Safe Medication Practices (2024).",
+      "url": "https://www.ismp.org/recommendations/error-prone-abbreviations-list",
+      "status": "Read (page; list PDF not retrievable)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD17",
+      "citation": "ISMP Medication Safety Alert, November 27, 2003: list of error-prone abbreviations, symbols and dose designations (University of Washington course copy). Institute for Safe Medication Practices (2003).",
+      "url": "https://depts.washington.edu/pharm543/documents/schedule/ISMP%208%2024%20error%20prone%20abrevs.pdf",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD18",
+      "citation": "Do Not Use: Dangerous Abbreviations, Symbols and Dose Designations. ISMP Canada (2006 (reaffirmed 2018)).",
+      "url": "https://www.ismp-canada.org/download/ISMPC_List_of_Dangerous_Abbreviations.pdf",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD19",
+      "citation": "ISMP Guidelines for Safe Electronic Communication of Medication Information. Institute for Safe Medication Practices (2025).",
+      "url": "https://online.ecri.org/hubfs/ISMP/Resources/ISMP_Electronic_Guidelines.pdf",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD20",
+      "citation": "ISMP Targeted Medication Safety Best Practices for Hospitals 2024-2025, and FAQ. Institute for Safe Medication Practices (2023; 2026).",
+      "url": "https://www.ismp.org/guidelines/best-practices-hospitals",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD21",
+      "citation": "Grissinger M. Small Effort, Big Payoff: Automated Maximum Dose Alerts With Hard Stops. P T 41(2). MediMedia (Pharmacy and Therapeutics) (2016).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4745632/",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD22",
+      "citation": "Kuperman GJ et al. Medication-related Clinical Decision Support in Computerized Provider Order Entry Systems: A Review. JAMIA 14(1):29-40. Oxford University Press (2007).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2215064/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD23",
+      "citation": "Classen DC et al. National Trends in the Safety Performance of Electronic Health Record Systems From 2009 to 2018. JAMA Netw Open 3(5):e205547. American Medical Association (2020).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7260621/",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD24",
+      "citation": "van der Sijs H et al. Overriding of Drug Safety Alerts in Computerized Physician Order Entry. JAMIA 13(2):138-147. Oxford University Press (2006).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC1447540/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD25",
+      "citation": "Nanji KC et al. Medication-related clinical decision support alert overrides in inpatients. JAMIA 25(5):476-481. Oxford University Press (2018).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7646870/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD26",
+      "citation": "Topaz M et al. Rising drug allergy alert overrides in electronic health records. JAMIA 23(3):601-608. Oxford University Press (2016).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11740751/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD27",
+      "citation": "Phansalkar S et al. High-priority drug-drug interactions for use in electronic health records. JAMIA 19(5):735-743. Oxford University Press (2012).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3422823/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD28",
+      "citation": "Strom BL et al. Unintended effects of a computerized physician order entry nearly hard-stop alert to prevent a drug interaction: a randomized controlled trial. Arch Intern Med 170(17):1578-83. American Medical Association (2010).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/20876410/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD29",
+      "citation": "Kaushal R et al. Medication errors and adverse drug events in pediatric inpatients. JAMA 285(16):2114-20. American Medical Association (2001).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/11311101/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD30",
+      "citation": "Brameli A et al. Evaluation of cephalosporin allergy: Survey of drug allergy experts. J Allergy Clin Immunol Glob 4(1):100351. Elsevier (2025).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11609518/",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD31",
+      "citation": "Clinical Features of Penicillin Allergy. U.S. Centers for Disease Control and Prevention (2025).",
+      "url": "https://www.cdc.gov/antibiotic-use/hcp/clinical-signs/index.html",
+      "status": "Read (fetch summary; direct download blocked)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD32",
+      "citation": "Clinical Decision Support Software: Guidance for Industry and Food and Drug Administration Staff (issued January 29, 2026). U.S. Food and Drug Administration (2026).",
+      "url": "https://www.fda.gov/media/109618/download",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD33",
+      "citation": "5 Key Takeaways From FDA's Revised Clinical Decision Support (CDS) Software Guidance. Covington & Burling (2026).",
+      "url": "https://www.cov.com/en/news-and-insights/insights/2026/01/5-key-takeaways-from-fdas-revised-clinical-decision-support-cds-software-guidance",
+      "status": "Read (secondary)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD34",
+      "citation": "IEC 62304 Edition 1.1 2015-06 Consolidated Version, Medical device software: Software life cycle processes (FDA recognition 13-79; IEC webstore abstract). IEC; U.S. FDA (2015; 2019).",
+      "url": "https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfStandards/detail.cfm?standard__identification_no=38829",
+      "status": "Read (abstract only)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD35",
+      "citation": "Safety classes according to IEC 62304. Johner Institute (2025).",
+      "url": "https://blog.johner-institute.com/iec-62304-medical-software/safety-class-iec-62304/",
+      "status": "Read (secondary)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD36",
+      "citation": "ISO 14971:2019 Medical devices: Application of risk management to medical devices (FDA recognition 5-125). ISO; U.S. FDA (2019).",
+      "url": "https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfStandards/detail.cfm?standard__identification_no=41349",
+      "status": "Read (abstract only)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD37",
+      "citation": "IEC 82304-1:2016 Health software, Part 1: General requirements for product safety (IEC webstore abstract). IEC (2016).",
+      "url": "https://webstore.iec.ch/publication/26120",
+      "status": "Read (abstract only, fetch summary)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD38",
+      "citation": "21 CFR 11.10 Controls for closed systems. U.S. Government (Cornell LII copy) (current).",
+      "url": "https://www.law.cornell.edu/cfr/text/21/11.10",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD39",
+      "citation": "21 CFR 211.137 Expiration dating. U.S. Government (Cornell LII copy) (current).",
+      "url": "https://www.law.cornell.edu/cfr/text/21/211.137",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD40",
+      "citation": "Don't Be Tempted to Use Expired Medicines. U.S. Food and Drug Administration (2024).",
+      "url": "https://www.fda.gov/drugs/special-features/dont-be-tempted-use-expired-medicines",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD41",
+      "citation": "Expiration Dating Extension. U.S. Food and Drug Administration (2026).",
+      "url": "https://www.fda.gov/emergency-preparedness-and-response/mcm-legal-regulatory-and-policy-framework/expiration-dating-extension",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD42",
+      "citation": "Important Update on EpiPen 0.3 mg Auto-Injectors from Mylan and Pfizer: Extended Expiration Dates for Select Lots. U.S. FDA, Pfizer, Mylan (2018).",
+      "url": "https://www.fda.gov/media/115142/download",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD43",
+      "citation": "ICH Q8(R2) Pharmaceutical Development. International Council for Harmonisation (2009).",
+      "url": "https://database.ich.org/sites/default/files/Q8%28R2%29%20Guideline.pdf",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD44",
+      "citation": "Lyon RC et al. Stability profiles of drug products extended beyond labeled expiration dates. J Pharm Sci 95(7):1549-60. Wiley (journal now published by Elsevier) (2006).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/16721796/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD45",
+      "citation": "Definitions of Substandard and Falsified (SF) Medical Products. World Health Organization (2017).",
+      "url": "https://www.who.int/teams/regulation-prequalification/incidents-and-SF/background/definitions",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD46",
+      "citation": "Substandard and falsified medical products (fact sheet). World Health Organization (2024).",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/substandard-and-falsified-medical-products",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD47",
+      "citation": "OCHMO-MTB-012 Pharmaceutical Care, Rev B (package source RT22). NASA Office of the Chief Health and Medical Officer (2026).",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/01/ochmo-mtb-012-pharmaceutical-care.pdf",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD48",
+      "citation": "Risk of Ineffective or Toxic Medication During Long-Duration Exploration Spaceflight: Evidence Report. NASA Human Research Program (2023).",
+      "url": "https://ntrs.nasa.gov/api/citations/20230018496/downloads/Pharm%20evidence%20report_12-20-23_FINAL.pdf",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD49",
+      "citation": "Blue RS et al. Supplying a pharmacy for NASA exploration spaceflight: challenges and current understanding. npj Microgravity 5:14. Springer Nature (2019).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6565689/",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD50",
+      "citation": "Reichard JF et al. The effect of long-term spaceflight on drug potency and the risk of medication failure. npj Microgravity 9:35. Springer Nature (2023).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10163248/",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD51",
+      "citation": "Du B et al. Evaluation of Physical and Chemical Changes in Pharmaceuticals Flown on Space Missions. AAPS J 13(2):299-308. Springer (2011).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3085701/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD52",
+      "citation": "Wotring VE. Chemical Potency and Degradation Products of Medications Stored Over 550 Earth Days at the International Space Station. AAPS J 18(1):210-216. Springer (2016).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4706284/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD53",
+      "citation": "Nowadly C et al. Limited Degradation of Active Pharmaceutical Ingredient After Spaceflight on the International Space Station. Wilderness Environ Med (online ahead of print). SAGE (2026).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42550782/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD54",
+      "citation": "Simons FE et al. Outdated EpiPen and EpiPen Jr autoinjectors: past their prime? J Allergy Clin Immunol 105(5):1025-30. Elsevier (2000).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/10808186/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD55",
+      "citation": "Weir WB et al. Expired Epinephrine Maintains Chemical Concentration and Sterility. Prehosp Emerg Care 22(4):414-418. Taylor & Francis (2018).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29373043/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD56",
+      "citation": "Frimpter GW et al. Reversible \"Fanconi syndrome\" caused by degraded tetracycline. JAMA. American Medical Association (1963).",
+      "url": "https://scilit.com/publications/44a85de3a2e1706f83f4b7a201152c45",
+      "status": "Cited-only",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD57",
+      "citation": "Benitz KF, Diermeier HF. Renal toxicity of tetracycline degradation products. Proc Soc Exp Biol Med. Society for Experimental Biology and Medicine (1964).",
+      "url": "https://www.ebm-journal.org/journals/experimental-biology-and-medicine/articles/10.3181/00379727-115-29082/pdf",
+      "status": "Cited-only",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD58",
+      "citation": "USP General Chapter <227> 4-Aminophenol in Acetaminophen-Containing Drug Products (USP 38 copy). United States Pharmacopeia (2015).",
+      "url": "https://www.drugfuture.com/Pharmacopoeia/usp38/data/v38332/usp38nf33s2_c227.html",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD59",
+      "citation": "Newton JF et al. Acetaminophen nephrotoxicity in the rat. II. Strain differences in nephrotoxicity and metabolism of p-aminophenol, a metabolite of acetaminophen. Toxicol Appl Pharmacol 69(2):307-18. Elsevier (1983).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/6868092/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD60",
+      "citation": "FDA Requests Removal of All Ranitidine Products (Zantac) from the Market. U.S. Food and Drug Administration (2020).",
+      "url": "https://www.fda.gov/news-events/press-announcements/fda-requests-removal-all-ranitidine-products-zantac-market",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD61",
+      "citation": "EpiPen (epinephrine injection) prescribing information, DailyMed set ID 311af6d9-20c0-4b87-b236-4185bfa49988 (effective 2023-08-29). Asclemed USA (relabeler listing), via openFDA (2023).",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=311af6d9-20c0-4b87-b236-4185bfa49988",
+      "status": "Read (openFDA JSON)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD62",
+      "citation": "Tyson RJ et al. Precision Dosing Priority Criteria: Drug, Disease, and Patient Population Variables. Front Pharmacol 11:420. Frontiers (2020).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7188913/",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD63",
+      "citation": "Jiang W et al. A Bioequivalence Approach for Generic Narrow Therapeutic Index Drugs. AAPS J 17(4):891-901. Springer (2015).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4476992/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD64",
+      "citation": "International Space Station Integrated Medical Group (IMG) Medical Checklist, JSC-48522-E4 (package source RS08; third-party mirror). NASA Johnson Space Center (2001).",
+      "url": "https://newspaceeconomy.ca/wp-content/uploads/2022/11/163533main_iss_med_cl.pdf",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD65",
+      "citation": "Shuttle Medical Checklist, JSC-48031 Rev K (archived NASA copy; package source N18). NASA Johnson Space Center (undated).",
+      "url": "http://web.archive.org/web/20170212012224/https://www.nasa.gov/centers/johnson/pdf/177788main_MedicalCklist.pdf",
+      "status": "Cited-only (through the package source list)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD66",
+      "citation": "Toxic Exposure (Ammonia) CliFF (package source RS42). NASA (2020).",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/toxic-exposure-ammonia-cliff.pdf",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD67",
+      "citation": "Smoke Inhalation CliFF (package source RS44). NASA (2020).",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/smoke-inhalation-cliff.pdf",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD68",
+      "citation": "NASA-STD-3001 Volume 1, Revision C: Crew Health (package source EV02). NASA Office of the Chief Health and Medical Officer (2023).",
+      "url": "https://standards.nasa.gov/sites/default/files/standards/NASA/C/nasa-std-3001-vol-1-rev-c-signature.pdf",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD69",
+      "citation": "Russell BK et al. The value of a spaceflight clinical decision support system for earth-independent medical operations. npj Microgravity 9:46. Springer Nature (2023).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10284846/",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD70",
+      "citation": "Levin DR et al. Enabling Human Space Exploration Missions Through Progressively Earth Independent Medical Operations (EIMO). IEEE Open J Eng Med Biol 4:162-167. IEEE (2023).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10810302/",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD71",
+      "citation": "Tablet Scoring: Nomenclature, Labeling, and Data for Evaluation (Guidance for Industry). U.S. Food and Drug Administration, CDER (2013).",
+      "url": "https://www.fda.gov/media/81626/download",
+      "status": "Read",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD72",
+      "citation": "Fahrenbruch R et al. Dose Rounding of Biologic and Cytotoxic Anticancer Agents: A Position Statement of the Hematology/Oncology Pharmacy Association. J Oncol Pract 14(3):e130-e136. American Society of Clinical Oncology (2018).",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29400987/",
+      "status": "Read (abstract)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD73",
+      "citation": "Metric Units and the Preferred Dosing of Orally Administered Liquid Medications. Pediatrics 135(4):784. American Academy of Pediatrics (2015).",
+      "url": "https://publications.aap.org/pediatrics/article/135/4/784/33748/Metric-Units-and-the-Preferred-Dosing-of-Orally",
+      "status": "Cited-only (publisher blocked access)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDD74",
+      "citation": "The importance of the Certificate of Analysis and updating the Master Formulation Record. ACHC (blog) (2019).",
+      "url": "https://blog.achc.org/2019/02/14/the-importance-of-the-certificate-of-analysis-and-updating-the-master-formulation-record",
+      "status": "Cited-only (secondary; seen through search results)",
+      "note_file": "dosing-safety.md"
+    },
+    {
+      "source_id": "MDX01",
+      "citation": "PubChem compound records: CID 1983 acetaminophen, 2244 aspirin, 3672 ibuprofen, 33613 amoxicillin, 5280980 clavulanic acid, 4927 promethazine, 5816 epinephrine, 54670067 ascorbic acid, 149096 levofloxacin (isomeric SMILES and molecular weight). NCBI (retrieved 2026-11-14).",
+      "url": "https://pubchem.ncbi.nlm.nih.gov/",
+      "status": "cited-only (external, not in the research notes)",
+      "note_file": "external"
+    },
+    {
+      "source_id": "MDX02",
+      "citation": "Hammett LP. The effect of structure upon the reactions of organic compounds. Benzene derivatives. J Am Chem Soc 59(1):96-103 (1937); substituent constants and rho for alkaline ester hydrolysis as tabulated in Wikipedia, Hammett equation (retrieved 2026-11-14).",
+      "url": "https://en.wikipedia.org/wiki/Hammett_equation",
+      "status": "cited-only (external, not in the research notes)",
+      "note_file": "external"
+    },
+    {
+      "source_id": "MDX03",
+      "citation": "Taft RW (1952 to 1956) polar and steric substituent constants as tabulated from Anslyn EV, Dougherty DA, Modern Physical Organic Chemistry, University Science Books (2006) p. 455, in Wikipedia, Taft equation (retrieved 2026-11-14).",
+      "url": "https://en.wikipedia.org/wiki/Taft_equation",
+      "status": "cited-only (external, not in the research notes)",
+      "note_file": "external"
+    },
+    {
+      "source_id": "MDX04",
+      "citation": "Hansch C, Leo A, Taft RW. A survey of Hammett substituent constants and resonance and field parameters. Chem Rev 91(2):165-195 (1991). Cited as the modern compilation that differs from the 1937 values; not read.",
+      "url": "https://doi.org/10.1021/cr00002a004",
+      "status": "cited-only (external, not in the research notes)",
+      "note_file": "external"
+    }
+  ]
+}

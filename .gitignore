@@ -1,0 +1,38 @@
+# Python environments and tool caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+
+# Node
+node_modules/
+dist/
+
+# Secrets and local settings (keys live in the environment or here, never in git)
+.env
+.env.*
+!.env.example
+
+# Runtime state written by the hub
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Model weights and other large binaries (fetched by scripts, never committed)
+models/
+*.gguf
+*.safetensors
+
+# Regenerable computation caches
+data/pharmacy/xtb-cache/
+
+# OS
+.DS_Store

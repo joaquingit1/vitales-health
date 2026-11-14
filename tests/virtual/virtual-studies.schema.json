@@ -1,0 +1,418 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "tests/virtual/virtual-studies.schema.json",
+ "title": "Virtual stability study designs (spec 15.8, B3)",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "document_id",
+  "schema",
+  "version",
+  "review_state",
+  "notice",
+  "mission_seed_base",
+  "designs",
+  "products",
+  "closed_loop",
+  "replicates"
+ ],
+ "properties": {
+  "document_id": {
+   "const": "virtual-studies"
+  },
+  "schema": {
+   "const": "tests/virtual/virtual-studies.schema.json"
+  },
+  "version": {
+   "type": "string",
+   "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+  },
+  "review_state": {
+   "enum": [
+    "draft",
+    "reviewed",
+    "approved"
+   ]
+  },
+  "notice": {
+   "type": "string"
+  },
+  "mission_seed_base": {
+   "$ref": "#/$defs/sourced_value"
+  },
+  "designs": {
+   "type": "array",
+   "minItems": 2,
+   "items": {
+    "$ref": "#/$defs/design"
+   }
+  },
+  "products": {
+   "type": "array",
+   "minItems": 4,
+   "items": {
+    "$ref": "#/$defs/product"
+   }
+  },
+  "closed_loop": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "lot_id",
+    "ingredient_id",
+    "assessment_days",
+    "excursion_day",
+    "assay_day",
+    "width_day",
+    "environment_days"
+   ],
+   "properties": {
+    "lot_id": {
+     "type": "string"
+    },
+    "ingredient_id": {
+     "type": "string"
+    },
+    "assessment_days": {
+     "$ref": "#/$defs/sourced_value"
+    },
+    "excursion_day": {
+     "$ref": "#/$defs/sourced_value"
+    },
+    "assay_day": {
+     "$ref": "#/$defs/sourced_value"
+    },
+    "width_day": {
+     "$ref": "#/$defs/sourced_value"
+    },
+    "environment_days": {
+     "$ref": "#/$defs/sourced_value"
+    }
+   }
+  },
+  "replicates": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "vs1",
+    "vs2",
+    "vs3",
+    "vs4",
+    "vs5"
+   ],
+   "properties": {
+    "vs1": {
+     "$ref": "#/$defs/sourced_value"
+    },
+    "vs2": {
+     "$ref": "#/$defs/sourced_value"
+    },
+    "vs3": {
+     "$ref": "#/$defs/sourced_value"
+    },
+    "vs4": {
+     "$ref": "#/$defs/sourced_value"
+    },
+    "vs5": {
+     "$ref": "#/$defs/sourced_value"
+    }
+   }
+  }
+ },
+ "$defs": {
+  "sourced_value": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "value",
+    "unit",
+    "basis",
+    "source_ids",
+    "to_be_set_by",
+    "note"
+   ],
+   "properties": {
+    "value": {
+     "oneOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "number"
+       },
+       "minItems": 1
+      }
+     ]
+    },
+    "unit": {
+     "type": "string",
+     "minLength": 1
+    },
+    "basis": {
+     "enum": [
+      "sourced",
+      "derived",
+      "team_default"
+     ]
+    },
+    "source_ids": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^MD[A-Z]?[0-9]+$"
+     }
+    },
+    "to_be_set_by": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "note": {
+     "type": "string"
+    }
+   },
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "basis": {
+        "const": "team_default"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "to_be_set_by": {
+        "type": "string",
+        "minLength": 1
+       }
+      }
+     }
+    }
+   ]
+  },
+  "condition": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "condition_id",
+    "temperature_k",
+    "rh_percent",
+    "pull_months"
+   ],
+   "properties": {
+    "condition_id": {
+     "type": "string",
+     "pattern": "^[a-z0-9_]+$"
+    },
+    "temperature_k": {
+     "$ref": "#/$defs/sourced_value"
+    },
+    "rh_percent": {
+     "$ref": "#/$defs/sourced_value"
+    },
+    "pull_months": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/sourced_value"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   }
+  },
+  "design": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "design_id",
+    "name",
+    "package",
+    "conditions",
+    "isoconversion_pull_fractions",
+    "isoconversion_max_days",
+    "chamber",
+    "assay",
+    "basis",
+    "source_ids",
+    "note"
+   ],
+   "properties": {
+    "design_id": {
+     "enum": [
+      "ich",
+      "isoconversion"
+     ]
+    },
+    "name": {
+     "type": "string"
+    },
+    "package": {
+     "enum": [
+      "declared",
+      "open_dish"
+     ]
+    },
+    "conditions": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/condition"
+     }
+    },
+    "isoconversion_pull_fractions": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/sourced_value"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "isoconversion_max_days": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/sourced_value"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "chamber": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "temperature_sd_k",
+      "rh_sd_percent",
+      "ou_time_constant_s",
+      "sampling_interval_s"
+     ],
+     "properties": {
+      "temperature_sd_k": {
+       "$ref": "#/$defs/sourced_value"
+      },
+      "rh_sd_percent": {
+       "$ref": "#/$defs/sourced_value"
+      },
+      "ou_time_constant_s": {
+       "$ref": "#/$defs/sourced_value"
+      },
+      "sampling_interval_s": {
+       "$ref": "#/$defs/sourced_value"
+      }
+     }
+    },
+    "assay": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "sd_percent",
+      "replicates"
+     ],
+     "properties": {
+      "sd_percent": {
+       "$ref": "#/$defs/sourced_value"
+      },
+      "replicates": {
+       "$ref": "#/$defs/sourced_value"
+      }
+     }
+    },
+    "basis": {
+     "enum": [
+      "sourced",
+      "derived",
+      "team_default"
+     ]
+    },
+    "source_ids": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "note": {
+     "type": "string"
+    }
+   }
+  },
+  "product": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "role",
+    "product_source",
+    "product_id",
+    "validation_row",
+    "dose_form_family",
+    "basis",
+    "source_ids",
+    "to_be_set_by",
+    "note"
+   ],
+   "properties": {
+    "role": {
+     "enum": [
+      "vs1_solid",
+      "vs1_solution",
+      "vs1_semisolid",
+      "vs1_suspension",
+      "closed_loop"
+     ]
+    },
+    "product_source": {
+     "enum": [
+      "formulary",
+      "validation_row"
+     ]
+    },
+    "product_id": {
+     "type": "string"
+    },
+    "validation_row": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "dose_form_family": {
+     "enum": [
+      "solid",
+      "solution",
+      "suspension",
+      "semisolid"
+     ]
+    },
+    "basis": {
+     "enum": [
+      "sourced",
+      "derived",
+      "team_default"
+     ]
+    },
+    "source_ids": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "to_be_set_by": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "note": {
+     "type": "string"
+    }
+   }
+  }
+ }
+}

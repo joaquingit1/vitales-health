@@ -1,0 +1,578 @@
+{
+ "document_id": "vectors-validation-iss-short",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "ISS opportunistic and short-duration datasets V6 to V8 (space-pharmacy.md, Validation datasets).",
+ "extracted_from": [
+  {
+   "note": "space-pharmacy.md",
+   "section": "Validation datasets: V6, V7, V8"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "V6",
+   "kind": "dataset",
+   "description": "V6. Wotring 2016: nine products after 550 days on ISS (MDP05 Table I; MDP19)",
+   "target": null,
+   "inputs": {
+    "storage_days": 550,
+    "columns": [
+     {
+      "key": "product",
+      "header": "Product"
+     },
+     {
+      "key": "label",
+      "header": "Label"
+     },
+     {
+      "key": "measured_mean_sd_sd_mg",
+      "header": "Measured mean ± SD (mg)"
+     },
+     {
+      "key": "percent_lc",
+      "header": "% LC"
+     },
+     {
+      "key": "expiry_status_at_analysis_paper",
+      "header": "Expiry status at analysis (paper)"
+     }
+    ],
+    "parse_conventions": "'mean ± SD' as {mean, sd}; expiry status parsed with expiry_offset_months_signed (positive = past expiry at analysis)."
+   },
+   "expected": {
+    "row_count": 9,
+    "rows": [
+     {
+      "raw": {
+       "product": "Aspirin",
+       "label": "325 mg",
+       "measured_mean_sd_sd_mg": "313.7 ± 0.5",
+       "percent_lc": "96.5",
+       "expiry_status_at_analysis_paper": "9 months past"
+      },
+      "parsed": {
+       "product": "Aspirin",
+       "label": {
+        "value": 325,
+        "text": "mg"
+       },
+       "measured_mean_sd_sd_mg": {
+        "mean": 313.7,
+        "sd": 0.5
+       },
+       "percent_lc": 96.5,
+       "expiry_status_at_analysis_paper": {
+        "value": 9,
+        "text": "months past",
+        "expiry_offset_months_signed": 9
+       }
+      }
+     },
+     {
+      "raw": {
+       "product": "Acetaminophen",
+       "label": "325 mg",
+       "measured_mean_sd_sd_mg": "315.4 ± 3.2",
+       "percent_lc": "97.0",
+       "expiry_status_at_analysis_paper": "5 months past"
+      },
+      "parsed": {
+       "product": "Acetaminophen",
+       "label": {
+        "value": 325,
+        "text": "mg"
+       },
+       "measured_mean_sd_sd_mg": {
+        "mean": 315.4,
+        "sd": 3.2
+       },
+       "percent_lc": 97.0,
+       "expiry_status_at_analysis_paper": {
+        "value": 5,
+        "text": "months past",
+        "expiry_offset_months_signed": 5
+       }
+      }
+     },
+     {
+      "raw": {
+       "product": "Ibuprofen",
+       "label": "400 mg",
+       "measured_mean_sd_sd_mg": "399.6 ± 7.1",
+       "percent_lc": "99.9",
+       "expiry_status_at_analysis_paper": "3 months before"
+      },
+      "parsed": {
+       "product": "Ibuprofen",
+       "label": {
+        "value": 400,
+        "text": "mg"
+       },
+       "measured_mean_sd_sd_mg": {
+        "mean": 399.6,
+        "sd": 7.1
+       },
+       "percent_lc": 99.9,
+       "expiry_status_at_analysis_paper": {
+        "value": 3,
+        "text": "months before",
+        "expiry_offset_months_signed": -3
+       }
+      }
+     },
+     {
+      "raw": {
+       "product": "Loratadine",
+       "label": "10 mg",
+       "measured_mean_sd_sd_mg": "10.0 ± 0.3",
+       "percent_lc": "99.9",
+       "expiry_status_at_analysis_paper": "8 months past"
+      },
+      "parsed": {
+       "product": "Loratadine",
+       "label": {
+        "value": 10,
+        "text": "mg"
+       },
+       "measured_mean_sd_sd_mg": {
+        "mean": 10.0,
+        "sd": 0.3
+       },
+       "percent_lc": 99.9,
+       "expiry_status_at_analysis_paper": {
+        "value": 8,
+        "text": "months past",
+        "expiry_offset_months_signed": 8
+       }
+      }
+     },
+     {
+      "raw": {
+       "product": "Loperamide",
+       "label": "2.0 mg",
+       "measured_mean_sd_sd_mg": "2.0 ± 0.6",
+       "percent_lc": "96.3",
+       "expiry_status_at_analysis_paper": "2 months before"
+      },
+      "parsed": {
+       "product": "Loperamide",
+       "label": {
+        "value": 2.0,
+        "text": "mg"
+       },
+       "measured_mean_sd_sd_mg": {
+        "mean": 2.0,
+        "sd": 0.6
+       },
+       "percent_lc": 96.3,
+       "expiry_status_at_analysis_paper": {
+        "value": 2,
+        "text": "months before",
+        "expiry_offset_months_signed": -2
+       }
+      }
+     },
+     {
+      "raw": {
+       "product": "Pseudoephedrine ER",
+       "label": "120 mg",
+       "measured_mean_sd_sd_mg": "118.9 ± 3.3",
+       "percent_lc": "99.0",
+       "expiry_status_at_analysis_paper": "9 months past"
+      },
+      "parsed": {
+       "product": "Pseudoephedrine ER",
+       "label": {
+        "value": 120,
+        "text": "mg"
+       },
+       "measured_mean_sd_sd_mg": {
+        "mean": 118.9,
+        "sd": 3.3
+       },
+       "percent_lc": 99.0,
+       "expiry_status_at_analysis_paper": {
+        "value": 9,
+        "text": "months past",
+        "expiry_offset_months_signed": 9
+       }
+      }
+     },
+     {
+      "raw": {
+       "product": "Melatonin",
+       "label": "3 mg",
+       "measured_mean_sd_sd_mg": "2.7 ± 0.1",
+       "percent_lc": "89.2",
+       "expiry_status_at_analysis_paper": "11 months past"
+      },
+      "parsed": {
+       "product": "Melatonin",
+       "label": {
+        "value": 3,
+        "text": "mg"
+       },
+       "measured_mean_sd_sd_mg": {
+        "mean": 2.7,
+        "sd": 0.1
+       },
+       "percent_lc": 89.2,
+       "expiry_status_at_analysis_paper": {
+        "value": 11,
+        "text": "months past",
+        "expiry_offset_months_signed": 11
+       }
+      }
+     },
+     {
+      "raw": {
+       "product": "Zolpidem",
+       "label": "10 mg",
+       "measured_mean_sd_sd_mg": "10.07 ± 0.09",
+       "percent_lc": "100.6",
+       "expiry_status_at_analysis_paper": "9 months past"
+      },
+      "parsed": {
+       "product": "Zolpidem",
+       "label": {
+        "value": 10,
+        "text": "mg"
+       },
+       "measured_mean_sd_sd_mg": {
+        "mean": 10.07,
+        "sd": 0.09
+       },
+       "percent_lc": 100.6,
+       "expiry_status_at_analysis_paper": {
+        "value": 9,
+        "text": "months past",
+        "expiry_offset_months_signed": 9
+       }
+      }
+     },
+     {
+      "raw": {
+       "product": "Modafinil",
+       "label": "200 mg",
+       "measured_mean_sd_sd_mg": "201.2 ± 2.4",
+       "percent_lc": "100.6",
+       "expiry_status_at_analysis_paper": "2 months before"
+      },
+      "parsed": {
+       "product": "Modafinil",
+       "label": {
+        "value": 200,
+        "text": "mg"
+       },
+       "measured_mean_sd_sd_mg": {
+        "mean": 201.2,
+        "sd": 2.4
+       },
+       "percent_lc": 100.6,
+       "expiry_status_at_analysis_paper": {
+        "value": 2,
+        "text": "months before",
+        "expiry_offset_months_signed": -2
+       }
+      }
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP05",
+    "MDP19"
+   ],
+   "source_status": "READ (summary fetch with exact quotes)",
+   "status": "known_mismatch",
+   "note": "Known mismatch with MDP04 (V5): expiry offsets 8 months (aspirin) and 10 (melatonin) there vs 9 and 11 here; melatonin 90 (3.3) %LC there vs 89.2 here; loperamide 100 (30) there vs 96.3 here. Calibration anchor for the computed layer: the aspirin row (hydrolysis-prone repackaged solid, 550 days in flight) is a measured point the computed layer is calibrated against, so keep it out of any validation set used to judge that layer. Expiry offsets were read through a summary fetch; MDP04 gives 8 months for aspirin and 10 for melatonin. No ground controls. Use: single-point check of repackaged solids at 550 days."
+  },
+  {
+   "vector_id": "V7",
+   "kind": "dataset",
+   "description": "V7. Bogomolov 2015: six months on ISS (MDP16)",
+   "target": null,
+   "inputs": {
+    "storage_months": 6,
+    "columns": [
+     {
+      "key": "product",
+      "header": "Product"
+     },
+     {
+      "key": "before_flight",
+      "header": "Before flight"
+     },
+     {
+      "key": "after_6_months",
+      "header": "After 6 months"
+     }
+    ],
+    "parse_conventions": "'m ± s mg (p ± q%)' as {mg: {mean, sd}, percent_lc: {mean, sd}}."
+   },
+   "expected": {
+    "row_count": 2,
+    "rows": [
+     {
+      "raw": {
+       "product": "Acetaminophen tablet",
+       "before_flight": "496.44 ± 6.88 mg (99.29 ± 1.38%)",
+       "after_6_months": "481.77 ± 12.40 mg (96.35 ± 0.48%)"
+      },
+      "parsed": {
+       "product": "Acetaminophen tablet",
+       "before_flight": {
+        "mg": {
+         "mean": 496.44,
+         "sd": 6.88
+        },
+        "percent_lc": {
+         "mean": 99.29,
+         "sd": 1.38
+        }
+       },
+       "after_6_months": {
+        "mg": {
+         "mean": 481.77,
+         "sd": 12.4
+        },
+        "percent_lc": {
+         "mean": 96.35,
+         "sd": 0.48
+        }
+       }
+      }
+     },
+     {
+      "raw": {
+       "product": "Furosemide tablet",
+       "before_flight": "40.19 ± 0.28 mg (100.47 ± 0.71%)",
+       "after_6_months": "39.24 ± 0.72 mg (98.105 ± 1.80%)"
+      },
+      "parsed": {
+       "product": "Furosemide tablet",
+       "before_flight": {
+        "mg": {
+         "mean": 40.19,
+         "sd": 0.28
+        },
+        "percent_lc": {
+         "mean": 100.47,
+         "sd": 0.71
+        }
+       },
+       "after_6_months": {
+        "mg": {
+         "mean": 39.24,
+         "sd": 0.72
+        },
+        "percent_lc": {
+         "mean": 98.105,
+         "sd": 1.8
+        }
+       }
+      }
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP16"
+   ],
+   "source_status": "READ (abstract)",
+   "status": "unverified",
+   "note": "The acetaminophen after-flight SD is transcribed as 12.40; the abstract prints it as \"1 2.40\". Calibration anchor for the computed layer: the acetaminophen row is a measured point the computed layer is calibrated against, so keep it out of any validation set used to judge that layer. The abstract prints the acetaminophen SD as \"1 2.40\". Use: short-duration check."
+  },
+  {
+   "vector_id": "V8",
+   "kind": "dataset",
+   "description": "V8. Reichard 2023: model outputs from the Du data (MDP06)",
+   "target": null,
+   "inputs": {
+    "columns": [
+     {
+      "key": "quantity",
+      "header": "Quantity"
+     },
+     {
+      "key": "terrestrial",
+      "header": "Terrestrial"
+     },
+     {
+      "key": "spaceflight",
+      "header": "Spaceflight"
+     }
+    ],
+    "parse_conventions": "'m ± s' as {mean, sd}; 'v (a to b)' as {value, low, high}; the last row is a slash list of four {mean, sd} items in percent (days 13, 353, 596, 880); the empty terrestrial cell is null."
+   },
+   "expected": {
+    "row_count": 8,
+    "rows": [
+     {
+      "raw": {
+       "quantity": "First-order rate (per month)",
+       "terrestrial": "0.00317",
+       "spaceflight": "0.00478"
+      },
+      "parsed": {
+       "quantity": "First-order rate (per month)",
+       "terrestrial": 0.00317,
+       "spaceflight": 0.00478
+      }
+     },
+     {
+      "raw": {
+       "quantity": "Half-life (months)",
+       "terrestrial": "219",
+       "spaceflight": "145"
+      },
+      "parsed": {
+       "quantity": "Half-life (months)",
+       "terrestrial": 219,
+       "spaceflight": 145
+      }
+     },
+     {
+      "raw": {
+       "quantity": "P(failure) at 1 month",
+       "terrestrial": "0.007 ± 0.005",
+       "spaceflight": "0.0017 ± 0.001"
+      },
+      "parsed": {
+       "quantity": "P(failure) at 1 month",
+       "terrestrial": {
+        "mean": 0.007,
+        "sd": 0.005
+       },
+       "spaceflight": {
+        "mean": 0.0017,
+        "sd": 0.001
+       }
+      }
+     },
+     {
+      "raw": {
+       "quantity": "P(failure) at 12 months",
+       "terrestrial": "0.188 ± 0.049",
+       "spaceflight": "0.388 ± 0.066"
+      },
+      "parsed": {
+       "quantity": "P(failure) at 12 months",
+       "terrestrial": {
+        "mean": 0.188,
+        "sd": 0.049
+       },
+       "spaceflight": {
+        "mean": 0.388,
+        "sd": 0.066
+       }
+      }
+     },
+     {
+      "raw": {
+       "quantity": "P(failure) at 24 months",
+       "terrestrial": "0.426 ± 0.072",
+       "spaceflight": "0.729 ± 0.065"
+      },
+      "parsed": {
+       "quantity": "P(failure) at 24 months",
+       "terrestrial": {
+        "mean": 0.426,
+        "sd": 0.072
+       },
+       "spaceflight": {
+        "mean": 0.729,
+        "sd": 0.065
+       }
+      }
+     },
+     {
+      "raw": {
+       "quantity": "P(failure) at 36 months",
+       "terrestrial": "0.627 ± 0.085",
+       "spaceflight": "0.898 ± 0.049"
+      },
+      "parsed": {
+       "quantity": "P(failure) at 36 months",
+       "terrestrial": {
+        "mean": 0.627,
+        "sd": 0.085
+       },
+       "spaceflight": {
+        "mean": 0.898,
+        "sd": 0.049
+       }
+      }
+     },
+     {
+      "raw": {
+       "quantity": "Median time to failure (months)",
+       "terrestrial": "28.6 (21.0 to 40.9)",
+       "spaceflight": "15.3 (11.2 to 20.1)"
+      },
+      "parsed": {
+       "quantity": "Median time to failure (months)",
+       "terrestrial": {
+        "value": 28.6,
+        "low": 21.0,
+        "high": 40.9
+       },
+       "spaceflight": {
+        "value": 15.3,
+        "low": 11.2,
+        "high": 20.1
+       }
+      }
+     },
+     {
+      "raw": {
+       "quantity": "Mean flight-minus-control decrease, day 13 / 353 / 596 / 880",
+       "terrestrial": "",
+       "spaceflight": "1.18 ± 2.5 / 2.29 ± 5.55 / 3.93 ± 4.09 / 4.76 ± 3.01 %"
+      },
+      "parsed": {
+       "quantity": "Mean flight-minus-control decrease, day 13 / 353 / 596 / 880",
+       "terrestrial": null,
+       "spaceflight": {
+        "items": [
+         {
+          "mean": 1.18,
+          "sd": 2.5
+         },
+         {
+          "mean": 2.29,
+          "sd": 5.55
+         },
+         {
+          "mean": 3.93,
+          "sd": 4.09
+         },
+         {
+          "mean": 4.76,
+          "sd": 3.01
+         }
+        ],
+        "text": "percent"
+       }
+      }
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP06"
+   ],
+   "source_status": "READ",
+   "status": "unverified",
+   "note": "Transcriber observation, not checked against MDP06: the spaceflight P(failure) at 1 month (0.0017 ± 0.001) is below the terrestrial value (0.007 ± 0.005) although every later spaceflight value is higher; it may be a misprint. TV-SF-1 checks the rate and half-life rows. Use: target outputs for an engine fitted to V1; the engine should reproduce these when run on the same inputs."
+  }
+ ]
+}

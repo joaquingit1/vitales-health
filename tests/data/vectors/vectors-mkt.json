@@ -1,0 +1,328 @@
+{
+ "document_id": "vectors-mkt",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "Mean kinetic temperature vectors (degradation-science.md 9.1).",
+ "extracted_from": [
+  {
+   "note": "degradation-science.md",
+   "section": "9.1"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "TV-MKT-1",
+   "kind": "worked_example",
+   "description": "USP default heat of activation divided by the gas constant.",
+   "target": "oracle:delta_h_over_r",
+   "inputs": {
+    "delta_h_kj_per_mol": 83.144,
+    "gas_constant_kj_per_mol_k": 0.0083144
+   },
+   "expected": {
+    "delta_h_over_r_k": 10000.0
+   },
+   "published_expected_text": "\"Ea/R = 10,000 degrees K\"",
+   "our_recomputation": {
+    "delta_h_over_r_k": 10000.0
+   },
+   "tolerance": {
+    "abs": 1e-09,
+    "rel": null,
+    "unit": "K",
+    "basis": "exact arithmetic; 83.144 / 8.3144e-3 = 10000"
+   },
+   "source_ids": [
+    "MDS05",
+    "MDS07"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "The engine uses R = 8.314462618 J/(mol K) (CODATA); with that R, 83144 / R = 9999.92 K. The 10,000 K identity holds only with the USP value R = 8.3144e-3 kJ/(mol K)."
+  },
+  {
+   "vector_id": "TV-MKT-2",
+   "kind": "worked_example",
+   "description": "Mean kinetic temperature of five equal-interval readings with the default heat of activation.",
+   "target": "pharmacy.exposure.mean_kinetic_temperature",
+   "inputs": {
+    "temperatures_c": [
+     12.3,
+     15.9,
+     16.2,
+     14.7,
+     14.9
+    ],
+    "temperatures_k": [
+     285.45,
+     289.04999999999995,
+     289.34999999999997,
+     287.84999999999997,
+     288.04999999999995
+    ],
+    "durations_s": [
+     86400.0,
+     86400.0,
+     86400.0,
+     86400.0,
+     86400.0
+    ],
+    "activation_energy_j_per_mol": 83144.0,
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "interval_note": "equal intervals; any equal duration gives the same MKT (86400 s chosen)"
+   },
+   "expected": {
+    "mkt_c": 14.9
+   },
+   "published_expected_text": "\"the mean kinetic temperature would be 14.9 degrees Celsius using the default ΔH\"",
+   "our_recomputation": {
+    "mkt_c": 14.9025,
+    "arithmetic_mean_c": 14.8,
+    "foundation_mkt_c": 14.902462131262894,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": 0.05,
+    "rel": null,
+    "unit": "degC",
+    "basis": "note's suggested tolerance 0.05 degC against the published 14.9"
+   },
+   "source_ids": [
+    "MDS10"
+   ],
+   "source_status": "read (vendor documentation)",
+   "status": "reproduces",
+   "note": "Compare in kelvin and convert with 273.15. For the 1e-9 oracle comparison use foundation_mkt_c."
+  },
+  {
+   "vector_id": "TV-MKT-3",
+   "kind": "derived_check",
+   "description": "Same as TV-MKT-2 but converting with 273.1 (USP <1150> convention).",
+   "target": "pharmacy.exposure.mean_kinetic_temperature",
+   "inputs": {
+    "temperatures_c": [
+     12.3,
+     15.9,
+     16.2,
+     14.7,
+     14.9
+    ],
+    "temperatures_k": [
+     285.40000000000003,
+     289.0,
+     289.3,
+     287.8,
+     288.0
+    ],
+    "kelvin_offset": 273.1,
+    "durations_s": [
+     86400.0,
+     86400.0,
+     86400.0,
+     86400.0,
+     86400.0
+    ],
+    "activation_energy_j_per_mol": 83144.0,
+    "gas_constant_j_per_mol_k": 8.31446261815324
+   },
+   "expected": {
+    "mkt_c": 14.9025,
+    "max_difference_from_273_15_k": 0.0001
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "mkt_c": 14.9025,
+    "statement": "offset choice changes MKT by < 0.0001 K here",
+    "foundation_mkt_c_with_273_1": 14.902496991529517,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": 5e-05,
+    "rel": null,
+    "unit": "degC",
+    "basis": "half a unit in the 4th decimal of the note's value"
+   },
+   "source_ids": [
+    "MDS05"
+   ],
+   "source_status": "DERIVED",
+   "status": "reproduces",
+   "note": "Result in Celsius = MKT(K) - 273.1. The engine uses 273.15; this vector documents that the USP 273.1 convention changes the answer by less than 0.0001 K."
+  },
+  {
+   "vector_id": "TV-MKT-4",
+   "kind": "property",
+   "description": "MKT of any constant series equals that temperature.",
+   "target": "pharmacy.exposure.mean_kinetic_temperature",
+   "inputs": {
+    "series": "any constant temperature series, any positive durations"
+   },
+   "expected": {
+    "mkt_equals_constant_temperature": true
+   },
+   "published_expected_text": "MKT = T (definition, MDS01 glossary)",
+   "our_recomputation": null,
+   "tolerance": {
+    "abs": null,
+    "rel": 1e-12,
+    "unit": null,
+    "basis": "machine precision"
+   },
+   "source_ids": [
+    "MDS01"
+   ],
+   "source_status": "read (definition)",
+   "status": "reproduces",
+   "note": "Property-based test over random constant temperatures in 200 to 350 K and random durations."
+  },
+  {
+   "vector_id": "TV-MKT-5",
+   "kind": "property",
+   "description": "MKT is never below the time-weighted arithmetic mean temperature (Jensen inequality).",
+   "target": "pharmacy.exposure.mean_kinetic_temperature",
+   "inputs": {
+    "series": "any non-constant series"
+   },
+   "expected": {
+    "mkt_greater_or_equal_arithmetic_mean": true
+   },
+   "published_expected_text": "MKT ≥ arithmetic mean (Spevacek's Jensen proof, quoted in MDS07)",
+   "our_recomputation": null,
+   "tolerance": {
+    "abs": null,
+    "rel": 1e-12,
+    "unit": null,
+    "basis": "allow equality within machine precision"
+   },
+   "source_ids": [
+    "MDS07"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Strictly greater for non-constant series."
+  },
+  {
+   "vector_id": "TV-MKT-6",
+   "kind": "property",
+   "description": "Time-weighted MKT (unequal intervals) reduces to the USP equal-interval form when all intervals are equal.",
+   "target": "pharmacy.exposure.mean_kinetic_temperature",
+   "inputs": {
+    "series": "any series; compare unequal-interval formula with equal durations against the equal-interval USP formula"
+   },
+   "expected": {
+    "reduces_to_usp_form": true
+   },
+   "published_expected_text": "Eq. 7 reduces to Eq. 8 \"when all time intervals are equal\"",
+   "our_recomputation": null,
+   "tolerance": {
+    "abs": null,
+    "rel": 1e-12,
+    "unit": null,
+    "basis": "machine precision"
+   },
+   "source_ids": [
+    "MDS07"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Property test."
+  },
+  {
+   "vector_id": "TV-MKT-7",
+   "kind": "derived_check",
+   "description": "100 days at 25 degC then 10 days at 40 degC.",
+   "target": "pharmacy.exposure.mean_kinetic_temperature",
+   "inputs": {
+    "temperatures_c": [
+     25.0,
+     40.0
+    ],
+    "temperatures_k": [
+     298.15,
+     313.15
+    ],
+    "durations_days": [
+     100.0,
+     10.0
+    ],
+    "durations_s": [
+     8640000.0,
+     864000.0
+    ],
+    "activation_energy_j_per_mol": 83144.0,
+    "gas_constant_j_per_mol_k": 8.31446261815324
+   },
+   "expected": {
+    "mkt_c": 27.7742
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "mkt_c": 27.7742,
+    "mkt_c_with_r_8_3144e_3": 27.7742,
+    "foundation_mkt_c": 27.774191277050704,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": 5e-05,
+    "rel": null,
+    "unit": "degC",
+    "basis": "half a unit in the 4th decimal of the note's value; use foundation_mkt_c at 1e-9 rel in kelvin"
+   },
+   "source_ids": [
+    "MDS07"
+   ],
+   "source_status": "DERIVED",
+   "status": "reproduces",
+   "note": "Pairs with TV-INT-2 (MKT equivalence for first order)."
+  },
+  {
+   "vector_id": "TV-MKT-8",
+   "kind": "derived_check",
+   "description": "50% of time at 20 degC, 50% at 30 degC, two activation energies.",
+   "target": "pharmacy.exposure.mean_kinetic_temperature",
+   "inputs": {
+    "temperatures_c": [
+     20.0,
+     30.0
+    ],
+    "temperatures_k": [
+     293.15,
+     303.15
+    ],
+    "durations_s": [
+     1.0,
+     1.0
+    ],
+    "activation_energies_j_per_mol": [
+     83144.0,
+     120000.0
+    ],
+    "gas_constant_j_per_mol_k": 8.31446261815324
+   },
+   "expected": {
+    "mkt_c_at_83144": 26.2599,
+    "mkt_c_at_120000": 26.7668
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "mkt_c_at_83144": 26.2599,
+    "mkt_c_at_120000": 26.7668,
+    "foundation_mkt_c_at_83144": 26.259877711692127,
+    "foundation_mkt_c_at_120000": 26.766766321963587,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": 5e-05,
+    "rel": null,
+    "unit": "degC",
+    "basis": "half a unit in the 4th decimal"
+   },
+   "source_ids": [
+    "MDS07"
+   ],
+   "source_status": "DERIVED",
+   "status": "reproduces",
+   "note": "Higher Ea gives a higher MKT for the same series."
+  }
+ ]
+}

@@ -1,0 +1,122 @@
+{
+  "document_id": "radiation-chemistry",
+  "schema": "pharmacy/radiation-chemistry.schema.json",
+  "version": "0.1.0",
+  "review_state": "draft",
+  "notice": "Draft configuration for the Crew Health Check potency engine. Every value carries its basis and source IDs (research notes in reports/crew-health-medications-2026-11-14/research). team_default values are placeholders that the named role must replace before operational use.",
+  "direct_effect_g_loss_mol_per_j": {
+    "family": "lognormal",
+    "mu": -16.1181,
+    "sigma": 1.15,
+    "lower": null,
+    "upper": null,
+    "unit": "mol/J",
+    "basis": "derived",
+    "source_ids": [
+      "MDS73",
+      "MDS63"
+    ],
+    "to_be_set_by": null,
+    "note": "Solid-drug loss yields 10^-8 to 10^-6 mol/J (signs restored); median 10^-7, sigma = ln(100)/4."
+  },
+  "indirect_effect": {
+    "g_max_mol_per_j": {
+      "family": "lognormal",
+      "mu": -15.5875,
+      "sigma": 0.5,
+      "lower": null,
+      "upper": null,
+      "unit": "mol/J",
+      "basis": "derived",
+      "source_ids": [
+        "MDS68"
+      ],
+      "to_be_set_by": null,
+      "note": "Aqueous metoprolol G(-M) about 1.7e-7 mol/J with full hydroxyl scavenging; sigma team."
+    },
+    "half_scavenging_concentration_mol_per_kg": {
+      "value": 0.0003,
+      "unit": "mol/kg",
+      "basis": "team_default",
+      "source_ids": [
+        "MDS68"
+      ],
+      "to_be_set_by": "chemistry lead",
+      "note": "Concentration at half scavenging (one tenth of the full-scavenging concentration)."
+    },
+    "full_scavenging_concentration_mol_per_kg": {
+      "value": 0.003,
+      "unit": "mol/kg",
+      "basis": "derived",
+      "source_ids": [
+        "MDS68"
+      ],
+      "to_be_set_by": null,
+      "note": "Drug completely scavenges hydroxyl radicals at about 3 mM."
+    }
+  },
+  "frozen_solution_uses_direct_effect": {
+    "basis": "derived",
+    "source_ids": [
+      "MDS68"
+    ],
+    "to_be_set_by": null,
+    "note": "Radical diffusion is suppressed in ice; frozen loss is negligible (section 5.7)."
+  },
+  "upper_bounds": [
+    {
+      "dose_form_family": "solid",
+      "k_per_gy": {
+        "value": 1.5e-06,
+        "unit": "1/Gy",
+        "basis": "derived",
+        "source_ids": [
+          "MDS73",
+          "MDS59"
+        ],
+        "to_be_set_by": null,
+        "note": "0.15 %/kGy conservative upper bound for solid orals."
+      }
+    },
+    {
+      "dose_form_family": "semisolid",
+      "k_per_gy": {
+        "value": 1.5e-06,
+        "unit": "1/Gy",
+        "basis": "team_default",
+        "source_ids": [
+          "MDS73"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Solid bound reused for semisolids."
+      }
+    },
+    {
+      "dose_form_family": "solution",
+      "k_per_gy": {
+        "value": 0.0046,
+        "unit": "1/Gy",
+        "basis": "derived",
+        "source_ids": [
+          "MDS68",
+          "MDP07"
+        ],
+        "to_be_set_by": null,
+        "note": "Most sensitive dilute solutions, 4.6 per kGy."
+      }
+    },
+    {
+      "dose_form_family": "suspension",
+      "k_per_gy": {
+        "value": 0.0046,
+        "unit": "1/Gy",
+        "basis": "team_default",
+        "source_ids": [
+          "MDS68"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Solution bound reused for suspensions."
+      }
+    }
+  ]
+}

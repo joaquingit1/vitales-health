@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/lfer-constants.schema.json",
+  "title": "Hammett, Taft and Evans-Polanyi constants for the computed layer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_id",
+    "schema",
+    "version",
+    "review_state",
+    "notice",
+    "hammett_substituents",
+    "hammett_series",
+    "taft_substituents",
+    "taft_series",
+    "evans_polanyi"
+  ],
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "schema": {
+      "const": "pharmacy/lfer-constants.schema.json"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "review_state": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ]
+    },
+    "notice": {
+      "type": "string"
+    },
+    "hammett_substituents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/HammettSubstituent"
+      }
+    },
+    "hammett_series": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/HammettSeries"
+      }
+    },
+    "taft_substituents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TaftSubstituent"
+      }
+    },
+    "taft_series": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TaftSeries"
+      }
+    },
+    "evans_polanyi": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EvansPolanyiEntry"
+      }
+    }
+  },
+  "$defs": {
+    "EvansPolanyiEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class_id",
+        "alpha",
+        "max_abs_delta_bde_kj_per_mol",
+        "bond",
+        "reference_smiles",
+        "reference_note"
+      ],
+      "properties": {
+        "class_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "alpha": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "max_abs_delta_bde_kj_per_mol": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "bond": {
+          "enum": [
+            "C-H",
+            "O-H",
+            "N-H"
+          ]
+        },
+        "reference_smiles": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference_note": {
+          "type": "string"
+        }
+      }
+    },
+    "HammettSeries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "series_id",
+        "class_id",
+        "ring_attachment_map",
+        "rho",
+        "reaction"
+      ],
+      "properties": {
+        "series_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "class_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "ring_attachment_map": {
+          "type": "integer"
+        },
+        "rho": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reaction": {
+          "type": "string"
+        }
+      }
+    },
+    "HammettSubstituent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "substituent_id",
+        "fragment_smiles",
+        "sigma_meta",
+        "sigma_para"
+      ],
+      "properties": {
+        "substituent_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "fragment_smiles": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sigma_meta": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "sigma_para": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "TaftSeries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "series_id",
+        "class_id",
+        "substituent_attachment_map",
+        "rho_star",
+        "delta",
+        "reaction"
+      ],
+      "properties": {
+        "series_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "class_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "substituent_attachment_map": {
+          "type": "integer"
+        },
+        "rho_star": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "delta": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reaction": {
+          "type": "string"
+        }
+      }
+    },
+    "TaftSubstituent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "substituent_id",
+        "fragment_smiles",
+        "sigma_star",
+        "steric_es"
+      ],
+      "properties": {
+        "substituent_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "fragment_smiles": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sigma_star": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "steric_es": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    }
+  }
+}

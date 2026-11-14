@@ -1,0 +1,193 @@
+{
+ "document_id": "vectors-integration",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "History integration vectors (degradation-science.md 9.2).",
+ "extracted_from": [
+  {
+   "note": "degradation-science.md",
+   "section": "9.2"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "TV-INT-1",
+   "kind": "derived_check",
+   "description": "First order; 100 days at 25 degC then 10 days at 40 degC; order invariance.",
+   "target": "pharmacy.kinetics.integrated_rate",
+   "inputs": {
+    "model_kind": "F1",
+    "k_ref_per_day": 0.0001,
+    "k_ref_per_s": 1.1574074074074074e-09,
+    "t_ref_k": 298.15,
+    "activation_energy_j_per_mol": 83144.0,
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "c0_percent": 100.0,
+    "segments": [
+     {
+      "temperature_k": 298.15,
+      "duration_s": 8640000.0,
+      "duration_days": 100.0
+     },
+     {
+      "temperature_k": 313.15,
+      "duration_s": 864000.0,
+      "duration_days": 10.0
+     }
+    ],
+    "segments_reversed": [
+     {
+      "temperature_k": 313.15,
+      "duration_s": 864000.0,
+      "duration_days": 10.0
+     },
+     {
+      "temperature_k": 298.15,
+      "duration_s": 8640000.0,
+      "duration_days": 100.0
+     }
+    ]
+   },
+   "expected": {
+    "theta": 0.0149857,
+    "potency_percent": 98.5126,
+    "theta_full_precision": 0.014985701370961854,
+    "potency_percent_full_precision": 98.5126025453952,
+    "reversed_order_identical": true
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "theta": 0.0149857,
+    "potency_percent": 98.5126,
+    "statement": "same result for the reversed order (order invariance)"
+   },
+   "tolerance": {
+    "abs": null,
+    "rel": 1e-09,
+    "unit": null,
+    "basis": "rel 1e-9 against the *_full_precision values (foundation recomputation); the note's 6 significant figure values hold to their rounding"
+   },
+   "source_ids": [
+    "MDS07"
+   ],
+   "source_status": "DERIVED",
+   "status": "reproduces",
+   "note": "Potency = C0 * exp(-theta) via pharmacy.kinetics.conversion_from_theta(kind F1). Full precision values: foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value."
+  },
+  {
+   "vector_id": "TV-INT-2",
+   "kind": "derived_check",
+   "description": "Same lot held 110 days at the MKT of TV-MKT-7 (MKT equivalence for first order).",
+   "target": "pharmacy.kinetics.conversion_from_theta",
+   "inputs": {
+    "model_kind": "F1",
+    "k_ref_per_day": 0.0001,
+    "k_ref_per_s": 1.1574074074074074e-09,
+    "t_ref_k": 298.15,
+    "activation_energy_j_per_mol": 83144.0,
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "c0_percent": 100.0,
+    "mkt_c": 27.7742,
+    "mkt_k_full_precision": 300.9241912770507,
+    "duration_days": 110.0,
+    "duration_s": 9504000.0
+   },
+   "expected": {
+    "potency_percent": 98.5126,
+    "potency_percent_full_precision": 98.51260254539521
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "potency_percent": 98.5126
+   },
+   "tolerance": {
+    "abs": null,
+    "rel": 1e-09,
+    "unit": null,
+    "basis": "rel 1e-9 against potency_percent_full_precision when the full precision MKT is used"
+   },
+   "source_ids": [
+    "MDS07"
+   ],
+   "source_status": "DERIVED",
+   "status": "reproduces",
+   "note": "Equal to TV-INT-1 potency to machine precision with the exact MKT."
+  },
+  {
+   "vector_id": "TV-INT-3",
+   "kind": "property",
+   "description": "Splitting one constant step into N sub-steps leaves alpha unchanged, any separable model.",
+   "target": "pharmacy.kinetics.integrated_rate",
+   "inputs": {
+    "models": "every separable model kind",
+    "split": "any N >= 2, any positive split durations"
+   },
+   "expected": {
+    "alpha_unchanged": true
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "statement": "identical alpha to machine precision"
+   },
+   "tolerance": {
+    "abs": null,
+    "rel": 1e-12,
+    "unit": null,
+    "basis": "machine precision (a few ulp after summation)"
+   },
+   "source_ids": [
+    "MDS07"
+   ],
+   "source_status": "DERIVED",
+   "status": "reproduces",
+   "note": "Property-based test."
+  },
+  {
+   "vector_id": "TV-INT-4",
+   "kind": "derived_check",
+   "description": "ODE solver on TV-INT-1 matches the analytic value; observed order from step halving.",
+   "target": "pharmacy.kinetics.integrate_ode_reference",
+   "inputs": {
+    "model_kind": "F1",
+    "k_ref_per_day": 0.0001,
+    "k_ref_per_s": 1.1574074074074074e-09,
+    "t_ref_k": 298.15,
+    "activation_energy_j_per_mol": 83144.0,
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "c0_percent": 100.0,
+    "segments": [
+     {
+      "temperature_k": 298.15,
+      "duration_s": 8640000.0
+     },
+     {
+      "temperature_k": 313.15,
+      "duration_s": 864000.0
+     }
+    ],
+    "solver": "Radau or LSODA, breakpoint at every segment boundary"
+   },
+   "expected": {
+    "potency_percent_full_precision": 98.5126025453952,
+    "observed_order_matches_method_order_sig_figs": 2
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "statement": "matches the analytic value within the solver tolerance; observed order p from step halving matches the method order to about 2 significant figures (MDS52)"
+   },
+   "tolerance": {
+    "abs": null,
+    "rel": 1e-08,
+    "unit": null,
+    "basis": "solver tolerance as configured; 1e-8 rel is the suggested acceptance for rtol 1e-10"
+   },
+   "source_ids": [
+    "MDS07",
+    "MDS52"
+   ],
+   "source_status": "DERIVED",
+   "status": "reproduces",
+   "note": "Code verification: observed order p = log(E1/E2)/log(r); do not expect the theoretical order to more than two or three significant figures (MDS52)."
+  }
+ ]
+}

@@ -1,0 +1,441 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/environment-profiles.schema.json",
+  "title": "Environment profiles and event templates for the simulator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_id",
+    "schema",
+    "version",
+    "review_state",
+    "notice",
+    "profiles",
+    "spe_templates",
+    "thermal_failure_templates"
+  ],
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "schema": {
+      "const": "pharmacy/environment-profiles.schema.json"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "review_state": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ]
+    },
+    "notice": {
+      "type": "string"
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EnvironmentProfileDoc"
+      }
+    },
+    "spe_templates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SpeTemplate"
+      }
+    },
+    "thermal_failure_templates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ThermalFailureTemplate"
+      }
+    }
+  },
+  "$defs": {
+    "AtmosphereProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total_pressure_kpa",
+        "oxygen_fraction"
+      ],
+      "properties": {
+        "total_pressure_kpa": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "oxygen_fraction": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "EnvironmentProfileDoc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "name",
+        "description",
+        "temperature",
+        "relative_humidity",
+        "radiation",
+        "light",
+        "atmosphere",
+        "sensor_defaults",
+        "basis",
+        "source_ids",
+        "note"
+      ],
+      "properties": {
+        "profile_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "temperature": {
+          "$ref": "#/$defs/TemperatureProfile"
+        },
+        "relative_humidity": {
+          "$ref": "#/$defs/HumidityProfile"
+        },
+        "radiation": {
+          "$ref": "#/$defs/RadiationProfile"
+        },
+        "light": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LightProfile"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "atmosphere": {
+          "$ref": "#/$defs/AtmosphereProfile"
+        },
+        "sensor_defaults": {
+          "$ref": "#/$defs/SensorDefaults"
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "HumidityProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "setpoint_percent",
+        "diurnal_amplitude_percent",
+        "ou_sd_percent",
+        "ou_time_constant_s",
+        "nominal_min_percent",
+        "nominal_max_percent"
+      ],
+      "properties": {
+        "setpoint_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "diurnal_amplitude_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "ou_sd_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "ou_time_constant_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "nominal_min_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "nominal_max_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "LightProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "illuminance_lux",
+        "uv_w_per_m2",
+        "hours_on_per_day"
+      ],
+      "properties": {
+        "illuminance_lux": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "uv_w_per_m2": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "hours_on_per_day": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "RadiationProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "absorbed_dose_rate_gy_per_day",
+        "absorbed_dose_rate_sd_gy_per_day",
+        "dose_equivalent_rate_sv_per_day",
+        "dosimeter_material",
+        "note"
+      ],
+      "properties": {
+        "absorbed_dose_rate_gy_per_day": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "absorbed_dose_rate_sd_gy_per_day": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dose_equivalent_rate_sv_per_day": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dosimeter_material": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "SensorDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sampling_interval_s",
+        "temperature_noise_sd_k",
+        "rh_noise_sd_percent",
+        "dose_rate_noise_relative_sd",
+        "dropout_probability",
+        "temperature_resolution_k",
+        "rh_resolution_percent",
+        "dose_rate_resolution_gy_per_s",
+        "sensor_bias_temperature_sd_k",
+        "sensor_bias_rh_sd_percent"
+      ],
+      "properties": {
+        "sampling_interval_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "temperature_noise_sd_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "rh_noise_sd_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "dose_rate_noise_relative_sd": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "dropout_probability": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "temperature_resolution_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "rh_resolution_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "dose_rate_resolution_gy_per_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "sensor_bias_temperature_sd_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "sensor_bias_rh_sd_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "SpeTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "template_id",
+        "description",
+        "total_absorbed_dose_gy",
+        "rise_s",
+        "decay_time_constant_s",
+        "shielding_g_per_cm2"
+      ],
+      "properties": {
+        "template_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "total_absorbed_dose_gy": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "rise_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "decay_time_constant_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "shielding_g_per_cm2": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "TemperatureProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "setpoint_k",
+        "diurnal_amplitude_k",
+        "ou_sd_k",
+        "ou_time_constant_s",
+        "nominal_min_k",
+        "nominal_max_k"
+      ],
+      "properties": {
+        "setpoint_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "diurnal_amplitude_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "ou_sd_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "ou_time_constant_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "nominal_min_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "nominal_max_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "ThermalFailureTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "template_id",
+        "description",
+        "target_temperature_k",
+        "target_rh_percent",
+        "ramp_s",
+        "hold_s",
+        "recover_s"
+      ],
+      "properties": {
+        "template_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "target_temperature_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "target_rh_percent": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ramp_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "hold_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "recover_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    }
+  }
+}

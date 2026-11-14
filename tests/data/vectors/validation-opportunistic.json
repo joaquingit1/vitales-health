@@ -1,0 +1,3014 @@
+{
+ "document_id": "vectors-validation-opportunistic",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "Opportunistic flight samples with lot detail, V5 (space-pharmacy.md, Validation datasets).",
+ "extracted_from": [
+  {
+   "note": "space-pharmacy.md",
+   "section": "Validation datasets: V5"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "V5",
+   "kind": "dataset",
+   "description": "V5. Opportunistic flight samples with lot detail (MDP04, all 57 rows)",
+   "target": null,
+   "inputs": {
+    "conditions": "Columns as in the file. \"Past expiry at analysis\" is in months for the Wotring and Cory rows and in days for the Wotring-FDA rows (inferred from the dates; the file does not state units). For Wu rows the file's control is normalized to 100. The azithromycin SpX3 landing date \"5/18/2024\" is a typo in the file (SpX3 landed in 2014). Levofloxacin in the Cory 2016 rows is listed as 50 mg.",
+    "columns": [
+     {
+      "key": "study_as_labeled_in_file",
+      "header": "Study (as labeled in file)"
+     },
+     {
+      "key": "drug",
+      "header": "Drug"
+     },
+     {
+      "key": "strength",
+      "header": "Strength"
+     },
+     {
+      "key": "form",
+      "header": "Form"
+     },
+     {
+      "key": "arm",
+      "header": "Arm"
+     },
+     {
+      "key": "manufacturer",
+      "header": "Manufacturer"
+     },
+     {
+      "key": "lot",
+      "header": "Lot"
+     },
+     {
+      "key": "labeled_expiry",
+      "header": "Labeled expiry"
+     },
+     {
+      "key": "launch",
+      "header": "Launch"
+     },
+     {
+      "key": "landing",
+      "header": "Landing"
+     },
+     {
+      "key": "mission_up_down",
+      "header": "Mission (up/down)"
+     },
+     {
+      "key": "storage_days",
+      "header": "Storage days"
+     },
+     {
+      "key": "analysis_date",
+      "header": "Analysis date"
+     },
+     {
+      "key": "past_expiry_at_analysis_as_given",
+      "header": "Past expiry at analysis (as given)"
+     },
+     {
+      "key": "n",
+      "header": "n"
+     },
+     {
+      "key": "api_percent_sd",
+      "header": "API % (SD)"
+     }
+    ],
+    "parse_conventions": "'API % (SD)' as {value, sd}; 'not provided', 'not avail', 'not given', 'NA' parse to null; lot numbers stay strings; dates stay strings as printed (M/D/YYYY); 'up / down' mission cells parse to {items}. past_expiry_unit_inferred is added from the note's statement (months for Wotring and Cory rows, days for Wotring-FDA rows, null for Wu rows); the file does not state units."
+   },
+   "expected": {
+    "row_count": 57,
+    "rows": [
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine",
+       "strength": "25 mg",
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "not avail",
+       "launch": "not provided",
+       "landing": "NA",
+       "mission_up_down": "not provided / Control",
+       "storage_days": "0",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "100 (1)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine",
+       "strength": {
+        "value": 25,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": null,
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 0,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 100,
+        "sd": 1
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine",
+       "strength": "25 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "11/1/2013",
+       "launch": "not provided",
+       "landing": "3/26/2013",
+       "mission_up_down": "not provided / SpX2",
+       "storage_days": "256",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "76.5 (1.3)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine",
+       "strength": {
+        "value": 25,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "11/1/2013",
+       "launch": null,
+       "landing": "3/26/2013",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX2"
+        ],
+        "text": ""
+       },
+       "storage_days": 256,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 76.5,
+        "sd": 1.3
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine",
+       "strength": "25 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "11/1/2014",
+       "launch": "not provided",
+       "landing": "5/18/2014",
+       "mission_up_down": "not provided / SpX3",
+       "storage_days": "193",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "79.5 (1.3)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine",
+       "strength": {
+        "value": 25,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "11/1/2014",
+       "launch": null,
+       "landing": "5/18/2014",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX3"
+        ],
+        "text": ""
+       },
+       "storage_days": 193,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 79.5,
+        "sd": 1.3
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine",
+       "strength": "25 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "9/1/2015",
+       "launch": "not provided",
+       "landing": "5/25/2015",
+       "mission_up_down": "not provided / SpX6",
+       "storage_days": "243",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "86.4 (1.1)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine",
+       "strength": {
+        "value": 25,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "9/1/2015",
+       "launch": null,
+       "landing": "5/25/2015",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX6"
+        ],
+        "text": ""
+       },
+       "storage_days": 243,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 86.4,
+        "sd": 1.1
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine_(i)",
+       "strength": "25 mg/mL",
+       "form": "injection",
+       "arm": "control",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "not provided",
+       "launch": "not provided",
+       "landing": "NA",
+       "mission_up_down": "not provided / Control",
+       "storage_days": "0",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "100 (1.1)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine_(i)",
+       "strength": {
+        "value": 25,
+        "text": "mg/mL"
+       },
+       "form": "injection",
+       "arm": "control",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": null,
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 0,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 100,
+        "sd": 1.1
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine_(i)",
+       "strength": "25 mg/mL",
+       "form": "injection",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "10/1/2013",
+       "launch": "not provided",
+       "landing": "3/26/2013",
+       "mission_up_down": "not provided / SpX2",
+       "storage_days": "256",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "81.5 (1.6)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine_(i)",
+       "strength": {
+        "value": 25,
+        "text": "mg/mL"
+       },
+       "form": "injection",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "10/1/2013",
+       "launch": null,
+       "landing": "3/26/2013",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX2"
+        ],
+        "text": ""
+       },
+       "storage_days": 256,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 81.5,
+        "sd": 1.6
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine_(i)",
+       "strength": "25 mg/mL",
+       "form": "injection",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "2/1/2014",
+       "launch": "not provided",
+       "landing": "5/18/2014",
+       "mission_up_down": "not provided / SpX3",
+       "storage_days": "565",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "84.6 (1.7)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "promethazine_(i)",
+       "strength": {
+        "value": 25,
+        "text": "mg/mL"
+       },
+       "form": "injection",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "2/1/2014",
+       "launch": null,
+       "landing": "5/18/2014",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX3"
+        ],
+        "text": ""
+       },
+       "storage_days": 565,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 84.6,
+        "sd": 1.7
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "azithromycin",
+       "strength": "250 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "not provided",
+       "launch": "not provided",
+       "landing": "10/28/2012",
+       "mission_up_down": "not provided / SpX1",
+       "storage_days": "699",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "100 (0.8)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "azithromycin",
+       "strength": {
+        "value": 250,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": null,
+       "launch": null,
+       "landing": "10/28/2012",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX1"
+        ],
+        "text": ""
+       },
+       "storage_days": 699,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 100,
+        "sd": 0.8
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "azithromycin",
+       "strength": "250 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "not provided",
+       "launch": "not provided",
+       "landing": "5/18/2024",
+       "mission_up_down": "not provided / SpX3",
+       "storage_days": "356",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "114 (1.1)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "azithromycin",
+       "strength": {
+        "value": 250,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": null,
+       "launch": null,
+       "landing": "5/18/2024",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX3"
+        ],
+        "text": ""
+       },
+       "storage_days": 356,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 114,
+        "sd": 1.1
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "azithromycin",
+       "strength": "250 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "not provided",
+       "launch": "not provided",
+       "landing": "2/11/2015",
+       "mission_up_down": "not provided / SpX5",
+       "storage_days": "399",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "109.2 (1.1)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "azithromycin",
+       "strength": {
+        "value": 250,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": null,
+       "launch": null,
+       "landing": "2/11/2015",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX5"
+        ],
+        "text": ""
+       },
+       "storage_days": 399,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 109.2,
+        "sd": 1.1
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "ibuprofen",
+       "strength": "400 mg",
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "not provided",
+       "launch": "not provided",
+       "landing": "NA",
+       "mission_up_down": "not provided / Control",
+       "storage_days": "0",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "100 (0.6)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "ibuprofen",
+       "strength": {
+        "value": 400,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": null,
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 0,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 100,
+        "sd": 0.6
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "ibuprofen",
+       "strength": "400 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "11/1/2013",
+       "launch": "not provided",
+       "landing": "3/26/2013",
+       "mission_up_down": "not provided / SpX2",
+       "storage_days": "551",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "82.7 (1)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "ibuprofen",
+       "strength": {
+        "value": 400,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "11/1/2013",
+       "launch": null,
+       "landing": "3/26/2013",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX2"
+        ],
+        "text": ""
+       },
+       "storage_days": 551,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 82.7,
+        "sd": 1
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "ibuprofen",
+       "strength": "400 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "not provided",
+       "launch": "not provided",
+       "landing": "5/18/2014",
+       "mission_up_down": "not provided / SpX3",
+       "storage_days": "647",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "85.8 (2)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "ibuprofen",
+       "strength": {
+        "value": 400,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": null,
+       "launch": null,
+       "landing": "5/18/2014",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX3"
+        ],
+        "text": ""
+       },
+       "storage_days": 647,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 85.8,
+        "sd": 2
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "ibuprofen",
+       "strength": "400 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "5/1/2015",
+       "launch": "not provided",
+       "landing": "2/11/2015",
+       "mission_up_down": "not provided / SpX5",
+       "storage_days": "140",
+       "analysis_date": "Not provided",
+       "past_expiry_at_analysis_as_given": "Not provided",
+       "n": "3",
+       "api_percent_sd": "85.2 (2.2)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wu 2016",
+       "drug": "ibuprofen",
+       "strength": {
+        "value": 400,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "5/1/2015",
+       "launch": null,
+       "landing": "2/11/2015",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX5"
+        ],
+        "text": ""
+       },
+       "storage_days": 140,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": null,
+       "n": 3,
+       "api_percent_sd": {
+        "value": 85.2,
+        "sd": 2.2
+       },
+       "past_expiry_unit_inferred": null
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "aspirin",
+       "strength": "325 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "7/31/2012",
+       "launch": "not provided",
+       "landing": "not provided",
+       "mission_up_down": "not provided / not provided",
+       "storage_days": "550",
+       "analysis_date": "4/30/2013",
+       "past_expiry_at_analysis_as_given": "8",
+       "n": "5",
+       "api_percent_sd": "96.5 (0.2)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "aspirin",
+       "strength": {
+        "value": 325,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "7/31/2012",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         null
+        ],
+        "text": ""
+       },
+       "storage_days": 550,
+       "analysis_date": "4/30/2013",
+       "past_expiry_at_analysis_as_given": 8,
+       "n": 5,
+       "api_percent_sd": {
+        "value": 96.5,
+        "sd": 0.2
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "acetaminophen",
+       "strength": "325 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "11/30/2012",
+       "launch": "not provided",
+       "landing": "not provided",
+       "mission_up_down": "not provided / not provided",
+       "storage_days": "550",
+       "analysis_date": "4/30/2013",
+       "past_expiry_at_analysis_as_given": "5",
+       "n": "5",
+       "api_percent_sd": "97 (1)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "acetaminophen",
+       "strength": {
+        "value": 325,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "11/30/2012",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         null
+        ],
+        "text": ""
+       },
+       "storage_days": 550,
+       "analysis_date": "4/30/2013",
+       "past_expiry_at_analysis_as_given": 5,
+       "n": 5,
+       "api_percent_sd": {
+        "value": 97,
+        "sd": 1
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "ibuprofen",
+       "strength": "400 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "11/30/2013",
+       "launch": "not provided",
+       "landing": "not provided",
+       "mission_up_down": "not provided / not provided",
+       "storage_days": "550",
+       "analysis_date": "8/30/2013",
+       "past_expiry_at_analysis_as_given": "-3",
+       "n": "5",
+       "api_percent_sd": "99.9 (1.8)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "ibuprofen",
+       "strength": {
+        "value": 400,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "11/30/2013",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         null
+        ],
+        "text": ""
+       },
+       "storage_days": 550,
+       "analysis_date": "8/30/2013",
+       "past_expiry_at_analysis_as_given": -3,
+       "n": 5,
+       "api_percent_sd": {
+        "value": 99.9,
+        "sd": 1.8
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "loperamide hydrochloride",
+       "strength": "2 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "8/31/2013",
+       "launch": "not provided",
+       "landing": "not provided",
+       "mission_up_down": "not provided / not provided",
+       "storage_days": "550",
+       "analysis_date": "6/30/2013",
+       "past_expiry_at_analysis_as_given": "-2",
+       "n": "4",
+       "api_percent_sd": "100 (30)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "loperamide hydrochloride",
+       "strength": {
+        "value": 2,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "8/31/2013",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         null
+        ],
+        "text": ""
+       },
+       "storage_days": 550,
+       "analysis_date": "6/30/2013",
+       "past_expiry_at_analysis_as_given": -2,
+       "n": 4,
+       "api_percent_sd": {
+        "value": 100,
+        "sd": 30
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "loratadine",
+       "strength": "10 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "8/31/2012",
+       "launch": "not provided",
+       "landing": "not provided",
+       "mission_up_down": "not provided / not provided",
+       "storage_days": "550",
+       "analysis_date": "4/30/2013",
+       "past_expiry_at_analysis_as_given": "7",
+       "n": "4",
+       "api_percent_sd": "100 (3)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "loratadine",
+       "strength": {
+        "value": 10,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "8/31/2012",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         null
+        ],
+        "text": ""
+       },
+       "storage_days": 550,
+       "analysis_date": "4/30/2013",
+       "past_expiry_at_analysis_as_given": 7,
+       "n": 4,
+       "api_percent_sd": {
+        "value": 100,
+        "sd": 3
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "pseudoephedrine",
+       "strength": "120 mg",
+       "form": "ET_Tablets",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "9/30/2013",
+       "launch": "not provided",
+       "landing": "not provided",
+       "mission_up_down": "not provided / not provided",
+       "storage_days": "550",
+       "analysis_date": "6/30/2014",
+       "past_expiry_at_analysis_as_given": "9",
+       "n": "4",
+       "api_percent_sd": "99.1 (2.8)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "pseudoephedrine",
+       "strength": {
+        "value": 120,
+        "text": "mg"
+       },
+       "form": "ET_Tablets",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "9/30/2013",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         null
+        ],
+        "text": ""
+       },
+       "storage_days": 550,
+       "analysis_date": "6/30/2014",
+       "past_expiry_at_analysis_as_given": 9,
+       "n": 4,
+       "api_percent_sd": {
+        "value": 99.1,
+        "sd": 2.8
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "melatonin",
+       "strength": "3 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "5/31/2012",
+       "launch": "not provided",
+       "landing": "not provided",
+       "mission_up_down": "not provided / not provided",
+       "storage_days": "550",
+       "analysis_date": "4/30/2013",
+       "past_expiry_at_analysis_as_given": "10",
+       "n": "4",
+       "api_percent_sd": "90 (3.3)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "melatonin",
+       "strength": {
+        "value": 3,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "5/31/2012",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         null
+        ],
+        "text": ""
+       },
+       "storage_days": 550,
+       "analysis_date": "4/30/2013",
+       "past_expiry_at_analysis_as_given": 10,
+       "n": 4,
+       "api_percent_sd": {
+        "value": 90,
+        "sd": 3.3
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "modafinil",
+       "strength": "200 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "9/30/2012",
+       "launch": "not provided",
+       "landing": "not provided",
+       "mission_up_down": "not provided / not provided",
+       "storage_days": "550",
+       "analysis_date": "7/30/2012",
+       "past_expiry_at_analysis_as_given": "-2",
+       "n": "5",
+       "api_percent_sd": "100.6 (1.2)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "modafinil",
+       "strength": {
+        "value": 200,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "9/30/2012",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         null
+        ],
+        "text": ""
+       },
+       "storage_days": 550,
+       "analysis_date": "7/30/2012",
+       "past_expiry_at_analysis_as_given": -2,
+       "n": 5,
+       "api_percent_sd": {
+        "value": 100.6,
+        "sd": 1.2
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "zolpidem",
+       "strength": "10 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "not provided",
+       "lot": "not provided",
+       "labeled_expiry": "9/30/2012",
+       "launch": "not provided",
+       "landing": "not provided",
+       "mission_up_down": "not provided / not provided",
+       "storage_days": "550",
+       "analysis_date": "6/30/2013",
+       "past_expiry_at_analysis_as_given": "9",
+       "n": "5",
+       "api_percent_sd": "100.7 (0.9)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring 2015",
+       "drug": "zolpidem",
+       "strength": {
+        "value": 10,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": null,
+       "lot": null,
+       "labeled_expiry": "9/30/2012",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         null
+        ],
+        "text": ""
+       },
+       "storage_days": 550,
+       "analysis_date": "6/30/2013",
+       "past_expiry_at_analysis_as_given": 9,
+       "n": 5,
+       "api_percent_sd": {
+        "value": 100.7,
+        "sd": 0.9
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "levofloxacin",
+       "strength": "50 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "EM0315",
+       "labeled_expiry": "6/30/2016",
+       "launch": "1/10/2015",
+       "landing": "5/21/2015",
+       "mission_up_down": "SpX5 / SpX6",
+       "storage_days": "132",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "0",
+       "n": "10",
+       "api_percent_sd": "99.7 (1.4)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "levofloxacin",
+       "strength": {
+        "value": 50,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "EM0315",
+       "labeled_expiry": "6/30/2016",
+       "launch": "1/10/2015",
+       "landing": "5/21/2015",
+       "mission_up_down": {
+        "items": [
+         "SpX5",
+         "SpX6"
+        ],
+        "text": ""
+       },
+       "storage_days": 132,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 0,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 99.7,
+        "sd": 1.4
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "levofloxacin",
+       "strength": "50 mg",
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Sandoz",
+       "lot": "GA3487",
+       "labeled_expiry": "1/31/2018",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / Control",
+       "storage_days": "0",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "-18",
+       "n": "10",
+       "api_percent_sd": "98.9 (1.5)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "levofloxacin",
+       "strength": {
+        "value": 50,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Sandoz",
+       "lot": "GA3487",
+       "labeled_expiry": "1/31/2018",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 0,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": -18,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 98.9,
+        "sd": 1.5
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "ibuprofen",
+       "strength": "400 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Watson/Dr. Reddy's Lab",
+       "lot": "L-04201",
+       "labeled_expiry": "6/26/2015",
+       "launch": "9/25/2014",
+       "landing": "2/11/2015",
+       "mission_up_down": "40S / Spx5",
+       "storage_days": "140",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "12",
+       "n": "10",
+       "api_percent_sd": "100.1 (0.9)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "ibuprofen",
+       "strength": {
+        "value": 400,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Watson/Dr. Reddy's Lab",
+       "lot": "L-04201",
+       "labeled_expiry": "6/26/2015",
+       "launch": "9/25/2014",
+       "landing": "2/11/2015",
+       "mission_up_down": {
+        "items": [
+         {
+          "value": 40,
+          "text": "S"
+         },
+         "Spx5"
+        ],
+        "text": ""
+       },
+       "storage_days": 140,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 12,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 100.1,
+        "sd": 0.9
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "ibuprofen",
+       "strength": "400 mg",
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Watson/Dr. Reddy's Lab",
+       "lot": "L-04415",
+       "labeled_expiry": "10/31/2015",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / Control",
+       "storage_days": "0",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "-18",
+       "n": "10",
+       "api_percent_sd": "99.8 (0.8)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "ibuprofen",
+       "strength": {
+        "value": 400,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Watson/Dr. Reddy's Lab",
+       "lot": "L-04415",
+       "labeled_expiry": "10/31/2015",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 0,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": -18,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 99.8,
+        "sd": 0.8
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "phenytoin",
+       "strength": "300 mg",
+       "form": "ER_capsules",
+       "arm": "flight",
+       "manufacturer": "Mylan",
+       "lot": "3048017",
+       "labeled_expiry": "6/30/2015",
+       "launch": "9/23/2014",
+       "landing": "5/21/2015",
+       "mission_up_down": "SpX4 / SpX6",
+       "storage_days": "241",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "12",
+       "n": "9",
+       "api_percent_sd": "102.2 (0.5)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "phenytoin",
+       "strength": {
+        "value": 300,
+        "text": "mg"
+       },
+       "form": "ER_capsules",
+       "arm": "flight",
+       "manufacturer": "Mylan",
+       "lot": "3048017",
+       "labeled_expiry": "6/30/2015",
+       "launch": "9/23/2014",
+       "landing": "5/21/2015",
+       "mission_up_down": {
+        "items": [
+         "SpX4",
+         "SpX6"
+        ],
+        "text": ""
+       },
+       "storage_days": 241,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 12,
+       "n": 9,
+       "api_percent_sd": {
+        "value": 102.2,
+        "sd": 0.5
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "phenytoin",
+       "strength": "300 mg",
+       "form": "ER_capsules",
+       "arm": "control",
+       "manufacturer": "Mylan",
+       "lot": "3063826",
+       "labeled_expiry": "1/31/2017",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / Control",
+       "storage_days": "0",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "8",
+       "n": "9",
+       "api_percent_sd": "101.5 (0.7)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "phenytoin",
+       "strength": {
+        "value": 300,
+        "text": "mg"
+       },
+       "form": "ER_capsules",
+       "arm": "control",
+       "manufacturer": "Mylan",
+       "lot": "3063826",
+       "labeled_expiry": "1/31/2017",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 0,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 8,
+       "n": 9,
+       "api_percent_sd": {
+        "value": 101.5,
+        "sd": 0.7
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "valacyclovir",
+       "strength": "1000 mg",
+       "form": "ER_capsules",
+       "arm": "flight",
+       "manufacturer": "Actavis",
+       "lot": "1013120A",
+       "labeled_expiry": "1/31/2016",
+       "launch": "1/9/2014",
+       "landing": "5/21/2015",
+       "mission_up_down": "Orb1 / Spx6",
+       "storage_days": "498",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "13",
+       "n": "10",
+       "api_percent_sd": "107.8 (6)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "valacyclovir",
+       "strength": {
+        "value": 1000,
+        "text": "mg"
+       },
+       "form": "ER_capsules",
+       "arm": "flight",
+       "manufacturer": "Actavis",
+       "lot": "1013120A",
+       "labeled_expiry": "1/31/2016",
+       "launch": "1/9/2014",
+       "landing": "5/21/2015",
+       "mission_up_down": {
+        "items": [
+         "Orb1",
+         "Spx6"
+        ],
+        "text": ""
+       },
+       "storage_days": 498,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 13,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 107.8,
+        "sd": 6
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "valacyclovir",
+       "strength": "1000 mg",
+       "form": "ER_capsules",
+       "arm": "control",
+       "manufacturer": "Actavis",
+       "lot": "G34672",
+       "labeled_expiry": "5/31/2015",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / Contro",
+       "storage_days": "0",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "6",
+       "n": "10",
+       "api_percent_sd": "101.6 (2.4)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "valacyclovir",
+       "strength": {
+        "value": 1000,
+        "text": "mg"
+       },
+       "form": "ER_capsules",
+       "arm": "control",
+       "manufacturer": "Actavis",
+       "lot": "G34672",
+       "labeled_expiry": "5/31/2015",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Contro"
+        ],
+        "text": ""
+       },
+       "storage_days": 0,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 6,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 101.6,
+        "sd": 2.4
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "sertraline",
+       "strength": "50 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Greenstone LLC",
+       "lot": "V100436",
+       "labeled_expiry": "11/30/2012",
+       "launch": "4/27/2011",
+       "landing": "3/26/2013",
+       "mission_up_down": "SpX2 / SpX2",
+       "storage_days": "700",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "43",
+       "n": "10",
+       "api_percent_sd": "98.6 (5.8)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "sertraline",
+       "strength": {
+        "value": 50,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Greenstone LLC",
+       "lot": "V100436",
+       "labeled_expiry": "11/30/2012",
+       "launch": "4/27/2011",
+       "landing": "3/26/2013",
+       "mission_up_down": {
+        "items": [
+         "SpX2",
+         "SpX2"
+        ],
+        "text": ""
+       },
+       "storage_days": 700,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 43,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 98.6,
+        "sd": 5.8
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "sertraline",
+       "strength": "50 mg",
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Greenstone LLC",
+       "lot": "NA",
+       "labeled_expiry": "5/30/2018",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / Control",
+       "storage_days": "0",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "-22",
+       "n": "10",
+       "api_percent_sd": "99.5 (5.2)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2016",
+       "drug": "sertraline",
+       "strength": {
+        "value": 50,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Greenstone LLC",
+       "lot": null,
+       "labeled_expiry": "5/30/2018",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 0,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": -22,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 99.5,
+        "sd": 5.2
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "amoxicillin",
+       "strength": "500 mg",
+       "form": "caapsule",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "CM3543",
+       "labeled_expiry": "5/31/2015",
+       "launch": "5/28/2013",
+       "landing": "5/18/2014",
+       "mission_up_down": "not provided / SpX3",
+       "storage_days": "356",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "28",
+       "n": "10",
+       "api_percent_sd": "114.1 (1.5)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "amoxicillin",
+       "strength": {
+        "value": 500,
+        "text": "mg"
+       },
+       "form": "caapsule",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "CM3543",
+       "labeled_expiry": "5/31/2015",
+       "launch": "5/28/2013",
+       "landing": "5/18/2014",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX3"
+        ],
+        "text": ""
+       },
+       "storage_days": 356,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 28,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 114.1,
+        "sd": 1.5
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "amoxicillin",
+       "strength": "500 mg",
+       "form": "caapsule",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "DF6370",
+       "labeled_expiry": "2/29/2016",
+       "launch": "1/9/2014",
+       "landing": "5/21/2015",
+       "mission_up_down": "not provided / SpX6",
+       "storage_days": "498",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "18",
+       "n": "10",
+       "api_percent_sd": "114.3 (1.4)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "amoxicillin",
+       "strength": {
+        "value": 500,
+        "text": "mg"
+       },
+       "form": "caapsule",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "DF6370",
+       "labeled_expiry": "2/29/2016",
+       "launch": "1/9/2014",
+       "landing": "5/21/2015",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX6"
+        ],
+        "text": ""
+       },
+       "storage_days": 498,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 18,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 114.3,
+        "sd": 1.4
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "amoxicillin",
+       "strength": "500 mg",
+       "form": "caapsule",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "EC3644",
+       "labeled_expiry": "1/31/2017",
+       "launch": "4/14/2015",
+       "landing": "8/26/2016",
+       "mission_up_down": "not provided / SpX9",
+       "storage_days": "501",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "8",
+       "n": "10",
+       "api_percent_sd": "112.4 (1.1)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "amoxicillin",
+       "strength": {
+        "value": 500,
+        "text": "mg"
+       },
+       "form": "caapsule",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "EC3644",
+       "labeled_expiry": "1/31/2017",
+       "launch": "4/14/2015",
+       "landing": "8/26/2016",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX9"
+        ],
+        "text": ""
+       },
+       "storage_days": 501,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 8,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 112.4,
+        "sd": 1.1
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "amoxicillin",
+       "strength": "500 mg",
+       "form": "caapsule",
+       "arm": "control",
+       "manufacturer": "Sandoz",
+       "lot": "GJ8058",
+       "labeled_expiry": "6/30/2019",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / Control",
+       "storage_days": "0",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "-23",
+       "n": "10",
+       "api_percent_sd": "115.9 (1.8)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "amoxicillin",
+       "strength": {
+        "value": 500,
+        "text": "mg"
+       },
+       "form": "caapsule",
+       "arm": "control",
+       "manufacturer": "Sandoz",
+       "lot": "GJ8058",
+       "labeled_expiry": "6/30/2019",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 0,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": -23,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 115.9,
+        "sd": 1.8
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "aspirin",
+       "strength": "325 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Hospak",
+       "lot": "D026Y",
+       "labeled_expiry": "3/31/2014",
+       "launch": "3/28/2013",
+       "landing": "5/18/2014",
+       "mission_up_down": "not provided / SpX3",
+       "storage_days": "417",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "39",
+       "n": "10",
+       "api_percent_sd": "97.7 (2.3)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "aspirin",
+       "strength": {
+        "value": 325,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Hospak",
+       "lot": "D026Y",
+       "labeled_expiry": "3/31/2014",
+       "launch": "3/28/2013",
+       "landing": "5/18/2014",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX3"
+        ],
+        "text": ""
+       },
+       "storage_days": 417,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 39,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 97.7,
+        "sd": 2.3
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "aspirin",
+       "strength": "325 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Hospak",
+       "lot": "C060Z",
+       "labeled_expiry": "5/31/2015",
+       "launch": "1/9/2014",
+       "landing": "2/11/2015",
+       "mission_up_down": "not provided / SpX5",
+       "storage_days": "399",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "25",
+       "n": "10",
+       "api_percent_sd": "94.9 (2)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "aspirin",
+       "strength": {
+        "value": 325,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Hospak",
+       "lot": "C060Z",
+       "labeled_expiry": "5/31/2015",
+       "launch": "1/9/2014",
+       "landing": "2/11/2015",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX5"
+        ],
+        "text": ""
+       },
+       "storage_days": 399,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 25,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 94.9,
+        "sd": 2
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "aspirin",
+       "strength": "325 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Hospak",
+       "lot": "G063Z",
+       "labeled_expiry": "8/31/2015",
+       "launch": "1/10/2015",
+       "landing": "5/11/2016",
+       "mission_up_down": "not provided / SpX8",
+       "storage_days": "488",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "33",
+       "n": "10",
+       "api_percent_sd": "93.9 (2.2)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "aspirin",
+       "strength": {
+        "value": 325,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Hospak",
+       "lot": "G063Z",
+       "labeled_expiry": "8/31/2015",
+       "launch": "1/10/2015",
+       "landing": "5/11/2016",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX8"
+        ],
+        "text": ""
+       },
+       "storage_days": 488,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 33,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 93.9,
+        "sd": 2.2
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "aspirin",
+       "strength": "325 mg",
+       "form": "tables",
+       "arm": "control",
+       "manufacturer": "Hospak",
+       "lot": "L028A",
+       "labeled_expiry": "11/30/2017",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / Control",
+       "storage_days": "0",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "-5",
+       "n": "10",
+       "api_percent_sd": "96.9 (2)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "aspirin",
+       "strength": {
+        "value": 325,
+        "text": "mg"
+       },
+       "form": "tables",
+       "arm": "control",
+       "manufacturer": "Hospak",
+       "lot": "L028A",
+       "labeled_expiry": "11/30/2017",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 0,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": -5,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 96.9,
+        "sd": 2
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "pseudoephedrine",
+       "strength": "30 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Major",
+       "lot": "A102Z",
+       "labeled_expiry": "3/13/2016",
+       "launch": "11/7/2013",
+       "landing": "5/18/2014",
+       "mission_up_down": "not provided / SpX3",
+       "storage_days": "193",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "16",
+       "n": "10",
+       "api_percent_sd": "103.4 (2.8)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "pseudoephedrine",
+       "strength": {
+        "value": 30,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Major",
+       "lot": "A102Z",
+       "labeled_expiry": "3/13/2016",
+       "launch": "11/7/2013",
+       "landing": "5/18/2014",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX3"
+        ],
+        "text": ""
+       },
+       "storage_days": 193,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 16,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 103.4,
+        "sd": 2.8
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "pseudoephedrine",
+       "strength": "30 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Major",
+       "lot": "A103Z",
+       "labeled_expiry": "3/13/2016",
+       "launch": "1/9/2014",
+       "landing": "5/21/2015",
+       "mission_up_down": "not provided / SpX6",
+       "storage_days": "498",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "16",
+       "n": "10",
+       "api_percent_sd": "107.6 (6.4)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "pseudoephedrine",
+       "strength": {
+        "value": 30,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Major",
+       "lot": "A103Z",
+       "labeled_expiry": "3/13/2016",
+       "launch": "1/9/2014",
+       "landing": "5/21/2015",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX6"
+        ],
+        "text": ""
+       },
+       "storage_days": 498,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 16,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 107.6,
+        "sd": 6.4
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "pseudoephedrine",
+       "strength": "30 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Major",
+       "lot": "K135Z",
+       "labeled_expiry": "4/30/2017",
+       "launch": "7/7/2016",
+       "landing": "8/26/2016",
+       "mission_up_down": "not provided / SpX9",
+       "storage_days": "51",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "3",
+       "n": "10",
+       "api_percent_sd": "103.9 (1.9)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "pseudoephedrine",
+       "strength": {
+        "value": 30,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Major",
+       "lot": "K135Z",
+       "labeled_expiry": "4/30/2017",
+       "launch": "7/7/2016",
+       "landing": "8/26/2016",
+       "mission_up_down": {
+        "items": [
+         null,
+         "SpX9"
+        ],
+        "text": ""
+       },
+       "storage_days": 51,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": 3,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 103.9,
+        "sd": 1.9
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "pseudoephedrine",
+       "strength": "30 mg",
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Major",
+       "lot": "9102503",
+       "labeled_expiry": "11/30/2019",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / Control",
+       "storage_days": "0",
+       "analysis_date": "not provided",
+       "past_expiry_at_analysis_as_given": "-28",
+       "n": "10",
+       "api_percent_sd": "91 (2)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Cory 2017",
+       "drug": "pseudoephedrine",
+       "strength": {
+        "value": 30,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Major",
+       "lot": "9102503",
+       "labeled_expiry": "11/30/2019",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 0,
+       "analysis_date": null,
+       "past_expiry_at_analysis_as_given": -28,
+       "n": 10,
+       "api_percent_sd": {
+        "value": 91,
+        "sd": 2
+       },
+       "past_expiry_unit_inferred": "months"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "azithromycin",
+       "strength": "250 mg",
+       "form": "tablet",
+       "arm": "Control",
+       "manufacturer": "Sandoz",
+       "lot": "CA6971",
+       "labeled_expiry": "4/30/2013",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / NA",
+       "storage_days": "0",
+       "analysis_date": "6/7/2012",
+       "past_expiry_at_analysis_as_given": "-327",
+       "n": "not given",
+       "api_percent_sd": "105.5 (0.5)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "azithromycin",
+       "strength": {
+        "value": 250,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "Control",
+       "manufacturer": "Sandoz",
+       "lot": "CA6971",
+       "labeled_expiry": "4/30/2013",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         null
+        ],
+        "text": ""
+       },
+       "storage_days": 0,
+       "analysis_date": "6/7/2012",
+       "past_expiry_at_analysis_as_given": -327,
+       "n": null,
+       "api_percent_sd": {
+        "value": 105.5,
+        "sd": 0.5
+       },
+       "past_expiry_unit_inferred": "days"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "azithromycin",
+       "strength": "250 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "190919",
+       "labeled_expiry": "6/7/2011",
+       "launch": "9/8/2010",
+       "landing": "7/21/2011",
+       "mission_up_down": "STS-135 / STS-135",
+       "storage_days": "316",
+       "analysis_date": "6/7/2012",
+       "past_expiry_at_analysis_as_given": "366",
+       "n": "20",
+       "api_percent_sd": "98.3 (0.9)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "azithromycin",
+       "strength": {
+        "value": 250,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "190919",
+       "labeled_expiry": "6/7/2011",
+       "launch": "9/8/2010",
+       "landing": "7/21/2011",
+       "mission_up_down": {
+        "items": [
+         "STS-135",
+         "STS-135"
+        ],
+        "text": ""
+       },
+       "storage_days": 316,
+       "analysis_date": "6/7/2012",
+       "past_expiry_at_analysis_as_given": 366,
+       "n": 20,
+       "api_percent_sd": {
+        "value": 98.3,
+        "sd": 0.9
+       },
+       "past_expiry_unit_inferred": "days"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "azithromycin",
+       "strength": "250 mg",
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Greenstone",
+       "lot": "1B81002BA",
+       "labeled_expiry": "12/31/2013",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / NA",
+       "storage_days": "316",
+       "analysis_date": "6/7/2012",
+       "past_expiry_at_analysis_as_given": "-572",
+       "n": "not given",
+       "api_percent_sd": "97.1 (0.2)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "azithromycin",
+       "strength": {
+        "value": 250,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Greenstone",
+       "lot": "1B81002BA",
+       "labeled_expiry": "12/31/2013",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         null
+        ],
+        "text": ""
+       },
+       "storage_days": 316,
+       "analysis_date": "6/7/2012",
+       "past_expiry_at_analysis_as_given": -572,
+       "n": null,
+       "api_percent_sd": {
+        "value": 97.1,
+        "sd": 0.2
+       },
+       "past_expiry_unit_inferred": "days"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "azithromycin",
+       "strength": "250 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Greenstone",
+       "lot": "5HP059A",
+       "labeled_expiry": "8/31/2008",
+       "launch": "7/4/2006",
+       "landing": "11/30/2008",
+       "mission_up_down": "STS-121 / STS-126",
+       "storage_days": "1827",
+       "analysis_date": "5/17/2012",
+       "past_expiry_at_analysis_as_given": "1355",
+       "n": "9",
+       "api_percent_sd": "98.3 (2)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "azithromycin",
+       "strength": {
+        "value": 250,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Greenstone",
+       "lot": "5HP059A",
+       "labeled_expiry": "8/31/2008",
+       "launch": "7/4/2006",
+       "landing": "11/30/2008",
+       "mission_up_down": {
+        "items": [
+         "STS-121",
+         "STS-126"
+        ],
+        "text": ""
+       },
+       "storage_days": 1827,
+       "analysis_date": "5/17/2012",
+       "past_expiry_at_analysis_as_given": 1355,
+       "n": 9,
+       "api_percent_sd": {
+        "value": 98.3,
+        "sd": 2
+       },
+       "past_expiry_unit_inferred": "days"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "azithromycin",
+       "strength": "250 mg",
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Greenstone",
+       "lot": "5HP059A",
+       "labeled_expiry": "8/31/2008",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / Control",
+       "storage_days": "1827",
+       "analysis_date": "5/17/2012",
+       "past_expiry_at_analysis_as_given": "1355",
+       "n": "9",
+       "api_percent_sd": "106.5 (2.8)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "azithromycin",
+       "strength": {
+        "value": 250,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Greenstone",
+       "lot": "5HP059A",
+       "labeled_expiry": "8/31/2008",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 1827,
+       "analysis_date": "5/17/2012",
+       "past_expiry_at_analysis_as_given": 1355,
+       "n": 9,
+       "api_percent_sd": {
+        "value": 106.5,
+        "sd": 2.8
+       },
+       "past_expiry_unit_inferred": "days"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levofloxacin",
+       "strength": "500 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Janssen",
+       "lot": "OCG513",
+       "labeled_expiry": "1/31/2013",
+       "launch": "9/8/2010",
+       "landing": "7/21/2011",
+       "mission_up_down": "STS-135 / not provided",
+       "storage_days": "316",
+       "analysis_date": "1/25/2012",
+       "past_expiry_at_analysis_as_given": "-372",
+       "n": "30",
+       "api_percent_sd": "104.2 (0.215)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levofloxacin",
+       "strength": {
+        "value": 500,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Janssen",
+       "lot": "OCG513",
+       "labeled_expiry": "1/31/2013",
+       "launch": "9/8/2010",
+       "landing": "7/21/2011",
+       "mission_up_down": {
+        "items": [
+         "STS-135",
+         null
+        ],
+        "text": ""
+       },
+       "storage_days": 316,
+       "analysis_date": "1/25/2012",
+       "past_expiry_at_analysis_as_given": -372,
+       "n": 30,
+       "api_percent_sd": {
+        "value": 104.2,
+        "sd": 0.215
+       },
+       "past_expiry_unit_inferred": "days"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levofloxacin",
+       "strength": "500 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Janssen",
+       "lot": "6AG613",
+       "labeled_expiry": "11/30/2008",
+       "launch": "7/4/2006",
+       "landing": "11/30/2008",
+       "mission_up_down": "STS-121 / STS-126",
+       "storage_days": "1827",
+       "analysis_date": "5/17/2012",
+       "past_expiry_at_analysis_as_given": "1264",
+       "n": "9",
+       "api_percent_sd": "101.1 (0.614)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levofloxacin",
+       "strength": {
+        "value": 500,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Janssen",
+       "lot": "6AG613",
+       "labeled_expiry": "11/30/2008",
+       "launch": "7/4/2006",
+       "landing": "11/30/2008",
+       "mission_up_down": {
+        "items": [
+         "STS-121",
+         "STS-126"
+        ],
+        "text": ""
+       },
+       "storage_days": 1827,
+       "analysis_date": "5/17/2012",
+       "past_expiry_at_analysis_as_given": 1264,
+       "n": 9,
+       "api_percent_sd": {
+        "value": 101.1,
+        "sd": 0.614
+       },
+       "past_expiry_unit_inferred": "days"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levofloxacin",
+       "strength": "500 mg",
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Janssen",
+       "lot": "6AG613",
+       "labeled_expiry": "11/30/2008",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / Control",
+       "storage_days": "1827",
+       "analysis_date": "5/17/2012",
+       "past_expiry_at_analysis_as_given": "1264",
+       "n": "9",
+       "api_percent_sd": "101.2 (0.422)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levofloxacin",
+       "strength": {
+        "value": 500,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Janssen",
+       "lot": "6AG613",
+       "labeled_expiry": "11/30/2008",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 1827,
+       "analysis_date": "5/17/2012",
+       "past_expiry_at_analysis_as_given": 1264,
+       "n": 9,
+       "api_percent_sd": {
+        "value": 101.2,
+        "sd": 0.422
+       },
+       "past_expiry_unit_inferred": "days"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levothyroxine",
+       "strength": "0.025 mg",
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Sandoz",
+       "lot": "C05T0861A4",
+       "labeled_expiry": "8/31/2007",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / Control",
+       "storage_days": "1731",
+       "analysis_date": "1/26/2012",
+       "past_expiry_at_analysis_as_given": "1609",
+       "n": "6",
+       "api_percent_sd": "77.38 (1.89)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levothyroxine",
+       "strength": {
+        "value": 0.025,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Sandoz",
+       "lot": "C05T0861A4",
+       "labeled_expiry": "8/31/2007",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 1731,
+       "analysis_date": "1/26/2012",
+       "past_expiry_at_analysis_as_given": 1609,
+       "n": 6,
+       "api_percent_sd": {
+        "value": 77.38,
+        "sd": 1.89
+       },
+       "past_expiry_unit_inferred": "days"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levothyroxine",
+       "strength": "0.025 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "C05T0861A4",
+       "labeled_expiry": "8/31/2007",
+       "launch": "7/4/2006",
+       "landing": "7/17/2006",
+       "mission_up_down": "STS-121 / STS-121",
+       "storage_days": "1731",
+       "analysis_date": "1/26/2012",
+       "past_expiry_at_analysis_as_given": "1609",
+       "n": "6",
+       "api_percent_sd": "78.12 (1.99)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levothyroxine",
+       "strength": {
+        "value": 0.025,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "C05T0861A4",
+       "labeled_expiry": "8/31/2007",
+       "launch": "7/4/2006",
+       "landing": "7/17/2006",
+       "mission_up_down": {
+        "items": [
+         "STS-121",
+         "STS-121"
+        ],
+        "text": ""
+       },
+       "storage_days": 1731,
+       "analysis_date": "1/26/2012",
+       "past_expiry_at_analysis_as_given": 1609,
+       "n": 6,
+       "api_percent_sd": {
+        "value": 78.12,
+        "sd": 1.99
+       },
+       "past_expiry_unit_inferred": "days"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levothyroxine",
+       "strength": "0.025 mg",
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "C05T0861A5",
+       "labeled_expiry": "8/31/2007",
+       "launch": "7/4/2006",
+       "landing": "11/30/2008",
+       "mission_up_down": "STS-121 / STS-126",
+       "storage_days": "1715",
+       "analysis_date": "1/26/2012",
+       "past_expiry_at_analysis_as_given": "1609",
+       "n": "15",
+       "api_percent_sd": "81.39 (1.47)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levothyroxine",
+       "strength": {
+        "value": 0.025,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "flight",
+       "manufacturer": "Sandoz",
+       "lot": "C05T0861A5",
+       "labeled_expiry": "8/31/2007",
+       "launch": "7/4/2006",
+       "landing": "11/30/2008",
+       "mission_up_down": {
+        "items": [
+         "STS-121",
+         "STS-126"
+        ],
+        "text": ""
+       },
+       "storage_days": 1715,
+       "analysis_date": "1/26/2012",
+       "past_expiry_at_analysis_as_given": 1609,
+       "n": 15,
+       "api_percent_sd": {
+        "value": 81.39,
+        "sd": 1.47
+       },
+       "past_expiry_unit_inferred": "days"
+      }
+     },
+     {
+      "raw": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levothyroxine",
+       "strength": "0.025 mg",
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Sandoz",
+       "lot": "C05T0861A5",
+       "labeled_expiry": "8/31/2007",
+       "launch": "NA",
+       "landing": "NA",
+       "mission_up_down": "NA / Control",
+       "storage_days": "1715",
+       "analysis_date": "1/26/2012",
+       "past_expiry_at_analysis_as_given": "1609",
+       "n": "15",
+       "api_percent_sd": "80.91 (0.91)"
+      },
+      "parsed": {
+       "study_as_labeled_in_file": "Wotring-FDA 2014",
+       "drug": "levothyroxine",
+       "strength": {
+        "value": 0.025,
+        "text": "mg"
+       },
+       "form": "tablet",
+       "arm": "control",
+       "manufacturer": "Sandoz",
+       "lot": "C05T0861A5",
+       "labeled_expiry": "8/31/2007",
+       "launch": null,
+       "landing": null,
+       "mission_up_down": {
+        "items": [
+         null,
+         "Control"
+        ],
+        "text": ""
+       },
+       "storage_days": 1715,
+       "analysis_date": "1/26/2012",
+       "past_expiry_at_analysis_as_given": 1609,
+       "n": 15,
+       "api_percent_sd": {
+        "value": 80.91,
+        "sd": 0.91
+       },
+       "past_expiry_unit_inferred": "days"
+      }
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP04"
+   ],
+   "source_status": "READ",
+   "status": "unverified",
+   "note": "Anomalies kept as printed: azithromycin SpX3 landing '5/18/2024' is a typo for 2014; Cory 2016 levofloxacin listed as 50 mg; spellings 'caapsule', 'tables', 'Contro' and the mixed-case arm 'Control' are verbatim from the file. Wotring 2015 rows differ from the paper (V6) for melatonin (90 (3.3) here vs 89.2) and in expiry offsets (8 and 10 months here vs 9 and 11). Use: lot-level checks of sealed or semi-protected products and of assay variability; the Khan and Wotring rows give a second assay of Du lots."
+  }
+ ]
+}

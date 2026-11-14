@@ -1,0 +1,809 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/engine-settings.schema.json",
+  "title": "Engine-wide settings (reference conditions, Monte Carlo, decision, update, forecast).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_id",
+    "schema",
+    "version",
+    "review_state",
+    "notice",
+    "reference_conditions",
+    "mean_kinetic_temperature",
+    "monte_carlo",
+    "decision",
+    "update",
+    "extrapolation",
+    "basis",
+    "rate_law_defaults",
+    "forecast",
+    "radiation",
+    "computed_layer",
+    "numerics"
+  ],
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "schema": {
+      "const": "pharmacy/engine-settings.schema.json"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "review_state": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ]
+    },
+    "notice": {
+      "type": "string"
+    },
+    "reference_conditions": {
+      "$ref": "#/$defs/ReferenceConditions"
+    },
+    "mean_kinetic_temperature": {
+      "$ref": "#/$defs/MktSettings"
+    },
+    "monte_carlo": {
+      "$ref": "#/$defs/MonteCarloSettings"
+    },
+    "decision": {
+      "$ref": "#/$defs/DecisionSettings"
+    },
+    "update": {
+      "$ref": "#/$defs/UpdateSettings"
+    },
+    "extrapolation": {
+      "$ref": "#/$defs/ExtrapolationSettings"
+    },
+    "basis": {
+      "$ref": "#/$defs/BasisSettings"
+    },
+    "rate_law_defaults": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/RateLawDefault"
+      }
+    },
+    "forecast": {
+      "$ref": "#/$defs/ForecastSettings"
+    },
+    "radiation": {
+      "$ref": "#/$defs/RadiationSettings"
+    },
+    "computed_layer": {
+      "$ref": "#/$defs/ComputedLayerSettings"
+    },
+    "numerics": {
+      "$ref": "#/$defs/NumericsSettings"
+    },
+    "validated_range": {
+      "$ref": "#/$defs/ValidatedRangeSettings"
+    },
+    "q3b": {
+      "$ref": "#/$defs/Q3bSettings"
+    }
+  },
+  "$defs": {
+    "BasisSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "share_threshold"
+      ],
+      "properties": {
+        "share_threshold": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "ComputedLayerSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rdkit_embed_seed",
+        "xtb_method",
+        "xtb_accuracy",
+        "xtb_electronic_temperature_k",
+        "xtb_n_conformers",
+        "xtb_spin_polarization_scale",
+        "optimizer_gtol_eh_per_bohr",
+        "optimizer_max_steps",
+        "same_molecule_sd_log10",
+        "unparameterized_substituent_sd_log10",
+        "ortho_substituent_sd_log10",
+        "heteroaromatic_ring_sd_log10"
+      ],
+      "properties": {
+        "rdkit_embed_seed": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "xtb_method": {
+          "enum": [
+            "GFN2-xTB"
+          ]
+        },
+        "xtb_accuracy": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "xtb_electronic_temperature_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "xtb_n_conformers": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "xtb_spin_polarization_scale": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "optimizer_gtol_eh_per_bohr": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "optimizer_max_steps": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "same_molecule_sd_log10": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "unparameterized_substituent_sd_log10": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "ortho_substituent_sd_log10": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "heteroaromatic_ring_sd_log10": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "DecisionSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lower_quantile",
+        "upper_quantile",
+        "degradant_quantile"
+      ],
+      "properties": {
+        "lower_quantile": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "upper_quantile": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "degradant_quantile": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "ExtrapolationSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ln_k_sd_per_kelvin",
+        "ln_k_sd_per_percent_rh",
+        "flag_share_threshold",
+        "max_time_extrapolation_ratio"
+      ],
+      "properties": {
+        "ln_k_sd_per_kelvin": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "ln_k_sd_per_percent_rh": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "flag_share_threshold": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "max_time_extrapolation_ratio": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "ForecastSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_projection",
+        "window_s",
+        "horizon_s",
+        "time_tolerance_s"
+      ],
+      "properties": {
+        "default_projection": {
+          "enum": [
+            "repeat_last_window",
+            "declared_constant"
+          ]
+        },
+        "window_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "horizon_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "time_tolerance_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "MktSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activation_energy_j_per_mol",
+        "windows"
+      ],
+      "properties": {
+        "activation_energy_j_per_mol": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "windows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MktWindow"
+          }
+        }
+      }
+    },
+    "MktWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "window_id",
+        "duration_s"
+      ],
+      "properties": {
+        "window_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "duration_s": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "MonteCarloSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coverage_probability",
+        "n_dig",
+        "max_batches",
+        "min_batches",
+        "reported_quantiles",
+        "rng"
+      ],
+      "properties": {
+        "coverage_probability": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "n_dig": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "max_batches": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "min_batches": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "reported_quantiles": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "rng": {
+          "enum": [
+            "numpy.PCG64"
+          ]
+        }
+      }
+    },
+    "NumericsSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "series_relative_tolerance",
+        "series_max_terms",
+        "inverse_absolute_tolerance",
+        "small_alpha_series_threshold"
+      ],
+      "properties": {
+        "series_relative_tolerance": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "series_max_terms": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "inverse_absolute_tolerance": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "small_alpha_series_threshold": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "worker_threads": {
+          "allOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "properties": {
+                "value": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "unit": {
+                  "const": "1"
+                }
+              }
+            }
+          ]
+        },
+        "compression_relative_tolerance": {
+          "allOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "properties": {
+                "value": {
+                  "exclusiveMinimum": 0
+                },
+                "unit": {
+                  "const": "1"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Q3bBand": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "First matching upper dose bound wins; null is the unbounded last band.",
+      "required": [
+        "dose_upper_mg",
+        "upper_inclusive",
+        "percent",
+        "tdi"
+      ],
+      "properties": {
+        "dose_upper_mg": {
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/SourcedValue"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            {
+              "properties": {
+                "value": {
+                  "exclusiveMinimum": 0
+                },
+                "unit": {
+                  "const": "mg"
+                }
+              }
+            }
+          ]
+        },
+        "upper_inclusive": {
+          "type": "boolean"
+        },
+        "percent": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Q3bThreshold"
+            },
+            {
+              "properties": {
+                "unit": {
+                  "const": "percent"
+                }
+              }
+            }
+          ]
+        },
+        "tdi": {
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Q3bThreshold"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            {
+              "properties": {
+                "unit": {
+                  "enum": [
+                    "ug",
+                    "mg"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Q3bSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reporting",
+        "identification",
+        "qualification"
+      ],
+      "properties": {
+        "reporting": {
+          "allOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Q3bBand"
+              }
+            },
+            {
+              "minItems": 1
+            }
+          ]
+        },
+        "identification": {
+          "allOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Q3bBand"
+              }
+            },
+            {
+              "minItems": 1
+            }
+          ]
+        },
+        "qualification": {
+          "allOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Q3bBand"
+              }
+            },
+            {
+              "minItems": 1
+            }
+          ]
+        }
+      }
+    },
+    "Q3bThreshold": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Threshold and rounding precision in its stated unit (MDS04, spec 11.6).",
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "source_ids",
+        "to_be_set_by",
+        "note",
+        "decimals"
+      ],
+      "properties": {
+        "value": {
+          "allOf": [
+            {
+              "type": "number"
+            },
+            {
+              "exclusiveMinimum": 0
+            }
+          ]
+        },
+        "unit": {
+          "allOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "enum": [
+                "percent",
+                "ug",
+                "mg"
+              ]
+            }
+          ]
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        },
+        "to_be_set_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "type": "string"
+        },
+        "decimals": {
+          "allOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "minimum": 0
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "const": "team_default"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "to_be_set_by": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "RadiationSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "include_in_potency",
+        "dose_rate_safety_factor",
+        "radiosensitive_dose_threshold_gy"
+      ],
+      "properties": {
+        "include_in_potency": {
+          "type": "boolean"
+        },
+        "dose_rate_safety_factor": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "radiosensitive_dose_threshold_gy": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "RateLawDefault": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dose_form_family",
+        "kind",
+        "basis",
+        "source_ids",
+        "to_be_set_by",
+        "note"
+      ],
+      "properties": {
+        "dose_form_family": {
+          "enum": [
+            "solid",
+            "solution",
+            "suspension",
+            "semisolid"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "F0",
+            "F1",
+            "F2",
+            "Fn",
+            "R2",
+            "R3",
+            "A2",
+            "A3",
+            "A4",
+            "An",
+            "B1",
+            "D1",
+            "D2",
+            "D3",
+            "D4"
+          ]
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        },
+        "to_be_set_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "const": "team_default"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "to_be_set_by": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ReferenceConditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature_k",
+        "relative_humidity_percent"
+      ],
+      "properties": {
+        "temperature_k": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "relative_humidity_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "UpdateSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ess_floor",
+        "conflict_tail_probability",
+        "fallback",
+        "ground_inter_laboratory_sd_percent",
+        "onboard_method_sd_percent"
+      ],
+      "properties": {
+        "ess_floor": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "conflict_tail_probability": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "fallback": {
+          "enum": [
+            "reanchor"
+          ]
+        },
+        "ground_inter_laboratory_sd_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "onboard_method_sd_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "ValidatedRangeSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature_below_min_margin_k"
+      ],
+      "properties": {
+        "temperature_below_min_margin_k": {
+          "allOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "properties": {
+                "value": {
+                  "minimum": 0
+                },
+                "unit": {
+                  "const": "K"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

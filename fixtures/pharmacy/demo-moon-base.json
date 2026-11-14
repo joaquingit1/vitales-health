@@ -1,0 +1,302 @@
+{
+  "document_id": "demo-moon-base",
+  "schema": "pharmacy/scenario.schema.json",
+  "version": "0.1.0",
+  "review_state": "draft",
+  "notice": "Draft configuration for the Crew Health Check potency engine. Every value carries its basis and source IDs (research notes in reports/crew-health-medications-2026-11-14/research). team_default values are placeholders that the named role must replace before operational use.",
+  "mission": {
+    "mission_id": "demo-moon-base-400d",
+    "name": "Moon base, 400 days",
+    "start_utc": "2028-01-10T00:00:00Z",
+    "end_utc": "2029-02-13T00:00:00Z",
+    "seed": 20280110,
+    "description": "Five-day transit, then 395 days at a lunar surface base. One thermal-control failure (day 180), one solar particle event (day 250), one 4-hour sensor outage (day 300), one onboard assay (day 200) and one failed inspection (day 320)."
+  },
+  "zones": [
+    {
+      "zone_id": "transit_kit",
+      "profile_id": "transit",
+      "sensors": [
+        {
+          "sensor_id": "trk-t1",
+          "quantity": "temperature_k",
+          "sampling_interval_s": 1800.0
+        },
+        {
+          "sensor_id": "trk-rh1",
+          "quantity": "relative_humidity",
+          "sampling_interval_s": 1800.0
+        },
+        {
+          "sensor_id": "trk-dos1",
+          "quantity": "dose_rate_gy_per_s",
+          "sampling_interval_s": 1800.0
+        }
+      ],
+      "seed_label": "transit"
+    },
+    {
+      "zone_id": "moon_base_pharmacy",
+      "profile_id": "moon",
+      "sensors": [
+        {
+          "sensor_id": "mbp-t1",
+          "quantity": "temperature_k",
+          "sampling_interval_s": 1800.0
+        },
+        {
+          "sensor_id": "mbp-rh1",
+          "quantity": "relative_humidity",
+          "sampling_interval_s": 1800.0
+        },
+        {
+          "sensor_id": "mbp-dos1",
+          "quantity": "dose_rate_gy_per_s",
+          "sampling_interval_s": 1800.0
+        }
+      ],
+      "seed_label": "moon"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "tcs-hot-day180",
+      "kind": "thermal_control_failure",
+      "zone_id": "moon_base_pharmacy",
+      "start_utc": "2028-07-08T00:00:00Z",
+      "duration_s": null,
+      "template_id": "tcs_failure_hot",
+      "sensor_ids": [],
+      "shielding_scale": null,
+      "note": "Cabinet reaches 45 C for 5 days."
+    },
+    {
+      "event_id": "spe-day250",
+      "kind": "solar_particle_event",
+      "zone_id": "moon_base_pharmacy",
+      "start_utc": "2028-09-16T00:00:00Z",
+      "duration_s": null,
+      "template_id": "aug1972_behind_20_g_cm2",
+      "sensor_ids": [],
+      "shielding_scale": 1.0,
+      "note": "August 1972 class event behind 20 g/cm2."
+    },
+    {
+      "event_id": "outage-day300",
+      "kind": "sensor_outage",
+      "zone_id": "moon_base_pharmacy",
+      "start_utc": "2028-11-05T00:00:00Z",
+      "duration_s": 14400.0,
+      "template_id": null,
+      "sensor_ids": [
+        "mbp-t1",
+        "mbp-rh1"
+      ],
+      "shielding_scale": null,
+      "note": "Temperature and RH loggers offline for 4 hours (below the 6-hour gap limit)."
+    }
+  ],
+  "lot_ids": [
+    "lot-apap-001",
+    "lot-apap-002",
+    "lot-asa-001",
+    "lot-ibu-001",
+    "lot-amc-001",
+    "lot-amc-002",
+    "lot-pmz-tab-001",
+    "lot-pmz-inj-001",
+    "lot-epi-ai-001",
+    "lot-epi-ai-002",
+    "lot-epi-syr-001",
+    "lot-vitc-001",
+    "lot-levo-001"
+  ],
+  "assays": [
+    {
+      "assay_id": "assay-amc-002-clav-d200",
+      "lot_id": "lot-amc-002",
+      "ingredient_id": "clavulanic_acid",
+      "measured_at_utc": "2028-07-28T00:00:00Z",
+      "measured_at_s": 1848355200.0,
+      "measurand": "total",
+      "value_percent": 62.0,
+      "sd_percent": 2.5,
+      "site": "onboard",
+      "method": "onboard HPLC (prototype)",
+      "laboratory": "Moon base",
+      "note": "Scripted value: well below the class-prior prediction, so the update and the conflict check engage."
+    }
+  ],
+  "inspections": [
+    {
+      "inspection_id": "insp-epi-syr-001-d320",
+      "lot_id": "lot-epi-syr-001",
+      "inspected_at_utc": "2028-11-25T00:00:00Z",
+      "inspected_at_s": 1858723200.0,
+      "finding": "color_change",
+      "inspector_role": "crew medical officer",
+      "note": "Solution looks pinkish."
+    }
+  ],
+  "assessment_times_utc": [
+    "2028-04-19T00:00:00Z",
+    "2028-09-16T00:00:00Z",
+    "2029-02-12T00:00:00Z"
+  ],
+  "expectations": [
+    {
+      "expectation_id": "x-epi-syr-inspection",
+      "kind": "state_in",
+      "lot_id": "lot-epi-syr-001",
+      "ingredient_id": null,
+      "as_of_utc": "2029-02-12T00:00:00Z",
+      "values": [
+        "do_not_use"
+      ],
+      "lower": null,
+      "upper": null,
+      "other_lot_id": null,
+      "rationale": "Inspection found a color change (decision 11)."
+    },
+    {
+      "expectation_id": "x-epi-syr-flag",
+      "kind": "flag_present",
+      "lot_id": "lot-epi-syr-001",
+      "ingredient_id": "epinephrine",
+      "as_of_utc": "2029-02-12T00:00:00Z",
+      "values": [
+        "inspection_override"
+      ],
+      "lower": null,
+      "upper": null,
+      "other_lot_id": null,
+      "rationale": "The override must be visible on the estimate."
+    },
+    {
+      "expectation_id": "x-epi-syr-before",
+      "kind": "flag_absent",
+      "lot_id": "lot-epi-syr-001",
+      "ingredient_id": "epinephrine",
+      "as_of_utc": "2028-09-16T00:00:00Z",
+      "values": [
+        "inspection_override"
+      ],
+      "lower": null,
+      "upper": null,
+      "other_lot_id": null,
+      "rationale": "An inspection after as_of is never used."
+    },
+    {
+      "expectation_id": "x-asa-excursion",
+      "kind": "flag_present",
+      "lot_id": "lot-asa-001",
+      "ingredient_id": "aspirin",
+      "as_of_utc": "2029-02-12T00:00:00Z",
+      "values": [
+        "outside_validated_range"
+      ],
+      "lower": null,
+      "upper": null,
+      "other_lot_id": null,
+      "rationale": "Five days at 45 C exceed the 40 C class range and accrue well over 1% of nominal Theta."
+    },
+    {
+      "expectation_id": "x-asa-before-excursion",
+      "kind": "flag_absent",
+      "lot_id": "lot-asa-001",
+      "ingredient_id": "aspirin",
+      "as_of_utc": "2028-04-19T00:00:00Z",
+      "values": [
+        "outside_validated_range"
+      ],
+      "lower": null,
+      "upper": null,
+      "other_lot_id": null,
+      "rationale": "Before the failure every segment is inside the range."
+    },
+    {
+      "expectation_id": "x-amc-002-assay",
+      "kind": "flag_present",
+      "lot_id": "lot-amc-002",
+      "ingredient_id": "clavulanic_acid",
+      "as_of_utc": "2028-09-16T00:00:00Z",
+      "values": [
+        "assay_model_conflict",
+        "assay_reanchored"
+      ],
+      "lower": null,
+      "upper": null,
+      "other_lot_id": null,
+      "rationale": "At least one of the two must be raised for a 62% assay (spec 15.4 any-of)."
+    },
+    {
+      "expectation_id": "x-amc-002-state",
+      "kind": "state_in",
+      "lot_id": "lot-amc-002",
+      "ingredient_id": null,
+      "as_of_utc": "2028-09-16T00:00:00Z",
+      "values": [
+        "do_not_use"
+      ],
+      "lower": null,
+      "upper": null,
+      "other_lot_id": null,
+      "rationale": "Clavulanate far below 90% and outside the validated range after the excursion."
+    },
+    {
+      "expectation_id": "x-amc-002-assay-id",
+      "kind": "estimate_basis_in",
+      "lot_id": "lot-amc-002",
+      "ingredient_id": "clavulanic_acid",
+      "as_of_utc": "2028-09-16T00:00:00Z",
+      "values": [
+        "computed",
+        "class_prior"
+      ],
+      "lower": null,
+      "upper": null,
+      "other_lot_id": null,
+      "rationale": "Weakest contributing layer; the assay id must appear in assay_ids_used (checked by the test)."
+    },
+    {
+      "expectation_id": "x-apap-002-in-spec",
+      "kind": "state_in",
+      "lot_id": "lot-apap-002",
+      "ingredient_id": null,
+      "as_of_utc": "2028-04-19T00:00:00Z",
+      "values": [
+        "in_specification"
+      ],
+      "lower": null,
+      "upper": null,
+      "other_lot_id": null,
+      "rationale": "Original bottle, about 300 days old, no excursion yet."
+    },
+    {
+      "expectation_id": "x-epi-order",
+      "kind": "ordered_before",
+      "lot_id": "lot-epi-ai-001",
+      "ingredient_id": null,
+      "as_of_utc": "2028-04-19T00:00:00Z",
+      "values": [],
+      "lower": null,
+      "upper": null,
+      "other_lot_id": "lot-epi-ai-002",
+      "rationale": "Same product and storage; the older lot crosses its limit first (use first)."
+    },
+    {
+      "expectation_id": "x-moon-coverage",
+      "kind": "coverage_low_is",
+      "lot_id": "lot-ibu-001",
+      "ingredient_id": "ibuprofen",
+      "as_of_utc": "2029-02-12T00:00:00Z",
+      "values": [
+        "false"
+      ],
+      "lower": null,
+      "upper": null,
+      "other_lot_id": null,
+      "rationale": "The 4-hour outage is shorter than the 6-hour gap limit."
+    }
+  ]
+}

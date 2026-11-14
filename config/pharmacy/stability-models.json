@@ -1,0 +1,871 @@
+{
+  "document_id": "stability-models",
+  "schema": "pharmacy/stability-models.schema.json",
+  "version": "0.2.0",
+  "review_state": "draft",
+  "notice": "Draft configuration for the Crew Health Check potency engine. Every value carries its basis and source IDs (research notes in reports/crew-health-medications-2026-11-14/research). team_default values are placeholders that the named role must replace before operational use.",
+  "models": [
+    {
+      "model_id": "ref_acetaminophen_0_5m_hcl",
+      "scope": "reference_study",
+      "product_id": null,
+      "ingredient_id": null,
+      "package_id": null,
+      "study": {
+        "description": "Acetaminophen hydrolysis in 0.5 M HCl (Chen et al. 2002, abstract).",
+        "matrix": "0.5 M HCl",
+        "ph": null,
+        "concentration_text": null,
+        "temperatures_c": [
+          70,
+          80,
+          90,
+          100
+        ],
+        "rate_constants": [
+          0.005027,
+          0.008522,
+          0.0186,
+          0.03276
+        ],
+        "rate_unit": "per_min",
+        "reaction_order": 1
+      },
+      "rate_law_kind": "F1",
+      "kind_parameters": {
+        "order_n": null,
+        "alpha0": null,
+        "avrami_n": null
+      },
+      "reference_temperature_k": 298.15,
+      "reference_rh_percent": null,
+      "parameters": {
+        "names": [
+          "ln_k_ref_per_s",
+          "ea_j_per_mol"
+        ],
+        "mean": [
+          -13.040773194587574,
+          68118.84460007404
+        ],
+        "covariance": [
+          [
+            0.0738215785689808,
+            -1071.5483760089392
+          ],
+          [
+            -1071.5483760089392,
+            15933310.521573765
+          ]
+        ]
+      },
+      "fit": {
+        "method": "OLS of ln k on -(1/T - 1/T_ref)/R (two-stage Arrhenius), R = N_A k_B",
+        "n": 4,
+        "dof": 2,
+        "rss": 0.014061716737151692,
+        "r2": 0.9931792971773168,
+        "published_ea_j_per_mol": 68130.0,
+        "ea_gap_j_per_mol": -11.155399925963138
+      },
+      "validated_range": {
+        "temperature_min_k": 343.15,
+        "temperature_max_k": 373.15,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "derived",
+        "source_ids": [
+          "MDS95"
+        ],
+        "to_be_set_by": null,
+        "note": "Study temperature range; humidity does not apply to solutions."
+      },
+      "max_study_duration_s": null,
+      "covers": [],
+      "dataset_sha256": "3c2828365200a3c85309939b62a25b170436eb90c869b0f7da9e729628ba8e2e",
+      "status": "reproduces",
+      "basis": "derived",
+      "source_ids": [
+        "MDS95"
+      ],
+      "note": "Refit by the research team (degradation-science.md 7 and 9.8). Used only as a computed-layer anchor or verification vector, never as a product model.",
+      "measured_degradant_ids": []
+    },
+    {
+      "model_id": "ref_aspirin_pbs_ph7_4",
+      "scope": "reference_study",
+      "product_id": null,
+      "ingredient_id": null,
+      "package_id": null,
+      "study": {
+        "description": "Aspirin pseudo-first-order hydrolysis in PBS pH 7.4 (k_buffer values).",
+        "matrix": "PBS pH 7.4 with 2 mL methanol per 100 mL",
+        "ph": 7.4,
+        "concentration_text": null,
+        "temperatures_c": [
+          25,
+          37,
+          50,
+          75,
+          85
+        ],
+        "rate_constants": [
+          7e-06,
+          1e-05,
+          4e-05,
+          0.0003,
+          0.0004
+        ],
+        "rate_unit": "per_s",
+        "reaction_order": 1
+      },
+      "rate_law_kind": "F1",
+      "kind_parameters": {
+        "order_n": null,
+        "alpha0": null,
+        "avrami_n": null
+      },
+      "reference_temperature_k": 298.15,
+      "reference_rh_percent": null,
+      "parameters": {
+        "names": [
+          "ln_k_ref_per_s",
+          "ea_j_per_mol"
+        ],
+        "mean": [
+          -12.147108453537907,
+          65517.451688850095
+        ],
+        "covariance": [
+          [
+            0.05650329380448044,
+            -1065.2289702921712
+          ],
+          [
+            -1065.2289702921714,
+            30906691.581350915
+          ]
+        ]
+      },
+      "fit": {
+        "method": "OLS of ln k on -(1/T - 1/T_ref)/R (two-stage Arrhenius), R = N_A k_B",
+        "n": 5,
+        "dof": 3,
+        "rss": 0.29683723062978845,
+        "r2": 0.9788564081313481,
+        "published_ea_j_per_mol": null,
+        "ea_gap_j_per_mol": null
+      },
+      "validated_range": {
+        "temperature_min_k": 298.15,
+        "temperature_max_k": 358.15,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "derived",
+        "source_ids": [
+          "MDS85"
+        ],
+        "to_be_set_by": null,
+        "note": "Study temperature range; humidity does not apply to solutions."
+      },
+      "max_study_duration_s": null,
+      "covers": [],
+      "dataset_sha256": "c0d0cae27abe00b6c1b09e52cd212aa14d3a1a92d569a378bbec640dce3a75e3",
+      "status": "reproduces",
+      "basis": "derived",
+      "source_ids": [
+        "MDS85"
+      ],
+      "note": "Refit by the research team (degradation-science.md 7 and 9.8). Used only as a computed-layer anchor or verification vector, never as a product model.",
+      "measured_degradant_ids": []
+    },
+    {
+      "model_id": "ref_amoxicillin_1mg_ph6_5",
+      "scope": "reference_study",
+      "product_id": null,
+      "ingredient_id": null,
+      "package_id": null,
+      "study": {
+        "description": "Amoxicillin 1 mg/mL with clavulanate, phosphate buffer pH 6.5 (Kamalpersad 2024).",
+        "matrix": "phosphate buffer, ionic strength 0.5",
+        "ph": 6.5,
+        "concentration_text": "1 mg/mL",
+        "temperatures_c": [
+          40,
+          45,
+          52,
+          60
+        ],
+        "rate_constants": [
+          0.0216,
+          0.028,
+          0.0564,
+          0.131
+        ],
+        "rate_unit": "per_h",
+        "reaction_order": 1
+      },
+      "rate_law_kind": "F1",
+      "kind_parameters": {
+        "order_n": null,
+        "alpha0": null,
+        "avrami_n": null
+      },
+      "reference_temperature_k": 298.15,
+      "reference_rh_percent": null,
+      "parameters": {
+        "names": [
+          "ln_k_ref_per_s",
+          "ea_j_per_mol"
+        ],
+        "mean": [
+          -13.676297350972073,
+          79894.40142276777
+        ],
+        "covariance": [
+          [
+            0.05504967305102881,
+            -1686.7744321843136
+          ],
+          [
+            -1686.7744321843136,
+            55965186.059802845
+          ]
+        ]
+      },
+      "fit": {
+        "method": "OLS of ln k on -(1/T - 1/T_ref)/R (two-stage Arrhenius), R = N_A k_B",
+        "n": 4,
+        "dof": 2,
+        "rss": 0.033686257668774505,
+        "r2": 0.9827668077464364,
+        "published_ea_j_per_mol": 79760.0,
+        "ea_gap_j_per_mol": 134.40142276776896
+      },
+      "validated_range": {
+        "temperature_min_k": 313.15,
+        "temperature_max_k": 333.15,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "derived",
+        "source_ids": [
+          "MDS86"
+        ],
+        "to_be_set_by": null,
+        "note": "Study temperature range; humidity does not apply to solutions."
+      },
+      "max_study_duration_s": null,
+      "covers": [],
+      "dataset_sha256": "25180c4fabe4482ebbf83de3fda48e0e42a611261cbf9c39bfb7698cd7433bd9",
+      "status": "reproduces",
+      "basis": "derived",
+      "source_ids": [
+        "MDS86"
+      ],
+      "note": "Refit by the research team (degradation-science.md 7 and 9.8). Used only as a computed-layer anchor or verification vector, never as a product model.",
+      "measured_degradant_ids": []
+    },
+    {
+      "model_id": "ref_amoxicillin_1mg_ph7_0",
+      "scope": "reference_study",
+      "product_id": null,
+      "ingredient_id": null,
+      "package_id": null,
+      "study": {
+        "description": "Amoxicillin 1 mg/mL with clavulanate, phosphate buffer pH 7.0 (Kamalpersad 2024).",
+        "matrix": "phosphate buffer, ionic strength 0.5",
+        "ph": 7.0,
+        "concentration_text": "1 mg/mL",
+        "temperatures_c": [
+          40,
+          45,
+          52,
+          60
+        ],
+        "rate_constants": [
+          0.0382,
+          0.0426,
+          0.0707,
+          0.112
+        ],
+        "rate_unit": "per_h",
+        "reaction_order": 1
+      },
+      "rate_law_kind": "F1",
+      "kind_parameters": {
+        "order_n": null,
+        "alpha0": null,
+        "avrami_n": null
+      },
+      "reference_temperature_k": 298.15,
+      "reference_rh_percent": null,
+      "parameters": {
+        "names": [
+          "ln_k_ref_per_s",
+          "ea_j_per_mol"
+        ],
+        "mean": [
+          -12.47689283679708,
+          48884.246948869
+        ],
+        "covariance": [
+          [
+            0.03016893784924442,
+            -924.4049998824121
+          ],
+          [
+            -924.4049998824121,
+            30670667.533202328
+          ]
+        ]
+      },
+      "fit": {
+        "method": "OLS of ln k on -(1/T - 1/T_ref)/R (two-stage Arrhenius), R = N_A k_B",
+        "n": 4,
+        "dof": 2,
+        "rss": 0.018461119887866407,
+        "r2": 0.9749730471639863,
+        "published_ea_j_per_mol": 50630.0,
+        "ea_gap_j_per_mol": -1745.7530511310033
+      },
+      "validated_range": {
+        "temperature_min_k": 313.15,
+        "temperature_max_k": 333.15,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "derived",
+        "source_ids": [
+          "MDS86"
+        ],
+        "to_be_set_by": null,
+        "note": "Study temperature range; humidity does not apply to solutions."
+      },
+      "max_study_duration_s": null,
+      "covers": [],
+      "dataset_sha256": "aad06742480e1b6eda2cfe19647e4f332251dbd0e05226d527b81ca6793548e7",
+      "status": "reproduces",
+      "basis": "derived",
+      "source_ids": [
+        "MDS86"
+      ],
+      "note": "Refit by the research team (degradation-science.md 7 and 9.8). Used only as a computed-layer anchor or verification vector, never as a product model.",
+      "measured_degradant_ids": []
+    },
+    {
+      "model_id": "ref_amoxicillin_1mg_ph8_0",
+      "scope": "reference_study",
+      "product_id": null,
+      "ingredient_id": null,
+      "package_id": null,
+      "study": {
+        "description": "Amoxicillin 1 mg/mL with clavulanate, phosphate buffer pH 8.0 (Kamalpersad 2024).",
+        "matrix": "phosphate buffer, ionic strength 0.5",
+        "ph": 8.0,
+        "concentration_text": "1 mg/mL",
+        "temperatures_c": [
+          40,
+          45,
+          52,
+          60
+        ],
+        "rate_constants": [
+          0.0378,
+          0.0477,
+          0.1,
+          0.21
+        ],
+        "rate_unit": "per_h",
+        "reaction_order": 1
+      },
+      "rate_law_kind": "F1",
+      "kind_parameters": {
+        "order_n": null,
+        "alpha0": null,
+        "avrami_n": null
+      },
+      "reference_temperature_k": 298.15,
+      "reference_rh_percent": null,
+      "parameters": {
+        "names": [
+          "ln_k_ref_per_s",
+          "ea_j_per_mol"
+        ],
+        "mean": [
+          -13.051823375652717,
+          76900.49404597853
+        ],
+        "covariance": [
+          [
+            0.0479263234017571,
+            -1468.508211987824
+          ],
+          [
+            -1468.508211987824,
+            48723370.32511208
+          ]
+        ]
+      },
+      "fit": {
+        "method": "OLS of ln k on -(1/T - 1/T_ref)/R (two-stage Arrhenius), R = N_A k_B",
+        "n": 4,
+        "dof": 2,
+        "rss": 0.029327303683203892,
+        "r2": 0.9837889554089764,
+        "published_ea_j_per_mol": 75840.0,
+        "ea_gap_j_per_mol": 1060.4940459785284
+      },
+      "validated_range": {
+        "temperature_min_k": 313.15,
+        "temperature_max_k": 333.15,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "derived",
+        "source_ids": [
+          "MDS86"
+        ],
+        "to_be_set_by": null,
+        "note": "Study temperature range; humidity does not apply to solutions."
+      },
+      "max_study_duration_s": null,
+      "covers": [],
+      "dataset_sha256": "0c96c460b264c59d53890232031982707b73844a818289803e2cdf99bb85873f",
+      "status": "reproduces",
+      "basis": "derived",
+      "source_ids": [
+        "MDS86"
+      ],
+      "note": "Refit by the research team (degradation-science.md 7 and 9.8). Used only as a computed-layer anchor or verification vector, never as a product model.",
+      "measured_degradant_ids": []
+    },
+    {
+      "model_id": "ref_clavulanate_0_2mg_ph6_5",
+      "scope": "reference_study",
+      "product_id": null,
+      "ingredient_id": null,
+      "package_id": null,
+      "study": {
+        "description": "Clavulanate 0.2 mg/mL, pH 6.5 (Kamalpersad 2024). Negative control: refit 70.2 kJ/mol against the published 55.46; never used as an anchor.",
+        "matrix": "phosphate buffer, ionic strength 0.5",
+        "ph": 6.5,
+        "concentration_text": "0.2 mg/mL",
+        "temperatures_c": [
+          40,
+          45,
+          52,
+          60
+        ],
+        "rate_constants": [
+          0.076,
+          0.098,
+          0.138,
+          0.4
+        ],
+        "rate_unit": "per_h",
+        "reaction_order": 1
+      },
+      "rate_law_kind": "F1",
+      "kind_parameters": {
+        "order_n": null,
+        "alpha0": null,
+        "avrami_n": null
+      },
+      "reference_temperature_k": 298.15,
+      "reference_rh_percent": null,
+      "parameters": {
+        "names": [
+          "ln_k_ref_per_s",
+          "ea_j_per_mol"
+        ],
+        "mean": [
+          -12.25242703778952,
+          70159.51562000522
+        ],
+        "covariance": [
+          [
+            0.1964135622549266,
+            -6018.298685239158
+          ],
+          [
+            -6018.298685239158,
+            199680051.61585978
+          ]
+        ]
+      },
+      "fit": {
+        "method": "OLS of ln k on -(1/T - 1/T_ref)/R (two-stage Arrhenius), R = N_A k_B",
+        "n": 4,
+        "dof": 2,
+        "rss": 0.1201903208694477,
+        "r2": 0.9249565416472059,
+        "published_ea_j_per_mol": 55460.0,
+        "ea_gap_j_per_mol": 14699.515620005215
+      },
+      "validated_range": {
+        "temperature_min_k": 313.15,
+        "temperature_max_k": 333.15,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "derived",
+        "source_ids": [
+          "MDS86"
+        ],
+        "to_be_set_by": null,
+        "note": "Study temperature range; humidity does not apply to solutions."
+      },
+      "max_study_duration_s": null,
+      "covers": [],
+      "dataset_sha256": "d2074ce7c8ca0e6b95decdd5a11857724c98c7288ac6dca8962a192e04cecacb",
+      "status": "known_mismatch",
+      "basis": "derived",
+      "source_ids": [
+        "MDS86"
+      ],
+      "note": "Refit by the research team (degradation-science.md 7 and 9.8). Used only as a computed-layer anchor or verification vector, never as a product model.",
+      "measured_degradant_ids": []
+    },
+    {
+      "model_id": "ref_clavulanate_0_2mg_ph7_0",
+      "scope": "reference_study",
+      "product_id": null,
+      "ingredient_id": null,
+      "package_id": null,
+      "study": {
+        "description": "Clavulanate 0.2 mg/mL, pH 7.0 (Kamalpersad 2024).",
+        "matrix": "phosphate buffer, ionic strength 0.5",
+        "ph": 7.0,
+        "concentration_text": "0.2 mg/mL",
+        "temperatures_c": [
+          40,
+          45,
+          52,
+          60
+        ],
+        "rate_constants": [
+          0.102,
+          0.142,
+          0.151,
+          0.457
+        ],
+        "rate_unit": "per_h",
+        "reaction_order": 1
+      },
+      "rate_law_kind": "F1",
+      "kind_parameters": {
+        "order_n": null,
+        "alpha0": null,
+        "avrami_n": null
+      },
+      "reference_temperature_k": 298.15,
+      "reference_rh_percent": null,
+      "parameters": {
+        "names": [
+          "ln_k_ref_per_s",
+          "ea_j_per_mol"
+        ],
+        "mean": [
+          -11.727608432841928,
+          60115.20526280046
+        ],
+        "covariance": [
+          [
+            0.3098429945731282,
+            -9493.88456409022
+          ],
+          [
+            -9493.88456409022,
+            314995891.52033186
+          ]
+        ]
+      },
+      "fit": {
+        "method": "OLS of ln k on -(1/T - 1/T_ref)/R (two-stage Arrhenius), R = N_A k_B",
+        "n": 4,
+        "dof": 2,
+        "rss": 0.18960059839737842,
+        "r2": 0.8515511154946107,
+        "published_ea_j_per_mol": 60100.0,
+        "ea_gap_j_per_mol": 15.205262800460332
+      },
+      "validated_range": {
+        "temperature_min_k": 313.15,
+        "temperature_max_k": 333.15,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "derived",
+        "source_ids": [
+          "MDS86"
+        ],
+        "to_be_set_by": null,
+        "note": "Study temperature range; humidity does not apply to solutions."
+      },
+      "max_study_duration_s": null,
+      "covers": [],
+      "dataset_sha256": "cc1dbc7ff93ebe6c5826f8a12586db11f7738ec629d0558ca0b5223d6be1014f",
+      "status": "reproduces",
+      "basis": "derived",
+      "source_ids": [
+        "MDS86"
+      ],
+      "note": "Refit by the research team (degradation-science.md 7 and 9.8). Used only as a computed-layer anchor or verification vector, never as a product model.",
+      "measured_degradant_ids": []
+    },
+    {
+      "model_id": "ref_clavulanate_0_2mg_ph8_0",
+      "scope": "reference_study",
+      "product_id": null,
+      "ingredient_id": null,
+      "package_id": null,
+      "study": {
+        "description": "Clavulanate 0.2 mg/mL, pH 8.0 (Kamalpersad 2024).",
+        "matrix": "phosphate buffer, ionic strength 0.5",
+        "ph": 8.0,
+        "concentration_text": "0.2 mg/mL",
+        "temperatures_c": [
+          40,
+          45,
+          52,
+          60
+        ],
+        "rate_constants": [
+          0.121,
+          0.171,
+          0.334,
+          0.882
+        ],
+        "rate_unit": "per_h",
+        "reaction_order": 1
+      },
+      "rate_law_kind": "F1",
+      "kind_parameters": {
+        "order_n": null,
+        "alpha0": null,
+        "avrami_n": null
+      },
+      "reference_temperature_k": 298.15,
+      "reference_rh_percent": null,
+      "parameters": {
+        "names": [
+          "ln_k_ref_per_s",
+          "ea_j_per_mol"
+        ],
+        "mean": [
+          -12.074501909977808,
+          86621.74802410408
+        ],
+        "covariance": [
+          [
+            0.059691364201167614,
+            -1829.000271507514
+          ],
+          [
+            -1829.000271507514,
+            60684071.64898445
+          ]
+        ]
+      },
+      "fit": {
+        "method": "OLS of ln k on -(1/T - 1/T_ref)/R (two-stage Arrhenius), R = N_A k_B",
+        "n": 4,
+        "dof": 2,
+        "rss": 0.036526623386432915,
+        "r2": 0.9840822305228029,
+        "published_ea_j_per_mol": 86500.0,
+        "ea_gap_j_per_mol": 121.74802410407574
+      },
+      "validated_range": {
+        "temperature_min_k": 313.15,
+        "temperature_max_k": 333.15,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "derived",
+        "source_ids": [
+          "MDS86"
+        ],
+        "to_be_set_by": null,
+        "note": "Study temperature range; humidity does not apply to solutions."
+      },
+      "max_study_duration_s": null,
+      "covers": [],
+      "dataset_sha256": "4a52edeb58976e729cc37434db2a7f062ab398ab79102d342e6c8b6e128808b5",
+      "status": "reproduces",
+      "basis": "derived",
+      "source_ids": [
+        "MDS86"
+      ],
+      "note": "Refit by the research team (degradation-science.md 7 and 9.8). Used only as a computed-layer anchor or verification vector, never as a product model.",
+      "measured_degradant_ids": []
+    },
+    {
+      "model_id": "ref_amoxicillin_15mg_ph8_second_order",
+      "scope": "reference_study",
+      "product_id": null,
+      "ingredient_id": null,
+      "package_id": null,
+      "study": {
+        "description": "Amoxicillin 15 mg/mL pH 8, second order (Kamalpersad 2024). ln k is in ln(mL mg^-1 s^-1); multiply k by C0 in mg/mL for the normalized F2 constant.",
+        "matrix": "phosphate buffer, ionic strength 0.5",
+        "ph": 8.0,
+        "concentration_text": "15 mg/mL",
+        "temperatures_c": [
+          40,
+          45,
+          52,
+          60
+        ],
+        "rate_constants": [
+          0.0783,
+          0.101,
+          0.131,
+          0.237
+        ],
+        "rate_unit": "ml_per_mg_per_h",
+        "reaction_order": 2
+      },
+      "rate_law_kind": "F2",
+      "kind_parameters": {
+        "order_n": null,
+        "alpha0": null,
+        "avrami_n": null
+      },
+      "reference_temperature_k": 298.15,
+      "reference_rh_percent": null,
+      "parameters": {
+        "names": [
+          "ln_k_ref_per_s",
+          "ea_j_per_mol"
+        ],
+        "mean": [
+          -11.675472412485759,
+          46740.975388149156
+        ],
+        "covariance": [
+          [
+            0.029766779101662637,
+            -912.0824726900814
+          ],
+          [
+            -912.0824726900814,
+            30261820.615744185
+          ]
+        ]
+      },
+      "fit": {
+        "method": "OLS of ln k on -(1/T - 1/T_ref)/R (two-stage Arrhenius), R = N_A k_B",
+        "n": 4,
+        "dof": 2,
+        "rss": 0.018215028994969844,
+        "r2": 0.9730436051569248,
+        "published_ea_j_per_mol": 46700.0,
+        "ea_gap_j_per_mol": 40.97538814915606
+      },
+      "validated_range": {
+        "temperature_min_k": 313.15,
+        "temperature_max_k": 333.15,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "derived",
+        "source_ids": [
+          "MDS86"
+        ],
+        "to_be_set_by": null,
+        "note": "Study temperature range; humidity does not apply to solutions."
+      },
+      "max_study_duration_s": null,
+      "covers": [],
+      "dataset_sha256": "13cce269f6b278f547c1d36940d4834ff5447876fa0d81700f089b2c364c9a68",
+      "status": "reproduces",
+      "basis": "derived",
+      "source_ids": [
+        "MDS86"
+      ],
+      "note": "Refit by the research team (degradation-science.md 7 and 9.8). Used only as a computed-layer anchor or verification vector, never as a product model.",
+      "measured_degradant_ids": []
+    },
+    {
+      "model_id": "ref_clavulanate_3mg_ph8",
+      "scope": "reference_study",
+      "product_id": null,
+      "ingredient_id": null,
+      "package_id": null,
+      "study": {
+        "description": "Clavulanate 3 mg/mL pH 8 (Kamalpersad 2024).",
+        "matrix": "phosphate buffer, ionic strength 0.5",
+        "ph": 8.0,
+        "concentration_text": "3 mg/mL",
+        "temperatures_c": [
+          40,
+          45,
+          52,
+          60
+        ],
+        "rate_constants": [
+          0.255,
+          0.332,
+          0.513,
+          0.961
+        ],
+        "rate_unit": "per_h",
+        "reaction_order": 1
+      },
+      "rate_law_kind": "F1",
+      "kind_parameters": {
+        "order_n": null,
+        "alpha0": null,
+        "avrami_n": null
+      },
+      "reference_temperature_k": 298.15,
+      "reference_rh_percent": null,
+      "parameters": {
+        "names": [
+          "ln_k_ref_per_s",
+          "ea_j_per_mol"
+        ],
+        "mean": [
+          -10.717776745762565,
+          57565.07217396556
+        ],
+        "covariance": [
+          [
+            0.01724695760882433,
+            -528.463213588294
+          ],
+          [
+            -528.463213588294,
+            17533786.08895021
+          ]
+        ]
+      },
+      "fit": {
+        "method": "OLS of ln k on -(1/T - 1/T_ref)/R (two-stage Arrhenius), R = N_A k_B",
+        "n": 4,
+        "dof": 2,
+        "rss": 0.01055384030119012,
+        "r2": 0.9895283329241576,
+        "published_ea_j_per_mol": 57600.0,
+        "ea_gap_j_per_mol": -34.92782603444357
+      },
+      "validated_range": {
+        "temperature_min_k": 313.15,
+        "temperature_max_k": 333.15,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "derived",
+        "source_ids": [
+          "MDS86"
+        ],
+        "to_be_set_by": null,
+        "note": "Study temperature range; humidity does not apply to solutions."
+      },
+      "max_study_duration_s": null,
+      "covers": [],
+      "dataset_sha256": "64eba78d015bbefe92d43bc5e7d3a0c9ab99fb9daa50738371667ad347b8dc85",
+      "status": "reproduces",
+      "basis": "derived",
+      "source_ids": [
+        "MDS86"
+      ],
+      "note": "Refit by the research team (degradation-science.md 7 and 9.8). Used only as a computed-layer anchor or verification vector, never as a product model.",
+      "measured_degradant_ids": []
+    }
+  ]
+}

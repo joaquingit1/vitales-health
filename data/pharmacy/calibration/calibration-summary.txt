@@ -1,0 +1,41 @@
+row 01 Acyclovir tablet: ground=9.14799894212e-10/s flight=1.66832387155e-09/s censored=False/False ln_k_ref=-20.3202867538 residual=1.07575210111
+row 02 Atorvastatin tablet: ground=2.93702307309e-10/s flight=1.0674252442e-09/s censored=False/False ln_k_ref=-21.4564254061 residual=1.76532073557
+row 03 Azithromycin tablet: ground=1.86331209375e-09/s flight=2.16441615468e-09/s censored=False/False ln_k_ref=-19.6088812216 residual=0.624677766798
+row 04 Cefadroxil capsule: ground=5.06919761013e-10/s flight=1.40216809903e-09/s censored=False/False ln_k_ref=-20.9106393715 residual=1.49230494705
+row 05 Ciprofloxacin ophthalmic solution: ground=3.42490985943e-10/s flight=6.95669089144e-10/s censored=False/False ln_k_ref=-21.4747830666 residual=0.601244185632
+row 06 Ibuprofen tablet: ground=1.08976657471e-10/s flight=1.11194870376e-09/s censored=False/False ln_k_ref=-22.4478583926 residual=2.79761835233
+row 07 Imipenem (imipenem/cilastatin powder): ground=2.20659014044e-10/s flight=1.76415519973e-09/s censored=False/False ln_k_ref=-21.5697324681 residual=2.00344905126
+row 08 Cilastatin (imipenem/cilastatin powder): ground=-8.70491811434e-11/s flight=2.7133274394e-11/s censored=True/False ln_k_ref=-22.848965138 residual=-0.891984681167
+row 09 Metronidazole tablet: ground=5.87811714385e-10/s flight=8.61561273676e-10/s censored=False/False ln_k_ref=-20.7625854173 residual=0.857222210813
+row 10 Triamcinolone cream: ground=5.24662687797e-10/s flight=8.40754165656e-10/s censored=False/False ln_k_ref=-20.8762365436 residual=0.946426464589
+row 11 Amoxicillin (amoxicillin/clavulanate tablet): ground=2.49378768317e-09/s flight=3.84043093003e-09/s censored=False/False ln_k_ref=-19.3174341087 residual=0.906664585033
+row 12 Clavulanate (amoxicillin/clavulanate tablet): ground=4.46128844592e-08/s flight=3.07385126046e-08/s censored=False/False ln_k_ref=-16.4332141148 residual=0.102376360051
+row 13 Ciprofloxacin ointment: ground=1.00223240047e-09/s flight=1.69627187763e-09/s censored=False/False ln_k_ref=-20.229006909 residual=1.00108563332
+row 14 Ciprofloxacin tablet: ground=1.89956014118e-09/s flight=2.462880154e-09/s censored=False/False ln_k_ref=-19.5896144666 residual=0.734591820635
+row 15 Clotrimazole cream: ground=1.18741037123e-09/s flight=1.59781415819e-09/s censored=False/False ln_k_ref=-20.0594620441 residual=0.771744482811
+row 16 Dextroamphetamine tablet: ground=1.55705209169e-09/s flight=2.01942218791e-09/s censored=False/False ln_k_ref=-19.7884424726 residual=0.734899792124
+row 17 Epinephrine injection: ground=2.48960257934e-09/s flight=3.10078435214e-09/s censored=False/False ln_k_ref=-19.4911500355 residual=0.112147429189
+row 18 Fluconazole tablet: ground=9.18054718892e-10/s flight=1.13125865659e-09/s censored=False/False ln_k_ref=-20.3167351048 residual=0.683711867699
+row 19 Furosemide tablet: ground=1.86172070126e-09/s flight=2.10531835167e-09/s censored=False/False ln_k_ref=-19.609735653 residual=0.597848239325
+row 20 Levofloxacin tablet: ground=1.83317490352e-09/s flight=2.44213137624e-09/s censored=False/False ln_k_ref=-19.6251874377 residual=0.761704505246
+row 21 Levothyroxine tablet: ground=2.71749122537e-09/s flight=2.71407002176e-09/s censored=False/False ln_k_ref=-19.2315277102 residual=0.47362296617
+row 22 Lidocaine injection: ground=6.95944890286e-10/s flight=7.72504463034e-10/s censored=False/False ln_k_ref=-20.7657579289 residual=-0.00301726649948
+row 23 Metoprolol succinate tablet: ground=1.40797290794e-09/s flight=1.60474398734e-09/s censored=False/False ln_k_ref=-19.8890858053 residual=0.605695934342
+row 24 Mupirocin ointment: ground=1.61660708362e-09/s flight=2.36934496339e-09/s censored=False/False ln_k_ref=-19.7509072612 residual=0.857166686032
+row 25 Norethindrone (oral contraceptive): ground=8.71228822765e-10/s flight=1.70534644204e-09/s censored=False/False ln_k_ref=-20.1964464002 residual=0.596259329798
+row 26 Ethinyl estradiol (oral contraceptive): ground=8.1727781414e-10/s flight=1.44027086285e-09/s censored=False/False ln_k_ref=-20.2603719764 residual=0.4912478192
+row 27 Phenytoin capsule: ground=9.74052065277e-10/s flight=1.14555674073e-09/s censored=False/False ln_k_ref=-20.257527343 residual=0.637063992891
+row 28 Promethazine tablet: ground=1.18189086855e-09/s flight=1.74665194155e-09/s censored=False/False ln_k_ref=-20.0641212344 residual=0.865467908245
+row 29 Promethazine suppository: ground=7.46443473089e-10/s flight=2.01691603931e-09/s censored=False/False ln_k_ref=-20.5236722088 residual=1.468887735
+row 30 Promethazine injection: ground=1.63052059338e-09/s flight=1.96336136076e-09/s censored=False/False ln_k_ref=-19.9143737803 residual=0.0783740619869
+row 31 Risedronate tablet: ground=6.67262355746e-10/s flight=1.19496056698e-09/s censored=False/False ln_k_ref=-20.6358087948 residual=1.05756787591
+row 32 Sertraline tablet: ground=1.2265708679e-09/s flight=1.98081298013e-09/s censored=False/False ln_k_ref=-20.0270144577 residual=0.954167708771
+row 33 Silver sulfadiazine cream: ground=1.32310583528e-09/s flight=1.79848800134e-09/s censored=False/False ln_k_ref=-19.951254943 residual=0.781847150238
+row 34 Temazepam capsule: ground=2.14813636556e-09/s flight=2.68487332899e-09/s censored=False/False ln_k_ref=-19.4666361618 residual=0.697915605991
+row 35 Sulfamethoxazole (SMX/TMP tablet): ground=1.49492524801e-09/s flight=2.71491017548e-09/s censored=False/False ln_k_ref=-19.8291606171 residual=1.07156537999
+row 36 Trimethoprim (SMX/TMP tablet): ground=1.85006518975e-09/s flight=3.07639809765e-09/s censored=False/False ln_k_ref=-19.6160159451 residual=0.983421303612
+solid: mu=-19.9689527113604 sigma=0.682959111893558
+solution: mu=-20.4115162028194 sigma=0.695630433489508
+suspension: mu=-20.4115162028194 sigma=0.695630433489508
+semisolid: mu=-20.1908490261951 sigma=0.723025009919062
+station factor: median=2.0154761351288 mu=0.700855462834577 sigma=0.402706292978003

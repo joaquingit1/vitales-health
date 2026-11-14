@@ -1,0 +1,565 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/formulary.schema.json",
+  "title": "Products, ingredients, specifications, degradants and adjustment policy.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_id",
+    "schema",
+    "version",
+    "review_state",
+    "notice",
+    "products"
+  ],
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "schema": {
+      "const": "pharmacy/formulary.schema.json"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "review_state": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ]
+    },
+    "notice": {
+      "type": "string"
+    },
+    "products": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ProductDoc"
+      }
+    }
+  },
+  "$defs": {
+    "ActiveIngredientDoc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ingredient_id",
+        "name",
+        "smiles",
+        "pubchem_cid",
+        "molar_mass_g_per_mol",
+        "salt_form_note",
+        "strength",
+        "concentration_mol_per_kg",
+        "specification",
+        "degradants",
+        "racemization",
+        "source_ids"
+      ],
+      "properties": {
+        "ingredient_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "smiles": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pubchem_cid": {
+          "type": "integer"
+        },
+        "molar_mass_g_per_mol": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "salt_form_note": {
+          "type": "string"
+        },
+        "strength": {
+          "$ref": "#/$defs/Strength"
+        },
+        "concentration_mol_per_kg": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "specification": {
+          "$ref": "#/$defs/Specification"
+        },
+        "degradants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProductDegradant"
+          }
+        },
+        "racemization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RacemizationSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        }
+      }
+    },
+    "FormularyMembership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pack",
+        "basis",
+        "source_ids",
+        "note"
+      ],
+      "properties": {
+        "pack": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "PotencyAdjustment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowed",
+        "reason"
+      ],
+      "properties": {
+        "allowed": {
+          "type": "boolean"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ProductDegradant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "degradant_id",
+        "name",
+        "smiles",
+        "formed_by_class_id",
+        "yield_mol_per_mol",
+        "molar_mass_g_per_mol",
+        "limit_percent",
+        "toxicity_flag",
+        "basis",
+        "source_ids",
+        "note"
+      ],
+      "properties": {
+        "degradant_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "smiles": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "formed_by_class_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "yield_mol_per_mol": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "molar_mass_g_per_mol": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limit_percent": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "toxicity_flag": {
+          "enum": [
+            "toxic",
+            "not_toxic",
+            "unknown"
+          ]
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ProductDoc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "product_id",
+        "name",
+        "dose_form",
+        "dose_form_family",
+        "route",
+        "ingredients",
+        "default_package_id",
+        "fixed_dose_device",
+        "narrow_therapeutic_index",
+        "radiosensitive",
+        "degradant_profile_reviewed",
+        "potency_adjustment",
+        "freezing_point_k",
+        "do_not_freeze",
+        "regime_thresholds",
+        "photostable_per_q1b",
+        "solution_ph",
+        "inspection_criteria",
+        "formulary_membership",
+        "label_shelf_life_months_text",
+        "basis",
+        "source_ids",
+        "note"
+      ],
+      "properties": {
+        "product_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dose_form": {
+          "type": "string"
+        },
+        "dose_form_family": {
+          "enum": [
+            "solid",
+            "solution",
+            "suspension",
+            "semisolid"
+          ]
+        },
+        "route": {
+          "type": "string"
+        },
+        "ingredients": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ActiveIngredientDoc"
+          }
+        },
+        "default_package_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "fixed_dose_device": {
+          "type": "boolean"
+        },
+        "narrow_therapeutic_index": {
+          "type": "boolean"
+        },
+        "radiosensitive": {
+          "type": "boolean"
+        },
+        "degradant_profile_reviewed": {
+          "type": "boolean"
+        },
+        "potency_adjustment": {
+          "$ref": "#/$defs/PotencyAdjustment"
+        },
+        "freezing_point_k": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "do_not_freeze": {
+          "type": "boolean"
+        },
+        "regime_thresholds": {
+          "$ref": "#/$defs/RegimeThresholds"
+        },
+        "photostable_per_q1b": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "solution_ph": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "inspection_criteria": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "formulary_membership": {
+          "$ref": "#/$defs/FormularyMembership"
+        },
+        "label_shelf_life_months_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "RacemizationSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "initial_active_fraction"
+      ],
+      "properties": {
+        "initial_active_fraction": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "RegimeThresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phase_change_temperature_k",
+        "deliquescence_rh_percent"
+      ],
+      "properties": {
+        "phase_change_temperature_k": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deliquescence_rh_percent": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "Specification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lower_percent",
+        "upper_percent"
+      ],
+      "properties": {
+        "lower_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "upper_percent": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "Strength": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "unit",
+        "per"
+      ],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "per": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

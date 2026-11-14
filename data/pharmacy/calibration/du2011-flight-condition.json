@@ -1,0 +1,18 @@
+{
+  "rh_percent": {
+    "value": 24.0,
+    "unit": "percent",
+    "basis": "sourced",
+    "source_ids": ["MDP01", "MDP02"],
+    "to_be_set_by": null,
+    "note": "Du 2011 flight RH 23 to 25 percent, transcribed in V1 inputs.conditions. Midpoint per spec 9.5."
+  },
+  "rh_sd_percent": {
+    "value": 0.5,
+    "unit": "percent",
+    "basis": "sourced",
+    "source_ids": ["MDP01", "MDP02"],
+    "to_be_set_by": null,
+    "note": "Standard uncertainty is one quarter of the reported 23 to 25 percent range, per spec 9.5."
+  }
+}

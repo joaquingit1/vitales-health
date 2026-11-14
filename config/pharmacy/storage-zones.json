@@ -1,0 +1,1850 @@
+{
+  "document_id": "storage-zones",
+  "schema": "pharmacy/storage-zones.schema.json",
+  "version": "0.5.0",
+  "review_state": "draft",
+  "notice": "Draft configuration for the Crew Health Check potency engine. Every value carries its basis and source IDs (research notes in reports/crew-health-medications-2026-11-14/research). team_default values are placeholders that the named role must replace before operational use.",
+  "zones": [
+    {
+      "zone_id": "ground_storage",
+      "name": "Ground storage before launch",
+      "kind": "declared",
+      "environment_profile_id": null,
+      "location_note": "Pharmacy warehouse under ICH long-term conditions.",
+      "shielding_note": "Terrestrial background only.",
+      "sensors": [],
+      "declared_conditions": {
+        "temperature_k": {
+          "family": "normal",
+          "mu": 298.15,
+          "sigma": 1.0,
+          "lower": null,
+          "upper": null,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS01"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH long-term 25 +- 2 C read as +-2 sd."
+        },
+        "relative_humidity_percent": {
+          "family": "normal",
+          "mu": 60.0,
+          "sigma": 2.5,
+          "lower": null,
+          "upper": null,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS01"
+          ],
+          "to_be_set_by": null,
+          "note": "ICH long-term 60 +- 5 %RH read as +-2 sd."
+        },
+        "dose_rate_gy_per_s": {
+          "family": "fixed",
+          "mu": 2.00231e-11,
+          "sigma": 0.0,
+          "lower": null,
+          "upper": null,
+          "unit": "Gy/s",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP11"
+          ],
+          "to_be_set_by": null,
+          "note": "Measured travel dose 1.73 uGy/day."
+        },
+        "illuminance_lux": {
+          "family": "fixed",
+          "mu": 0.0,
+          "sigma": 0.0,
+          "lower": null,
+          "upper": null,
+          "unit": "lx",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "pharmacist and flight surgeon",
+          "note": "Stored in cartons."
+        },
+        "uv_w_per_m2": {
+          "family": "fixed",
+          "mu": 0.0,
+          "sigma": 0.0,
+          "lower": null,
+          "upper": null,
+          "unit": "W/m2",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "pharmacist and flight surgeon",
+          "note": "Stored in cartons."
+        }
+      },
+      "light_exposure": false,
+      "gap_policy": {
+        "kind": "worst_case",
+        "bounds": {
+          "temperature_k": null,
+          "relative_humidity_percent": null,
+          "dose_rate_gy_per_s": null,
+          "illuminance_lux": null,
+          "uv_w_per_m2": null
+        }
+      },
+      "gap_limit_s": {
+        "value": 21600.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Not used for declared zones."
+      },
+      "min_coverage_fraction": {
+        "value": 0.95,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Not used for declared zones."
+      },
+      "worst_case": {
+        "temperature_max_k": {
+          "value": 300.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS01"
+          ],
+          "to_be_set_by": null,
+          "note": "Upper nominal bound used to fill gaps."
+        },
+        "temperature_min_k": {
+          "value": 296.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS01"
+          ],
+          "to_be_set_by": null,
+          "note": "Lower nominal bound."
+        },
+        "rh_max_percent": {
+          "value": 65.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS01"
+          ],
+          "to_be_set_by": null,
+          "note": "Upper RH bound."
+        },
+        "rh_min_percent": {
+          "value": 55.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS01"
+          ],
+          "to_be_set_by": null,
+          "note": "Lower RH bound."
+        },
+        "dose_rate_max_gy_per_s": {
+          "value": 6.006944444444444e-11,
+          "unit": "Gy/s",
+          "basis": "team_default",
+          "source_ids": [
+            "MDP34",
+            "MDP42"
+          ],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Three times the profile GCR rate (sustained enhancement; SPE peaks are events, not gap fill)."
+        },
+        "illuminance_max_lux": {
+          "value": 0.0,
+          "unit": "lx",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Brightest cabin lighting at the zone."
+        },
+        "uv_max_w_per_m2": {
+          "value": 0.0,
+          "unit": "W/m2",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Highest near-UV at the zone."
+        }
+      },
+      "time_above_thresholds_k": [
+        {
+          "value": 298.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP71"
+          ],
+          "to_be_set_by": null,
+          "note": "25 C, upper end of controlled room temperature."
+        },
+        {
+          "value": 303.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP71"
+          ],
+          "to_be_set_by": null,
+          "note": "30 C, upper excursion limit."
+        },
+        {
+          "value": 313.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS01"
+          ],
+          "to_be_set_by": null,
+          "note": "40 C, ICH accelerated condition."
+        }
+      ],
+      "rate_multiplier": {
+        "family": "fixed",
+        "mu": 1.0,
+        "sigma": 0.0,
+        "lower": null,
+        "upper": null,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "No spaceflight factor on the ground."
+      },
+      "forecast_projection": {
+        "kind": "declared_constant",
+        "window_s": null
+      },
+      "basis": "sourced",
+      "source_ids": [
+        "MDS01",
+        "MDP11"
+      ],
+      "note": "Declared conditions count as declared coverage.",
+      "rate_multiplier_calibration": null
+    },
+    {
+      "zone_id": "station_kit",
+      "name": "Station medical kit",
+      "kind": "sensed",
+      "environment_profile_id": "station",
+      "location_note": "Medical kit in a stowage locker.",
+      "shielding_note": "Station hull and locker; Columbus 195 to 360 uGy/day by location (MDP33).",
+      "sensors": [
+        {
+          "sensor_id": "stk-t1",
+          "quantity": "temperature_k",
+          "unit": "K",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 0.2,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 0.01,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        },
+        {
+          "sensor_id": "stk-rh1",
+          "quantity": "relative_humidity",
+          "unit": "percent",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 2.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 0.1,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        },
+        {
+          "sensor_id": "stk-dos1",
+          "quantity": "dose_rate_gy_per_s",
+          "unit": "Gy/s",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "Gy/s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 1e-10,
+            "unit": "Gy/s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 1e-12,
+            "unit": "Gy/s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        }
+      ],
+      "declared_conditions": {
+        "temperature_k": null,
+        "relative_humidity_percent": null,
+        "dose_rate_gy_per_s": null,
+        "illuminance_lux": null,
+        "uv_w_per_m2": null
+      },
+      "light_exposure": false,
+      "gap_policy": {
+        "kind": "worst_case",
+        "bounds": {
+          "temperature_k": null,
+          "relative_humidity_percent": null,
+          "dose_rate_gy_per_s": null,
+          "illuminance_lux": null,
+          "uv_w_per_m2": null
+        }
+      },
+      "gap_limit_s": {
+        "value": 21600.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Longest gap tolerated before coverage_low."
+      },
+      "min_coverage_fraction": {
+        "value": 0.95,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Measured plus held share required per quantity."
+      },
+      "worst_case": {
+        "temperature_max_k": {
+          "value": 300.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Upper nominal bound used to fill gaps."
+        },
+        "temperature_min_k": {
+          "value": 291.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Lower nominal bound."
+        },
+        "rh_max_percent": {
+          "value": 70.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Upper RH bound."
+        },
+        "rh_min_percent": {
+          "value": 25.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Lower RH bound."
+        },
+        "dose_rate_max_gy_per_s": {
+          "value": 4.3749999999999995e-09,
+          "unit": "Gy/s",
+          "basis": "team_default",
+          "source_ids": [
+            "MDP34",
+            "MDP42"
+          ],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Three times the profile GCR rate (sustained enhancement; SPE peaks are events, not gap fill)."
+        },
+        "illuminance_max_lux": {
+          "value": 0.0,
+          "unit": "lx",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Brightest cabin lighting at the zone."
+        },
+        "uv_max_w_per_m2": {
+          "value": 0.0,
+          "unit": "W/m2",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Highest near-UV at the zone."
+        }
+      },
+      "time_above_thresholds_k": [
+        {
+          "value": 298.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP71"
+          ],
+          "to_be_set_by": null,
+          "note": "25 C, upper end of controlled room temperature."
+        },
+        {
+          "value": 303.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP71"
+          ],
+          "to_be_set_by": null,
+          "note": "30 C, upper excursion limit."
+        },
+        {
+          "value": 313.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS01"
+          ],
+          "to_be_set_by": null,
+          "note": "40 C, ICH accelerated condition."
+        }
+      ],
+      "rate_multiplier": {
+        "family": "lognormal",
+        "mu": 0.7008554628345774,
+        "sigma": 0.40270629297800337,
+        "lower": null,
+        "upper": null,
+        "unit": "1",
+        "basis": "derived",
+        "source_ids": [
+          "MDP01",
+          "MDP02",
+          "MDP03"
+        ],
+        "to_be_set_by": null,
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373. Flight residual = ln(k_flight/k_ground) minus ln(physics_flight/physics_ground). Location is the mean ln residual (the multiplier's median); spread is the sample sd with Student-t predictive multiplier sqrt(1+1/N), df=N-1, the exact predictive pivot for a normal sample. No held-out row enters either fit."
+      },
+      "forecast_projection": {
+        "kind": "repeat_last_window",
+        "window_s": {
+          "value": 2592000.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "pharmacist and flight surgeon",
+          "note": "Last 30 days repeat."
+        }
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDP21",
+        "MDP27"
+      ],
+      "note": "",
+      "rate_multiplier_calibration": {
+        "basis": "derived",
+        "source_ids": [
+          "MDP01",
+          "MDP02",
+          "MDP03"
+        ],
+        "to_be_set_by": null,
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373. Flight residual = ln(k_flight/k_ground) minus ln(physics_flight/physics_ground). Location is the mean ln residual (the multiplier's median); spread is the sample sd with Student-t predictive multiplier sqrt(1+1/N), df=N-1, the exact predictive pivot for a normal sample. No held-out row enters either fit.",
+        "method": "paired_physics_residual_mean_student_t_predictive_v2",
+        "vector_id": "V1",
+        "rows": [
+          1,
+          3,
+          5,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          22,
+          23,
+          25,
+          27,
+          29,
+          30,
+          31,
+          33,
+          35
+        ],
+        "engine_version": "0.1.0",
+        "statistics": [
+          {
+            "name": "sample_count",
+            "value": 19,
+            "unit": "1"
+          },
+          {
+            "name": "residual_mean_ln",
+            "value": 0.7008554628345774,
+            "unit": "1"
+          },
+          {
+            "name": "residual_median_ln",
+            "value": 0.6370639928905261,
+            "unit": "1"
+          },
+          {
+            "name": "residual_sample_sd_ln",
+            "value": 0.37231664464109027,
+            "unit": "1"
+          },
+          {
+            "name": "predictive_df",
+            "value": 18,
+            "unit": "1"
+          },
+          {
+            "name": "coverage",
+            "value": 0.8999999999999999,
+            "unit": "1"
+          },
+          {
+            "name": "stored_normal_sd_ln",
+            "value": 0.40270629297800337,
+            "unit": "1"
+          },
+          {
+            "name": "flight_temperature_k",
+            "value": 296.15,
+            "unit": "K"
+          },
+          {
+            "name": "flight_temperature_sd_k",
+            "value": 2.25,
+            "unit": "K"
+          },
+          {
+            "name": "flight_rh_percent",
+            "value": 24.0,
+            "unit": "percent"
+          },
+          {
+            "name": "flight_rh_sd_percent",
+            "value": 0.5,
+            "unit": "percent"
+          },
+          {
+            "name": "censored_ground_rows",
+            "value": 0,
+            "unit": "1"
+          },
+          {
+            "name": "censored_flight_rows",
+            "value": 0,
+            "unit": "1"
+          }
+        ]
+      }
+    },
+    {
+      "zone_id": "transit_kit",
+      "name": "Transit vehicle medical kit",
+      "kind": "sensed",
+      "environment_profile_id": "transit",
+      "location_note": "Kit in the crew cabin.",
+      "shielding_note": "About 16 g/cm2 average (MSL cruise analogue); storm shelter not modeled.",
+      "sensors": [
+        {
+          "sensor_id": "trk-t1",
+          "quantity": "temperature_k",
+          "unit": "K",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 0.2,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 0.01,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        },
+        {
+          "sensor_id": "trk-rh1",
+          "quantity": "relative_humidity",
+          "unit": "percent",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 2.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 0.1,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        },
+        {
+          "sensor_id": "trk-dos1",
+          "quantity": "dose_rate_gy_per_s",
+          "unit": "Gy/s",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "Gy/s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 1e-10,
+            "unit": "Gy/s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 1e-12,
+            "unit": "Gy/s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        }
+      ],
+      "declared_conditions": {
+        "temperature_k": null,
+        "relative_humidity_percent": null,
+        "dose_rate_gy_per_s": null,
+        "illuminance_lux": null,
+        "uv_w_per_m2": null
+      },
+      "light_exposure": false,
+      "gap_policy": {
+        "kind": "worst_case",
+        "bounds": {
+          "temperature_k": null,
+          "relative_humidity_percent": null,
+          "dose_rate_gy_per_s": null,
+          "illuminance_lux": null,
+          "uv_w_per_m2": null
+        }
+      },
+      "gap_limit_s": {
+        "value": 21600.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Longest gap tolerated before coverage_low."
+      },
+      "min_coverage_fraction": {
+        "value": 0.95,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Measured plus held share required per quantity."
+      },
+      "worst_case": {
+        "temperature_max_k": {
+          "value": 300.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Upper nominal bound used to fill gaps."
+        },
+        "temperature_min_k": {
+          "value": 291.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Lower nominal bound."
+        },
+        "rh_max_percent": {
+          "value": 70.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Upper RH bound."
+        },
+        "rh_min_percent": {
+          "value": 25.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Lower RH bound."
+        },
+        "dose_rate_max_gy_per_s": {
+          "value": 1.6666666666666667e-08,
+          "unit": "Gy/s",
+          "basis": "team_default",
+          "source_ids": [
+            "MDP34",
+            "MDP42"
+          ],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Three times the profile GCR rate (sustained enhancement; SPE peaks are events, not gap fill)."
+        },
+        "illuminance_max_lux": {
+          "value": 0.0,
+          "unit": "lx",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Brightest cabin lighting at the zone."
+        },
+        "uv_max_w_per_m2": {
+          "value": 0.0,
+          "unit": "W/m2",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Highest near-UV at the zone."
+        }
+      },
+      "time_above_thresholds_k": [
+        {
+          "value": 298.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP71"
+          ],
+          "to_be_set_by": null,
+          "note": "25 C, upper end of controlled room temperature."
+        },
+        {
+          "value": 303.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP71"
+          ],
+          "to_be_set_by": null,
+          "note": "30 C, upper excursion limit."
+        },
+        {
+          "value": 313.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS01"
+          ],
+          "to_be_set_by": null,
+          "note": "40 C, ICH accelerated condition."
+        }
+      ],
+      "rate_multiplier": {
+        "family": "lognormal",
+        "mu": 0.7008554628345774,
+        "sigma": 0.40270629297800337,
+        "lower": null,
+        "upper": null,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP01",
+          "MDP02",
+          "MDP03"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373. Flight residual = ln(k_flight/k_ground) minus ln(physics_flight/physics_ground). Location is the mean ln residual (the multiplier's median); spread is the sample sd with Student-t predictive multiplier sqrt(1+1/N), df=N-1, the exact predictive pivot for a normal sample. No held-out row enters either fit. Du ISS prior reused: no surface data exist; pharmacist and flight surgeon must set this prior."
+      },
+      "forecast_projection": {
+        "kind": "repeat_last_window",
+        "window_s": {
+          "value": 2592000.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "pharmacist and flight surgeon",
+          "note": "Last 30 days repeat."
+        }
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDP21",
+        "MDP27"
+      ],
+      "note": "",
+      "rate_multiplier_calibration": {
+        "basis": "team_default",
+        "source_ids": [
+          "MDP01",
+          "MDP02",
+          "MDP03"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373. Flight residual = ln(k_flight/k_ground) minus ln(physics_flight/physics_ground). Location is the mean ln residual (the multiplier's median); spread is the sample sd with Student-t predictive multiplier sqrt(1+1/N), df=N-1, the exact predictive pivot for a normal sample. No held-out row enters either fit. Du ISS prior reused: no surface data exist; pharmacist and flight surgeon must set this prior.",
+        "method": "paired_physics_residual_mean_student_t_predictive_v2",
+        "vector_id": "V1",
+        "rows": [
+          1,
+          3,
+          5,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          22,
+          23,
+          25,
+          27,
+          29,
+          30,
+          31,
+          33,
+          35
+        ],
+        "engine_version": "0.1.0",
+        "statistics": [
+          {
+            "name": "sample_count",
+            "value": 19,
+            "unit": "1"
+          },
+          {
+            "name": "residual_mean_ln",
+            "value": 0.7008554628345774,
+            "unit": "1"
+          },
+          {
+            "name": "residual_median_ln",
+            "value": 0.6370639928905261,
+            "unit": "1"
+          },
+          {
+            "name": "residual_sample_sd_ln",
+            "value": 0.37231664464109027,
+            "unit": "1"
+          },
+          {
+            "name": "predictive_df",
+            "value": 18,
+            "unit": "1"
+          },
+          {
+            "name": "coverage",
+            "value": 0.8999999999999999,
+            "unit": "1"
+          },
+          {
+            "name": "stored_normal_sd_ln",
+            "value": 0.40270629297800337,
+            "unit": "1"
+          },
+          {
+            "name": "flight_temperature_k",
+            "value": 296.15,
+            "unit": "K"
+          },
+          {
+            "name": "flight_temperature_sd_k",
+            "value": 2.25,
+            "unit": "K"
+          },
+          {
+            "name": "flight_rh_percent",
+            "value": 24.0,
+            "unit": "percent"
+          },
+          {
+            "name": "flight_rh_sd_percent",
+            "value": 0.5,
+            "unit": "percent"
+          },
+          {
+            "name": "censored_ground_rows",
+            "value": 0,
+            "unit": "1"
+          },
+          {
+            "name": "censored_flight_rows",
+            "value": 0,
+            "unit": "1"
+          }
+        ]
+      }
+    },
+    {
+      "zone_id": "moon_base_pharmacy",
+      "name": "Moon base pharmacy cabinet",
+      "kind": "sensed",
+      "environment_profile_id": "moon",
+      "location_note": "Closed cabinet in the habitat.",
+      "shielding_note": "Habitat shielding unknown; surface rate used as an upper estimate. SPE templates assume 20 g/cm2.",
+      "sensors": [
+        {
+          "sensor_id": "mbp-t1",
+          "quantity": "temperature_k",
+          "unit": "K",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 0.2,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 0.01,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        },
+        {
+          "sensor_id": "mbp-rh1",
+          "quantity": "relative_humidity",
+          "unit": "percent",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 2.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 0.1,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        },
+        {
+          "sensor_id": "mbp-dos1",
+          "quantity": "dose_rate_gy_per_s",
+          "unit": "Gy/s",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "Gy/s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 1e-10,
+            "unit": "Gy/s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 1e-12,
+            "unit": "Gy/s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        }
+      ],
+      "declared_conditions": {
+        "temperature_k": null,
+        "relative_humidity_percent": null,
+        "dose_rate_gy_per_s": null,
+        "illuminance_lux": null,
+        "uv_w_per_m2": null
+      },
+      "light_exposure": false,
+      "gap_policy": {
+        "kind": "worst_case",
+        "bounds": {
+          "temperature_k": null,
+          "relative_humidity_percent": null,
+          "dose_rate_gy_per_s": null,
+          "illuminance_lux": null,
+          "uv_w_per_m2": null
+        }
+      },
+      "gap_limit_s": {
+        "value": 21600.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Longest gap tolerated before coverage_low."
+      },
+      "min_coverage_fraction": {
+        "value": 0.95,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Measured plus held share required per quantity."
+      },
+      "worst_case": {
+        "temperature_max_k": {
+          "value": 300.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Upper nominal bound used to fill gaps."
+        },
+        "temperature_min_k": {
+          "value": 291.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Lower nominal bound."
+        },
+        "rh_max_percent": {
+          "value": 70.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Upper RH bound."
+        },
+        "rh_min_percent": {
+          "value": 25.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Lower RH bound."
+        },
+        "dose_rate_max_gy_per_s": {
+          "value": 1.4305555555555554e-08,
+          "unit": "Gy/s",
+          "basis": "team_default",
+          "source_ids": [
+            "MDP34",
+            "MDP42"
+          ],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Three times the profile GCR rate (sustained enhancement; SPE peaks are events, not gap fill)."
+        },
+        "illuminance_max_lux": {
+          "value": 0.0,
+          "unit": "lx",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Brightest cabin lighting at the zone."
+        },
+        "uv_max_w_per_m2": {
+          "value": 0.0,
+          "unit": "W/m2",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Highest near-UV at the zone."
+        }
+      },
+      "time_above_thresholds_k": [
+        {
+          "value": 298.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP71"
+          ],
+          "to_be_set_by": null,
+          "note": "25 C, upper end of controlled room temperature."
+        },
+        {
+          "value": 303.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP71"
+          ],
+          "to_be_set_by": null,
+          "note": "30 C, upper excursion limit."
+        },
+        {
+          "value": 313.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS01"
+          ],
+          "to_be_set_by": null,
+          "note": "40 C, ICH accelerated condition."
+        }
+      ],
+      "rate_multiplier": {
+        "family": "lognormal",
+        "mu": 0.7008554628345774,
+        "sigma": 0.40270629297800337,
+        "lower": null,
+        "upper": null,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP01",
+          "MDP02",
+          "MDP03"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373. Flight residual = ln(k_flight/k_ground) minus ln(physics_flight/physics_ground). Location is the mean ln residual (the multiplier's median); spread is the sample sd with Student-t predictive multiplier sqrt(1+1/N), df=N-1, the exact predictive pivot for a normal sample. No held-out row enters either fit. Du ISS prior reused: no surface data exist; pharmacist and flight surgeon must set this prior."
+      },
+      "forecast_projection": {
+        "kind": "repeat_last_window",
+        "window_s": {
+          "value": 2592000.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "pharmacist and flight surgeon",
+          "note": "Last 30 days repeat."
+        }
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDP21",
+        "MDP27"
+      ],
+      "note": "",
+      "rate_multiplier_calibration": {
+        "basis": "team_default",
+        "source_ids": [
+          "MDP01",
+          "MDP02",
+          "MDP03"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373. Flight residual = ln(k_flight/k_ground) minus ln(physics_flight/physics_ground). Location is the mean ln residual (the multiplier's median); spread is the sample sd with Student-t predictive multiplier sqrt(1+1/N), df=N-1, the exact predictive pivot for a normal sample. No held-out row enters either fit. Du ISS prior reused: no surface data exist; pharmacist and flight surgeon must set this prior.",
+        "method": "paired_physics_residual_mean_student_t_predictive_v2",
+        "vector_id": "V1",
+        "rows": [
+          1,
+          3,
+          5,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          22,
+          23,
+          25,
+          27,
+          29,
+          30,
+          31,
+          33,
+          35
+        ],
+        "engine_version": "0.1.0",
+        "statistics": [
+          {
+            "name": "sample_count",
+            "value": 19,
+            "unit": "1"
+          },
+          {
+            "name": "residual_mean_ln",
+            "value": 0.7008554628345774,
+            "unit": "1"
+          },
+          {
+            "name": "residual_median_ln",
+            "value": 0.6370639928905261,
+            "unit": "1"
+          },
+          {
+            "name": "residual_sample_sd_ln",
+            "value": 0.37231664464109027,
+            "unit": "1"
+          },
+          {
+            "name": "predictive_df",
+            "value": 18,
+            "unit": "1"
+          },
+          {
+            "name": "coverage",
+            "value": 0.8999999999999999,
+            "unit": "1"
+          },
+          {
+            "name": "stored_normal_sd_ln",
+            "value": 0.40270629297800337,
+            "unit": "1"
+          },
+          {
+            "name": "flight_temperature_k",
+            "value": 296.15,
+            "unit": "K"
+          },
+          {
+            "name": "flight_temperature_sd_k",
+            "value": 2.25,
+            "unit": "K"
+          },
+          {
+            "name": "flight_rh_percent",
+            "value": 24.0,
+            "unit": "percent"
+          },
+          {
+            "name": "flight_rh_sd_percent",
+            "value": 0.5,
+            "unit": "percent"
+          },
+          {
+            "name": "censored_ground_rows",
+            "value": 0,
+            "unit": "1"
+          },
+          {
+            "name": "censored_flight_rows",
+            "value": 0,
+            "unit": "1"
+          }
+        ]
+      }
+    },
+    {
+      "zone_id": "mars_base_pharmacy",
+      "name": "Mars base pharmacy shelf",
+      "kind": "sensed",
+      "environment_profile_id": "mars",
+      "location_note": "Open shelf under cabin lighting.",
+      "shielding_note": "About 21 g/cm2 of atmosphere plus habitat.",
+      "sensors": [
+        {
+          "sensor_id": "mrp-t1",
+          "quantity": "temperature_k",
+          "unit": "K",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 0.2,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 0.01,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        },
+        {
+          "sensor_id": "mrp-rh1",
+          "quantity": "relative_humidity",
+          "unit": "percent",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 2.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 0.1,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        },
+        {
+          "sensor_id": "mrp-dos1",
+          "quantity": "dose_rate_gy_per_s",
+          "unit": "Gy/s",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "Gy/s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 1e-10,
+            "unit": "Gy/s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 1e-12,
+            "unit": "Gy/s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        },
+        {
+          "sensor_id": "mrp-lux1",
+          "quantity": "illuminance_lux",
+          "unit": "lx",
+          "calibration_offset": {
+            "value": 0.0,
+            "unit": "lx",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Offset applied to readings (none until calibrated)."
+          },
+          "calibration_standard_uncertainty": {
+            "value": 25.0,
+            "unit": "lx",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Standard uncertainty of the calibration."
+          },
+          "resolution": {
+            "value": 1.0,
+            "unit": "lx",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Reading resolution."
+          },
+          "max_hold_s": {
+            "value": 3600.0,
+            "unit": "s",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "habitat environmental control lead",
+            "note": "Zero-order hold limit (two sampling intervals)."
+          }
+        }
+      ],
+      "declared_conditions": {
+        "temperature_k": null,
+        "relative_humidity_percent": null,
+        "dose_rate_gy_per_s": null,
+        "illuminance_lux": null,
+        "uv_w_per_m2": null
+      },
+      "light_exposure": true,
+      "gap_policy": {
+        "kind": "worst_case",
+        "bounds": {
+          "temperature_k": null,
+          "relative_humidity_percent": null,
+          "dose_rate_gy_per_s": null,
+          "illuminance_lux": null,
+          "uv_w_per_m2": null
+        }
+      },
+      "gap_limit_s": {
+        "value": 21600.0,
+        "unit": "s",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Longest gap tolerated before coverage_low."
+      },
+      "min_coverage_fraction": {
+        "value": 0.95,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Measured plus held share required per quantity."
+      },
+      "worst_case": {
+        "temperature_max_k": {
+          "value": 300.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Upper nominal bound used to fill gaps."
+        },
+        "temperature_min_k": {
+          "value": 291.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Lower nominal bound."
+        },
+        "rh_max_percent": {
+          "value": 70.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Upper RH bound."
+        },
+        "rh_min_percent": {
+          "value": 25.0,
+          "unit": "percent",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP21",
+            "MDP27"
+          ],
+          "to_be_set_by": null,
+          "note": "Lower RH bound."
+        },
+        "dose_rate_max_gy_per_s": {
+          "value": 7.291666666666667e-09,
+          "unit": "Gy/s",
+          "basis": "team_default",
+          "source_ids": [
+            "MDP34",
+            "MDP42"
+          ],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Three times the profile GCR rate (sustained enhancement; SPE peaks are events, not gap fill)."
+        },
+        "illuminance_max_lux": {
+          "value": 500.0,
+          "unit": "lx",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Brightest cabin lighting at the zone."
+        },
+        "uv_max_w_per_m2": {
+          "value": 0.1,
+          "unit": "W/m2",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "habitat environmental control lead",
+          "note": "Highest near-UV at the zone."
+        }
+      },
+      "time_above_thresholds_k": [
+        {
+          "value": 298.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP71"
+          ],
+          "to_be_set_by": null,
+          "note": "25 C, upper end of controlled room temperature."
+        },
+        {
+          "value": 303.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDP71"
+          ],
+          "to_be_set_by": null,
+          "note": "30 C, upper excursion limit."
+        },
+        {
+          "value": 313.15,
+          "unit": "K",
+          "basis": "sourced",
+          "source_ids": [
+            "MDS01"
+          ],
+          "to_be_set_by": null,
+          "note": "40 C, ICH accelerated condition."
+        }
+      ],
+      "rate_multiplier": {
+        "family": "lognormal",
+        "mu": 0.7008554628345774,
+        "sigma": 0.40270629297800337,
+        "lower": null,
+        "upper": null,
+        "unit": "1",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP01",
+          "MDP02",
+          "MDP03"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373. Flight residual = ln(k_flight/k_ground) minus ln(physics_flight/physics_ground). Location is the mean ln residual (the multiplier's median); spread is the sample sd with Student-t predictive multiplier sqrt(1+1/N), df=N-1, the exact predictive pivot for a normal sample. No held-out row enters either fit. Du ISS prior reused: no surface data exist; pharmacist and flight surgeon must set this prior."
+      },
+      "forecast_projection": {
+        "kind": "repeat_last_window",
+        "window_s": {
+          "value": 2592000.0,
+          "unit": "s",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "pharmacist and flight surgeon",
+          "note": "Last 30 days repeat."
+        }
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDP21",
+        "MDP27"
+      ],
+      "note": "Light exposure is a team default to exercise the photolysis pathway.",
+      "rate_multiplier_calibration": {
+        "basis": "team_default",
+        "source_ids": [
+          "MDP01",
+          "MDP02",
+          "MDP03"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373. Flight residual = ln(k_flight/k_ground) minus ln(physics_flight/physics_ground). Location is the mean ln residual (the multiplier's median); spread is the sample sd with Student-t predictive multiplier sqrt(1+1/N), df=N-1, the exact predictive pivot for a normal sample. No held-out row enters either fit. Du ISS prior reused: no surface data exist; pharmacist and flight surgeon must set this prior.",
+        "method": "paired_physics_residual_mean_student_t_predictive_v2",
+        "vector_id": "V1",
+        "rows": [
+          1,
+          3,
+          5,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          22,
+          23,
+          25,
+          27,
+          29,
+          30,
+          31,
+          33,
+          35
+        ],
+        "engine_version": "0.1.0",
+        "statistics": [
+          {
+            "name": "sample_count",
+            "value": 19,
+            "unit": "1"
+          },
+          {
+            "name": "residual_mean_ln",
+            "value": 0.7008554628345774,
+            "unit": "1"
+          },
+          {
+            "name": "residual_median_ln",
+            "value": 0.6370639928905261,
+            "unit": "1"
+          },
+          {
+            "name": "residual_sample_sd_ln",
+            "value": 0.37231664464109027,
+            "unit": "1"
+          },
+          {
+            "name": "predictive_df",
+            "value": 18,
+            "unit": "1"
+          },
+          {
+            "name": "coverage",
+            "value": 0.8999999999999999,
+            "unit": "1"
+          },
+          {
+            "name": "stored_normal_sd_ln",
+            "value": 0.40270629297800337,
+            "unit": "1"
+          },
+          {
+            "name": "flight_temperature_k",
+            "value": 296.15,
+            "unit": "K"
+          },
+          {
+            "name": "flight_temperature_sd_k",
+            "value": 2.25,
+            "unit": "K"
+          },
+          {
+            "name": "flight_rh_percent",
+            "value": 24.0,
+            "unit": "percent"
+          },
+          {
+            "name": "flight_rh_sd_percent",
+            "value": 0.5,
+            "unit": "percent"
+          },
+          {
+            "name": "censored_ground_rows",
+            "value": 0,
+            "unit": "1"
+          },
+          {
+            "name": "censored_flight_rows",
+            "value": 0,
+            "unit": "1"
+          }
+        ]
+      }
+    }
+  ]
+}

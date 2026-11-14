@@ -1,0 +1,461 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/stability-models.schema.json",
+  "title": "Measured stability models fitted to reproduced published data.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_id",
+    "schema",
+    "version",
+    "review_state",
+    "notice",
+    "models"
+  ],
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "schema": {
+      "const": "pharmacy/stability-models.schema.json"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "review_state": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ]
+    },
+    "notice": {
+      "type": "string"
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/StabilityModelDoc"
+      }
+    }
+  },
+  "$defs": {
+    "FitStatistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "n",
+        "dof",
+        "rss",
+        "r2",
+        "published_ea_j_per_mol",
+        "ea_gap_j_per_mol"
+      ],
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "n": {
+          "type": "integer"
+        },
+        "dof": {
+          "type": "integer"
+        },
+        "rss": {
+          "type": "number"
+        },
+        "r2": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "published_ea_j_per_mol": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ea_gap_j_per_mol": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "KindParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "order_n",
+        "alpha0",
+        "avrami_n"
+      ],
+      "properties": {
+        "order_n": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "alpha0": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "avrami_n": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ParameterVector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "names",
+        "mean",
+        "covariance"
+      ],
+      "properties": {
+        "names": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "ln_k_ref_per_s",
+              "ea_j_per_mol",
+              "b_per_percent_rh",
+              "ln_k_vis_per_lux_h",
+              "ln_k_uv_per_w_h_per_m2",
+              "ln_k_dose_per_gy",
+              "ln_k_dose_frozen_per_gy",
+              "ln_frozen_rate_multiplier"
+            ]
+          }
+        },
+        "mean": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "covariance": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "StabilityModelDoc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_id",
+        "scope",
+        "product_id",
+        "ingredient_id",
+        "package_id",
+        "study",
+        "rate_law_kind",
+        "kind_parameters",
+        "reference_temperature_k",
+        "reference_rh_percent",
+        "parameters",
+        "fit",
+        "validated_range",
+        "max_study_duration_s",
+        "covers",
+        "dataset_sha256",
+        "status",
+        "basis",
+        "source_ids",
+        "note"
+      ],
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "scope": {
+          "enum": [
+            "product",
+            "reference_study"
+          ]
+        },
+        "product_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ingredient_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "package_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "study": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StudyData"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rate_law_kind": {
+          "enum": [
+            "F0",
+            "F1",
+            "F2",
+            "Fn",
+            "R2",
+            "R3",
+            "A2",
+            "A3",
+            "A4",
+            "An",
+            "B1",
+            "D1",
+            "D2",
+            "D3",
+            "D4"
+          ]
+        },
+        "kind_parameters": {
+          "$ref": "#/$defs/KindParameters"
+        },
+        "reference_temperature_k": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "reference_rh_percent": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parameters": {
+          "$ref": "#/$defs/ParameterVector"
+        },
+        "fit": {
+          "$ref": "#/$defs/FitStatistics"
+        },
+        "validated_range": {
+          "$ref": "common.schema.json#/$defs/ValidatedRangeDoc"
+        },
+        "max_study_duration_s": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "covers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "measured_degradant_ids": {
+          "allOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              }
+            },
+            {
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              }
+            }
+          ],
+          "default": []
+        },
+        "dataset_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "enum": [
+            "reproduces",
+            "known_mismatch"
+          ]
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "StudyData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "matrix",
+        "ph",
+        "concentration_text",
+        "temperatures_c",
+        "rate_constants",
+        "rate_unit",
+        "reaction_order"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "matrix": {
+          "type": "string"
+        },
+        "ph": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "concentration_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "temperatures_c": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "rate_constants": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "rate_unit": {
+          "enum": [
+            "per_s",
+            "per_min",
+            "per_h",
+            "per_day",
+            "per_month",
+            "ml_per_mg_per_h"
+          ]
+        },
+        "reaction_order": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

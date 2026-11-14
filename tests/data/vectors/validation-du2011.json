@@ -1,0 +1,4069 @@
+{
+ "document_id": "vectors-validation-du2011",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "Du 2011 ISS pharmacy kit validation datasets V1 to V4 (space-pharmacy.md, Validation datasets).",
+ "extracted_from": [
+  {
+   "note": "space-pharmacy.md",
+   "section": "Validation datasets: V1, V2, V3, V4"
+  },
+  {
+   "note": "space-pharmacy.md",
+   "section": "Du 2011 summary (clavulanate rate text vs Table S III-B)"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "V1",
+   "kind": "dataset",
+   "description": "V1. Du 2011: API content by payload, control vs flight, with fitted rates (MDP02 Tables S III-A and S III-B; cross-checked against MDP03)",
+   "target": null,
+   "inputs": {
+    "conditions": "Conditions: identical kits; flight on ISS from 4 July 2006; ground controls in a JSC environmental chamber; flight RH 23 to 25%, ground 36 to 44%; flight cumulative dose 110.7 mGy versus 5.45 mGy ground. Values are mean %LC (SD). \"none\" means no sample at that payload. Rates are linear %LC lost per 100 days with r2. Formulation, expiry and repackaging come from MDP03; MDP03 does not give them for the oral contraceptive pair. Day 13 is labeled \"14 Days (P 1)\" in MDP02.",
+    "columns": [
+     {
+      "key": "row_number",
+      "header": "#"
+     },
+     {
+      "key": "product_api",
+      "header": "Product (API)"
+     },
+     {
+      "key": "label_strength_mg",
+      "header": "Label strength (mg)"
+     },
+     {
+      "key": "usp_range_percent",
+      "header": "USP range (%)"
+     },
+     {
+      "key": "labeled_expiry",
+      "header": "Labeled expiry"
+     },
+     {
+      "key": "repackaged",
+      "header": "Repackaged"
+     },
+     {
+      "key": "day_13_control",
+      "header": "Day 13 control"
+     },
+     {
+      "key": "day_13_flight",
+      "header": "Day 13 flight"
+     },
+     {
+      "key": "day_353_control",
+      "header": "Day 353 control"
+     },
+     {
+      "key": "day_353_flight",
+      "header": "Day 353 flight"
+     },
+     {
+      "key": "day_596_control",
+      "header": "Day 596 control"
+     },
+     {
+      "key": "day_596_flight",
+      "header": "Day 596 flight"
+     },
+     {
+      "key": "day_880_control",
+      "header": "Day 880 control"
+     },
+     {
+      "key": "day_880_flight",
+      "header": "Day 880 flight"
+     },
+     {
+      "key": "rate_control_percent_100_d_r2",
+      "header": "Rate control %/100 d (r2)"
+     },
+     {
+      "key": "rate_flight_percent_100_d_r2",
+      "header": "Rate flight %/100 d (r2)"
+     },
+     {
+      "key": "table",
+      "header": "Table"
+     }
+    ],
+    "parse_conventions": "Day columns: 'mean (SD)' as {value, sd} in %LC; rate columns: 'rate (r2)' as {value, r2} in %LC lost per 100 days (linear); 'none' and 'not given' parse to null; USP 'n/a (set to 90 to 110 in study)' parses to {low, high, published_as_na}.",
+    "time_points_days": [
+     13,
+     353,
+     596,
+     880
+    ],
+    "calibration_split": {
+     "rule": "odd row numbers (the table's # column) calibrate, even row numbers validate",
+     "calibration_row_numbers": [
+      1,
+      3,
+      5,
+      7,
+      9,
+      11,
+      13,
+      15,
+      17,
+      19,
+      21,
+      23,
+      25,
+      27,
+      29,
+      31,
+      33,
+      35
+     ],
+     "validation_row_numbers": [
+      2,
+      4,
+      6,
+      8,
+      10,
+      12,
+      14,
+      16,
+      18,
+      20,
+      22,
+      24,
+      26,
+      28,
+      30,
+      32,
+      34,
+      36
+     ],
+     "basis": "fixed by the foundation before any fit; deterministic and disjoint by construction (degradation-science.md section 8 requires calibration and validation datasets hashed and checked disjoint)",
+     "caution": "co-formulated components straddle the split (rows 7/8 imipenem/cilastatin, 11/12 amoxicillin/clavulanate, 25/26 norethindrone/ethinyl estradiol, 35/36 sulfamethoxazole/trimethoprim): they share package and storage history, so validation on these rows is not fully independent"
+    }
+   },
+   "expected": {
+    "row_count": 36,
+    "rows": [
+     {
+      "raw": {
+       "row_number": "1",
+       "product_api": "Acyclovir tablet",
+       "label_strength_mg": "400",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Dec-08",
+       "repackaged": "yes",
+       "day_13_control": "107.2 (0.31)",
+       "day_13_flight": "104.7 (0.06)",
+       "day_353_control": "106.0 (0.29)",
+       "day_353_flight": "101.5 (0.10)",
+       "day_596_control": "102.3 (0.44)",
+       "day_596_flight": "96.9 (0.44)",
+       "day_880_control": "100.1 (0.53)",
+       "day_880_flight": "92.4 (0.94)",
+       "rate_control_percent_100_d_r2": "0.863 (0.940)",
+       "rate_flight_percent_100_d_r2": "1.45 (0.981)",
+       "table": "S III-A"
+      },
+      "parsed": {
+       "row_number": 1,
+       "product_api": "Acyclovir tablet",
+       "label_strength_mg": 400,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Dec-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 107.2,
+        "sd": 0.31
+       },
+       "day_13_flight": {
+        "value": 104.7,
+        "sd": 0.06
+       },
+       "day_353_control": {
+        "value": 106.0,
+        "sd": 0.29
+       },
+       "day_353_flight": {
+        "value": 101.5,
+        "sd": 0.1
+       },
+       "day_596_control": {
+        "value": 102.3,
+        "sd": 0.44
+       },
+       "day_596_flight": {
+        "value": 96.9,
+        "sd": 0.44
+       },
+       "day_880_control": {
+        "value": 100.1,
+        "sd": 0.53
+       },
+       "day_880_flight": {
+        "value": 92.4,
+        "sd": 0.94
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.863,
+        "r2": 0.94
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.45,
+        "r2": 0.981
+       },
+       "table": "S III-A"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "2",
+       "product_api": "Atorvastatin tablet",
+       "label_strength_mg": "10",
+       "usp_range_percent": "n/a (set to 90 to 110 in study)",
+       "labeled_expiry": "Oct-08",
+       "repackaged": "yes",
+       "day_13_control": "101.1 (0.66)",
+       "day_13_flight": "100.2 (0.88)",
+       "day_353_control": "100.7 (0.95)",
+       "day_353_flight": "97.8 (0.65)",
+       "day_596_control": "99.5 (0.81)",
+       "day_596_flight": "93.9 (0.33)",
+       "day_880_control": "98.9 (0.53)",
+       "day_880_flight": "92.5 (0.54)",
+       "rate_control_percent_100_d_r2": "0.271 (0.950)",
+       "rate_flight_percent_100_d_r2": "0.940 (0.961)",
+       "table": "S III-A"
+      },
+      "parsed": {
+       "row_number": 2,
+       "product_api": "Atorvastatin tablet",
+       "label_strength_mg": 10,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110,
+        "published_as_na": true
+       },
+       "labeled_expiry": "Oct-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 101.1,
+        "sd": 0.66
+       },
+       "day_13_flight": {
+        "value": 100.2,
+        "sd": 0.88
+       },
+       "day_353_control": {
+        "value": 100.7,
+        "sd": 0.95
+       },
+       "day_353_flight": {
+        "value": 97.8,
+        "sd": 0.65
+       },
+       "day_596_control": {
+        "value": 99.5,
+        "sd": 0.81
+       },
+       "day_596_flight": {
+        "value": 93.9,
+        "sd": 0.33
+       },
+       "day_880_control": {
+        "value": 98.9,
+        "sd": 0.53
+       },
+       "day_880_flight": {
+        "value": 92.5,
+        "sd": 0.54
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.271,
+        "r2": 0.95
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 0.94,
+        "r2": 0.961
+       },
+       "table": "S III-A"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "3",
+       "product_api": "Azithromycin tablet",
+       "label_strength_mg": "250",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Aug-08",
+       "repackaged": "yes",
+       "day_13_control": "109.0 (0.81)",
+       "day_13_flight": "106.9 (0.62)",
+       "day_353_control": "98.9 (0.33)",
+       "day_353_flight": "98.2 (0.10)",
+       "day_596_control": "95.6 (0.48)",
+       "day_596_flight": "92.2 (0.55)",
+       "day_880_control": "94.8 (0.39)",
+       "day_880_flight": "90.9 (0.37)",
+       "rate_control_percent_100_d_r2": "1.65 (0.859)",
+       "rate_flight_percent_100_d_r2": "1.92 (0.931)",
+       "table": "S III-A"
+      },
+      "parsed": {
+       "row_number": 3,
+       "product_api": "Azithromycin tablet",
+       "label_strength_mg": 250,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Aug-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 109.0,
+        "sd": 0.81
+       },
+       "day_13_flight": {
+        "value": 106.9,
+        "sd": 0.62
+       },
+       "day_353_control": {
+        "value": 98.9,
+        "sd": 0.33
+       },
+       "day_353_flight": {
+        "value": 98.2,
+        "sd": 0.1
+       },
+       "day_596_control": {
+        "value": 95.6,
+        "sd": 0.48
+       },
+       "day_596_flight": {
+        "value": 92.2,
+        "sd": 0.55
+       },
+       "day_880_control": {
+        "value": 94.8,
+        "sd": 0.39
+       },
+       "day_880_flight": {
+        "value": 90.9,
+        "sd": 0.37
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.65,
+        "r2": 0.859
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.92,
+        "r2": 0.931
+       },
+       "table": "S III-A"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "4",
+       "product_api": "Cefadroxil capsule",
+       "label_strength_mg": "500",
+       "usp_range_percent": "90 to 120",
+       "labeled_expiry": "Nov-07",
+       "repackaged": "yes",
+       "day_13_control": "99.3 (2.24)",
+       "day_13_flight": "102.3 (1.33)",
+       "day_353_control": "99.2 (0.28)",
+       "day_353_flight": "93.5 (0.53)",
+       "day_596_control": "97.2 (0.16)",
+       "day_596_flight": "92.8 (0.14)",
+       "day_880_control": "95.6 (0.45)",
+       "day_880_flight": "92.1 (0.07)",
+       "rate_control_percent_100_d_r2": "0.448 (0.877)",
+       "rate_flight_percent_100_d_r2": "1.14 (0.764)",
+       "table": "S III-A"
+      },
+      "parsed": {
+       "row_number": 4,
+       "product_api": "Cefadroxil capsule",
+       "label_strength_mg": 500,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 120
+       },
+       "labeled_expiry": "Nov-07",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 99.3,
+        "sd": 2.24
+       },
+       "day_13_flight": {
+        "value": 102.3,
+        "sd": 1.33
+       },
+       "day_353_control": {
+        "value": 99.2,
+        "sd": 0.28
+       },
+       "day_353_flight": {
+        "value": 93.5,
+        "sd": 0.53
+       },
+       "day_596_control": {
+        "value": 97.2,
+        "sd": 0.16
+       },
+       "day_596_flight": {
+        "value": 92.8,
+        "sd": 0.14
+       },
+       "day_880_control": {
+        "value": 95.6,
+        "sd": 0.45
+       },
+       "day_880_flight": {
+        "value": 92.1,
+        "sd": 0.07
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.448,
+        "r2": 0.877
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.14,
+        "r2": 0.764
+       },
+       "table": "S III-A"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "5",
+       "product_api": "Ciprofloxacin ophthalmic solution",
+       "label_strength_mg": "15",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Sep-07",
+       "repackaged": "no",
+       "day_13_control": "98.7 (0.40)",
+       "day_13_flight": "96.5 (0.24)",
+       "day_353_control": "none",
+       "day_353_flight": "none",
+       "day_596_control": "98.2 (0.67)",
+       "day_596_flight": "93.6 (0.77)",
+       "day_880_control": "96.2 (0.46)",
+       "day_880_flight": "91.6 (0.77)",
+       "rate_control_percent_100_d_r2": "0.254 (0.729)",
+       "rate_flight_percent_100_d_r2": "0.560 (0.992)",
+       "table": "S III-A"
+      },
+      "parsed": {
+       "row_number": 5,
+       "product_api": "Ciprofloxacin ophthalmic solution",
+       "label_strength_mg": 15,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Sep-07",
+       "repackaged": false,
+       "day_13_control": {
+        "value": 98.7,
+        "sd": 0.4
+       },
+       "day_13_flight": {
+        "value": 96.5,
+        "sd": 0.24
+       },
+       "day_353_control": null,
+       "day_353_flight": null,
+       "day_596_control": {
+        "value": 98.2,
+        "sd": 0.67
+       },
+       "day_596_flight": {
+        "value": 93.6,
+        "sd": 0.77
+       },
+       "day_880_control": {
+        "value": 96.2,
+        "sd": 0.46
+       },
+       "day_880_flight": {
+        "value": 91.6,
+        "sd": 0.77
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.254,
+        "r2": 0.729
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 0.56,
+        "r2": 0.992
+       },
+       "table": "S III-A"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "6",
+       "product_api": "Ibuprofen tablet",
+       "label_strength_mg": "400",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Oct-08",
+       "repackaged": "yes",
+       "day_13_control": "98.4 (0.84)",
+       "day_13_flight": "100.1 (0.05)",
+       "day_353_control": "100.2 (0.09)",
+       "day_353_flight": "100.0 (0.45)",
+       "day_596_control": "98.8 (0.26)",
+       "day_596_flight": "95.9 (0.54)",
+       "day_880_control": "97.6 (0.22)",
+       "day_880_flight": "92.1 (0.02)",
+       "rate_control_percent_100_d_r2": "0.121 (0.157)",
+       "rate_flight_percent_100_d_r2": "0.962 (0.860)",
+       "table": "S III-A"
+      },
+      "parsed": {
+       "row_number": 6,
+       "product_api": "Ibuprofen tablet",
+       "label_strength_mg": 400,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Oct-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 98.4,
+        "sd": 0.84
+       },
+       "day_13_flight": {
+        "value": 100.1,
+        "sd": 0.05
+       },
+       "day_353_control": {
+        "value": 100.2,
+        "sd": 0.09
+       },
+       "day_353_flight": {
+        "value": 100.0,
+        "sd": 0.45
+       },
+       "day_596_control": {
+        "value": 98.8,
+        "sd": 0.26
+       },
+       "day_596_flight": {
+        "value": 95.9,
+        "sd": 0.54
+       },
+       "day_880_control": {
+        "value": 97.6,
+        "sd": 0.22
+       },
+       "day_880_flight": {
+        "value": 92.1,
+        "sd": 0.02
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.121,
+        "r2": 0.157
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 0.962,
+        "r2": 0.86
+       },
+       "table": "S III-A"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "7",
+       "product_api": "Imipenem (imipenem/cilastatin powder)",
+       "label_strength_mg": "500",
+       "usp_range_percent": "90 to 115",
+       "labeled_expiry": "May-07",
+       "repackaged": "no",
+       "day_13_control": "97.6 (1.43)",
+       "day_13_flight": "103.4 (0.88)",
+       "day_353_control": "103.0 (0.73)",
+       "day_353_flight": "100.5 (1.31)",
+       "day_596_control": "102.6 (0.31)",
+       "day_596_flight": "92.8 (0.22)",
+       "day_880_control": "96.0 (0.75)",
+       "day_880_flight": "90.6 (0.24)",
+       "rate_control_percent_100_d_r2": "0.141 (0.021)",
+       "rate_flight_percent_100_d_r2": "1.61 (0.929)",
+       "table": "S III-A"
+      },
+      "parsed": {
+       "row_number": 7,
+       "product_api": "Imipenem (imipenem/cilastatin powder)",
+       "label_strength_mg": 500,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 115
+       },
+       "labeled_expiry": "May-07",
+       "repackaged": false,
+       "day_13_control": {
+        "value": 97.6,
+        "sd": 1.43
+       },
+       "day_13_flight": {
+        "value": 103.4,
+        "sd": 0.88
+       },
+       "day_353_control": {
+        "value": 103.0,
+        "sd": 0.73
+       },
+       "day_353_flight": {
+        "value": 100.5,
+        "sd": 1.31
+       },
+       "day_596_control": {
+        "value": 102.6,
+        "sd": 0.31
+       },
+       "day_596_flight": {
+        "value": 92.8,
+        "sd": 0.22
+       },
+       "day_880_control": {
+        "value": 96.0,
+        "sd": 0.75
+       },
+       "day_880_flight": {
+        "value": 90.6,
+        "sd": 0.24
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.141,
+        "r2": 0.021
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.61,
+        "r2": 0.929
+       },
+       "table": "S III-A"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "8",
+       "product_api": "Cilastatin (imipenem/cilastatin powder)",
+       "label_strength_mg": "500",
+       "usp_range_percent": "90 to 115",
+       "labeled_expiry": "May-07",
+       "repackaged": "no",
+       "day_13_control": "107.0 (0.40)",
+       "day_13_flight": "98.5 (2.02)",
+       "day_353_control": "111.5 (0.56)",
+       "day_353_flight": "103.1 (0.75)",
+       "day_596_control": "109.6 (0.50)",
+       "day_596_flight": "99.6 (0.25)",
+       "day_880_control": "107.7 (0.96)",
+       "day_880_flight": "98.3 (0.11)",
+       "rate_control_percent_100_d_r2": "-0.037 (0.005)",
+       "rate_flight_percent_100_d_r2": "0.107 (0.032)",
+       "table": "S III-A"
+      },
+      "parsed": {
+       "row_number": 8,
+       "product_api": "Cilastatin (imipenem/cilastatin powder)",
+       "label_strength_mg": 500,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 115
+       },
+       "labeled_expiry": "May-07",
+       "repackaged": false,
+       "day_13_control": {
+        "value": 107.0,
+        "sd": 0.4
+       },
+       "day_13_flight": {
+        "value": 98.5,
+        "sd": 2.02
+       },
+       "day_353_control": {
+        "value": 111.5,
+        "sd": 0.56
+       },
+       "day_353_flight": {
+        "value": 103.1,
+        "sd": 0.75
+       },
+       "day_596_control": {
+        "value": 109.6,
+        "sd": 0.5
+       },
+       "day_596_flight": {
+        "value": 99.6,
+        "sd": 0.25
+       },
+       "day_880_control": {
+        "value": 107.7,
+        "sd": 0.96
+       },
+       "day_880_flight": {
+        "value": 98.3,
+        "sd": 0.11
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": -0.037,
+        "r2": 0.005
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 0.107,
+        "r2": 0.032
+       },
+       "table": "S III-A"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "9",
+       "product_api": "Metronidazole tablet",
+       "label_strength_mg": "250",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Nov-08",
+       "repackaged": "yes",
+       "day_13_control": "97.5 (0.42)",
+       "day_13_flight": "96.0 (0.28)",
+       "day_353_control": "95.6 (0.31)",
+       "day_353_flight": "94.4 (0.46)",
+       "day_596_control": "93.9 (0.22)",
+       "day_596_flight": "92.0 (0.46)",
+       "day_880_control": "93.3 (0.49)",
+       "day_880_flight": "90.0 (0.85)",
+       "rate_control_percent_100_d_r2": "0.507 (0.963)",
+       "rate_flight_percent_100_d_r2": "0.714 (0.979)",
+       "table": "S III-A"
+      },
+      "parsed": {
+       "row_number": 9,
+       "product_api": "Metronidazole tablet",
+       "label_strength_mg": 250,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Nov-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 97.5,
+        "sd": 0.42
+       },
+       "day_13_flight": {
+        "value": 96.0,
+        "sd": 0.28
+       },
+       "day_353_control": {
+        "value": 95.6,
+        "sd": 0.31
+       },
+       "day_353_flight": {
+        "value": 94.4,
+        "sd": 0.46
+       },
+       "day_596_control": {
+        "value": 93.9,
+        "sd": 0.22
+       },
+       "day_596_flight": {
+        "value": 92.0,
+        "sd": 0.46
+       },
+       "day_880_control": {
+        "value": 93.3,
+        "sd": 0.49
+       },
+       "day_880_flight": {
+        "value": 90.0,
+        "sd": 0.85
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.507,
+        "r2": 0.963
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 0.714,
+        "r2": 0.979
+       },
+       "table": "S III-A"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "10",
+       "product_api": "Triamcinolone cream",
+       "label_strength_mg": "15",
+       "usp_range_percent": "90 to 115",
+       "labeled_expiry": "Aug-08",
+       "repackaged": "no",
+       "day_13_control": "98.6 (0.59)",
+       "day_13_flight": "98.3 (0.54)",
+       "day_353_control": "97.9 (1.12)",
+       "day_353_flight": "93.8 (0.94)",
+       "day_596_control": "96.4 (0.83)",
+       "day_596_flight": "93.1 (0.02)",
+       "day_880_control": "94.8 (0.31)",
+       "day_880_flight": "92.3 (0.36)",
+       "rate_control_percent_100_d_r2": "0.447 (0.951)",
+       "rate_flight_percent_100_d_r2": "0.678 (0.856)",
+       "table": "S III-A"
+      },
+      "parsed": {
+       "row_number": 10,
+       "product_api": "Triamcinolone cream",
+       "label_strength_mg": 15,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 115
+       },
+       "labeled_expiry": "Aug-08",
+       "repackaged": false,
+       "day_13_control": {
+        "value": 98.6,
+        "sd": 0.59
+       },
+       "day_13_flight": {
+        "value": 98.3,
+        "sd": 0.54
+       },
+       "day_353_control": {
+        "value": 97.9,
+        "sd": 1.12
+       },
+       "day_353_flight": {
+        "value": 93.8,
+        "sd": 0.94
+       },
+       "day_596_control": {
+        "value": 96.4,
+        "sd": 0.83
+       },
+       "day_596_flight": {
+        "value": 93.1,
+        "sd": 0.02
+       },
+       "day_880_control": {
+        "value": 94.8,
+        "sd": 0.31
+       },
+       "day_880_flight": {
+        "value": 92.3,
+        "sd": 0.36
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.447,
+        "r2": 0.951
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 0.678,
+        "r2": 0.856
+       },
+       "table": "S III-A"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "11",
+       "product_api": "Amoxicillin (amoxicillin/clavulanate tablet)",
+       "label_strength_mg": "875",
+       "usp_range_percent": "90 to 120",
+       "labeled_expiry": "Oct-07",
+       "repackaged": "yes",
+       "day_13_control": "116.2 (0.35)",
+       "day_13_flight": "116.0 (0.14)",
+       "day_353_control": "100.1 (0.05)",
+       "day_353_flight": "102.3 (0.33)",
+       "day_596_control": "97.2 (0.37)",
+       "day_596_flight": "88.0 (0.68)",
+       "day_880_control": "96.4 (0.47)",
+       "day_880_flight": "87.0 (0.41)",
+       "rate_control_percent_100_d_r2": "2.26 (0.796)",
+       "rate_flight_percent_100_d_r2": "3.57 (0.918)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 11,
+       "product_api": "Amoxicillin (amoxicillin/clavulanate tablet)",
+       "label_strength_mg": 875,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 120
+       },
+       "labeled_expiry": "Oct-07",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 116.2,
+        "sd": 0.35
+       },
+       "day_13_flight": {
+        "value": 116.0,
+        "sd": 0.14
+       },
+       "day_353_control": {
+        "value": 100.1,
+        "sd": 0.05
+       },
+       "day_353_flight": {
+        "value": 102.3,
+        "sd": 0.33
+       },
+       "day_596_control": {
+        "value": 97.2,
+        "sd": 0.37
+       },
+       "day_596_flight": {
+        "value": 88.0,
+        "sd": 0.68
+       },
+       "day_880_control": {
+        "value": 96.4,
+        "sd": 0.47
+       },
+       "day_880_flight": {
+        "value": 87.0,
+        "sd": 0.41
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 2.26,
+        "r2": 0.796
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 3.57,
+        "r2": 0.918
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "12",
+       "product_api": "Clavulanate (amoxicillin/clavulanate tablet)",
+       "label_strength_mg": "125",
+       "usp_range_percent": "90 to 120",
+       "labeled_expiry": "Oct-07",
+       "repackaged": "yes",
+       "day_13_control": "93.3 (0.59)",
+       "day_13_flight": "91.0 (0.79)",
+       "day_353_control": "12.0 (0.43)",
+       "day_353_flight": "36.7 (0.33)",
+       "day_596_control": "6.60 (0.16)",
+       "day_596_flight": "21.1 (1.10)",
+       "day_880_control": "3.3 (0.31)",
+       "day_880_flight": "9.1 (2.07)",
+       "rate_control_percent_100_d_r2": "10.1 (0.732)",
+       "rate_flight_percent_100_d_r2": "9.37 (0.906)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 12,
+       "product_api": "Clavulanate (amoxicillin/clavulanate tablet)",
+       "label_strength_mg": 125,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 120
+       },
+       "labeled_expiry": "Oct-07",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 93.3,
+        "sd": 0.59
+       },
+       "day_13_flight": {
+        "value": 91.0,
+        "sd": 0.79
+       },
+       "day_353_control": {
+        "value": 12.0,
+        "sd": 0.43
+       },
+       "day_353_flight": {
+        "value": 36.7,
+        "sd": 0.33
+       },
+       "day_596_control": {
+        "value": 6.6,
+        "sd": 0.16
+       },
+       "day_596_flight": {
+        "value": 21.1,
+        "sd": 1.1
+       },
+       "day_880_control": {
+        "value": 3.3,
+        "sd": 0.31
+       },
+       "day_880_flight": {
+        "value": 9.1,
+        "sd": 2.07
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 10.1,
+        "r2": 0.732
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 9.37,
+        "r2": 0.906
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "13",
+       "product_api": "Ciprofloxacin ointment",
+       "label_strength_mg": "10.5",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Aug-07",
+       "repackaged": "no",
+       "day_13_control": "95.4 (0.96)",
+       "day_13_flight": "94.7 (0.92)",
+       "day_353_control": "none",
+       "day_353_flight": "none",
+       "day_596_control": "93.2 (0.62)",
+       "day_596_flight": "90.3 (0.27)",
+       "day_880_control": "88.5 (0.47)",
+       "day_880_flight": "83.4 (0.46)",
+       "rate_control_percent_100_d_r2": "0.733 (0.851)",
+       "rate_flight_percent_100_d_r2": "1.23 (0.899)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 13,
+       "product_api": "Ciprofloxacin ointment",
+       "label_strength_mg": 10.5,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Aug-07",
+       "repackaged": false,
+       "day_13_control": {
+        "value": 95.4,
+        "sd": 0.96
+       },
+       "day_13_flight": {
+        "value": 94.7,
+        "sd": 0.92
+       },
+       "day_353_control": null,
+       "day_353_flight": null,
+       "day_596_control": {
+        "value": 93.2,
+        "sd": 0.62
+       },
+       "day_596_flight": {
+        "value": 90.3,
+        "sd": 0.27
+       },
+       "day_880_control": {
+        "value": 88.5,
+        "sd": 0.47
+       },
+       "day_880_flight": {
+        "value": 83.4,
+        "sd": 0.46
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.733,
+        "r2": 0.851
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.23,
+        "r2": 0.899
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "14",
+       "product_api": "Ciprofloxacin tablet",
+       "label_strength_mg": "500",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Nov-07",
+       "repackaged": "yes",
+       "day_13_control": "104.8 (0.87)",
+       "day_13_flight": "101.5 (0.31)",
+       "day_353_control": "92.9 (0.15)",
+       "day_353_flight": "92.1 (1.19)",
+       "day_596_control": "91.5 (0.03)",
+       "day_596_flight": "90.6 (0.34)",
+       "day_880_control": "90.9 (0.30)",
+       "day_880_flight": "84.4 (0.49)",
+       "rate_control_percent_100_d_r2": "1.57 (0.769)",
+       "rate_flight_percent_100_d_r2": "1.88 (0.959)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 14,
+       "product_api": "Ciprofloxacin tablet",
+       "label_strength_mg": 500,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Nov-07",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 104.8,
+        "sd": 0.87
+       },
+       "day_13_flight": {
+        "value": 101.5,
+        "sd": 0.31
+       },
+       "day_353_control": {
+        "value": 92.9,
+        "sd": 0.15
+       },
+       "day_353_flight": {
+        "value": 92.1,
+        "sd": 1.19
+       },
+       "day_596_control": {
+        "value": 91.5,
+        "sd": 0.03
+       },
+       "day_596_flight": {
+        "value": 90.6,
+        "sd": 0.34
+       },
+       "day_880_control": {
+        "value": 90.9,
+        "sd": 0.3
+       },
+       "day_880_flight": {
+        "value": 84.4,
+        "sd": 0.49
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.57,
+        "r2": 0.769
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.88,
+        "r2": 0.959
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "15",
+       "product_api": "Clotrimazole cream",
+       "label_strength_mg": "120",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "May-07",
+       "repackaged": "no",
+       "day_13_control": "98.7 (0.34)",
+       "day_13_flight": "98.4 (0.16)",
+       "day_353_control": "96.4 (0.15)",
+       "day_353_flight": "95.2 (0.26)",
+       "day_596_control": "95.3 (0.38)",
+       "day_596_flight": "93.1 (0.93)",
+       "day_880_control": "90.3 (0.31)",
+       "day_880_flight": "87.3 (0.61)",
+       "rate_control_percent_100_d_r2": "0.926 (0.911)",
+       "rate_flight_percent_100_d_r2": "1.24 (0.952)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 15,
+       "product_api": "Clotrimazole cream",
+       "label_strength_mg": 120,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "May-07",
+       "repackaged": false,
+       "day_13_control": {
+        "value": 98.7,
+        "sd": 0.34
+       },
+       "day_13_flight": {
+        "value": 98.4,
+        "sd": 0.16
+       },
+       "day_353_control": {
+        "value": 96.4,
+        "sd": 0.15
+       },
+       "day_353_flight": {
+        "value": 95.2,
+        "sd": 0.26
+       },
+       "day_596_control": {
+        "value": 95.3,
+        "sd": 0.38
+       },
+       "day_596_flight": {
+        "value": 93.1,
+        "sd": 0.93
+       },
+       "day_880_control": {
+        "value": 90.3,
+        "sd": 0.31
+       },
+       "day_880_flight": {
+        "value": 87.3,
+        "sd": 0.61
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.926,
+        "r2": 0.911
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.24,
+        "r2": 0.952
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "16",
+       "product_api": "Dextroamphetamine tablet",
+       "label_strength_mg": "5",
+       "usp_range_percent": "93 to 107",
+       "labeled_expiry": "Dec-08",
+       "repackaged": "yes",
+       "day_13_control": "98.1 (0.83)",
+       "day_13_flight": "98.3 (0.60)",
+       "day_353_control": "98.3 (1.07)",
+       "day_353_flight": "89.5 (1.09)",
+       "day_596_control": "97.5 (0.14)",
+       "day_596_flight": "88.8 (1.46)",
+       "day_880_control": "87.3 (0.03)",
+       "day_880_flight": "84.5 (0.34)",
+       "rate_control_percent_100_d_r2": "1.14 (0.615)",
+       "rate_flight_percent_100_d_r2": "1.51 (0.921)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 16,
+       "product_api": "Dextroamphetamine tablet",
+       "label_strength_mg": 5,
+       "usp_range_percent": {
+        "low": 93,
+        "high": 107
+       },
+       "labeled_expiry": "Dec-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 98.1,
+        "sd": 0.83
+       },
+       "day_13_flight": {
+        "value": 98.3,
+        "sd": 0.6
+       },
+       "day_353_control": {
+        "value": 98.3,
+        "sd": 1.07
+       },
+       "day_353_flight": {
+        "value": 89.5,
+        "sd": 1.09
+       },
+       "day_596_control": {
+        "value": 97.5,
+        "sd": 0.14
+       },
+       "day_596_flight": {
+        "value": 88.8,
+        "sd": 1.46
+       },
+       "day_880_control": {
+        "value": 87.3,
+        "sd": 0.03
+       },
+       "day_880_flight": {
+        "value": 84.5,
+        "sd": 0.34
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.14,
+        "r2": 0.615
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.51,
+        "r2": 0.921
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "17",
+       "product_api": "Epinephrine injection",
+       "label_strength_mg": "1",
+       "usp_range_percent": "90 to 115",
+       "labeled_expiry": "Oct-07",
+       "repackaged": "no",
+       "day_13_control": "110.5 (0.23)",
+       "day_13_flight": "110.0 (0.21)",
+       "day_353_control": "100.3 (0.30)",
+       "day_353_flight": "94.0 (0.10)",
+       "day_596_control": "96.5 (0.75)",
+       "day_596_flight": "90.8 (1.14)",
+       "day_880_control": "91.7 (0.60)",
+       "day_880_flight": "87.2 (0.50)",
+       "rate_control_percent_100_d_r2": "2.15 (0.972)",
+       "rate_flight_percent_100_d_r2": "2.58 (0.886)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 17,
+       "product_api": "Epinephrine injection",
+       "label_strength_mg": 1,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 115
+       },
+       "labeled_expiry": "Oct-07",
+       "repackaged": false,
+       "day_13_control": {
+        "value": 110.5,
+        "sd": 0.23
+       },
+       "day_13_flight": {
+        "value": 110.0,
+        "sd": 0.21
+       },
+       "day_353_control": {
+        "value": 100.3,
+        "sd": 0.3
+       },
+       "day_353_flight": {
+        "value": 94.0,
+        "sd": 0.1
+       },
+       "day_596_control": {
+        "value": 96.5,
+        "sd": 0.75
+       },
+       "day_596_flight": {
+        "value": 90.8,
+        "sd": 1.14
+       },
+       "day_880_control": {
+        "value": 91.7,
+        "sd": 0.6
+       },
+       "day_880_flight": {
+        "value": 87.2,
+        "sd": 0.5
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 2.15,
+        "r2": 0.972
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 2.58,
+        "r2": 0.886
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "18",
+       "product_api": "Fluconazole tablet",
+       "label_strength_mg": "150",
+       "usp_range_percent": "n/a (set to 90 to 110 in study)",
+       "labeled_expiry": "Nov-07",
+       "repackaged": "yes",
+       "day_13_control": "96.3 (0.51)",
+       "day_13_flight": "96.0 (0.27)",
+       "day_353_control": "96.0 (0.09)",
+       "day_353_flight": "94.2 (0.39)",
+       "day_596_control": "91.7 (0.40)",
+       "day_596_flight": "90.2 (0.69)",
+       "day_880_control": "89.9 (0.84)",
+       "day_880_flight": "88.2 (0.60)",
+       "rate_control_percent_100_d_r2": "0.808 (0.869)",
+       "rate_flight_percent_100_d_r2": "0.952 (0.958)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 18,
+       "product_api": "Fluconazole tablet",
+       "label_strength_mg": 150,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110,
+        "published_as_na": true
+       },
+       "labeled_expiry": "Nov-07",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 96.3,
+        "sd": 0.51
+       },
+       "day_13_flight": {
+        "value": 96.0,
+        "sd": 0.27
+       },
+       "day_353_control": {
+        "value": 96.0,
+        "sd": 0.09
+       },
+       "day_353_flight": {
+        "value": 94.2,
+        "sd": 0.39
+       },
+       "day_596_control": {
+        "value": 91.7,
+        "sd": 0.4
+       },
+       "day_596_flight": {
+        "value": 90.2,
+        "sd": 0.69
+       },
+       "day_880_control": {
+        "value": 89.9,
+        "sd": 0.84
+       },
+       "day_880_flight": {
+        "value": 88.2,
+        "sd": 0.6
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.808,
+        "r2": 0.869
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 0.952,
+        "r2": 0.958
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "19",
+       "product_api": "Furosemide tablet",
+       "label_strength_mg": "20",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Jun-08",
+       "repackaged": "yes",
+       "day_13_control": "99.1 (0.71)",
+       "day_13_flight": "93.9 (0.54)",
+       "day_353_control": "93.6 (0.42)",
+       "day_353_flight": "89.9 (0.42)",
+       "day_596_control": "87.9 (0.16)",
+       "day_596_flight": "83.2 (0.11)",
+       "day_880_control": "86.2 (0.63)",
+       "day_880_flight": "80.2 (0.69)",
+       "rate_control_percent_100_d_r2": "1.56 (0.961)",
+       "rate_flight_percent_100_d_r2": "1.67 (0.968)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 19,
+       "product_api": "Furosemide tablet",
+       "label_strength_mg": 20,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Jun-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 99.1,
+        "sd": 0.71
+       },
+       "day_13_flight": {
+        "value": 93.9,
+        "sd": 0.54
+       },
+       "day_353_control": {
+        "value": 93.6,
+        "sd": 0.42
+       },
+       "day_353_flight": {
+        "value": 89.9,
+        "sd": 0.42
+       },
+       "day_596_control": {
+        "value": 87.9,
+        "sd": 0.16
+       },
+       "day_596_flight": {
+        "value": 83.2,
+        "sd": 0.11
+       },
+       "day_880_control": {
+        "value": 86.2,
+        "sd": 0.63
+       },
+       "day_880_flight": {
+        "value": 80.2,
+        "sd": 0.69
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.56,
+        "r2": 0.961
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.67,
+        "r2": 0.968
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "20",
+       "product_api": "Levofloxacin tablet",
+       "label_strength_mg": "500",
+       "usp_range_percent": "n/a (set to 90 to 110 in study)",
+       "labeled_expiry": "Nov-08",
+       "repackaged": "yes",
+       "day_13_control": "98.2 (0.16)",
+       "day_13_flight": "97.5 (0.06)",
+       "day_353_control": "98.0 (0.28)",
+       "day_353_flight": "94.7 (0.35)",
+       "day_596_control": "87.9 (0.73)",
+       "day_596_flight": "84.8 (0.24)",
+       "day_880_control": "85.6 (0.89)",
+       "day_880_flight": "81.2 (0.31)",
+       "rate_control_percent_100_d_r2": "1.64 (0.828)",
+       "rate_flight_percent_100_d_r2": "2.04 (0.924)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 20,
+       "product_api": "Levofloxacin tablet",
+       "label_strength_mg": 500,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110,
+        "published_as_na": true
+       },
+       "labeled_expiry": "Nov-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 98.2,
+        "sd": 0.16
+       },
+       "day_13_flight": {
+        "value": 97.5,
+        "sd": 0.06
+       },
+       "day_353_control": {
+        "value": 98.0,
+        "sd": 0.28
+       },
+       "day_353_flight": {
+        "value": 94.7,
+        "sd": 0.35
+       },
+       "day_596_control": {
+        "value": 87.9,
+        "sd": 0.73
+       },
+       "day_596_flight": {
+        "value": 84.8,
+        "sd": 0.24
+       },
+       "day_880_control": {
+        "value": 85.6,
+        "sd": 0.89
+       },
+       "day_880_flight": {
+        "value": 81.2,
+        "sd": 0.31
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.64,
+        "r2": 0.828
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 2.04,
+        "r2": 0.924
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "21",
+       "product_api": "Levothyroxine tablet",
+       "label_strength_mg": "0.025",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Aug-07",
+       "repackaged": "yes",
+       "day_13_control": "92.3 (0.66)",
+       "day_13_flight": "88.6 (0.51)",
+       "day_353_control": "90.7 (0.80)",
+       "day_353_flight": "86.5 (0.13)",
+       "day_596_control": "83.7 (0.78)",
+       "day_596_flight": "75.4 (0.29)",
+       "day_880_control": "75.3 (0.14)",
+       "day_880_flight": "72.3 (0.30)",
+       "rate_control_percent_100_d_r2": "2.00 (0.900)",
+       "rate_flight_percent_100_d_r2": "2.07 (0.894)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 21,
+       "product_api": "Levothyroxine tablet",
+       "label_strength_mg": 0.025,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Aug-07",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 92.3,
+        "sd": 0.66
+       },
+       "day_13_flight": {
+        "value": 88.6,
+        "sd": 0.51
+       },
+       "day_353_control": {
+        "value": 90.7,
+        "sd": 0.8
+       },
+       "day_353_flight": {
+        "value": 86.5,
+        "sd": 0.13
+       },
+       "day_596_control": {
+        "value": 83.7,
+        "sd": 0.78
+       },
+       "day_596_flight": {
+        "value": 75.4,
+        "sd": 0.29
+       },
+       "day_880_control": {
+        "value": 75.3,
+        "sd": 0.14
+       },
+       "day_880_flight": {
+        "value": 72.3,
+        "sd": 0.3
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 2.0,
+        "r2": 0.9
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 2.07,
+        "r2": 0.894
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "22",
+       "product_api": "Lidocaine injection",
+       "label_strength_mg": "100",
+       "usp_range_percent": "95 to 105",
+       "labeled_expiry": "Oct-07",
+       "repackaged": "no",
+       "day_13_control": "100.4 (0.72)",
+       "day_13_flight": "99.6 (0.59)",
+       "day_353_control": "none",
+       "day_353_flight": "none",
+       "day_596_control": "98.7 (1.14)",
+       "day_596_flight": "95.6 (1.68)",
+       "day_880_control": "95.3 (1.18)",
+       "day_880_flight": "94.0 (1.45)",
+       "rate_control_percent_100_d_r2": "0.550 (0.860)",
+       "rate_flight_percent_100_d_r2": "0.651 (0.999)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 22,
+       "product_api": "Lidocaine injection",
+       "label_strength_mg": 100,
+       "usp_range_percent": {
+        "low": 95,
+        "high": 105
+       },
+       "labeled_expiry": "Oct-07",
+       "repackaged": false,
+       "day_13_control": {
+        "value": 100.4,
+        "sd": 0.72
+       },
+       "day_13_flight": {
+        "value": 99.6,
+        "sd": 0.59
+       },
+       "day_353_control": null,
+       "day_353_flight": null,
+       "day_596_control": {
+        "value": 98.7,
+        "sd": 1.14
+       },
+       "day_596_flight": {
+        "value": 95.6,
+        "sd": 1.68
+       },
+       "day_880_control": {
+        "value": 95.3,
+        "sd": 1.18
+       },
+       "day_880_flight": {
+        "value": 94.0,
+        "sd": 1.45
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.55,
+        "r2": 0.86
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 0.651,
+        "r2": 0.999
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "23",
+       "product_api": "Metoprolol succinate tablet",
+       "label_strength_mg": "50",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Oct-08",
+       "repackaged": "yes",
+       "day_13_control": "101.9 (1.30)",
+       "day_13_flight": "98.0 (0.51)",
+       "day_353_control": "95.3 (0.20)",
+       "day_353_flight": "88.9 (0.56)",
+       "day_596_control": "92.1 (0.38)",
+       "day_596_flight": "87.6 (0.26)",
+       "day_880_control": "91.7 (0.93)",
+       "day_880_flight": "86.9 (0.88)",
+       "rate_control_percent_100_d_r2": "1.20 (0.881)",
+       "rate_flight_percent_100_d_r2": "1.25 (0.796)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 23,
+       "product_api": "Metoprolol succinate tablet",
+       "label_strength_mg": 50,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Oct-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 101.9,
+        "sd": 1.3
+       },
+       "day_13_flight": {
+        "value": 98.0,
+        "sd": 0.51
+       },
+       "day_353_control": {
+        "value": 95.3,
+        "sd": 0.2
+       },
+       "day_353_flight": {
+        "value": 88.9,
+        "sd": 0.56
+       },
+       "day_596_control": {
+        "value": 92.1,
+        "sd": 0.38
+       },
+       "day_596_flight": {
+        "value": 87.6,
+        "sd": 0.26
+       },
+       "day_880_control": {
+        "value": 91.7,
+        "sd": 0.93
+       },
+       "day_880_flight": {
+        "value": 86.9,
+        "sd": 0.88
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.2,
+        "r2": 0.881
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.25,
+        "r2": 0.796
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "24",
+       "product_api": "Mupirocin ointment",
+       "label_strength_mg": "440",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Oct-07",
+       "repackaged": "no",
+       "day_13_control": "98.2 (0.16)",
+       "day_13_flight": "99.0 (0.42)",
+       "day_353_control": "none",
+       "day_353_flight": "none",
+       "day_596_control": "94.3 (0.24)",
+       "day_596_flight": "89.3 (0.36)",
+       "day_880_control": "87.0 (0.56)",
+       "day_880_flight": "82.9 (0.14)",
+       "rate_control_percent_100_d_r2": "1.20 (0.873)",
+       "rate_flight_percent_100_d_r2": "1.83 (0.994)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 24,
+       "product_api": "Mupirocin ointment",
+       "label_strength_mg": 440,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Oct-07",
+       "repackaged": false,
+       "day_13_control": {
+        "value": 98.2,
+        "sd": 0.16
+       },
+       "day_13_flight": {
+        "value": 99.0,
+        "sd": 0.42
+       },
+       "day_353_control": null,
+       "day_353_flight": null,
+       "day_596_control": {
+        "value": 94.3,
+        "sd": 0.24
+       },
+       "day_596_flight": {
+        "value": 89.3,
+        "sd": 0.36
+       },
+       "day_880_control": {
+        "value": 87.0,
+        "sd": 0.56
+       },
+       "day_880_flight": {
+        "value": 82.9,
+        "sd": 0.14
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.2,
+        "r2": 0.873
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.83,
+        "r2": 0.994
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "25",
+       "product_api": "Norethindrone (oral contraceptive)",
+       "label_strength_mg": "100",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "not given",
+       "repackaged": "not given",
+       "day_13_control": "101.3 (0.74)",
+       "day_13_flight": "103.4 (1.80)",
+       "day_353_control": "99.1 (0.77)",
+       "day_353_flight": "97.8 (0.40)",
+       "day_596_control": "95.7 (0.44)",
+       "day_596_flight": "94.6 (2.59)",
+       "day_880_control": "94.9 (0.22)",
+       "day_880_flight": "91.0 (1.44)",
+       "rate_control_percent_100_d_r2": "0.791 (0.973)",
+       "rate_flight_percent_100_d_r2": "1.43 (0.998)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 25,
+       "product_api": "Norethindrone (oral contraceptive)",
+       "label_strength_mg": 100,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": null,
+       "repackaged": null,
+       "day_13_control": {
+        "value": 101.3,
+        "sd": 0.74
+       },
+       "day_13_flight": {
+        "value": 103.4,
+        "sd": 1.8
+       },
+       "day_353_control": {
+        "value": 99.1,
+        "sd": 0.77
+       },
+       "day_353_flight": {
+        "value": 97.8,
+        "sd": 0.4
+       },
+       "day_596_control": {
+        "value": 95.7,
+        "sd": 0.44
+       },
+       "day_596_flight": {
+        "value": 94.6,
+        "sd": 2.59
+       },
+       "day_880_control": {
+        "value": 94.9,
+        "sd": 0.22
+       },
+       "day_880_flight": {
+        "value": 91.0,
+        "sd": 1.44
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.791,
+        "r2": 0.973
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.43,
+        "r2": 0.998
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "26",
+       "product_api": "Ethinyl estradiol (oral contraceptive)",
+       "label_strength_mg": "100",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "not given",
+       "repackaged": "not given",
+       "day_13_control": "94.3 (0.87)",
+       "day_13_flight": "96.8 (0.68)",
+       "day_353_control": "98.4 (0.81)",
+       "day_353_flight": "97.4 (0.63)",
+       "day_596_control": "90.9 (1.46)",
+       "day_596_flight": "90.5 (1.87)",
+       "day_880_control": "88.7 (1.18)",
+       "day_880_flight": "86.9 (0.31)",
+       "rate_control_percent_100_d_r2": "0.802 (0.696)",
+       "rate_flight_percent_100_d_r2": "1.25 (0.906)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 26,
+       "product_api": "Ethinyl estradiol (oral contraceptive)",
+       "label_strength_mg": 100,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": null,
+       "repackaged": null,
+       "day_13_control": {
+        "value": 94.3,
+        "sd": 0.87
+       },
+       "day_13_flight": {
+        "value": 96.8,
+        "sd": 0.68
+       },
+       "day_353_control": {
+        "value": 98.4,
+        "sd": 0.81
+       },
+       "day_353_flight": {
+        "value": 97.4,
+        "sd": 0.63
+       },
+       "day_596_control": {
+        "value": 90.9,
+        "sd": 1.46
+       },
+       "day_596_flight": {
+        "value": 90.5,
+        "sd": 1.87
+       },
+       "day_880_control": {
+        "value": 88.7,
+        "sd": 1.18
+       },
+       "day_880_flight": {
+        "value": 86.9,
+        "sd": 0.31
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.802,
+        "r2": 0.696
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.25,
+        "r2": 0.906
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "27",
+       "product_api": "Phenytoin capsule",
+       "label_strength_mg": "100",
+       "usp_range_percent": "95 to 105",
+       "labeled_expiry": "Sep-07",
+       "repackaged": "yes",
+       "day_13_control": "100.9 (0.51)",
+       "day_13_flight": "98.5 (0.84)",
+       "day_353_control": "98.5 (0.31)",
+       "day_353_flight": "96.4 (0.30)",
+       "day_596_control": "95.3 (0.57)",
+       "day_596_flight": "92.2 (0.41)",
+       "day_880_control": "93.8 (0.42)",
+       "day_880_flight": "90.4 (0.29)",
+       "rate_control_percent_100_d_r2": "0.853 (0.978)",
+       "rate_flight_percent_100_d_r2": "0.987 (0.960)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 27,
+       "product_api": "Phenytoin capsule",
+       "label_strength_mg": 100,
+       "usp_range_percent": {
+        "low": 95,
+        "high": 105
+       },
+       "labeled_expiry": "Sep-07",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 100.9,
+        "sd": 0.51
+       },
+       "day_13_flight": {
+        "value": 98.5,
+        "sd": 0.84
+       },
+       "day_353_control": {
+        "value": 98.5,
+        "sd": 0.31
+       },
+       "day_353_flight": {
+        "value": 96.4,
+        "sd": 0.3
+       },
+       "day_596_control": {
+        "value": 95.3,
+        "sd": 0.57
+       },
+       "day_596_flight": {
+        "value": 92.2,
+        "sd": 0.41
+       },
+       "day_880_control": {
+        "value": 93.8,
+        "sd": 0.42
+       },
+       "day_880_flight": {
+        "value": 90.4,
+        "sd": 0.29
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.853,
+        "r2": 0.978
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 0.987,
+        "r2": 0.96
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "28",
+       "product_api": "Promethazine tablet",
+       "label_strength_mg": "25",
+       "usp_range_percent": "95 to 110",
+       "labeled_expiry": "Oct-08",
+       "repackaged": "yes",
+       "day_13_control": "95.6 (0.21)",
+       "day_13_flight": "95.4 (0.31)",
+       "day_353_control": "93.2 (0.22)",
+       "day_353_flight": "91.6 (0.17)",
+       "day_596_control": "93.2 (0.17)",
+       "day_596_flight": "88.7 (0.03)",
+       "day_880_control": "87.5 (0.37)",
+       "day_880_flight": "83.7 (0.26)",
+       "rate_control_percent_100_d_r2": "0.851 (0.832)",
+       "rate_flight_percent_100_d_r2": "1.33 (0.986)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 28,
+       "product_api": "Promethazine tablet",
+       "label_strength_mg": 25,
+       "usp_range_percent": {
+        "low": 95,
+        "high": 110
+       },
+       "labeled_expiry": "Oct-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 95.6,
+        "sd": 0.21
+       },
+       "day_13_flight": {
+        "value": 95.4,
+        "sd": 0.31
+       },
+       "day_353_control": {
+        "value": 93.2,
+        "sd": 0.22
+       },
+       "day_353_flight": {
+        "value": 91.6,
+        "sd": 0.17
+       },
+       "day_596_control": {
+        "value": 93.2,
+        "sd": 0.17
+       },
+       "day_596_flight": {
+        "value": 88.7,
+        "sd": 0.03
+       },
+       "day_880_control": {
+        "value": 87.5,
+        "sd": 0.37
+       },
+       "day_880_flight": {
+        "value": 83.7,
+        "sd": 0.26
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.851,
+        "r2": 0.832
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.33,
+        "r2": 0.986
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "29",
+       "product_api": "Promethazine suppository",
+       "label_strength_mg": "50",
+       "usp_range_percent": "95 to 110",
+       "labeled_expiry": "Oct-08",
+       "repackaged": "no",
+       "day_13_control": "99.3 (0.15)",
+       "day_13_flight": "97.7 (0.16)",
+       "day_353_control": "97.3 (0.40)",
+       "day_353_flight": "92.4 (0.10)",
+       "day_596_control": "95.7 (0.62)",
+       "day_596_flight": "89.7 (0.41)",
+       "day_880_control": "93.9 (0.54)",
+       "day_880_flight": "84.0 (0.76)",
+       "rate_control_percent_100_d_r2": "0.629 (0.999)",
+       "rate_flight_percent_100_d_r2": "1.55 (0.999)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 29,
+       "product_api": "Promethazine suppository",
+       "label_strength_mg": 50,
+       "usp_range_percent": {
+        "low": 95,
+        "high": 110
+       },
+       "labeled_expiry": "Oct-08",
+       "repackaged": false,
+       "day_13_control": {
+        "value": 99.3,
+        "sd": 0.15
+       },
+       "day_13_flight": {
+        "value": 97.7,
+        "sd": 0.16
+       },
+       "day_353_control": {
+        "value": 97.3,
+        "sd": 0.4
+       },
+       "day_353_flight": {
+        "value": 92.4,
+        "sd": 0.1
+       },
+       "day_596_control": {
+        "value": 95.7,
+        "sd": 0.62
+       },
+       "day_596_flight": {
+        "value": 89.7,
+        "sd": 0.41
+       },
+       "day_880_control": {
+        "value": 93.9,
+        "sd": 0.54
+       },
+       "day_880_flight": {
+        "value": 84.0,
+        "sd": 0.76
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.629,
+        "r2": 0.999
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.55,
+        "r2": 0.999
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "30",
+       "product_api": "Promethazine injection",
+       "label_strength_mg": "25",
+       "usp_range_percent": "95 to 110",
+       "labeled_expiry": "Oct-07",
+       "repackaged": "no",
+       "day_13_control": "103.5 (1.80)",
+       "day_13_flight": "100.9 (0.17)",
+       "day_353_control": "95.1 (0.08)",
+       "day_353_flight": "93.5 (0.31)",
+       "day_596_control": "92.9 (0.83)",
+       "day_596_flight": "91.5 (0.22)",
+       "day_880_control": "91.6 (0.36)",
+       "day_880_flight": "87.1 (0.62)",
+       "rate_control_percent_100_d_r2": "1.37 (0.879)",
+       "rate_flight_percent_100_d_r2": "1.54 (0.971)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 30,
+       "product_api": "Promethazine injection",
+       "label_strength_mg": 25,
+       "usp_range_percent": {
+        "low": 95,
+        "high": 110
+       },
+       "labeled_expiry": "Oct-07",
+       "repackaged": false,
+       "day_13_control": {
+        "value": 103.5,
+        "sd": 1.8
+       },
+       "day_13_flight": {
+        "value": 100.9,
+        "sd": 0.17
+       },
+       "day_353_control": {
+        "value": 95.1,
+        "sd": 0.08
+       },
+       "day_353_flight": {
+        "value": 93.5,
+        "sd": 0.31
+       },
+       "day_596_control": {
+        "value": 92.9,
+        "sd": 0.83
+       },
+       "day_596_flight": {
+        "value": 91.5,
+        "sd": 0.22
+       },
+       "day_880_control": {
+        "value": 91.6,
+        "sd": 0.36
+       },
+       "day_880_flight": {
+        "value": 87.1,
+        "sd": 0.62
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.37,
+        "r2": 0.879
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.54,
+        "r2": 0.971
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "31",
+       "product_api": "Risedronate tablet",
+       "label_strength_mg": "35",
+       "usp_range_percent": "n/a (set to 90 to 110 in study)",
+       "labeled_expiry": "Oct-08",
+       "repackaged": "yes",
+       "day_13_control": "96.4 (0.13)",
+       "day_13_flight": "94.6 (0.23)",
+       "day_353_control": "94.9 (0.56)",
+       "day_353_flight": "93.0 (0.50)",
+       "day_596_control": "93.3 (0.23)",
+       "day_596_flight": "88.2 (0.39)",
+       "day_880_control": "91.7 (0.01)",
+       "day_880_flight": "86.5 (0.45)",
+       "rate_control_percent_100_d_r2": "0.548 (0.995)",
+       "rate_flight_percent_100_d_r2": "1.01 (0.932)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 31,
+       "product_api": "Risedronate tablet",
+       "label_strength_mg": 35,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110,
+        "published_as_na": true
+       },
+       "labeled_expiry": "Oct-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 96.4,
+        "sd": 0.13
+       },
+       "day_13_flight": {
+        "value": 94.6,
+        "sd": 0.23
+       },
+       "day_353_control": {
+        "value": 94.9,
+        "sd": 0.56
+       },
+       "day_353_flight": {
+        "value": 93.0,
+        "sd": 0.5
+       },
+       "day_596_control": {
+        "value": 93.3,
+        "sd": 0.23
+       },
+       "day_596_flight": {
+        "value": 88.2,
+        "sd": 0.39
+       },
+       "day_880_control": {
+        "value": 91.7,
+        "sd": 0.01
+       },
+       "day_880_flight": {
+        "value": 86.5,
+        "sd": 0.45
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 0.548,
+        "r2": 0.995
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.01,
+        "r2": 0.932
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "32",
+       "product_api": "Sertraline tablet",
+       "label_strength_mg": "25",
+       "usp_range_percent": "n/a (set to 90 to 110 in study)",
+       "labeled_expiry": "Jun-07",
+       "repackaged": "yes",
+       "day_13_control": "104.8 (0.09)",
+       "day_13_flight": "100.8 (0.23)",
+       "day_353_control": "100.3 (0.54)",
+       "day_353_flight": "91.7 (0.45)",
+       "day_596_control": "96.0 (0.61)",
+       "day_596_flight": "88.1 (0.63)",
+       "day_880_control": "95.6 (0.23)",
+       "day_880_flight": "86.9 (0.45)",
+       "rate_control_percent_100_d_r2": "1.12 (0.921)",
+       "rate_flight_percent_100_d_r2": "1.62 (0.895)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 32,
+       "product_api": "Sertraline tablet",
+       "label_strength_mg": 25,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110,
+        "published_as_na": true
+       },
+       "labeled_expiry": "Jun-07",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 104.8,
+        "sd": 0.09
+       },
+       "day_13_flight": {
+        "value": 100.8,
+        "sd": 0.23
+       },
+       "day_353_control": {
+        "value": 100.3,
+        "sd": 0.54
+       },
+       "day_353_flight": {
+        "value": 91.7,
+        "sd": 0.45
+       },
+       "day_596_control": {
+        "value": 96.0,
+        "sd": 0.61
+       },
+       "day_596_flight": {
+        "value": 88.1,
+        "sd": 0.63
+       },
+       "day_880_control": {
+        "value": 95.6,
+        "sd": 0.23
+       },
+       "day_880_flight": {
+        "value": 86.9,
+        "sd": 0.45
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.12,
+        "r2": 0.921
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.62,
+        "r2": 0.895
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "33",
+       "product_api": "Silver sulfadiazine cream",
+       "label_strength_mg": "250",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Dec-08",
+       "repackaged": "no",
+       "day_13_control": "97.5 (1.33)",
+       "day_13_flight": "96.0 (1.00)",
+       "day_353_control": "93.5 (0.28)",
+       "day_353_flight": "92.6 (0.51)",
+       "day_596_control": "90.5 (0.36)",
+       "day_596_flight": "89.8 (0.61)",
+       "day_880_control": "88.3 (0.15)",
+       "day_880_flight": "83.9 (0.05)",
+       "rate_control_percent_100_d_r2": "1.08 (0.991)",
+       "rate_flight_percent_100_d_r2": "1.37 (0.965)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 33,
+       "product_api": "Silver sulfadiazine cream",
+       "label_strength_mg": 250,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Dec-08",
+       "repackaged": false,
+       "day_13_control": {
+        "value": 97.5,
+        "sd": 1.33
+       },
+       "day_13_flight": {
+        "value": 96.0,
+        "sd": 1.0
+       },
+       "day_353_control": {
+        "value": 93.5,
+        "sd": 0.28
+       },
+       "day_353_flight": {
+        "value": 92.6,
+        "sd": 0.51
+       },
+       "day_596_control": {
+        "value": 90.5,
+        "sd": 0.36
+       },
+       "day_596_flight": {
+        "value": 89.8,
+        "sd": 0.61
+       },
+       "day_880_control": {
+        "value": 88.3,
+        "sd": 0.15
+       },
+       "day_880_flight": {
+        "value": 83.9,
+        "sd": 0.05
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.08,
+        "r2": 0.991
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 1.37,
+        "r2": 0.965
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "34",
+       "product_api": "Temazepam capsule",
+       "label_strength_mg": "15",
+       "usp_range_percent": "90 to 110",
+       "labeled_expiry": "Nov-08",
+       "repackaged": "yes",
+       "day_13_control": "98.9 (1.35)",
+       "day_13_flight": "98.8 (0.21)",
+       "day_353_control": "90.9 (0.38)",
+       "day_353_flight": "87.6 (0.08)",
+       "day_596_control": "88.1 (0.67)",
+       "day_596_flight": "85.4 (0.20)",
+       "day_880_control": "84.2 (0.14)",
+       "day_880_flight": "80.8 (0.91)",
+       "rate_control_percent_100_d_r2": "1.67 (0.972)",
+       "rate_flight_percent_100_d_r2": "2.01 (0.936)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 34,
+       "product_api": "Temazepam capsule",
+       "label_strength_mg": 15,
+       "usp_range_percent": {
+        "low": 90,
+        "high": 110
+       },
+       "labeled_expiry": "Nov-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 98.9,
+        "sd": 1.35
+       },
+       "day_13_flight": {
+        "value": 98.8,
+        "sd": 0.21
+       },
+       "day_353_control": {
+        "value": 90.9,
+        "sd": 0.38
+       },
+       "day_353_flight": {
+        "value": 87.6,
+        "sd": 0.08
+       },
+       "day_596_control": {
+        "value": 88.1,
+        "sd": 0.67
+       },
+       "day_596_flight": {
+        "value": 85.4,
+        "sd": 0.2
+       },
+       "day_880_control": {
+        "value": 84.2,
+        "sd": 0.14
+       },
+       "day_880_flight": {
+        "value": 80.8,
+        "sd": 0.91
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.67,
+        "r2": 0.972
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 2.01,
+        "r2": 0.936
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     },
+     {
+      "raw": {
+       "row_number": "35",
+       "product_api": "Sulfamethoxazole (SMX/TMP tablet)",
+       "label_strength_mg": "800",
+       "usp_range_percent": "93 to 107",
+       "labeled_expiry": "Dec-08",
+       "repackaged": "yes",
+       "day_13_control": "101.0 (0.01)",
+       "day_13_flight": "98.9 (0.54)",
+       "day_353_control": "100.0 (0.30)",
+       "day_353_flight": "96.9 (0.26)",
+       "day_596_control": "96.8 (0.10)",
+       "day_596_flight": "90.9 (0.06)",
+       "day_880_control": "90.3 (0.91)",
+       "day_880_flight": "80.7 (0.64)",
+       "rate_control_percent_100_d_r2": "1.22 (0.863)",
+       "rate_flight_percent_100_d_r2": "2.09 (0.889)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 35,
+       "product_api": "Sulfamethoxazole (SMX/TMP tablet)",
+       "label_strength_mg": 800,
+       "usp_range_percent": {
+        "low": 93,
+        "high": 107
+       },
+       "labeled_expiry": "Dec-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 101.0,
+        "sd": 0.01
+       },
+       "day_13_flight": {
+        "value": 98.9,
+        "sd": 0.54
+       },
+       "day_353_control": {
+        "value": 100.0,
+        "sd": 0.3
+       },
+       "day_353_flight": {
+        "value": 96.9,
+        "sd": 0.26
+       },
+       "day_596_control": {
+        "value": 96.8,
+        "sd": 0.1
+       },
+       "day_596_flight": {
+        "value": 90.9,
+        "sd": 0.06
+       },
+       "day_880_control": {
+        "value": 90.3,
+        "sd": 0.91
+       },
+       "day_880_flight": {
+        "value": 80.7,
+        "sd": 0.64
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.22,
+        "r2": 0.863
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 2.09,
+        "r2": 0.889
+       },
+       "table": "S III-B"
+      },
+      "split": "calibration"
+     },
+     {
+      "raw": {
+       "row_number": "36",
+       "product_api": "Trimethoprim (SMX/TMP tablet)",
+       "label_strength_mg": "160",
+       "usp_range_percent": "93 to 107",
+       "labeled_expiry": "Dec-08",
+       "repackaged": "yes",
+       "day_13_control": "102.0 (0.10)",
+       "day_13_flight": "99.6 (0.64)",
+       "day_353_control": "97.9 (0.14)",
+       "day_353_flight": "94.7 (0.13)",
+       "day_596_control": "96.4 (0.36)",
+       "day_596_flight": "90.7 (0.72)",
+       "day_880_control": "88.8 (1.45)",
+       "day_880_flight": "79.1 (0.51)",
+       "rate_control_percent_100_d_r2": "1.44 (0.926)",
+       "rate_flight_percent_100_d_r2": "2.29 (0.924)",
+       "table": "S III-B"
+      },
+      "parsed": {
+       "row_number": 36,
+       "product_api": "Trimethoprim (SMX/TMP tablet)",
+       "label_strength_mg": 160,
+       "usp_range_percent": {
+        "low": 93,
+        "high": 107
+       },
+       "labeled_expiry": "Dec-08",
+       "repackaged": true,
+       "day_13_control": {
+        "value": 102.0,
+        "sd": 0.1
+       },
+       "day_13_flight": {
+        "value": 99.6,
+        "sd": 0.64
+       },
+       "day_353_control": {
+        "value": 97.9,
+        "sd": 0.14
+       },
+       "day_353_flight": {
+        "value": 94.7,
+        "sd": 0.13
+       },
+       "day_596_control": {
+        "value": 96.4,
+        "sd": 0.36
+       },
+       "day_596_flight": {
+        "value": 90.7,
+        "sd": 0.72
+       },
+       "day_880_control": {
+        "value": 88.8,
+        "sd": 1.45
+       },
+       "day_880_flight": {
+        "value": 79.1,
+        "sd": 0.51
+       },
+       "rate_control_percent_100_d_r2": {
+        "value": 1.44,
+        "r2": 0.926
+       },
+       "rate_flight_percent_100_d_r2": {
+        "value": 2.29,
+        "r2": 0.924
+       },
+       "table": "S III-B"
+      },
+      "split": "validation"
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP01",
+    "MDP02",
+    "MDP03"
+   ],
+   "source_status": "READ",
+   "status": "known_mismatch",
+   "note": "Known mismatch (space-pharmacy.md, Du 2011 summary): the text gives clavulanate rates as \"0.1005% and 0.0936%/100 days\", but Table S III-B gives 10.1 and 9.37 %/100 days; the table values match the measured data, so the rows carry the table values. Notes: MDP03 lists atorvastatin USP range as 94.5 to 105.0 and fluconazole as 90 to 110, while MDP02 marks both \"n/a\" with limits \"set at 90-110% for these formulations in this study\". Ibuprofen and imipenem have control r2 of 0.157 and 0.021, so their rate ratios (7.02 and 9.43 in MDP06) are unreliable. Use: primary calibration of per-product first-order or zero-order rates, flight multiplier, and failure-time prediction; repackaged solids should be modeled as permeable packaging."
+  },
+  {
+   "vector_id": "V2",
+   "kind": "dataset",
+   "description": "V2. Du 2011: number of formulations failing potency (MDP01 Table III; MDP02 Table S II)",
+   "target": null,
+   "inputs": {
+    "columns": [
+     {
+      "key": "payload_days",
+      "header": "Payload (days)"
+     },
+     {
+      "key": "failed_control",
+      "header": "Failed, control"
+     },
+     {
+      "key": "failed_flight",
+      "header": "Failed, flight"
+     },
+     {
+      "key": "expired_at_return",
+      "header": "Expired at return"
+     }
+    ],
+    "parse_conventions": "'n (text)' as {value, parenthetical}; where the parenthetical gives the Table S II grid count it is also parsed as table_s_ii_grid_count."
+   },
+   "expected": {
+    "row_count": 4,
+    "rows": [
+     {
+      "raw": {
+       "payload_days": "1 (13)",
+       "failed_control": "0",
+       "failed_flight": "1 (levothyroxine)",
+       "expired_at_return": "0"
+      },
+      "parsed": {
+       "payload_days": {
+        "payload": 1,
+        "days": 13
+       },
+       "failed_control": 0,
+       "failed_flight": {
+        "value": 1,
+        "parenthetical": "levothyroxine"
+       },
+       "expired_at_return": 0
+      }
+     },
+     {
+      "raw": {
+       "payload_days": "2 (353)",
+       "failed_control": "2 (amoxicillin/clavulanate, promethazine tablet)",
+       "failed_flight": "11 (Table S II grid lists 9)",
+       "expired_at_return": "2"
+      },
+      "parsed": {
+       "payload_days": {
+        "payload": 2,
+        "days": 353
+       },
+       "failed_control": {
+        "value": 2,
+        "parenthetical": "amoxicillin/clavulanate, promethazine tablet"
+       },
+       "failed_flight": {
+        "value": 11,
+        "parenthetical": "Table S II grid lists 9",
+        "table_s_ii_grid_count": 9
+       },
+       "expired_at_return": 2
+      }
+     },
+     {
+      "raw": {
+       "payload_days": "3 (596)",
+       "failed_control": "8",
+       "failed_flight": "17",
+       "expired_at_return": "18"
+      },
+      "parsed": {
+       "payload_days": {
+        "payload": 3,
+        "days": 596
+       },
+       "failed_control": 8,
+       "failed_flight": 17,
+       "expired_at_return": 18
+      }
+     },
+     {
+      "raw": {
+       "payload_days": "4 (880)",
+       "failed_control": "16",
+       "failed_flight": "24 (Table S II grid lists 23)",
+       "expired_at_return": "26"
+      },
+      "parsed": {
+       "payload_days": {
+        "payload": 4,
+        "days": 880
+       },
+       "failed_control": 16,
+       "failed_flight": {
+        "value": 24,
+        "parenthetical": "Table S II grid lists 23",
+        "table_s_ii_grid_count": 23
+       },
+       "expired_at_return": 26
+      }
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP01",
+    "MDP02"
+   ],
+   "source_status": "READ",
+   "status": "known_mismatch",
+   "note": "Known mismatch: Table III gives 11 and 24 flight failures at payloads 2 and 4, while the Table S II grid lists 9 and 23. Assert the engine's predicted counts against the documented range, not one number (see TV-SF-2). Use: check the engine's predicted failure counts per time point."
+  },
+  {
+   "vector_id": "V3",
+   "kind": "dataset",
+   "description": "V3. Du 2011: dissolution, % API dissolved at USP time point Q (MDP01 Table IV)",
+   "target": null,
+   "inputs": {
+    "columns": [
+     {
+      "key": "api",
+      "header": "API"
+     },
+     {
+      "key": "label_mg",
+      "header": "Label (mg)"
+     },
+     {
+      "key": "usp_q_percent_in_min",
+      "header": "USP Q (% in min)"
+     },
+     {
+      "key": "p1_control",
+      "header": "P1 control"
+     },
+     {
+      "key": "p1_flight",
+      "header": "P1 flight"
+     },
+     {
+      "key": "p2_control",
+      "header": "P2 control"
+     },
+     {
+      "key": "p2_flight",
+      "header": "P2 flight"
+     },
+     {
+      "key": "p3_control",
+      "header": "P3 control"
+     },
+     {
+      "key": "p3_flight",
+      "header": "P3 flight"
+     },
+     {
+      "key": "p4_control",
+      "header": "P4 control"
+     },
+     {
+      "key": "p4_flight",
+      "header": "P4 flight"
+     }
+    ],
+    "parse_conventions": "'80 in 45' as {q_percent, minutes}; 'mean (x)' as {value, sd}. The note does not label the parenthesized number in this table; it is read as SD, as in V1 from the same paper."
+   },
+   "expected": {
+    "row_count": 14,
+    "rows": [
+     {
+      "raw": {
+       "api": "Acyclovir",
+       "label_mg": "400",
+       "usp_q_percent_in_min": "80 in 45",
+       "p1_control": "99.8 (0.27)",
+       "p1_flight": "99.1 (0.51)",
+       "p2_control": "97.5 (1.76)",
+       "p2_flight": "98.8 (0.23)",
+       "p3_control": "98.6 (0.37)",
+       "p3_flight": "95.7 (0.80)",
+       "p4_control": "94.3 (0.73)",
+       "p4_flight": "91.8 (1.06)"
+      },
+      "parsed": {
+       "api": "Acyclovir",
+       "label_mg": 400,
+       "usp_q_percent_in_min": {
+        "q_percent": 80,
+        "minutes": 45
+       },
+       "p1_control": {
+        "value": 99.8,
+        "sd": 0.27
+       },
+       "p1_flight": {
+        "value": 99.1,
+        "sd": 0.51
+       },
+       "p2_control": {
+        "value": 97.5,
+        "sd": 1.76
+       },
+       "p2_flight": {
+        "value": 98.8,
+        "sd": 0.23
+       },
+       "p3_control": {
+        "value": 98.6,
+        "sd": 0.37
+       },
+       "p3_flight": {
+        "value": 95.7,
+        "sd": 0.8
+       },
+       "p4_control": {
+        "value": 94.3,
+        "sd": 0.73
+       },
+       "p4_flight": {
+        "value": 91.8,
+        "sd": 1.06
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Amoxicillin",
+       "label_mg": "875",
+       "usp_q_percent_in_min": "85 in 30",
+       "p1_control": "118.1 (1.99)",
+       "p1_flight": "113.9 (0.96)",
+       "p2_control": "100.6 (1.14)",
+       "p2_flight": "99.7 (0.66)",
+       "p3_control": "98.1 (0.68)",
+       "p3_flight": "88.4 (2.54)",
+       "p4_control": "85.6 (0.65)",
+       "p4_flight": "86.1 (0.17)"
+      },
+      "parsed": {
+       "api": "Amoxicillin",
+       "label_mg": 875,
+       "usp_q_percent_in_min": {
+        "q_percent": 85,
+        "minutes": 30
+       },
+       "p1_control": {
+        "value": 118.1,
+        "sd": 1.99
+       },
+       "p1_flight": {
+        "value": 113.9,
+        "sd": 0.96
+       },
+       "p2_control": {
+        "value": 100.6,
+        "sd": 1.14
+       },
+       "p2_flight": {
+        "value": 99.7,
+        "sd": 0.66
+       },
+       "p3_control": {
+        "value": 98.1,
+        "sd": 0.68
+       },
+       "p3_flight": {
+        "value": 88.4,
+        "sd": 2.54
+       },
+       "p4_control": {
+        "value": 85.6,
+        "sd": 0.65
+       },
+       "p4_flight": {
+        "value": 86.1,
+        "sd": 0.17
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Clavulanate",
+       "label_mg": "125",
+       "usp_q_percent_in_min": "80 in 30",
+       "p1_control": "31.6 (4.51)",
+       "p1_flight": "44.4 (1.55)",
+       "p2_control": "11.1 (0.05)",
+       "p2_flight": "32.8 (0.13)",
+       "p3_control": "6.2 (0.22)",
+       "p3_flight": "20.3 (1.28)",
+       "p4_control": "4.4 (0.84)",
+       "p4_flight": "8.7 (1.81)"
+      },
+      "parsed": {
+       "api": "Clavulanate",
+       "label_mg": 125,
+       "usp_q_percent_in_min": {
+        "q_percent": 80,
+        "minutes": 30
+       },
+       "p1_control": {
+        "value": 31.6,
+        "sd": 4.51
+       },
+       "p1_flight": {
+        "value": 44.4,
+        "sd": 1.55
+       },
+       "p2_control": {
+        "value": 11.1,
+        "sd": 0.05
+       },
+       "p2_flight": {
+        "value": 32.8,
+        "sd": 0.13
+       },
+       "p3_control": {
+        "value": 6.2,
+        "sd": 0.22
+       },
+       "p3_flight": {
+        "value": 20.3,
+        "sd": 1.28
+       },
+       "p4_control": {
+        "value": 4.4,
+        "sd": 0.84
+       },
+       "p4_flight": {
+        "value": 8.7,
+        "sd": 1.81
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Cefadroxil",
+       "label_mg": "500",
+       "usp_q_percent_in_min": "80 in 30",
+       "p1_control": "100.4 (0.44)",
+       "p1_flight": "92.4 (2.51)",
+       "p2_control": "98.8 (1.63)",
+       "p2_flight": "97 (3.94)",
+       "p3_control": "97.5 (3.40)",
+       "p3_flight": "91.9 (4.92)",
+       "p4_control": "95.2 (0.90)",
+       "p4_flight": "91.0 (2.43)"
+      },
+      "parsed": {
+       "api": "Cefadroxil",
+       "label_mg": 500,
+       "usp_q_percent_in_min": {
+        "q_percent": 80,
+        "minutes": 30
+       },
+       "p1_control": {
+        "value": 100.4,
+        "sd": 0.44
+       },
+       "p1_flight": {
+        "value": 92.4,
+        "sd": 2.51
+       },
+       "p2_control": {
+        "value": 98.8,
+        "sd": 1.63
+       },
+       "p2_flight": {
+        "value": 97,
+        "sd": 3.94
+       },
+       "p3_control": {
+        "value": 97.5,
+        "sd": 3.4
+       },
+       "p3_flight": {
+        "value": 91.9,
+        "sd": 4.92
+       },
+       "p4_control": {
+        "value": 95.2,
+        "sd": 0.9
+       },
+       "p4_flight": {
+        "value": 91.0,
+        "sd": 2.43
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Ciprofloxacin tablet",
+       "label_mg": "500",
+       "usp_q_percent_in_min": "80 in 30",
+       "p1_control": "94.3 (1.28)",
+       "p1_flight": "92.2 (3.02)",
+       "p2_control": "88.3 (4.07)",
+       "p2_flight": "89.0 (0.09)",
+       "p3_control": "90.7 (1.02)",
+       "p3_flight": "89.8 (0.47)",
+       "p4_control": "84.7 (0.48)",
+       "p4_flight": "82.1 (0.19)"
+      },
+      "parsed": {
+       "api": "Ciprofloxacin tablet",
+       "label_mg": 500,
+       "usp_q_percent_in_min": {
+        "q_percent": 80,
+        "minutes": 30
+       },
+       "p1_control": {
+        "value": 94.3,
+        "sd": 1.28
+       },
+       "p1_flight": {
+        "value": 92.2,
+        "sd": 3.02
+       },
+       "p2_control": {
+        "value": 88.3,
+        "sd": 4.07
+       },
+       "p2_flight": {
+        "value": 89.0,
+        "sd": 0.09
+       },
+       "p3_control": {
+        "value": 90.7,
+        "sd": 1.02
+       },
+       "p3_flight": {
+        "value": 89.8,
+        "sd": 0.47
+       },
+       "p4_control": {
+        "value": 84.7,
+        "sd": 0.48
+       },
+       "p4_flight": {
+        "value": 82.1,
+        "sd": 0.19
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Dextroamphetamine",
+       "label_mg": "5",
+       "usp_q_percent_in_min": "75 in 45",
+       "p1_control": "93.5 (0.38)",
+       "p1_flight": "95.2 (3.93)",
+       "p2_control": "104.1 (5.03)",
+       "p2_flight": "94.8 (3.05)",
+       "p3_control": "92.7 (5.23)",
+       "p3_flight": "86.6 (5.14)",
+       "p4_control": "83.0 (1.79)",
+       "p4_flight": "79.1 (4.16)"
+      },
+      "parsed": {
+       "api": "Dextroamphetamine",
+       "label_mg": 5,
+       "usp_q_percent_in_min": {
+        "q_percent": 75,
+        "minutes": 45
+       },
+       "p1_control": {
+        "value": 93.5,
+        "sd": 0.38
+       },
+       "p1_flight": {
+        "value": 95.2,
+        "sd": 3.93
+       },
+       "p2_control": {
+        "value": 104.1,
+        "sd": 5.03
+       },
+       "p2_flight": {
+        "value": 94.8,
+        "sd": 3.05
+       },
+       "p3_control": {
+        "value": 92.7,
+        "sd": 5.23
+       },
+       "p3_flight": {
+        "value": 86.6,
+        "sd": 5.14
+       },
+       "p4_control": {
+        "value": 83.0,
+        "sd": 1.79
+       },
+       "p4_flight": {
+        "value": 79.1,
+        "sd": 4.16
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Furosemide",
+       "label_mg": "20",
+       "usp_q_percent_in_min": "80 in 60",
+       "p1_control": "98.6 (2.55)",
+       "p1_flight": "98.5 (1.09)",
+       "p2_control": "97.0 (0.11)",
+       "p2_flight": "97.9 (1.17)",
+       "p3_control": "85.2 (0.11)",
+       "p3_flight": "81.2 (1.17)",
+       "p4_control": "80.4 (0.39)",
+       "p4_flight": "79.8 (2.74)"
+      },
+      "parsed": {
+       "api": "Furosemide",
+       "label_mg": 20,
+       "usp_q_percent_in_min": {
+        "q_percent": 80,
+        "minutes": 60
+       },
+       "p1_control": {
+        "value": 98.6,
+        "sd": 2.55
+       },
+       "p1_flight": {
+        "value": 98.5,
+        "sd": 1.09
+       },
+       "p2_control": {
+        "value": 97.0,
+        "sd": 0.11
+       },
+       "p2_flight": {
+        "value": 97.9,
+        "sd": 1.17
+       },
+       "p3_control": {
+        "value": 85.2,
+        "sd": 0.11
+       },
+       "p3_flight": {
+        "value": 81.2,
+        "sd": 1.17
+       },
+       "p4_control": {
+        "value": 80.4,
+        "sd": 0.39
+       },
+       "p4_flight": {
+        "value": 79.8,
+        "sd": 2.74
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Ibuprofen",
+       "label_mg": "400",
+       "usp_q_percent_in_min": "80 in 60",
+       "p1_control": "97.4 (2.93)",
+       "p1_flight": "99.7 (0.28)",
+       "p2_control": "99.2 (0.97)",
+       "p2_flight": "98.4 (2.01)",
+       "p3_control": "97.5 (0.31)",
+       "p3_flight": "93.5 (1.32)",
+       "p4_control": "94.6 (0.30)",
+       "p4_flight": "91.6 (2.29)"
+      },
+      "parsed": {
+       "api": "Ibuprofen",
+       "label_mg": 400,
+       "usp_q_percent_in_min": {
+        "q_percent": 80,
+        "minutes": 60
+       },
+       "p1_control": {
+        "value": 97.4,
+        "sd": 2.93
+       },
+       "p1_flight": {
+        "value": 99.7,
+        "sd": 0.28
+       },
+       "p2_control": {
+        "value": 99.2,
+        "sd": 0.97
+       },
+       "p2_flight": {
+        "value": 98.4,
+        "sd": 2.01
+       },
+       "p3_control": {
+        "value": 97.5,
+        "sd": 0.31
+       },
+       "p3_flight": {
+        "value": 93.5,
+        "sd": 1.32
+       },
+       "p4_control": {
+        "value": 94.6,
+        "sd": 0.3
+       },
+       "p4_flight": {
+        "value": 91.6,
+        "sd": 2.29
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Levothyroxine",
+       "label_mg": "0.025",
+       "usp_q_percent_in_min": "70 in 45",
+       "p1_control": "83.4 (1.77)",
+       "p1_flight": "81.6 (0.62)",
+       "p2_control": "90.7 (1.52)",
+       "p2_flight": "92.9 (9.09)",
+       "p3_control": "82.8 (6.92)",
+       "p3_flight": "71.2 (4.61)",
+       "p4_control": "81.0 (11.83)",
+       "p4_flight": "82.9 (2.14)"
+      },
+      "parsed": {
+       "api": "Levothyroxine",
+       "label_mg": 0.025,
+       "usp_q_percent_in_min": {
+        "q_percent": 70,
+        "minutes": 45
+       },
+       "p1_control": {
+        "value": 83.4,
+        "sd": 1.77
+       },
+       "p1_flight": {
+        "value": 81.6,
+        "sd": 0.62
+       },
+       "p2_control": {
+        "value": 90.7,
+        "sd": 1.52
+       },
+       "p2_flight": {
+        "value": 92.9,
+        "sd": 9.09
+       },
+       "p3_control": {
+        "value": 82.8,
+        "sd": 6.92
+       },
+       "p3_flight": {
+        "value": 71.2,
+        "sd": 4.61
+       },
+       "p4_control": {
+        "value": 81.0,
+        "sd": 11.83
+       },
+       "p4_flight": {
+        "value": 82.9,
+        "sd": 2.14
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Metronidazole",
+       "label_mg": "250",
+       "usp_q_percent_in_min": "85 in 60",
+       "p1_control": "99.9 (0.09)",
+       "p1_flight": "100.0 (0.07)",
+       "p2_control": "99.9 (0.00)",
+       "p2_flight": "99.9 (0.00)",
+       "p3_control": "92.9 (0.70)",
+       "p3_flight": "91.1 (0.93)",
+       "p4_control": "91.5 (0.28)",
+       "p4_flight": "88.6 (0.68)"
+      },
+      "parsed": {
+       "api": "Metronidazole",
+       "label_mg": 250,
+       "usp_q_percent_in_min": {
+        "q_percent": 85,
+        "minutes": 60
+       },
+       "p1_control": {
+        "value": 99.9,
+        "sd": 0.09
+       },
+       "p1_flight": {
+        "value": 100.0,
+        "sd": 0.07
+       },
+       "p2_control": {
+        "value": 99.9,
+        "sd": 0.0
+       },
+       "p2_flight": {
+        "value": 99.9,
+        "sd": 0.0
+       },
+       "p3_control": {
+        "value": 92.9,
+        "sd": 0.7
+       },
+       "p3_flight": {
+        "value": 91.1,
+        "sd": 0.93
+       },
+       "p4_control": {
+        "value": 91.5,
+        "sd": 0.28
+       },
+       "p4_flight": {
+        "value": 88.6,
+        "sd": 0.68
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Promethazine tablet",
+       "label_mg": "25",
+       "usp_q_percent_in_min": "75 in 45",
+       "p1_control": "100.0 (0.00)",
+       "p1_flight": "99.8 (0.28)",
+       "p2_control": "99.8 (0.23)",
+       "p2_flight": "100.0 (0.04)",
+       "p3_control": "100.0 (0.00)",
+       "p3_flight": "100.0 (0.00)",
+       "p4_control": "85.1 (0.12)",
+       "p4_flight": "80.9 (0.13)"
+      },
+      "parsed": {
+       "api": "Promethazine tablet",
+       "label_mg": 25,
+       "usp_q_percent_in_min": {
+        "q_percent": 75,
+        "minutes": 45
+       },
+       "p1_control": {
+        "value": 100.0,
+        "sd": 0.0
+       },
+       "p1_flight": {
+        "value": 99.8,
+        "sd": 0.28
+       },
+       "p2_control": {
+        "value": 99.8,
+        "sd": 0.23
+       },
+       "p2_flight": {
+        "value": 100.0,
+        "sd": 0.04
+       },
+       "p3_control": {
+        "value": 100.0,
+        "sd": 0.0
+       },
+       "p3_flight": {
+        "value": 100.0,
+        "sd": 0.0
+       },
+       "p4_control": {
+        "value": 85.1,
+        "sd": 0.12
+       },
+       "p4_flight": {
+        "value": 80.9,
+        "sd": 0.13
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Temazepam",
+       "label_mg": "15",
+       "usp_q_percent_in_min": "80 in 30",
+       "p1_control": "85.8 (3.04)",
+       "p1_flight": "104.8 (4.25)",
+       "p2_control": "91.4 (1.17)",
+       "p2_flight": "89.4 (3.23)",
+       "p3_control": "87.9 (0.96)",
+       "p3_flight": "86.4 (1.30)",
+       "p4_control": "69.4 (1.37)",
+       "p4_flight": "64.5 (6.37)"
+      },
+      "parsed": {
+       "api": "Temazepam",
+       "label_mg": 15,
+       "usp_q_percent_in_min": {
+        "q_percent": 80,
+        "minutes": 30
+       },
+       "p1_control": {
+        "value": 85.8,
+        "sd": 3.04
+       },
+       "p1_flight": {
+        "value": 104.8,
+        "sd": 4.25
+       },
+       "p2_control": {
+        "value": 91.4,
+        "sd": 1.17
+       },
+       "p2_flight": {
+        "value": 89.4,
+        "sd": 3.23
+       },
+       "p3_control": {
+        "value": 87.9,
+        "sd": 0.96
+       },
+       "p3_flight": {
+        "value": 86.4,
+        "sd": 1.3
+       },
+       "p4_control": {
+        "value": 69.4,
+        "sd": 1.37
+       },
+       "p4_flight": {
+        "value": 64.5,
+        "sd": 6.37
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Sulfamethoxazole",
+       "label_mg": "800",
+       "usp_q_percent_in_min": "75 in 60",
+       "p1_control": "90.5 (4.24)",
+       "p1_flight": "88.0 (0.06)",
+       "p2_control": "97.5 (0.14)",
+       "p2_flight": "97.0 (0.76)",
+       "p3_control": "81.1 (1.12)",
+       "p3_flight": "80.0 (1.19)",
+       "p4_control": "72.7 (0.76)",
+       "p4_flight": "69.4 (0.08)"
+      },
+      "parsed": {
+       "api": "Sulfamethoxazole",
+       "label_mg": 800,
+       "usp_q_percent_in_min": {
+        "q_percent": 75,
+        "minutes": 60
+       },
+       "p1_control": {
+        "value": 90.5,
+        "sd": 4.24
+       },
+       "p1_flight": {
+        "value": 88.0,
+        "sd": 0.06
+       },
+       "p2_control": {
+        "value": 97.5,
+        "sd": 0.14
+       },
+       "p2_flight": {
+        "value": 97.0,
+        "sd": 0.76
+       },
+       "p3_control": {
+        "value": 81.1,
+        "sd": 1.12
+       },
+       "p3_flight": {
+        "value": 80.0,
+        "sd": 1.19
+       },
+       "p4_control": {
+        "value": 72.7,
+        "sd": 0.76
+       },
+       "p4_flight": {
+        "value": 69.4,
+        "sd": 0.08
+       }
+      }
+     },
+     {
+      "raw": {
+       "api": "Trimethoprim",
+       "label_mg": "160",
+       "usp_q_percent_in_min": "75 in 60",
+       "p1_control": "95.9 (0.43)",
+       "p1_flight": "93.1 (5.38)",
+       "p2_control": "95.7 (0.80)",
+       "p2_flight": "94.1 (0.96)",
+       "p3_control": "95.1 (0.69)",
+       "p3_flight": "92.7 (0.49)",
+       "p4_control": "80.7 (0.04)",
+       "p4_flight": "78.7 (0.75)"
+      },
+      "parsed": {
+       "api": "Trimethoprim",
+       "label_mg": 160,
+       "usp_q_percent_in_min": {
+        "q_percent": 75,
+        "minutes": 60
+       },
+       "p1_control": {
+        "value": 95.9,
+        "sd": 0.43
+       },
+       "p1_flight": {
+        "value": 93.1,
+        "sd": 5.38
+       },
+       "p2_control": {
+        "value": 95.7,
+        "sd": 0.8
+       },
+       "p2_flight": {
+        "value": 94.1,
+        "sd": 0.96
+       },
+       "p3_control": {
+        "value": 95.1,
+        "sd": 0.69
+       },
+       "p3_flight": {
+        "value": 92.7,
+        "sd": 0.49
+       },
+       "p4_control": {
+        "value": 80.7,
+        "sd": 0.04
+       },
+       "p4_flight": {
+        "value": 78.7,
+        "sd": 0.75
+       }
+      }
+     }
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP01"
+   ],
+   "source_status": "READ",
+   "status": "unverified",
+   "note": "Use: optional secondary failure mode (dissolution) for solid products."
+  },
+  {
+   "vector_id": "V4",
+   "kind": "dataset",
+   "description": "V4. Du 2011: products with physical changes after flight (MDP01 Table II; \"a\" means returned after expiry)",
+   "target": null,
+   "inputs": {
+    "columns": [
+     {
+      "key": "payload_1",
+      "header": "Payload 1"
+     },
+     {
+      "key": "payload_2",
+      "header": "Payload 2"
+     },
+     {
+      "key": "payload_3",
+      "header": "Payload 3"
+     },
+     {
+      "key": "payload_4",
+      "header": "Payload 4"
+     }
+    ],
+    "parse_conventions": "'(a)' suffix parsed as returned_after_expiry = true; empty cells are null. Columns are independent lists (rows do not pair products across payloads)."
+   },
+   "expected": {
+    "row_count": 7,
+    "rows": [
+     {
+      "raw": {
+       "payload_1": "Promethazine suppository",
+       "payload_2": "Acyclovir tablet",
+       "payload_3": "Dextroamphetamine tablet",
+       "payload_4": "Amoxicillin/clavulanate tablet (a)"
+      },
+      "parsed": {
+       "payload_1": {
+        "product": "Promethazine suppository",
+        "returned_after_expiry": false
+       },
+       "payload_2": {
+        "product": "Acyclovir tablet",
+        "returned_after_expiry": false
+       },
+       "payload_3": {
+        "product": "Dextroamphetamine tablet",
+        "returned_after_expiry": false
+       },
+       "payload_4": {
+        "product": "Amoxicillin/clavulanate tablet",
+        "returned_after_expiry": true
+       }
+      }
+     },
+     {
+      "raw": {
+       "payload_1": "Triamcinolone cream",
+       "payload_2": "Amoxicillin/clavulanate tablet",
+       "payload_3": "Imipenem/cilastatin powder (a)",
+       "payload_4": "Ciprofloxacin ophthalmic ointment (a)"
+      },
+      "parsed": {
+       "payload_1": {
+        "product": "Triamcinolone cream",
+        "returned_after_expiry": false
+       },
+       "payload_2": {
+        "product": "Amoxicillin/clavulanate tablet",
+        "returned_after_expiry": false
+       },
+       "payload_3": {
+        "product": "Imipenem/cilastatin powder",
+        "returned_after_expiry": true
+       },
+       "payload_4": {
+        "product": "Ciprofloxacin ophthalmic ointment",
+        "returned_after_expiry": true
+       }
+      }
+     },
+     {
+      "raw": {
+       "payload_1": "",
+       "payload_2": "Ciprofloxacin tablet",
+       "payload_3": "Levothyroxine tablet (a)",
+       "payload_4": "Fluconazole tablet (a)"
+      },
+      "parsed": {
+       "payload_1": null,
+       "payload_2": {
+        "product": "Ciprofloxacin tablet",
+        "returned_after_expiry": false
+       },
+       "payload_3": {
+        "product": "Levothyroxine tablet",
+        "returned_after_expiry": true
+       },
+       "payload_4": {
+        "product": "Fluconazole tablet",
+        "returned_after_expiry": true
+       }
+      }
+     },
+     {
+      "raw": {
+       "payload_1": "",
+       "payload_2": "Ciprofloxacin ophthalmic ointment",
+       "payload_3": "Promethazine suppository (a)",
+       "payload_4": "Imipenem/cilastatin powder (a)"
+      },
+      "parsed": {
+       "payload_1": null,
+       "payload_2": {
+        "product": "Ciprofloxacin ophthalmic ointment",
+        "returned_after_expiry": false
+       },
+       "payload_3": {
+        "product": "Promethazine suppository",
+        "returned_after_expiry": true
+       },
+       "payload_4": {
+        "product": "Imipenem/cilastatin powder",
+        "returned_after_expiry": true
+       }
+      }
+     },
+     {
+      "raw": {
+       "payload_1": "",
+       "payload_2": "Dextroamphetamine tablet",
+       "payload_3": "Silver sulfadiazine cream",
+       "payload_4": "Silver sulfadiazine cream (a)"
+      },
+      "parsed": {
+       "payload_1": null,
+       "payload_2": {
+        "product": "Dextroamphetamine tablet",
+        "returned_after_expiry": false
+       },
+       "payload_3": {
+        "product": "Silver sulfadiazine cream",
+        "returned_after_expiry": false
+       },
+       "payload_4": {
+        "product": "Silver sulfadiazine cream",
+        "returned_after_expiry": true
+       }
+      }
+     },
+     {
+      "raw": {
+       "payload_1": "",
+       "payload_2": "Levothyroxine tablet",
+       "payload_3": "Triamcinolone cream",
+       "payload_4": "Sulfamethoxazole/trimethoprim tablet"
+      },
+      "parsed": {
+       "payload_1": null,
+       "payload_2": {
+        "product": "Levothyroxine tablet",
+        "returned_after_expiry": false
+       },
+       "payload_3": {
+        "product": "Triamcinolone cream",
+        "returned_after_expiry": false
+       },
+       "payload_4": {
+        "product": "Sulfamethoxazole/trimethoprim tablet",
+        "returned_after_expiry": false
+       }
+      }
+     },
+     {
+      "raw": {
+       "payload_1": "",
+       "payload_2": "Metronidazole tablet",
+       "payload_3": "",
+       "payload_4": ""
+      },
+      "parsed": {
+       "payload_1": null,
+       "payload_2": {
+        "product": "Metronidazole tablet",
+        "returned_after_expiry": false
+       },
+       "payload_3": null,
+       "payload_4": null
+      }
+     }
+    ],
+    "by_payload": {
+     "payload_1": [
+      {
+       "product": "Promethazine suppository",
+       "returned_after_expiry": false
+      },
+      {
+       "product": "Triamcinolone cream",
+       "returned_after_expiry": false
+      }
+     ],
+     "payload_2": [
+      {
+       "product": "Acyclovir tablet",
+       "returned_after_expiry": false
+      },
+      {
+       "product": "Amoxicillin/clavulanate tablet",
+       "returned_after_expiry": false
+      },
+      {
+       "product": "Ciprofloxacin tablet",
+       "returned_after_expiry": false
+      },
+      {
+       "product": "Ciprofloxacin ophthalmic ointment",
+       "returned_after_expiry": false
+      },
+      {
+       "product": "Dextroamphetamine tablet",
+       "returned_after_expiry": false
+      },
+      {
+       "product": "Levothyroxine tablet",
+       "returned_after_expiry": false
+      },
+      {
+       "product": "Metronidazole tablet",
+       "returned_after_expiry": false
+      }
+     ],
+     "payload_3": [
+      {
+       "product": "Dextroamphetamine tablet",
+       "returned_after_expiry": false
+      },
+      {
+       "product": "Imipenem/cilastatin powder",
+       "returned_after_expiry": true
+      },
+      {
+       "product": "Levothyroxine tablet",
+       "returned_after_expiry": true
+      },
+      {
+       "product": "Promethazine suppository",
+       "returned_after_expiry": true
+      },
+      {
+       "product": "Silver sulfadiazine cream",
+       "returned_after_expiry": false
+      },
+      {
+       "product": "Triamcinolone cream",
+       "returned_after_expiry": false
+      }
+     ],
+     "payload_4": [
+      {
+       "product": "Amoxicillin/clavulanate tablet",
+       "returned_after_expiry": true
+      },
+      {
+       "product": "Ciprofloxacin ophthalmic ointment",
+       "returned_after_expiry": true
+      },
+      {
+       "product": "Fluconazole tablet",
+       "returned_after_expiry": true
+      },
+      {
+       "product": "Imipenem/cilastatin powder",
+       "returned_after_expiry": true
+      },
+      {
+       "product": "Silver sulfadiazine cream",
+       "returned_after_expiry": true
+      },
+      {
+       "product": "Sulfamethoxazole/trimethoprim tablet",
+       "returned_after_expiry": false
+      }
+     ]
+    }
+   },
+   "published_expected_text": null,
+   "our_recomputation": null,
+   "tolerance": null,
+   "source_ids": [
+    "MDP01"
+   ],
+   "source_status": "READ",
+   "status": "unverified",
+   "note": "Discoloration of amoxicillin/clavulanate and liquefaction of ciprofloxacin ophthalmic ointment also occurred in payload 4 ground controls. Use: qualitative inspection flags only; physical change did not track potency."
+  }
+ ]
+}

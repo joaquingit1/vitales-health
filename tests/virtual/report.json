@@ -1,0 +1,621 @@
+{
+ "document_id": "virtual-studies-report",
+ "sections": {
+  "VS truth integrator": {
+   "replicates": 5,
+   "condition": "accelerated",
+   "rows": [
+    {
+     "replicate": 0,
+     "theta_float": 0.2685507729309245,
+     "theta_mp": "0.26855077293514563756582210955278132493185195424559",
+     "relative_difference": 1.5718157891116805e-11,
+     "rounding_bound": 3.9863152778707445e-09,
+     "halving_relative_error": 3.547538936615311e-07,
+     "substeps": 64,
+     "intervals": 4383
+    },
+    {
+     "replicate": 1,
+     "theta_float": 0.19077717369397423,
+     "theta_mp": "0.19077717369419423319633773388439719473102748603935",
+     "relative_difference": 1.1531290042178121e-12,
+     "rounding_bound": 3.9863152778707445e-09,
+     "halving_relative_error": 5.394793810062843e-07,
+     "substeps": 64,
+     "intervals": 4383
+    },
+    {
+     "replicate": 2,
+     "theta_float": 0.28484348179422514,
+     "theta_mp": "0.28484348178974009237317356541453923600287016630858",
+     "relative_difference": 1.5745571692738043e-11,
+     "rounding_bound": 1.9931576389353722e-09,
+     "halving_relative_error": 6.810761373128645e-07,
+     "substeps": 32,
+     "intervals": 4383
+    },
+    {
+     "replicate": 3,
+     "theta_float": 0.40175353273131414,
+     "theta_mp": "0.40175353273795234034399619740812001082082402264636",
+     "relative_difference": 1.652304076195225e-11,
+     "rounding_bound": 3.9863152778707445e-09,
+     "halving_relative_error": 5.95036679107977e-07,
+     "substeps": 64,
+     "intervals": 4383
+    },
+    {
+     "replicate": 4,
+     "theta_float": 0.13351410174109576,
+     "theta_mp": "0.13351410174123971654362003801089309974410370977271",
+     "relative_difference": 1.0780914769708658e-12,
+     "rounding_bound": 1.9931576389353722e-09,
+     "halving_relative_error": 5.305256719734679e-07,
+     "substeps": 32,
+     "intervals": 4383
+    }
+   ]
+  },
+  "VS-1 vs1_solid ich": {
+   "replicates": 1,
+   "product_id": "aspirin_325_tab",
+   "design_id": "ich",
+   "kind": "true kind of the prior model",
+   "coverage": {
+    "ln_k_ref_per_s": {
+     "hits": 0,
+     "n": 1,
+     "fraction": 0.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    },
+    "ea_j_per_mol": {
+     "hits": 0,
+     "n": 1,
+     "fraction": 0.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    },
+    "b_per_percent_rh": {
+     "hits": 0,
+     "n": 1,
+     "fraction": 0.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    }
+   },
+   "rows": [
+    {
+     "replicate": 0,
+     "halving_error": 4.2205104833893313e-07,
+     "error": "replicate 0: ComputationError: a fitted parameter does not affect any observation",
+     "inside": {},
+     "z": {}
+    }
+   ],
+   "mean_standardized_error": {
+    "ln_k_ref_per_s": null,
+    "ea_j_per_mol": null,
+    "b_per_percent_rh": null
+   },
+   "mean_band": [
+    -0.134,
+    0.134
+   ],
+   "fit_failures": [
+    "replicate 0: ComputationError: a fitted parameter does not affect any observation"
+   ],
+   "max_truth_halving_relative_error": 4.2205104833893313e-07
+  },
+  "VS-1 vs1_solid isoconversion": {
+   "replicates": 1,
+   "product_id": "aspirin_325_tab",
+   "design_id": "isoconversion",
+   "kind": "true kind of the prior model",
+   "coverage": {
+    "ln_k_ref_per_s": {
+     "hits": 1,
+     "n": 1,
+     "fraction": 1.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    },
+    "ea_j_per_mol": {
+     "hits": 1,
+     "n": 1,
+     "fraction": 1.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    },
+    "b_per_percent_rh": {
+     "hits": 1,
+     "n": 1,
+     "fraction": 1.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    }
+   },
+   "rows": [
+    {
+     "replicate": 0,
+     "halving_error": 8.544492191873295e-07,
+     "error": null,
+     "inside": {
+      "ln_k_ref_per_s": true,
+      "ea_j_per_mol": true,
+      "b_per_percent_rh": true
+     },
+     "z": {
+      "ln_k_ref_per_s": -0.7633343938711787,
+      "ea_j_per_mol": 0.8143538061971038,
+      "b_per_percent_rh": 0.5406515389915695
+     }
+    }
+   ],
+   "mean_standardized_error": {
+    "ln_k_ref_per_s": -0.7633343938711787,
+    "ea_j_per_mol": 0.8143538061971038,
+    "b_per_percent_rh": 0.5406515389915695
+   },
+   "mean_band": [
+    -0.134,
+    0.134
+   ],
+   "fit_failures": [],
+   "max_truth_halving_relative_error": 8.544492191873295e-07
+  },
+  "VS-1 vs1_solution ich": {
+   "replicates": 1,
+   "product_id": "b3_v1_row_05",
+   "design_id": "ich",
+   "kind": "true kind of the prior model",
+   "coverage": {
+    "ln_k_ref_per_s": {
+     "hits": 1,
+     "n": 1,
+     "fraction": 1.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    },
+    "ea_j_per_mol": {
+     "hits": 1,
+     "n": 1,
+     "fraction": 1.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    },
+    "b_per_percent_rh": {
+     "hits": 1,
+     "n": 1,
+     "fraction": 1.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    }
+   },
+   "rows": [
+    {
+     "replicate": 0,
+     "halving_error": 4.821250803794337e-07,
+     "error": null,
+     "inside": {
+      "ln_k_ref_per_s": true,
+      "ea_j_per_mol": true,
+      "b_per_percent_rh": true
+     },
+     "z": {
+      "ln_k_ref_per_s": 0.6657395689040736,
+      "ea_j_per_mol": 0.3448039261691552,
+      "b_per_percent_rh": -0.5649881284010143
+     }
+    }
+   ],
+   "mean_standardized_error": {
+    "ln_k_ref_per_s": 0.6657395689040736,
+    "ea_j_per_mol": 0.3448039261691552,
+    "b_per_percent_rh": -0.5649881284010143
+   },
+   "mean_band": [
+    -0.134,
+    0.134
+   ],
+   "fit_failures": [],
+   "max_truth_halving_relative_error": 4.821250803794337e-07
+  },
+  "VS-1 vs1_solution isoconversion": {
+   "replicates": 1,
+   "product_id": "b3_v1_row_05",
+   "design_id": "isoconversion",
+   "kind": "true kind of the prior model",
+   "coverage": {
+    "ln_k_ref_per_s": {
+     "hits": 1,
+     "n": 1,
+     "fraction": 1.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    },
+    "ea_j_per_mol": {
+     "hits": 1,
+     "n": 1,
+     "fraction": 1.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    },
+    "b_per_percent_rh": {
+     "hits": 1,
+     "n": 1,
+     "fraction": 1.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    }
+   },
+   "rows": [
+    {
+     "replicate": 0,
+     "halving_error": 8.533796331683516e-07,
+     "error": null,
+     "inside": {
+      "ln_k_ref_per_s": true,
+      "ea_j_per_mol": true,
+      "b_per_percent_rh": true
+     },
+     "z": {
+      "ln_k_ref_per_s": -0.7332565020704036,
+      "ea_j_per_mol": 0.6188268295203992,
+      "b_per_percent_rh": 1.3581069832478154
+     }
+    }
+   ],
+   "mean_standardized_error": {
+    "ln_k_ref_per_s": -0.7332565020704036,
+    "ea_j_per_mol": 0.6188268295203992,
+    "b_per_percent_rh": 1.3581069832478154
+   },
+   "mean_band": [
+    -0.134,
+    0.134
+   ],
+   "fit_failures": [],
+   "max_truth_halving_relative_error": 8.533796331683516e-07
+  },
+  "VS-1 vs1_semisolid ich": {
+   "replicates": 1,
+   "product_id": "b3_v1_row_10",
+   "design_id": "ich",
+   "kind": "true kind of the prior model",
+   "coverage": {
+    "ln_k_ref_per_s": {
+     "hits": 0,
+     "n": 1,
+     "fraction": 0.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    },
+    "ea_j_per_mol": {
+     "hits": 0,
+     "n": 1,
+     "fraction": 0.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    },
+    "b_per_percent_rh": {
+     "hits": 0,
+     "n": 1,
+     "fraction": 0.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    }
+   },
+   "rows": [
+    {
+     "replicate": 0,
+     "halving_error": 4.5895647021669065e-07,
+     "error": "replicate 0: ComputationError: a fitted parameter does not affect any observation",
+     "inside": {},
+     "z": {}
+    }
+   ],
+   "mean_standardized_error": {
+    "ln_k_ref_per_s": null,
+    "ea_j_per_mol": null,
+    "b_per_percent_rh": null
+   },
+   "mean_band": [
+    -0.134,
+    0.134
+   ],
+   "fit_failures": [
+    "replicate 0: ComputationError: a fitted parameter does not affect any observation"
+   ],
+   "max_truth_halving_relative_error": 4.5895647021669065e-07
+  },
+  "VS-1 vs1_semisolid isoconversion": {
+   "replicates": 1,
+   "product_id": "b3_v1_row_10",
+   "design_id": "isoconversion",
+   "kind": "true kind of the prior model",
+   "coverage": {
+    "ln_k_ref_per_s": {
+     "hits": 0,
+     "n": 1,
+     "fraction": 0.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    },
+    "ea_j_per_mol": {
+     "hits": 0,
+     "n": 1,
+     "fraction": 0.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    },
+    "b_per_percent_rh": {
+     "hits": 1,
+     "n": 1,
+     "fraction": 1.0,
+     "band": [
+      0.921,
+      0.979
+     ],
+     "passed": false
+    }
+   },
+   "rows": [
+    {
+     "replicate": 0,
+     "halving_error": 9.926940121370947e-07,
+     "error": null,
+     "inside": {
+      "ln_k_ref_per_s": false,
+      "ea_j_per_mol": false,
+      "b_per_percent_rh": true
+     },
+     "z": {
+      "ln_k_ref_per_s": -2.579721728440466,
+      "ea_j_per_mol": 2.3828035810138957,
+      "b_per_percent_rh": -1.0007486964395123
+     }
+    }
+   ],
+   "mean_standardized_error": {
+    "ln_k_ref_per_s": -2.579721728440466,
+    "ea_j_per_mol": 2.3828035810138957,
+    "b_per_percent_rh": -1.0007486964395123
+   },
+   "mean_band": [
+    -0.134,
+    0.134
+   ],
+   "fit_failures": [],
+   "max_truth_halving_relative_error": 9.926940121370947e-07
+  },
+  "VS-2": {
+   "replicates_per_kind": 1,
+   "kinds_compared": [
+    "F0",
+    "F1",
+    "F2",
+    "R2",
+    "R3",
+    "A2",
+    "A3",
+    "A4",
+    "D1",
+    "D2",
+    "D3",
+    "D4"
+   ],
+   "confusion": {
+    "F1": {
+     "R2": 1
+    },
+    "A2": {
+     "A2": 1
+    },
+    "R3": {
+     "F0": 1
+    },
+    "D3": {
+     "D1": 1
+    }
+   },
+   "misselected": 3,
+   "inside_prediction_interval": 1,
+   "two_sided_coverage": 0.3333333333333333,
+   "below_prediction_interval": 0,
+   "maximum_lower_tail_fraction": 0.29541634565979924,
+   "lower_tail_fraction": 0.0,
+   "applicability": "evaluated",
+   "no_selection": [],
+   "rows": [
+    {
+     "truth": "F1",
+     "replicate": 0,
+     "fit_errors": [],
+     "selected": "R2",
+     "true_percent": 83.37939152950855,
+     "interval": [
+      82.23576219902112,
+      84.76823949969766
+     ],
+     "inside": true,
+     "below": false
+    },
+    {
+     "truth": "A2",
+     "replicate": 0,
+     "fit_errors": [],
+     "selected": "A2"
+    },
+    {
+     "truth": "R3",
+     "replicate": 0,
+     "fit_errors": [],
+     "selected": "F0",
+     "true_percent": 52.9065760174834,
+     "interval": [
+      42.798298517300104,
+      50.91934280085164
+     ],
+     "inside": false,
+     "below": false
+    },
+    {
+     "truth": "D3",
+     "replicate": 0,
+     "fit_errors": [],
+     "selected": "D1",
+     "true_percent": 17.673038071783015,
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "inside": false,
+     "below": false
+    }
+   ],
+   "passed": true
+  },
+  "VS-3": {
+   "status": "incomplete_at_execution_bound",
+   "requested_replicates_per_case": 1,
+   "requested_tasks": 1,
+   "completed_tasks": 0,
+   "execution_bound_seconds": 300,
+   "wrapper_wall_seconds": 303.303,
+   "source_log": "/tmp/cxd-virtual-loop-current.log",
+   "note": "No acceptance result; the first task did not complete before interruption."
+  },
+  "VS-5": {
+   "status": "incomplete_at_execution_bound",
+   "requested_replicates_per_case": 1,
+   "requested_tasks": 1,
+   "completed_tasks": 0,
+   "execution_bound_seconds": 300,
+   "wrapper_wall_seconds": 309.015,
+   "source_log": "/tmp/cxd-vs5-current.log",
+   "note": "No acceptance result. VS-5 was profiled; cProfile exit 0 does not override the pytest KeyboardInterrupt."
+  },
+  "15.7": {
+   "replicates": 1,
+   "summaries": {
+    "plain": {
+     "n": 1,
+     "coverage": 1.0,
+     "brier": 0.00146689,
+     "reliability": [
+      {
+       "bin": 0,
+       "count": 1,
+       "predicted": 0.0383,
+       "observed": 0.0,
+       "se": 0.19191954043296375,
+       "evaluated": false,
+       "passed": null
+      }
+     ],
+     "coverage_passed": false,
+     "reliability_passed": true
+    },
+    "assayed": {
+     "n": 1,
+     "coverage": 1.0,
+     "brier": 3.9596950303525e-06,
+     "reliability": [
+      {
+       "bin": 0,
+       "count": 1,
+       "predicted": 0.0019898982462308217,
+       "observed": 0.0,
+       "se": 0.044563870469254224,
+       "evaluated": false,
+       "passed": null
+      }
+     ],
+     "coverage_passed": false,
+     "reliability_passed": true
+    }
+   },
+   "rows": [
+    {
+     "r": 0,
+     "truth": 97.3699631226432,
+     "lower_limit": 90.0,
+     "plain": [
+      90.8889327574016,
+      100.25702589671228,
+      0.0383
+     ],
+     "assayed": [
+      93.83434538803913,
+      100.33075597191745,
+      0.0019898982462308217
+     ],
+     "reanchored": false
+    }
+   ]
+  },
+  "VS-4": {
+   "status": "incomplete_at_execution_bound",
+   "requested_replicates_per_case": 1,
+   "requested_tasks": 4,
+   "completed_tasks": 0,
+   "execution_bound_seconds": 300,
+   "wrapper_wall_seconds": 307.021,
+   "source_log": "/tmp/cxd-vs4-current.log",
+   "note": "No acceptance result; the first task did not complete before interruption."
+  }
+ }
+}

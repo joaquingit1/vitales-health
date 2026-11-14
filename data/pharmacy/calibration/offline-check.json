@@ -1,0 +1,602 @@
+{
+  "method": "Prior-only deterministic approximation to V1, V6 and V2, not engine validation.\n\nRun as a module with --output and --tolerance. Integrates over an approximate\nnormal log-Theta distribution, analytically marginalizing initial and final assay\nnoise. The mean exposure is the exact engine package integral. Its log variance\nuses independent symmetric one-sd secants for Ea, B, temperature and ambient RH.\nThis does not build chemistry pathways, anchors, sensor histories or lot decisions.\n",
+  "absolute_tolerance": 1e-09,
+  "rows": [
+    {
+      "dataset": "V1-control",
+      "row": 2,
+      "label": "Atorvastatin tablet",
+      "measured": 98.9,
+      "assay_sd": 0.53,
+      "lower": 72.80690575693045,
+      "median": 91.6837273452863,
+      "upper": 98.37462824978765,
+      "covered": false
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 2,
+      "label": "Atorvastatin tablet",
+      "measured": 92.5,
+      "assay_sd": 0.54,
+      "lower": 55.65782588601754,
+      "median": 89.45375855089296,
+      "upper": 98.71952581082274,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 4,
+      "label": "Cefadroxil capsule",
+      "measured": 95.6,
+      "assay_sd": 0.45,
+      "lower": 71.33249905859896,
+      "median": 89.83644638355517,
+      "upper": 97.54689424181261,
+      "covered": true
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 4,
+      "label": "Cefadroxil capsule",
+      "measured": 92.1,
+      "assay_sd": 0.07,
+      "lower": 54.60500231004969,
+      "median": 87.68597689024644,
+      "upper": 97.68572187998944,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 6,
+      "label": "Ibuprofen tablet",
+      "measured": 97.6,
+      "assay_sd": 0.22,
+      "lower": 70.86444792079725,
+      "median": 89.231314433638,
+      "upper": 95.7593773324371,
+      "covered": false
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 6,
+      "label": "Ibuprofen tablet",
+      "measured": 92.1,
+      "assay_sd": 0.02,
+      "lower": 54.175873322586156,
+      "median": 87.06404910503781,
+      "upper": 96.08120324854998,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 8,
+      "label": "Cilastatin (imipenem/cilastatin powder)",
+      "measured": 107.7,
+      "assay_sd": 0.96,
+      "lower": 80.97861462290415,
+      "median": 98.52226053580854,
+      "upper": 104.72465089817209,
+      "covered": false
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 8,
+      "label": "Cilastatin (imipenem/cilastatin powder)",
+      "measured": 98.3,
+      "assay_sd": 0.11,
+      "lower": 49.56024632789173,
+      "median": 89.54287342514478,
+      "upper": 102.696885869464,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 10,
+      "label": "Triamcinolone cream",
+      "measured": 94.8,
+      "assay_sd": 0.31,
+      "lower": 74.55893199696786,
+      "median": 91.17324948374771,
+      "upper": 96.59553545056755,
+      "covered": true
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 10,
+      "label": "Triamcinolone cream",
+      "measured": 92.3,
+      "assay_sd": 0.36,
+      "lower": 59.7306376240798,
+      "median": 89.39138907318592,
+      "upper": 96.83065810861477,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 12,
+      "label": "Clavulanate (amoxicillin/clavulanate tablet)",
+      "measured": 3.3,
+      "assay_sd": 0.31,
+      "lower": 67.2001422471393,
+      "median": 84.61915094794972,
+      "upper": 90.74272297417055,
+      "covered": false
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 12,
+      "label": "Clavulanate (amoxicillin/clavulanate tablet)",
+      "measured": 9.1,
+      "assay_sd": 2.07,
+      "lower": 51.225127749931865,
+      "median": 82.38151353970802,
+      "upper": 91.88567610428757,
+      "covered": false
+    },
+    {
+      "dataset": "V1-control",
+      "row": 14,
+      "label": "Ciprofloxacin tablet",
+      "measured": 90.9,
+      "assay_sd": 0.3,
+      "lower": 75.47308331540813,
+      "median": 95.03538504820602,
+      "upper": 101.98660267553566,
+      "covered": true
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 14,
+      "label": "Ciprofloxacin tablet",
+      "measured": 84.4,
+      "assay_sd": 0.49,
+      "lower": 57.692798242721,
+      "median": 92.71918175794464,
+      "upper": 102.36541000679706,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 16,
+      "label": "Dextroamphetamine tablet",
+      "measured": 87.3,
+      "assay_sd": 0.03,
+      "lower": 70.65185089253751,
+      "median": 88.96231416016951,
+      "upper": 95.45303944808546,
+      "covered": true
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 16,
+      "label": "Dextroamphetamine tablet",
+      "measured": 84.5,
+      "assay_sd": 0.34,
+      "lower": 54.007125452901114,
+      "median": 86.79436994432183,
+      "upper": 95.80762766045096,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 18,
+      "label": "Fluconazole tablet",
+      "measured": 89.9,
+      "assay_sd": 0.84,
+      "lower": 69.32692958807205,
+      "median": 87.31449188972324,
+      "upper": 93.78606273539275,
+      "covered": true
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 18,
+      "label": "Fluconazole tablet",
+      "measured": 88.2,
+      "assay_sd": 0.6,
+      "lower": 53.014276812657954,
+      "median": 85.20837860945392,
+      "upper": 94.02749355399989,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 20,
+      "label": "Levofloxacin tablet",
+      "measured": 85.6,
+      "assay_sd": 0.89,
+      "lower": 70.70086389691302,
+      "median": 89.04669606077489,
+      "upper": 95.59609094808877,
+      "covered": true
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 20,
+      "label": "Levofloxacin tablet",
+      "measured": 81.2,
+      "assay_sd": 0.31,
+      "lower": 54.073145005177096,
+      "median": 86.91115516881817,
+      "upper": 95.79655883572478,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 24,
+      "label": "Mupirocin ointment",
+      "measured": 87.0,
+      "assay_sd": 0.56,
+      "lower": 74.25650986629684,
+      "median": 90.8099273067473,
+      "upper": 96.18017319042559,
+      "covered": true
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 24,
+      "label": "Mupirocin ointment",
+      "measured": 82.9,
+      "assay_sd": 0.14,
+      "lower": 59.49847744350843,
+      "median": 89.05093679714736,
+      "upper": 96.35219716937698,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 26,
+      "label": "Ethinyl estradiol (oral contraceptive)",
+      "measured": 88.7,
+      "assay_sd": 1.18,
+      "lower": 71.284850397556,
+      "median": 86.74968511360497,
+      "upper": 92.6552363405853,
+      "covered": true
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 26,
+      "label": "Ethinyl estradiol (oral contraceptive)",
+      "measured": 86.9,
+      "assay_sd": 0.31,
+      "lower": 43.6678718228926,
+      "median": 78.89380678541717,
+      "upper": 90.58641381817817,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 28,
+      "label": "Promethazine tablet",
+      "measured": 87.5,
+      "assay_sd": 0.37,
+      "lower": 68.8675733375668,
+      "median": 86.72029465795748,
+      "upper": 92.91675555699324,
+      "covered": true
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 28,
+      "label": "Promethazine tablet",
+      "measured": 83.7,
+      "assay_sd": 0.26,
+      "lower": 52.64194502217062,
+      "median": 84.61019854507597,
+      "upper": 93.25924254928695,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 32,
+      "label": "Sertraline tablet",
+      "measured": 95.6,
+      "assay_sd": 0.23,
+      "lower": 75.5032121913685,
+      "median": 95.07336736286656,
+      "upper": 101.82530278939667,
+      "covered": true
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 32,
+      "label": "Sertraline tablet",
+      "measured": 86.9,
+      "assay_sd": 0.45,
+      "lower": 57.70484592712079,
+      "median": 92.7496473478878,
+      "upper": 102.24626148546865,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 34,
+      "label": "Temazepam capsule",
+      "measured": 84.2,
+      "assay_sd": 0.14,
+      "lower": 71.18234579315575,
+      "median": 89.6305633058137,
+      "upper": 96.48369974534795,
+      "covered": true
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 34,
+      "label": "Temazepam capsule",
+      "measured": 80.8,
+      "assay_sd": 0.91,
+      "lower": 54.40713337594448,
+      "median": 87.42741107619523,
+      "upper": 96.91911123126681,
+      "covered": true
+    },
+    {
+      "dataset": "V1-control",
+      "row": 36,
+      "label": "Trimethoprim (SMX/TMP tablet)",
+      "measured": 88.8,
+      "assay_sd": 1.45,
+      "lower": 73.36224060252897,
+      "median": 92.43361849247539,
+      "upper": 99.58197941529353,
+      "covered": true
+    },
+    {
+      "dataset": "V1-flight",
+      "row": 36,
+      "label": "Trimethoprim (SMX/TMP tablet)",
+      "measured": 79.1,
+      "assay_sd": 0.51,
+      "lower": 56.160930476275205,
+      "median": 90.26879482656692,
+      "upper": 99.52567241316507,
+      "covered": true
+    },
+    {
+      "dataset": "V6-class-prior",
+      "row": 2,
+      "label": "Acetaminophen",
+      "measured": 97.0,
+      "assay_sd": 0.9846153846153847,
+      "lower": 53.902893429380505,
+      "median": 88.53945815983523,
+      "upper": 98.24466887904924,
+      "covered": true
+    },
+    {
+      "dataset": "V6-class-prior",
+      "row": 3,
+      "label": "Ibuprofen",
+      "measured": 99.9,
+      "assay_sd": 1.775,
+      "lower": 53.83597941759033,
+      "median": 88.45188789853287,
+      "upper": 98.63324989184017,
+      "covered": false
+    },
+    {
+      "dataset": "V6-class-prior",
+      "row": 4,
+      "label": "Loratadine",
+      "measured": 99.9,
+      "assay_sd": 3.0,
+      "lower": 53.65627511281957,
+      "median": 88.22887450994466,
+      "upper": 99.54897820630313,
+      "covered": false
+    },
+    {
+      "dataset": "V6-class-prior",
+      "row": 5,
+      "label": "Loperamide",
+      "measured": 96.3,
+      "assay_sd": 30.0,
+      "lower": 27.99455893503374,
+      "median": 84.83384940213098,
+      "upper": 137.4461393789703,
+      "covered": true
+    },
+    {
+      "dataset": "V6-class-prior",
+      "row": 6,
+      "label": "Pseudoephedrine ER",
+      "measured": 99.0,
+      "assay_sd": 2.75,
+      "lower": 53.70047270686693,
+      "median": 88.2817461179511,
+      "upper": 99.33766306099373,
+      "covered": true
+    }
+  ],
+  "summaries": [
+    {
+      "dataset": "V1-control",
+      "n": 16,
+      "covered": 12,
+      "required": 12,
+      "passed": true,
+      "misses": [
+        2,
+        6,
+        8,
+        12
+      ]
+    },
+    {
+      "dataset": "V1-flight",
+      "n": 16,
+      "covered": 15,
+      "required": 12,
+      "passed": true,
+      "misses": [
+        12
+      ]
+    },
+    {
+      "dataset": "V6-class-prior",
+      "n": 5,
+      "covered": 3,
+      "required": 3,
+      "passed": true,
+      "misses": [
+        3,
+        4
+      ]
+    }
+  ],
+  "v2": [
+    {
+      "day": 13,
+      "predicted": 0,
+      "observed_grid": 1,
+      "documented": {
+        "value": 1,
+        "parenthetical": "levothyroxine"
+      },
+      "predicted_formulations": [],
+      "observed_formulations": [
+        21
+      ]
+    },
+    {
+      "day": 353,
+      "predicted": 5,
+      "observed_grid": 9,
+      "documented": {
+        "value": 11,
+        "parenthetical": "Table S II grid lists 9",
+        "table_s_ii_grid_count": 9
+      },
+      "predicted_formulations": [
+        11,
+        21,
+        22,
+        25,
+        28
+      ],
+      "observed_formulations": [
+        11,
+        16,
+        19,
+        21,
+        23,
+        28,
+        29,
+        30,
+        34
+      ]
+    },
+    {
+      "day": 596,
+      "predicted": 15,
+      "observed_grid": 16,
+      "documented": 17,
+      "predicted_formulations": [
+        5,
+        7,
+        9,
+        11,
+        13,
+        16,
+        18,
+        21,
+        22,
+        25,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "observed_formulations": [
+        11,
+        16,
+        19,
+        20,
+        21,
+        23,
+        24,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ]
+    },
+    {
+      "day": 880,
+      "predicted": 26,
+      "observed_grid": 23,
+      "documented": {
+        "value": 24,
+        "parenthetical": "Table S II grid lists 23",
+        "table_s_ii_grid_count": 23
+      },
+      "predicted_formulations": [
+        2,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11,
+        13,
+        15,
+        16,
+        18,
+        19,
+        20,
+        21,
+        22,
+        24,
+        25,
+        27,
+        28,
+        29,
+        30,
+        31,
+        33,
+        34,
+        35
+      ],
+      "observed_formulations": [
+        11,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ]
+    }
+  ],
+  "v6_excluded": {
+    "1": "aspirin calibration anchor",
+    "7": "computed basis: melatonin",
+    "8": "computed basis: zolpidem",
+    "9": "computed basis: modafinil"
+  }
+}

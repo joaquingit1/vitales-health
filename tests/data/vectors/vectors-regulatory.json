@@ -1,0 +1,267 @@
+{
+ "document_id": "vectors-regulatory",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "Statistics and regulatory logic vectors (degradation-science.md 9.4).",
+ "extracted_from": [
+  {
+   "note": "degradation-science.md",
+   "section": "9.4"
+  },
+  {
+   "note": "degradation-science.md",
+   "section": "6.2"
+  },
+  {
+   "note": "degradation-science.md",
+   "section": "6.3"
+  },
+  {
+   "note": "degradation-science.md",
+   "section": "4.1"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "TV-Q1E-1",
+   "kind": "rule",
+   "description": "Q1E extrapolation: no significant change at accelerated, little variability, X = 12 months.",
+   "target": "pharmacy.decision.q1e_max_shelf_life_months",
+   "inputs": {
+    "case": "no_significant_change_accelerated_little_variability",
+    "x_months": 12
+   },
+   "expected": {
+    "y_max_months": 24
+   },
+   "published_expected_text": "\"up to twice, but should not be more than 12 months beyond\"",
+   "our_recomputation": {
+    "y_max_months": "min(2X, X + 12) = 24"
+   },
+   "tolerance": {
+    "abs": 0,
+    "rel": null,
+    "unit": "month",
+    "basis": "exact rule"
+   },
+   "source_ids": [
+    "MDS02"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Y up to min(2X, X + 12)."
+  },
+  {
+   "vector_id": "TV-Q1E-2",
+   "kind": "rule",
+   "description": "Same case, X = 18 months.",
+   "target": "pharmacy.decision.q1e_max_shelf_life_months",
+   "inputs": {
+    "case": "no_significant_change_accelerated_little_variability",
+    "x_months": 18
+   },
+   "expected": {
+    "y_max_months": 30
+   },
+   "published_expected_text": "\"up to twice, but should not be more than 12 months beyond\" (rule; value DERIVED)",
+   "our_recomputation": {
+    "y_max_months": "min(36, 30) = 30"
+   },
+   "tolerance": {
+    "abs": 0,
+    "rel": null,
+    "unit": "month",
+    "basis": "exact rule"
+   },
+   "source_ids": [
+    "MDS02"
+   ],
+   "source_status": "read (rule), value DERIVED",
+   "status": "reproduces",
+   "note": ""
+  },
+  {
+   "vector_id": "TV-Q1E-3",
+   "kind": "rule",
+   "description": "Refrigerated product, statistics performed, X = 12 months.",
+   "target": "pharmacy.decision.q1e_max_shelf_life_months",
+   "inputs": {
+    "case": "refrigerated_with_statistics",
+    "x_months": 12
+   },
+   "expected": {
+    "y_max_months": 18
+   },
+   "published_expected_text": "\"Y = up to 1.5X, but not exceeding X + 6 months\" (rule; value DERIVED)",
+   "our_recomputation": {
+    "y_max_months": "min(1.5X, X + 6) = 18"
+   },
+   "tolerance": {
+    "abs": 0,
+    "rel": null,
+    "unit": "month",
+    "basis": "exact rule"
+   },
+   "source_ids": [
+    "MDS02"
+   ],
+   "source_status": "read (rule), value DERIVED",
+   "status": "reproduces",
+   "note": ""
+  },
+  {
+   "vector_id": "TV-Q1E-4",
+   "kind": "rule",
+   "description": "Significant change at accelerated, none at intermediate, not amenable to statistics, X = 12 months.",
+   "target": "pharmacy.decision.q1e_max_shelf_life_months",
+   "inputs": {
+    "case": "significant_change_accelerated_none_intermediate_no_statistics",
+    "x_months": 12
+   },
+   "expected": {
+    "y_max_months": 15
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "y_max_months": "X + 3 = 15"
+   },
+   "tolerance": {
+    "abs": 0,
+    "rel": null,
+    "unit": "month",
+    "basis": "exact rule"
+   },
+   "source_ids": [
+    "MDS02"
+   ],
+   "source_status": "read (rule), value DERIVED",
+   "status": "reproduces",
+   "note": "The note paraphrases this rule without a quote: up to X + 3 months without statistics (degradation-science.md 6.2)."
+  },
+  {
+   "vector_id": "TV-Q1E-5",
+   "kind": "rule",
+   "description": "Poolability ANCOVA significance level.",
+   "target": null,
+   "inputs": {
+    "test_order": [
+     "slopes",
+     "intercepts"
+    ]
+   },
+   "expected": {
+    "significance_level": 0.25
+   },
+   "published_expected_text": "\"Each of these tests should be conducted using a significance level of 0.25 to compensate for the expected low power of the design due to the relatively limited sample size in a typical formal stability study.\"",
+   "our_recomputation": null,
+   "tolerance": {
+    "abs": 0,
+    "rel": null,
+    "unit": null,
+    "basis": "exact"
+   },
+   "source_ids": [
+    "MDS02"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Slopes are tested first; if slopes differ use individual intercepts and slopes with the pooled mean square error and take the shortest batch estimate; if only intercepts differ use the common slope with individual intercepts."
+  },
+  {
+   "vector_id": "TV-Q3B-1",
+   "kind": "rule",
+   "description": "Q3B rounding of a TDI against the qualification threshold.",
+   "target": "pharmacy.decision.q3b_thresholds",
+   "inputs": {
+    "degradation_level_percent": 0.18,
+    "total_daily_intake_mg": 3.4,
+    "qualification_threshold_tdi_mg": 3
+   },
+   "expected": {
+    "rounded_tdi_mg": 3,
+    "qualification_threshold_exceeded": false
+   },
+   "published_expected_text": "\"an amount of 0.18% degradation level corresponds to a TDI of 3.4 mg impurity (absolute amount) which is then rounded down to 3 mg; so the qualification threshold expressed in TDI (3 mg) is not exceeded.\"",
+   "our_recomputation": null,
+   "tolerance": {
+    "abs": 0,
+    "rel": null,
+    "unit": "mg",
+    "basis": "exact rule"
+   },
+   "source_ids": [
+    "MDS04"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": ""
+  },
+  {
+   "vector_id": "TV-Q3B-2",
+   "kind": "rule",
+   "description": "Q3B thresholds for a maximum daily dose of 1.5 g.",
+   "target": "pharmacy.decision.q3b_thresholds",
+   "inputs": {
+    "maximum_daily_dose_mg": 1500.0
+   },
+   "expected": {
+    "reporting_threshold_percent": 0.05,
+    "identification_threshold_percent": 0.13,
+    "qualification_threshold_percent": 0.2
+   },
+   "published_expected_text": "0.05%; min(0.2%, 2 mg TDI) = 0.13% (2 mg / 1500 mg); min(0.2%, 3 mg) = 0.2% (thresholds read from the Q3B table; values DERIVED)",
+   "our_recomputation": {
+    "reporting": "0.05%",
+    "identification": "min(0.2%, 2 mg TDI) = 0.13% (2 mg / 1500 mg)",
+    "qualification": "min(0.2%, 3 mg) = 0.2%",
+    "foundation_identification_percent_exact": 0.13333333333333333,
+    "foundation_qualification_percent_exact": 0.2,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": 0.005,
+    "rel": null,
+    "unit": "percent",
+    "basis": "the note rounds 0.1333% to 0.13%"
+   },
+   "source_ids": [
+    "MDS04"
+   ],
+   "source_status": "read (table), value DERIVED",
+   "status": "reproduces",
+   "note": "Identification is 2 mg / 1500 mg = 0.1333%, below 0.2%, so the TDI branch applies."
+  },
+  {
+   "vector_id": "TV-Q1B-1",
+   "kind": "rule",
+   "description": "Q1B quinine actinometer acceptance (Option 2) and confirmatory exposure levels.",
+   "target": null,
+   "inputs": {
+    "actinometer": "2% w/v quinine monohydrochloride dihydrate, absorbance change at 400 nm",
+    "confirmatory_exposure": {
+     "visible_lux_h": 1200000.0,
+     "near_uv_w_h_per_m2": 200.0
+    }
+   },
+   "expected": {
+    "minimum_absorbance_change": 0.9,
+    "visible_dose_lux_h_min": 1200000.0,
+    "near_uv_dose_w_h_per_m2_min": 200.0
+   },
+   "published_expected_text": "\"The length of exposure should be sufficient to ensure a change in absorbance of at least 0.9.\"",
+   "our_recomputation": null,
+   "tolerance": {
+    "abs": 0,
+    "rel": null,
+    "unit": null,
+    "basis": "exact rule"
+   },
+   "source_ids": [
+    "MDS03"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "The confirmatory exposure levels are quoted in degradation-science.md 4.1 from the same source (MDS03): \"not less than 1.2 million lux hours and an integrated near ultraviolet energy of not less than 200 watt hours/square meter\". Use to check that light-term configs cite one Q1B dose correctly."
+  }
+ ]
+}

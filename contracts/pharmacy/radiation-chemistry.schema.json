@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/radiation-chemistry.schema.json",
+  "title": "Radiolysis yields and upper-bound sensitivities.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_id",
+    "schema",
+    "version",
+    "review_state",
+    "notice",
+    "direct_effect_g_loss_mol_per_j",
+    "indirect_effect",
+    "frozen_solution_uses_direct_effect",
+    "upper_bounds"
+  ],
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "schema": {
+      "const": "pharmacy/radiation-chemistry.schema.json"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "review_state": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ]
+    },
+    "notice": {
+      "type": "string"
+    },
+    "direct_effect_g_loss_mol_per_j": {
+      "$ref": "common.schema.json#/$defs/Prior"
+    },
+    "indirect_effect": {
+      "$ref": "#/$defs/IndirectEffect"
+    },
+    "frozen_solution_uses_direct_effect": {
+      "$ref": "common.schema.json#/$defs/Provenance"
+    },
+    "upper_bounds": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/UpperBound"
+      }
+    }
+  },
+  "$defs": {
+    "IndirectEffect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "g_max_mol_per_j",
+        "half_scavenging_concentration_mol_per_kg",
+        "full_scavenging_concentration_mol_per_kg"
+      ],
+      "properties": {
+        "g_max_mol_per_j": {
+          "$ref": "common.schema.json#/$defs/Prior"
+        },
+        "half_scavenging_concentration_mol_per_kg": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "full_scavenging_concentration_mol_per_kg": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "UpperBound": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dose_form_family",
+        "k_per_gy"
+      ],
+      "properties": {
+        "dose_form_family": {
+          "enum": [
+            "solid",
+            "solution",
+            "suspension",
+            "semisolid"
+          ]
+        },
+        "k_per_gy": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    }
+  }
+}

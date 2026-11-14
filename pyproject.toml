@@ -1,0 +1,92 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pharmacy"
+version = "0.1.0"
+description = "Medicine potency (chemical degradation) engine for the Crew Health Check hub (NASA Space Apps 2026)."
+requires-python = ">=3.14"
+dependencies = [
+  "numpy>=2.5",
+  "scipy>=1.18",
+  "rdkit>=2026.9",
+  "tblite>=0.8",
+  "jsonschema>=4.26",
+  "referencing>=0.37",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=9.2",
+  "pytest-cov>=7.1",
+  "hypothesis>=6.170",
+  "mypy>=2.4",
+  "ruff>=0.17",
+  "mpmath>=1.4",
+  "pyscf>=2.15",
+  "types-jsonschema>=4.26",
+]
+
+[tool.setuptools]
+packages = ["pharmacy", "pharmacy.chemistry"]
+
+[tool.pytest.ini_options]
+minversion = "9.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers --strict-config --import-mode=importlib"
+xfail_strict = true
+markers = [
+  "slow: long-running tests (end to end, coverage studies, adaptive Monte Carlo at full size)",
+  "xtb: tests that run GFN2-xTB through tblite (computational chemistry layer)",
+  "validation: validation against published datasets (acceptance criteria in docs/ENGINE-SPEC.md section 15)",
+]
+filterwarnings = ["error::DeprecationWarning:pharmacy.*"]
+
+[tool.coverage.run]
+branch = true
+source = ["pharmacy"]
+omit = [
+  # Requires GFN2-xTB; covered by tests marked xtb, measured separately.
+  "pharmacy/chemistry/bde.py",
+]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true
+skip_covered = false
+exclude_also = [
+  "raise NotImplementedError",
+  "if TYPE_CHECKING:",
+  "@overload",
+  "^\\s*\\.\\.\\.\\s*$",
+]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unreachable = true
+disallow_any_explicit = false
+explicit_package_bases = true
+packages = ["pharmacy"]
+
+[[tool.mypy.overrides]]
+module = ["rdkit", "rdkit.*", "scipy", "scipy.*", "mpmath", "mpmath.*", "pyscf", "pyscf.*"]
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 110
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM", "RUF", "PT", "C4", "PL"]
+ignore = [
+  "PLR0913", "PLR0917",  # engine functions take many explicit arguments by design (traceability)
+  "PLR2004",  # magic values appear in tests that quote published numbers
+  "PLR0911", "PLR0912", "PLR0915",  # rate-law dispatch and reference checks branch by design
+  "RUF001", "RUF002", "RUF003",  # ambiguous unicode in quoted source text
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["PLR0915", "PLR0912"]

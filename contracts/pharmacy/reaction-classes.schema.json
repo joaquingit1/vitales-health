@@ -1,0 +1,768 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/reaction-classes.schema.json",
+  "title": "Reaction classes with SMARTS, rate-law priors, anchors and degradants.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_id",
+    "schema",
+    "version",
+    "review_state",
+    "notice",
+    "total_rate_priors",
+    "classes"
+  ],
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+    },
+    "schema": {
+      "const": "pharmacy/reaction-classes.schema.json"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "review_state": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ]
+    },
+    "notice": {
+      "type": "string"
+    },
+    "total_rate_priors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TotalRatePrior"
+      }
+    },
+    "classes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ReactionClassDoc"
+      }
+    }
+  },
+  "$defs": {
+    "Anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "anchor_id",
+        "dose_form_family",
+        "smiles",
+        "ln_k_per_s",
+        "temperature_k",
+        "temperature_sd_k",
+        "rh_percent",
+        "ph",
+        "reference_study_id",
+        "calibration",
+        "storage_zone_id",
+        "package_id",
+        "duration_days"
+      ],
+      "properties": {
+        "anchor_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "dose_form_family": {
+          "enum": [
+            "solid",
+            "solution",
+            "suspension",
+            "semisolid"
+          ]
+        },
+        "smiles": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ln_k_per_s": {
+          "$ref": "common.schema.json#/$defs/Prior"
+        },
+        "temperature_k": {
+          "allOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "properties": {
+                "value": {
+                  "exclusiveMinimum": 0
+                },
+                "unit": {
+                  "const": "K"
+                }
+              }
+            }
+          ]
+        },
+        "temperature_sd_k": {
+          "allOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "properties": {
+                "value": {
+                  "minimum": 0
+                },
+                "unit": {
+                  "const": "K"
+                }
+              }
+            }
+          ]
+        },
+        "rh_percent": {
+          "allOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "properties": {
+                "value": {
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "unit": {
+                  "const": "percent"
+                }
+              }
+            }
+          ]
+        },
+        "ph": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reference_study_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "calibration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CalibrationDatasetRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "measured_degradant_ids": {
+          "allOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              }
+            },
+            {
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              }
+            }
+          ],
+          "default": []
+        },
+        "storage_zone_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "package_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "duration_days": {
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/SourcedValue"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            {
+              "properties": {
+                "value": {
+                  "exclusiveMinimum": 0
+                },
+                "unit": {
+                  "const": "day"
+                }
+              }
+            }
+          ]
+        },
+        "storage_context": {
+          "$ref": "common.schema.json#/$defs/Provenance"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "package_id": {
+                "type": "string"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "duration_days": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CalibrationDatasetRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vector_id",
+        "rows",
+        "note"
+      ],
+      "properties": {
+        "vector_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "rows": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "ClassDegradant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "degradant_id",
+        "name",
+        "smiles",
+        "molar_mass_g_per_mol",
+        "yield_mol_per_mol",
+        "toxicity_flag",
+        "basis",
+        "source_ids",
+        "note"
+      ],
+      "properties": {
+        "degradant_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "smiles": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "molar_mass_g_per_mol": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "yield_mol_per_mol": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        },
+        "toxicity_flag": {
+          "enum": [
+            "toxic",
+            "not_toxic",
+            "unknown"
+          ]
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ComputedMethod": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "series_ids",
+        "method_error_sd_log10"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "hammett",
+            "taft",
+            "evans_polanyi_bde",
+            "anchor_only",
+            "g_value_direct",
+            "g_value_indirect",
+            "none"
+          ]
+        },
+        "series_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          }
+        },
+        "method_error_sd_log10": {
+          "$ref": "common.schema.json#/$defs/SourcedValue"
+        }
+      }
+    },
+    "FamilyPriors": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Class priors for one dose-form family. ``ln_k_ref_per_s`` is used only by classes outside the product total-rate split (role racemization); destructive thermal classes take ln k from ``total_rate_priors`` (spec 9.5) and leave it null.",
+      "required": [
+        "dose_form_family",
+        "ln_k_ref_per_s",
+        "ea_j_per_mol",
+        "b_per_percent_rh",
+        "frozen_rate_multiplier"
+      ],
+      "properties": {
+        "dose_form_family": {
+          "enum": [
+            "solid",
+            "solution",
+            "suspension",
+            "semisolid"
+          ]
+        },
+        "ln_k_ref_per_s": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Prior"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ea_j_per_mol": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Prior"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "b_per_percent_rh": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Prior"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "frozen_rate_multiplier": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Prior"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "LightPriors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "k_vis_per_lux_h",
+        "k_uv_per_w_h_per_m2"
+      ],
+      "properties": {
+        "k_vis_per_lux_h": {
+          "$ref": "common.schema.json#/$defs/Prior"
+        },
+        "k_uv_per_w_h_per_m2": {
+          "$ref": "common.schema.json#/$defs/Prior"
+        }
+      }
+    },
+    "ReactionClassDoc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class_id",
+        "name",
+        "mechanism",
+        "driver",
+        "role",
+        "smarts",
+        "site_atom_map",
+        "requires_defined_stereocenter",
+        "applies_to_families",
+        "computed_method",
+        "anchors",
+        "priors",
+        "light_priors",
+        "degradant",
+        "validated_range",
+        "basis",
+        "source_ids",
+        "note"
+      ],
+      "properties": {
+        "class_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mechanism": {
+          "enum": [
+            "hydrolysis",
+            "autoxidation",
+            "s_oxidation",
+            "enediol_oxidation",
+            "racemization",
+            "photolysis",
+            "radiolysis"
+          ]
+        },
+        "driver": {
+          "enum": [
+            "thermal",
+            "light",
+            "radiation"
+          ]
+        },
+        "role": {
+          "enum": [
+            "destructive",
+            "racemization"
+          ]
+        },
+        "smarts": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "site_atom_map": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "requires_defined_stereocenter": {
+          "type": "boolean"
+        },
+        "applies_to_families": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "solid",
+              "solution",
+              "suspension",
+              "semisolid"
+            ]
+          }
+        },
+        "computed_method": {
+          "$ref": "#/$defs/ComputedMethod"
+        },
+        "anchors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Anchor"
+          }
+        },
+        "priors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FamilyPriors"
+          }
+        },
+        "light_priors": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LightPriors"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "degradant": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ClassDegradant"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "validated_range": {
+          "$ref": "common.schema.json#/$defs/ValidatedRangeDoc"
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "derived",
+            "team_default"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "enum": [
+                  "sourced",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "TotalRatePrior": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dose_form_family",
+        "ln_k_ref_per_s",
+        "calibration",
+        "temperature_k",
+        "temperature_sd_k",
+        "rh_percent",
+        "rh_sd_percent"
+      ],
+      "properties": {
+        "dose_form_family": {
+          "enum": [
+            "solid",
+            "solution",
+            "suspension",
+            "semisolid"
+          ]
+        },
+        "ln_k_ref_per_s": {
+          "$ref": "common.schema.json#/$defs/Prior"
+        },
+        "calibration": {
+          "$ref": "#/$defs/CalibrationDatasetRef"
+        },
+        "temperature_k": {
+          "allOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "properties": {
+                "value": {
+                  "exclusiveMinimum": 0
+                },
+                "unit": {
+                  "const": "K"
+                }
+              }
+            }
+          ]
+        },
+        "temperature_sd_k": {
+          "allOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "properties": {
+                "value": {
+                  "minimum": 0
+                },
+                "unit": {
+                  "const": "K"
+                }
+              }
+            }
+          ]
+        },
+        "rh_percent": {
+          "allOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "properties": {
+                "value": {
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "unit": {
+                  "const": "percent"
+                }
+              }
+            }
+          ]
+        },
+        "rh_sd_percent": {
+          "allOf": [
+            {
+              "$ref": "common.schema.json#/$defs/SourcedValue"
+            },
+            {
+              "properties": {
+                "value": {
+                  "minimum": 0
+                },
+                "unit": {
+                  "const": "percent"
+                }
+              }
+            }
+          ]
+        },
+        "calibration_provenance": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/CalibrationProvenance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      }
+    }
+  }
+}

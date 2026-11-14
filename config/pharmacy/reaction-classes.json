@@ -1,0 +1,3580 @@
+{
+  "document_id": "reaction-classes",
+  "schema": "pharmacy/reaction-classes.schema.json",
+  "version": "0.5.0",
+  "review_state": "draft",
+  "notice": "Draft configuration for the Crew Health Check potency engine. Every value carries its basis and source IDs (research notes in reports/crew-health-medications-2026-11-14/research). team_default values are placeholders that the named role must replace before operational use.",
+  "total_rate_priors": [
+    {
+      "dose_form_family": "solid",
+      "ln_k_ref_per_s": {
+        "family": "normal",
+        "mu": -19.9689527113604,
+        "sigma": 0.6829591118935576,
+        "lower": null,
+        "upper": null,
+        "unit": "ln(1/s)",
+        "basis": "derived",
+        "source_ids": [
+          "MDP01",
+          "MDP02"
+        ],
+        "to_be_set_by": null,
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373."
+      },
+      "calibration": {
+        "vector_id": "V1",
+        "rows": [
+          1,
+          3,
+          9,
+          11,
+          19,
+          21,
+          23,
+          25,
+          27,
+          31,
+          35
+        ],
+        "note": "Odd (calibration) rows only; these rows are excluded from validation."
+      },
+      "temperature_k": {
+        "value": 295.15,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP03"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Du ground-control chamber temperature is not given in the research notes. Assume 22 C matching the ISS cabin; chemistry lead must verify from MDP03."
+      },
+      "temperature_sd_k": {
+        "value": 1.5,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP03"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Standard uncertainty of the assumed Du ground-control chamber temperature; chemistry lead must verify from MDP03."
+      },
+      "rh_percent": {
+        "value": 40.0,
+        "unit": "percent",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01",
+          "MDP02"
+        ],
+        "to_be_set_by": null,
+        "note": "Du ground controls in a JSC environmental chamber at 36 to 44 %RH, read as 40 +- 2 %RH."
+      },
+      "rh_sd_percent": {
+        "value": 2.0,
+        "unit": "percent",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01",
+          "MDP02"
+        ],
+        "to_be_set_by": null,
+        "note": "Standard uncertainty from the reported 36 to 44 %RH range, read as 40 +- 2 %RH."
+      },
+      "calibration_provenance": {
+        "basis": "derived",
+        "source_ids": [
+          "MDP01",
+          "MDP02",
+          "MDP03"
+        ],
+        "to_be_set_by": null,
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373.",
+        "method": "pooled_within_family_student_t_predictive_v1",
+        "vector_id": "V1",
+        "rows": [
+          1,
+          3,
+          9,
+          11,
+          19,
+          21,
+          23,
+          25,
+          27,
+          31,
+          35
+        ],
+        "statistics": [
+          {
+            "name": "sample_count",
+            "value": 19,
+            "unit": "1"
+          },
+          {
+            "name": "fitted_families",
+            "value": 3,
+            "unit": "1"
+          },
+          {
+            "name": "pooled_between_product_variance_ln",
+            "value": 0.32018990710574297,
+            "unit": "1"
+          },
+          {
+            "name": "predictive_df",
+            "value": 16,
+            "unit": "1"
+          },
+          {
+            "name": "coverage",
+            "value": 0.8999999999999999,
+            "unit": "1"
+          },
+          {
+            "name": "family_sample_count",
+            "value": 11,
+            "unit": "1"
+          },
+          {
+            "name": "family_mean_ln_k_ref_per_s",
+            "value": -19.9689527113604,
+            "unit": "ln(1/s)"
+          },
+          {
+            "name": "student_t_equivalent_normal_sd_ln",
+            "value": 0.6273156859297896,
+            "unit": "1"
+          },
+          {
+            "name": "reference_conversion_variance_ln",
+            "value": 0.0729081787048746,
+            "unit": "1"
+          },
+          {
+            "name": "stored_normal_sd_ln",
+            "value": 0.6829591118935576,
+            "unit": "1"
+          },
+          {
+            "name": "ea_mean_j_per_mol",
+            "value": 120000.0,
+            "unit": "J/mol"
+          },
+          {
+            "name": "ea_sd_j_per_mol",
+            "value": 24500.0,
+            "unit": "J/mol"
+          },
+          {
+            "name": "b_mean_per_percent_rh",
+            "value": 0.04,
+            "unit": "1/percent"
+          },
+          {
+            "name": "b_sd_per_percent_rh",
+            "value": 0.025,
+            "unit": "1/percent"
+          },
+          {
+            "name": "censored_ground_rows",
+            "value": 0,
+            "unit": "1"
+          }
+        ],
+        "engine_version": "0.1.0"
+      }
+    },
+    {
+      "dose_form_family": "solution",
+      "ln_k_ref_per_s": {
+        "family": "normal",
+        "mu": -20.41151620281944,
+        "sigma": 0.695630433489508,
+        "lower": null,
+        "upper": null,
+        "unit": "ln(1/s)",
+        "basis": "derived",
+        "source_ids": [
+          "MDP01",
+          "MDP02"
+        ],
+        "to_be_set_by": null,
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373."
+      },
+      "calibration": {
+        "vector_id": "V1",
+        "rows": [
+          5,
+          17,
+          22,
+          30
+        ],
+        "note": "All solution rows, including even rows: they are excluded from validation."
+      },
+      "temperature_k": {
+        "value": 295.15,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP03"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Du ground-control chamber temperature is not given in the research notes. Assume 22 C matching the ISS cabin; chemistry lead must verify from MDP03."
+      },
+      "temperature_sd_k": {
+        "value": 1.5,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP03"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Standard uncertainty of the assumed Du ground-control chamber temperature; chemistry lead must verify from MDP03."
+      },
+      "rh_percent": {
+        "value": 40.0,
+        "unit": "percent",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01",
+          "MDP02"
+        ],
+        "to_be_set_by": null,
+        "note": "Du ground controls in a JSC environmental chamber at 36 to 44 %RH, read as 40 +- 2 %RH."
+      },
+      "rh_sd_percent": {
+        "value": 2.0,
+        "unit": "percent",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01",
+          "MDP02"
+        ],
+        "to_be_set_by": null,
+        "note": "Standard uncertainty from the reported 36 to 44 %RH range, read as 40 +- 2 %RH."
+      },
+      "calibration_provenance": {
+        "basis": "derived",
+        "source_ids": [
+          "MDP01",
+          "MDP02",
+          "MDP03"
+        ],
+        "to_be_set_by": null,
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373.",
+        "method": "pooled_within_family_student_t_predictive_v1",
+        "vector_id": "V1",
+        "rows": [
+          5,
+          17,
+          22,
+          30
+        ],
+        "statistics": [
+          {
+            "name": "sample_count",
+            "value": 19,
+            "unit": "1"
+          },
+          {
+            "name": "fitted_families",
+            "value": 3,
+            "unit": "1"
+          },
+          {
+            "name": "pooled_between_product_variance_ln",
+            "value": 0.32018990710574297,
+            "unit": "1"
+          },
+          {
+            "name": "predictive_df",
+            "value": 16,
+            "unit": "1"
+          },
+          {
+            "name": "coverage",
+            "value": 0.8999999999999999,
+            "unit": "1"
+          },
+          {
+            "name": "family_sample_count",
+            "value": 4,
+            "unit": "1"
+          },
+          {
+            "name": "family_mean_ln_k_ref_per_s",
+            "value": -20.41151620281944,
+            "unit": "ln(1/s)"
+          },
+          {
+            "name": "student_t_equivalent_normal_sd_ln",
+            "value": 0.6715013238344163,
+            "unit": "1"
+          },
+          {
+            "name": "reference_conversion_variance_ln",
+            "value": 0.032987672085427286,
+            "unit": "1"
+          },
+          {
+            "name": "stored_normal_sd_ln",
+            "value": 0.695630433489508,
+            "unit": "1"
+          },
+          {
+            "name": "ea_mean_j_per_mol",
+            "value": 78042.4,
+            "unit": "J/mol"
+          },
+          {
+            "name": "ea_sd_j_per_mol",
+            "value": 20208.600302181578,
+            "unit": "J/mol"
+          },
+          {
+            "name": "b_mean_per_percent_rh",
+            "value": 0.0,
+            "unit": "1/percent"
+          },
+          {
+            "name": "b_sd_per_percent_rh",
+            "value": 0.0,
+            "unit": "1/percent"
+          },
+          {
+            "name": "censored_ground_rows",
+            "value": 0,
+            "unit": "1"
+          }
+        ],
+        "engine_version": "0.1.0"
+      }
+    },
+    {
+      "dose_form_family": "suspension",
+      "ln_k_ref_per_s": {
+        "family": "normal",
+        "mu": -20.41151620281944,
+        "sigma": 0.695630433489508,
+        "lower": null,
+        "upper": null,
+        "unit": "ln(1/s)",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP01",
+          "MDP02"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373."
+      },
+      "calibration": {
+        "vector_id": "V1",
+        "rows": [
+          5,
+          17,
+          22,
+          30
+        ],
+        "note": "Same rows as the solution prior."
+      },
+      "temperature_k": {
+        "value": 295.15,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP03"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Du ground-control chamber temperature is not given in the research notes. Assume 22 C matching the ISS cabin; chemistry lead must verify from MDP03."
+      },
+      "temperature_sd_k": {
+        "value": 1.5,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP03"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Standard uncertainty of the assumed Du ground-control chamber temperature; chemistry lead must verify from MDP03."
+      },
+      "rh_percent": {
+        "value": 40.0,
+        "unit": "percent",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01",
+          "MDP02"
+        ],
+        "to_be_set_by": null,
+        "note": "Du ground controls in a JSC environmental chamber at 36 to 44 %RH, read as 40 +- 2 %RH."
+      },
+      "rh_sd_percent": {
+        "value": 2.0,
+        "unit": "percent",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01",
+          "MDP02"
+        ],
+        "to_be_set_by": null,
+        "note": "Standard uncertainty from the reported 36 to 44 %RH range, read as 40 +- 2 %RH."
+      },
+      "calibration_provenance": {
+        "basis": "team_default",
+        "source_ids": [
+          "MDP01",
+          "MDP02",
+          "MDP03"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373.",
+        "method": "pooled_within_family_student_t_predictive_v1",
+        "vector_id": "V1",
+        "rows": [
+          5,
+          17,
+          22,
+          30
+        ],
+        "statistics": [
+          {
+            "name": "sample_count",
+            "value": 19,
+            "unit": "1"
+          },
+          {
+            "name": "fitted_families",
+            "value": 3,
+            "unit": "1"
+          },
+          {
+            "name": "pooled_between_product_variance_ln",
+            "value": 0.32018990710574297,
+            "unit": "1"
+          },
+          {
+            "name": "predictive_df",
+            "value": 16,
+            "unit": "1"
+          },
+          {
+            "name": "coverage",
+            "value": 0.8999999999999999,
+            "unit": "1"
+          },
+          {
+            "name": "family_sample_count",
+            "value": 4,
+            "unit": "1"
+          },
+          {
+            "name": "family_mean_ln_k_ref_per_s",
+            "value": -20.41151620281944,
+            "unit": "ln(1/s)"
+          },
+          {
+            "name": "student_t_equivalent_normal_sd_ln",
+            "value": 0.6715013238344163,
+            "unit": "1"
+          },
+          {
+            "name": "reference_conversion_variance_ln",
+            "value": 0.032987672085427286,
+            "unit": "1"
+          },
+          {
+            "name": "stored_normal_sd_ln",
+            "value": 0.695630433489508,
+            "unit": "1"
+          },
+          {
+            "name": "ea_mean_j_per_mol",
+            "value": 78042.4,
+            "unit": "J/mol"
+          },
+          {
+            "name": "ea_sd_j_per_mol",
+            "value": 20208.600302181578,
+            "unit": "J/mol"
+          },
+          {
+            "name": "b_mean_per_percent_rh",
+            "value": 0.0,
+            "unit": "1/percent"
+          },
+          {
+            "name": "b_sd_per_percent_rh",
+            "value": 0.0,
+            "unit": "1/percent"
+          },
+          {
+            "name": "censored_ground_rows",
+            "value": 0,
+            "unit": "1"
+          }
+        ],
+        "engine_version": "0.1.0"
+      }
+    },
+    {
+      "dose_form_family": "semisolid",
+      "ln_k_ref_per_s": {
+        "family": "normal",
+        "mu": -20.190849026195124,
+        "sigma": 0.7230250099190625,
+        "lower": null,
+        "upper": null,
+        "unit": "ln(1/s)",
+        "basis": "derived",
+        "source_ids": [
+          "MDP01",
+          "MDP02"
+        ],
+        "to_be_set_by": null,
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373."
+      },
+      "calibration": {
+        "vector_id": "V1",
+        "rows": [
+          13,
+          15,
+          29,
+          33
+        ],
+        "note": "Odd (calibration) rows only."
+      },
+      "temperature_k": {
+        "value": 295.15,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP03"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Du ground-control chamber temperature is not given in the research notes. Assume 22 C matching the ISS cabin; chemistry lead must verify from MDP03."
+      },
+      "temperature_sd_k": {
+        "value": 1.5,
+        "unit": "K",
+        "basis": "team_default",
+        "source_ids": [
+          "MDP03"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Standard uncertainty of the assumed Du ground-control chamber temperature; chemistry lead must verify from MDP03."
+      },
+      "rh_percent": {
+        "value": 40.0,
+        "unit": "percent",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01",
+          "MDP02"
+        ],
+        "to_be_set_by": null,
+        "note": "Du ground controls in a JSC environmental chamber at 36 to 44 %RH, read as 40 +- 2 %RH."
+      },
+      "rh_sd_percent": {
+        "value": 2.0,
+        "unit": "percent",
+        "basis": "sourced",
+        "source_ids": [
+          "MDP01",
+          "MDP02"
+        ],
+        "to_be_set_by": null,
+        "note": "Standard uncertainty from the reported 36 to 44 %RH range, read as 40 +- 2 %RH."
+      },
+      "calibration_provenance": {
+        "basis": "derived",
+        "source_ids": [
+          "MDP01",
+          "MDP02",
+          "MDP03"
+        ],
+        "to_be_set_by": null,
+        "note": "Pooled within-family variance, no product weighting or trimming. Family Ea/B are equal-weight mixtures over configured destructive thermal classes. Package mean rates use engine physics from day-13 package start to day 880; unknown repackaging uses the original-container rule. Nonpositive loss uses the median positive-truncated Gaussian assay likelihood; zero-noise nonpositive loss is an error. Normal sd matches the central Student-t predictive interval at decision coverage before independent spec 9.3 conversion variance is added in quadrature. Conversion uncertainty is averaged within family, not divided by n, since calibration conditions and chemistry priors are shared. Suspension is an alias, not a fourth fitted family. Config versions: engine-settings=0.3.0; environment-profiles=0.1.0; formulary=0.1.0; lfer-constants=0.2.0; lots=0.1.0; packages=0.1.0; radiation-chemistry=0.1.0; reaction-classes=0.5.0; sources=0.1.0; stability-models=0.2.0; storage-zones=0.5.0. Vector SHA256=d2ff7ddbb26683364fa2366cc9b11ae986c5426063d11e60d7edee011ad0026c. Flight input SHA256=cbff8eaa1e4d397921ac5f36863a1ba3351980aca1a4170ab91a471ffc5b5373.",
+        "method": "pooled_within_family_student_t_predictive_v1",
+        "vector_id": "V1",
+        "rows": [
+          13,
+          15,
+          29,
+          33
+        ],
+        "statistics": [
+          {
+            "name": "sample_count",
+            "value": 19,
+            "unit": "1"
+          },
+          {
+            "name": "fitted_families",
+            "value": 3,
+            "unit": "1"
+          },
+          {
+            "name": "pooled_between_product_variance_ln",
+            "value": 0.32018990710574297,
+            "unit": "1"
+          },
+          {
+            "name": "predictive_df",
+            "value": 16,
+            "unit": "1"
+          },
+          {
+            "name": "coverage",
+            "value": 0.8999999999999999,
+            "unit": "1"
+          },
+          {
+            "name": "family_sample_count",
+            "value": 4,
+            "unit": "1"
+          },
+          {
+            "name": "family_mean_ln_k_ref_per_s",
+            "value": -20.190849026195124,
+            "unit": "ln(1/s)"
+          },
+          {
+            "name": "student_t_equivalent_normal_sd_ln",
+            "value": 0.6715013238344163,
+            "unit": "1"
+          },
+          {
+            "name": "reference_conversion_variance_ln",
+            "value": 0.07185113705708684,
+            "unit": "1"
+          },
+          {
+            "name": "stored_normal_sd_ln",
+            "value": 0.7230250099190625,
+            "unit": "1"
+          },
+          {
+            "name": "ea_mean_j_per_mol",
+            "value": 120000.0,
+            "unit": "J/mol"
+          },
+          {
+            "name": "ea_sd_j_per_mol",
+            "value": 24500.0,
+            "unit": "J/mol"
+          },
+          {
+            "name": "b_mean_per_percent_rh",
+            "value": 0.04,
+            "unit": "1/percent"
+          },
+          {
+            "name": "b_sd_per_percent_rh",
+            "value": 0.025,
+            "unit": "1/percent"
+          },
+          {
+            "name": "censored_ground_rows",
+            "value": 0,
+            "unit": "1"
+          }
+        ],
+        "engine_version": "0.1.0"
+      }
+    }
+  ],
+  "classes": [
+    {
+      "class_id": "ester_hydrolysis",
+      "name": "Ester hydrolysis",
+      "mechanism": "hydrolysis",
+      "driver": "thermal",
+      "role": "destructive",
+      "smarts": [
+        "[#6:3][CX3:1](=[OX1])[OX2:2][#6:4]"
+      ],
+      "site_atom_map": 1,
+      "requires_defined_stereocenter": false,
+      "applies_to_families": [
+        "solid",
+        "solution",
+        "suspension",
+        "semisolid"
+      ],
+      "computed_method": {
+        "kind": "hammett",
+        "series_ids": [
+          "hammett_benzoate_alkaline"
+        ],
+        "method_error_sd_log10": {
+          "value": 1.0,
+          "unit": "log10",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "Method error of the computed layer."
+        }
+      },
+      "anchors": [
+        {
+          "anchor_id": "aspirin_tablet_iss_550d",
+          "dose_form_family": "solid",
+          "smiles": "CC(=O)OC1=CC=CC=C1C(=O)O",
+          "ln_k_per_s": {
+            "family": "normal",
+            "mu": -21.0113,
+            "sigma": 0.563,
+            "lower": null,
+            "upper": null,
+            "unit": "ln(1/s)",
+            "basis": "derived",
+            "source_ids": [
+              "MDP05",
+              "MDS58"
+            ],
+            "to_be_set_by": null,
+            "note": "Aspirin 325 mg tablets, 96.5% after 550 days in the ISS kit, initial 100 +- 2% assumed; first order."
+          },
+          "temperature_k": {
+            "value": 295.15,
+            "unit": "K",
+            "basis": "derived",
+            "source_ids": [
+              "MDP05",
+              "MDS58"
+            ],
+            "to_be_set_by": null,
+            "note": "ISS cabin about 22 C."
+          },
+          "temperature_sd_k": {
+            "value": 2.0,
+            "unit": "K",
+            "basis": "derived",
+            "source_ids": [
+              "MDP05",
+              "MDS58"
+            ],
+            "to_be_set_by": null,
+            "note": "Uncertainty of the storage temperature."
+          },
+          "rh_percent": {
+            "value": 25.0,
+            "unit": "percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDP05",
+              "MDS58"
+            ],
+            "to_be_set_by": null,
+            "note": "Storage RH the anchor rate refers to."
+          },
+          "ph": null,
+          "reference_study_id": null,
+          "calibration": null,
+          "measured_degradant_ids": [],
+          "storage_zone_id": "station_kit",
+          "package_id": "repackaged_bag",
+          "duration_days": {
+            "value": 550.0,
+            "unit": "day",
+            "basis": "derived",
+            "source_ids": [
+              "MDP05",
+              "MDS58"
+            ],
+            "to_be_set_by": null,
+            "note": "Duration used by the existing two-point first-order anchor derivation; the measured rate equals Theta divided by this duration."
+          },
+          "storage_context": {
+            "basis": "derived",
+            "source_ids": [
+              "MDP05",
+              "MDS58"
+            ],
+            "to_be_set_by": null,
+            "note": "Wotring 2016 stored all nine products of the ISS medical kit repackaged (research notes, space-pharmacy.md); measured in the station kit."
+          }
+        },
+        {
+          "anchor_id": "aspirin_pbs_ph7_4",
+          "dose_form_family": "solution",
+          "smiles": "CC(=O)OC1=CC=CC=C1C(=O)O",
+          "ln_k_per_s": {
+            "family": "normal",
+            "mu": -12.1471,
+            "sigma": 0.237704,
+            "lower": null,
+            "upper": null,
+            "unit": "ln(1/s)",
+            "basis": "derived",
+            "source_ids": [
+              "MDS85"
+            ],
+            "to_be_set_by": null,
+            "note": "Refit of the PBS pH 7.4 series at 298.15 K."
+          },
+          "temperature_k": {
+            "value": 298.15,
+            "unit": "K",
+            "basis": "derived",
+            "source_ids": [
+              "MDS85"
+            ],
+            "to_be_set_by": null,
+            "note": ""
+          },
+          "temperature_sd_k": {
+            "value": 0.0,
+            "unit": "K",
+            "basis": "derived",
+            "source_ids": [
+              "MDS85"
+            ],
+            "to_be_set_by": null,
+            "note": "Uncertainty of the storage temperature."
+          },
+          "rh_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS85"
+            ],
+            "to_be_set_by": null,
+            "note": "Storage RH the anchor rate refers to."
+          },
+          "ph": {
+            "value": 7.4,
+            "unit": "pH",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS85"
+            ],
+            "to_be_set_by": null,
+            "note": "Buffer pH."
+          },
+          "reference_study_id": "ref_aspirin_pbs_ph7_4",
+          "calibration": null,
+          "measured_degradant_ids": [],
+          "storage_zone_id": "ground_storage",
+          "package_id": null,
+          "duration_days": null,
+          "storage_context": {
+            "basis": "derived",
+            "source_ids": [
+              "MDS85"
+            ],
+            "to_be_set_by": null,
+            "note": "Laboratory solution kinetics refer to the product itself; no package moisture correction or spaceflight factor applies."
+          }
+        }
+      ],
+      "priors": [
+        {
+          "dose_form_family": "solid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS12",
+              "MDS13",
+              "MDS16",
+              "MDS122",
+              "MDS90"
+            ],
+            "to_be_set_by": null,
+            "note": "Humidity sensitivity 0 to 0.10 per %RH, typical 0.04; negative values allowed (MDS90)."
+          },
+          "frozen_rate_multiplier": null
+        },
+        {
+          "dose_form_family": "solution",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "derived",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": null,
+            "note": "Mean and sample sd of the 9 reproducing reference-study Ea values (solution hydrolysis)."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "suspension",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solution hydrolysis Ea reused for suspensions."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "semisolid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solid-class B reused for semisolids."
+          },
+          "frozen_rate_multiplier": null
+        }
+      ],
+      "light_priors": null,
+      "degradant": {
+        "degradant_id": "ester_hydrolysis_acid",
+        "name": "Carboxylic acid and alcohol from ester cleavage",
+        "smiles": null,
+        "molar_mass_g_per_mol": null,
+        "yield_mol_per_mol": {
+          "value": 1.0,
+          "unit": "mol/mol",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "One mole of degradant per mole lost."
+        },
+        "toxicity_flag": "unknown",
+        "basis": "team_default",
+        "source_ids": [],
+        "note": "Generic class product; products override with named degradants."
+      },
+      "validated_range": {
+        "temperature_min_k": 288.15,
+        "temperature_max_k": 313.15,
+        "rh_min_percent": 10.0,
+        "rh_max_percent": 75.0,
+        "basis": "team_default",
+        "source_ids": [
+          "MDS01",
+          "MDP71"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Class-prior validity: 15 to 40 C (USP excursion floor to ICH accelerated) and 10 to 75 %RH."
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDS16",
+        "MDS85",
+        "MDP05"
+      ],
+      "note": "Lactones are esters and match this class."
+    },
+    {
+      "class_id": "amide_hydrolysis",
+      "name": "Amide hydrolysis (acyclic or lactam other than beta-lactam)",
+      "mechanism": "hydrolysis",
+      "driver": "thermal",
+      "role": "destructive",
+      "smarts": [
+        "[#6:3][CX3;!r4:1](=[OX1])[NX3:2]"
+      ],
+      "site_atom_map": 1,
+      "requires_defined_stereocenter": false,
+      "applies_to_families": [
+        "solid",
+        "solution",
+        "suspension",
+        "semisolid"
+      ],
+      "computed_method": {
+        "kind": "anchor_only",
+        "series_ids": [],
+        "method_error_sd_log10": {
+          "value": 1.0,
+          "unit": "log10",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "No anilide or amide rho is sourced; molecules other than the anchor get the anchor rate with this error."
+        }
+      },
+      "anchors": [
+        {
+          "anchor_id": "acetaminophen_tablet_iss_6mo",
+          "dose_form_family": "solid",
+          "smiles": "CC(=O)NC1=CC=C(C=C1)O",
+          "ln_k_per_s": {
+            "family": "normal",
+            "mu": -20.0788,
+            "sigma": 0.491,
+            "lower": null,
+            "upper": null,
+            "unit": "ln(1/s)",
+            "basis": "derived",
+            "source_ids": [
+              "MDP16"
+            ],
+            "to_be_set_by": null,
+            "note": "Acetaminophen tablets 99.29 to 96.35% over 182.6 days on ISS; first order."
+          },
+          "temperature_k": {
+            "value": 295.15,
+            "unit": "K",
+            "basis": "derived",
+            "source_ids": [
+              "MDP16"
+            ],
+            "to_be_set_by": null,
+            "note": "ISS cabin about 22 C."
+          },
+          "temperature_sd_k": {
+            "value": 2.0,
+            "unit": "K",
+            "basis": "derived",
+            "source_ids": [
+              "MDP16"
+            ],
+            "to_be_set_by": null,
+            "note": "Uncertainty of the storage temperature."
+          },
+          "rh_percent": {
+            "value": 25.0,
+            "unit": "percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDP16"
+            ],
+            "to_be_set_by": null,
+            "note": "Storage RH the anchor rate refers to."
+          },
+          "ph": null,
+          "reference_study_id": null,
+          "calibration": null,
+          "measured_degradant_ids": [],
+          "storage_zone_id": "station_kit",
+          "package_id": "original_bottle",
+          "duration_days": {
+            "value": 182.6,
+            "unit": "day",
+            "basis": "derived",
+            "source_ids": [
+              "MDP16"
+            ],
+            "to_be_set_by": null,
+            "note": "Duration used by the existing two-point first-order anchor derivation; the measured rate equals Theta divided by this duration."
+          },
+          "storage_context": {
+            "basis": "team_default",
+            "source_ids": [
+              "MDP16"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Measured in the ISS Russian segment (station zone). The study does not state the package; original_bottle is a team assumption to be confirmed against the primary study."
+          }
+        },
+        {
+          "anchor_id": "acetaminophen_0_5m_hcl",
+          "dose_form_family": "solution",
+          "smiles": "CC(=O)NC1=CC=C(C=C1)O",
+          "ln_k_per_s": {
+            "family": "normal",
+            "mu": -13.0408,
+            "sigma": 0.271701,
+            "lower": null,
+            "upper": null,
+            "unit": "ln(1/s)",
+            "basis": "derived",
+            "source_ids": [
+              "MDS95"
+            ],
+            "to_be_set_by": null,
+            "note": "Refit of the 0.5 M HCl series at 298.15 K (acid-catalyzed; poor proxy for neutral solutions)."
+          },
+          "temperature_k": {
+            "value": 298.15,
+            "unit": "K",
+            "basis": "derived",
+            "source_ids": [
+              "MDS95"
+            ],
+            "to_be_set_by": null,
+            "note": ""
+          },
+          "temperature_sd_k": {
+            "value": 0.0,
+            "unit": "K",
+            "basis": "derived",
+            "source_ids": [
+              "MDS95"
+            ],
+            "to_be_set_by": null,
+            "note": "Uncertainty of the storage temperature."
+          },
+          "rh_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS95"
+            ],
+            "to_be_set_by": null,
+            "note": "Storage RH the anchor rate refers to."
+          },
+          "ph": null,
+          "reference_study_id": "ref_acetaminophen_0_5m_hcl",
+          "calibration": null,
+          "measured_degradant_ids": [],
+          "storage_zone_id": "ground_storage",
+          "package_id": null,
+          "duration_days": null,
+          "storage_context": {
+            "basis": "derived",
+            "source_ids": [
+              "MDS95"
+            ],
+            "to_be_set_by": null,
+            "note": "Laboratory solution kinetics refer to the product itself; no package moisture correction or spaceflight factor applies."
+          }
+        }
+      ],
+      "priors": [
+        {
+          "dose_form_family": "solid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS12",
+              "MDS13",
+              "MDS16",
+              "MDS122",
+              "MDS90"
+            ],
+            "to_be_set_by": null,
+            "note": "Humidity sensitivity 0 to 0.10 per %RH, typical 0.04; negative values allowed (MDS90)."
+          },
+          "frozen_rate_multiplier": null
+        },
+        {
+          "dose_form_family": "solution",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "derived",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": null,
+            "note": "Mean and sample sd of the 9 reproducing reference-study Ea values (solution hydrolysis)."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "suspension",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solution hydrolysis Ea reused for suspensions."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "semisolid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solid-class B reused for semisolids."
+          },
+          "frozen_rate_multiplier": null
+        }
+      ],
+      "light_priors": null,
+      "degradant": {
+        "degradant_id": "amide_hydrolysis_amine",
+        "name": "Amine and acid from amide cleavage",
+        "smiles": null,
+        "molar_mass_g_per_mol": null,
+        "yield_mol_per_mol": {
+          "value": 1.0,
+          "unit": "mol/mol",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "One mole of degradant per mole lost."
+        },
+        "toxicity_flag": "unknown",
+        "basis": "team_default",
+        "source_ids": [],
+        "note": "Generic class product; products override with named degradants."
+      },
+      "validated_range": {
+        "temperature_min_k": 288.15,
+        "temperature_max_k": 313.15,
+        "rh_min_percent": 10.0,
+        "rh_max_percent": 75.0,
+        "basis": "team_default",
+        "source_ids": [
+          "MDS01",
+          "MDP71"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Class-prior validity: 15 to 40 C (USP excursion floor to ICH accelerated) and 10 to 75 %RH."
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDS16",
+        "MDS95",
+        "MDP16"
+      ],
+      "note": ""
+    },
+    {
+      "class_id": "beta_lactam_hydrolysis",
+      "name": "Beta-lactam ring hydrolysis",
+      "mechanism": "hydrolysis",
+      "driver": "thermal",
+      "role": "destructive",
+      "smarts": [
+        "[CX3;r4:1](=[OX1])[NX3;r4:2]"
+      ],
+      "site_atom_map": 1,
+      "requires_defined_stereocenter": false,
+      "applies_to_families": [
+        "solid",
+        "solution",
+        "suspension",
+        "semisolid"
+      ],
+      "computed_method": {
+        "kind": "anchor_only",
+        "series_ids": [],
+        "method_error_sd_log10": {
+          "value": 1.0,
+          "unit": "log10",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "No LFER for beta-lactams; anchor rate with this error."
+        }
+      },
+      "anchors": [
+        {
+          "anchor_id": "amoxicillin_capsule_jsc_34mo",
+          "dose_form_family": "solid",
+          "smiles": "CC1([C@@H](N2[C@H](S1)[C@@H](C2=O)NC(=O)[C@@H](C3=CC=C(C=C3)O)N)C(=O)O)C",
+          "ln_k_per_s": {
+            "family": "normal",
+            "mu": -21.5806,
+            "sigma": 0.722,
+            "lower": null,
+            "upper": null,
+            "unit": "ln(1/s)",
+            "basis": "derived",
+            "source_ids": [
+              "MDP12",
+              "MDP11"
+            ],
+            "to_be_set_by": null,
+            "note": "Amoxicillin 500 mg control arm, 98.8 to 95.125% over 1034 days at JSC; first order."
+          },
+          "temperature_k": {
+            "value": 295.15,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "JSC laboratory ambient assumed 22 C."
+          },
+          "temperature_sd_k": {
+            "value": 2.0,
+            "unit": "K",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Uncertainty of the storage temperature."
+          },
+          "rh_percent": {
+            "value": 40.0,
+            "unit": "percent",
+            "basis": "team_default",
+            "source_ids": [],
+            "to_be_set_by": "pharmacist and flight surgeon",
+            "note": "Storage RH the anchor rate refers to."
+          },
+          "ph": null,
+          "reference_study_id": null,
+          "calibration": null,
+          "measured_degradant_ids": [],
+          "storage_zone_id": "ground_storage",
+          "package_id": "original_bottle",
+          "duration_days": {
+            "value": 1034.0,
+            "unit": "day",
+            "basis": "derived",
+            "source_ids": [
+              "MDP11",
+              "MDP12"
+            ],
+            "to_be_set_by": null,
+            "note": "Duration used by the existing two-point first-order anchor derivation; the measured rate equals Theta divided by this duration."
+          },
+          "storage_context": {
+            "basis": "team_default",
+            "source_ids": [
+              "MDP11",
+              "MDP12"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Storage zone follows the anchor study. The original_bottle model represents the packaged solid; confirm its package against the primary study before operational use."
+          }
+        },
+        {
+          "anchor_id": "amoxicillin_1mg_ph7_0",
+          "dose_form_family": "solution",
+          "smiles": "CC1([C@@H](N2[C@H](S1)[C@@H](C2=O)NC(=O)[C@@H](C3=CC=C(C=C3)O)N)C(=O)O)C",
+          "ln_k_per_s": {
+            "family": "normal",
+            "mu": -12.4769,
+            "sigma": 0.173692,
+            "lower": null,
+            "upper": null,
+            "unit": "ln(1/s)",
+            "basis": "derived",
+            "source_ids": [
+              "MDS86"
+            ],
+            "to_be_set_by": null,
+            "note": "Refit of the pH 7.0 series at 298.15 K (extrapolated below the 40 to 60 C study range)."
+          },
+          "temperature_k": {
+            "value": 298.15,
+            "unit": "K",
+            "basis": "derived",
+            "source_ids": [
+              "MDS86"
+            ],
+            "to_be_set_by": null,
+            "note": ""
+          },
+          "temperature_sd_k": {
+            "value": 0.0,
+            "unit": "K",
+            "basis": "derived",
+            "source_ids": [
+              "MDS86"
+            ],
+            "to_be_set_by": null,
+            "note": "Uncertainty of the storage temperature."
+          },
+          "rh_percent": {
+            "value": 100.0,
+            "unit": "percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS86"
+            ],
+            "to_be_set_by": null,
+            "note": "Storage RH the anchor rate refers to."
+          },
+          "ph": {
+            "value": 7.0,
+            "unit": "pH",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS86"
+            ],
+            "to_be_set_by": null,
+            "note": "Buffer pH."
+          },
+          "reference_study_id": "ref_amoxicillin_1mg_ph7_0",
+          "calibration": null,
+          "measured_degradant_ids": [],
+          "storage_zone_id": "ground_storage",
+          "package_id": null,
+          "duration_days": null,
+          "storage_context": {
+            "basis": "derived",
+            "source_ids": [
+              "MDS86"
+            ],
+            "to_be_set_by": null,
+            "note": "Laboratory solution kinetics refer to the product itself; no package moisture correction or spaceflight factor applies."
+          }
+        }
+      ],
+      "priors": [
+        {
+          "dose_form_family": "solid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS12",
+              "MDS13",
+              "MDS16",
+              "MDS122",
+              "MDS90"
+            ],
+            "to_be_set_by": null,
+            "note": "Humidity sensitivity 0 to 0.10 per %RH, typical 0.04; negative values allowed (MDS90)."
+          },
+          "frozen_rate_multiplier": null
+        },
+        {
+          "dose_form_family": "solution",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "derived",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": null,
+            "note": "Mean and sample sd of the 9 reproducing reference-study Ea values (solution hydrolysis)."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 2.117,
+            "sigma": 0.3,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "derived",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": null,
+            "note": "Freezing accelerates beta-lactam loss 4.6- to 15-fold at -7.3 C: ln-midpoint and ln-range/4."
+          }
+        },
+        {
+          "dose_form_family": "suspension",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solution hydrolysis Ea reused for suspensions."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 2.117,
+            "sigma": 0.3,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "derived",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": null,
+            "note": "Freezing accelerates beta-lactam loss 4.6- to 15-fold at -7.3 C: ln-midpoint and ln-range/4."
+          }
+        },
+        {
+          "dose_form_family": "semisolid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solid-class B reused for semisolids."
+          },
+          "frozen_rate_multiplier": null
+        }
+      ],
+      "light_priors": null,
+      "degradant": {
+        "degradant_id": "penicilloic_acid",
+        "name": "Penicilloic (ring-opened) acid",
+        "smiles": null,
+        "molar_mass_g_per_mol": null,
+        "yield_mol_per_mol": {
+          "value": 1.0,
+          "unit": "mol/mol",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "One mole of degradant per mole lost."
+        },
+        "toxicity_flag": "unknown",
+        "basis": "team_default",
+        "source_ids": [],
+        "note": "Generic class product; products override with named degradants."
+      },
+      "validated_range": {
+        "temperature_min_k": 288.15,
+        "temperature_max_k": 313.15,
+        "rh_min_percent": 10.0,
+        "rh_max_percent": 75.0,
+        "basis": "team_default",
+        "source_ids": [
+          "MDS01",
+          "MDP71"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Class-prior validity: 15 to 40 C (USP excursion floor to ICH accelerated) and 10 to 75 %RH."
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDS86",
+        "MDS103",
+        "MDP11"
+      ],
+      "note": ""
+    },
+    {
+      "class_id": "phenol_autoxidation",
+      "name": "Phenol autoxidation (O-H abstraction)",
+      "mechanism": "autoxidation",
+      "driver": "thermal",
+      "role": "destructive",
+      "smarts": [
+        "[OX2H1:1][c:2]"
+      ],
+      "site_atom_map": 1,
+      "requires_defined_stereocenter": false,
+      "applies_to_families": [
+        "solid",
+        "solution",
+        "suspension",
+        "semisolid"
+      ],
+      "computed_method": {
+        "kind": "evans_polanyi_bde",
+        "series_ids": [],
+        "method_error_sd_log10": {
+          "value": 1.0,
+          "unit": "log10",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "Without an anchor the Evans-Polanyi shift adjusts the class prior (layer stays class_prior)."
+        }
+      },
+      "anchors": [],
+      "priors": [
+        {
+          "dose_form_family": "solid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS12",
+              "MDS13",
+              "MDS16",
+              "MDS122",
+              "MDS90"
+            ],
+            "to_be_set_by": null,
+            "note": "Humidity sensitivity 0 to 0.10 per %RH, typical 0.04; negative values allowed (MDS90)."
+          },
+          "frozen_rate_multiplier": null
+        },
+        {
+          "dose_form_family": "solution",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 88000.0,
+            "sigma": 19000.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "derived",
+            "source_ids": [
+              "MDS93"
+            ],
+            "to_be_set_by": null,
+            "note": "Review range 12 to 30 kcal/mol (50 to 126 kJ/mol): midpoint and range/4."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "suspension",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solution hydrolysis Ea reused for suspensions."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "semisolid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solid-class B reused for semisolids."
+          },
+          "frozen_rate_multiplier": null
+        }
+      ],
+      "light_priors": null,
+      "degradant": {
+        "degradant_id": "quinone_species",
+        "name": "Quinone-type oxidation products",
+        "smiles": null,
+        "molar_mass_g_per_mol": null,
+        "yield_mol_per_mol": {
+          "value": 1.0,
+          "unit": "mol/mol",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "One mole of degradant per mole lost."
+        },
+        "toxicity_flag": "unknown",
+        "basis": "team_default",
+        "source_ids": [],
+        "note": "Generic class product; products override with named degradants."
+      },
+      "validated_range": {
+        "temperature_min_k": 288.15,
+        "temperature_max_k": 313.15,
+        "rh_min_percent": 10.0,
+        "rh_max_percent": 75.0,
+        "basis": "team_default",
+        "source_ids": [
+          "MDS01",
+          "MDP71"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Class-prior validity: 15 to 40 C (USP excursion floor to ICH accelerated) and 10 to 75 %RH."
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDS93",
+        "MDS16"
+      ],
+      "note": ""
+    },
+    {
+      "class_id": "catechol_autoxidation",
+      "name": "Catechol autoxidation",
+      "mechanism": "autoxidation",
+      "driver": "thermal",
+      "role": "destructive",
+      "smarts": [
+        "[OX2H1:1][c:2][c][OX2H1]"
+      ],
+      "site_atom_map": 1,
+      "requires_defined_stereocenter": false,
+      "applies_to_families": [
+        "solid",
+        "solution",
+        "suspension",
+        "semisolid"
+      ],
+      "computed_method": {
+        "kind": "evans_polanyi_bde",
+        "series_ids": [],
+        "method_error_sd_log10": {
+          "value": 1.0,
+          "unit": "log10",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "Structure-adjusted class prior (no anchor)."
+        }
+      },
+      "anchors": [],
+      "priors": [
+        {
+          "dose_form_family": "solid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS12",
+              "MDS13",
+              "MDS16",
+              "MDS122",
+              "MDS90"
+            ],
+            "to_be_set_by": null,
+            "note": "Humidity sensitivity 0 to 0.10 per %RH, typical 0.04; negative values allowed (MDS90)."
+          },
+          "frozen_rate_multiplier": null
+        },
+        {
+          "dose_form_family": "solution",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 88000.0,
+            "sigma": 19000.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "derived",
+            "source_ids": [
+              "MDS93"
+            ],
+            "to_be_set_by": null,
+            "note": "Review range 12 to 30 kcal/mol (50 to 126 kJ/mol): midpoint and range/4."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "suspension",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solution hydrolysis Ea reused for suspensions."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "semisolid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solid-class B reused for semisolids."
+          },
+          "frozen_rate_multiplier": null
+        }
+      ],
+      "light_priors": null,
+      "degradant": {
+        "degradant_id": "o_quinone_species",
+        "name": "o-Quinone and aminochrome-type products (colored)",
+        "smiles": null,
+        "molar_mass_g_per_mol": null,
+        "yield_mol_per_mol": {
+          "value": 1.0,
+          "unit": "mol/mol",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "One mole of degradant per mole lost."
+        },
+        "toxicity_flag": "unknown",
+        "basis": "team_default",
+        "source_ids": [],
+        "note": "Generic class product; products override with named degradants."
+      },
+      "validated_range": {
+        "temperature_min_k": 288.15,
+        "temperature_max_k": 313.15,
+        "rh_min_percent": 10.0,
+        "rh_max_percent": 75.0,
+        "basis": "team_default",
+        "source_ids": [
+          "MDS01",
+          "MDP71"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Class-prior validity: 15 to 40 C (USP excursion floor to ICH accelerated) and 10 to 75 %RH."
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDS93",
+        "MDS108"
+      ],
+      "note": "Catechols also match phenol_autoxidation; the more specific class is kept and the phenol match at the same site is dropped (spec 7.2)."
+    },
+    {
+      "class_id": "amine_alpha_oxidation",
+      "name": "Amine oxidation at the alpha C-H",
+      "mechanism": "autoxidation",
+      "driver": "thermal",
+      "role": "destructive",
+      "smarts": [
+        "[CX4;!H0:1][NX3;!$(N[CX3]=[O,S,N]);!$(N[a]);!$(N[SX4]);!$([N]C=C):2]"
+      ],
+      "site_atom_map": 1,
+      "requires_defined_stereocenter": false,
+      "applies_to_families": [
+        "solid",
+        "solution",
+        "suspension",
+        "semisolid"
+      ],
+      "computed_method": {
+        "kind": "evans_polanyi_bde",
+        "series_ids": [],
+        "method_error_sd_log10": {
+          "value": 1.0,
+          "unit": "log10",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "Structure-adjusted class prior (no anchor)."
+        }
+      },
+      "anchors": [],
+      "priors": [
+        {
+          "dose_form_family": "solid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS12",
+              "MDS13",
+              "MDS16",
+              "MDS122",
+              "MDS90"
+            ],
+            "to_be_set_by": null,
+            "note": "Humidity sensitivity 0 to 0.10 per %RH, typical 0.04; negative values allowed (MDS90)."
+          },
+          "frozen_rate_multiplier": null
+        },
+        {
+          "dose_form_family": "solution",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 88000.0,
+            "sigma": 19000.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "derived",
+            "source_ids": [
+              "MDS93"
+            ],
+            "to_be_set_by": null,
+            "note": "Review range 12 to 30 kcal/mol (50 to 126 kJ/mol): midpoint and range/4."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "suspension",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solution hydrolysis Ea reused for suspensions."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "semisolid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solid-class B reused for semisolids."
+          },
+          "frozen_rate_multiplier": null
+        }
+      ],
+      "light_priors": null,
+      "degradant": {
+        "degradant_id": "n_dealkylation_n_oxide",
+        "name": "N-oxide and N-dealkylation products",
+        "smiles": null,
+        "molar_mass_g_per_mol": null,
+        "yield_mol_per_mol": {
+          "value": 1.0,
+          "unit": "mol/mol",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "One mole of degradant per mole lost."
+        },
+        "toxicity_flag": "unknown",
+        "basis": "team_default",
+        "source_ids": [],
+        "note": "Generic class product; products override with named degradants."
+      },
+      "validated_range": {
+        "temperature_min_k": 288.15,
+        "temperature_max_k": 313.15,
+        "rh_min_percent": 10.0,
+        "rh_max_percent": 75.0,
+        "basis": "team_default",
+        "source_ids": [
+          "MDS01",
+          "MDP71"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Class-prior validity: 15 to 40 C (USP excursion floor to ICH accelerated) and 10 to 75 %RH."
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDS93"
+      ],
+      "note": ""
+    },
+    {
+      "class_id": "thioether_s_oxidation",
+      "name": "Thioether S-oxidation",
+      "mechanism": "s_oxidation",
+      "driver": "thermal",
+      "role": "destructive",
+      "smarts": [
+        "[SX2:1]([#6])[#6]"
+      ],
+      "site_atom_map": 1,
+      "requires_defined_stereocenter": false,
+      "applies_to_families": [
+        "solid",
+        "solution",
+        "suspension",
+        "semisolid"
+      ],
+      "computed_method": {
+        "kind": "none",
+        "series_ids": [],
+        "method_error_sd_log10": {
+          "value": 1.0,
+          "unit": "log10",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "No computed method; class prior only."
+        }
+      },
+      "anchors": [],
+      "priors": [
+        {
+          "dose_form_family": "solid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS12",
+              "MDS13",
+              "MDS16",
+              "MDS122",
+              "MDS90"
+            ],
+            "to_be_set_by": null,
+            "note": "Humidity sensitivity 0 to 0.10 per %RH, typical 0.04; negative values allowed (MDS90)."
+          },
+          "frozen_rate_multiplier": null
+        },
+        {
+          "dose_form_family": "solution",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 88000.0,
+            "sigma": 19000.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "derived",
+            "source_ids": [
+              "MDS93"
+            ],
+            "to_be_set_by": null,
+            "note": "Review range 12 to 30 kcal/mol (50 to 126 kJ/mol): midpoint and range/4."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "suspension",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solution hydrolysis Ea reused for suspensions."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "semisolid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solid-class B reused for semisolids."
+          },
+          "frozen_rate_multiplier": null
+        }
+      ],
+      "light_priors": null,
+      "degradant": {
+        "degradant_id": "sulfoxide",
+        "name": "Sulfoxide",
+        "smiles": null,
+        "molar_mass_g_per_mol": null,
+        "yield_mol_per_mol": {
+          "value": 1.0,
+          "unit": "mol/mol",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "One mole of degradant per mole lost."
+        },
+        "toxicity_flag": "unknown",
+        "basis": "team_default",
+        "source_ids": [],
+        "note": "Generic class product; products override with named degradants."
+      },
+      "validated_range": {
+        "temperature_min_k": 288.15,
+        "temperature_max_k": 313.15,
+        "rh_min_percent": 10.0,
+        "rh_max_percent": 75.0,
+        "basis": "team_default",
+        "source_ids": [
+          "MDS01",
+          "MDP71"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Class-prior validity: 15 to 40 C (USP excursion floor to ICH accelerated) and 10 to 75 %RH."
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDS93"
+      ],
+      "note": ""
+    },
+    {
+      "class_id": "enediol_oxidation",
+      "name": "Enediol (reductone) oxidation",
+      "mechanism": "enediol_oxidation",
+      "driver": "thermal",
+      "role": "destructive",
+      "smarts": [
+        "[OX2H1:1][CX3:2]=[CX3][OX2H1]"
+      ],
+      "site_atom_map": 1,
+      "requires_defined_stereocenter": false,
+      "applies_to_families": [
+        "solid",
+        "solution",
+        "suspension",
+        "semisolid"
+      ],
+      "computed_method": {
+        "kind": "none",
+        "series_ids": [],
+        "method_error_sd_log10": {
+          "value": 1.0,
+          "unit": "log10",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "No computed method; class prior only."
+        }
+      },
+      "anchors": [],
+      "priors": [
+        {
+          "dose_form_family": "solid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS12",
+              "MDS13",
+              "MDS16",
+              "MDS122",
+              "MDS90"
+            ],
+            "to_be_set_by": null,
+            "note": "Humidity sensitivity 0 to 0.10 per %RH, typical 0.04; negative values allowed (MDS90)."
+          },
+          "frozen_rate_multiplier": null
+        },
+        {
+          "dose_form_family": "solution",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 88000.0,
+            "sigma": 19000.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "derived",
+            "source_ids": [
+              "MDS93"
+            ],
+            "to_be_set_by": null,
+            "note": "Review range 12 to 30 kcal/mol (50 to 126 kJ/mol): midpoint and range/4."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "suspension",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solution hydrolysis Ea reused for suspensions."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "semisolid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solid-class B reused for semisolids."
+          },
+          "frozen_rate_multiplier": null
+        }
+      ],
+      "light_priors": null,
+      "degradant": {
+        "degradant_id": "dehydro_enediol",
+        "name": "Dehydro (diketo) product",
+        "smiles": null,
+        "molar_mass_g_per_mol": null,
+        "yield_mol_per_mol": {
+          "value": 1.0,
+          "unit": "mol/mol",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "One mole of degradant per mole lost."
+        },
+        "toxicity_flag": "unknown",
+        "basis": "team_default",
+        "source_ids": [],
+        "note": "Generic class product; products override with named degradants."
+      },
+      "validated_range": {
+        "temperature_min_k": 288.15,
+        "temperature_max_k": 313.15,
+        "rh_min_percent": 10.0,
+        "rh_max_percent": 75.0,
+        "basis": "team_default",
+        "source_ids": [
+          "MDS01",
+          "MDP71"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Class-prior validity: 15 to 40 C (USP excursion floor to ICH accelerated) and 10 to 75 %RH."
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDS93",
+        "MDS111"
+      ],
+      "note": "Ascorbic acid ASAP parameters exist (MDS111) but could not be read."
+    },
+    {
+      "class_id": "racemization_benzylic_alcohol",
+      "name": "Racemization at a labile benzylic stereocenter",
+      "mechanism": "racemization",
+      "driver": "thermal",
+      "role": "racemization",
+      "smarts": [
+        "[CX4;H1:1]([OX2H1])([c])[CH2][NX3]"
+      ],
+      "site_atom_map": 1,
+      "requires_defined_stereocenter": true,
+      "applies_to_families": [
+        "solution",
+        "suspension"
+      ],
+      "computed_method": {
+        "kind": "none",
+        "series_ids": [],
+        "method_error_sd_log10": {
+          "value": 1.0,
+          "unit": "log10",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "No computed method; class prior only."
+        }
+      },
+      "anchors": [],
+      "priors": [
+        {
+          "dose_form_family": "solution",
+          "ln_k_ref_per_s": {
+            "family": "normal",
+            "mu": -19.6845,
+            "sigma": 1.5,
+            "lower": null,
+            "upper": null,
+            "unit": "ln(1/s)",
+            "basis": "derived",
+            "source_ids": [
+              "MDS108"
+            ],
+            "to_be_set_by": null,
+            "note": "L-adrenaline ampoules reached 85% L-isomer at 2.0 years (abstract); rho = (1 + e^(-2 Theta))/2 with f_L0 = 1 gives Theta = 0.178 over 2 years at about 25 C. sd 1.5 (team) covers the unknown storage temperature and formulation."
+          },
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 88000.0,
+            "sigma": 19000.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "derived",
+            "source_ids": [
+              "MDS93"
+            ],
+            "to_be_set_by": null,
+            "note": "Review range 12 to 30 kcal/mol (50 to 126 kJ/mol): midpoint and range/4."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "suspension",
+          "ln_k_ref_per_s": {
+            "family": "normal",
+            "mu": -19.6845,
+            "sigma": 1.5,
+            "lower": null,
+            "upper": null,
+            "unit": "ln(1/s)",
+            "basis": "derived",
+            "source_ids": [
+              "MDS108"
+            ],
+            "to_be_set_by": null,
+            "note": "L-adrenaline ampoules reached 85% L-isomer at 2.0 years (abstract); rho = (1 + e^(-2 Theta))/2 with f_L0 = 1 gives Theta = 0.178 over 2 years at about 25 C. sd 1.5 (team) covers the unknown storage temperature and formulation."
+          },
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 88000.0,
+            "sigma": 19000.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "derived",
+            "source_ids": [
+              "MDS93"
+            ],
+            "to_be_set_by": null,
+            "note": "Review range 12 to 30 kcal/mol (50 to 126 kJ/mol): midpoint and range/4."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        }
+      ],
+      "light_priors": null,
+      "degradant": null,
+      "validated_range": {
+        "temperature_min_k": 275.15,
+        "temperature_max_k": 313.15,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "team_default",
+        "source_ids": [
+          "MDS01"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Class-prior validity for liquids: 2 to 40 C; humidity does not apply."
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDS108"
+      ],
+      "note": "Racemization changes active fraction, not total drug. Ea has no source; the solution oxidation prior is reused (team)."
+    },
+    {
+      "class_id": "photolysis_conjugated",
+      "name": "Photolysis of conjugated chromophores",
+      "mechanism": "photolysis",
+      "driver": "light",
+      "role": "destructive",
+      "smarts": [
+        "[$([a;R2]),$(a[SX2]a),$(a-[CX3](=[OX1])[#6]),$(a-a):1]"
+      ],
+      "site_atom_map": 1,
+      "requires_defined_stereocenter": false,
+      "applies_to_families": [
+        "solid",
+        "solution",
+        "suspension",
+        "semisolid"
+      ],
+      "computed_method": {
+        "kind": "none",
+        "series_ids": [],
+        "method_error_sd_log10": {
+          "value": 1.0,
+          "unit": "log10",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "No computed method; class prior only."
+        }
+      },
+      "anchors": [],
+      "priors": [],
+      "light_priors": {
+        "k_vis_per_lux_h": {
+          "family": "lognormal",
+          "mu": -16.968,
+          "sigma": 1.5,
+          "lower": null,
+          "upper": null,
+          "unit": "1/(lux h)",
+          "basis": "team_default",
+          "source_ids": [
+            "MDS03"
+          ],
+          "to_be_set_by": "chemistry lead",
+          "note": "Median: 5% loss at one ICH Q1B visible dose (1.2 million lux h). sigma team default."
+        },
+        "k_uv_per_w_h_per_m2": {
+          "family": "lognormal",
+          "mu": -8.26851,
+          "sigma": 1.5,
+          "lower": null,
+          "upper": null,
+          "unit": "1/(W h/m2)",
+          "basis": "team_default",
+          "source_ids": [
+            "MDS03"
+          ],
+          "to_be_set_by": "chemistry lead",
+          "note": "Median: 5% loss at one ICH Q1B near-UV dose (200 W h/m2). sigma team default."
+        }
+      },
+      "degradant": {
+        "degradant_id": "photoproducts",
+        "name": "Photoproducts",
+        "smiles": null,
+        "molar_mass_g_per_mol": null,
+        "yield_mol_per_mol": {
+          "value": 1.0,
+          "unit": "mol/mol",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "One mole of degradant per mole lost."
+        },
+        "toxicity_flag": "unknown",
+        "basis": "team_default",
+        "source_ids": [],
+        "note": "Generic class product; products override with named degradants."
+      },
+      "validated_range": {
+        "temperature_min_k": 275.15,
+        "temperature_max_k": 313.15,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "team_default",
+        "source_ids": [
+          "MDS03"
+        ],
+        "to_be_set_by": "chemistry lead",
+        "note": "Light pathway validity follows the thermal class ranges."
+      },
+      "basis": "team_default",
+      "source_ids": [
+        "MDS03"
+      ],
+      "note": "Fused aromatics, diaryl sulfides (phenothiazines), aryl ketones and biaryls. Applies only where the zone declares light exposure and the package transmits."
+    },
+    {
+      "class_id": "radiolysis",
+      "name": "Radiolysis (ionizing radiation)",
+      "mechanism": "radiolysis",
+      "driver": "radiation",
+      "role": "destructive",
+      "smarts": null,
+      "site_atom_map": null,
+      "requires_defined_stereocenter": false,
+      "applies_to_families": [
+        "solid",
+        "solution",
+        "suspension",
+        "semisolid"
+      ],
+      "computed_method": {
+        "kind": "g_value_direct",
+        "series_ids": [],
+        "method_error_sd_log10": {
+          "value": 1.0,
+          "unit": "log10",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "Solids and frozen solutions use the direct G value; solutions the indirect effect (spec 6)."
+        }
+      },
+      "anchors": [],
+      "priors": [],
+      "light_priors": null,
+      "degradant": null,
+      "validated_range": {
+        "temperature_min_k": 150.0,
+        "temperature_max_k": 400.0,
+        "rh_min_percent": 0.0,
+        "rh_max_percent": 100.0,
+        "basis": "team_default",
+        "source_ids": [],
+        "to_be_set_by": "chemistry lead",
+        "note": "Radiolysis yields are treated as temperature independent."
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDS68",
+        "MDS73"
+      ],
+      "note": "Reported separately; not in potency unless settings say so."
+    },
+    {
+      "class_id": "unclassified_thermal",
+      "name": "Unclassified thermal degradation",
+      "mechanism": "hydrolysis",
+      "driver": "thermal",
+      "role": "destructive",
+      "smarts": null,
+      "site_atom_map": null,
+      "requires_defined_stereocenter": false,
+      "applies_to_families": [
+        "solid",
+        "solution",
+        "suspension",
+        "semisolid"
+      ],
+      "computed_method": {
+        "kind": "none",
+        "series_ids": [],
+        "method_error_sd_log10": {
+          "value": 1.0,
+          "unit": "log10",
+          "basis": "team_default",
+          "source_ids": [],
+          "to_be_set_by": "chemistry lead",
+          "note": "Class prior only."
+        }
+      },
+      "anchors": [],
+      "priors": [
+        {
+          "dose_form_family": "solid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS12",
+              "MDS13",
+              "MDS16",
+              "MDS122",
+              "MDS90"
+            ],
+            "to_be_set_by": null,
+            "note": "Humidity sensitivity 0 to 0.10 per %RH, typical 0.04; negative values allowed (MDS90)."
+          },
+          "frozen_rate_multiplier": null
+        },
+        {
+          "dose_form_family": "solution",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "derived",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": null,
+            "note": "Mean and sample sd of the 9 reproducing reference-study Ea values (solution hydrolysis)."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "suspension",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 65595.4,
+            "sigma": 13738.7,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS85",
+              "MDS86",
+              "MDS95"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solution hydrolysis Ea reused for suspensions."
+          },
+          "b_per_percent_rh": {
+            "family": "fixed",
+            "mu": 0.0,
+            "sigma": 0.0,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "derived",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": null,
+            "note": "Water activity of an aqueous product is about 1 regardless of habitat RH; the humidity term does not apply."
+          },
+          "frozen_rate_multiplier": {
+            "family": "lognormal",
+            "mu": 0.0,
+            "sigma": 1.17,
+            "lower": null,
+            "upper": null,
+            "unit": "1",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS103"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Unknown direction for non-beta-lactams: median 1, 95% range about 1/10 to 10."
+          }
+        },
+        {
+          "dose_form_family": "semisolid",
+          "ln_k_ref_per_s": null,
+          "ea_j_per_mol": {
+            "family": "truncated_normal",
+            "mu": 120000.0,
+            "sigma": 24500.0,
+            "lower": 0.0,
+            "upper": null,
+            "unit": "J/mol",
+            "basis": "sourced",
+            "source_ids": [
+              "MDS16",
+              "MDS94",
+              "MDS122"
+            ],
+            "to_be_set_by": null,
+            "note": "Solid oral class Ea: 74 to 172 kJ/mol, mean about 120 (MDS16); ASAP surveys 125 and 113 kJ/mol. sigma = (172 - 74)/4."
+          },
+          "b_per_percent_rh": {
+            "family": "normal",
+            "mu": 0.04,
+            "sigma": 0.025,
+            "lower": null,
+            "upper": null,
+            "unit": "1/percent",
+            "basis": "team_default",
+            "source_ids": [
+              "MDS12"
+            ],
+            "to_be_set_by": "chemistry lead",
+            "note": "Solid-class B reused for semisolids."
+          },
+          "frozen_rate_multiplier": null
+        }
+      ],
+      "light_priors": null,
+      "degradant": null,
+      "validated_range": {
+        "temperature_min_k": 288.15,
+        "temperature_max_k": 313.15,
+        "rh_min_percent": 10.0,
+        "rh_max_percent": 75.0,
+        "basis": "team_default",
+        "source_ids": [
+          "MDS01",
+          "MDP71"
+        ],
+        "to_be_set_by": "pharmacist and flight surgeon",
+        "note": "Class-prior validity: 15 to 40 C (USP excursion floor to ICH accelerated) and 10 to 75 %RH."
+      },
+      "basis": "derived",
+      "source_ids": [
+        "MDP01",
+        "MDP02"
+      ],
+      "note": "Used only when no thermal class matches, so every ingredient has a destructive thermal pathway."
+    }
+  ]
+}

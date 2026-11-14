@@ -1,0 +1,992 @@
+{
+ "document_id": "vectors-arrhenius",
+ "schema": "pharmacy/test-vectors.schema.json",
+ "version": "1.0.0",
+ "description": "Arrhenius refits and extrapolations on published drug data (degradation-science.md 9.8).",
+ "extracted_from": [
+  {
+   "note": "degradation-science.md",
+   "section": "9.8"
+  },
+  {
+   "note": "degradation-science.md",
+   "section": "7.3"
+  },
+  {
+   "note": "degradation-science.md",
+   "section": "7.7"
+  }
+ ],
+ "vectors": [
+  {
+   "vector_id": "TV-KIN-1",
+   "kind": "worked_example",
+   "description": "Acetaminophen hydrolysis in 0.5 M HCl, first order: Arrhenius refit.",
+   "target": "pharmacy.fit.fit_arrhenius_two_stage",
+   "inputs": {
+    "temperatures_c": [
+     70.0,
+     80.0,
+     90.0,
+     100.0
+    ],
+    "temperatures_k": [
+     343.15,
+     353.15,
+     363.15,
+     373.15
+    ],
+    "k_per_min": [
+     0.005027,
+     0.008522,
+     0.0186,
+     0.03276
+    ],
+    "model_kind": "F1",
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "fit": "unweighted OLS of ln k on 1/T"
+   },
+   "expected": {
+    "activation_energy_kj_per_mol": 68.13
+   },
+   "published_expected_text": "Ea = 68.13 kJ/mol",
+   "our_recomputation": {
+    "activation_energy_kj_per_mol": 68.12,
+    "activation_energy_se_kj_per_mol": 3.99,
+    "ln_a_per_min": 18.532,
+    "r2": 0.993,
+    "foundation_lnk_ref_at_298_15_k_per_s": -13.040773194587564,
+    "foundation_lnk_ref_se": 0.2717012671464368,
+    "foundation_ea_j_per_mol": 68118.84460132937,
+    "foundation_ea_se_j_per_mol": 3991.655110622758,
+    "foundation_ln_a_in_published_k_units": 18.53240371038607,
+    "foundation_r2": 0.9931792971773169,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; unweighted OLS of ln k (k converted to the per-second form) on x = -(1/T - 1/298.15)/R, SE from s^2 (X'X)^-1 with n - 2 df"
+   },
+   "tolerance": {
+    "abs": 0.1,
+    "rel": null,
+    "unit": "kJ/mol",
+    "basis": "note's suggested tolerance"
+   },
+   "source_ids": [
+    "MDS95"
+   ],
+   "source_status": "abstract",
+   "status": "reproduces",
+   "note": "Hydrolysis yields p-aminophenol (1:1), so the same k gives the degradant formation rate (degradation-science.md 7)."
+  },
+  {
+   "vector_id": "TV-KIN-2",
+   "kind": "worked_example",
+   "description": "Aspirin hydrolysis in PBS pH 7.4: Arrhenius refit.",
+   "target": "pharmacy.fit.fit_arrhenius_two_stage",
+   "inputs": {
+    "temperatures_c": [
+     25.0,
+     37.0,
+     50.0,
+     75.0,
+     85.0
+    ],
+    "temperatures_k": [
+     298.15,
+     310.15,
+     323.15,
+     348.15,
+     358.15
+    ],
+    "k_per_s": [
+     7e-06,
+     1e-05,
+     4e-05,
+     0.0003,
+     0.0004
+    ],
+    "model_kind": "F1",
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "fit": "unweighted OLS of ln k on 1/T"
+   },
+   "expected": {
+    "activation_energy_kj_per_mol": 67.3,
+    "ea_over_r_k": 8091.0
+   },
+   "published_expected_text": "Ea/R about 8091 K (Ea about 67.3 kJ/mol)",
+   "our_recomputation": {
+    "activation_energy_kj_per_mol": 65.5,
+    "activation_energy_se_kj_per_mol": 5.6,
+    "ea_over_r_k": 7880,
+    "ln_a_per_s": 14.28,
+    "r2": 0.979,
+    "foundation_lnk_ref_at_298_15_k_per_s": -12.147108453537909,
+    "foundation_lnk_ref_se": 0.23770421494891647,
+    "foundation_ea_j_per_mol": 65517.45169005757,
+    "foundation_ea_se_j_per_mol": 5559.3787047196465,
+    "foundation_ln_a_in_published_k_units": 14.282333810964042,
+    "foundation_r2": 0.978856408131348,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; unweighted OLS of ln k (k converted to the per-second form) on x = -(1/T - 1/298.15)/R, SE from s^2 (X'X)^-1 with n - 2 df"
+   },
+   "tolerance": {
+    "abs": 3.0,
+    "rel": null,
+    "unit": "kJ/mol",
+    "basis": "note's tolerance: k has 1 to 2 significant figures"
+   },
+   "source_ids": [
+    "MDS85"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Assert against the published Ea within 3 kJ/mol; the refit is 1.8 kJ/mol below it."
+  },
+  {
+   "vector_id": "TV-KIN-3-1",
+   "kind": "worked_example",
+   "description": "Amoxicillin 1 mg/mL, pH 6.5, first order: Arrhenius refit at 40, 45, 52, 60 degC (TV-KIN-3 series).",
+   "target": "pharmacy.fit.fit_arrhenius_two_stage",
+   "inputs": {
+    "series": "Amoxicillin 1 mg/mL, pH 6.5, first order",
+    "temperatures_c": [
+     40.0,
+     45.0,
+     52.0,
+     60.0
+    ],
+    "temperatures_k": [
+     313.15,
+     318.15,
+     325.15,
+     333.15
+    ],
+    "k_per_h": [
+     0.0216,
+     0.028,
+     0.0564,
+     0.131
+    ],
+    "model_kind": "F1",
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "fit": "unweighted OLS of ln k on 1/T"
+   },
+   "expected": {
+    "activation_energy_kj_per_mol": 79.76
+   },
+   "published_expected_text": "Ea 79.76, 50.63, 75.84 (amoxicillin pH 6.5, 7.0, 8.0); 60.10, 86.50 (clavulanate pH 7.0, 8.0); 46.7 (amoxicillin 15 mg/mL, second order); 57.6 (clavulanate 3 mg/mL) kJ/mol",
+   "our_recomputation": {
+    "activation_energy_kj_per_mol": 79.9,
+    "activation_energy_se_kj_per_mol": 7.5,
+    "foundation_lnk_ref_at_298_15_k_per_s": -13.676297350972073,
+    "foundation_lnk_ref_se": 0.23462666739104793,
+    "foundation_ea_j_per_mol": 79894.40142424026,
+    "foundation_ea_se_j_per_mol": 7480.988307828478,
+    "foundation_ln_a_in_published_k_units": 26.741430223991344,
+    "foundation_r2": 0.9827668077464363,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; unweighted OLS of ln k (k converted to the per-second form) on x = -(1/T - 1/298.15)/R, SE from s^2 (X'X)^-1 with n - 2 df"
+   },
+   "tolerance": {
+    "abs": 2.0,
+    "rel": null,
+    "unit": "kJ/mol",
+    "basis": "note's tolerance for TV-KIN-3 (largest gap 1.7 kJ/mol, amoxicillin pH 7.0)"
+   },
+   "source_ids": [
+    "MDS86"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Kamalpersad et al. 2024, amoxicillin-clavulanate 1000/200 mg in phosphate buffer, ionic strength 0.5 (degradation-science.md 7.3). Series excluded from TV-KIN-3: clavulanate pH 6.5 (see TV-KIN-3x)."
+  },
+  {
+   "vector_id": "TV-KIN-3-2",
+   "kind": "worked_example",
+   "description": "Amoxicillin 1 mg/mL, pH 7.0, first order: Arrhenius refit at 40, 45, 52, 60 degC (TV-KIN-3 series).",
+   "target": "pharmacy.fit.fit_arrhenius_two_stage",
+   "inputs": {
+    "series": "Amoxicillin 1 mg/mL, pH 7.0, first order",
+    "temperatures_c": [
+     40.0,
+     45.0,
+     52.0,
+     60.0
+    ],
+    "temperatures_k": [
+     313.15,
+     318.15,
+     325.15,
+     333.15
+    ],
+    "k_per_h": [
+     0.0382,
+     0.0426,
+     0.0707,
+     0.112
+    ],
+    "model_kind": "F1",
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "fit": "unweighted OLS of ln k on 1/T"
+   },
+   "expected": {
+    "activation_energy_kj_per_mol": 50.63
+   },
+   "published_expected_text": "Ea 79.76, 50.63, 75.84 (amoxicillin pH 6.5, 7.0, 8.0); 60.10, 86.50 (clavulanate pH 7.0, 8.0); 46.7 (amoxicillin 15 mg/mL, second order); 57.6 (clavulanate 3 mg/mL) kJ/mol",
+   "our_recomputation": {
+    "activation_energy_kj_per_mol": 48.9,
+    "activation_energy_se_kj_per_mol": 5.5,
+    "foundation_lnk_ref_at_298_15_k_per_s": -12.476892836797083,
+    "foundation_lnk_ref_se": 0.17369207768129144,
+    "foundation_ea_j_per_mol": 48884.24694976995,
+    "foundation_ea_se_j_per_mol": 5538.110466064415,
+    "foundation_ln_a_in_published_k_units": 15.43147935033043,
+    "foundation_r2": 0.9749730471639867,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; unweighted OLS of ln k (k converted to the per-second form) on x = -(1/T - 1/298.15)/R, SE from s^2 (X'X)^-1 with n - 2 df"
+   },
+   "tolerance": {
+    "abs": 2.0,
+    "rel": null,
+    "unit": "kJ/mol",
+    "basis": "note's tolerance for TV-KIN-3 (largest gap 1.7 kJ/mol, amoxicillin pH 7.0)"
+   },
+   "source_ids": [
+    "MDS86"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Kamalpersad et al. 2024, amoxicillin-clavulanate 1000/200 mg in phosphate buffer, ionic strength 0.5 (degradation-science.md 7.3). Series excluded from TV-KIN-3: clavulanate pH 6.5 (see TV-KIN-3x). Largest refit gap in the series (1.7 kJ/mol)."
+  },
+  {
+   "vector_id": "TV-KIN-3-3",
+   "kind": "worked_example",
+   "description": "Amoxicillin 1 mg/mL, pH 8.0, first order: Arrhenius refit at 40, 45, 52, 60 degC (TV-KIN-3 series).",
+   "target": "pharmacy.fit.fit_arrhenius_two_stage",
+   "inputs": {
+    "series": "Amoxicillin 1 mg/mL, pH 8.0, first order",
+    "temperatures_c": [
+     40.0,
+     45.0,
+     52.0,
+     60.0
+    ],
+    "temperatures_k": [
+     313.15,
+     318.15,
+     325.15,
+     333.15
+    ],
+    "k_per_h": [
+     0.0378,
+     0.0477,
+     0.1,
+     0.21
+    ],
+    "model_kind": "F1",
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "fit": "unweighted OLS of ln k on 1/T"
+   },
+   "expected": {
+    "activation_energy_kj_per_mol": 75.84
+   },
+   "published_expected_text": "Ea 79.76, 50.63, 75.84 (amoxicillin pH 6.5, 7.0, 8.0); 60.10, 86.50 (clavulanate pH 7.0, 8.0); 46.7 (amoxicillin 15 mg/mL, second order); 57.6 (clavulanate 3 mg/mL) kJ/mol",
+   "our_recomputation": {
+    "activation_energy_kj_per_mol": 76.9,
+    "activation_energy_se_kj_per_mol": 7.0,
+    "foundation_lnk_ref_at_298_15_k_per_s": -13.051823375652717,
+    "foundation_lnk_ref_se": 0.21892081536883928,
+    "foundation_ea_j_per_mol": 76900.49404739581,
+    "foundation_ea_se_j_per_mol": 6980.212770890897,
+    "foundation_ln_a_in_published_k_units": 26.15817556945032,
+    "foundation_r2": 0.9837889554089763,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; unweighted OLS of ln k (k converted to the per-second form) on x = -(1/T - 1/298.15)/R, SE from s^2 (X'X)^-1 with n - 2 df"
+   },
+   "tolerance": {
+    "abs": 2.0,
+    "rel": null,
+    "unit": "kJ/mol",
+    "basis": "note's tolerance for TV-KIN-3 (largest gap 1.7 kJ/mol, amoxicillin pH 7.0)"
+   },
+   "source_ids": [
+    "MDS86"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Kamalpersad et al. 2024, amoxicillin-clavulanate 1000/200 mg in phosphate buffer, ionic strength 0.5 (degradation-science.md 7.3). Series excluded from TV-KIN-3: clavulanate pH 6.5 (see TV-KIN-3x)."
+  },
+  {
+   "vector_id": "TV-KIN-3-4",
+   "kind": "worked_example",
+   "description": "Clavulanate 0.2 mg/mL, pH 7.0, first order: Arrhenius refit at 40, 45, 52, 60 degC (TV-KIN-3 series).",
+   "target": "pharmacy.fit.fit_arrhenius_two_stage",
+   "inputs": {
+    "series": "Clavulanate 0.2 mg/mL, pH 7.0, first order",
+    "temperatures_c": [
+     40.0,
+     45.0,
+     52.0,
+     60.0
+    ],
+    "temperatures_k": [
+     313.15,
+     318.15,
+     325.15,
+     333.15
+    ],
+    "k_per_h": [
+     0.102,
+     0.142,
+     0.151,
+     0.457
+    ],
+    "model_kind": "F1",
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "fit": "unweighted OLS of ln k on 1/T"
+   },
+   "expected": {
+    "activation_energy_kj_per_mol": 60.1
+   },
+   "published_expected_text": "Ea 79.76, 50.63, 75.84 (amoxicillin pH 6.5, 7.0, 8.0); 60.10, 86.50 (clavulanate pH 7.0, 8.0); 46.7 (amoxicillin 15 mg/mL, second order); 57.6 (clavulanate 3 mg/mL) kJ/mol",
+   "our_recomputation": {
+    "activation_energy_kj_per_mol": 60.1,
+    "activation_energy_se_kj_per_mol": 17.7,
+    "foundation_lnk_ref_at_298_15_k_per_s": -11.727608432841926,
+    "foundation_lnk_ref_se": 0.5566354233905028,
+    "foundation_ea_j_per_mol": 60115.20526390834,
+    "foundation_ea_se_j_per_mol": 17748.12360594603,
+    "foundation_ln_a_in_published_k_units": 20.711281298569034,
+    "foundation_r2": 0.8515511154946125,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; unweighted OLS of ln k (k converted to the per-second form) on x = -(1/T - 1/298.15)/R, SE from s^2 (X'X)^-1 with n - 2 df"
+   },
+   "tolerance": {
+    "abs": 2.0,
+    "rel": null,
+    "unit": "kJ/mol",
+    "basis": "note's tolerance for TV-KIN-3 (largest gap 1.7 kJ/mol, amoxicillin pH 7.0)"
+   },
+   "source_ids": [
+    "MDS86"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Kamalpersad et al. 2024, amoxicillin-clavulanate 1000/200 mg in phosphate buffer, ionic strength 0.5 (degradation-science.md 7.3). Series excluded from TV-KIN-3: clavulanate pH 6.5 (see TV-KIN-3x)."
+  },
+  {
+   "vector_id": "TV-KIN-3-5",
+   "kind": "worked_example",
+   "description": "Clavulanate 0.2 mg/mL, pH 8.0, first order: Arrhenius refit at 40, 45, 52, 60 degC (TV-KIN-3 series).",
+   "target": "pharmacy.fit.fit_arrhenius_two_stage",
+   "inputs": {
+    "series": "Clavulanate 0.2 mg/mL, pH 8.0, first order",
+    "temperatures_c": [
+     40.0,
+     45.0,
+     52.0,
+     60.0
+    ],
+    "temperatures_k": [
+     313.15,
+     318.15,
+     325.15,
+     333.15
+    ],
+    "k_per_h": [
+     0.121,
+     0.171,
+     0.334,
+     0.882
+    ],
+    "model_kind": "F1",
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "fit": "unweighted OLS of ln k on 1/T"
+   },
+   "expected": {
+    "activation_energy_kj_per_mol": 86.5
+   },
+   "published_expected_text": "Ea 79.76, 50.63, 75.84 (amoxicillin pH 6.5, 7.0, 8.0); 60.10, 86.50 (clavulanate pH 7.0, 8.0); 46.7 (amoxicillin 15 mg/mL, second order); 57.6 (clavulanate 3 mg/mL) kJ/mol",
+   "our_recomputation": {
+    "activation_energy_kj_per_mol": 86.6,
+    "activation_energy_se_kj_per_mol": 7.8,
+    "foundation_lnk_ref_at_298_15_k_per_s": -12.074501909977808,
+    "foundation_lnk_ref_se": 0.24431816183240831,
+    "foundation_ea_j_per_mol": 86621.74802570055,
+    "foundation_ea_se_j_per_mol": 7789.998180437563,
+    "foundation_ln_a_in_published_k_units": 31.05700671125865,
+    "foundation_r2": 0.9840822305228031,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; unweighted OLS of ln k (k converted to the per-second form) on x = -(1/T - 1/298.15)/R, SE from s^2 (X'X)^-1 with n - 2 df"
+   },
+   "tolerance": {
+    "abs": 2.0,
+    "rel": null,
+    "unit": "kJ/mol",
+    "basis": "note's tolerance for TV-KIN-3 (largest gap 1.7 kJ/mol, amoxicillin pH 7.0)"
+   },
+   "source_ids": [
+    "MDS86"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Kamalpersad et al. 2024, amoxicillin-clavulanate 1000/200 mg in phosphate buffer, ionic strength 0.5 (degradation-science.md 7.3). Series excluded from TV-KIN-3: clavulanate pH 6.5 (see TV-KIN-3x)."
+  },
+  {
+   "vector_id": "TV-KIN-3-6",
+   "kind": "worked_example",
+   "description": "Amoxicillin 15 mg/mL, pH 8, second order: Arrhenius refit at 40, 45, 52, 60 degC (TV-KIN-3 series).",
+   "target": "pharmacy.fit.fit_arrhenius_two_stage",
+   "inputs": {
+    "series": "Amoxicillin 15 mg/mL, pH 8, second order",
+    "temperatures_c": [
+     40.0,
+     45.0,
+     52.0,
+     60.0
+    ],
+    "temperatures_k": [
+     313.15,
+     318.15,
+     325.15,
+     333.15
+    ],
+    "k_ml_per_mg_per_h": [
+     0.0783,
+     0.101,
+     0.131,
+     0.237
+    ],
+    "model_kind": "F2",
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "fit": "unweighted OLS of ln k on 1/T"
+   },
+   "expected": {
+    "activation_energy_kj_per_mol": 46.7
+   },
+   "published_expected_text": "Ea 79.76, 50.63, 75.84 (amoxicillin pH 6.5, 7.0, 8.0); 60.10, 86.50 (clavulanate pH 7.0, 8.0); 46.7 (amoxicillin 15 mg/mL, second order); 57.6 (clavulanate 3 mg/mL) kJ/mol",
+   "our_recomputation": {
+    "activation_energy_kj_per_mol": 46.7,
+    "activation_energy_se_kj_per_mol": 5.5,
+    "foundation_lnk_ref_at_298_15_k_per_s": -11.67547241248576,
+    "foundation_lnk_ref_se": 0.1725305164359698,
+    "foundation_ea_j_per_mol": 46740.97538901065,
+    "foundation_ea_se_j_per_mol": 5501.074496574234,
+    "foundation_ln_a_in_published_k_units": 15.368313767234008,
+    "foundation_r2": 0.9730436051569249,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; unweighted OLS of ln k (k converted to the per-second form) on x = -(1/T - 1/298.15)/R, SE from s^2 (X'X)^-1 with n - 2 df"
+   },
+   "tolerance": {
+    "abs": 2.0,
+    "rel": null,
+    "unit": "kJ/mol",
+    "basis": "note's tolerance for TV-KIN-3 (largest gap 1.7 kJ/mol, amoxicillin pH 7.0)"
+   },
+   "source_ids": [
+    "MDS86"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Kamalpersad et al. 2024, amoxicillin-clavulanate 1000/200 mg in phosphate buffer, ionic strength 0.5 (degradation-science.md 7.3). Series excluded from TV-KIN-3: clavulanate pH 6.5 (see TV-KIN-3x). Second-order constant in mL mg^-1 h^-1; the foundation fit converts h to s only."
+  },
+  {
+   "vector_id": "TV-KIN-3-7",
+   "kind": "worked_example",
+   "description": "Clavulanate 3 mg/mL, pH 8, first order: Arrhenius refit at 40, 45, 52, 60 degC (TV-KIN-3 series).",
+   "target": "pharmacy.fit.fit_arrhenius_two_stage",
+   "inputs": {
+    "series": "Clavulanate 3 mg/mL, pH 8, first order",
+    "temperatures_c": [
+     40.0,
+     45.0,
+     52.0,
+     60.0
+    ],
+    "temperatures_k": [
+     313.15,
+     318.15,
+     325.15,
+     333.15
+    ],
+    "k_per_h": [
+     0.255,
+     0.332,
+     0.513,
+     0.961
+    ],
+    "model_kind": "F1",
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "fit": "unweighted OLS of ln k on 1/T"
+   },
+   "expected": {
+    "activation_energy_kj_per_mol": 57.6
+   },
+   "published_expected_text": "Ea 79.76, 50.63, 75.84 (amoxicillin pH 6.5, 7.0, 8.0); 60.10, 86.50 (clavulanate pH 7.0, 8.0); 46.7 (amoxicillin 15 mg/mL, second order); 57.6 (clavulanate 3 mg/mL) kJ/mol",
+   "our_recomputation": {
+    "activation_energy_kj_per_mol": 57.6,
+    "activation_energy_se_kj_per_mol": 4.2,
+    "foundation_lnk_ref_at_298_15_k_per_s": -10.717776745762572,
+    "foundation_lnk_ref_se": 0.13132767266964082,
+    "foundation_ea_j_per_mol": 57565.072175026646,
+    "foundation_ea_se_j_per_mol": 4187.336395561803,
+    "foundation_ln_a_in_published_k_units": 20.6924008867982,
+    "foundation_r2": 0.9895283329241576,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; unweighted OLS of ln k (k converted to the per-second form) on x = -(1/T - 1/298.15)/R, SE from s^2 (X'X)^-1 with n - 2 df"
+   },
+   "tolerance": {
+    "abs": 2.0,
+    "rel": null,
+    "unit": "kJ/mol",
+    "basis": "note's tolerance for TV-KIN-3 (largest gap 1.7 kJ/mol, amoxicillin pH 7.0)"
+   },
+   "source_ids": [
+    "MDS86"
+   ],
+   "source_status": "read",
+   "status": "reproduces",
+   "note": "Kamalpersad et al. 2024, amoxicillin-clavulanate 1000/200 mg in phosphate buffer, ionic strength 0.5 (degradation-science.md 7.3). Series excluded from TV-KIN-3: clavulanate pH 6.5 (see TV-KIN-3x)."
+  },
+  {
+   "vector_id": "TV-KIN-3x",
+   "kind": "worked_example",
+   "description": "Negative control: clavulanate 0.2 mg/mL, pH 6.5, whose published Ea does not reproduce.",
+   "target": "pharmacy.fit.fit_arrhenius_two_stage",
+   "inputs": {
+    "series": "Clavulanate 0.2 mg/mL, pH 6.5, first order",
+    "temperatures_c": [
+     40.0,
+     45.0,
+     52.0,
+     60.0
+    ],
+    "temperatures_k": [
+     313.15,
+     318.15,
+     325.15,
+     333.15
+    ],
+    "k_per_h": [
+     0.076,
+     0.098,
+     0.138,
+     0.4
+    ],
+    "model_kind": "F1",
+    "gas_constant_j_per_mol_k": 8.31446261815324
+   },
+   "expected": {
+    "activation_energy_kj_per_mol": 55.46
+   },
+   "published_expected_text": "Ea 55.46 kJ/mol",
+   "our_recomputation": {
+    "activation_energy_kj_per_mol": 70.2,
+    "activation_energy_se_kj_per_mol": 14.1,
+    "foundation_lnk_ref_at_298_15_k_per_s": -12.252427037789518,
+    "foundation_lnk_ref_se": 0.44318569725897633,
+    "foundation_ea_j_per_mol": 70159.5156212982,
+    "foundation_ea_se_j_per_mol": 14130.819212742708,
+    "foundation_ln_a_in_published_k_units": 24.23829184493227,
+    "foundation_r2": 0.9249565416472063,
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value; unweighted OLS of ln k (k converted to the per-second form) on x = -(1/T - 1/298.15)/R, SE from s^2 (X'X)^-1 with n - 2 df"
+   },
+   "tolerance": null,
+   "source_ids": [
+    "MDS86"
+   ],
+   "source_status": "read",
+   "status": "known_mismatch",
+   "note": "Does not reproduce: the refit gives 70.2 ± 14.1 kJ/mol, not 55.46. Keep out of pass/fail tests on the published value; useful as a known-bad input for data-review tooling. Never tune the fitter toward 55.46."
+  },
+  {
+   "vector_id": "TV-KIN-3e",
+   "kind": "worked_example",
+   "description": "Extrapolated t90 from k(40 degC) and the published Ea (amoxicillin and clavulanate, pH 6.5).",
+   "target": "pharmacy.kinetics.rate_constant",
+   "inputs": {
+    "model_kind": "F1",
+    "t90_formula": "ln(10/9) / k(T)",
+    "reference_temperature_k": 313.15,
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "cases": [
+     {
+      "series": "Amoxicillin 1 mg/mL, pH 6.5",
+      "k_ref_per_h": 0.0216,
+      "activation_energy_j_per_mol": 79760.0,
+      "temperatures_c": [
+       25.0,
+       32.0
+      ]
+     },
+     {
+      "series": "Clavulanate 0.2 mg/mL, pH 6.5",
+      "k_ref_per_h": 0.076,
+      "activation_energy_j_per_mol": 55460.0,
+      "temperatures_c": [
+       25.0,
+       32.0
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "amoxicillin_t90_h": {
+     "25_c": 22.8,
+     "32_c": 10.6
+    },
+    "clavulanate_t90_h": {
+     "25_c": 4.0,
+     "32_c": 2.4
+    }
+   },
+   "published_expected_text": "amoxicillin t90 22.8 h (25 °C), 10.6 h (32 °C); clavulanate 4.0 h (25 °C), 2.4 h (32 °C)",
+   "our_recomputation": {
+    "amoxicillin_t90_h": {
+     "25_c": 22.78,
+     "32_c": 10.89
+    },
+    "clavulanate_t90_h": {
+     "25_c": 4.05,
+     "32_c": 2.42
+    },
+    "foundation_amoxicillin_t90_h": {
+     "25_c": 22.77994181655065,
+     "32_c": 10.889563625215176
+    },
+    "foundation_clavulanate_t90_h": {
+     "25_c": 4.04829809829195,
+     "32_c": 2.4231929499628455
+    },
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": null,
+    "rel": 0.03,
+    "unit": null,
+    "basis": "note's tolerance 3%: the 32 degC amoxicillin value is 2.7% above the published figure (the authors presumably extrapolated from the fitted line)"
+   },
+   "source_ids": [
+    "MDS86"
+   ],
+   "source_status": "read; t90 recomputed",
+   "status": "reproduces",
+   "note": "Uses the published Ea as given, including the clavulanate pH 6.5 value that TV-KIN-3x shows is not reproducible from its own k table."
+  },
+  {
+   "vector_id": "TV-KIN-4",
+   "kind": "worked_example",
+   "description": "GLPG4399 capsules ASAP degradant DP-O table with a humidity-corrected Arrhenius fit (negative B).",
+   "target": "pharmacy.fit.fit_stability_study",
+   "inputs": {
+    "observations": [
+     {
+      "temperature_c": 50,
+      "rh_percent": 50,
+      "time_weeks": 2,
+      "degradant_dp_o_percent": 0.0915
+     },
+     {
+      "temperature_c": 50,
+      "rh_percent": 50,
+      "time_weeks": 5,
+      "degradant_dp_o_percent": 0.1628
+     },
+     {
+      "temperature_c": 50,
+      "rh_percent": 75,
+      "time_weeks": 1,
+      "degradant_dp_o_percent": 0.0483
+     },
+     {
+      "temperature_c": 50,
+      "rh_percent": 75,
+      "time_weeks": 2,
+      "degradant_dp_o_percent": 0.0629
+     },
+     {
+      "temperature_c": 50,
+      "rh_percent": 75,
+      "time_weeks": 5,
+      "degradant_dp_o_percent": 0.1022
+     },
+     {
+      "temperature_c": 60,
+      "rh_percent": 10,
+      "time_weeks": 2,
+      "degradant_dp_o_percent": 0.2245
+     },
+     {
+      "temperature_c": 60,
+      "rh_percent": 10,
+      "time_weeks": 5,
+      "degradant_dp_o_percent": 0.3776
+     },
+     {
+      "temperature_c": 60,
+      "rh_percent": 80,
+      "time_weeks": 1,
+      "degradant_dp_o_percent": 0.0627
+     },
+     {
+      "temperature_c": 60,
+      "rh_percent": 80,
+      "time_weeks": 2,
+      "degradant_dp_o_percent": 0.08
+     },
+     {
+      "temperature_c": 60,
+      "rh_percent": 80,
+      "time_weeks": 5,
+      "degradant_dp_o_percent": 0.1165
+     },
+     {
+      "temperature_c": 70,
+      "rh_percent": 40,
+      "time_weeks": 2,
+      "degradant_dp_o_percent": 0.4099
+     },
+     {
+      "temperature_c": 70,
+      "rh_percent": 40,
+      "time_weeks": 5,
+      "degradant_dp_o_percent": 0.8574
+     },
+     {
+      "temperature_c": 40,
+      "rh_percent": 75,
+      "time_weeks": 2,
+      "degradant_dp_o_percent": 0.0417
+     }
+    ],
+    "gas_constant_cal_per_mol_k": 1.986,
+    "kinetic_model": "diffusion model given only in supplementary equation S1 (not available)"
+   },
+   "expected": {
+    "b_per_percent_rh_sign": "negative",
+    "accepts_negative_b": true
+   },
+   "published_expected_text": "ln A 50.7 ± 11.1, Ea 35.8 ± 7.4 kcal/mol, B -0.0330 ± 0.0104",
+   "our_recomputation": {
+    "zero_order_refit": {
+     "activation_energy_kcal_per_mol": 13.6,
+     "b_per_percent_rh": -0.012
+    },
+    "parabolic_diffusion_refit": {
+     "activation_energy_kcal_per_mol": 27.4,
+     "ln_a": 36.6,
+     "b_per_percent_rh": -0.03
+    }
+   },
+   "tolerance": null,
+   "source_ids": [
+    "MDS90"
+   ],
+   "source_status": "read",
+   "status": "known_mismatch",
+   "note": "Not exactly reproducible without equation S1. Loose check only: the fitted B must be negative (drier is worse) and the fitter must accept negative B. Do not assert the published ln A, Ea or B."
+  },
+  {
+   "vector_id": "TV-KIN-5",
+   "kind": "derived_check",
+   "description": "Aspirin solid, humidity term evaluation: k = A exp(m Hr) exp(-Ea/RT).",
+   "target": "pharmacy.kinetics.rate_constant",
+   "inputs": {
+    "a_per_h": 1710000000000.0,
+    "activation_energy_j_per_mol": 94900.0,
+    "m_humidity": 1.2,
+    "humidity_as_fraction": true,
+    "gas_constant_j_per_mol_k": 8.31446261815324,
+    "model_kind": "B1",
+    "conditions": [
+     {
+      "temperature_c": 25.0,
+      "temperature_k": 298.15,
+      "rh_percent": 60.0,
+      "rh_fraction": 0.6
+     },
+     {
+      "temperature_c": 30.0,
+      "temperature_k": 303.15,
+      "rh_percent": 65.0,
+      "rh_fraction": 0.65
+     },
+     {
+      "temperature_c": 40.0,
+      "temperature_k": 313.15,
+      "rh_percent": 75.0,
+      "rh_fraction": 0.75
+     }
+    ]
+   },
+   "expected": {
+    "k_per_h": [
+     8.316e-05,
+     0.000166,
+     0.000623
+    ]
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "k_per_h": [
+     8.316e-05,
+     0.000166,
+     0.000623
+    ],
+    "foundation_k_per_h": [
+     8.316248312102208e-05,
+     0.00016603584356058017,
+     0.0006229891709419583
+    ],
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": null,
+    "rel": 0.0005,
+    "unit": null,
+    "basis": "4 significant figures in the note"
+   },
+   "source_ids": [
+    "MDS96"
+   ],
+   "source_status": "abstract; k DERIVED",
+   "status": "reproduces",
+   "note": "Regression test of the humidity-term evaluation. Prout-Tompkins integrated form (B1), so these k are not first-order constants. Humidity enters as a fraction (0.60), not percent."
+  },
+  {
+   "vector_id": "TV-KIN-6",
+   "kind": "derived_check",
+   "description": "Amoxicillin 1 mg/mL in an elastomeric infuser at 2.9 degC (starting pH 8.73): first-order log-linear fit on noisy real data.",
+   "target": "pharmacy.fit.fit_first_order_loglinear",
+   "inputs": {
+    "temperature_c": 2.9,
+    "times_h": [
+     0,
+     0.9,
+     3.6,
+     23.3,
+     25.2,
+     72.0,
+     100.4,
+     173.3,
+     192.3,
+     218.6,
+     241.3,
+     263.8
+    ],
+    "percent_remaining": [
+     100,
+     102.0,
+     100.0,
+     96.0,
+     96.2,
+     90.1,
+     87.1,
+     79.9,
+     78.0,
+     78.7,
+     77.6,
+     76.1
+    ],
+    "fit": "OLS of ln(percent) on t; free intercept, and intercept fixed at ln 100"
+   },
+   "expected": {
+    "k_free_per_h": 0.001101,
+    "k_free_se_per_h": 6.2e-05,
+    "c0_free_percent": 99.23,
+    "k_fixed_c0_100_per_h": 0.001141,
+    "k_free_per_h_full_precision": 0.0011014038621325788,
+    "k_free_se_per_h_full_precision": 6.167737107236974e-05,
+    "c0_free_percent_full_precision": 99.22621537586032,
+    "k_fixed_c0_100_per_h_full_precision": 0.0011408237250843014
+   },
+   "published_expected_text": null,
+   "our_recomputation": {
+    "k_free_per_h": 0.001101,
+    "k_free_se_per_h": 6.2e-05,
+    "c0_free_percent": 99.23,
+    "k_fixed_c0_100_per_h": 0.001141
+   },
+   "tolerance": {
+    "abs": null,
+    "rel": 1e-09,
+    "unit": null,
+    "basis": "rel 1e-9 against the *_full_precision values (foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value); the note's 4 significant figure values hold to their rounding (rel 5e-4)"
+   },
+   "source_ids": [
+    "MDS86"
+   ],
+   "source_status": "read; fit DERIVED",
+   "status": "reproduces",
+   "note": "Observed data only (no published fit). One point is above 100% (102.0 at 0.9 h): the fitter must not reject or clip it."
+  },
+  {
+   "vector_id": "TV-KIN-7",
+   "kind": "derived_check",
+   "description": "Unit conversions used throughout (thermochemical calorie).",
+   "target": "pharmacy.constants.THERMOCHEMICAL_CALORIE_J",
+   "inputs": {
+    "kj_per_kcal": 4.184,
+    "conversions": [
+     {
+      "from_unit": "kcal_per_mol",
+      "value": 18.0
+     },
+     {
+      "from_unit": "kcal_per_mol",
+      "value": 29.8
+     },
+     {
+      "from_unit": "kcal_per_mol",
+      "value": 46.0
+     },
+     {
+      "from_unit": "kj_per_mol",
+      "value": 83.144
+     }
+    ],
+    "delta_h_over_r": {
+     "delta_h_kj_per_mol": 83.144,
+     "gas_constant_kj_per_mol_k": 0.0083144
+    }
+   },
+   "expected": {
+    "converted": [
+     {
+      "value": 75.31,
+      "unit": "kJ/mol"
+     },
+     {
+      "value": 124.68,
+      "unit": "kJ/mol"
+     },
+     {
+      "value": 192.46,
+      "unit": "kJ/mol"
+     },
+     {
+      "value": 19.872,
+      "unit": "kcal/mol"
+     }
+    ],
+    "delta_h_over_r_k": 10000.0
+   },
+   "published_expected_text": "1 kcal = 4.184 kJ",
+   "our_recomputation": {
+    "statement": "18 kcal/mol = 75.31 kJ/mol; 29.8 = 124.68; 46 = 192.46; 83.144 kJ/mol = 19.872 kcal/mol; 83.144 / 8.3144e-3 = 10000 K",
+    "foundation_values": [
+     75.312,
+     124.68320000000001,
+     192.464,
+     19.87189292543021
+    ],
+    "foundation_note": "foundation recomputation (Python float64, numpy, 2026-11-14, R = N_A k_B = 8.31446261815324 J/(mol K)), not a published value"
+   },
+   "tolerance": {
+    "abs": 0.005,
+    "rel": null,
+    "unit": "kJ/mol or kcal/mol as named",
+    "basis": "the note's 2 to 3 decimals"
+   },
+   "source_ids": [
+    "MDS99",
+    "MDS94",
+    "MDS98",
+    "MDS05"
+   ],
+   "source_status": "computed",
+   "status": "reproduces",
+   "note": "Sources name where each input value is used in the notes; the conversions themselves are arithmetic."
+  }
+ ]
+}
