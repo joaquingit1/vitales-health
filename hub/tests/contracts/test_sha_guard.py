@@ -43,13 +43,32 @@ def test_javascript_runtime_is_declared_and_locked() -> None:
         assert re.fullmatch(r"sha256-[A-Za-z0-9+/]+={0,2}", str(resolution["integrity"]))
 
 
+def _pnpm_launcher() -> list[str]:
+    """Return how to start pnpm without relying on the PATH node.
+
+    pnpm installed through npm, corepack or Homebrew is a node script (``#!/usr/bin/env node``). The test below puts a
+    broken node first on PATH to prove project tools run on the pinned runtime; that must not also break the launcher
+    itself, so a script launcher is started with the interpreter found before PATH is changed.
+    """
+    pnpm = shutil.which("pnpm")
+    assert pnpm is not None, "pnpm is required"
+    with open(pnpm, "rb") as launcher:
+        first_line = launcher.readline()
+    if first_line.startswith(b"#!") and b"node" in first_line:
+        node = shutil.which("node")
+        assert node is not None, "a script pnpm launcher needs node to start"
+        return [node, os.path.realpath(pnpm)]
+    return [pnpm]
+
+
 @pytest.mark.parametrize("command", [["typecheck"], ["exec", "openapi-typescript", "--version"]])
 def test_javascript_tools_use_project_runtime(tmp_path: Path, command: list[str]) -> None:
+    launcher = _pnpm_launcher()
     broken_node = tmp_path / ("node.cmd" if os.name == "nt" else "node")
     broken_node.write_text("@exit /b 97\n" if os.name == "nt" else "#!/bin/sh\nexit 97\n")
     broken_node.chmod(0o755)
     result = subprocess.run(
-        ["pnpm", "-C", "packages/contracts-ts", *command],
+        [*launcher, "-C", "packages/contracts-ts", *command],
         cwd=ROOT,
         env={
             **os.environ,
