@@ -44,3 +44,7 @@ marked "checked by coordinator" was accepted only after its gate commands passed
 | Sat 17:03 | Supervisor E05 | Codex CLI, GPT-6 Astra | Cold design review | Review with verdict | docs/tdd/reviews/ | Coordinator |
 | Sat 17:06 | Supervisor E03 | Codex CLI, GPT-6 Astra | Cold design review | Review with verdict | docs/tdd/reviews/ | Coordinator |
 | Sat 17:08 | Supervisor E02 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E02/ | Coordinator |
+| Sat 17:26 | Supervisor E23 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E23/ | Coordinator |
+| Sat 17:29 | Coder E04 | Codex CLI, GPT-6.1 Sol | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E04.md | Cold review (GPT-6 Astra), design lint |
+| Sat 17:29 | Supervisor E05 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E05/ | Coordinator |
+| Sat 17:29 | Coder E01 | Codex CLI, GPT-6.1 Sol | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E01.md | Cold review (GPT-6 Astra), design lint |
