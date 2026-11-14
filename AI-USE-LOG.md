@@ -73,3 +73,4 @@ marked "checked by coordinator" was accepted only after its gate commands passed
 | Sat 17:48 | Coder E09 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E09/ | Plan review (GPT-6 Astra) |
 | Sat 17:48 | Coder E06 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E06/ | Plan review (GPT-6 Astra) |
 | Sat 17:52 | Coder E01 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E01/ | Plan review (GPT-6 Astra) |
+| Sat 18:01 | Supervisor E01 | Codex CLI, GPT-6 Astra | Review of the build plan | Plan review with verdict | docs/build/E01/ | Coordinator |

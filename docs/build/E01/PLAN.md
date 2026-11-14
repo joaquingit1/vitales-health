@@ -8,7 +8,7 @@ gates. The path groups below abbreviate that authority. No product code was writ
 
 | Task | Owned concern and path groups | Starts after |
 |---|---|---|
-| T1, foundation | hub/pyproject.toml; root package.json/pnpm-workspace.yaml; kernel/testing; app registry/import generator; guarded base contracts/reference copies; contracts_gen/contracts-ts generation; kernel/SHA tests | Accepted generation/trust allocations below |
+| T1, foundation | hub/pyproject.toml; root package.json/pnpm-workspace.yaml; kernel/testing; app registry/import generator; guarded base contracts/reference copies; contracts_gen/contracts-ts generation; kernel/SHA tests | Nothing (D19) |
 | T2 | platform durability, private coordination, replication/ownership, scheduler/tasks/evaluation/health; events; their tests | T1 |
 | T3 | config loader/activation/API and tests | T1 |
 | T4 | clock segments/corrections/mission time and tests | T1 |

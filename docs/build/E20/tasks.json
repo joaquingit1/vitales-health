@@ -125,7 +125,7 @@
     "docs/tdd/E30.md"
    ],
    "depends_on": [],
-   "brief": "You are the only coder on epic E20 (Accessibility, resilience and packaging). Implement it in full from its design docs/tdd/E20.md: every section, and every R, V and D of its acceptance matrix with a test, including end to end tests on the real stack. docs/build/E20/PLAN.md and ticket_tasks in docs/build/E20/tasks.json describe one split of this work with briefs, tests and gates: use them as a guide and checklist; the design and docs/SYSTEM.md win where they differ. Build in this order: domain, application, adapters, api, user interface, and run your tests as you go. If an epic you depend on has no code yet, code against its port protocol and the kernel fakes (docs/SYSTEM.md section 10).",
+   "brief": "You are the only coder on epic E20 (Accessibility, resilience and packaging). Implement it in full from its design docs/tdd/E20.md: every section, and every R, V and D of its acceptance matrix with a test, including end to end tests on the real stack. docs/build/E20/PLAN.md and ticket_tasks in docs/build/E20/tasks.json describe one split of this work with briefs, tests and gates: use them as a guide and checklist; the design and docs/SYSTEM.md win where they differ. Build in this order: domain, application, adapters, api, user interface, and run your tests as you go. If an epic you depend on has no code yet, code against its port protocol and the kernel fakes (docs/SYSTEM.md section 10). D19: add the `crew-health` console script entry to hub/pyproject.toml ([project.scripts] only).",
    "gates": []
   }
  ],
