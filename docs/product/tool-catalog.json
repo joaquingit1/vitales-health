@@ -1,0 +1,886 @@
+{
+  "status": "Interface planning sketch; nested schemas finalized in epic TDDs",
+  "tools": [
+    {
+      "name": "get_episode_context",
+      "stage": "intake",
+      "description": "Read relevant authorized episode facts",
+      "effect": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sections": {
+            "type": "array",
+            "description": "Requested allowed sections; item enum finalized in TDD"
+          }
+        },
+        "required": [
+          "sections"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "get_observations",
+      "stage": "intake",
+      "description": "Read accepted and explicitly qualified observations",
+      "effect": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "codes": {
+            "type": "array",
+            "description": "Observation codes"
+          },
+          "since": {
+            "type": "string",
+            "description": "UTC lower bound"
+          },
+          "context": {
+            "type": "object",
+            "description": "Activity/gravity/source filters"
+          }
+        },
+        "required": [
+          "codes",
+          "since",
+          "context"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "get_medication_allergy_context",
+      "stage": "intake",
+      "description": "Read recorded relevant substances and reactions",
+      "effect": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Clinical relevance"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "get_capabilities",
+      "stage": "intake",
+      "description": "Read actual equipment and operator availability",
+      "effect": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "codes": {
+            "type": "array",
+            "description": "Capability codes"
+          }
+        },
+        "required": [
+          "codes"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "get_pathway",
+      "stage": "assessment",
+      "description": "Read approved applicable pathway",
+      "effect": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "complaint_or_condition": {
+            "type": "string",
+            "description": "Registry ID"
+          },
+          "context": {
+            "type": "object",
+            "description": "Mission and clinical applicability"
+          }
+        },
+        "required": [
+          "complaint_or_condition",
+          "context"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "search_evidence",
+      "stage": "assessment",
+      "description": "Search approved release only",
+      "effect": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Focused question"
+          },
+          "filters": {
+            "type": "object",
+            "description": "Applicability filters"
+          }
+        },
+        "required": [
+          "query",
+          "filters"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "read_source_passage",
+      "stage": "assessment",
+      "description": "Read immutable cited passage",
+      "effect": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "passage_id": {
+            "type": "string",
+            "description": "Allowed passage ID"
+          },
+          "include_parent": {
+            "type": "boolean",
+            "description": "Expand section context"
+          }
+        },
+        "required": [
+          "passage_id",
+          "include_parent"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "compare_observations",
+      "stage": "assessment",
+      "description": "Run registered comparison",
+      "effect": "compute",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "observation_ids": {
+            "type": "array",
+            "description": "Authorized accepted IDs"
+          },
+          "method_id": {
+            "type": "string",
+            "description": "Versioned allowlisted method"
+          }
+        },
+        "required": [
+          "observation_ids",
+          "method_id"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "calculate_validated_metric",
+      "stage": "assessment",
+      "description": "Compute only a registered applicable metric",
+      "effect": "compute",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "metric_id": {
+            "type": "string",
+            "description": "Versioned formula"
+          },
+          "input_ids": {
+            "type": "array",
+            "description": "Required accepted observations"
+          }
+        },
+        "required": [
+          "metric_id",
+          "input_ids"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "get_environment_context",
+      "stage": "assessment",
+      "description": "Read mission-linked environment with time/origin",
+      "effect": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "description": "UTC start"
+          },
+          "end": {
+            "type": "string",
+            "description": "UTC end"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "get_report_findings",
+      "stage": "assessment",
+      "description": "Read confirmed findings with source spans",
+      "effect": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "report_ids": {
+            "type": "array",
+            "description": "Authorized reports"
+          }
+        },
+        "required": [
+          "report_ids"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "propose_question",
+      "stage": "acquisition",
+      "description": "Propose one relevant question",
+      "effect": "proposal",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "question_code": {
+            "type": "string",
+            "description": "Approved question or narrative slot"
+          },
+          "reason": {
+            "type": "string",
+            "description": "How answer changes next step"
+          }
+        },
+        "required": [
+          "question_code",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "propose_measurement",
+      "stage": "acquisition",
+      "description": "Propose; controller/person authorize acquisition",
+      "effect": "proposal",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "capability_code": {
+            "type": "string",
+            "description": "Existing registry code"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Decision to clarify"
+          },
+          "source_ids": {
+            "type": "array",
+            "description": "Supporting approved passages"
+          }
+        },
+        "required": [
+          "capability_code",
+          "reason",
+          "source_ids"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "propose_review",
+      "stage": "disposition",
+      "description": "Draft review task without external sending",
+      "effect": "proposal",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Concern and uncertainty"
+          },
+          "unresolved_ids": {
+            "type": "array",
+            "description": "Gaps"
+          }
+        },
+        "required": [
+          "reason",
+          "unresolved_ids"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "draft_assessment",
+      "stage": "disposition",
+      "description": "Propose structured evidence-based assessment",
+      "effect": "proposal",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "assessment": {
+            "type": "object",
+            "description": "Assessment schema finalized in TDD"
+          }
+        },
+        "required": [
+          "assessment"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "draft_handoff",
+      "stage": "disposition",
+      "description": "Draft summary for explicit sharing approval",
+      "effect": "proposal",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "field_ids": {
+            "type": "array",
+            "description": "Allowed selected clinical fields"
+          },
+          "purpose": {
+            "type": "string",
+            "description": "Recipient purpose"
+          }
+        },
+        "required": [
+          "field_ids",
+          "purpose"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "record_unresolved_gap",
+      "stage": "disposition",
+      "description": "Propose an explicit assessment gap",
+      "effect": "proposal",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "capability_or_fact": {
+            "type": "string",
+            "description": "Missing evidence"
+          },
+          "consequence": {
+            "type": "string",
+            "description": "What cannot be concluded"
+          }
+        },
+        "required": [
+          "capability_or_fact",
+          "consequence"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "get_forecast",
+      "stage": "assessment",
+      "description": "Read experimental forecast",
+      "effect": "compute",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "series_code": {
+            "type": "string",
+            "description": "Eligible indicator"
+          },
+          "forecast_version": {
+            "type": "string",
+            "description": "Pinned release"
+          }
+        },
+        "required": [
+          "series_code",
+          "forecast_version"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution"
+      ]
+    },
+    {
+      "name": "get_plan",
+      "stage": "disposition",
+      "description": "Read the PlanView for the episode's condition, or the help session's flow, in the active environment and release (CONTRACTS section 22)",
+      "effect": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "condition_id": {
+            "type": "string",
+            "description": "A kit-map.json condition ID named by the episode, for example ICL10"
+          },
+          "flow_id": {
+            "type": "string",
+            "description": "A responder flow ID, when the context is a help session"
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "minProperties": 1,
+        "maxProperties": 1
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release",
+        "config_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md; data is the PlanView of CONTRACTS section 22",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution",
+        "Step text, medicine mentions and thresholds come only from the active release (EI6)",
+        "The ground stage is returned as written and is never a step to wait on (EI1)"
+      ]
+    },
+    {
+      "name": "choose_plan_step",
+      "stage": "disposition",
+      "description": "Propose the next plan step to show, with the answer that led to it. The person sees the step text from configuration, never model text",
+      "effect": "proposal",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "description": "The plan returned by get_plan"
+          },
+          "step_id": {
+            "type": "string",
+            "description": "A step_id in that plan"
+          },
+          "because_answer_id": {
+            "type": "string",
+            "description": "The Answer or message that led to it"
+          }
+        },
+        "required": [
+          "plan_id",
+          "step_id",
+          "because_answer_id"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release",
+        "config_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md; rejected with MODEL_OUTPUT_REJECTED when step_id is not in the active plan or its availability is not_aboard",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution",
+        "The step must exist in the active plan and be runnable here (EI6, EI7)",
+        "No dose, no step outside the plan",
+        "The proposal never moves a plan run; a person marks steps"
+      ]
+    },
+    {
+      "name": "explain_step",
+      "stage": "disposition",
+      "description": "Read a step's authored text_first_time and the approved passages its source_ids cite, to answer why",
+      "effect": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "description": "The plan the step belongs to"
+          },
+          "step_id": {
+            "type": "string",
+            "description": "A step_id in that plan"
+          }
+        },
+        "required": [
+          "plan_id",
+          "step_id"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release",
+        "config_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md; data is the step's text, text_first_time, source_ids and the cited passages",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution",
+        "The step text itself is rendered from configuration; the model may add only cited explanation",
+        "No dose"
+      ]
+    },
+    {
+      "name": "propose_guided_check",
+      "stage": "acquisition",
+      "description": "Propose a guided check for a check_another_way step: the skill, and the helper the role engine proposes",
+      "effect": "proposal",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "description": "The plan the step belongs to"
+          },
+          "step_id": {
+            "type": "string",
+            "description": "A step whose guided_check_skill_id is set"
+          },
+          "reason": {
+            "type": "string",
+            "description": "The decision the check would inform"
+          }
+        },
+        "required": [
+          "plan_id",
+          "step_id",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "authorized_patient",
+        "episode",
+        "consent",
+        "evidence_release",
+        "config_release",
+        "roster"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md; the controller fills skill_id and the helper from the role engine (section 24); the person accepts before POST /v1/guided-checks",
+      "invariants": [
+        "No fabricated findings",
+        "No journal access",
+        "No cross-patient scope",
+        "Schema and policy checks before execution",
+        "The model never names the helper; the role engine does (EI9)",
+        "A guided check never confirms or excludes a condition (EI8)"
+      ]
+    },
+    {
+      "name": "get_crew_readiness",
+      "stage": "acquisition",
+      "description": "Read who can do a step now, with reasons: skill freshness and availability, no health data",
+      "effect": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "description": "The plan the step belongs to"
+          },
+          "step_id": {
+            "type": "string",
+            "description": "The step"
+          }
+        },
+        "required": [
+          "plan_id",
+          "step_id"
+        ],
+        "additionalProperties": false
+      },
+      "controller_scope": [
+        "authenticated_actor",
+        "crew_medical_officer_role",
+        "roster",
+        "config_release"
+      ],
+      "result_contract": "ToolResult in CONTRACTS.md; data is the step's who_can and the CrewReadinessView rows for its skill (section 24)",
+      "invariants": [
+        "No health data",
+        "No ranking",
+        "Only for a session with the crew_medical_officer role",
+        "Schema and policy checks before execution"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensor-limit.schema.json",
+  "title": "SensorLimit",
+  "description": "One machine readable limit for one sensor type, bound to one sourced level of environment-hazards.json. Versioned with sensor-limits.json.",
+  "type": "object",
+  "properties": {
+    "limit_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "sensor_type_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "hazard_level": {
+      "type": "object",
+      "properties": {
+        "hazard_id": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "index": {
+          "type": "integer",
+          "description": "Index into the hazard's levels array.",
+          "minimum": 0
+        },
+        "level": {
+          "$ref": "common.schema.json#/$defs/level"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "window": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "hazard_id",
+        "index",
+        "level",
+        "value",
+        "unit",
+        "window"
+      ],
+      "additionalProperties": false,
+      "description": "Points at one level of environment-hazards.json and copies the fields this entry relies on. The loader rejects the release (CONFIG_INVALID) when the copy differs from the file."
+    },
+    "environments": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/environment_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "role": {
+      "enum": [
+        "warning",
+        "display_only"
+      ],
+      "description": "display_only: drawn as a limit line or normal band, never raises a warning (every info level)."
+    },
+    "level": {
+      "$ref": "common.schema.json#/$defs/level"
+    },
+    "comparator": {
+      "enum": [
+        "above",
+        "at_or_above",
+        "below",
+        "at_or_below"
+      ]
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "number",
+          "description": "Copied from the hazard level value, or a number that appears in its rule text. null: threshold to be set by clinical review; the limit raises nothing."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "value_from": {
+      "enum": [
+        "level_value",
+        "rule_text",
+        "pending"
+      ]
+    },
+    "unit": {
+      "type": "string",
+      "description": "The sensor type's canonical unit.",
+      "minLength": 1
+    },
+    "aggregation_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "window_basis": {
+      "$ref": "common.schema.json#/$defs/basis"
+    },
+    "min_coverage": {
+      "type": "number",
+      "description": "Share of the window that must hold data before the limit is evaluated; below it the status is insufficient_data.",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "coverage_basis": {
+      "$ref": "common.schema.json#/$defs/basis"
+    },
+    "clear": {
+      "type": "object",
+      "properties": {
+        "comparator": {
+          "enum": [
+            "above",
+            "at_or_above",
+            "below",
+            "at_or_below"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dwell_seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The safe side must hold this long before the warning clears."
+        },
+        "basis": {
+          "$ref": "common.schema.json#/$defs/basis"
+        }
+      },
+      "required": [
+        "comparator",
+        "value",
+        "dwell_seconds",
+        "basis"
+      ],
+      "additionalProperties": false
+    },
+    "label": {
+      "type": "string",
+      "description": "Words for the limit line, for example limit 3 mmHg.",
+      "minLength": 1
+    },
+    "card_mark": {
+      "type": "boolean",
+      "description": "Drawn as the tick on the sensor card. At most one limit per sensor type and environment."
+    },
+    "status": {
+      "enum": [
+        "active",
+        "threshold_pending"
+      ]
+    },
+    "source_ids": {
+      "$ref": "common.schema.json#/$defs/source_ids"
+    },
+    "basis": {
+      "$ref": "common.schema.json#/$defs/basis"
+    }
+  },
+  "required": [
+    "limit_id",
+    "sensor_type_id",
+    "hazard_level",
+    "environments",
+    "role",
+    "level",
+    "comparator",
+    "value",
+    "value_from",
+    "unit",
+    "aggregation_id",
+    "window_basis",
+    "min_coverage",
+    "coverage_basis",
+    "clear",
+    "label",
+    "card_mark",
+    "status",
+    "source_ids",
+    "basis"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "threshold_pending"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "null"
+          },
+          "value_from": {
+            "const": "pending"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "active"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "hazard_level": {
+            "properties": {
+              "level": {
+                "const": "info"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "role": {
+            "const": "display_only"
+          }
+        }
+      }
+    }
+  ]
+}

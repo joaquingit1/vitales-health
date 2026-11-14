@@ -1,0 +1,775 @@
+[
+  {
+    "epic_id": "E01",
+    "title": "Platform, identities and durable records",
+    "owner": "A",
+    "stage": "S0",
+    "dependencies": [],
+    "requirements": [
+      "R01",
+      "R06",
+      "R25"
+    ],
+    "entities": "Patient, Mission, Observation, AuditEvent",
+    "decisions": "Use UUIDs and immutable revisions; freeze schema migrations and clock policy",
+    "stories": [
+      "E01-01",
+      "E01-02",
+      "E01-03"
+    ]
+  },
+  {
+    "epic_id": "E02",
+    "title": "Consent, authentication and privacy",
+    "owner": "A",
+    "stage": "S1",
+    "dependencies": [
+      "E01"
+    ],
+    "requirements": [
+      "R02",
+      "R20",
+      "R29"
+    ],
+    "entities": "ConsentGrant, Session, AccessPolicy",
+    "decisions": "Choose local session authentication, encryption/key management and consent revocation behavior",
+    "stories": [
+      "E02-01",
+      "E02-02",
+      "E02-03"
+    ]
+  },
+  {
+    "epic_id": "E03",
+    "title": "Crew experience and daily check",
+    "owner": "D",
+    "stage": "S1",
+    "dependencies": [
+      "E01",
+      "E02"
+    ],
+    "requirements": [
+      "R03",
+      "R05",
+      "R24"
+    ],
+    "entities": "DailyCheck, Answer, Observation, BodyRegion",
+    "decisions": "Choose UI framework and accessible control patterns; integrate the body renderer and the visual-direction tokens",
+    "stories": [
+      "E03-01",
+      "E03-02",
+      "E03-03",
+      "E03-04"
+    ]
+  },
+  {
+    "epic_id": "E04",
+    "title": "Guided complaint intake",
+    "owner": "B",
+    "stage": "S2",
+    "dependencies": [
+      "E01",
+      "E02",
+      "E03"
+    ],
+    "requirements": [
+      "R04",
+      "R05",
+      "R07"
+    ],
+    "entities": "Episode, Answer, IntakeModule",
+    "decisions": "Map symptom modules to assessment families and sensitive-field rules",
+    "stories": [
+      "E04-01",
+      "E04-02",
+      "E04-03"
+    ]
+  },
+  {
+    "epic_id": "E05",
+    "title": "Capabilities and measurement workflow",
+    "owner": "A",
+    "stage": "S2",
+    "dependencies": [
+      "E01",
+      "E02"
+    ],
+    "requirements": [
+      "R06",
+      "R07",
+      "R08"
+    ],
+    "entities": "Capability, MeasurementRequest, Observation",
+    "decisions": "Freeze adapter protocol, cancellation and operator acceptance",
+    "stories": [
+      "E05-01",
+      "E05-02",
+      "E05-03"
+    ]
+  },
+  {
+    "epic_id": "E06",
+    "title": "Personal and station cameras",
+    "owner": "C",
+    "stage": "S2",
+    "dependencies": [
+      "E01",
+      "E02",
+      "E05"
+    ],
+    "requirements": [
+      "R09",
+      "R11",
+      "R29"
+    ],
+    "entities": "CameraSession, Observation, QualityResult",
+    "decisions": "Decide POS implementation, torso method, pairing and worker scheduling",
+    "stories": [
+      "E06-01",
+      "E06-02",
+      "E06-03"
+    ]
+  },
+  {
+    "epic_id": "E07",
+    "title": "Oximeter and clinical device adapters",
+    "owner": "C",
+    "stage": "S2",
+    "dependencies": [
+      "E05"
+    ],
+    "requirements": [
+      "R08",
+      "R26"
+    ],
+    "entities": "AdapterManifest, Device, Observation",
+    "decisions": "Verify actual BLE protocol and device semantics",
+    "stories": [
+      "E07-01",
+      "E07-02",
+      "E07-03"
+    ]
+  },
+  {
+    "epic_id": "E08",
+    "title": "Wrist activity band and sleep pipeline",
+    "owner": "C",
+    "stage": "S2",
+    "dependencies": [
+      "E01",
+      "E05"
+    ],
+    "requirements": [
+      "R10",
+      "R26"
+    ],
+    "entities": "ActivityEpoch, SyncBatch, SleepEstimate",
+    "decisions": "Select physical board, epoch units, storage and validated algorithm applicability",
+    "stories": [
+      "E08-01",
+      "E08-02",
+      "E08-03"
+    ]
+  },
+  {
+    "epic_id": "E09",
+    "title": "Reports and specialist findings",
+    "owner": "A",
+    "stage": "S2",
+    "dependencies": [
+      "E01",
+      "E02",
+      "E05"
+    ],
+    "requirements": [
+      "R14",
+      "R16"
+    ],
+    "entities": "Report, ExtractionDraft, ConfirmedFinding",
+    "decisions": "Decide supported file types, size limits, parsing sandbox and review UI",
+    "stories": [
+      "E09-01",
+      "E09-02",
+      "E09-03"
+    ]
+  },
+  {
+    "epic_id": "E10",
+    "title": "NASA registry and evidence database",
+    "owner": "B",
+    "stage": "S0",
+    "dependencies": [
+      "E01"
+    ],
+    "requirements": [
+      "R13",
+      "R21"
+    ],
+    "entities": "Condition, DocumentVersion, Passage, EvidenceRelease",
+    "decisions": "Freeze inventory memberships, source hierarchy and review workflow",
+    "stories": [
+      "E10-01",
+      "E10-02",
+      "E10-03"
+    ]
+  },
+  {
+    "epic_id": "E11",
+    "title": "Urgent handling and pathway engine",
+    "owner": "B",
+    "stage": "S1",
+    "dependencies": [
+      "E01",
+      "E10"
+    ],
+    "requirements": [
+      "R07",
+      "R15",
+      "R28"
+    ],
+    "entities": "UrgentState, PathwayVersion, DecisionRule",
+    "decisions": "Review exact clinical content and applicability separately from software logic",
+    "stories": [
+      "E11-01",
+      "E11-02",
+      "E11-03"
+    ]
+  },
+  {
+    "epic_id": "E12",
+    "title": "Retrieval and typed tool gateway",
+    "owner": "C",
+    "stage": "S3",
+    "dependencies": [
+      "E02",
+      "E05",
+      "E09",
+      "E10"
+    ],
+    "requirements": [
+      "R16",
+      "R17",
+      "R21"
+    ],
+    "entities": "ToolCall, ToolResult, Passage, ContextSnapshot",
+    "decisions": "Benchmark lexical/dense/hybrid retrieval and tool schemas",
+    "stories": [
+      "E12-01",
+      "E12-02",
+      "E12-03"
+    ]
+  },
+  {
+    "epic_id": "E13",
+    "title": "Local reasoning and assessment",
+    "owner": "C",
+    "stage": "S3",
+    "dependencies": [
+      "E04",
+      "E11",
+      "E12"
+    ],
+    "requirements": [
+      "R16",
+      "R17",
+      "R28"
+    ],
+    "entities": "AssessmentDraft, ModelRelease, Episode",
+    "decisions": "Test candidate checkpoint/template/thinking/JSON compatibility",
+    "stories": [
+      "E13-01",
+      "E13-02",
+      "E13-03"
+    ]
+  },
+  {
+    "epic_id": "E14",
+    "title": "Trends, environment and Chronos-2",
+    "owner": "C",
+    "stage": "S3",
+    "dependencies": [
+      "E01",
+      "E05",
+      "E08"
+    ],
+    "requirements": [
+      "R11",
+      "R12",
+      "R26"
+    ],
+    "entities": "Baseline, Forecast, EnvironmentSeries",
+    "decisions": "Freeze comparison cohorts, resampling and temporal evaluation",
+    "stories": [
+      "E14-01",
+      "E14-02",
+      "E14-03"
+    ]
+  },
+  {
+    "epic_id": "E15",
+    "title": "Episodes, follow-up and clinical review",
+    "owner": "B",
+    "stage": "S3",
+    "dependencies": [
+      "E04",
+      "E05",
+      "E11"
+    ],
+    "requirements": [
+      "R18",
+      "R28"
+    ],
+    "entities": "Episode, FollowupTask, ClinicalReview",
+    "decisions": "Define reviewer authority, resolution reasons and due-time policy",
+    "stories": [
+      "E15-01",
+      "E15-02",
+      "E15-03"
+    ]
+  },
+  {
+    "epic_id": "E16",
+    "title": "Ground console and delayed handoff",
+    "owner": "A",
+    "stage": "S3",
+    "dependencies": [
+      "E02",
+      "E09",
+      "E15"
+    ],
+    "requirements": [
+      "R19",
+      "R26"
+    ],
+    "entities": "HandoffSnapshot, DeliveryAttempt, ReviewerReply",
+    "decisions": "Define local delay simulator, receipt semantics and transport envelope",
+    "stories": [
+      "E16-01",
+      "E16-02",
+      "E16-03"
+    ]
+  },
+  {
+    "epic_id": "E17",
+    "title": "Model integration and tool-use optimization",
+    "owner": "C",
+    "stage": "S4",
+    "dependencies": [
+      "E10",
+      "E12",
+      "E13"
+    ],
+    "requirements": [
+      "R23",
+      "R30"
+    ],
+    "entities": "ModelRelease, ConfigurationManifest, ExperimentRun",
+    "decisions": "Resolve original checkpoint/runtime compatibility, tool templates, context budgets and evaluation compute; no additional weight training",
+    "stories": [
+      "E17-01",
+      "E17-02",
+      "E17-03"
+    ]
+  },
+  {
+    "epic_id": "E18",
+    "title": "HealthBench and clinical evaluation",
+    "owner": "D",
+    "stage": "S0",
+    "dependencies": [
+      "E01"
+    ],
+    "requirements": [
+      "R22",
+      "R23",
+      "R30"
+    ],
+    "entities": "EvaluationManifest, Case, Rubric, Result",
+    "decisions": "Pin official harness, grader, isolation and sample strategy",
+    "stories": [
+      "E18-01",
+      "E18-02",
+      "E18-03"
+    ]
+  },
+  {
+    "epic_id": "E19",
+    "title": "Research and content workbench",
+    "owner": "B",
+    "stage": "S4",
+    "dependencies": [
+      "E10",
+      "E18"
+    ],
+    "requirements": [
+      "R13",
+      "R21",
+      "R27"
+    ],
+    "entities": "SourceReview, ClaimReview, DocumentationRelease",
+    "decisions": "Define editor/reviewer workflow and literature-update policy",
+    "stories": [
+      "E19-01",
+      "E19-02",
+      "E19-03"
+    ]
+  },
+  {
+    "epic_id": "E20",
+    "title": "Accessibility, resilience and packaging",
+    "owner": "D",
+    "stage": "S4",
+    "dependencies": [
+      "E03",
+      "E06",
+      "E08",
+      "E13",
+      "E14",
+      "E16"
+    ],
+    "requirements": [
+      "R24",
+      "R25",
+      "R26"
+    ],
+    "entities": "ReleaseManifest, RecoveryReport",
+    "decisions": "Decide packaging, local-network access, model scheduling and supported devices",
+    "stories": [
+      "E20-01",
+      "E20-02",
+      "E20-03",
+      "E20-04"
+    ]
+  },
+  {
+    "epic_id": "E21",
+    "title": "Integration, evidence and demonstration",
+    "owner": "D",
+    "stage": "S5",
+    "dependencies": [
+      "E07",
+      "E09",
+      "E15",
+      "E17",
+      "E18",
+      "E19",
+      "E20",
+      "E22",
+      "E23",
+      "E24",
+      "E25",
+      "E26"
+    ],
+    "requirements": [
+      "R22",
+      "R26",
+      "R27",
+      "R30"
+    ],
+    "entities": "CapabilityManifest, EvaluationReport, DemoRun",
+    "decisions": "Freeze truthful demo claims and actual source modes",
+    "stories": [
+      "E21-01",
+      "E21-02",
+      "E21-03"
+    ]
+  },
+  {
+    "epic_id": "E22",
+    "title": "Participation streak, patches and crew goal",
+    "owner": "D",
+    "stage": "S2",
+    "dependencies": [
+      "E01",
+      "E03"
+    ],
+    "requirements": [
+      "R31",
+      "R32",
+      "R33"
+    ],
+    "entities": "CheckCompletion, StreakView, CrewGoalView, PatchAward",
+    "decisions": "Fix the completion rule, mission-day boundary and clock-change policy, crew goal window and patch designs; keep the derivation free of values",
+    "stories": [
+      "E22-01",
+      "E22-02",
+      "E22-03"
+    ]
+  },
+  {
+    "epic_id": "E23",
+    "title": "Environment profile and habitat sensors",
+    "owner": "C",
+    "stage": "S2",
+    "dependencies": [
+      "E01",
+      "E05",
+      "E10"
+    ],
+    "requirements": [
+      "R34",
+      "R35",
+      "R41",
+      "R42",
+      "R43"
+    ],
+    "entities": "EnvironmentProfile, SensorReading, SensorLimit",
+    "decisions": "Freeze the environment and overlay vocabulary, the limit table built from ENVIRONMENTS.md, the sensor adapters and replay bindings, and each channel's expected reporting interval",
+    "stories": [
+      "E23-01",
+      "E23-02",
+      "E23-03",
+      "E23-04"
+    ]
+  },
+  {
+    "epic_id": "E24",
+    "title": "Warnings engine",
+    "owner": "B",
+    "stage": "S2",
+    "dependencies": [
+      "E01",
+      "E11",
+      "E23"
+    ],
+    "requirements": [
+      "R36",
+      "R40",
+      "R43"
+    ],
+    "entities": "Warning",
+    "decisions": "Freeze the four levels and their words, who may raise each, the clear conditions and reasons, the hold during sleep and walks, and the bounds on assistant insights",
+    "stories": [
+      "E24-01",
+      "E24-02",
+      "E24-03",
+      "E24-04"
+    ]
+  },
+  {
+    "epic_id": "E25",
+    "title": "Routine scheduler and task guidance",
+    "owner": "D",
+    "stage": "S2",
+    "dependencies": [
+      "E01",
+      "E03",
+      "E23",
+      "E24"
+    ],
+    "requirements": [
+      "R37",
+      "R38",
+      "R43"
+    ],
+    "entities": "RoutineTask, RoutineSchedule",
+    "decisions": "Freeze the cadence vocabulary, due windows, trigger rules with reason, source and end, the number of misses before asking, and the task guidance format; frequencies come from ROUTINE.md or the flight surgeon",
+    "stories": [
+      "E25-01",
+      "E25-02",
+      "E25-03",
+      "E25-04"
+    ]
+  },
+  {
+    "epic_id": "E26",
+    "title": "Someone needs help",
+    "owner": "B",
+    "stage": "S3",
+    "dependencies": [
+      "E03",
+      "E11",
+      "E13",
+      "E16",
+      "E24"
+    ],
+    "requirements": [
+      "R15",
+      "R39",
+      "R43"
+    ],
+    "entities": "HelpSession",
+    "decisions": "Freeze the responder flows and their review state, the who, responding and breathing checks, the help-session access grant, the crew broadcast and the ground message states; keep every fixed step free of the model",
+    "stories": [
+      "E26-01",
+      "E26-02",
+      "E26-03",
+      "E26-04"
+    ]
+  },
+  {
+    "epic_id": "E27",
+    "title": "Kit map: what this ship can test",
+    "owner": "B",
+    "stage": "S2",
+    "dependencies": [
+      "E01",
+      "E05",
+      "E10",
+      "E23"
+    ],
+    "requirements": [
+      "R07",
+      "R43",
+      "R44",
+      "R45",
+      "R46"
+    ],
+    "entities": "KitMap, KitMapView, KitCheck",
+    "decisions": "Freeze the kit map schema, the precedence rule that computes each condition's state, the kit per environment and the planning list; split the 119 rows among writers and second checkers; keep every state computed, never stored or typed",
+    "stories": [
+      "E27-01",
+      "E27-02",
+      "E27-03",
+      "E27-04",
+      "E27-05"
+    ]
+  },
+  {
+    "epic_id": "E28",
+    "title": "Onboard plans: no dead ends",
+    "owner": "B",
+    "stage": "S2",
+    "dependencies": [
+      "E10",
+      "E26",
+      "E27"
+    ],
+    "requirements": [
+      "R47",
+      "R50",
+      "R56",
+      "R57"
+    ],
+    "entities": "OnboardPlan, PlanView, PlanRun",
+    "decisions": "Freeze the plan schema and its stage order (check it another way, do now, watch, if it gets worse, the medical officer, return where the environment allows it, the log for the ground last and never blocking); the four modes (resolve here, talk a crewmate through it, stabilize and watch, prepare to return); the release validation that every kit map row has, in every environment, a plan with at least one step any crewmate can run with that kit; split the plan rows among writers and second checkers; keep medicine steps as \"as in the onboard procedure\" with no dose anywhere",
+    "stories": [
+      "E28-01",
+      "E28-02",
+      "E28-03",
+      "E28-04",
+      "E28-05",
+      "E28-06"
+    ]
+  },
+  {
+    "epic_id": "E29",
+    "title": "The ground as a reader",
+    "owner": "A",
+    "stage": "S2",
+    "dependencies": [
+      "E16",
+      "E23"
+    ],
+    "requirements": [
+      "R48",
+      "R49",
+      "R61",
+      "R62"
+    ],
+    "entities": "GroundLink, GroundMessage, Handoff",
+    "decisions": "Freeze the GroundLink fields (status up, delayed or down; one-way delay; next and last contact; gap kind; gap planned; source), the rule that nothing reads the link except the ground stage, the Habitat line and the ground-silence warning, the catch-up log with its leaves_at time, and the offline cache of plans and flows on every crew device",
+    "stories": [
+      "E29-01",
+      "E29-02",
+      "E29-03",
+      "E29-04",
+      "E29-05",
+      "E29-06"
+    ]
+  },
+  {
+    "epic_id": "E30",
+    "title": "Teach and check",
+    "owner": "C",
+    "stage": "S3",
+    "dependencies": [
+      "E06",
+      "E07",
+      "E28"
+    ],
+    "requirements": [
+      "R51",
+      "R52"
+    ],
+    "entities": "Skill, GuidedCheck, CoachingSample",
+    "decisions": "Freeze the skills catalog (teach steps with short and first-time text, landmarks, checks with sourced targets and tolerances with their basis, phrases); the GuidedCheck states and outcomes (agree, disagree, no reference); the rule that a guided check never confirms or excludes a condition and that disagreement writes no value; the experimental label on every camera check until the venue study",
+    "stories": [
+      "E30-01",
+      "E30-02",
+      "E30-03",
+      "E30-04",
+      "E30-05",
+      "E30-06"
+    ]
+  },
+  {
+    "epic_id": "E31",
+    "title": "Who helps",
+    "owner": "A",
+    "stage": "S3",
+    "dependencies": [
+      "E01",
+      "E22",
+      "E25",
+      "E26"
+    ],
+    "requirements": [
+      "R53",
+      "R54",
+      "R55"
+    ],
+    "entities": "SkillRecord, RoleAssignment, Drill",
+    "decisions": "Freeze SkillRecord and its computed freshness; the role rules (lead helper, second helper, kit fetcher, medical officer, communicator), eligibility (never the subject, nobody in a walk overlay for an on-site role) and the medical officer cascade; drills in the routine and practice patches that count completion only",
+    "stories": [
+      "E31-01",
+      "E31-02",
+      "E31-03",
+      "E31-04",
+      "E31-05"
+    ]
+  },
+  {
+    "epic_id": "E32",
+    "title": "Treat here: supplies and planning",
+    "owner": "A",
+    "stage": "S3",
+    "dependencies": [
+      "E27",
+      "E28"
+    ],
+    "requirements": [
+      "R57",
+      "R58",
+      "R59"
+    ],
+    "entities": "SupplyStock, SupplyUse, SupplyCoverView",
+    "decisions": "Freeze the supplies list and stock per environment in the kit map, uses written by plan steps, cover computed from stock and the plans' declared rate, the cover warning, and the planning what-if that adds supplies and training beside instruments and writes nothing",
+    "stories": [
+      "E32-01",
+      "E32-02",
+      "E32-03",
+      "E32-04",
+      "E32-05"
+    ]
+  },
+  {
+    "epic_id": "E33",
+    "title": "Stay or return",
+    "owner": "B",
+    "stage": "S4",
+    "dependencies": [
+      "E28"
+    ],
+    "requirements": [
+      "R60"
+    ],
+    "entities": "ReturnReadiness",
+    "decisions": "Freeze the return stage (Moon base only), its criteria held as [to be set by flight rules], NASA's modeled chance from each form's Table 4 shown as context, the trip from NASA's figure, and the rule that the app lists and the commander and the medical officer decide",
+    "stories": [
+      "E33-01",
+      "E33-02",
+      "E33-03"
+    ]
+  }
+]

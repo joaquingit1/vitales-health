@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E13 · Crew Health Check</title>
+<link rel="stylesheet" href="../design/reader.css">
+</head>
+<body>
+<header><a class="brand" href="../index.html"><span class="brand-mark"><svg viewBox="0 0 18 18" width="18" height="18" fill="none" aria-hidden="true"><path d="M13.6 3.4a7 7 0 1 1-9.2 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="2.6" r="1.5" fill="currentColor"/></svg></span><strong>Crew Health Check</strong></a><small>Planning package · NASA Space Apps Challenge 2026 · 14 and 15 November</small></header>
+<div class="wrap">
+<nav aria-label="Documents"><a href="../index.html">Reading guide</a><div class="group">Start here</div><a href="../PITCH.html">The pitch</a><a href="../KICKOFF.html">Kickoff</a><a href="../USE-CASES.html">Use cases</a><a href="../design/interaction-prototype.html">Prototype</a><div class="group">Build</div><a href="../PRD.html">Product requirements</a><a href="../UX-DESIGN.html">Interaction design</a><a href="../CONTRACTS.html">Data and API contracts</a><a href="../LLM-ARCHITECTURE.html">LLM architecture</a><a href="../VALIDATION.html">Validation</a><a href="../tdd/README.html">Epic briefs</a><div class="group">What the app knows</div><a href="../ENVIRONMENTS.html">Environments and hazards</a><a href="../ROUTINE.html">Mission routine</a><a href="../RESPONDER-FLOWS.html">Someone needs help</a><div class="group">Evidence</div><a href="../DEMO-CONDITIONS.html">Demo conditions</a><a href="../NASA-SOURCES.html">NASA documents and data</a><a href="../condition-browser.html">Condition browser</a><a href="../RESEARCH-ANNEX.html">Research annex</a><a href="../sources/recovered/research-library.html">Recovered source library</a><div class="group">Data</div><a href="../backlog.csv">Backlog (CSV)</a><a href="../input-dictionary.csv">Input dictionary (CSV)</a><a href="../environment-hazards.json">Hazards and limits (JSON)</a><a href="../routine-schedule.json">Routine schedule (JSON)</a><a href="../responder-flows.json">Help flows (JSON)</a><a href="../README.html">Package readme</a><a href="../PACKAGE-CHECKS.html">Package checks</a><div class="toc"><a class="h2" href="#product-contract">Product contract</a><a class="h2" href="#decisions-the-tdd-must-settle">Decisions the TDD must settle</a><a class="h2" href="#required-work-and-acceptance">Required work and acceptance</a><a class="h3" href="#e13-01-implement-bounded-evidence-seeking-loop">E13-01: Implement bounded evidence-seeking loop</a><a class="h3" href="#e13-02-implement-groundingcontradiction-verification">E13-02: Implement grounding/contradiction verification</a><a class="h3" href="#e13-03-implement-cancellation-and-degraded-mode">E13-03: Implement cancellation and degraded mode</a><a class="h2" href="#tdd-completion-checklist">TDD completion checklist</a><a class="h2" href="#handoff-to-implementation">Handoff to implementation</a></div></nav>
+<main>
+<h1 id="e13-local-reasoning-and-assessment">E13: Local reasoning and assessment</h1>
+<p><strong>Technical design document brief · All scope belongs to the hackathon</strong></p>
+<p>Owner stream: C. Dependency stage: S3. Depends on: E04 E11 E12.</p>
+<h2 id="product-contract">Product contract</h2>
+<p>Requirements: R16 R17 R28. Shared entities: AssessmentDraft, ModelRelease, Episode. Read <a href="../PRD.html">PRD</a>, <a href="../CONTRACTS.html">contracts</a>, <a href="../LLM-ARCHITECTURE.html">LLM architecture</a> and <a href="../VALIDATION.html">validation</a> before designing.</p>
+<h2 id="decisions-the-tdd-must-settle">Decisions the TDD must settle</h2>
+<p>Test candidate checkpoint/template/thinking/JSON compatibility. Record alternatives, the selected design, evidence, failure modes and migration/rollback impact. This is a design brief, not an assertion that the technical design is complete.</p>
+<h2 id="required-work-and-acceptance">Required work and acceptance</h2>
+<h3 id="e13-01-implement-bounded-evidence-seeking-loop">E13-01: Implement bounded evidence-seeking loop</h3>
+<p>Acceptance: Requests depend on actual results; unavailable result changes next step.</p>
+<h3 id="e13-02-implement-groundingcontradiction-verification">E13-02: Implement grounding/contradiction verification</h3>
+<p>Acceptance: Citations and observation IDs checked; unsupported conclusion withheld or qualified.</p>
+<h3 id="e13-03-implement-cancellation-and-degraded-mode">E13-03: Implement cancellation and degraded mode</h3>
+<p>Acceptance: Timeout leaves structured incomplete assessment; Someone needs help remains immediate.</p>
+<h2 id="tdd-completion-checklist">TDD completion checklist</h2>
+<p>Specify API payloads and errors; state transitions and invariants; persistence/index choices; authorization and consent checks; unit/time/provenance handling; concurrency, idempotency and cancellation; resource limits and degradation; observability without private-content leakage; fixture IDs and acceptance evidence; dependencies and integration examples. Include a sequence diagram for the principal success path and a failure path. Name unresolved clinical or equipment assumptions explicitly.</p>
+<h2 id="handoff-to-implementation">Handoff to implementation</h2>
+<p>Produce the technical design document, concrete contract examples, implementation task breakdown and meaningful tests. Use the frozen shared contracts; propose changes through an explicit decision record. Mark evidence as planned until tests actually run. No feature is removed solely because the team has four developers.</p>
+
+</main>
+</div>
+</body>
+</html>

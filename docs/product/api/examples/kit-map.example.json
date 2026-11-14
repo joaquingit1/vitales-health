@@ -1,0 +1,616 @@
+{
+  "version": "kit-map-example-1",
+  "example": true,
+  "notice": "Unreviewed draft: needs clinician review before live guidance.",
+  "instruments": [
+    {
+      "id": "camera_station",
+      "name": "camera station",
+      "capability_codes": [
+        "pulse",
+        "respiratory_rate"
+      ],
+      "method": "camera_estimate"
+    },
+    {
+      "id": "pulse_oximeter",
+      "name": "pulse oximeter",
+      "capability_codes": [
+        "spo2",
+        "pulse"
+      ]
+    },
+    {
+      "id": "bp_cuff",
+      "name": "blood pressure cuff",
+      "needs_text": "a blood pressure cuff",
+      "capability_codes": [
+        "blood_pressure"
+      ]
+    },
+    {
+      "id": "thermometer",
+      "name": "thermometer",
+      "needs_text": "a thermometer",
+      "capability_codes": [
+        "temperature"
+      ]
+    },
+    {
+      "id": "wrist_band",
+      "name": "wrist band",
+      "needs_text": "a wrist band",
+      "capability_codes": [
+        "sleep_duration",
+        "activity"
+      ],
+      "method": "device"
+    },
+    {
+      "id": "ecg_single_lead",
+      "name": "single-lead ECG",
+      "needs_text": "an ECG",
+      "capability_codes": [
+        "ecg_rhythm"
+      ]
+    },
+    {
+      "id": "ecg_12_lead",
+      "name": "12-lead ECG",
+      "needs_text": "a 12-lead ECG",
+      "capability_codes": [
+        "ecg_12_lead"
+      ]
+    },
+    {
+      "id": "troponin_poc",
+      "name": "point-of-care troponin",
+      "needs_text": "a troponin test",
+      "capability_codes": [
+        "troponin"
+      ]
+    },
+    {
+      "id": "ultrasound",
+      "name": "ultrasound, including ocular",
+      "needs_text": "an ultrasound",
+      "capability_codes": [
+        "ultrasound_imaging",
+        "ocular_ultrasound"
+      ]
+    },
+    {
+      "id": "fundoscope",
+      "name": "fundoscope",
+      "needs_text": "a fundoscope",
+      "capability_codes": [
+        "fundoscopy"
+      ]
+    },
+    {
+      "id": "oct",
+      "name": "OCT",
+      "needs_text": "an OCT",
+      "capability_codes": [
+        "optical_coherence_tomography"
+      ]
+    },
+    {
+      "id": "personal_co2_monitor",
+      "name": "personal CO2 monitor",
+      "needs_text": "a personal CO2 monitor",
+      "capability_codes": [
+        "personal_co2"
+      ]
+    }
+  ],
+  "capabilities": [
+    {
+      "code": "pulse",
+      "label": "Pulse",
+      "body_region": "heart",
+      "operator_requirement": "self",
+      "expected_duration_seconds": 30,
+      "basis": "team default"
+    },
+    {
+      "code": "respiratory_rate",
+      "label": "Breathing rate",
+      "body_region": "lungs",
+      "operator_requirement": "self",
+      "expected_duration_seconds": 30,
+      "basis": "team default"
+    },
+    {
+      "code": "spo2",
+      "label": "Blood oxygen",
+      "body_region": "hand",
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    },
+    {
+      "code": "blood_pressure",
+      "label": "Blood pressure",
+      "body_region": "shoulder",
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    },
+    {
+      "code": "temperature",
+      "label": "Temperature",
+      "body_region": null,
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    },
+    {
+      "code": "sleep_duration",
+      "label": "Sleep",
+      "body_region": "wrist",
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    },
+    {
+      "code": "activity",
+      "label": "Activity",
+      "body_region": "legs",
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    },
+    {
+      "code": "ecg_rhythm",
+      "label": "Heart rhythm (ECG)",
+      "body_region": "heart",
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    },
+    {
+      "code": "ecg_12_lead",
+      "label": "12-lead ECG",
+      "body_region": "heart",
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    },
+    {
+      "code": "troponin",
+      "label": "Troponin",
+      "body_region": null,
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    },
+    {
+      "code": "ultrasound_imaging",
+      "label": "Ultrasound",
+      "body_region": null,
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    },
+    {
+      "code": "ocular_ultrasound",
+      "label": "Ocular ultrasound",
+      "body_region": "eyes",
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    },
+    {
+      "code": "fundoscopy",
+      "label": "Fundoscopy",
+      "body_region": "eyes",
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    },
+    {
+      "code": "optical_coherence_tomography",
+      "label": "OCT",
+      "body_region": "eyes",
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    },
+    {
+      "code": "personal_co2",
+      "label": "Personal CO2",
+      "body_region": null,
+      "operator_requirement": "self",
+      "expected_duration_seconds": null,
+      "basis": "team default"
+    }
+  ],
+  "kits": {
+    "station_leo": [
+      "camera_station",
+      "pulse_oximeter",
+      "bp_cuff",
+      "thermometer",
+      "wrist_band"
+    ],
+    "transit": [
+      "camera_station",
+      "pulse_oximeter",
+      "bp_cuff",
+      "thermometer",
+      "wrist_band"
+    ],
+    "lunar_surface": [
+      "camera_station",
+      "pulse_oximeter",
+      "bp_cuff",
+      "thermometer",
+      "wrist_band"
+    ],
+    "mars_surface": [
+      "camera_station",
+      "pulse_oximeter",
+      "bp_cuff",
+      "thermometer",
+      "wrist_band",
+      "ultrasound"
+    ]
+  },
+  "candidates": [
+    "ecg_single_lead",
+    "ultrasound",
+    "troponin_poc",
+    "personal_co2_monitor"
+  ],
+  "candidate_supplies": [
+    "eye_shield",
+    "cpr_manikin"
+  ],
+  "candidate_skills": [
+    "pulse_check_wrist",
+    "cpr"
+  ],
+  "supplies": [
+    {
+      "supply_id": "eye_rinse_water",
+      "name": "Clean water for an eye rinse",
+      "unit": "rinse",
+      "consumable": true
+    },
+    {
+      "supply_id": "eye_wash_set",
+      "name": "Eye wash set",
+      "unit": "set",
+      "consumable": false
+    },
+    {
+      "supply_id": "towels",
+      "name": "Towels",
+      "unit": "towel",
+      "consumable": true
+    },
+    {
+      "supply_id": "eye_shield",
+      "name": "Rigid eye shield",
+      "unit": "shield",
+      "consumable": true
+    },
+    {
+      "supply_id": "dressings",
+      "name": "Dressings",
+      "unit": "dressing",
+      "consumable": true
+    },
+    {
+      "supply_id": "cpr_manikin",
+      "name": "CPR practice manikin",
+      "unit": "manikin",
+      "consumable": false
+    }
+  ],
+  "stock": {
+    "station_leo": [
+      {
+        "supply_id": "eye_wash_set",
+        "quantity": 1,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "eye_rinse_water",
+        "quantity": 6,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "towels",
+        "quantity": 20,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "dressings",
+        "quantity": 20,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "cpr_manikin",
+        "quantity": 1,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      }
+    ],
+    "transit": [
+      {
+        "supply_id": "eye_wash_set",
+        "quantity": 1,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "eye_rinse_water",
+        "quantity": 6,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "towels",
+        "quantity": 20,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "dressings",
+        "quantity": 20,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      }
+    ],
+    "lunar_surface": [
+      {
+        "supply_id": "eye_wash_set",
+        "quantity": 1,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "eye_rinse_water",
+        "quantity": 6,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "towels",
+        "quantity": 20,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "dressings",
+        "quantity": 20,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      }
+    ],
+    "mars_surface": [
+      {
+        "supply_id": "eye_wash_set",
+        "quantity": 1,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "eye_rinse_water",
+        "quantity": 6,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "towels",
+        "quantity": 20,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      {
+        "supply_id": "dressings",
+        "quantity": 20,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      }
+    ]
+  },
+  "conditions": [
+    {
+      "condition_id": "ICL10",
+      "name": "Atrial fibrillation or flutter",
+      "body_regions": [
+        "heart",
+        "head",
+        "hand",
+        "wrist"
+      ],
+      "confirming_tests": [
+        {
+          "name": "Single-lead or 12-lead ECG",
+          "instruments": [
+            "ecg_single_lead"
+          ]
+        },
+        {
+          "name": "12-lead ECG",
+          "instruments": [
+            "ecg_12_lead"
+          ]
+        }
+      ],
+      "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/atrial-fibrillation-atrial-flutter-cliff-2023.pdf",
+      "plan_id": "plan_icl10",
+      "ground_needs": null,
+      "treatment_scope": null,
+      "rtdc": null,
+      "review_state": "unreviewed",
+      "written_by": null,
+      "checked_by": null
+    },
+    {
+      "condition_id": "ICL3",
+      "name": "Acute coronary syndrome",
+      "body_regions": [
+        "heart",
+        "lungs",
+        "neck",
+        "shoulder",
+        "back",
+        "abdomen"
+      ],
+      "confirming_tests": [
+        {
+          "name": "12-lead ECG and troponin",
+          "instruments": [
+            "ecg_12_lead",
+            "troponin_poc"
+          ]
+        }
+      ],
+      "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/acute-coronary-syndrome-cliff-2023.pdf",
+      "plan_id": "plan_icl3",
+      "ground_needs": null,
+      "treatment_scope": null,
+      "rtdc": null,
+      "review_state": "unreviewed",
+      "written_by": null,
+      "checked_by": null
+    },
+    {
+      "condition_id": "ICL14",
+      "name": "Anxiety",
+      "body_regions": [
+        "head",
+        "heart",
+        "lungs",
+        "hand"
+      ],
+      "confirming_tests": [
+        {
+          "name": "Clinical interview and physical examination",
+          "instruments": []
+        }
+      ],
+      "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-anxiety-cliff-2023.pdf",
+      "plan_id": "plan_icl14",
+      "ground_needs": null,
+      "treatment_scope": null,
+      "rtdc": null,
+      "review_state": "unreviewed",
+      "written_by": null,
+      "checked_by": null
+    },
+    {
+      "condition_id": "ICL95",
+      "name": "Insomnia (space adaptation)",
+      "body_regions": [
+        "head",
+        "wrist"
+      ],
+      "confirming_tests": [
+        {
+          "name": "Sleep history and sleep diary",
+          "instruments": []
+        }
+      ],
+      "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-insomnia-cliff-2023.pdf",
+      "plan_id": "plan_icl95",
+      "ground_needs": null,
+      "treatment_scope": null,
+      "rtdc": null,
+      "review_state": "unreviewed",
+      "written_by": null,
+      "checked_by": null
+    },
+    {
+      "condition_id": "ICL18",
+      "name": "Sleep disturbance",
+      "body_regions": [
+        "eyes",
+        "head",
+        "wrist"
+      ],
+      "confirming_tests": [
+        {
+          "name": "Sleep history and behavioral health interview",
+          "instruments": []
+        }
+      ],
+      "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-sleep-disturbance-cliff-2023.pdf",
+      "plan_id": "plan_icl18",
+      "ground_needs": null,
+      "treatment_scope": null,
+      "rtdc": null,
+      "review_state": "unreviewed",
+      "written_by": null,
+      "checked_by": null
+    },
+    {
+      "condition_id": "ICL64",
+      "name": "Headache, CO2 induced",
+      "body_regions": [
+        "head",
+        "lungs"
+      ],
+      "confirming_tests": [
+        {
+          "name": "CO2 measured where the person was, and a clinical examination",
+          "instruments": [
+            "personal_co2_monitor"
+          ]
+        }
+      ],
+      "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/headache-co2-induced-cliff-2023.pdf",
+      "plan_id": "plan_icl64",
+      "ground_needs": null,
+      "treatment_scope": null,
+      "rtdc": null,
+      "review_state": "unreviewed",
+      "written_by": null,
+      "checked_by": null
+    },
+    {
+      "condition_id": "ICL100",
+      "name": "Spaceflight associated neuro-ocular syndrome (SANS)",
+      "body_regions": [
+        "eyes",
+        "head"
+      ],
+      "confirming_tests": [
+        {
+          "name": "Fundoscopy",
+          "instruments": [
+            "fundoscope"
+          ]
+        },
+        {
+          "name": "OCT",
+          "instruments": [
+            "oct"
+          ]
+        },
+        {
+          "name": "Ocular ultrasound",
+          "instruments": [
+            "ultrasound"
+          ]
+        }
+      ],
+      "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-flight-associated-neuro-ocular-syndrome-sans-cliff-2023.pdf",
+      "plan_id": "plan_icl100",
+      "ground_needs": null,
+      "treatment_scope": null,
+      "rtdc": null,
+      "review_state": "unreviewed",
+      "written_by": null,
+      "checked_by": null
+    }
+  ]
+}

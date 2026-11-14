@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "capability.schema.json",
+  "title": "Capability",
+  "description": "One measurement capability and whether it is available now (CONTRACTS section 2).",
+  "type": "object",
+  "properties": {
+    "code": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "methods": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/acquisition_method"
+      },
+      "minItems": 1
+    },
+    "device_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "instrument_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "description": "kit-map.json instruments aboard in the active environment that provide this capability.",
+      "uniqueItems": true
+    },
+    "missing_instrument_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "description": "Instruments in kit-map.json that would provide it but are not aboard.",
+      "uniqueItems": true
+    },
+    "operator_requirement": {
+      "enum": [
+        "self",
+        "crewmate",
+        "crew_medical_officer"
+      ],
+      "description": "Who on board takes the measurement. No capability needs the ground."
+    },
+    "applicable_environments": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/environment_id"
+      },
+      "uniqueItems": true
+    },
+    "status": {
+      "enum": [
+        "available",
+        "unavailable",
+        "not_applicable"
+      ]
+    },
+    "unavailable_reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "not_in_kit",
+            "device_absent",
+            "operator_absent",
+            "context_inapplicable",
+            "adapter_down"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "expected_duration_seconds": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "body_region": {
+      "$ref": "common.schema.json#/$defs/body_region_or_null"
+    }
+  },
+  "required": [
+    "code",
+    "label",
+    "methods",
+    "device_ids",
+    "instrument_ids",
+    "missing_instrument_ids",
+    "operator_requirement",
+    "applicable_environments",
+    "status",
+    "unavailable_reason",
+    "expected_duration_seconds",
+    "body_region"
+  ],
+  "additionalProperties": false
+}

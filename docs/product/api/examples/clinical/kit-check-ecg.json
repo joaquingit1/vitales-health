@@ -1,0 +1,21 @@
+{
+  "summary": "SIM kit_check for ecg_rhythm on the station",
+  "description": "The kit gate result for ecg_rhythm with condition ICL10. Illustrative only: not seed data.",
+  "x-schema": "kit-check.schema.json",
+  "value": {
+    "can": false,
+    "instrument_ids": [],
+    "missing_instrument_ids": [
+      "ecg_single_lead"
+    ],
+    "condition_ids": [
+      "ICL10"
+    ],
+    "cliff_urls": [
+      "https://www.nasa.gov/wp-content/uploads/2026/08/atrial-fibrillation-atrial-flutter-cliff-2023.pdf"
+    ],
+    "text": "This kit can't: needs an ECG",
+    "kit_map_version": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b",
+    "environment_id": "lunar_surface"
+  }
+}

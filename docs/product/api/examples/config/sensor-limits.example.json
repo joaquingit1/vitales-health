@@ -1,0 +1,617 @@
+{
+  "summary": "EXAMPLE CONFIG sensor-limits.json",
+  "description": "Machine readable limits. Every value and source is copied from environment-hazards.json; dust averaging windows and every clear dwell are team defaults.",
+  "x-schema": "config-sensor-limits.schema.json",
+  "value": {
+    "notice": "Unreviewed draft: needs clinician review before live guidance.",
+    "limits": [
+      {
+        "limit_id": "co2_1h_act",
+        "sensor_type_id": "co2",
+        "hazard_level": {
+          "hazard_id": "co2",
+          "index": 2,
+          "level": "act",
+          "value": 3,
+          "unit": "mmHg",
+          "window": "1-hour average"
+        },
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "act",
+        "comparator": "above",
+        "value": 3,
+        "value_from": "level_value",
+        "unit": "mmHg",
+        "aggregation_id": "mean_1h",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_below",
+          "value": 3,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "limit 3 mmHg",
+        "card_mark": true,
+        "status": "active",
+        "source_ids": [
+          "EV01"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "co2_7d_watch",
+        "sensor_type_id": "co2",
+        "hazard_level": {
+          "hazard_id": "co2",
+          "index": 1,
+          "level": "watch",
+          "value": 2.5,
+          "unit": "mmHg",
+          "window": "7-day average"
+        },
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "watch",
+        "comparator": "at_or_above",
+        "value": 2.5,
+        "value_from": "level_value",
+        "unit": "mmHg",
+        "aggregation_id": "mean_7d",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "below",
+          "value": 2.5,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "seven-day 2.5 mmHg",
+        "card_mark": false,
+        "status": "active",
+        "source_ids": [
+          "C25"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "o2_low_watch",
+        "sensor_type_id": "o2",
+        "hazard_level": {
+          "hazard_id": "oxygen",
+          "index": 1,
+          "level": "watch",
+          "value": 145,
+          "unit": "mmHg",
+          "window": "continuous"
+        },
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "watch",
+        "comparator": "below",
+        "value": 145,
+        "value_from": "level_value",
+        "unit": "mmHg",
+        "aggregation_id": "latest",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_above",
+          "value": 145,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "low 145 mmHg",
+        "card_mark": false,
+        "status": "active",
+        "source_ids": [
+          "EV01"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "o2_low_act",
+        "sensor_type_id": "o2",
+        "hazard_level": {
+          "hazard_id": "oxygen",
+          "index": 3,
+          "level": "act",
+          "value": 127,
+          "unit": "mmHg",
+          "window": "1-hour time-weighted average"
+        },
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "act",
+        "comparator": "below",
+        "value": 127,
+        "value_from": "level_value",
+        "unit": "mmHg",
+        "aggregation_id": "twa_1h",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_above",
+          "value": 127,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "low limit 127 mmHg",
+        "card_mark": true,
+        "status": "active",
+        "source_ids": [
+          "EV01"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "o2_low_emergency",
+        "sensor_type_id": "o2",
+        "hazard_level": {
+          "hazard_id": "oxygen",
+          "index": 5,
+          "level": "emergency",
+          "value": 122,
+          "unit": "mmHg",
+          "window": "any moment (absolute lower limit)"
+        },
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "emergency",
+        "comparator": "below",
+        "value": 122,
+        "value_from": "level_value",
+        "unit": "mmHg",
+        "aggregation_id": "latest",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_above",
+          "value": 122,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "low 122 mmHg",
+        "card_mark": false,
+        "status": "active",
+        "source_ids": [
+          "EV01",
+          "EV06"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "o2_high_act",
+        "sensor_type_id": "o2",
+        "hazard_level": {
+          "hazard_id": "oxygen",
+          "index": 4,
+          "level": "act",
+          "value": 356,
+          "unit": "mmHg",
+          "window": "continuous"
+        },
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "act",
+        "comparator": "above",
+        "value": 356,
+        "value_from": "level_value",
+        "unit": "mmHg",
+        "aggregation_id": "latest",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_below",
+          "value": 356,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "high 356 mmHg",
+        "card_mark": false,
+        "status": "active",
+        "source_ids": [
+          "EV01"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "noise_24h_act",
+        "sensor_type_id": "noise",
+        "hazard_level": {
+          "hazard_id": "noise",
+          "index": 2,
+          "level": "act",
+          "value": 70,
+          "unit": "dBA",
+          "window": "24 hours"
+        },
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "act",
+        "comparator": "above",
+        "value": 70,
+        "value_from": "level_value",
+        "unit": "dBA",
+        "aggregation_id": "leq_24h",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_below",
+          "value": 70,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "limit 70 dBA",
+        "card_mark": true,
+        "status": "active",
+        "source_ids": [
+          "EV01"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "noise_peak_emergency",
+        "sensor_type_id": "noise",
+        "hazard_level": {
+          "hazard_id": "noise",
+          "index": 3,
+          "level": "emergency",
+          "value": 115,
+          "unit": "dBA",
+          "window": "any moment"
+        },
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "emergency",
+        "comparator": "above",
+        "value": 115,
+        "value_from": "level_value",
+        "unit": "dBA",
+        "aggregation_id": "latest",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_below",
+          "value": 115,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "peak 115 dBA",
+        "card_mark": false,
+        "status": "active",
+        "source_ids": [
+          "EV01"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "air_index_info",
+        "sensor_type_id": "air",
+        "hazard_level": {
+          "hazard_id": "toxic_vocs",
+          "index": 0,
+          "level": "info",
+          "value": 1,
+          "unit": "toxicity index (unitless)",
+          "window": "SMAC duration matching the mission"
+        },
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "role": "display_only",
+        "level": "info",
+        "comparator": "below",
+        "value": 1,
+        "value_from": "level_value",
+        "unit": "index",
+        "aggregation_id": "latest",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_above",
+          "value": 1,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "limit 1",
+        "card_mark": true,
+        "status": "active",
+        "source_ids": [
+          "EV03"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "air_index_watch",
+        "sensor_type_id": "air",
+        "hazard_level": {
+          "hazard_id": "toxic_vocs",
+          "index": 1,
+          "level": "watch",
+          "value": 0.1,
+          "unit": "ppm",
+          "window": "ceiling value (7 to 1000 days)"
+        },
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "watch",
+        "comparator": "at_or_above",
+        "value": 1,
+        "value_from": "rule_text",
+        "unit": "index",
+        "aggregation_id": "latest",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "below",
+          "value": 1,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "index 1",
+        "card_mark": false,
+        "status": "active",
+        "source_ids": [
+          "EV24"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "dust_lunar_act",
+        "sensor_type_id": "dust",
+        "hazard_level": {
+          "hazard_id": "dust",
+          "index": 2,
+          "level": "act",
+          "value": 0.3,
+          "unit": "mg/m3",
+          "window": "time-weighted average; intermittent daily exposure up to 6 months"
+        },
+        "environments": [
+          "lunar_surface"
+        ],
+        "role": "warning",
+        "level": "act",
+        "comparator": "above",
+        "value": 0.3,
+        "value_from": "level_value",
+        "unit": "mg/m3",
+        "aggregation_id": "twa_24h",
+        "window_basis": "team default",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_below",
+          "value": 0.3,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "limit 0.3 mg/m³",
+        "card_mark": true,
+        "status": "active",
+        "source_ids": [
+          "EV01"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "dust_mars_act",
+        "sensor_type_id": "dust",
+        "hazard_level": {
+          "hazard_id": "dust",
+          "index": 3,
+          "level": "act",
+          "value": 0.1,
+          "unit": "mg/m3",
+          "window": "time-weighted average; up to 30 days"
+        },
+        "environments": [
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "act",
+        "comparator": "above",
+        "value": 0.1,
+        "value_from": "level_value",
+        "unit": "mg/m3",
+        "aggregation_id": "twa_24h",
+        "window_basis": "team default",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_below",
+          "value": 0.1,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "limit 0.1 mg/m³",
+        "card_mark": true,
+        "status": "active",
+        "source_ids": [
+          "EV01"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "dust_mars_peak_emergency",
+        "sensor_type_id": "dust",
+        "hazard_level": {
+          "hazard_id": "dust",
+          "index": 4,
+          "level": "emergency",
+          "value": 10,
+          "unit": "mg/m3",
+          "window": "instantaneous peak"
+        },
+        "environments": [
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "emergency",
+        "comparator": "above",
+        "value": 10,
+        "value_from": "level_value",
+        "unit": "mg/m3",
+        "aggregation_id": "latest",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_below",
+          "value": 10,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "peak 10 mg/m³",
+        "card_mark": false,
+        "status": "active",
+        "source_ids": [
+          "EV01"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "rad_rate_watch",
+        "sensor_type_id": "rad",
+        "hazard_level": {
+          "hazard_id": "radiation",
+          "index": 1,
+          "level": "watch",
+          "value": null,
+          "unit": "µGy per hour",
+          "window": "continuous"
+        },
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "watch",
+        "comparator": "above",
+        "value": null,
+        "value_from": "pending",
+        "unit": "µGy/h",
+        "aggregation_id": "latest",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_below",
+          "value": null,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "set by the program",
+        "card_mark": false,
+        "status": "threshold_pending",
+        "source_ids": [
+          "EV01"
+        ],
+        "basis": "sourced"
+      },
+      {
+        "limit_id": "rad_rate_act",
+        "sensor_type_id": "rad",
+        "hazard_level": {
+          "hazard_id": "radiation",
+          "index": 2,
+          "level": "act",
+          "value": null,
+          "unit": "µGy per hour",
+          "window": "continuous"
+        },
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "role": "warning",
+        "level": "act",
+        "comparator": "above",
+        "value": null,
+        "value_from": "pending",
+        "unit": "µGy/h",
+        "aggregation_id": "latest",
+        "window_basis": "sourced",
+        "min_coverage": 0.75,
+        "coverage_basis": "team default",
+        "clear": {
+          "comparator": "at_or_below",
+          "value": null,
+          "dwell_seconds": 600,
+          "basis": "team default"
+        },
+        "label": "set by the program",
+        "card_mark": false,
+        "status": "threshold_pending",
+        "source_ids": [
+          "EV01"
+        ],
+        "basis": "sourced"
+      }
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "journal-entry.schema.json",
+  "title": "JournalEntry",
+  "description": "A private journal entry. Readable only by its author; never in prompts, indexes, exports, events to others or the ground console.",
+  "type": "object",
+  "properties": {
+    "entry_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "person_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "private": {
+      "const": true
+    }
+  },
+  "required": [
+    "entry_id",
+    "person_id",
+    "created_at",
+    "text",
+    "private"
+  ],
+  "additionalProperties": false
+}

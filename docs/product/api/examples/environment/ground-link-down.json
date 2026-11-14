@@ -1,0 +1,19 @@
+{
+  "summary": "SIM POST /v1/demo/ground-link",
+  "description": "Demo only: the operator flipped the link down on the transit until 11:00, as an unplanned relay outage. Ground messages and handoffs wait in the queue; nothing on board waits for them and nothing else changes. Illustrative only: not seed data.",
+  "x-schema": "ground-link.schema.json",
+  "value": {
+    "status": "down",
+    "one_way_delay_s": 300,
+    "next_contact_at": "2026-11-13T11:00:00Z",
+    "last_contact_at": null,
+    "source": "demo_switch",
+    "environment_id": "transit",
+    "delay_text": "Grows with distance from Earth. Up to 20 minutes one way near Mars.",
+    "delay_source_ids": [
+      "EV25"
+    ],
+    "gap_kind": "relay_outage",
+    "gap_planned": false
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "supply-cover-view.schema.json",
+  "title": "SupplyCoverView",
+  "description": "GET /v1/supplies: every supply of kit-map.json in the active environment with its cover, computed from stock, uses and the plans' declared per-use amounts (CONTRACTS section 25).",
+  "type": "object",
+  "properties": {
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "supplies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stock": {
+            "$ref": "supply-stock.schema.json"
+          },
+          "used_by": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "plan_id": {
+                  "type": "string",
+                  "description": "An onboard-plans.json plan ID.",
+                  "pattern": "^plan_[a-z0-9_]{1,59}$"
+                },
+                "step_id": {
+                  "$ref": "common.schema.json#/$defs/config_id"
+                },
+                "per_use": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "plan_id",
+                "step_id",
+                "per_use"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "cover_uses": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "description": "floor(quantity_now / the largest declared per_use) over the steps that use it. null when either is not set or the supply is not consumable."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cover_text": {
+            "type": "string",
+            "description": "ui-copy supply_words cover, cover_unknown, not_used or not_aboard.",
+            "minLength": 1
+          },
+          "low": {
+            "type": "boolean",
+            "description": "True when the supply_cover_low rule's threshold is set and cover_uses is below it."
+          }
+        },
+        "required": [
+          "stock",
+          "used_by",
+          "cover_uses",
+          "cover_text",
+          "low"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "environment_id",
+    "supplies",
+    "as_of"
+  ],
+  "additionalProperties": false
+}

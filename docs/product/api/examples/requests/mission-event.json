@@ -1,0 +1,15 @@
+{
+  "summary": "SIM request POST /v1/mission-events",
+  "description": "Record the end of the walk. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/MissionEventCreate",
+  "value": {
+    "event_type": "eva_ended",
+    "occurred_at": "2026-11-13T11:40:00Z",
+    "person_ids": [
+      "ilya",
+      "sofia"
+    ],
+    "location": "airlock",
+    "origin_mode": "SIM"
+  }
+}

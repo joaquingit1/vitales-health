@@ -1,0 +1,24 @@
+{
+  "summary": "SIM POST /v1/mission-events",
+  "description": "Surface walk 1 ended at 11:40 for Ilya Brandt and Sofia Reyes. It ends their eva overlays, starts post_eva for them and fires the after-walk bindings for them only. Illustrative only: not seed data.",
+  "x-schema": "mission-event.schema.json",
+  "value": {
+    "event_id": "evt_eva_end_1",
+    "event_type": "eva_ended",
+    "occurred_at": "2026-11-13T11:40:00Z",
+    "recorded_at": "2026-11-13T11:40:05Z",
+    "recorded_by": {
+      "kind": "person",
+      "id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "origin_mode": "SIM",
+    "environment_id": "lunar_surface",
+    "person_ids": [
+      "ilya",
+      "sofia"
+    ],
+    "location": "airlock",
+    "note": null
+  }
+}

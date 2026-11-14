@@ -1,0 +1,10 @@
+{
+  "source_url": "https://visualization.osdr.nasa.gov/radlab/api/?spacecraft=ISS&instrument=DosTel&timestamp%3E=2022-04-01T23%3A00&timestamp%3C2022-04-02T01%3A05&absorbed_dose_rate&module&instrument_family&format=csv",
+  "documentation": "https://visualization.osdr.nasa.gov/radlab/gui/data-api/",
+  "retrieved_at_utc": "2026-11-14T02:51:57.523759+00:00",
+  "bytes": 14412,
+  "sha256": "67b2faab53ad1427f34e75933113c09f6a0542cc07334bbe1033ed9562eb9631",
+  "provenance": "REPLAY; instrument environmental dose rate, not individual effective dose or diagnosis",
+  "preprocessing": "None; downloaded CSV response as supplied",
+  "absorbed_dose_rate_units": "microgray/hour per API documentation"
+}

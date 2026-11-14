@@ -1,0 +1,21 @@
+{
+  "summary": "SIM SSE chunk message.completed",
+  "description": "One data payload on the conversation stream. Illustrative only: not seed data.",
+  "x-schema": "assistant-stream-chunk.schema.json",
+  "value": {
+    "type": "message.completed",
+    "message": {
+      "message_id": "msg_6",
+      "conversation_id": "cnv_help_lunar_1",
+      "turn_id": "trn_4",
+      "role": "assistant",
+      "created_at": "2026-11-13T12:06:00Z",
+      "text": "Keep rinsing. Can Tomas see as well as before with that eye?",
+      "action": null,
+      "status": "complete",
+      "error_code": null,
+      "evidence": [],
+      "limitations": []
+    }
+  }
+}

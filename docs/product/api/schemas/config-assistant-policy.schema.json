@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-assistant-policy.schema.json",
+  "title": "assistant-policy.json",
+  "description": "Limits on the assistant: levels it may raise, insight topics, loop budgets and timeouts. The levels rule is fixed by CONTRACTS section 14 and cannot be widened here.",
+  "type": "object",
+  "properties": {
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review before live guidance.",
+      "minLength": 1
+    },
+    "allowed_warning_levels": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "info",
+          "watch"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "max_iterations": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "max_schema_repairs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "turn_timeout_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "first_token_timeout_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "tool_timeout_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "timeouts_basis": {
+      "$ref": "common.schema.json#/$defs/basis"
+    },
+    "insight_topics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "title_hint": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_codes": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/config_id"
+            },
+            "minItems": 1
+          },
+          "warning_definition_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          },
+          "source_ids": {
+            "$ref": "common.schema.json#/$defs/source_ids"
+          }
+        },
+        "required": [
+          "id",
+          "title_hint",
+          "evidence_codes",
+          "warning_definition_id",
+          "body_region",
+          "source_ids"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "forbidden_output": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "rule": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "rule"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "notice",
+    "allowed_warning_levels",
+    "max_iterations",
+    "max_schema_repairs",
+    "turn_timeout_seconds",
+    "first_token_timeout_seconds",
+    "tool_timeout_seconds",
+    "timeouts_basis",
+    "insight_topics",
+    "forbidden_output"
+  ],
+  "additionalProperties": false
+}

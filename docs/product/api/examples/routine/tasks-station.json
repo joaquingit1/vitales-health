@@ -1,0 +1,1000 @@
+{
+  "summary": "SIM GET /v1/routine/tasks",
+  "description": "Every routine item resolved for the station, with base and effective cadence and which triggers run automatically. Illustrative only: not seed data.",
+  "x-schema": "list:routine-task.schema.json",
+  "value": {
+    "items": [
+      {
+        "item_id": "daily_check",
+        "name": "Daily check: symptoms, sleep and mood",
+        "plain": "Answer three short questions each day: anything new in your body, how you slept, and how your mood is.",
+        "why": "Small changes are easiest to catch early, and astronauts often sleep less than they need. Your own answers, day after day, build the baseline that every other reading is compared with.",
+        "who": [
+          "self"
+        ],
+        "instrument": "The app; the wrist band offers a sleep estimate that you confirm or correct",
+        "minutes": 3,
+        "steps": [
+          "Open Today and tap Daily check.",
+          "Symptoms: tap the body area if something is new or worse. If nothing is new, tap Nothing new.",
+          "Sleep: look at the wrist band estimate. Keep it if it is right, or change it. Your correction is saved next to the band's number, which is never erased.",
+          "Mood: move the slider to how you feel right now. There is no right answer.",
+          "If anything feels urgent, press Someone needs help instead of finishing the check.",
+          "The check is done when these three questions are answered. Other readings are optional."
+        ],
+        "body_region": null,
+        "environment_id": "station_leo",
+        "base_cadence": {
+          "word": "daily",
+          "n": null
+        },
+        "effective_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "CO2 alert",
+          "note": "add a headache and vision question at the next check and again 2 hours later"
+        },
+        "cadence_text": "Add a headache and vision question at the next check and again 2 hours later",
+        "basis": "team default",
+        "triggers": [
+          {
+            "index": 0,
+            "trigger_text": "You report a new or worse symptom",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "daily",
+              "n": null,
+              "note": "a follow-up question each morning until you mark it resolved"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 1,
+            "trigger_text": "Cabin CO2 is above the one-hour limit of 3 mmHg (sensor_limit)",
+            "binding_id": "daily_check.co2_above_limit",
+            "mode": "automatic",
+            "new_cadence": {
+              "word": "after_event",
+              "n": null,
+              "event": "CO2 alert",
+              "note": "add a headache and vision question at the next check and again 2 hours later"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 2,
+            "trigger_text": "A solar particle event alert",
+            "binding_id": "daily_check.solar_particle_event",
+            "mode": "automatic",
+            "new_cadence": {
+              "word": "after_event",
+              "n": null,
+              "event": "solar particle event",
+              "note": "ask about nausea, vomiting, tiredness and skin each day for the next 3 days"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 3,
+            "trigger_text": "You come back from a spacewalk",
+            "binding_id": "daily_check.after_walk",
+            "mode": "automatic",
+            "new_cadence": {
+              "word": "after_event",
+              "n": null,
+              "event": "spacewalk",
+              "note": "ask about joint pain, numbness, itching or rash that evening and the next morning"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 4,
+            "trigger_text": "Sleep under 6 hours (band estimate or your own answer)",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "after_event",
+              "n": null,
+              "event": "short sleep",
+              "note": "offer the reaction test that morning"
+            },
+            "basis": "team default"
+          }
+        ],
+        "active_override_ids": [
+          "ovr_daily_check_co2"
+        ],
+        "next_occurrence_id": "occ_sta_daily_check",
+        "citation": {
+          "text": "Routine item daily_check, routine-schedule.json.",
+          "source_ids": [
+            "C15",
+            "C25",
+            "RT02",
+            "RT09",
+            "RT11",
+            "RT25"
+          ]
+        }
+      },
+      {
+        "item_id": "blood_pressure",
+        "name": "Blood pressure",
+        "plain": "Rest, then take two or three cuff readings one minute apart on your upper arm.",
+        "why": "Spaceflight shifts body fluids toward the head and changes how blood pressure is controlled. High blood pressure usually causes no symptoms, so it is only found by measuring.",
+        "who": [
+          "self",
+          "crewmate"
+        ],
+        "instrument": "Kit blood pressure cuff (upper arm)",
+        "minutes": 10,
+        "steps": [
+          "Empty your bladder. No food, caffeine or exercise in the last 30 minutes.",
+          "Rest for at least 5 minutes, 10 is better. In weightlessness, use foot loops or a strap to hold a seated posture with your back against a support.",
+          "Bare your upper arm. Keep the arm supported at heart level.",
+          "Wrap the cuff snugly. Its lower edge sits about 2.5 cm above the bend of your elbow.",
+          "Press start and stay still and quiet while it measures.",
+          "Take 2 or 3 readings, 1 minute apart. Save all of them with the time."
+        ],
+        "body_region": "heart",
+        "environment_id": "station_leo",
+        "base_cadence": {
+          "word": "weekly",
+          "n": null
+        },
+        "effective_cadence": {
+          "word": "weekly",
+          "n": null
+        },
+        "cadence_text": "Weekly",
+        "basis": "team default",
+        "triggers": [
+          {
+            "index": 0,
+            "trigger_text": "Headache, dizziness, fainting, or a change in vision",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "as_needed",
+              "n": null,
+              "note": "measure now, then daily for 3 days"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 1,
+            "trigger_text": "A reading outside your usual range",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "daily",
+              "n": null,
+              "note": "for 5 days, morning and evening readings, then the crew medical officer decides"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 2,
+            "trigger_text": "Return to gravity (landing on Earth, the Moon or Mars)",
+            "binding_id": "blood_pressure.return_to_gravity",
+            "mode": "automatic",
+            "new_cadence": {
+              "word": "daily",
+              "n": null,
+              "note": "sitting and standing, with a crewmate ready to help"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 3,
+            "trigger_text": "Before and after each spacewalk (part of the pre and post spacewalk exam)",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "per_eva",
+              "n": null
+            },
+            "basis": "sourced"
+          }
+        ],
+        "active_override_ids": [],
+        "next_occurrence_id": "occ_sta_blood_pressure",
+        "citation": {
+          "text": "Routine item blood_pressure, routine-schedule.json.",
+          "source_ids": [
+            "C09",
+            "C25",
+            "RT16",
+            "RT17",
+            "RT18",
+            "RT27"
+          ]
+        }
+      },
+      {
+        "item_id": "vision_self_check",
+        "name": "Vision self-check: near reading card and Amsler grid",
+        "plain": "Read the near card and look at the Amsler grid, one eye at a time, and note anything blurred, wavy or missing.",
+        "why": "Long missions can change the shape of the eye and blur near vision (SANS). Most crew on long flights show some signs, and the risk grows with time in space. A quick self-check finds changes between the formal eye exams.",
+        "who": [
+          "self"
+        ],
+        "instrument": "Near reading card and Amsler grid card (paper or on screen at a fixed size)",
+        "minutes": 5,
+        "steps": [
+          "Wear the glasses you normally use for reading. Use good light.",
+          "Hold the card at your usual reading distance; for the Amsler grid, 30 to 38 cm.",
+          "Cover one eye.",
+          "Near card: read the smallest line you can and save it.",
+          "Amsler grid: look straight at the centre dot. Without moving your eye, notice whether any lines look blurry, wavy, dark or missing.",
+          "Repeat with the other eye.",
+          "Answer the short vision questions: blurred near vision, headaches, eye pain."
+        ],
+        "body_region": "eyes",
+        "environment_id": "station_leo",
+        "base_cadence": {
+          "word": "weekly",
+          "n": null,
+          "note": "formal tests at flight day 30, flight day 90 and 30 days before return"
+        },
+        "effective_cadence": {
+          "word": "daily",
+          "n": null,
+          "note": "while CO2 stays above the limit"
+        },
+        "cadence_text": "While CO2 stays above the limit",
+        "basis": "team default",
+        "triggers": [
+          {
+            "index": 0,
+            "trigger_text": "Blurred near vision, a new distortion on the grid, or headaches",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "daily",
+              "n": null,
+              "note": "and tell the crew medical officer and the ground"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 1,
+            "trigger_text": "Cabin CO2 above the one-hour limit (sensor_limit)",
+            "binding_id": "vision_self_check.co2_above_limit",
+            "mode": "automatic",
+            "new_cadence": {
+              "word": "daily",
+              "n": null,
+              "note": "while CO2 stays above the limit"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 2,
+            "trigger_text": "Flight day 30, flight day 90 and 30 days before return",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "after_event",
+              "n": null,
+              "event": "flight day 30, flight day 90 and 30 days before return",
+              "note": "formal vision tests with the ground"
+            },
+            "basis": "sourced"
+          },
+          {
+            "index": 3,
+            "trigger_text": "Sudden loss of vision, a dark shadow, or severe eye pain",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "as_needed",
+              "n": null,
+              "note": "urgent: press Someone needs help"
+            },
+            "basis": "team default"
+          }
+        ],
+        "active_override_ids": [
+          "ovr_vision_co2"
+        ],
+        "next_occurrence_id": "occ_sta_vision_self_check",
+        "citation": {
+          "text": "Routine item vision_self_check, routine-schedule.json.",
+          "source_ids": [
+            "C25",
+            "RT02",
+            "RT18",
+            "RT32",
+            "S12"
+          ]
+        }
+      },
+      {
+        "item_id": "reaction_test",
+        "name": "Reaction test (PVT-B, 3 minutes)",
+        "plain": "Tap the screen as fast as you can each time the counter appears, for 3 minutes.",
+        "why": "Tiredness slows your reactions before you notice it yourself. This short test is the same kind NASA used on the ISS and shows when sleep loss is affecting you.",
+        "who": [
+          "self"
+        ],
+        "instrument": "The app reaction test (PVT-B style); a quiet spot",
+        "minutes": 4,
+        "steps": [
+          "Find a quiet spot where you will not be interrupted for 4 minutes.",
+          "Answer the short questions on how tired, stressed and sleepy you feel.",
+          "Watch the box. When the counter appears, tap as fast as you can.",
+          "Do not tap before it appears. Early taps count as errors.",
+          "Keep going until the 3 minutes end. The app compares the result with your own usual speed.",
+          "Note any distraction during the test."
+        ],
+        "body_region": "eyes",
+        "environment_id": "station_leo",
+        "base_cadence": {
+          "word": "every_n_days",
+          "n": 4,
+          "note": "morning after waking and evening before sleep on test days"
+        },
+        "effective_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "short sleep",
+          "note": "one test that morning"
+        },
+        "cadence_text": "One test that morning",
+        "basis": "sourced",
+        "triggers": [
+          {
+            "index": 0,
+            "trigger_text": "Sleep under 6 hours",
+            "binding_id": "reaction_test.short_sleep",
+            "mode": "automatic",
+            "new_cadence": {
+              "word": "after_event",
+              "n": null,
+              "event": "short sleep",
+              "note": "one test that morning"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 1,
+            "trigger_text": "A sleep shift or schedule change",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "daily",
+              "n": null,
+              "note": "during the shift and for 3 days after"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 2,
+            "trigger_text": "Before a spacewalk or other critical task",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "per_eva",
+              "n": null
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 3,
+            "trigger_text": "Head injury or illness",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "as_needed",
+              "n": null,
+              "note": "with the crew medical officer"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 4,
+            "trigger_text": "After landing on Earth",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "mission_phase",
+              "n": null,
+              "phase": "return",
+              "note": "daily for the first week, then 30, 60 and 90 days after landing"
+            },
+            "basis": "sourced"
+          }
+        ],
+        "active_override_ids": [
+          "ovr_reaction_short_sleep"
+        ],
+        "next_occurrence_id": "occ_sta_reaction_test",
+        "citation": {
+          "text": "Routine item reaction_test, routine-schedule.json.",
+          "source_ids": [
+            "C14",
+            "C15",
+            "RT02",
+            "RT15",
+            "RT25",
+            "RT26"
+          ]
+        }
+      },
+      {
+        "item_id": "exercise_log",
+        "name": "Exercise session and log",
+        "plain": "Do your prescribed exercise and log what you did, how long, and anything that hurt.",
+        "why": "Without gravity, muscle, bone and heart fitness fall. Daily exercise is the main protection, and you need that strength to walk, egress and work after landing.",
+        "who": [
+          "self"
+        ],
+        "instrument": "Habitat exercise devices; wrist band for activity and pulse; the app log",
+        "minutes": 2,
+        "steps": [
+          "Do the session your strength and conditioning team prescribed.",
+          "Log the device, minutes and how hard it felt.",
+          "Note any pain, joint trouble or dizziness. Do not push through sharp pain.",
+          "If you missed a session, log the reason. A missed session is never filled in for you."
+        ],
+        "body_region": "legs",
+        "environment_id": "station_leo",
+        "base_cadence": {
+          "word": "daily",
+          "n": null
+        },
+        "effective_cadence": {
+          "word": "daily",
+          "n": null
+        },
+        "cadence_text": "Daily",
+        "basis": "team default",
+        "triggers": [
+          {
+            "index": 0,
+            "trigger_text": "Two missed sessions in a row",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "after_event",
+              "n": null,
+              "event": "missed sessions",
+              "note": "a reminder the next morning and a note to the crew medical officer"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 1,
+            "trigger_text": "New muscle or joint pain, or a shoulder problem after a spacewalk",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "as_needed",
+              "n": null,
+              "note": "stop that exercise and tell the crew medical officer"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 2,
+            "trigger_text": "After landing on Earth",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "mission_phase",
+              "n": null,
+              "phase": "return",
+              "note": "reconditioning 2 hours a day, 7 days a week, for 45 days from the day after landing"
+            },
+            "basis": "sourced"
+          }
+        ],
+        "active_override_ids": [],
+        "next_occurrence_id": "occ_sta_exercise_log",
+        "citation": {
+          "text": "Routine item exercise_log, routine-schedule.json.",
+          "source_ids": [
+            "RT02",
+            "RT14",
+            "RT33"
+          ]
+        }
+      },
+      {
+        "item_id": "body_mass",
+        "name": "Body mass",
+        "plain": "Measure your body mass on the habitat's mass device at the same time of day each week.",
+        "why": "Crews often eat less than they need in flight, and losing mass can mean losing muscle and bone. Tracking it shows early whether you are eating enough.",
+        "who": [
+          "self"
+        ],
+        "instrument": "Mass measurement device (ISS class, for example SLAMMD); not in this kit",
+        "minutes": 5,
+        "steps": [
+          "Measure at the same time of day each week, before eating and after using the toilet.",
+          "Wear the same light clothing each time.",
+          "Follow the device's own instructions to the end.",
+          "Save the number and the device used.",
+          "On the Moon or Mars, a scale made for Earth reads weight, not mass, and reads low. Use the device the habitat provides for mass."
+        ],
+        "body_region": null,
+        "environment_id": "station_leo",
+        "base_cadence": {
+          "word": "weekly",
+          "n": null,
+          "note": "mass device built for weightlessness"
+        },
+        "effective_cadence": {
+          "word": "weekly",
+          "n": null,
+          "note": "mass device built for weightlessness"
+        },
+        "cadence_text": "Mass device built for weightlessness",
+        "basis": "team default",
+        "triggers": [
+          {
+            "index": 0,
+            "trigger_text": "Mass falls compared with your usual (amount to be set by clinical review)",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "every_n_days",
+              "n": 3,
+              "note": "until stable, and tell the crew medical officer"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 1,
+            "trigger_text": "Poor appetite, nausea or vomiting for more than a day",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "every_n_days",
+              "n": 3
+            },
+            "basis": "team default"
+          }
+        ],
+        "active_override_ids": [],
+        "next_occurrence_id": "occ_sta_body_mass",
+        "citation": {
+          "text": "Routine item body_mass, routine-schedule.json.",
+          "source_ids": [
+            "RT02",
+            "RT04",
+            "RT18",
+            "RT34"
+          ]
+        }
+      },
+      {
+        "item_id": "behavioral_self_check",
+        "name": "Weekly wellbeing self-check",
+        "plain": "Once a week, rate sleep, tiredness, workload, morale, relationships and mood, privately, to bring to your private conferences.",
+        "why": "Isolation, workload and distance from home wear people down slowly. The same topics flight psychologists ask about every two weeks help you notice changes yourself.",
+        "who": [
+          "self"
+        ],
+        "instrument": "The app (private; never shared without your choice)",
+        "minutes": 5,
+        "steps": [
+          "Find a private moment.",
+          "Rate each topic: sleep, tiredness, workload, your morale, the crew's morale, relationships with the crew and the ground, mood, family and personal life, and the habitat (food, noise, space).",
+          "Add a note if you want. It stays private.",
+          "Choose whether to share any of it at your next private conference.",
+          "If you have thoughts of harming yourself, press Someone needs help now."
+        ],
+        "body_region": "head",
+        "environment_id": "station_leo",
+        "base_cadence": {
+          "word": "weekly",
+          "n": null
+        },
+        "effective_cadence": {
+          "word": "weekly",
+          "n": null
+        },
+        "cadence_text": "Weekly",
+        "basis": "team default",
+        "triggers": [
+          {
+            "index": 0,
+            "trigger_text": "Mood below your usual on several daily checks (how many to be set by clinical review)",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "every_n_days",
+              "n": 3,
+              "note": "and offer an extra private conference"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 1,
+            "trigger_text": "The death of a crewmember",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "as_needed",
+              "n": null,
+              "note": "extra private psychological conferences, alone or as a group"
+            },
+            "basis": "sourced"
+          },
+          {
+            "index": 2,
+            "trigger_text": "A crew emergency, a serious injury, or bad news from home",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "as_needed",
+              "n": null,
+              "note": "offer an extra private conference"
+            },
+            "basis": "team default"
+          }
+        ],
+        "active_override_ids": [],
+        "next_occurrence_id": "occ_sta_behavioral_self_check",
+        "citation": {
+          "text": "Routine item behavioral_self_check, routine-schedule.json.",
+          "source_ids": [
+            "C14",
+            "RT02",
+            "RT15"
+          ]
+        }
+      },
+      {
+        "item_id": "cognitive_test",
+        "name": "Monthly thinking test (WinSCAT class)",
+        "plain": "Once a month, take the longer computer thinking test that ISS crews use, so changes after an injury or illness can be judged.",
+        "why": "A monthly result gives a known baseline. If someone hits their head or becomes ill, the crew can compare and see how much thinking is affected and whether it recovers.",
+        "who": [
+          "self",
+          "ground"
+        ],
+        "instrument": "Cognitive test software such as WinSCAT, if the vehicle carries it; not in this kit",
+        "minutes": 30,
+        "steps": [
+          "Pick a quiet time when you are not rushed.",
+          "Start the test and follow its on-screen instructions.",
+          "Finish all parts in one sitting.",
+          "The result goes to the ground team, who compare it with your pre-flight baseline."
+        ],
+        "body_region": "head",
+        "environment_id": "station_leo",
+        "base_cadence": {
+          "word": "monthly",
+          "n": null
+        },
+        "effective_cadence": {
+          "word": "monthly",
+          "n": null
+        },
+        "cadence_text": "Monthly",
+        "basis": "sourced",
+        "triggers": [
+          {
+            "index": 0,
+            "trigger_text": "A head injury, or an illness that affects thinking",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "as_needed",
+              "n": null,
+              "note": "with the crew medical officer and the ground"
+            },
+            "basis": "sourced"
+          }
+        ],
+        "active_override_ids": [],
+        "next_occurrence_id": "occ_sta_cognitive_test",
+        "citation": {
+          "text": "Routine item cognitive_test, routine-schedule.json.",
+          "source_ids": [
+            "C14",
+            "RT15"
+          ]
+        }
+      },
+      {
+        "item_id": "hearing_check",
+        "name": "Hearing check (on-orbit hearing assessment)",
+        "plain": "Take the headphone hearing test in a quiet spot so flight surgeons can see any change in your hearing.",
+        "why": "Habitat fans and equipment are noisy all day and night. Hearing can shift without you noticing, and ISS tests have found shifts in many crewmembers.",
+        "who": [
+          "self",
+          "ground"
+        ],
+        "instrument": "Audiometer with headphones (ISS class, for example the on-orbit hearing assessment kit); not in this kit. Without it, the hearing questions in the daily check",
+        "minutes": 20,
+        "steps": [
+          "Go to the quietest place in the habitat. Switch off nearby fans you are allowed to switch off.",
+          "Put on the test headphones and follow the instructions.",
+          "Press the button each time you hear a tone, even a very faint one.",
+          "Test both ears.",
+          "The result goes to the ground for review."
+        ],
+        "body_region": "ear",
+        "environment_id": "station_leo",
+        "base_cadence": {
+          "word": "monthly",
+          "n": null,
+          "note": "if an audiometer is carried; otherwise hearing questions only"
+        },
+        "effective_cadence": {
+          "word": "monthly",
+          "n": null,
+          "note": "if an audiometer is carried; otherwise hearing questions only"
+        },
+        "cadence_text": "If an audiometer is carried; otherwise hearing questions only",
+        "basis": "team default",
+        "triggers": [
+          {
+            "index": 0,
+            "trigger_text": "Ringing in the ears or muffled hearing, especially after a loud event",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "as_needed",
+              "n": null,
+              "note": "test within a day and tell the crew medical officer"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 1,
+            "trigger_text": "Noise dosimetry above the flight rule level",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "after_event",
+              "n": null,
+              "event": "high noise exposure",
+              "note": "hearing test at the next opportunity"
+            },
+            "basis": "team default"
+          }
+        ],
+        "active_override_ids": [],
+        "next_occurrence_id": "occ_sta_hearing_check",
+        "citation": {
+          "text": "Routine item hearing_check, routine-schedule.json.",
+          "source_ids": [
+            "RT01",
+            "RT02",
+            "RT05",
+            "RT06",
+            "RT07",
+            "RT08"
+          ]
+        }
+      },
+      {
+        "item_id": "emergency_drill",
+        "name": "Medical emergency drill",
+        "plain": "Practise a medical emergency as a crew: who does what, where the kit is, and how to use the Someone needs help screen.",
+        "why": "Skills fade between training and a real emergency, which may come months later. A drill keeps everyone ready, not only the medical officer.",
+        "who": [
+          "self",
+          "crewmate",
+          "crew_medical_officer",
+          "ground"
+        ],
+        "instrument": "Emergency medical kit; the app's Someone needs help screen in drill mode",
+        "minutes": 60,
+        "steps": [
+          "The crew medical officer picks a scenario from the drill list.",
+          "One person plays the patient. Another presses Someone needs help in drill mode.",
+          "Run the fixed emergency steps. Fetch and open the real kit.",
+          "Practise each skill with its teach steps and camera checks: the pulse check on a crewmate's real wrist, chest compressions on a manikin, if listed. The camera's numbers show live and are not stored.",
+          "Practise the log for the ground: preview it and press Tell the ground. It leaves at the next contact, and nothing in the drill waits for it.",
+          "Debrief: what was slow, what was missing. Log it. Completing the drill updates each participant's skill record and counts toward the practice patches."
+        ],
+        "body_region": null,
+        "environment_id": "station_leo",
+        "base_cadence": {
+          "word": "monthly",
+          "n": null
+        },
+        "effective_cadence": {
+          "word": "monthly",
+          "n": null
+        },
+        "cadence_text": "Monthly",
+        "basis": "team default",
+        "triggers": [
+          {
+            "index": 0,
+            "trigger_text": "A new module or a visiting vehicle",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "after_event",
+              "n": null,
+              "event": "new module or visiting vehicle",
+              "note": "emergency response review"
+            },
+            "basis": "sourced"
+          },
+          {
+            "index": 1,
+            "trigger_text": "After a real medical emergency",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "after_event",
+              "n": null,
+              "event": "real medical emergency",
+              "note": "debrief and repeat the drill"
+            },
+            "basis": "team default"
+          }
+        ],
+        "active_override_ids": [],
+        "next_occurrence_id": "occ_sta_emergency_drill",
+        "citation": {
+          "text": "Routine item emergency_drill, routine-schedule.json.",
+          "source_ids": [
+            "RT01",
+            "RT02",
+            "RT18"
+          ]
+        }
+      },
+      {
+        "item_id": "pre_eva_check",
+        "name": "Before a spacewalk",
+        "plain": "In the day before a spacewalk, do a short health check and a private talk with the flight surgeon, who must clear you.",
+        "why": "A spacewalk is hard physical work in a pressurized suit. A cold, short sleep, dehydration or an injury can turn into a real problem outside, so each person is cleared first by the medical officer aboard, as in the onboard procedure.",
+        "who": [
+          "self",
+          "crew_medical_officer",
+          "ground"
+        ],
+        "instrument": "Kit cuff, oximeter, thermometer, camera station; reaction test; personal dosimeter",
+        "minutes": 20,
+        "steps": [
+          "Answer the pre-spacewalk questions: new symptoms, ear or sinus problems, sleep, pain, mood.",
+          "Take pulse, blood pressure, blood oxygen and temperature.",
+          "Drink to stay well hydrated, as prescribed.",
+          "Check your hands: trim nails short and note any sore fingertips or nails.",
+          "Read and save your dosimeter.",
+          "The medical officer clears you before suiting up, as in the onboard procedure. When the link is up, also join the private medical conference within 24 hours before; the flight surgeon's advice goes into that decision. Log it for the ground."
+        ],
+        "body_region": null,
+        "environment_id": "station_leo",
+        "base_cadence": {
+          "word": "per_eva",
+          "n": null
+        },
+        "effective_cadence": {
+          "word": "per_eva",
+          "n": null
+        },
+        "cadence_text": "Per spacewalk",
+        "basis": "sourced",
+        "triggers": [
+          {
+            "index": 0,
+            "trigger_text": "Any new symptom, short sleep or illness before a planned spacewalk",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "as_needed",
+              "n": null,
+              "note": "the medical officer checks again before suiting up; log it for the ground"
+            },
+            "basis": "team default"
+          }
+        ],
+        "active_override_ids": [],
+        "next_occurrence_id": "occ_sta_pre_eva_check",
+        "citation": {
+          "text": "Routine item pre_eva_check, routine-schedule.json.",
+          "source_ids": [
+            "RT02",
+            "RT04",
+            "RT10",
+            "RT18"
+          ]
+        }
+      },
+      {
+        "item_id": "post_eva_check",
+        "name": "After a spacewalk: bends, hands, shoulders",
+        "plain": "After the suit comes off, check for signs of the bends, look at your hands and nails, note shoulder pain, and talk privately with the flight surgeon within a day.",
+        "why": "Decompression sickness (the bends) can start hours after a spacewalk, and people tend to play down mild symptoms. Gloves often injure fingertips and nails, and suits strain shoulders.",
+        "who": [
+          "self",
+          "crewmate",
+          "crew_medical_officer",
+          "ground"
+        ],
+        "instrument": "The app; kit oximeter and cuff; camera of the tablet for hand photos; personal dosimeter",
+        "minutes": 15,
+        "steps": [
+          "Report at once, never wait: joint or muscle pain, itching, a blotchy rash, numbness, tingling, weakness, dizziness, trouble thinking, or trouble breathing.",
+          "If any of these appear, press Someone needs help. Do not do hard exercise.",
+          "Look at each finger and nail. Note lifted or dark nails, blisters, sore knuckles or numb fingertips. Take a photo if asked.",
+          "Move each shoulder through its full range. Note pain or catching.",
+          "Take pulse and blood oxygen. Read and save your dosimeter.",
+          "On the Moon or Mars, also do the dust check.",
+          "Join the private medical conference within 24 hours."
+        ],
+        "body_region": null,
+        "environment_id": "station_leo",
+        "base_cadence": {
+          "word": "per_eva",
+          "n": null
+        },
+        "effective_cadence": {
+          "word": "per_eva",
+          "n": null
+        },
+        "cadence_text": "Per spacewalk",
+        "basis": "sourced",
+        "triggers": [
+          {
+            "index": 0,
+            "trigger_text": "Any symptom that could be decompression sickness",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "as_needed",
+              "n": null,
+              "note": "emergency route at once"
+            },
+            "basis": "sourced"
+          },
+          {
+            "index": 1,
+            "trigger_text": "No symptoms at the first check",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "after_event",
+              "n": null,
+              "event": "spacewalk",
+              "note": "repeat the bends questions that evening and next morning"
+            },
+            "basis": "team default"
+          },
+          {
+            "index": 2,
+            "trigger_text": "Nail, finger or shoulder injury found",
+            "binding_id": null,
+            "mode": "manual",
+            "new_cadence": {
+              "word": "daily",
+              "n": null,
+              "note": "look and photo each day until healed; crew medical officer decides"
+            },
+            "basis": "team default"
+          }
+        ],
+        "active_override_ids": [],
+        "next_occurrence_id": "occ_sta_post_eva_check",
+        "citation": {
+          "text": "Routine item post_eva_check, routine-schedule.json.",
+          "source_ids": [
+            "RT03",
+            "RT04",
+            "RT10",
+            "RT11",
+            "RT12",
+            "RT33"
+          ]
+        }
+      }
+    ],
+    "page": {
+      "next_cursor": null,
+      "total": 12
+    }
+  }
+}

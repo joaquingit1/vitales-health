@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "observation.schema.json",
+  "title": "Observation",
+  "description": "A measurement or derived value about one person (CONTRACTS sections 1 and 3).",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observation_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "patient_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "operator_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "mission_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "episode_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "code": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "value": {
+      "type": "number"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "original_value": {
+      "type": "number"
+    },
+    "original_unit": {
+      "type": "string"
+    },
+    "observed_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "entered_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "received_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "acquisition_method": {
+      "$ref": "common.schema.json#/$defs/acquisition_method"
+    },
+    "quality_status": {
+      "$ref": "common.schema.json#/$defs/quality_status"
+    },
+    "quality_rule_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "device_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "body_region": {
+      "$ref": "common.schema.json#/$defs/body_region_or_null"
+    },
+    "supersedes": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "observation_id",
+    "patient_id",
+    "operator_id",
+    "mission_id",
+    "episode_id",
+    "code",
+    "value",
+    "unit",
+    "original_value",
+    "original_unit",
+    "observed_at",
+    "entered_at",
+    "origin_mode",
+    "acquisition_method",
+    "quality_status",
+    "quality_rule_version",
+    "device_id",
+    "context",
+    "supersedes"
+  ],
+  "additionalProperties": false
+}

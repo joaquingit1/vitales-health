@@ -1,0 +1,31 @@
+{
+  "summary": "SIM GET /v1/drills/drl_cpr_1",
+  "description": "Day 12 on the station: Mara Okafor and Tomas Lind practiced CPR on the practice manikin. No compression numbers are stored (EI10). Illustrative only: not seed data.",
+  "x-schema": "drill.schema.json",
+  "value": {
+    "drill_id": "drl_cpr_1",
+    "revision": 2,
+    "scenario_id": "drill_cpr_manikin",
+    "skill_ids": [
+      "cpr"
+    ],
+    "participants": [
+      {
+        "person_id": "mara",
+        "display_name": "Mara Okafor"
+      },
+      {
+        "person_id": "tomas",
+        "display_name": "Tomas Lind"
+      }
+    ],
+    "routine_occurrence_id": "occ_drill_d12",
+    "state": "completed",
+    "started_at": "2026-11-06T16:00:00Z",
+    "completed_at": "2026-11-06T16:30:00Z",
+    "abandoned_at": null,
+    "stores_measurements": false,
+    "origin_mode": "SIM",
+    "allowed_actions": []
+  }
+}

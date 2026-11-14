@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E17 · Crew Health Check</title>
+<link rel="stylesheet" href="../design/reader.css">
+</head>
+<body>
+<header><a class="brand" href="../index.html"><span class="brand-mark"><svg viewBox="0 0 18 18" width="18" height="18" fill="none" aria-hidden="true"><path d="M13.6 3.4a7 7 0 1 1-9.2 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="2.6" r="1.5" fill="currentColor"/></svg></span><strong>Crew Health Check</strong></a><small>Planning package · NASA Space Apps Challenge 2026 · 14 and 15 November</small></header>
+<div class="wrap">
+<nav aria-label="Documents"><a href="../index.html">Reading guide</a><div class="group">Start here</div><a href="../PITCH.html">The pitch</a><a href="../KICKOFF.html">Kickoff</a><a href="../USE-CASES.html">Use cases</a><a href="../design/interaction-prototype.html">Prototype</a><div class="group">Build</div><a href="../PRD.html">Product requirements</a><a href="../UX-DESIGN.html">Interaction design</a><a href="../CONTRACTS.html">Data and API contracts</a><a href="../LLM-ARCHITECTURE.html">LLM architecture</a><a href="../VALIDATION.html">Validation</a><a href="../tdd/README.html">Epic briefs</a><div class="group">What the app knows</div><a href="../ENVIRONMENTS.html">Environments and hazards</a><a href="../ROUTINE.html">Mission routine</a><a href="../RESPONDER-FLOWS.html">Someone needs help</a><div class="group">Evidence</div><a href="../DEMO-CONDITIONS.html">Demo conditions</a><a href="../NASA-SOURCES.html">NASA documents and data</a><a href="../condition-browser.html">Condition browser</a><a href="../RESEARCH-ANNEX.html">Research annex</a><a href="../sources/recovered/research-library.html">Recovered source library</a><div class="group">Data</div><a href="../backlog.csv">Backlog (CSV)</a><a href="../input-dictionary.csv">Input dictionary (CSV)</a><a href="../environment-hazards.json">Hazards and limits (JSON)</a><a href="../routine-schedule.json">Routine schedule (JSON)</a><a href="../responder-flows.json">Help flows (JSON)</a><a href="../README.html">Package readme</a><a href="../PACKAGE-CHECKS.html">Package checks</a><div class="toc"><a class="h2" href="#decisions-for-the-tdd">Decisions for the TDD</a><a class="h2" href="#work-packages">Work packages</a><a class="h3" href="#e17-01-freeze-original-model-and-runtime-integration">E17-01: Freeze original model and runtime integration</a><a class="h3" href="#e17-02-optimize-tool-use-on-development-cases">E17-02: Optimize tool use on development cases</a><a class="h3" href="#e17-03-promote-the-evaluated-deployment-configuration">E17-03: Promote the evaluated deployment configuration</a><a class="h2" href="#required-handoff">Required handoff</a></div></nav>
+<main>
+<h1 id="e17-model-integration-and-tool-use-optimization">E17: Model integration and tool-use optimization</h1>
+<p><strong>Technical design document brief · Full hackathon scope · Existing weights only</strong></p>
+<p>Owner C. Stage S4. Dependencies E10, E12, E13. Requirements R23, R30.</p>
+<p>Use the existing medically adapted HuatuoGPT-3 candidate. No additional SFT, LoRA, QLoRA, preference optimization or RL training. This is Joaquin&#39;s clarified scope.</p>
+<h2 id="decisions-for-the-tdd">Decisions for the TDD</h2>
+<p>Pin model, tokenizer, license, chat template, thinking mode, quantization and runtime. Verify tool-call and structured-output compatibility. Specify the prompt/context builder, stage-specific tools, retrieval configuration, verifier, loop budgets, memory scheduling and rollback. Compare configurations on development cases with fixed weights; keep final evaluation sealed.</p>
+<h2 id="work-packages">Work packages</h2>
+<h3 id="e17-01-freeze-original-model-and-runtime-integration">E17-01: Freeze original model and runtime integration</h3>
+<p>Acceptance: Pinned model, tokenizer, thinking mode and tool template pass parsing and memory probes.</p>
+<h3 id="e17-02-optimize-tool-use-on-development-cases">E17-02: Optimize tool use on development cases</h3>
+<p>Acceptance: Compare staged tools, descriptions, context, retrieval and verification with fixed weights; no holdout leakage.</p>
+<h3 id="e17-03-promote-the-evaluated-deployment-configuration">E17-03: Promote the evaluated deployment configuration</h3>
+<p>Acceptance: Exact quantized artifact and prompt/tool/corpus versions tested; regression blocks promotion; rollback manifest exists.</p>
+<h2 id="required-handoff">Required handoff</h2>
+<p>Configuration manifest, integration examples, experiment matrix, failure handling, cancellation, performance measurements and meaningful acceptance tests. Cite actual runs before claiming improvement. Read the shared contracts and LLM architecture before implementation.</p>
+
+</main>
+</div>
+</body>
+</html>

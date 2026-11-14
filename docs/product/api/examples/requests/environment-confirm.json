@@ -1,0 +1,8 @@
+{
+  "summary": "SIM request POST /v1/environment/changes/{id}/actions",
+  "description": "Confirm the change. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/EnvironmentChangeAction",
+  "value": {
+    "action": "confirm"
+  }
+}

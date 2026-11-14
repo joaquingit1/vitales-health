@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "session.schema.json",
+  "title": "Session",
+  "description": "A signed-in session. The hub derives identity and roles from the session token only; IDs in a body or path never authorize anything.",
+  "type": "object",
+  "properties": {
+    "session_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "token": {
+      "type": "string",
+      "description": "Returned once, on create. Sent as Authorization: Bearer <token>.",
+      "minLength": 1
+    },
+    "actor": {
+      "$ref": "common.schema.json#/$defs/actor"
+    },
+    "person": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/person_ref"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/role"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "mission_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "expires_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "session_id",
+    "actor",
+    "person",
+    "roles",
+    "mission_id",
+    "created_at",
+    "expires_at"
+  ],
+  "additionalProperties": false
+}

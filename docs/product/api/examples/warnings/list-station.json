@@ -1,0 +1,163 @@
+{
+  "summary": "SIM and REPLAY GET /v1/warnings, station",
+  "description": "Active warnings for Mara Okafor on station_leo, in headline order. Illustrative only: not seed data.",
+  "x-schema": "list:warning.schema.json",
+  "value": {
+    "items": [
+      {
+        "warning_id": "wrn_co2_station_1",
+        "revision": 1,
+        "definition_id": "co2_above_limit",
+        "config_release_id": "rel_20261113_a",
+        "level": "act",
+        "raised_by": "sensor_limit",
+        "hazard_id": "co2",
+        "limit_id": "co2_1h_act",
+        "sensor_type_id": "co2",
+        "channel_id": "ch_co2_cabin_replay",
+        "scope": "habitat",
+        "person_id": null,
+        "environment_id": "station_leo",
+        "location": "cabin",
+        "origin_mode": "REPLAY",
+        "title": "CO2 above the habitat limit",
+        "what": "The one-hour average CO2 is 3.5 mmHg. The habitat limit is 3 mmHg.",
+        "why": "High CO2 can cause headaches, shortness of breath and tiredness, and can disturb sleep. It is a limit for the cabin air, not a diagnosis.",
+        "steps": [
+          "Tell the crew and the ground.",
+          "Move to a well-ventilated module.",
+          "Report headache, breathlessness or tiredness.",
+          "The flight control team finds and repairs the CO2 scrubbers or switches on extra scrubbing."
+        ],
+        "body_regions": [
+          "head"
+        ],
+        "headline": {
+          "fragment": "CO2 above the limit",
+          "rank": 20,
+          "solo": false
+        },
+        "evidence": [
+          {
+            "kind": "reading",
+            "ref_id": "rdg_co2_cabin_replay",
+            "summary": "One-hour mean 3.5 mmHg (4,606 ppm at an assumed 760 mmHg), replayed from 7 Oct 2014. Another mission's cabin, not anyone's exposure.",
+            "observed_at": "2014-10-07T15:36:00Z"
+          }
+        ],
+        "evidence_time": "2014-10-07T15:36:00Z",
+        "evidence_time_label": "15:36, replay time",
+        "citation": {
+          "text": "CO2 sensor, Replay of ISS cabin data, 7 Oct 2014. Limit: NASA-STD-3001 Volume 2, Revision F (EV01).",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        "insight_id": null,
+        "state": "raised",
+        "raised_at": "2026-11-13T09:08:02Z",
+        "acknowledgements": [],
+        "cleared_at": null,
+        "clear_reason": null,
+        "resolved": null,
+        "dismissed": null,
+        "notes": [],
+        "previous_warning_id": null,
+        "routine_override_ids": [
+          "ovr_daily_check_co2",
+          "ovr_vision_co2"
+        ],
+        "allowed_actions": [
+          "acknowledge",
+          "add_note"
+        ]
+      },
+      {
+        "warning_id": "wrn_sleep_mara_1",
+        "revision": 1,
+        "definition_id": "assistant_pattern",
+        "config_release_id": "rel_20261113_a",
+        "level": "watch",
+        "raised_by": "assistant",
+        "hazard_id": null,
+        "limit_id": null,
+        "sensor_type_id": null,
+        "channel_id": null,
+        "scope": "person",
+        "person_id": "mara",
+        "environment_id": "station_leo",
+        "location": null,
+        "origin_mode": "SIM",
+        "title": "Short nights, slower reactions",
+        "what": "Three nights under six hours. Reaction time 291 ms with 4 lapses; your usual is 268 ms with 1.",
+        "why": "{insight_why}",
+        "steps": [
+          "Protect your next sleep period, and avoid blue light before it.",
+          "Tell the crew if you have a demanding task today."
+        ],
+        "body_regions": [
+          "eyes"
+        ],
+        "headline": {
+          "fragment": "Short sleep",
+          "rank": 10,
+          "solo": false
+        },
+        "evidence": [
+          {
+            "kind": "observation",
+            "ref_id": "obs_sleep_mara_d17",
+            "summary": "Sleep 5.6 h, band estimate, Sim",
+            "observed_at": "2026-11-11T06:30:00Z"
+          },
+          {
+            "kind": "observation",
+            "ref_id": "obs_sleep_mara_d18",
+            "summary": "Sleep 5.4 h, band estimate, Sim",
+            "observed_at": "2026-11-12T06:30:00Z"
+          },
+          {
+            "kind": "observation",
+            "ref_id": "obs_sleep_mara_d19",
+            "summary": "Sleep 5.2 h, band estimate, Sim",
+            "observed_at": "2026-11-13T06:30:00Z"
+          },
+          {
+            "kind": "observation",
+            "ref_id": "obs_pvt_mara_d19",
+            "summary": "Reaction test 291 ms, 4 lapses, Sim",
+            "observed_at": "2026-11-13T07:38:00Z"
+          }
+        ],
+        "evidence_time": "2026-11-13T07:40:00Z",
+        "evidence_time_label": "07:40",
+        "citation": {
+          "text": "The assistant, from your sleep (band, Sim) and reaction test (07:38, Sim). A pattern, not a diagnosis. Evidence: OCHMO-MTB-009 Circadian Desynchrony (C23).",
+          "source_ids": [
+            "C23"
+          ]
+        },
+        "insight_id": "ins_sleep_mara_1",
+        "state": "raised",
+        "raised_at": "2026-11-13T07:40:00Z",
+        "acknowledgements": [],
+        "cleared_at": null,
+        "clear_reason": null,
+        "resolved": null,
+        "dismissed": null,
+        "notes": [],
+        "previous_warning_id": null,
+        "routine_override_ids": [],
+        "allowed_actions": [
+          "acknowledge",
+          "add_note",
+          "dismiss"
+        ]
+      }
+    ],
+    "page": {
+      "next_cursor": null,
+      "total": 2
+    }
+  }
+}

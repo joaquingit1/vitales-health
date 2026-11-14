@@ -1,0 +1,14 @@
+{
+  "summary": "SIM error ACTION_NOT_ALLOWED",
+  "description": "The error envelope for ACTION_NOT_ALLOWED. Illustrative only: not seed data.",
+  "x-schema": "error.schema.json",
+  "value": {
+    "code": "ACTION_NOT_ALLOWED",
+    "message": "resolve is not in allowed_actions for this warning.",
+    "retryable": false,
+    "field_errors": [],
+    "correlation_id": "cor_wrn_1",
+    "current_state": null,
+    "supported_alternative": null
+  }
+}

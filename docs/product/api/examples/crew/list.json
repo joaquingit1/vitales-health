@@ -1,0 +1,67 @@
+{
+  "summary": "SIM GET /v1/crew, Moon base at 12:05",
+  "description": "The roster as crew see it during act 6: Ilya Brandt (rank 1) and Sofia Reyes (rank 2) are the medical officers, both just in from surface walk 1. No health values, no participation. Illustrative only: not seed data.",
+  "x-schema": "list:crew-member.schema.json",
+  "value": {
+    "items": [
+      {
+        "person_id": "mara",
+        "display_name": "Mara Okafor",
+        "roles": [
+          "crew"
+        ],
+        "on_roster_from_day": 1,
+        "location": "airlock",
+        "active_overlays": [],
+        "helping_session_id": "hlp_lunar_1",
+        "medical_officer_rank": null
+      },
+      {
+        "person_id": "ilya",
+        "display_name": "Ilya Brandt",
+        "roles": [
+          "crew",
+          "crew_medical_officer"
+        ],
+        "on_roster_from_day": 1,
+        "location": "airlock",
+        "active_overlays": [
+          "post_eva"
+        ],
+        "helping_session_id": "hlp_lunar_1",
+        "medical_officer_rank": 1
+      },
+      {
+        "person_id": "sofia",
+        "display_name": "Sofia Reyes",
+        "roles": [
+          "crew",
+          "crew_medical_officer"
+        ],
+        "on_roster_from_day": 1,
+        "location": null,
+        "active_overlays": [
+          "post_eva"
+        ],
+        "helping_session_id": null,
+        "medical_officer_rank": 2
+      },
+      {
+        "person_id": "tomas",
+        "display_name": "Tomas Lind",
+        "roles": [
+          "crew"
+        ],
+        "on_roster_from_day": 1,
+        "location": "airlock",
+        "active_overlays": [],
+        "helping_session_id": null,
+        "medical_officer_rank": null
+      }
+    ],
+    "page": {
+      "next_cursor": null,
+      "total": 4
+    }
+  }
+}

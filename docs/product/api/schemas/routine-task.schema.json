@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "routine-task.schema.json",
+  "title": "RoutineTask",
+  "description": "One routine item resolved for the active environment and the session person: its base and effective cadence, its triggers and whether each runs automatically.",
+  "type": "object",
+  "properties": {
+    "item_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "plain": {
+      "type": "string",
+      "minLength": 1
+    },
+    "why": {
+      "type": "string",
+      "minLength": 1
+    },
+    "who": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "self",
+          "crewmate",
+          "crew_medical_officer",
+          "ground"
+        ]
+      },
+      "minItems": 1
+    },
+    "instrument": {
+      "type": "string",
+      "minLength": 1
+    },
+    "minutes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "body_region": {
+      "$ref": "common.schema.json#/$defs/body_region_or_null"
+    },
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "base_cadence": {
+      "$ref": "common.schema.json#/$defs/cadence"
+    },
+    "effective_cadence": {
+      "$ref": "common.schema.json#/$defs/cadence"
+    },
+    "cadence_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "basis": {
+      "$ref": "common.schema.json#/$defs/basis"
+    },
+    "triggers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "trigger_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "binding_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/dotted_id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mode": {
+            "enum": [
+              "automatic",
+              "manual"
+            ]
+          },
+          "new_cadence": {
+            "$ref": "common.schema.json#/$defs/cadence"
+          },
+          "basis": {
+            "$ref": "common.schema.json#/$defs/basis"
+          }
+        },
+        "required": [
+          "index",
+          "trigger_text",
+          "binding_id",
+          "mode",
+          "new_cadence",
+          "basis"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "active_override_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "next_occurrence_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "citation": {
+      "$ref": "common.schema.json#/$defs/citation"
+    }
+  },
+  "required": [
+    "item_id",
+    "name",
+    "plain",
+    "why",
+    "who",
+    "instrument",
+    "minutes",
+    "steps",
+    "body_region",
+    "environment_id",
+    "base_cadence",
+    "effective_cadence",
+    "cadence_text",
+    "basis",
+    "triggers",
+    "active_override_ids",
+    "next_occurrence_id",
+    "citation"
+  ],
+  "additionalProperties": false
+}

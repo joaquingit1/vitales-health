@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ground-log-view.schema.json",
+  "title": "GroundLogView",
+  "description": "GET /v1/ground/log, ground role only: the catch-up a late reader sees at the next contact, oldest first (CONTRACTS section 26). Never participation data, never journal content. Reading it changes nothing aboard.",
+  "type": "object",
+  "properties": {
+    "since": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "gap": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "from": {
+              "$ref": "common.schema.json#/$defs/instant"
+            },
+            "to": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/instant"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gap_kind": {
+              "$ref": "common.schema.json#/$defs/gap_kind"
+            },
+            "gap_planned": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "from",
+            "to",
+            "gap_kind",
+            "gap_planned"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": [
+              "ground_message",
+              "handoff"
+            ]
+          },
+          "ref_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "queued_at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          },
+          "delivered_at": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "catch_up": {
+            "$ref": "common.schema.json#/$defs/catch_up"
+          },
+          "plan_run_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "simulated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "ref_id",
+          "title",
+          "queued_at",
+          "delivered_at",
+          "catch_up",
+          "plan_run_id",
+          "simulated"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "since",
+    "gap",
+    "items",
+    "as_of"
+  ],
+  "additionalProperties": false
+}

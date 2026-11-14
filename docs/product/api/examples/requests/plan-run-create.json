@@ -1,0 +1,10 @@
+{
+  "summary": "SIM request POST /v1/plan-runs",
+  "description": "Start ICL10's plan from Mara's episode. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/PlanRunCreate",
+  "value": {
+    "plan_id": "plan_icl10",
+    "subject_person_id": "mara",
+    "episode_id": "epi_mara_racing_1"
+  }
+}

@@ -1,0 +1,236 @@
+{
+  "summary": "SIM POST /v1/plan-runs/prn_icl10_mara_1/actions close",
+  "description": "Closed by Ilya Brandt, medical officer, after his review. The queued handoff still leaves at the next contact; closing did not wait for it. Illustrative only: not seed data.",
+  "x-schema": "plan-run.schema.json",
+  "value": {
+    "plan_run_id": "prn_icl10_mara_1",
+    "revision": 8,
+    "plan_id": "plan_icl10",
+    "config_pins": [
+      {
+        "name": "kit-map",
+        "version": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b"
+      },
+      {
+        "name": "onboard-plans",
+        "version": "7aaab248951ab8bcd5bf193b05216727d30a3c2d4485b0dbd09a6626c15c7fe1"
+      },
+      {
+        "name": "role-rules",
+        "version": "7c65b349bf85239e49c23b417694002489fd97a911990285cdefea9a85e136e1"
+      },
+      {
+        "name": "skills-catalog",
+        "version": "65050135c78bfea42bab863c90b7e4a2c37d47d8aa9c8f551f06cdca25525ec9"
+      },
+      {
+        "name": "ui-copy",
+        "version": "296d7bbbb4ac286e63ec8a5968d96fb5cce35e256b9151e415e7b2133fba5f6e"
+      }
+    ],
+    "subject": {
+      "person_id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "episode_id": "epi_mara_racing_1",
+    "help_session_id": null,
+    "environment_id": "lunar_surface",
+    "state": "closed",
+    "opened_by": {
+      "kind": "person",
+      "id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "opened_at": "2026-11-13T09:36:00Z",
+    "steps": [
+      {
+        "step_id": "icl10_pulse_by_crewmate",
+        "stage_id": "check_another_way",
+        "state": "done",
+        "by": {
+          "kind": "person",
+          "id": "tomas",
+          "display_name": "Tomas Lind"
+        },
+        "at": "2026-11-13T09:39:05Z",
+        "substitute_step_id": null,
+        "guided_check_id": "gck_pulse_mara_1",
+        "observation_ids": [
+          "obs_pulse_mara_felt_1"
+        ],
+        "supply_use_ids": []
+      },
+      {
+        "step_id": "icl10_note_episodes",
+        "stage_id": "do_now",
+        "state": "done",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "at": "2026-11-13T09:40:10Z",
+        "substitute_step_id": null,
+        "guided_check_id": null,
+        "observation_ids": [],
+        "supply_use_ids": []
+      },
+      {
+        "step_id": "icl10_avoid_triggers",
+        "stage_id": "do_now",
+        "state": "done",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "at": "2026-11-13T09:40:20Z",
+        "substitute_step_id": null,
+        "guided_check_id": null,
+        "observation_ids": [],
+        "supply_use_ids": []
+      },
+      {
+        "step_id": "icl10_add_ecg_report",
+        "stage_id": "do_now",
+        "state": "not_available",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "at": "2026-11-13T09:40:30Z",
+        "substitute_step_id": null,
+        "guided_check_id": null,
+        "observation_ids": [],
+        "supply_use_ids": []
+      },
+      {
+        "step_id": "icl10_pulse_at_cameras",
+        "stage_id": "watch",
+        "state": "open",
+        "by": null,
+        "at": null,
+        "substitute_step_id": null,
+        "guided_check_id": null,
+        "observation_ids": [],
+        "supply_use_ids": []
+      },
+      {
+        "step_id": "icl10_pulse_at_oximeter",
+        "stage_id": "watch",
+        "state": "open",
+        "by": null,
+        "at": null,
+        "substitute_step_id": null,
+        "guided_check_id": null,
+        "observation_ids": [],
+        "supply_use_ids": []
+      },
+      {
+        "step_id": "icl10_tell_mo_if_recurs",
+        "stage_id": "watch",
+        "state": "open",
+        "by": null,
+        "at": null,
+        "substitute_step_id": null,
+        "guided_check_id": null,
+        "observation_ids": [],
+        "supply_use_ids": []
+      },
+      {
+        "step_id": "icl10_worse_chest",
+        "stage_id": "if_worse",
+        "state": "open",
+        "by": null,
+        "at": null,
+        "substitute_step_id": null,
+        "guided_check_id": null,
+        "observation_ids": [],
+        "supply_use_ids": []
+      },
+      {
+        "step_id": "icl10_worse_breath",
+        "stage_id": "if_worse",
+        "state": "open",
+        "by": null,
+        "at": null,
+        "substitute_step_id": null,
+        "guided_check_id": null,
+        "observation_ids": [],
+        "supply_use_ids": []
+      },
+      {
+        "step_id": "icl10_worse_faint",
+        "stage_id": "if_worse",
+        "state": "open",
+        "by": null,
+        "at": null,
+        "substitute_step_id": null,
+        "guided_check_id": null,
+        "observation_ids": [],
+        "supply_use_ids": []
+      },
+      {
+        "step_id": "icl10_worse_persists",
+        "stage_id": "if_worse",
+        "state": "open",
+        "by": null,
+        "at": null,
+        "substitute_step_id": null,
+        "guided_check_id": null,
+        "observation_ids": [],
+        "supply_use_ids": []
+      },
+      {
+        "step_id": "icl10_worse_heart_attack",
+        "stage_id": "if_worse",
+        "state": "open",
+        "by": null,
+        "at": null,
+        "substitute_step_id": null,
+        "guided_check_id": null,
+        "observation_ids": [],
+        "supply_use_ids": []
+      },
+      {
+        "step_id": "icl10_mo_review",
+        "stage_id": "medical_officer",
+        "state": "open",
+        "by": null,
+        "at": null,
+        "substitute_step_id": null,
+        "guided_check_id": null,
+        "observation_ids": [],
+        "supply_use_ids": []
+      }
+    ],
+    "rechecks": [
+      {
+        "step_id": "icl10_pulse_at_cameras",
+        "due_at": null,
+        "due_text": "Next check: interval to be set by clinical review",
+        "done_at": null,
+        "observation_ids": []
+      }
+    ],
+    "escalations": [],
+    "handoff_id": "hof_mara_1",
+    "link_state_at_open": {
+      "status": "down",
+      "gap_kind": "planned_line_of_sight",
+      "next_contact_at": "2026-11-14T11:20:40Z"
+    },
+    "close": {
+      "disposition": "handed_to_medical_officer",
+      "note": "Reviewed by the medical officer after the walk.",
+      "by": {
+        "kind": "person",
+        "id": "ilya",
+        "display_name": "Ilya Brandt"
+      },
+      "at": "2026-11-13T11:55:00Z"
+    },
+    "allowed_actions": []
+  }
+}

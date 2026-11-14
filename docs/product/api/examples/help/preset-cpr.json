@@ -1,0 +1,312 @@
+{
+  "summary": "SIM GET /v1/help-sessions/hlp_station_cpr",
+  "description": "Not responding and not breathing normally: the fixed path reaches the not_breathing flow in three answers. Illustrative only: not seed data.",
+  "x-schema": "help-session.schema.json",
+  "value": {
+    "help_session_id": "hlp_station_cpr",
+    "revision": 4,
+    "state": "open",
+    "opened_at": "2026-11-13T09:00:00Z",
+    "client_opened_at": "2026-11-13T08:59:59Z",
+    "opened_by": {
+      "kind": "person",
+      "id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "entry": {
+      "kind": "button",
+      "ref_id": null
+    },
+    "subject": {
+      "kind": "crewmate",
+      "person_id": "ilya",
+      "display_name": "Ilya Brandt"
+    },
+    "place": "node 2",
+    "body_region": null,
+    "helpers": [],
+    "config_pins": [
+      {
+        "name": "help-presentation",
+        "version": "682f54eb73a7b11c2e5df233951bf608cc63a99825f070175f939a8df03b8170"
+      },
+      {
+        "name": "responder-flows",
+        "version": "23865cf8acfbfa869df24a8b0fee732e386ddbb9e4735d19d0920873d92cee64"
+      },
+      {
+        "name": "ui-copy",
+        "version": "296d7bbbb4ac286e63ec8a5968d96fb5cce35e256b9151e415e7b2133fba5f6e"
+      }
+    ],
+    "level": "emergency",
+    "level_basis": "team default",
+    "node": {
+      "kind": "flow",
+      "id": "not_breathing",
+      "question": null,
+      "answers": [],
+      "flow": {
+        "title": "Not responding and not breathing normally",
+        "plain": "The person does not answer and is not breathing normally. Treat this as a stopped heart. Start chest compressions now. Do not wait for anyone.",
+        "immediate_steps": [
+          {
+            "index": 0,
+            "text": "Raise the medical alarm the way your vehicle's procedure says. Call every crewmate.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 1,
+            "text": "Start chest compressions now. If you are in doubt, start anyway.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 2,
+            "text": "Push hard and fast in the centre of the chest: 100 to 120 pushes a minute, 5 to 6 cm deep. Let the chest come back up after each push.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 3,
+            "text": "In weightlessness, lock yourself to them first: your left leg over their right shoulder, your right leg around their body, ankles locked behind their back. This is the Evetts-Russomano hold.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 4,
+            "text": "If you cannot push well that way, hold them from behind with your arms around their chest (reverse bear hug) and keep pushing.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 5,
+            "text": "A second crewmate brings the AED (the box that can shock the heart) and the restraint board. Attach the pads and do what the AED voice says.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 6,
+            "text": "Only shock when the person is strapped to the restraint board on a surface that does not carry electricity.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 7,
+            "text": "Once they are strapped down, keep pushing from the handstand position if the cabin allows, or from beside or across them.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 8,
+            "text": "If you are trained, give 2 rescue breaths after every 30 pushes. If not, keep pushing without stopping.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 9,
+            "text": "Do not stop to use this app. When a crewmate is free, they press Tell the ground: the log leaves at the next contact, and nothing here waits for it.",
+            "ticked_at": null,
+            "ticked_by": null
+          }
+        ],
+        "questions": [
+          "To the free crewmate: when did they collapse, or when were they last seen well?",
+          "Did anyone see what happened: an electric shock, smoke or toxic air, an injury, choking or a fall?",
+          "Is the AED attached? What did it say last?",
+          "Are they now breathing normally, moving or waking up?"
+        ],
+        "measurements": [
+          {
+            "what": "Heart rhythm",
+            "how": "The AED checks the rhythm itself. Keep hands off only while it says so.",
+            "instrument": "AED"
+          },
+          {
+            "what": "Oxygen level and pulse, only once they breathe normally again",
+            "how": "Clip on a finger, hand warm and still, wait for one steady number. Never pause compressions to do this.",
+            "instrument": "pulse oximeter"
+          },
+          {
+            "what": "Blood pressure, only once they breathe normally again",
+            "how": "Cuff on the bare upper arm, as the device instructions say. The CMO decides when.",
+            "instrument": "BP cuff"
+          }
+        ],
+        "treatment_steps": [
+          {
+            "step": "Chest compressions: Evetts-Russomano hold first, reverse bear hug if compressions are not good enough",
+            "who": "any crew",
+            "kit": "none"
+          },
+          {
+            "step": "Rescue breaths after every 30 compressions if trained; otherwise continuous compressions",
+            "who": "any crew",
+            "kit": "face shield or pocket mask, if listed"
+          },
+          {
+            "step": "Strap the person to the restraint board, then compress in the handstand position, or the standard or straddling position",
+            "who": "any crew",
+            "kit": "crew medical restraint system, if listed"
+          },
+          {
+            "step": "Attach the AED and follow its voice, with the person restrained on an electrically isolated surface",
+            "who": "any crew",
+            "kit": "AED, if listed"
+          },
+          {
+            "step": "Airway device, venous access and medicines, as in the onboard procedure",
+            "who": "crew medical officer",
+            "kit": "as in the onboard procedure"
+          },
+          {
+            "step": "Decide when to stop CPR: the most medically qualified crewmember, with the ground while the link is up, or alone when it is not",
+            "who": "crew medical officer",
+            "kit": "none"
+          },
+          {
+            "step": "Log for the ground. Voice or video support joins only while the link is up, a crewmate is free to handle it and it does not lower CPR quality. It leaves at the next contact; nothing waits for it.",
+            "who": "ground",
+            "kit": "message link; voice and video while the link is up"
+          }
+        ],
+        "call_ground_when": "Log for the ground at once, by a crewmate who is not doing compressions. It leaves at the next contact. Never slow or pause compressions for it, and never wait for the answer.",
+        "environment_note": "The ground is usually reachable. Use their support when it does not lower CPR quality and enough crew are present.",
+        "body_regions": [
+          "heart",
+          "lungs"
+        ],
+        "citation": {
+          "text": "Responder flow not_breathing, responder-flows.json.",
+          "source_ids": [
+            "C08",
+            "RS01",
+            "RS02",
+            "RS04",
+            "RS07",
+            "RS08",
+            "RS41"
+          ]
+        }
+      }
+    },
+    "path": [
+      {
+        "node_id": "air_safe",
+        "kind": "triage",
+        "answer_index": 0,
+        "answer_label": "Yes: no alarm, smoke or smell",
+        "at": "2026-11-13T09:00:08Z",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        }
+      },
+      {
+        "node_id": "responding",
+        "kind": "triage",
+        "answer_index": 1,
+        "answer_label": "No, or not sure",
+        "at": "2026-11-13T09:00:16Z",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        }
+      },
+      {
+        "node_id": "breathing",
+        "kind": "triage",
+        "answer_index": 1,
+        "answer_label": "No, gasping, or not sure",
+        "at": "2026-11-13T09:00:24Z",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        }
+      }
+    ],
+    "log": [
+      {
+        "at": "2026-11-13T09:00:00Z",
+        "text": "Mara Okafor pressed Someone needs help for Ilya Brandt",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "kind": "system"
+      },
+      {
+        "at": "2026-11-13T09:00:08Z",
+        "text": "Air safe",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "kind": "answer"
+      },
+      {
+        "at": "2026-11-13T09:00:16Z",
+        "text": "Ilya Brandt not responding",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "kind": "answer"
+      },
+      {
+        "at": "2026-11-13T09:00:24Z",
+        "text": "Not breathing normally",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "kind": "answer"
+      }
+    ],
+    "crew_called_at": null,
+    "broadcast_id": "brd_station_cpr",
+    "assistant": {
+      "status": "off",
+      "conversation_id": null,
+      "last_text": null
+    },
+    "ground_message_ids": [],
+    "fixed_buttons": [
+      {
+        "id": "call_crew",
+        "label": "Call crew"
+      },
+      {
+        "id": "tell_ground",
+        "label": "Tell the ground"
+      },
+      {
+        "id": "start_over",
+        "label": "Start over"
+      }
+    ],
+    "closed_at": null,
+    "close": null,
+    "allowed_actions": [
+      "switch_flow",
+      "call_crew",
+      "join",
+      "start_over",
+      "set_body_region",
+      "set_place",
+      "add_note",
+      "ask_assistant",
+      "close",
+      "tick_step",
+      "untick_step"
+    ]
+  }
+}

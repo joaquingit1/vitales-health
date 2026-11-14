@@ -1,0 +1,6 @@
+{
+  "summary": "SIM request POST /v1/help-sessions/{id}/ground-messages",
+  "description": "Tell the ground. The hub builds the lines from the session log. extra_note is optional and becomes the last line. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/GroundMessageCreate",
+  "value": {}
+}

@@ -1,0 +1,122 @@
+{
+  "summary": "SIM POST /v1/urgent-events",
+  "description": "The old urgent entry opens a help session exactly as POST /v1/help-sessions does. Illustrative only: not seed data.",
+  "x-schema": "help-session.schema.json",
+  "value": {
+    "help_session_id": "hlp_alias_1",
+    "revision": 1,
+    "state": "open",
+    "opened_at": "2026-11-13T12:02:00Z",
+    "client_opened_at": "2026-11-13T12:01:59Z",
+    "opened_by": {
+      "kind": "person",
+      "id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "entry": {
+      "kind": "urgent_event_alias",
+      "ref_id": null
+    },
+    "subject": {
+      "kind": "crewmate",
+      "person_id": "tomas",
+      "display_name": "Tomas Lind"
+    },
+    "place": "airlock",
+    "body_region": null,
+    "helpers": [],
+    "config_pins": [
+      {
+        "name": "help-presentation",
+        "version": "682f54eb73a7b11c2e5df233951bf608cc63a99825f070175f939a8df03b8170"
+      },
+      {
+        "name": "responder-flows",
+        "version": "23865cf8acfbfa869df24a8b0fee732e386ddbb9e4735d19d0920873d92cee64"
+      },
+      {
+        "name": "ui-copy",
+        "version": "296d7bbbb4ac286e63ec8a5968d96fb5cce35e256b9151e415e7b2133fba5f6e"
+      }
+    ],
+    "level": "emergency",
+    "level_basis": "team default",
+    "node": {
+      "kind": "triage",
+      "id": "air_safe",
+      "question": "Is the air safe? Look and listen for an alarm, smoke, fire, a burning or sharp smell, or hissing air.",
+      "answers": [
+        {
+          "index": 0,
+          "label": "Yes: no alarm, smoke or smell"
+        },
+        {
+          "index": 1,
+          "label": "Smoke, fire, or a burning, sharp or chemical smell"
+        },
+        {
+          "index": 2,
+          "label": "Pressure alarm, hissing air, or ears popping"
+        },
+        {
+          "index": 3,
+          "label": "Radiation alarm or solar storm warning"
+        },
+        {
+          "index": 4,
+          "label": "Not sure"
+        }
+      ],
+      "flow": null
+    },
+    "path": [],
+    "log": [
+      {
+        "at": "2026-11-13T12:02:00Z",
+        "text": "Mara Okafor pressed Someone needs help for Tomas Lind",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "kind": "system"
+      }
+    ],
+    "crew_called_at": null,
+    "broadcast_id": "brd_alias_1",
+    "assistant": {
+      "status": "off",
+      "conversation_id": null,
+      "last_text": null
+    },
+    "ground_message_ids": [],
+    "fixed_buttons": [
+      {
+        "id": "call_crew",
+        "label": "Call crew"
+      },
+      {
+        "id": "tell_ground",
+        "label": "Tell the ground"
+      },
+      {
+        "id": "start_over",
+        "label": "Start over"
+      }
+    ],
+    "closed_at": null,
+    "close": null,
+    "allowed_actions": [
+      "answer",
+      "switch_flow",
+      "call_crew",
+      "join",
+      "start_over",
+      "set_body_region",
+      "set_place",
+      "add_note",
+      "ask_assistant",
+      "close"
+    ]
+  }
+}

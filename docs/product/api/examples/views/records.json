@@ -1,0 +1,65 @@
+{
+  "summary": "SIM GET /v1/views/records",
+  "description": "Mara's own records, newest first. Illustrative only: not seed data.",
+  "x-schema": "records-view.schema.json",
+  "value": {
+    "person_id": "mara",
+    "items": [
+      {
+        "kind": "handoff",
+        "ref_id": "hof_mara_1",
+        "title": "Log for the ground",
+        "detail": "Waiting for the next contact",
+        "at": "2026-11-13T09:41:30Z",
+        "origin_mode": "SIM",
+        "state": "queued"
+      },
+      {
+        "kind": "guided_check",
+        "ref_id": "gck_pulse_mara_1",
+        "title": "Pulse felt by Tomas Lind",
+        "detail": "92 in 60 seconds, cameras 96, they agree",
+        "at": "2026-11-13T09:39:05Z",
+        "origin_mode": "SIM",
+        "state": "checked"
+      },
+      {
+        "kind": "plan_run",
+        "ref_id": "prn_icl10_mara_1",
+        "title": "Onboard plan ICL10",
+        "detail": "Watching",
+        "at": "2026-11-13T09:36:00Z",
+        "origin_mode": "SIM",
+        "state": "watching"
+      },
+      {
+        "kind": "observation",
+        "ref_id": "obs_pulse_mara_cam2",
+        "title": "Pulse at rest",
+        "detail": "96 bpm, camera, Sim",
+        "at": "2026-11-13T09:33:30Z",
+        "origin_mode": "SIM",
+        "state": null
+      },
+      {
+        "kind": "episode",
+        "ref_id": "epi_mara_racing_1",
+        "title": "Heart racing",
+        "detail": "Awaiting review",
+        "at": "2026-11-13T09:30:00Z",
+        "origin_mode": "SIM",
+        "state": "awaiting_review"
+      },
+      {
+        "kind": "daily_check",
+        "ref_id": "dck_mara_d19",
+        "title": "Daily check",
+        "detail": "Submitted",
+        "at": "2026-11-13T09:14:00Z",
+        "origin_mode": "SIM",
+        "state": "submitted"
+      }
+    ],
+    "next_cursor": null
+  }
+}

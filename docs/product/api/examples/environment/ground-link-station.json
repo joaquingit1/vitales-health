@@ -1,0 +1,17 @@
+{
+  "summary": "SIM GET /v1/ground-link, station",
+  "description": "status and one_way_delay_s follow the profile's comms_queue (source schedule). delay_text is earth_delay of this environment in environment-hazards.json with source IDs moved to delay_source_ids. Illustrative only: not seed data.",
+  "x-schema": "ground-link.schema.json",
+  "value": {
+    "status": "up",
+    "one_way_delay_s": 2,
+    "next_contact_at": null,
+    "last_contact_at": "2026-11-13T09:09:03Z",
+    "source": "schedule",
+    "environment_id": "station_leo",
+    "delay_text": "Near real time. The sources read give no delay figure for low Earth orbit; the ground team is close at hand.",
+    "delay_source_ids": [],
+    "gap_kind": null,
+    "gap_planned": false
+  }
+}

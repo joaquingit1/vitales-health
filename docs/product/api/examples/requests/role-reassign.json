@@ -1,0 +1,11 @@
+{
+  "summary": "SIM request POST /v1/help-sessions/{id}/roles",
+  "description": "Give the kit fetcher role to someone else. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/RoleAction",
+  "value": {
+    "action": "reassign",
+    "role_assignment_id": "rol_cpr_kit_fetcher",
+    "person_id": "mara",
+    "client_time": "2026-11-13T09:01:00Z"
+  }
+}

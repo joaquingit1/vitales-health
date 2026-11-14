@@ -1,0 +1,413 @@
+{
+  "summary": "EXAMPLE CONFIG sensor-catalog.json",
+  "description": "Team display configuration for the eight sensor types the demo shows. Ranges match design/crew-data.js. Sampling intervals cite EV01 Table 6.1-1 where it gives one.",
+  "x-schema": "config-sensor-catalog.schema.json",
+  "value": {
+    "notice": "Unreviewed draft: needs clinician review before live guidance.",
+    "sensor_types": [
+      {
+        "id": "co2",
+        "hazard_id": "co2",
+        "name": "CO2",
+        "long_name": "Carbon dioxide",
+        "body_region": "head",
+        "unit": "mmHg",
+        "unit_display": "mmHg",
+        "decimals": 1,
+        "accepted_units": [
+          {
+            "unit": "mmHg",
+            "conversion": "identity"
+          },
+          {
+            "unit": "ppm",
+            "conversion": "ppm_to_mmhg"
+          }
+        ],
+        "aggregations": [
+          {
+            "id": "latest",
+            "kind": "latest",
+            "window_seconds": null,
+            "label": "now"
+          },
+          {
+            "id": "mean_1h",
+            "kind": "mean",
+            "window_seconds": 3600,
+            "label": "one-hour average"
+          },
+          {
+            "id": "mean_7d",
+            "kind": "mean",
+            "window_seconds": 604800,
+            "label": "seven-day average"
+          }
+        ],
+        "display_aggregation_id": "mean_1h",
+        "display": {
+          "range": [
+            0,
+            5
+          ],
+          "by_environment": {},
+          "basis": "team default"
+        },
+        "expected_interval_seconds": 5,
+        "interval_basis": "sourced",
+        "interval_source_ids": [
+          "EV01"
+        ],
+        "stale_after_seconds": 300,
+        "stale_basis": "team default",
+        "no_reading_label": "No reading",
+        "manual_alternative_item_id": "air_sampling",
+        "citation_text": "CO2 sensor"
+      },
+      {
+        "id": "rad",
+        "hazard_id": "radiation",
+        "name": "Radiation",
+        "long_name": "Radiation dose rate",
+        "body_region": null,
+        "unit": "µGy/h",
+        "unit_display": "µGy/h",
+        "decimals": 1,
+        "trim_trailing_zeros": true,
+        "accepted_units": [
+          {
+            "unit": "µGy/h",
+            "conversion": "identity"
+          },
+          {
+            "unit": "mGy/h",
+            "conversion": "scale",
+            "factor": 1000
+          }
+        ],
+        "aggregations": [
+          {
+            "id": "latest",
+            "kind": "latest",
+            "window_seconds": null,
+            "label": "now"
+          },
+          {
+            "id": "mean_2h",
+            "kind": "mean",
+            "window_seconds": 7200,
+            "label": "two-hour mean"
+          }
+        ],
+        "display_aggregation_id": "mean_2h",
+        "display": {
+          "range": [
+            0,
+            60
+          ],
+          "by_environment": {},
+          "basis": "team default"
+        },
+        "expected_interval_seconds": null,
+        "interval_basis": "sourced",
+        "interval_source_ids": [
+          "EV01"
+        ],
+        "stale_after_seconds": 600,
+        "stale_basis": "team default",
+        "no_reading_label": "No reading",
+        "manual_alternative_item_id": "radiation_dosimeter",
+        "citation_text": "Radiation monitor"
+      },
+      {
+        "id": "rad_day",
+        "hazard_id": "radiation",
+        "name": "Radiation",
+        "long_name": "Radiation dose",
+        "body_region": null,
+        "unit": "mSv/day",
+        "unit_display": "mSv/day",
+        "decimals": 1,
+        "accepted_units": [
+          {
+            "unit": "mSv/day",
+            "conversion": "identity"
+          }
+        ],
+        "aggregations": [
+          {
+            "id": "latest",
+            "kind": "latest",
+            "window_seconds": null,
+            "label": "latest"
+          }
+        ],
+        "display_aggregation_id": "latest",
+        "display": {
+          "range": [
+            0,
+            1
+          ],
+          "by_environment": {},
+          "basis": "team default"
+        },
+        "expected_interval_seconds": null,
+        "interval_basis": "sourced",
+        "interval_source_ids": [
+          "EV01"
+        ],
+        "stale_after_seconds": 172800,
+        "stale_basis": "team default",
+        "no_reading_label": "No reading",
+        "manual_alternative_item_id": "radiation_dosimeter",
+        "citation_text": "Radiation dose"
+      },
+      {
+        "id": "o2",
+        "hazard_id": "oxygen",
+        "name": "Oxygen",
+        "long_name": "Oxygen you breathe in",
+        "body_region": "head",
+        "unit": "mmHg",
+        "unit_display": "mmHg",
+        "decimals": 0,
+        "accepted_units": [
+          {
+            "unit": "mmHg",
+            "conversion": "identity"
+          },
+          {
+            "unit": "kPa",
+            "conversion": "scale",
+            "factor": 7.50062
+          }
+        ],
+        "aggregations": [
+          {
+            "id": "latest",
+            "kind": "latest",
+            "window_seconds": null,
+            "label": "inspired oxygen"
+          },
+          {
+            "id": "twa_1h",
+            "kind": "time_weighted_mean",
+            "window_seconds": 3600,
+            "label": "one-hour time-weighted average"
+          }
+        ],
+        "display_aggregation_id": "latest",
+        "display": {
+          "range": [
+            100,
+            200
+          ],
+          "by_environment": {},
+          "basis": "team default"
+        },
+        "expected_interval_seconds": 5,
+        "interval_basis": "sourced",
+        "interval_source_ids": [
+          "EV01"
+        ],
+        "stale_after_seconds": 300,
+        "stale_basis": "team default",
+        "no_reading_label": "No reading",
+        "manual_alternative_item_id": null,
+        "citation_text": "Oxygen sensor"
+      },
+      {
+        "id": "noise",
+        "hazard_id": "noise",
+        "name": "Noise",
+        "long_name": "Noise",
+        "body_region": "ear",
+        "unit": "dBA",
+        "unit_display": "dBA",
+        "decimals": 0,
+        "accepted_units": [
+          {
+            "unit": "dBA",
+            "conversion": "identity"
+          }
+        ],
+        "aggregations": [
+          {
+            "id": "latest",
+            "kind": "latest",
+            "window_seconds": null,
+            "label": "now"
+          },
+          {
+            "id": "leq_24h",
+            "kind": "energy_mean",
+            "window_seconds": 86400,
+            "label": "24-hour average"
+          }
+        ],
+        "display_aggregation_id": "leq_24h",
+        "display": {
+          "range": [
+            40,
+            90
+          ],
+          "by_environment": {},
+          "basis": "team default"
+        },
+        "expected_interval_seconds": null,
+        "interval_basis": "team default",
+        "interval_source_ids": [],
+        "stale_after_seconds": 600,
+        "stale_basis": "team default",
+        "no_reading_label": "No reading",
+        "manual_alternative_item_id": "noise_dosimetry",
+        "citation_text": "Noise sensor"
+      },
+      {
+        "id": "air",
+        "hazard_id": "toxic_vocs",
+        "name": "Air",
+        "long_name": "Air contaminants",
+        "body_region": "lungs",
+        "unit": "index",
+        "unit_display": "",
+        "decimals": 1,
+        "accepted_units": [
+          {
+            "unit": "index",
+            "conversion": "identity"
+          }
+        ],
+        "aggregations": [
+          {
+            "id": "latest",
+            "kind": "latest",
+            "window_seconds": null,
+            "label": "toxicity index"
+          }
+        ],
+        "display_aggregation_id": "latest",
+        "display": {
+          "range": [
+            0,
+            1.5
+          ],
+          "by_environment": {},
+          "basis": "team default"
+        },
+        "expected_interval_seconds": 262800,
+        "interval_basis": "sourced",
+        "interval_source_ids": [
+          "EV01"
+        ],
+        "stale_after_seconds": 300000,
+        "stale_basis": "team default",
+        "no_reading_label": "No reading",
+        "manual_alternative_item_id": "air_sampling",
+        "citation_text": "Air quality monitor"
+      },
+      {
+        "id": "dust",
+        "hazard_id": "dust",
+        "name": "Dust",
+        "long_name": "Dust in the air",
+        "body_region": "lungs",
+        "unit": "mg/m3",
+        "unit_display": "mg/m³",
+        "decimals": 2,
+        "accepted_units": [
+          {
+            "unit": "mg/m3",
+            "conversion": "identity"
+          },
+          {
+            "unit": "µg/m3",
+            "conversion": "scale",
+            "factor": 0.001
+          }
+        ],
+        "aggregations": [
+          {
+            "id": "latest",
+            "kind": "latest",
+            "window_seconds": null,
+            "label": "now"
+          },
+          {
+            "id": "twa_24h",
+            "kind": "time_weighted_mean",
+            "window_seconds": 86400,
+            "label": "time-weighted"
+          }
+        ],
+        "display_aggregation_id": "twa_24h",
+        "display": {
+          "range": [
+            0,
+            0.6
+          ],
+          "by_environment": {
+            "mars_surface": [
+              0,
+              0.15
+            ]
+          },
+          "basis": "team default"
+        },
+        "expected_interval_seconds": 60,
+        "interval_basis": "sourced",
+        "interval_source_ids": [
+          "EV01"
+        ],
+        "stale_after_seconds": 600,
+        "stale_basis": "team default",
+        "no_reading_label": "No reading",
+        "manual_alternative_item_id": "dust_exposure_check",
+        "citation_text": "Dust sensor"
+      },
+      {
+        "id": "water",
+        "hazard_id": "perchlorate",
+        "name": "Water",
+        "long_name": "Local water",
+        "body_region": "neck",
+        "unit": "mg/L",
+        "unit_display": "mg/L",
+        "decimals": 2,
+        "accepted_units": [
+          {
+            "unit": "mg/L",
+            "conversion": "identity"
+          }
+        ],
+        "aggregations": [
+          {
+            "id": "latest",
+            "kind": "latest",
+            "window_seconds": null,
+            "label": "latest test"
+          }
+        ],
+        "display_aggregation_id": "latest",
+        "display": {
+          "range": [
+            0,
+            1
+          ],
+          "by_environment": {},
+          "basis": "team default"
+        },
+        "expected_interval_seconds": null,
+        "interval_basis": "sourced",
+        "interval_source_ids": [
+          "EV01"
+        ],
+        "stale_after_seconds": 2592000,
+        "stale_basis": "team default",
+        "no_reading_label": "Untested",
+        "manual_alternative_item_id": "water_sampling",
+        "citation_text": "Water test"
+      }
+    ]
+  }
+}

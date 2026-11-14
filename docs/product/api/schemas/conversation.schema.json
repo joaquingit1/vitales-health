@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "conversation.schema.json",
+  "title": "Conversation",
+  "description": "An assistant conversation for the session person, pinned to a model release and a configuration release.",
+  "type": "object",
+  "properties": {
+    "conversation_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "person_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "general",
+            "episode",
+            "help_session",
+            "warning",
+            "reading",
+            "insight"
+          ]
+        },
+        "ref_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "ref_id"
+      ],
+      "additionalProperties": false
+    },
+    "state": {
+      "enum": [
+        "open",
+        "closed"
+      ]
+    },
+    "model_release_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "config_release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "messages": {
+      "type": "array",
+      "items": {
+        "$ref": "assistant-message.schema.json"
+      }
+    },
+    "active_turn_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "conversation_id",
+    "revision",
+    "person_id",
+    "context",
+    "state",
+    "model_release_id",
+    "config_release_id",
+    "created_at",
+    "messages",
+    "active_turn_id",
+    "allowed_actions"
+  ],
+  "additionalProperties": false
+}

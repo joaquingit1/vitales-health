@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "environment-profile.schema.json",
+  "title": "EnvironmentProfile",
+  "description": "One record of the mission's environment. Exactly one record is active. A change is a new record that starts proposed and becomes active only after the crew confirms it (CONTRACTS section 12).",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "state": {
+      "enum": [
+        "proposed",
+        "active",
+        "superseded",
+        "rejected"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "place": {
+      "type": "string",
+      "minLength": 1
+    },
+    "eva_word": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reason": {
+      "enum": [
+        "mission_start",
+        "phase_plan",
+        "operator",
+        "ground",
+        "demo_switch"
+      ]
+    },
+    "proposed_by": {
+      "$ref": "common.schema.json#/$defs/actor"
+    },
+    "proposed_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "effective_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "confirmations_required": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "confirmations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "person_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          }
+        },
+        "required": [
+          "person_id",
+          "at"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "rejected_by": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/actor"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "activated_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "superseded_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "environment_day_start": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "config_release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "hazard_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "uniqueItems": true
+    },
+    "limit_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "uniqueItems": true
+    },
+    "warning_definition_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "uniqueItems": true
+    },
+    "sensor_type_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "uniqueItems": true
+    },
+    "sensor_channel_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "routine_item_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "uniqueItems": true
+    },
+    "ground": {
+      "type": "object",
+      "properties": {
+        "delay_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "simulated_one_way_delay_seconds": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "delay_text",
+        "simulated_one_way_delay_seconds"
+      ],
+      "additionalProperties": false
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "profile_id",
+    "revision",
+    "environment_id",
+    "state",
+    "label",
+    "place",
+    "eva_word",
+    "reason",
+    "proposed_by",
+    "proposed_at",
+    "effective_at",
+    "confirmations_required",
+    "confirmations",
+    "rejected_by",
+    "activated_at",
+    "superseded_at",
+    "environment_day_start",
+    "config_release_id",
+    "hazard_ids",
+    "limit_ids",
+    "warning_definition_ids",
+    "sensor_type_ids",
+    "sensor_channel_ids",
+    "routine_item_ids",
+    "ground",
+    "allowed_actions"
+  ],
+  "additionalProperties": false
+}

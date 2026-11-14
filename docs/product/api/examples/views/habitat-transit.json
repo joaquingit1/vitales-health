@@ -1,0 +1,673 @@
+{
+  "summary": "SIM GET /v1/views/habitat, transit",
+  "description": "The Habitat screen on transit. Illustrative only: not seed data.",
+  "x-schema": "habitat-view.schema.json",
+  "value": {
+    "as_of": "2026-11-13T09:10:16Z",
+    "environment": {
+      "environment_id": "transit",
+      "label": "Deep-space transit",
+      "place": "deep-space transit",
+      "day_label": "mission day 96",
+      "eva_word": "spacewalk",
+      "ground_delay_text": "Grows with distance from Earth. Up to 20 minutes one way near Mars."
+    },
+    "ground_link": {
+      "status": "delayed",
+      "one_way_delay_s": 300,
+      "next_contact_at": null,
+      "last_contact_at": null,
+      "source": "schedule",
+      "environment_id": "transit",
+      "delay_text": "Grows with distance from Earth. Up to 20 minutes one way near Mars.",
+      "delay_source_ids": [
+        "EV25"
+      ],
+      "gap_kind": null,
+      "gap_planned": false
+    },
+    "sensors": [
+      {
+        "sensor_type_id": "rad",
+        "hazard_id": "radiation",
+        "environment_id": "transit",
+        "name": "Radiation",
+        "long_name": "Radiation dose rate",
+        "body_region": null,
+        "channel_id": "ch_rad_transit_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_rad_transit_sim",
+          "channel_id": "ch_rad_transit_sim",
+          "sensor_type_id": "rad",
+          "hazard_id": "radiation",
+          "value": 48,
+          "unit": "µGy/h",
+          "original_value": 48,
+          "original_unit": "µGy/h",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1005,
+          "quality_status": "accepted",
+          "location": "cabin",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 48,
+          "unit": "µGy/h",
+          "text": "48"
+        },
+        "context_label": "rising fast, storm warning",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "µGy/h",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [
+            "rad_rate_watch",
+            "rad_rate_act"
+          ],
+          "aggregated_value": 48,
+          "aggregation_label": "two-hour mean",
+          "window_start": "2026-11-13T07:10:00Z",
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": 1.0,
+          "status": "threshold_pending",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": "act",
+        "linked_warning_ids": [
+          "wrn_storm_transit_1"
+        ],
+        "display_range": [
+          0,
+          60
+        ],
+        "limit_marks": [],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Higher lifetime risk of cancer",
+            "body_region": null
+          },
+          {
+            "text": "Nausea, vomiting and tiredness after a large solar particle event (acute radiation syndrome)",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Skin injury and loss of blood-forming cells after large doses",
+            "body_region": null
+          },
+          {
+            "text": "Cataract (clouding of the lens of the eye)",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Changes in thinking, movement and behavior",
+            "body_region": "head"
+          },
+          {
+            "text": "Harm to the heart and blood vessels (NASA sets circulatory dose limits)",
+            "body_region": "heart"
+          }
+        ],
+        "todo": [
+          "Go to the storm shelter now.",
+          "If you are outside, end the walk and come back in.",
+          "Stay in the shelter until the all clear."
+        ],
+        "here": "Outside Earth's magnetic field. Unshielded cosmic-ray dose in free space is about 1.5 mSv per day at solar minimum; ship designs for stays over 60 days aim below 1.3 mSv per day. Solar particle events need a storm shelter.",
+        "citation": {
+          "text": "What it can do: EV02, EV05.",
+          "source_ids": [
+            "EV02",
+            "EV05"
+          ]
+        },
+        "series_href": "/v1/sensors/rad/series"
+      },
+      {
+        "sensor_type_id": "co2",
+        "hazard_id": "co2",
+        "environment_id": "transit",
+        "name": "CO2",
+        "long_name": "Carbon dioxide",
+        "body_region": "head",
+        "channel_id": "ch_co2_transit_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_co2_transit_sim",
+          "channel_id": "ch_co2_transit_sim",
+          "sensor_type_id": "co2",
+          "hazard_id": "co2",
+          "value": 2.4,
+          "unit": "mmHg",
+          "original_value": 2.4,
+          "original_unit": "mmHg",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1006,
+          "quality_status": "accepted",
+          "location": "cabin",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 2.4,
+          "unit": "mmHg",
+          "text": "2.4"
+        },
+        "context_label": "one-hour average",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mmHg",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 2.4,
+          "aggregation_label": "one-hour average",
+          "window_start": "2026-11-13T08:10:00Z",
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": 1.0,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          0,
+          5
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "co2_1h_act",
+            "value": 3,
+            "unit": "mmHg",
+            "comparator": "above",
+            "role": "warning",
+            "label": "limit 3 mmHg"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Headache",
+            "body_region": "head"
+          },
+          {
+            "text": "Shortness of breath",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Tiredness",
+            "body_region": null
+          },
+          {
+            "text": "Vision changes",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Nausea",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Unconsciousness in severe overexposure",
+            "body_region": "head"
+          },
+          {
+            "text": "Poorer sleep",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Nothing to do.",
+          "Keep air moving around your face when you sleep."
+        ],
+        "here": "Same machines and the same limit. When the average stays high for days, degraded scrubbers must be found and repaired or extra scrubbing switched on; far from Earth the crew does more of this work itself.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: C15, C25, EV07.",
+          "source_ids": [
+            "C15",
+            "C25",
+            "EV01",
+            "EV07"
+          ]
+        },
+        "series_href": "/v1/sensors/co2/series"
+      },
+      {
+        "sensor_type_id": "o2",
+        "hazard_id": "oxygen",
+        "environment_id": "transit",
+        "name": "Oxygen",
+        "long_name": "Oxygen you breathe in",
+        "body_region": "head",
+        "channel_id": "ch_o2_transit_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_o2_transit_sim",
+          "channel_id": "ch_o2_transit_sim",
+          "sensor_type_id": "o2",
+          "hazard_id": "oxygen",
+          "value": 150,
+          "unit": "mmHg",
+          "original_value": 150,
+          "original_unit": "mmHg",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1007,
+          "quality_status": "accepted",
+          "location": "cabin",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 150,
+          "unit": "mmHg",
+          "text": "150"
+        },
+        "context_label": "inspired oxygen",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mmHg",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 150,
+          "aggregation_label": "inspired oxygen",
+          "window_start": null,
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": null,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          100,
+          200
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "o2_low_act",
+            "value": 127,
+            "unit": "mmHg",
+            "comparator": "below",
+            "role": "warning",
+            "label": "low limit 127 mmHg"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Mental changes, at times not noticed by the person",
+            "body_region": "head"
+          },
+          {
+            "text": "Worse color, night and side vision",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Tiredness, nausea, headache, dizziness and mood changes",
+            "body_region": "head"
+          },
+          {
+            "text": "Fast breathing (hyperventilation)",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Poorer sleep",
+            "body_region": null
+          },
+          {
+            "text": "Small areas of lung collapse (absorption atelectasis) when oxygen is above half the air",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Oxygen toxicity: breathing problems or tissue injury",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Fire: materials burn more easily and hotter in oxygen-rich air",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Nothing to do."
+        ],
+        "here": "Same as a station; all oxygen comes from on-board systems.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: EV01, EV06, EV14.",
+          "source_ids": [
+            "EV01",
+            "EV06",
+            "EV14"
+          ]
+        },
+        "series_href": "/v1/sensors/o2/series"
+      },
+      {
+        "sensor_type_id": "noise",
+        "hazard_id": "noise",
+        "environment_id": "transit",
+        "name": "Noise",
+        "long_name": "Noise",
+        "body_region": "ear",
+        "channel_id": "ch_noise_transit_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_noise_transit_sim",
+          "channel_id": "ch_noise_transit_sim",
+          "sensor_type_id": "noise",
+          "hazard_id": "noise",
+          "value": 57,
+          "unit": "dBA",
+          "original_value": 57,
+          "original_unit": "dBA",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1008,
+          "quality_status": "accepted",
+          "location": "cabin",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 57,
+          "unit": "dBA",
+          "text": "57"
+        },
+        "context_label": "24-hour average",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "dBA",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 57,
+          "aggregation_label": "24-hour average",
+          "window_start": "2026-11-12T09:10:00Z",
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": 1.0,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          40,
+          90
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "noise_24h_act",
+            "value": 70,
+            "unit": "dBA",
+            "comparator": "above",
+            "role": "warning",
+            "label": "limit 70 dBA"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Hearing loss",
+            "body_region": "ear"
+          },
+          {
+            "text": "Headaches",
+            "body_region": "head"
+          },
+          {
+            "text": "Irritation",
+            "body_region": null
+          },
+          {
+            "text": "Worse sleep and relaxation",
+            "body_region": null
+          },
+          {
+            "text": "Harder to talk and hear each other",
+            "body_region": "ear"
+          }
+        ],
+        "todo": [
+          "Nothing to do."
+        ],
+        "here": "Months of the same noise. Quiet sleep areas matter more: the stricter sleep limit applies on missions over 30 days.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: C15, EV01, EV09.",
+          "source_ids": [
+            "C15",
+            "EV01",
+            "EV09"
+          ]
+        },
+        "series_href": "/v1/sensors/noise/series"
+      }
+    ],
+    "living_here": [
+      {
+        "hazard_id": "microgravity",
+        "name": "Weightlessness",
+        "body_regions": [
+          "back",
+          "flank",
+          "legs",
+          "eyes",
+          "head",
+          "ear",
+          "heart"
+        ],
+        "effects": [
+          "Bone loss: weight-bearing bones lose on average 1% to 1.5% of mineral density per month",
+          "Kidney stones from dehydration and calcium leaving the bones",
+          "Smaller, weaker muscles with less endurance",
+          "Fluids shift toward the head and may press on the eyes",
+          "Eye changes (SANS): swelling of the optic disc, flattening of the back of the eye, folds, and a shift toward far-sightedness",
+          "Headaches from fluid shift that look like CO2 headaches",
+          "Space motion sickness, disorientation, and problems with balance, walking and fine motor control",
+          "Fainting or near-fainting when standing after return to gravity (orthostatic intolerance)"
+        ],
+        "todo": [
+          "Do your exercise sessions and drink enough water.",
+          "Make up missed exercise.",
+          "Mention it at the next private medical conference."
+        ],
+        "here": "Applies for months; NASA describes a six-month trip between Earth and Mars."
+      },
+      {
+        "hazard_id": "isolation_confinement",
+        "name": "Isolation and confinement",
+        "body_regions": [],
+        "effects": [
+          "Stress, depression, anxiety, relationship problems and grief",
+          "These can pass with time or help, or develop into a psychiatric disorder",
+          "Sleep loss, body clock problems and work overload make it worse and can lower performance"
+        ],
+        "todo": [
+          "Take the private mood check.",
+          "It is yours.",
+          "Talk to someone you trust.",
+          "Keep your sleep and exercise routine."
+        ],
+        "here": "Long and confined, with a growing communication delay."
+      },
+      {
+        "hazard_id": "circadian_light",
+        "name": "Body clock and light",
+        "body_regions": [
+          "head",
+          "eyes"
+        ],
+        "effects": [
+          "Tiredness",
+          "Thinking problems: inattention, distraction, slow reactions and poor decisions",
+          "Sleep disruption",
+          "Metabolic disturbance",
+          "Blue light before sleep holds back melatonin and makes sleep harder"
+        ],
+        "todo": [
+          "Keep regular sleep times.",
+          "Avoid blue light before sleep.",
+          "Protect your next sleep period.",
+          "Follow the lighting schedule."
+        ],
+        "here": "No natural day. Lighting sets the clock; missions will not necessarily follow a 24-hour day."
+      },
+      {
+        "hazard_id": "distance_autonomy",
+        "name": "Distance from Earth",
+        "body_regions": [],
+        "effects": [
+          "No direct effect on the body. Every medical event is harder because help and supplies come late or not at all",
+          "Without the usual ground support, the crew may not be able to respond to unexpected critical failures"
+        ],
+        "todo": [
+          "Note the time.",
+          "Keep logging.",
+          "Plan as if no answer will come soon."
+        ],
+        "here": "The delay grows every day; supplies are fixed at launch."
+      }
+    ],
+    "warnings": [
+      {
+        "warning_id": "wrn_storm_transit_1",
+        "revision": 1,
+        "definition_id": "radiation_storm_shelter",
+        "config_release_id": "rel_20261113_a",
+        "level": "act",
+        "raised_by": "rule",
+        "hazard_id": "radiation",
+        "limit_id": null,
+        "sensor_type_id": "rad",
+        "channel_id": "ch_rad_transit_sim",
+        "scope": "crew",
+        "person_id": null,
+        "environment_id": "transit",
+        "location": null,
+        "origin_mode": "SIM",
+        "title": "Solar storm: go to the shelter",
+        "what": "The radiation monitor shows a sharp rise, and the ground warns of a solar particle event.",
+        "why": "A large solar event can give a big dose in hours. Shielding stops most solar particles, and the shelter has the most.",
+        "steps": [
+          "Go to the storm shelter now.",
+          "If you are outside, end the walk and come back in.",
+          "Stay in the shelter until the all clear."
+        ],
+        "body_regions": [],
+        "headline": {
+          "fragment": "Solar storm: go to the shelter",
+          "rank": 1,
+          "solo": true
+        },
+        "evidence": [
+          {
+            "kind": "mission_event",
+            "ref_id": "evt_spe_alert_1",
+            "summary": "Space weather alert from the ground, Sim",
+            "observed_at": "2026-11-13T08:51:00Z"
+          },
+          {
+            "kind": "reading",
+            "ref_id": "rdg_rad_transit_sim",
+            "summary": "Dose rate 48 µGy/h, Sim",
+            "observed_at": "2026-11-13T09:10:00Z"
+          }
+        ],
+        "evidence_time": "2026-11-13T08:52:00Z",
+        "evidence_time_label": "08:52",
+        "citation": {
+          "text": "Radiation monitor, Sim, and the ground's warning. Alert dose rates are set by the program.",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        "insight_id": null,
+        "state": "raised",
+        "raised_at": "2026-11-13T08:52:00Z",
+        "acknowledgements": [],
+        "cleared_at": null,
+        "clear_reason": null,
+        "resolved": null,
+        "dismissed": null,
+        "notes": [],
+        "previous_warning_id": null,
+        "routine_override_ids": [
+          "ovr_dosimeter_spe",
+          "ovr_daily_check_spe"
+        ],
+        "allowed_actions": [
+          "acknowledge",
+          "add_note"
+        ]
+      }
+    ]
+  }
+}

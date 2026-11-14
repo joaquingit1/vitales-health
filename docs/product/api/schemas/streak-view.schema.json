@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "streak-view.schema.json",
+  "title": "StreakView",
+  "description": "Derived, private to the person (CONTRACTS section 8).",
+  "type": "object",
+  "properties": {
+    "patient_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "mission_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "origin_mode": {
+      "enum": [
+        "LIVE",
+        "SIM"
+      ]
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "current_mission_day": {
+      "$ref": "common.schema.json#/$defs/mission_day"
+    },
+    "today": {
+      "enum": [
+        "checked",
+        "due"
+      ]
+    },
+    "current_streak_days": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "longest_streak_days": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "completed_days_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "first_mission_day": {
+      "$ref": "common.schema.json#/$defs/mission_day"
+    },
+    "days": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "mission_day": {
+            "$ref": "common.schema.json#/$defs/mission_day"
+          },
+          "status": {
+            "enum": [
+              "checked",
+              "missed",
+              "due"
+            ]
+          }
+        },
+        "required": [
+          "mission_day",
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "derivation_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mission_clock_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_cursor": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "patient_id",
+    "mission_id",
+    "origin_mode",
+    "as_of",
+    "current_mission_day",
+    "today",
+    "current_streak_days",
+    "longest_streak_days",
+    "completed_days_total",
+    "first_mission_day",
+    "days",
+    "derivation_version",
+    "mission_clock_version",
+    "event_cursor"
+  ],
+  "additionalProperties": false
+}

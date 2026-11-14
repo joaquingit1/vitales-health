@@ -1,0 +1,715 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-skills-catalog.schema.json",
+  "title": "skills-catalog.json",
+  "description": "Skills a crewmate can be taught on the body figure, with teach steps, the landmark each step lights, the camera checks that verify the helper where a camera can, freshness and drills. Written at the event from cited first aid sources; unreviewed until a clinician checks it.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "example": {
+      "type": "boolean"
+    },
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review.",
+      "minLength": 1
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_id": {
+            "$ref": "common.schema.json#/$defs/source_id"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "date": {
+            "type": "string",
+            "description": "Date on the source, as the source states it.",
+            "minLength": 1
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "type": "string",
+                "description": "The words this document relies on, copied from the source.",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "type": "string",
+            "description": "How the source was read when no verbatim quote could be copied.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "source_id",
+          "title",
+          "url",
+          "date",
+          "quote"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Sources this document cites that are not yet in the package source registry (sources.csv, NASA-SOURCES.md, RESPONDER-FLOWS.md, DEMO-CONDITIONS.md). The loader resolves every source ID against the registry plus this list.",
+      "uniqueItems": true
+    },
+    "landmarks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "landmark_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region"
+          },
+          "label": {
+            "type": "string",
+            "description": "Words for the landmark, for example pulse point at the base of the thumb.",
+            "minLength": 1
+          },
+          "offset": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  },
+                  "z": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "z"
+                ],
+                "additionalProperties": false,
+                "description": "Offset from the region's point on the body figure, in figure units. null: drawn at the region point until the design team sets it."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "basis": {
+            "$ref": "common.schema.json#/$defs/basis"
+          }
+        },
+        "required": [
+          "landmark_id",
+          "body_region",
+          "label",
+          "offset",
+          "basis"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "skill_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "short_name": {
+            "type": "string",
+            "description": "Short words for role rows and reasons, for example CPR.",
+            "minLength": 1
+          },
+          "who_may": {
+            "enum": [
+              "any_crew",
+              "crew_medical_officer"
+            ]
+          },
+          "card_title": {
+            "type": "string",
+            "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+            "minLength": 1,
+            "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+          },
+          "freshness": {
+            "type": "object",
+            "properties": {
+              "cadence": {
+                "$ref": "common.schema.json#/$defs/cadence_word"
+              },
+              "n": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "due_after_periods": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Due once this many cadence periods have passed since the last practice."
+              },
+              "stale_after_periods": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Stale once this many periods have passed."
+              },
+              "basis": {
+                "$ref": "common.schema.json#/$defs/basis"
+              },
+              "to_be_set_by": {
+                "$ref": "common.schema.json#/$defs/to_be_set_by"
+              }
+            },
+            "required": [
+              "cadence",
+              "n",
+              "due_after_periods",
+              "stale_after_periods",
+              "basis",
+              "to_be_set_by"
+            ],
+            "additionalProperties": false
+          },
+          "teach_steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "step_no": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "kind": {
+                  "enum": [
+                    "instruction",
+                    "count",
+                    "question"
+                  ]
+                },
+                "actor": {
+                  "enum": [
+                    "helper",
+                    "subject",
+                    "both"
+                  ]
+                },
+                "text": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                      "minLength": 1,
+                      "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "from_flow_step": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "flow_id": {
+                          "$ref": "common.schema.json#/$defs/config_id"
+                        },
+                        "list": {
+                          "const": "immediate_steps"
+                        },
+                        "index": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "flow_id",
+                        "list",
+                        "index"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Render the text of this responder flow step instead of text, so the help flow and the teaching never drift apart."
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "text_first_time": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                      "minLength": 1,
+                      "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "landmark_id": {
+                  "anyOf": [
+                    {
+                      "$ref": "common.schema.json#/$defs/config_id"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "body_region": {
+                  "$ref": "common.schema.json#/$defs/body_region_or_null"
+                },
+                "environments": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "common.schema.json#/$defs/environment_id"
+                      },
+                      "minItems": 1,
+                      "uniqueItems": true
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "count_seconds": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "choices": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "answer": {
+                        "enum": [
+                          "regular",
+                          "irregular",
+                          "not_sure"
+                        ]
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "answer",
+                      "label"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "description": "For a question step: the helper's answers."
+                },
+                "source_ids": {
+                  "$ref": "common.schema.json#/$defs/source_ids"
+                }
+              },
+              "required": [
+                "step_no",
+                "kind",
+                "actor",
+                "text",
+                "from_flow_step",
+                "text_first_time",
+                "landmark_id",
+                "body_region",
+                "environments",
+                "count_seconds",
+                "choices",
+                "source_ids"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "check_id": {
+                  "$ref": "common.schema.json#/$defs/config_id"
+                },
+                "kind": {
+                  "enum": [
+                    "count_agreement",
+                    "compression_rate",
+                    "hand_position"
+                  ]
+                },
+                "experimental": {
+                  "type": "boolean",
+                  "description": "True until measured at the venue. The screen labels the check Experimental."
+                },
+                "reference": {
+                  "type": "object",
+                  "properties": {
+                    "capability_code": {
+                      "anyOf": [
+                        {
+                          "$ref": "common.schema.json#/$defs/config_id"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "what": {
+                      "type": "string",
+                      "description": "What the camera measures for the check.",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "capability_code",
+                    "what"
+                  ],
+                  "additionalProperties": false
+                },
+                "target": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "min": {
+                          "type": "number"
+                        },
+                        "max": {
+                          "type": "number"
+                        },
+                        "unit": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "source_ids": {
+                          "$ref": "common.schema.json#/$defs/source_ids"
+                        }
+                      },
+                      "required": [
+                        "min",
+                        "max",
+                        "unit",
+                        "source_ids"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "tolerance": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "unit": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "basis": {
+                          "$ref": "common.schema.json#/$defs/basis"
+                        },
+                        "to_be_set_by": {
+                          "$ref": "common.schema.json#/$defs/to_be_set_by"
+                        }
+                      },
+                      "required": [
+                        "value",
+                        "unit",
+                        "basis",
+                        "to_be_set_by"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "update_interval_seconds": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "update_basis": {
+                  "anyOf": [
+                    {
+                      "$ref": "common.schema.json#/$defs/basis"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "phrases": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                          "minLength": 1,
+                          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "too_slow": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                          "minLength": 1,
+                          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "too_fast": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                          "minLength": 1,
+                          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "mismatch": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                          "minLength": 1,
+                          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "cannot_see": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                          "minLength": 1,
+                          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "no_reference": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                          "minLength": 1,
+                          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "too_slow",
+                    "too_fast",
+                    "mismatch",
+                    "cannot_see",
+                    "no_reference"
+                  ],
+                  "additionalProperties": false,
+                  "description": "The authored lines a check shows. For count_agreement, too_slow means the count is lower than the reference and too_fast higher."
+                }
+              },
+              "required": [
+                "check_id",
+                "kind",
+                "experimental",
+                "reference",
+                "target",
+                "tolerance",
+                "update_interval_seconds",
+                "update_basis",
+                "phrases"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "what_it_shows": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "does": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "does_not": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source_ids": {
+                    "$ref": "common.schema.json#/$defs/source_ids"
+                  }
+                },
+                "required": [
+                  "does",
+                  "does_not",
+                  "source_ids"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "drill_scenarios": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "scenario_id": {
+                  "$ref": "common.schema.json#/$defs/config_id"
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "practice_on": {
+                  "enum": [
+                    "crewmate",
+                    "manikin"
+                  ]
+                },
+                "needs_supplies": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  },
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "scenario_id",
+                "title",
+                "practice_on",
+                "needs_supplies"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "source_ids": {
+            "$ref": "common.schema.json#/$defs/source_ids"
+          },
+          "review_state": {
+            "enum": [
+              "unreviewed",
+              "reviewed",
+              "rejected"
+            ]
+          }
+        },
+        "required": [
+          "skill_id",
+          "name",
+          "short_name",
+          "who_may",
+          "card_title",
+          "freshness",
+          "teach_steps",
+          "checks",
+          "what_it_shows",
+          "drill_scenarios",
+          "source_ids",
+          "review_state"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "version",
+    "example",
+    "notice",
+    "sources",
+    "landmarks",
+    "skills"
+  ],
+  "additionalProperties": false
+}

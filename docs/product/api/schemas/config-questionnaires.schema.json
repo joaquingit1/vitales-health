@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-questionnaires.schema.json",
+  "title": "questionnaires.json",
+  "description": "Every question the app asks outside the help flow: the daily check, the red flags that open a responder flow, question sets added by routine triggers, and the miss question. Edited by the team.",
+  "type": "object",
+  "properties": {
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review before live guidance.",
+      "minLength": 1
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "text": {
+            "type": "string",
+            "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+            "minLength": 1,
+            "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+          },
+          "hint": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "enum": [
+              "presence",
+              "scale",
+              "duration",
+              "choice",
+              "confirm_estimate"
+            ]
+          },
+          "answer_code": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scale": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "min": {
+                    "type": "integer"
+                  },
+                  "max": {
+                    "type": "integer"
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "min",
+                  "max",
+                  "label"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "common.schema.json#/$defs/config_id"
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "presence": {
+                  "anyOf": [
+                    {
+                      "$ref": "common.schema.json#/$defs/presence"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "opens": {
+                  "anyOf": [
+                    {
+                      "enum": [
+                        "concern",
+                        "help_flow",
+                        "correction"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "flow_id": {
+                  "$ref": "common.schema.json#/$defs/config_id"
+                }
+              },
+              "required": [
+                "id",
+                "label",
+                "presence",
+                "opens"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          }
+        },
+        "required": [
+          "id",
+          "text",
+          "hint",
+          "kind",
+          "answer_code",
+          "scale",
+          "unit",
+          "choices",
+          "body_region"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "daily_check": {
+      "type": "object",
+      "properties": {
+        "question_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "minItems": 1
+        },
+        "required_question_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "minItems": 1
+        },
+        "hint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "done_text": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "question_ids",
+        "required_question_ids",
+        "hint",
+        "done_text"
+      ],
+      "additionalProperties": false
+    },
+    "red_flags": {
+      "type": "object",
+      "properties": {
+        "intro": {
+          "type": "string",
+          "minLength": 1
+        },
+        "after": {
+          "type": "string",
+          "minLength": 1
+        },
+        "question_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "intro",
+        "after",
+        "question_ids"
+      ],
+      "additionalProperties": false
+    },
+    "question_sets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "question_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/config_id"
+            },
+            "minItems": 1
+          },
+          "reason_template": {
+            "type": "string",
+            "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+            "minLength": 1,
+            "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "question_ids",
+          "reason_template"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "notice",
+    "questions",
+    "daily_check",
+    "red_flags",
+    "question_sets"
+  ],
+  "additionalProperties": false
+}

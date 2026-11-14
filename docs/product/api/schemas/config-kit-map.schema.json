@@ -1,0 +1,555 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-kit-map.schema.json",
+  "title": "kit-map.json",
+  "description": "The kit map: for each condition of NASA's ICL 1.0 v3.2 list, the tests that would confirm it according to its Clinical Findings Form (CliFF), the instruments each test needs, the kit and supplies aboard in each environment, the plan aboard for each condition and what NASA's form assumed the ground would do. The condition rows are written at the event from the CliFFs and start unreviewed. The state of a condition is computed by the hub against the active kit (CONTRACTS section 21) and is never stored here.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "The authors' label for this edition. The served version is the SHA-256 of the file, as for every document.",
+      "minLength": 1
+    },
+    "example": {
+      "type": "boolean",
+      "description": "True for an illustrative document. The hub refuses to activate an example document when the mission mode is LIVE."
+    },
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review before live guidance.",
+      "minLength": 1
+    },
+    "instruments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "needs_text": {
+            "type": "string",
+            "description": "How the instrument is named after needs, for example an ECG. Defaults to name.",
+            "minLength": 1
+          },
+          "capability_codes": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/config_id"
+            },
+            "description": "Capability codes this instrument provides; the same codes as the Capability object and GET /v1/capabilities.",
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "method": {
+            "$ref": "common.schema.json#/$defs/acquisition_method"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "capability_codes"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          },
+          "operator_requirement": {
+            "enum": [
+              "self",
+              "crewmate",
+              "crew_medical_officer"
+            ],
+            "description": "Who on board takes the measurement. Never the ground."
+          },
+          "expected_duration_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "basis": {
+            "$ref": "common.schema.json#/$defs/basis"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "body_region",
+          "operator_requirement",
+          "expected_duration_seconds",
+          "basis"
+        ],
+        "additionalProperties": false
+      },
+      "description": "One entry per capability code any instrument provides: the words, region and operator GET /v1/capabilities serves.",
+      "minItems": 1
+    },
+    "kits": {
+      "type": "object",
+      "properties": {
+        "station_leo": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "description": "Instrument IDs aboard in this environment.",
+          "uniqueItems": true
+        },
+        "transit": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "description": "Instrument IDs aboard in this environment.",
+          "uniqueItems": true
+        },
+        "lunar_surface": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "description": "Instrument IDs aboard in this environment.",
+          "uniqueItems": true
+        },
+        "mars_surface": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "description": "Instrument IDs aboard in this environment.",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "additionalProperties": false
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "description": "Instrument IDs the planning view offers to add in a what-if.",
+      "uniqueItems": true
+    },
+    "candidate_supplies": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "description": "Supply IDs the planning view offers to add in a what-if.",
+      "uniqueItems": true
+    },
+    "candidate_skills": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "description": "skills-catalog skill IDs the planning view offers to train in a what-if.",
+      "uniqueItems": true
+    },
+    "supplies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "supply_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "unit": {
+            "type": "string",
+            "description": "The unit stock and uses are counted in, for example rinse or dressing.",
+            "minLength": 1
+          },
+          "consumable": {
+            "type": "boolean",
+            "description": "False for equipment a use does not consume, such as an eye wash set."
+          }
+        },
+        "required": [
+          "supply_id",
+          "name",
+          "unit",
+          "consumable"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Supplies plan steps may need (CONTRACTS section 25)."
+    },
+    "stock": {
+      "type": "object",
+      "properties": {
+        "station_leo": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "supply_id": {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              "quantity": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Packed quantity in the supply's unit. null: not set."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "basis": {
+                "$ref": "common.schema.json#/$defs/basis"
+              },
+              "to_be_set_by": {
+                "$ref": "common.schema.json#/$defs/to_be_set_by"
+              }
+            },
+            "required": [
+              "supply_id",
+              "quantity",
+              "basis",
+              "to_be_set_by"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Supplies packed in this environment. A supply missing here is not aboard."
+        },
+        "transit": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "supply_id": {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              "quantity": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Packed quantity in the supply's unit. null: not set."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "basis": {
+                "$ref": "common.schema.json#/$defs/basis"
+              },
+              "to_be_set_by": {
+                "$ref": "common.schema.json#/$defs/to_be_set_by"
+              }
+            },
+            "required": [
+              "supply_id",
+              "quantity",
+              "basis",
+              "to_be_set_by"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Supplies packed in this environment. A supply missing here is not aboard."
+        },
+        "lunar_surface": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "supply_id": {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              "quantity": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Packed quantity in the supply's unit. null: not set."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "basis": {
+                "$ref": "common.schema.json#/$defs/basis"
+              },
+              "to_be_set_by": {
+                "$ref": "common.schema.json#/$defs/to_be_set_by"
+              }
+            },
+            "required": [
+              "supply_id",
+              "quantity",
+              "basis",
+              "to_be_set_by"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Supplies packed in this environment. A supply missing here is not aboard."
+        },
+        "mars_surface": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "supply_id": {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              "quantity": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Packed quantity in the supply's unit. null: not set."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "basis": {
+                "$ref": "common.schema.json#/$defs/basis"
+              },
+              "to_be_set_by": {
+                "$ref": "common.schema.json#/$defs/to_be_set_by"
+              }
+            },
+            "required": [
+              "supply_id",
+              "quantity",
+              "basis",
+              "to_be_set_by"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Supplies packed in this environment. A supply missing here is not aboard."
+        }
+      },
+      "required": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "additionalProperties": false
+    },
+    "conditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "condition_id": {
+            "type": "string",
+            "description": "ICL row ID as in condition-assessments-119.csv.",
+            "pattern": "^ICL[1-9][0-9]{0,2}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "body_regions": {
+            "$ref": "common.schema.json#/$defs/body_regions"
+          },
+          "confirming_tests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "test_id": {
+                  "$ref": "common.schema.json#/$defs/config_id"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "instruments": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  },
+                  "description": "Instrument IDs the test needs, all of them. An empty list means the test needs no instrument: history, interview or an examination by a trained person.",
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "name",
+                "instruments"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Alternatives: any one test confirms the condition.",
+            "minItems": 1
+          },
+          "cliff_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "report_only_findings": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Display only: what the person can report. Never used to compute the state."
+          },
+          "plan_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "description": "The onboard-plans.json plan for this condition (CONTRACTS section 22). null: no plan written yet, which release validation reports (EI3).",
+                "pattern": "^plan_[a-z0-9_]{1,59}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ground_needs": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/ground_needs"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "treatment_scope": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/form_quote"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rtdc": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/rtdc"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_ids": {
+            "$ref": "common.schema.json#/$defs/source_ids"
+          },
+          "review_state": {
+            "enum": [
+              "unreviewed",
+              "reviewed",
+              "rejected"
+            ]
+          },
+          "written_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "checked_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "condition_id",
+          "name",
+          "body_regions",
+          "confirming_tests",
+          "cliff_url",
+          "plan_id",
+          "ground_needs",
+          "treatment_scope",
+          "rtdc",
+          "review_state",
+          "written_by",
+          "checked_by"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "review_state": {
+                  "const": "reviewed"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "checked_by": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "version",
+    "example",
+    "instruments",
+    "capabilities",
+    "kits",
+    "candidates",
+    "supplies",
+    "stock",
+    "conditions"
+  ],
+  "additionalProperties": false
+}

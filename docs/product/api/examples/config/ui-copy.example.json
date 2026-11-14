@@ -1,0 +1,209 @@
+{
+  "summary": "EXAMPLE CONFIG ui-copy.json",
+  "description": "Display words for the fixed vocabulary, from UX-DESIGN.md section 1.13 where it gives them.",
+  "x-schema": "config-ui-copy.schema.json",
+  "value": {
+    "level_words": {
+      "info": "For your information",
+      "watch": "Keep an eye on it",
+      "act": "Act now",
+      "emergency": "Emergency"
+    },
+    "raised_by_words": {
+      "rule": "Raised by a rule",
+      "sensor_limit": "Raised by a sensor limit",
+      "assistant": "Raised by the assistant"
+    },
+    "origin_words": {
+      "LIVE": "Live",
+      "REPLAY": "Replay",
+      "SIM": "Sim"
+    },
+    "body_region_labels": {
+      "head": "Head",
+      "eyes": "Eyes",
+      "ear": "Ear",
+      "neck": "Neck",
+      "shoulder": "Shoulder",
+      "heart": "Heart",
+      "lungs": "Lungs",
+      "abdomen": "Abdomen",
+      "flank": "Flank",
+      "back": "Back",
+      "wrist": "Wrist band",
+      "hand": "Hand",
+      "legs": "Legs",
+      "knee": "Knee",
+      "ankle": "Ankle"
+    },
+    "overlay_words": {
+      "eva": "Outside",
+      "post_eva": "Back from a walk",
+      "exercise": "Exercising",
+      "sleep": "Asleep"
+    },
+    "cadence_words": {
+      "continuous": "all the time",
+      "daily": "daily",
+      "every_n_days": "every {n} days",
+      "weekly": "weekly",
+      "monthly": "monthly",
+      "per_eva": "per {eva_word}",
+      "after_event": "after {event}",
+      "mission_phase": "{phase}",
+      "as_needed": "when needed"
+    },
+    "display_group_labels": {
+      "today": "Today",
+      "week": "This week",
+      "month": "This month",
+      "walk": "Walks",
+      "phase": "Mission phase"
+    },
+    "occurrence_end_text": {
+      "not_due": "{day_label}",
+      "due_now": "due now",
+      "due_today": "due today",
+      "later": "{time}",
+      "done_today": "done {time}",
+      "done_earlier": "done {day_label}",
+      "skipped": "{reason}",
+      "missed": "missed",
+      "no_walk_planned": "no walk planned",
+      "next_walk": "next walk {day_label}",
+      "first_walk": "first walk {day_label}",
+      "suppressed": "after the {overlay}"
+    },
+    "designed_states": {
+      "no_reading": "No reading",
+      "not_available_here": "Not available here",
+      "unknown": "Unknown",
+      "declined": "Declined",
+      "sensor_quiet": "No data since {time}",
+      "not_done": "Not done",
+      "nothing_due": "Nothing due",
+      "assistant_stopped": "Assistant stopped. Someone needs help, your records and the measurement cards still work.",
+      "ground_link_down": "Ground link down. Messages wait in the queue; nothing here waits for them.",
+      "ground_next_contact": "Next contact {time}",
+      "ground_next_contact_in": "next contact in {in_time}",
+      "ground_silence": "Ground out of contact longer than planned",
+      "replay_note": "Replay of {dataset}. A record of another mission's cabin, not your exposure.",
+      "replay_time": "{time}, replay time",
+      "threshold_pending": "Limit to be set by clinical review",
+      "no_limit_on_file": "No limit on file",
+      "insufficient_data": "Not enough data yet",
+      "habitat_fact": "Separately, {sensor_name} here: {value} {unit_display}, {source_label}. About the place, not your exposure."
+    },
+    "skip_reasons": {
+      "not_available": "Not available",
+      "declined": "Prefer not to",
+      "no_time": "No time today",
+      "not_needed_now": "Not needed now",
+      "other": "Other"
+    },
+    "error_messages": {
+      "KIT_CANNOT_PERFORM": "This kit can't do that measurement.",
+      "MODEL_UNAVAILABLE": "The assistant is off. Everything else works.",
+      "STALE_VERSION": "Someone changed this first. Here is the latest.",
+      "UNAUTHENTICATED": "Sign in again."
+    },
+    "within_limit_word": "Within limits",
+    "kit_map_state_words": {
+      "measured_here": "Measured here",
+      "report_only": "Only what you report",
+      "needs_test_not_aboard": "Needs a test not aboard"
+    },
+    "kit_check_templates": {
+      "can": "This kit can: {instruments}",
+      "cannot": "This kit can't: needs {instruments}"
+    },
+    "ground_link_words": {
+      "up": "Ground link up",
+      "delayed": "Ground link delayed",
+      "down": "Ground link down"
+    },
+    "duration_words": {
+      "seconds": "{n} seconds",
+      "minutes": "{n} minutes",
+      "hours": "{n} hours"
+    },
+    "gap_kind_words": {
+      "planned_line_of_sight": "Earth out of view, planned",
+      "relay_outage": "Relay out",
+      "conjunction": "Solar conjunction",
+      "equipment": "Equipment fault",
+      "unknown": "Reason unknown"
+    },
+    "plan_stage_words": {
+      "check_another_way": "Check it another way",
+      "do_now": "Now",
+      "watch": "Watch",
+      "if_worse": "If it gets worse",
+      "medical_officer": "Medical officer",
+      "return": "Return",
+      "ground_log": "Log for the ground"
+    },
+    "plan_mode_words": {
+      "resolve": "Resolve here",
+      "talk_through": "Talk a crewmate through it",
+      "stabilize": "Stabilize and watch",
+      "prepare_return": "Prepare to return"
+    },
+    "plan_lines": {
+      "ground_log_row": "Log for the ground. It leaves at the next contact. Nothing here waits for it.",
+      "ground_log_up": "Ground link up · the log goes now",
+      "ground_log_down": "Ground link down · next contact in {in_time} ({origin_word}). The log goes then. Nothing here waits for it.",
+      "no_return": "Return is not an option from here. The plan stays aboard.",
+      "who_decides": "The commander and the medical officer. The app lists; it does not decide.",
+      "not_aboard": "Not aboard",
+      "substituted": "Instead: {step}",
+      "needs_skill_holder": "Needs a crewmate with {skill_short} practice",
+      "opens_help": "Someone needs help opens.",
+      "plans_aboard": "{count} of {total} have a plan aboard",
+      "plans_to_write": "{count} of {total} have a plan aboard · {missing} to write",
+      "plan_tag": "Onboard plan {plan_label}",
+      "waiting_for_contact": "Waiting for the next contact",
+      "return_criteria_pending": "Criteria: to be set by flight rules",
+      "recheck_pending": "Next check: interval to be set by {to_be_set_by}",
+      "recheck_at": "Next check at {time}",
+      "waits_for_medical_officer": "Only the medical officer can start this plan here"
+    },
+    "guided_check_words": {
+      "beat_button": "Beat",
+      "seconds_left": "{n} s",
+      "unchecked": "Kept, unchecked",
+      "experimental": "Experimental",
+      "result_agree": "They agree",
+      "result_disagree": "They don't agree. No value is written.",
+      "result_no_reference": "No camera reading. Your count is kept, unchecked."
+    },
+    "freshness_words": {
+      "fresh": "Fresh",
+      "due": "Practice due",
+      "stale": "Not practiced recently",
+      "never": "Not practiced"
+    },
+    "supply_words": {
+      "cover": "cover for {n} uses",
+      "cover_unknown": "cover not set",
+      "not_used": "no plan uses it",
+      "not_aboard": "Not aboard",
+      "stock": "{name}, {quantity}",
+      "not_consumable": "kept, not used up"
+    },
+    "readiness_words": {
+      "fresh_count": "{skill_short}: {n} fresh",
+      "nobody_fresh": "{skill_short}: nobody fresh"
+    },
+    "catch_up_words": {
+      "what_happened": "What happened",
+      "what_was_done": "What was done",
+      "being_watched": "What we are watching",
+      "advice_welcome": "Where advice would help",
+      "step_done_line": "{time} {step}",
+      "watch_line": "{step} {recheck}",
+      "advice_line": "{topic}",
+      "nothing_watched": "Nothing is being watched."
+    }
+  }
+}

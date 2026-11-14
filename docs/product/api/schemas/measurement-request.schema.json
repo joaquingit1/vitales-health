@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "measurement-request.schema.json",
+  "title": "MeasurementRequest",
+  "description": "A request to measure something, with its attempts (CONTRACTS section 4). Every request, from a person or the assistant, carries the kit gate result; a request the kit cannot perform is recorded unavailable and never reaches a person as a task.",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "episode_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "capability_code": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision_affected": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kit_check": {
+      "$ref": "kit-check.schema.json"
+    },
+    "requester": {
+      "$ref": "common.schema.json#/$defs/actor"
+    },
+    "operator_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "consent_ref": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state": {
+      "enum": [
+        "proposed",
+        "awaiting_acceptance",
+        "accepted",
+        "in_progress",
+        "completed",
+        "unavailable",
+        "declined",
+        "cancelled",
+        "failed"
+      ]
+    },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "attempt_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "adapter_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "started_at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outcome": {
+            "enum": [
+              "success",
+              "failed",
+              "rejected"
+            ]
+          },
+          "failure_reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observation_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/id"
+            }
+          },
+          "quality_notes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "attempt_id",
+          "sequence",
+          "adapter_id",
+          "started_at",
+          "ended_at",
+          "outcome",
+          "failure_reason",
+          "observation_ids",
+          "quality_notes"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "result_observation_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "body_region": {
+      "$ref": "common.schema.json#/$defs/body_region_or_null"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "request_id",
+    "revision",
+    "episode_id",
+    "capability_code",
+    "reason",
+    "decision_affected",
+    "kit_check",
+    "requester",
+    "operator_id",
+    "consent_ref",
+    "state",
+    "attempts",
+    "result_observation_ids",
+    "body_region",
+    "created_at",
+    "allowed_actions"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kit_check": {
+            "properties": {
+              "can": {
+                "const": false
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "const": "unavailable"
+          }
+        }
+      }
+    }
+  ]
+}

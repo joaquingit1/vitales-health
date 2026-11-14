@@ -1,0 +1,9 @@
+{
+  "summary": "SIM request POST /v1/guided-checks/{id}/beats",
+  "description": "One tap on Beat. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/GuidedCheckBeat",
+  "value": {
+    "sequence": 37,
+    "client_time": "2026-11-13T09:38:23Z"
+  }
+}

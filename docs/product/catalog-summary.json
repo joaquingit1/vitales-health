@@ -1,0 +1,13 @@
+{
+  "active": 119,
+  "master": 450,
+  "proposed_future": 92,
+  "remaining": 184,
+  "removed_or_consolidated": 66,
+  "expanded_rows": 792,
+  "all_source_rows": 911,
+  "unique_diseases": "Not asserted; source inventories overlap",
+  "other_family_rows": 0,
+  "assessment_family_count": 51,
+  "all_expanded_mappings_require_review": true
+}

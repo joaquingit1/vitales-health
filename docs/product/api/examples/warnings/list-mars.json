@@ -1,0 +1,145 @@
+{
+  "summary": "SIM GET /v1/warnings, Mars base",
+  "description": "Active warnings for Mara Okafor on mars_surface, in headline order. Illustrative only: not seed data.",
+  "x-schema": "list:warning.schema.json",
+  "value": {
+    "items": [
+      {
+        "warning_id": "wrn_dizzy_mara_1",
+        "revision": 1,
+        "definition_id": "dizzy_after_landing",
+        "config_release_id": "rel_20261113_a",
+        "level": "watch",
+        "raised_by": "rule",
+        "hazard_id": "partial_gravity",
+        "limit_id": null,
+        "sensor_type_id": null,
+        "channel_id": null,
+        "scope": "person",
+        "person_id": "mara",
+        "environment_id": "mars_surface",
+        "location": null,
+        "origin_mode": "SIM",
+        "title": "Dizzy when standing",
+        "what": "You reported dizziness after standing up, on sol 2 in gravity.",
+        "why": "After months weightless, the body needs time to keep blood pressure up when you stand.",
+        "steps": [
+          "Sit or lie down until it passes.",
+          "Tell a crewmate."
+        ],
+        "body_regions": [
+          "heart"
+        ],
+        "headline": {
+          "fragment": "Sol 3: getting used to gravity",
+          "rank": 5,
+          "solo": true
+        },
+        "evidence": [
+          {
+            "kind": "answer",
+            "ref_id": "ans_dizzy_mara_1",
+            "summary": "Dizzy when standing: yes",
+            "observed_at": "2026-11-12T18:20:00Z"
+          }
+        ],
+        "evidence_time": "2026-11-12T18:20:00Z",
+        "evidence_time_label": "yesterday 18:20",
+        "citation": {
+          "text": "Your report yesterday. Rule: dizziness when standing after landing.",
+          "source_ids": [
+            "C09"
+          ]
+        },
+        "insight_id": null,
+        "state": "raised",
+        "raised_at": "2026-11-12T18:20:05Z",
+        "acknowledgements": [],
+        "cleared_at": null,
+        "clear_reason": null,
+        "resolved": null,
+        "dismissed": null,
+        "notes": [],
+        "previous_warning_id": null,
+        "routine_override_ids": [],
+        "allowed_actions": [
+          "acknowledge",
+          "add_note",
+          "resolve"
+        ]
+      },
+      {
+        "warning_id": "wrn_water_mars_1",
+        "revision": 1,
+        "definition_id": "local_water_untested",
+        "config_release_id": "rel_20261113_a",
+        "level": "watch",
+        "raised_by": "rule",
+        "hazard_id": "perchlorate",
+        "limit_id": null,
+        "sensor_type_id": "water",
+        "channel_id": "ch_water_ice_sim",
+        "scope": "habitat",
+        "person_id": null,
+        "environment_id": "mars_surface",
+        "location": "water plant",
+        "origin_mode": "SIM",
+        "title": "Local water not yet tested",
+        "what": "The new water from local ice has not been tested for perchlorate.",
+        "why": "Perchlorate can stop the thyroid taking up iodine. Martian dust and soil carry it.",
+        "steps": [
+          "Do not drink or cook with local water until it is tested."
+        ],
+        "body_regions": [
+          "neck"
+        ],
+        "headline": {
+          "fragment": "Local water untested",
+          "rank": 30,
+          "solo": false
+        },
+        "evidence": [
+          {
+            "kind": "state_fact",
+            "ref_id": "fact_local_water_untested",
+            "summary": "Local water not yet tested",
+            "observed_at": "2026-11-13T06:00:00Z"
+          },
+          {
+            "kind": "mission_event",
+            "ref_id": "evt_water_source_1",
+            "summary": "Local water source added, Sim",
+            "observed_at": "2026-11-13T06:00:00Z"
+          }
+        ],
+        "evidence_time": "2026-11-13T06:00:00Z",
+        "evidence_time_label": "06:00",
+        "citation": {
+          "text": "Rule: local water is tested before first use.",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        "insight_id": null,
+        "state": "raised",
+        "raised_at": "2026-11-13T06:00:01Z",
+        "acknowledgements": [],
+        "cleared_at": null,
+        "clear_reason": null,
+        "resolved": null,
+        "dismissed": null,
+        "notes": [],
+        "previous_warning_id": null,
+        "routine_override_ids": [],
+        "allowed_actions": [
+          "acknowledge",
+          "add_note"
+        ]
+      }
+    ],
+    "page": {
+      "next_cursor": null,
+      "total": 2
+    }
+  }
+}

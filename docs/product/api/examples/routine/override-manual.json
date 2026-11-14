@@ -1,0 +1,45 @@
+{
+  "summary": "SIM POST /v1/routine/overrides",
+  "description": "Sofia Reyes, crew medical officer, started a manual trigger. Illustrative only: not seed data.",
+  "x-schema": "routine-override.schema.json",
+  "value": {
+    "override_id": "ovr_vision_manual_1",
+    "revision": 1,
+    "item_id": "vision_self_check",
+    "person_id": "mara",
+    "audience": "person",
+    "binding_id": null,
+    "trigger_index": 0,
+    "trigger_text": "Blurred near vision, a new distortion on the grid, or headaches",
+    "started_by": "person",
+    "source": {
+      "kind": "person",
+      "ref_id": "sofia"
+    },
+    "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "and tell the crew medical officer and the ground"
+    },
+    "cadence_text": "Daily, and tell the crew medical officer and the ground",
+    "reason_text": "Blurred near vision, a new distortion on the grid, or headaches",
+    "state": "active",
+    "started_at": "2026-11-13T09:30:00Z",
+    "ends": {
+      "kind": "person_stops",
+      "at": null,
+      "text": "when the crew medical officer stops it"
+    },
+    "ended_at": null,
+    "end_reason": null,
+    "basis": "team default",
+    "source_ids": [
+      "S12",
+      "C25"
+    ],
+    "config_release_id": "rel_20261113_a",
+    "allowed_actions": [
+      "end"
+    ]
+  }
+}

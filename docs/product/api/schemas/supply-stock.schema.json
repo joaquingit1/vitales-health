@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "supply-stock.schema.json",
+  "title": "SupplyStock",
+  "description": "One supply in one environment: the packed quantity from kit-map.json stock and the uses recorded since (CONTRACTS section 25). quantity_now is computed, never typed (EI12).",
+  "type": "object",
+  "properties": {
+    "supply_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "unit": {
+      "type": "string",
+      "minLength": 1
+    },
+    "consumable": {
+      "type": "boolean"
+    },
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "aboard": {
+      "type": "boolean"
+    },
+    "quantity_packed": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "used": {
+      "type": "number",
+      "minimum": 0
+    },
+    "quantity_now": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "basis": {
+      "$ref": "common.schema.json#/$defs/basis"
+    },
+    "to_be_set_by": {
+      "$ref": "common.schema.json#/$defs/to_be_set_by"
+    }
+  },
+  "required": [
+    "supply_id",
+    "name",
+    "unit",
+    "consumable",
+    "environment_id",
+    "aboard",
+    "quantity_packed",
+    "used",
+    "quantity_now",
+    "basis",
+    "to_be_set_by"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,335 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "routine-occurrence.schema.json",
+  "title": "RoutineOccurrence",
+  "description": "One due instance of a routine item for one person (CONTRACTS section 15).",
+  "type": "object",
+  "properties": {
+    "occurrence_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "item_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "person_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "day": {
+      "type": "object",
+      "properties": {
+        "mission_day": {
+          "$ref": "common.schema.json#/$defs/mission_day"
+        },
+        "environment_day": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "short_label": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "mission_day",
+        "environment_day",
+        "label",
+        "short_label"
+      ],
+      "additionalProperties": false
+    },
+    "group": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "state": {
+      "enum": [
+        "not_due",
+        "due",
+        "later",
+        "done",
+        "skipped",
+        "missed"
+      ]
+    },
+    "due_from": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "due_until": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "end_text": {
+      "type": "string",
+      "description": "Rendered state words, for example due now, done 07:38, day 21 or 13:00.",
+      "minLength": 1
+    },
+    "cause": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "cadence",
+            "override",
+            "per_eva",
+            "cadence_event",
+            "assistant",
+            "person"
+          ]
+        },
+        "override_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "binding_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/dotted_id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "started_by": {
+          "anyOf": [
+            {
+              "enum": [
+                "rule",
+                "sensor_limit",
+                "assistant",
+                "person"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "insight_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "override_id",
+        "binding_id",
+        "started_by",
+        "insight_id"
+      ],
+      "additionalProperties": false
+    },
+    "question_set_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      }
+    },
+    "suppressed_by_overlay": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/overlay"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "outcome": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "observation_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/id"
+              }
+            },
+            "answer_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/id"
+              }
+            },
+            "note": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "observation_ids",
+            "answer_ids",
+            "note"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "skip": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "enum": [
+                "not_available",
+                "declined",
+                "no_time",
+                "not_needed_now",
+                "other"
+              ]
+            },
+            "note": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "at": {
+              "$ref": "common.schema.json#/$defs/instant"
+            }
+          },
+          "required": [
+            "reason",
+            "note",
+            "at"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "config_release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "occurrence_id",
+    "revision",
+    "item_id",
+    "person_id",
+    "environment_id",
+    "day",
+    "group",
+    "state",
+    "due_from",
+    "due_until",
+    "end_text",
+    "cause",
+    "question_set_ids",
+    "suppressed_by_overlay",
+    "completed_at",
+    "outcome",
+    "skip",
+    "config_release_id",
+    "allowed_actions"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "done"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "completed_at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "skipped"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "skip": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ]
+}

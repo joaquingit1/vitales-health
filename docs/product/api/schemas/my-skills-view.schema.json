@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "my-skills-view.schema.json",
+  "title": "MySkillsView",
+  "description": "GET /v1/me/skills: the session person's own SkillRecords, one per skill in skills-catalog.json.",
+  "type": "object",
+  "properties": {
+    "person": {
+      "$ref": "common.schema.json#/$defs/person_ref"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "$ref": "skill-record.schema.json"
+      }
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "person",
+    "skills",
+    "as_of"
+  ],
+  "additionalProperties": false
+}

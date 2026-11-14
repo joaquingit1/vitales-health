@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "routine-override.schema.json",
+  "title": "RoutineOverride",
+  "description": "A temporary change to one item's cadence, started by a bound trigger or a person, with its reason, source and end. This is the what changed and why record.",
+  "type": "object",
+  "properties": {
+    "override_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "item_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "person_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "audience": {
+      "enum": [
+        "person",
+        "everyone_in_location",
+        "all_crew"
+      ]
+    },
+    "binding_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/dotted_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "trigger_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "trigger_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "started_by": {
+      "enum": [
+        "rule",
+        "sensor_limit",
+        "person"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "warning",
+            "mission_event",
+            "overlay",
+            "observation",
+            "answer",
+            "person"
+          ]
+        },
+        "ref_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        }
+      },
+      "required": [
+        "kind",
+        "ref_id"
+      ],
+      "additionalProperties": false
+    },
+    "new_cadence": {
+      "$ref": "common.schema.json#/$defs/cadence"
+    },
+    "cadence_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reason_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "active",
+        "ended"
+      ]
+    },
+    "started_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "ends": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "warning_cleared",
+            "effect_complete",
+            "days",
+            "person_stops",
+            "mission_event"
+          ]
+        },
+        "at": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/instant"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kind",
+        "at",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "ended_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "end_reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "warning_cleared",
+            "effect_complete",
+            "days_elapsed",
+            "stopped_by_person",
+            "mission_event",
+            "environment_changed"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "basis": {
+      "$ref": "common.schema.json#/$defs/basis"
+    },
+    "source_ids": {
+      "$ref": "common.schema.json#/$defs/source_ids"
+    },
+    "config_release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "override_id",
+    "revision",
+    "item_id",
+    "person_id",
+    "audience",
+    "binding_id",
+    "trigger_index",
+    "trigger_text",
+    "started_by",
+    "source",
+    "new_cadence",
+    "cadence_text",
+    "reason_text",
+    "state",
+    "started_at",
+    "ends",
+    "ended_at",
+    "end_reason",
+    "basis",
+    "source_ids",
+    "config_release_id",
+    "allowed_actions"
+  ],
+  "additionalProperties": false
+}

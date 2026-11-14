@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "check-completion.schema.json",
+  "title": "CheckCompletion",
+  "description": "Immutable participation event (CONTRACTS section 8). No value, outcome or content field; extra fields are rejected.",
+  "type": "object",
+  "properties": {
+    "completion_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "patient_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "mission_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "origin_mode": {
+      "enum": [
+        "LIVE",
+        "SIM"
+      ]
+    },
+    "basis": {
+      "enum": [
+        "daily_check",
+        "concern_reported",
+        "episode_updated"
+      ]
+    },
+    "basis_ref": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "original_offset": {
+      "$ref": "common.schema.json#/$defs/offset"
+    },
+    "mission_clock_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mission_day": {
+      "$ref": "common.schema.json#/$defs/mission_day"
+    },
+    "completion_rule_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "accepted",
+        "rejected"
+      ]
+    },
+    "status_reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "ORIGIN_MISMATCH",
+            "IDENTITY_MISMATCH",
+            "REQUIRED_ANSWER_MISSING"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "completion_id",
+    "patient_id",
+    "mission_id",
+    "origin_mode",
+    "basis",
+    "basis_ref",
+    "occurred_at",
+    "original_offset",
+    "mission_clock_version",
+    "mission_day",
+    "completion_rule_version",
+    "status",
+    "status_reason",
+    "idempotency_key",
+    "created_at"
+  ],
+  "additionalProperties": false
+}

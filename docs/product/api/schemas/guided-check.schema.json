@@ -1,0 +1,442 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "guided-check.schema.json",
+  "title": "GuidedCheck",
+  "description": "A crewmate taught step by step and checked by the cameras (CONTRACTS section 23). A guided check never confirms or excludes a condition; disagreement writes no value; it never closes a capability gap (EI8).",
+  "type": "object",
+  "properties": {
+    "guided_check_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "skill_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "check_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "helper": {
+      "$ref": "common.schema.json#/$defs/person_ref"
+    },
+    "subject": {
+      "$ref": "common.schema.json#/$defs/person_ref"
+    },
+    "plan_run_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "drill_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "episode_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "role_assignment_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state": {
+      "enum": [
+        "teaching",
+        "counting",
+        "checked",
+        "retry",
+        "cancelled"
+      ]
+    },
+    "teach_step_no": {
+      "type": "integer",
+      "description": "The teach step on screen.",
+      "minimum": 1
+    },
+    "steps_done": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step_no": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          }
+        },
+        "required": [
+          "step_no",
+          "at"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "count_seconds": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "count_started_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "count_ends_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "beats": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/instant"
+      },
+      "description": "Hub receive times of each Beat. The client's clock is never used."
+    },
+    "beat_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "count_per_minute": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "helper_answer": {
+      "anyOf": [
+        {
+          "enum": [
+            "regular",
+            "irregular",
+            "not_sure"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "answer_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "camera_reference": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "observation_id": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "no_reading_reason": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "description": "Why the cameras gave no reading, for example too much movement.",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "origin_mode": {
+              "$ref": "common.schema.json#/$defs/origin_mode"
+            }
+          },
+          "required": [
+            "observation_id",
+            "value",
+            "unit",
+            "no_reading_reason",
+            "origin_mode"
+          ],
+          "additionalProperties": false,
+          "description": "The camera reading over the same window: an Observation, or the reason there was none."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "result": {
+      "anyOf": [
+        {
+          "enum": [
+            "agree",
+            "disagree",
+            "no_reference"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "difference": {
+      "anyOf": [
+        {
+          "type": "number",
+          "description": "count_per_minute minus the camera value. null without a reference."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "tolerance": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            },
+            "basis": {
+              "$ref": "common.schema.json#/$defs/basis"
+            },
+            "to_be_set_by": {
+              "$ref": "common.schema.json#/$defs/to_be_set_by"
+            }
+          },
+          "required": [
+            "value",
+            "unit",
+            "basis",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "result_text": {
+      "anyOf": [
+        {
+          "type": "string",
+          "description": "The skill check's phrase (ok, too_slow, too_fast or no_reference), rendered.",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "what_it_shows": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "does": {
+              "type": "string",
+              "minLength": 1
+            },
+            "does_not": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source_ids": {
+              "$ref": "common.schema.json#/$defs/source_ids"
+            }
+          },
+          "required": [
+            "does",
+            "does_not",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "experimental": {
+      "type": "boolean"
+    },
+    "observation_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "guided_check_id",
+    "revision",
+    "skill_id",
+    "check_id",
+    "helper",
+    "subject",
+    "plan_run_id",
+    "drill_id",
+    "episode_id",
+    "role_assignment_id",
+    "state",
+    "teach_step_no",
+    "steps_done",
+    "count_seconds",
+    "count_started_at",
+    "count_ends_at",
+    "beats",
+    "beat_count",
+    "count_per_minute",
+    "helper_answer",
+    "answer_id",
+    "camera_reference",
+    "result",
+    "difference",
+    "tolerance",
+    "result_text",
+    "what_it_shows",
+    "experimental",
+    "observation_id",
+    "origin_mode",
+    "created_at",
+    "allowed_actions"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "disagree"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "observation_id": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "teaching",
+              "counting",
+              "cancelled"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "result": {
+            "type": "null"
+          },
+          "observation_id": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

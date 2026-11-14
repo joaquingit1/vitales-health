@@ -1,0 +1,143 @@
+{
+  "summary": "REPLAY GET /v1/sensors/co2",
+  "description": "The CO2 card on the station from the 2014 replay. Illustrative only: not seed data.",
+  "x-schema": "sensor-status.schema.json",
+  "value": {
+    "sensor_type_id": "co2",
+    "hazard_id": "co2",
+    "environment_id": "station_leo",
+    "name": "CO2",
+    "long_name": "Carbon dioxide",
+    "body_region": "head",
+    "channel_id": "ch_co2_cabin_replay",
+    "reading_state": "current",
+    "latest_reading": {
+      "reading_id": "rdg_co2_cabin_replay",
+      "channel_id": "ch_co2_cabin_replay",
+      "sensor_type_id": "co2",
+      "hazard_id": "co2",
+      "value": 3.531,
+      "unit": "mmHg",
+      "original_value": 4646.0,
+      "original_unit": "ppm",
+      "conversion": {
+        "method": "ppm_to_mmhg",
+        "cabin_pressure_mmhg": 760,
+        "pressure_basis": "assumed",
+        "factor": null
+      },
+      "aggregation": {
+        "kind": "sample",
+        "window_seconds": null
+      },
+      "observed_at": "2014-10-07T15:36:00Z",
+      "window_start": null,
+      "received_at": "2026-11-13T09:08:00Z",
+      "origin_mode": "REPLAY",
+      "adapter_id": "adp_replay_osdr",
+      "adapter_sequence": 5033,
+      "quality_status": "accepted",
+      "location": "cabin",
+      "replay": {
+        "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+        "original_observed_at": "2014-10-07T15:36:00Z",
+        "time_basis": "Times as in the source file, read as UTC."
+      },
+      "provenance": {
+        "origin_mode": "REPLAY",
+        "source_label": "Replay, ISS 2014",
+        "trace": "Trace: OSDR Rodent Research-1 cabin CO2, 7 Oct 2014, converted at an assumed 760 mmHg.",
+        "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+        "source_ids": []
+      }
+    },
+    "display_value": {
+      "value": 3.5003,
+      "unit": "mmHg",
+      "text": "3.5"
+    },
+    "context_label": "one-hour average",
+    "source_label": "Replay, ISS 2014",
+    "origin_mode": "REPLAY",
+    "evaluation": {
+      "unit": "mmHg",
+      "evaluated_at": "2026-11-13T09:10:16Z",
+      "pending_limit_ids": [],
+      "aggregated_value": 3.5003,
+      "aggregation_label": "one-hour average",
+      "window_start": "2014-10-07T14:36:00Z",
+      "window_end": "2014-10-07T15:36:00Z",
+      "coverage": 1.0,
+      "status": "beyond_limit",
+      "level": "act",
+      "limit_id": "co2_1h_act"
+    },
+    "shown_level": "act",
+    "linked_warning_ids": [
+      "wrn_co2_station_1"
+    ],
+    "display_range": [
+      0,
+      5
+    ],
+    "limit_marks": [
+      {
+        "limit_id": "co2_1h_act",
+        "value": 3,
+        "unit": "mmHg",
+        "comparator": "above",
+        "role": "warning",
+        "label": "limit 3 mmHg"
+      }
+    ],
+    "stale_since": null,
+    "trace": "Trace: OSDR Rodent Research-1 cabin CO2, 7 Oct 2014, converted at an assumed 760 mmHg.",
+    "effects": [
+      {
+        "text": "Headache",
+        "body_region": "head"
+      },
+      {
+        "text": "Shortness of breath",
+        "body_region": "lungs"
+      },
+      {
+        "text": "Tiredness",
+        "body_region": null
+      },
+      {
+        "text": "Vision changes",
+        "body_region": "eyes"
+      },
+      {
+        "text": "Nausea",
+        "body_region": "abdomen"
+      },
+      {
+        "text": "Unconsciousness in severe overexposure",
+        "body_region": "head"
+      },
+      {
+        "text": "Poorer sleep",
+        "body_region": null
+      }
+    ],
+    "todo": [
+      "Tell the crew and the ground.",
+      "Move to a well-ventilated module.",
+      "Report headache, breathlessness or tiredness.",
+      "The flight control team finds and repairs the CO2 scrubbers or switches on extra scrubbing."
+    ],
+    "here": "Removed by scrubbers. NASA's brief gives an ISS range of 1 to 9 mmHg. Pockets can form around the face during sleep if the air does not move.",
+    "citation": {
+      "text": "Limit: EV01. What it can do: C15, C25, EV07.",
+      "source_ids": [
+        "C15",
+        "C25",
+        "EV01",
+        "EV07"
+      ]
+    },
+    "series_href": "/v1/sensors/co2/series"
+  }
+}

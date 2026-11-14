@@ -1,0 +1,28 @@
+{
+  "summary": "SIM request POST /v1/help-sessions",
+  "description": "Open help for Tomas, with the two answers given on the cached first screen. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/HelpSessionCreate",
+  "value": {
+    "subject": {
+      "kind": "crewmate",
+      "person_id": "tomas"
+    },
+    "entry": {
+      "kind": "button"
+    },
+    "place": "airlock",
+    "client_opened_at": "2026-11-13T12:01:59Z",
+    "offline_path": [
+      {
+        "node_id": "air_safe",
+        "answer_index": 0,
+        "at": "2026-11-13T12:02:08Z"
+      },
+      {
+        "node_id": "responding",
+        "answer_index": 0,
+        "at": "2026-11-13T12:02:16Z"
+      }
+    ]
+  }
+}

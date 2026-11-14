@@ -1,0 +1,40 @@
+{
+  "summary": "SIM RoleAssignment for the act 5 plan run",
+  "description": "The role engine proposes Tomas Lind for the check another way: both medical officers are on surface walk 1 until 11:40, and he practiced the pulse check on day 12. Mara Okafor accepted. Illustrative only: not seed data.",
+  "x-schema": "role-assignment.schema.json",
+  "value": {
+    "role_assignment_id": "rol_icl10_helper",
+    "revision": 2,
+    "help_session_id": null,
+    "plan_run_id": "prn_icl10_mara_1",
+    "role_id": "lead_helper",
+    "label": "Helps",
+    "person": {
+      "person_id": "tomas",
+      "display_name": "Tomas Lind"
+    },
+    "skill_id": "pulse_check_wrist",
+    "task_text": "Pulse check at the wrist",
+    "reason_code": "freshest_skill",
+    "reason_text": "Pulse check practiced day 12",
+    "context_reasons": [
+      {
+        "reason_code": "officer_on_eva",
+        "text": "Ilya Brandt, medical officer, is on a surface walk until 11:40"
+      },
+      {
+        "reason_code": "officer_on_eva",
+        "text": "Sofia Reyes, medical officer, is on a surface walk until 11:40"
+      }
+    ],
+    "state": "accepted",
+    "proposed_at": "2026-11-13T09:36:30Z",
+    "accepted_at": "2026-11-13T09:36:50Z",
+    "changed_by": null,
+    "changed_at": null,
+    "replaced_by_id": null,
+    "allowed_actions": [
+      "reassign"
+    ]
+  }
+}

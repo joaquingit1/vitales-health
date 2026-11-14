@@ -1,0 +1,186 @@
+{
+  "summary": "SIM and REPLAY GET /v1/mission, station",
+  "description": "Mission clock, the active profile for station_leo and the ground link. Illustrative only: not seed data.",
+  "x-schema": "mission-context.schema.json",
+  "value": {
+    "mission_id": "demo-mission",
+    "mission_mode": "SIM",
+    "epoch": "2026-10-26T00:00:00Z",
+    "clock_version": "clock-1",
+    "planned_length_days": 30,
+    "today": {
+      "mission_day": 19,
+      "environment_day": 19,
+      "label": "flight day 19 of 30",
+      "short_label": "Day 19"
+    },
+    "met": "018/09:10:16",
+    "mission_time": "09:10",
+    "active_profile": {
+      "profile_id": "env_station_leo_1",
+      "revision": 2,
+      "environment_id": "station_leo",
+      "state": "active",
+      "label": "Space station",
+      "place": "space station",
+      "eva_word": "spacewalk",
+      "reason": "mission_start",
+      "proposed_by": {
+        "kind": "operator",
+        "id": "op_demo",
+        "display_name": "Demo operator"
+      },
+      "proposed_at": "2026-10-26T00:00:00Z",
+      "effective_at": "2026-10-26T00:00:00Z",
+      "confirmations_required": 1,
+      "confirmations": [
+        {
+          "person_id": "mara",
+          "at": "2026-10-26T00:00:00Z"
+        }
+      ],
+      "rejected_by": null,
+      "activated_at": "2026-10-26T00:00:00Z",
+      "superseded_at": null,
+      "environment_day_start": "2026-10-26T00:00:00Z",
+      "config_release_id": "rel_20261113_a",
+      "hazard_ids": [
+        "radiation",
+        "co2",
+        "oxygen",
+        "pressure_dcs",
+        "toxic_combustion",
+        "toxic_ammonia",
+        "toxic_propellants",
+        "toxic_vocs",
+        "dust",
+        "noise",
+        "thermal_humidity",
+        "water_quality",
+        "microbial",
+        "microgravity",
+        "isolation_confinement",
+        "circadian_light",
+        "distance_autonomy"
+      ],
+      "limit_ids": [
+        "co2_1h_act",
+        "co2_7d_watch",
+        "o2_low_watch",
+        "o2_low_act",
+        "o2_low_emergency",
+        "o2_high_act",
+        "noise_24h_act",
+        "noise_peak_emergency",
+        "air_index_info",
+        "air_index_watch",
+        "rad_rate_watch",
+        "rad_rate_act"
+      ],
+      "warning_definition_ids": [
+        "co2_above_limit",
+        "co2_week_high",
+        "oxygen_low_watch",
+        "oxygen_low_act",
+        "oxygen_low_emergency",
+        "oxygen_high_act",
+        "noise_day_act",
+        "noise_peak_emergency",
+        "air_index_watch",
+        "sensor_quiet",
+        "radiation_storm_shelter",
+        "ground_silence",
+        "supply_cover_low",
+        "assistant_pattern"
+      ],
+      "sensor_type_ids": [
+        "co2",
+        "rad",
+        "o2",
+        "noise",
+        "air"
+      ],
+      "sensor_channel_ids": [
+        "ch_co2_cabin_replay",
+        "ch_rad_columbus_replay",
+        "ch_o2_station_sim",
+        "ch_noise_station_sim",
+        "ch_air_station_sim"
+      ],
+      "routine_item_ids": [
+        "daily_check",
+        "resting_pulse",
+        "breathing_rate",
+        "blood_pressure",
+        "oxygen_saturation",
+        "body_temperature",
+        "body_mass",
+        "hydration",
+        "exercise_log",
+        "reaction_test",
+        "cognitive_test",
+        "vision_self_check",
+        "eye_imaging_sans",
+        "hearing_check",
+        "noise_dosimetry",
+        "radiation_dosimeter",
+        "pre_eva_check",
+        "post_eva_check",
+        "dust_exposure_check",
+        "behavioral_self_check",
+        "private_medical_conference",
+        "private_psych_conference",
+        "periodic_health_exam",
+        "dental_skin_check",
+        "medical_kit_inventory",
+        "emergency_drill",
+        "water_sampling",
+        "air_sampling",
+        "surface_sampling",
+        "housekeeping_clean",
+        "preflight_baselines",
+        "preflight_quarantine",
+        "early_flight_adaptation",
+        "gravity_arrival_check",
+        "pre_return_prep",
+        "post_return_recovery"
+      ],
+      "ground": {
+        "delay_text": "Near real time. The sources read give no delay figure for low Earth orbit; the ground team is close at hand.",
+        "simulated_one_way_delay_seconds": 2
+      },
+      "allowed_actions": []
+    },
+    "pending_change": null,
+    "crew": [
+      {
+        "person_id": "mara",
+        "display_name": "Mara Okafor"
+      },
+      {
+        "person_id": "ilya",
+        "display_name": "Ilya Brandt"
+      },
+      {
+        "person_id": "sofia",
+        "display_name": "Sofia Reyes"
+      },
+      {
+        "person_id": "tomas",
+        "display_name": "Tomas Lind"
+      }
+    ],
+    "ground_link": {
+      "status": "up",
+      "one_way_delay_s": 2,
+      "next_contact_at": null,
+      "last_contact_at": "2026-11-13T09:09:03Z",
+      "source": "schedule",
+      "environment_id": "station_leo",
+      "delay_text": "Near real time. The sources read give no delay figure for low Earth orbit; the ground team is close at hand.",
+      "delay_source_ids": [],
+      "gap_kind": null,
+      "gap_planned": false
+    }
+  }
+}

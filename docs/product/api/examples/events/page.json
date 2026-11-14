@@ -1,0 +1,1801 @@
+{
+  "summary": "SIM and REPLAY GET /v1/events?after=4179",
+  "description": "Events after cursor 4179 as JSON. The SSE stream carries the same objects with seq as the SSE id. Illustrative only: not seed data.",
+  "x-schema": "event-page.schema.json",
+  "value": {
+    "events": [
+      {
+        "seq": 4180,
+        "event_id": "evn_4180",
+        "type": "sensor.status_changed",
+        "occurred_at": "2026-11-13T09:08:01Z",
+        "emitted_at": "2026-11-13T09:08:01Z",
+        "scope": {
+          "kind": "habitat",
+          "person_id": null,
+          "environment_id": "station_leo"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": null,
+        "data": {
+          "sensor_type_id": "co2",
+          "hazard_id": "co2",
+          "environment_id": "station_leo",
+          "name": "CO2",
+          "long_name": "Carbon dioxide",
+          "body_region": "head",
+          "channel_id": "ch_co2_cabin_replay",
+          "reading_state": "current",
+          "latest_reading": {
+            "reading_id": "rdg_co2_cabin_replay",
+            "channel_id": "ch_co2_cabin_replay",
+            "sensor_type_id": "co2",
+            "hazard_id": "co2",
+            "value": 3.531,
+            "unit": "mmHg",
+            "original_value": 4646.0,
+            "original_unit": "ppm",
+            "conversion": {
+              "method": "ppm_to_mmhg",
+              "cabin_pressure_mmhg": 760,
+              "pressure_basis": "assumed",
+              "factor": null
+            },
+            "aggregation": {
+              "kind": "sample",
+              "window_seconds": null
+            },
+            "observed_at": "2014-10-07T15:36:00Z",
+            "window_start": null,
+            "received_at": "2026-11-13T09:08:00Z",
+            "origin_mode": "REPLAY",
+            "adapter_id": "adp_replay_osdr",
+            "adapter_sequence": 5033,
+            "quality_status": "accepted",
+            "location": "cabin",
+            "replay": {
+              "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+              "original_observed_at": "2014-10-07T15:36:00Z",
+              "time_basis": "Times as in the source file, read as UTC."
+            },
+            "provenance": {
+              "origin_mode": "REPLAY",
+              "source_label": "Replay, ISS 2014",
+              "trace": "Trace: OSDR Rodent Research-1 cabin CO2, 7 Oct 2014, converted at an assumed 760 mmHg.",
+              "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+              "source_ids": []
+            }
+          },
+          "display_value": {
+            "value": 3.5003,
+            "unit": "mmHg",
+            "text": "3.5"
+          },
+          "context_label": "one-hour average",
+          "source_label": "Replay, ISS 2014",
+          "origin_mode": "REPLAY",
+          "evaluation": {
+            "unit": "mmHg",
+            "evaluated_at": "2026-11-13T09:10:16Z",
+            "pending_limit_ids": [],
+            "aggregated_value": 3.5003,
+            "aggregation_label": "one-hour average",
+            "window_start": "2014-10-07T14:36:00Z",
+            "window_end": "2014-10-07T15:36:00Z",
+            "coverage": 1.0,
+            "status": "beyond_limit",
+            "level": "act",
+            "limit_id": "co2_1h_act"
+          },
+          "shown_level": "act",
+          "linked_warning_ids": [
+            "wrn_co2_station_1"
+          ],
+          "display_range": [
+            0,
+            5
+          ],
+          "limit_marks": [
+            {
+              "limit_id": "co2_1h_act",
+              "value": 3,
+              "unit": "mmHg",
+              "comparator": "above",
+              "role": "warning",
+              "label": "limit 3 mmHg"
+            }
+          ],
+          "stale_since": null,
+          "trace": "Trace: OSDR Rodent Research-1 cabin CO2, 7 Oct 2014, converted at an assumed 760 mmHg.",
+          "effects": [
+            {
+              "text": "Headache",
+              "body_region": "head"
+            },
+            {
+              "text": "Shortness of breath",
+              "body_region": "lungs"
+            },
+            {
+              "text": "Tiredness",
+              "body_region": null
+            },
+            {
+              "text": "Vision changes",
+              "body_region": "eyes"
+            },
+            {
+              "text": "Nausea",
+              "body_region": "abdomen"
+            },
+            {
+              "text": "Unconsciousness in severe overexposure",
+              "body_region": "head"
+            },
+            {
+              "text": "Poorer sleep",
+              "body_region": null
+            }
+          ],
+          "todo": [
+            "Tell the crew and the ground.",
+            "Move to a well-ventilated module.",
+            "Report headache, breathlessness or tiredness.",
+            "The flight control team finds and repairs the CO2 scrubbers or switches on extra scrubbing."
+          ],
+          "here": "Removed by scrubbers. NASA's brief gives an ISS range of 1 to 9 mmHg. Pockets can form around the face during sleep if the air does not move.",
+          "citation": {
+            "text": "Limit: EV01. What it can do: C15, C25, EV07.",
+            "source_ids": [
+              "C15",
+              "C25",
+              "EV01",
+              "EV07"
+            ]
+          },
+          "series_href": "/v1/sensors/co2/series"
+        }
+      },
+      {
+        "seq": 4181,
+        "event_id": "evn_4181",
+        "type": "warning.raised",
+        "occurred_at": "2026-11-13T09:08:02Z",
+        "emitted_at": "2026-11-13T09:08:02Z",
+        "scope": {
+          "kind": "habitat",
+          "person_id": null,
+          "environment_id": "station_leo"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": null,
+        "data": {
+          "warning_id": "wrn_co2_station_1",
+          "revision": 1,
+          "definition_id": "co2_above_limit",
+          "config_release_id": "rel_20261113_a",
+          "level": "act",
+          "raised_by": "sensor_limit",
+          "hazard_id": "co2",
+          "limit_id": "co2_1h_act",
+          "sensor_type_id": "co2",
+          "channel_id": "ch_co2_cabin_replay",
+          "scope": "habitat",
+          "person_id": null,
+          "environment_id": "station_leo",
+          "location": "cabin",
+          "origin_mode": "REPLAY",
+          "title": "CO2 above the habitat limit",
+          "what": "The one-hour average CO2 is 3.5 mmHg. The habitat limit is 3 mmHg.",
+          "why": "High CO2 can cause headaches, shortness of breath and tiredness, and can disturb sleep. It is a limit for the cabin air, not a diagnosis.",
+          "steps": [
+            "Tell the crew and the ground.",
+            "Move to a well-ventilated module.",
+            "Report headache, breathlessness or tiredness.",
+            "The flight control team finds and repairs the CO2 scrubbers or switches on extra scrubbing."
+          ],
+          "body_regions": [
+            "head"
+          ],
+          "headline": {
+            "fragment": "CO2 above the limit",
+            "rank": 20,
+            "solo": false
+          },
+          "evidence": [
+            {
+              "kind": "reading",
+              "ref_id": "rdg_co2_cabin_replay",
+              "summary": "One-hour mean 3.5 mmHg (4,606 ppm at an assumed 760 mmHg), replayed from 7 Oct 2014. Another mission's cabin, not anyone's exposure.",
+              "observed_at": "2014-10-07T15:36:00Z"
+            }
+          ],
+          "evidence_time": "2014-10-07T15:36:00Z",
+          "evidence_time_label": "15:36, replay time",
+          "citation": {
+            "text": "CO2 sensor, Replay of ISS cabin data, 7 Oct 2014. Limit: NASA-STD-3001 Volume 2, Revision F (EV01).",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "insight_id": null,
+          "state": "raised",
+          "raised_at": "2026-11-13T09:08:02Z",
+          "acknowledgements": [],
+          "cleared_at": null,
+          "clear_reason": null,
+          "resolved": null,
+          "dismissed": null,
+          "notes": [],
+          "previous_warning_id": null,
+          "routine_override_ids": [
+            "ovr_daily_check_co2",
+            "ovr_vision_co2"
+          ],
+          "allowed_actions": [
+            "acknowledge",
+            "add_note"
+          ]
+        }
+      },
+      {
+        "seq": 4182,
+        "event_id": "evn_4182",
+        "type": "routine.override_changed",
+        "occurred_at": "2026-11-13T09:08:02Z",
+        "emitted_at": "2026-11-13T09:08:02Z",
+        "scope": {
+          "kind": "person",
+          "person_id": "mara",
+          "environment_id": "station_leo"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": null,
+        "data": {
+          "override_id": "ovr_vision_co2",
+          "revision": 1,
+          "item_id": "vision_self_check",
+          "person_id": null,
+          "audience": "everyone_in_location",
+          "binding_id": "vision_self_check.co2_above_limit",
+          "trigger_index": 1,
+          "trigger_text": "Cabin CO2 above the one-hour limit (sensor_limit)",
+          "started_by": "sensor_limit",
+          "source": {
+            "kind": "warning",
+            "ref_id": "wrn_co2_station_1"
+          },
+          "new_cadence": {
+            "word": "daily",
+            "n": null,
+            "note": "while CO2 stays above the limit"
+          },
+          "cadence_text": "While CO2 stays above the limit",
+          "reason_text": "Cabin CO2 above the one-hour limit",
+          "state": "active",
+          "started_at": "2026-11-13T09:08:02Z",
+          "ends": {
+            "kind": "warning_cleared",
+            "at": null,
+            "text": "when the warning clears"
+          },
+          "ended_at": null,
+          "end_reason": null,
+          "basis": "team default",
+          "source_ids": [
+            "C25"
+          ],
+          "config_release_id": "rel_20261113_a",
+          "allowed_actions": []
+        }
+      },
+      {
+        "seq": 4183,
+        "event_id": "evn_4183",
+        "type": "participation.streak_changed",
+        "occurred_at": "2026-11-13T09:08:30Z",
+        "emitted_at": "2026-11-13T09:08:30Z",
+        "scope": {
+          "kind": "person",
+          "person_id": "mara",
+          "environment_id": null
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": null,
+        "data": {
+          "patient_id": "mara",
+          "mission_id": "demo-mission",
+          "origin_mode": "SIM",
+          "as_of": "2026-11-13T09:10:16Z",
+          "current_mission_day": 19,
+          "today": "due",
+          "current_streak_days": 18,
+          "longest_streak_days": 18,
+          "completed_days_total": 18,
+          "first_mission_day": 1,
+          "days": [
+            {
+              "mission_day": 1,
+              "status": "checked"
+            },
+            {
+              "mission_day": 2,
+              "status": "checked"
+            },
+            {
+              "mission_day": 3,
+              "status": "checked"
+            },
+            {
+              "mission_day": 4,
+              "status": "checked"
+            },
+            {
+              "mission_day": 5,
+              "status": "checked"
+            },
+            {
+              "mission_day": 6,
+              "status": "checked"
+            },
+            {
+              "mission_day": 7,
+              "status": "checked"
+            },
+            {
+              "mission_day": 8,
+              "status": "checked"
+            },
+            {
+              "mission_day": 9,
+              "status": "checked"
+            },
+            {
+              "mission_day": 10,
+              "status": "checked"
+            },
+            {
+              "mission_day": 11,
+              "status": "checked"
+            },
+            {
+              "mission_day": 12,
+              "status": "checked"
+            },
+            {
+              "mission_day": 13,
+              "status": "checked"
+            },
+            {
+              "mission_day": 14,
+              "status": "checked"
+            },
+            {
+              "mission_day": 15,
+              "status": "checked"
+            },
+            {
+              "mission_day": 16,
+              "status": "checked"
+            },
+            {
+              "mission_day": 17,
+              "status": "checked"
+            },
+            {
+              "mission_day": 18,
+              "status": "checked"
+            },
+            {
+              "mission_day": 19,
+              "status": "due"
+            }
+          ],
+          "derivation_version": "participation-1",
+          "mission_clock_version": "clock-1",
+          "event_cursor": "4183"
+        }
+      },
+      {
+        "seq": 4184,
+        "event_id": "evn_4184",
+        "type": "environment.change_proposed",
+        "occurred_at": "2026-11-13T09:20:00Z",
+        "emitted_at": "2026-11-13T09:20:00Z",
+        "scope": {
+          "kind": "crew",
+          "person_id": null,
+          "environment_id": null
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": null,
+        "data": {
+          "profile_id": "env_lunar_surface_2",
+          "revision": 1,
+          "environment_id": "lunar_surface",
+          "state": "proposed",
+          "label": "Lunar surface base",
+          "place": "Moon base",
+          "eva_word": "surface walk",
+          "reason": "demo_switch",
+          "proposed_by": {
+            "kind": "operator",
+            "id": "op_demo",
+            "display_name": "Demo operator"
+          },
+          "proposed_at": "2026-11-13T09:20:00Z",
+          "effective_at": null,
+          "confirmations_required": 1,
+          "confirmations": [],
+          "rejected_by": null,
+          "activated_at": null,
+          "superseded_at": null,
+          "environment_day_start": null,
+          "config_release_id": "rel_20261113_a",
+          "hazard_ids": [
+            "radiation",
+            "co2",
+            "oxygen",
+            "pressure_dcs",
+            "toxic_combustion",
+            "toxic_ammonia",
+            "toxic_propellants",
+            "toxic_vocs",
+            "dust",
+            "noise",
+            "thermal_humidity",
+            "water_quality",
+            "microbial",
+            "partial_gravity",
+            "isolation_confinement",
+            "circadian_light",
+            "distance_autonomy"
+          ],
+          "limit_ids": [
+            "co2_1h_act",
+            "co2_7d_watch",
+            "o2_low_watch",
+            "o2_low_act",
+            "o2_low_emergency",
+            "o2_high_act",
+            "noise_24h_act",
+            "noise_peak_emergency",
+            "air_index_info",
+            "air_index_watch",
+            "dust_lunar_act",
+            "rad_rate_watch",
+            "rad_rate_act"
+          ],
+          "warning_definition_ids": [
+            "co2_above_limit",
+            "co2_week_high",
+            "oxygen_low_watch",
+            "oxygen_low_act",
+            "oxygen_low_emergency",
+            "oxygen_high_act",
+            "noise_day_act",
+            "noise_peak_emergency",
+            "air_index_watch",
+            "dust_lunar_act",
+            "sensor_quiet",
+            "radiation_storm_shelter",
+            "dizzy_after_landing",
+            "ground_silence",
+            "supply_cover_low",
+            "assistant_pattern"
+          ],
+          "sensor_type_ids": [
+            "dust",
+            "rad",
+            "co2",
+            "o2"
+          ],
+          "sensor_channel_ids": [
+            "ch_dust_airlock_sim",
+            "ch_rad_lunar_sim",
+            "ch_co2_lunar_sim",
+            "ch_o2_lunar_sim"
+          ],
+          "routine_item_ids": [
+            "daily_check",
+            "resting_pulse",
+            "breathing_rate",
+            "blood_pressure",
+            "oxygen_saturation",
+            "body_temperature",
+            "body_mass",
+            "hydration",
+            "exercise_log",
+            "reaction_test",
+            "cognitive_test",
+            "vision_self_check",
+            "eye_imaging_sans",
+            "hearing_check",
+            "noise_dosimetry",
+            "radiation_dosimeter",
+            "pre_eva_check",
+            "post_eva_check",
+            "dust_exposure_check",
+            "behavioral_self_check",
+            "private_medical_conference",
+            "private_psych_conference",
+            "periodic_health_exam",
+            "dental_skin_check",
+            "medical_kit_inventory",
+            "emergency_drill",
+            "water_sampling",
+            "air_sampling",
+            "surface_sampling",
+            "housekeeping_clean",
+            "preflight_baselines",
+            "preflight_quarantine",
+            "early_flight_adaptation",
+            "gravity_arrival_check",
+            "pre_return_prep",
+            "post_return_recovery"
+          ],
+          "ground": {
+            "delay_text": "Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay.",
+            "simulated_one_way_delay_seconds": 10
+          },
+          "allowed_actions": [
+            "confirm",
+            "reject"
+          ]
+        }
+      },
+      {
+        "seq": 4185,
+        "event_id": "evn_4185",
+        "type": "environment.activated",
+        "occurred_at": "2026-11-13T09:20:20Z",
+        "emitted_at": "2026-11-13T09:20:20Z",
+        "scope": {
+          "kind": "crew",
+          "person_id": null,
+          "environment_id": "lunar_surface"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": null,
+        "data": {
+          "profile_id": "env_lunar_surface_2",
+          "revision": 2,
+          "environment_id": "lunar_surface",
+          "state": "active",
+          "label": "Lunar surface base",
+          "place": "Moon base",
+          "eva_word": "surface walk",
+          "reason": "demo_switch",
+          "proposed_by": {
+            "kind": "operator",
+            "id": "op_demo",
+            "display_name": "Demo operator"
+          },
+          "proposed_at": "2026-11-13T09:20:00Z",
+          "effective_at": "2026-11-13T09:20:20Z",
+          "confirmations_required": 1,
+          "confirmations": [
+            {
+              "person_id": "mara",
+              "at": "2026-11-13T09:20:20Z"
+            }
+          ],
+          "rejected_by": null,
+          "activated_at": "2026-11-13T09:20:20Z",
+          "superseded_at": null,
+          "environment_day_start": "2026-11-13T09:20:20Z",
+          "config_release_id": "rel_20261113_a",
+          "hazard_ids": [
+            "radiation",
+            "co2",
+            "oxygen",
+            "pressure_dcs",
+            "toxic_combustion",
+            "toxic_ammonia",
+            "toxic_propellants",
+            "toxic_vocs",
+            "dust",
+            "noise",
+            "thermal_humidity",
+            "water_quality",
+            "microbial",
+            "partial_gravity",
+            "isolation_confinement",
+            "circadian_light",
+            "distance_autonomy"
+          ],
+          "limit_ids": [
+            "co2_1h_act",
+            "co2_7d_watch",
+            "o2_low_watch",
+            "o2_low_act",
+            "o2_low_emergency",
+            "o2_high_act",
+            "noise_24h_act",
+            "noise_peak_emergency",
+            "air_index_info",
+            "air_index_watch",
+            "dust_lunar_act",
+            "rad_rate_watch",
+            "rad_rate_act"
+          ],
+          "warning_definition_ids": [
+            "co2_above_limit",
+            "co2_week_high",
+            "oxygen_low_watch",
+            "oxygen_low_act",
+            "oxygen_low_emergency",
+            "oxygen_high_act",
+            "noise_day_act",
+            "noise_peak_emergency",
+            "air_index_watch",
+            "dust_lunar_act",
+            "sensor_quiet",
+            "radiation_storm_shelter",
+            "dizzy_after_landing",
+            "ground_silence",
+            "supply_cover_low",
+            "assistant_pattern"
+          ],
+          "sensor_type_ids": [
+            "dust",
+            "rad",
+            "co2",
+            "o2"
+          ],
+          "sensor_channel_ids": [
+            "ch_dust_airlock_sim",
+            "ch_rad_lunar_sim",
+            "ch_co2_lunar_sim",
+            "ch_o2_lunar_sim"
+          ],
+          "routine_item_ids": [
+            "daily_check",
+            "resting_pulse",
+            "breathing_rate",
+            "blood_pressure",
+            "oxygen_saturation",
+            "body_temperature",
+            "body_mass",
+            "hydration",
+            "exercise_log",
+            "reaction_test",
+            "cognitive_test",
+            "vision_self_check",
+            "eye_imaging_sans",
+            "hearing_check",
+            "noise_dosimetry",
+            "radiation_dosimeter",
+            "pre_eva_check",
+            "post_eva_check",
+            "dust_exposure_check",
+            "behavioral_self_check",
+            "private_medical_conference",
+            "private_psych_conference",
+            "periodic_health_exam",
+            "dental_skin_check",
+            "medical_kit_inventory",
+            "emergency_drill",
+            "water_sampling",
+            "air_sampling",
+            "surface_sampling",
+            "housekeeping_clean",
+            "preflight_baselines",
+            "preflight_quarantine",
+            "early_flight_adaptation",
+            "gravity_arrival_check",
+            "pre_return_prep",
+            "post_return_recovery"
+          ],
+          "ground": {
+            "delay_text": "Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay.",
+            "simulated_one_way_delay_seconds": 10
+          },
+          "allowed_actions": []
+        }
+      },
+      {
+        "seq": 4186,
+        "event_id": "evn_4186",
+        "type": "ground_link.changed",
+        "occurred_at": "2026-11-13T09:20:40Z",
+        "emitted_at": "2026-11-13T09:20:40Z",
+        "scope": {
+          "kind": "crew",
+          "person_id": null,
+          "environment_id": "lunar_surface"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": null,
+        "data": {
+          "status": "down",
+          "one_way_delay_s": 10,
+          "next_contact_at": "2026-11-14T11:20:40Z",
+          "last_contact_at": "2026-11-13T09:20:40Z",
+          "source": "demo_switch",
+          "environment_id": "lunar_surface",
+          "delay_text": "Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay.",
+          "delay_source_ids": [
+            "EV01"
+          ],
+          "gap_kind": "planned_line_of_sight",
+          "gap_planned": true
+        }
+      },
+      {
+        "seq": 4187,
+        "event_id": "evn_4187",
+        "type": "plan_run.changed",
+        "occurred_at": "2026-11-13T09:36:00Z",
+        "emitted_at": "2026-11-13T09:36:00Z",
+        "scope": {
+          "kind": "person",
+          "person_id": "mara",
+          "environment_id": "lunar_surface"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": "cor_prn_1",
+        "data": {
+          "plan_run_id": "prn_icl10_mara_1",
+          "revision": 1,
+          "plan_id": "plan_icl10",
+          "config_pins": [
+            {
+              "name": "kit-map",
+              "version": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b"
+            },
+            {
+              "name": "onboard-plans",
+              "version": "7aaab248951ab8bcd5bf193b05216727d30a3c2d4485b0dbd09a6626c15c7fe1"
+            },
+            {
+              "name": "role-rules",
+              "version": "7c65b349bf85239e49c23b417694002489fd97a911990285cdefea9a85e136e1"
+            },
+            {
+              "name": "skills-catalog",
+              "version": "65050135c78bfea42bab863c90b7e4a2c37d47d8aa9c8f551f06cdca25525ec9"
+            },
+            {
+              "name": "ui-copy",
+              "version": "296d7bbbb4ac286e63ec8a5968d96fb5cce35e256b9151e415e7b2133fba5f6e"
+            }
+          ],
+          "subject": {
+            "person_id": "mara",
+            "display_name": "Mara Okafor"
+          },
+          "episode_id": "epi_mara_racing_1",
+          "help_session_id": null,
+          "environment_id": "lunar_surface",
+          "state": "active",
+          "opened_by": {
+            "kind": "person",
+            "id": "mara",
+            "display_name": "Mara Okafor"
+          },
+          "opened_at": "2026-11-13T09:36:00Z",
+          "steps": [
+            {
+              "step_id": "icl10_pulse_by_crewmate",
+              "stage_id": "check_another_way",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_note_episodes",
+              "stage_id": "do_now",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_avoid_triggers",
+              "stage_id": "do_now",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_add_ecg_report",
+              "stage_id": "do_now",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_pulse_at_cameras",
+              "stage_id": "watch",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_pulse_at_oximeter",
+              "stage_id": "watch",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_tell_mo_if_recurs",
+              "stage_id": "watch",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_worse_chest",
+              "stage_id": "if_worse",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_worse_breath",
+              "stage_id": "if_worse",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_worse_faint",
+              "stage_id": "if_worse",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_worse_persists",
+              "stage_id": "if_worse",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_worse_heart_attack",
+              "stage_id": "if_worse",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_mo_review",
+              "stage_id": "medical_officer",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            }
+          ],
+          "rechecks": [
+            {
+              "step_id": "icl10_pulse_at_cameras",
+              "due_at": null,
+              "due_text": "Next check: interval to be set by clinical review",
+              "done_at": null,
+              "observation_ids": []
+            }
+          ],
+          "escalations": [],
+          "handoff_id": null,
+          "link_state_at_open": {
+            "status": "down",
+            "gap_kind": "planned_line_of_sight",
+            "next_contact_at": "2026-11-14T11:20:40Z"
+          },
+          "close": null,
+          "allowed_actions": [
+            "step_done",
+            "not_available",
+            "use_substitute",
+            "escalate",
+            "close"
+          ]
+        }
+      },
+      {
+        "seq": 4188,
+        "event_id": "evn_4188",
+        "type": "role.proposed",
+        "occurred_at": "2026-11-13T09:36:30Z",
+        "emitted_at": "2026-11-13T09:36:30Z",
+        "scope": {
+          "kind": "crew",
+          "person_id": null,
+          "environment_id": "lunar_surface"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": "cor_prn_1",
+        "data": {
+          "role_assignment_id": "rol_icl10_helper",
+          "revision": 1,
+          "help_session_id": null,
+          "plan_run_id": "prn_icl10_mara_1",
+          "role_id": "lead_helper",
+          "label": "Helps",
+          "person": {
+            "person_id": "tomas",
+            "display_name": "Tomas Lind"
+          },
+          "skill_id": "pulse_check_wrist",
+          "task_text": "Pulse check at the wrist",
+          "reason_code": "freshest_skill",
+          "reason_text": "Pulse check practiced day 12",
+          "context_reasons": [
+            {
+              "reason_code": "officer_on_eva",
+              "text": "Ilya Brandt, medical officer, is on a surface walk until 11:40"
+            },
+            {
+              "reason_code": "officer_on_eva",
+              "text": "Sofia Reyes, medical officer, is on a surface walk until 11:40"
+            }
+          ],
+          "state": "proposed",
+          "proposed_at": "2026-11-13T09:36:30Z",
+          "accepted_at": null,
+          "changed_by": null,
+          "changed_at": null,
+          "replaced_by_id": null,
+          "allowed_actions": [
+            "accept",
+            "reassign"
+          ]
+        }
+      },
+      {
+        "seq": 4189,
+        "event_id": "evn_4189",
+        "type": "guided_check.beat",
+        "occurred_at": "2026-11-13T09:38:23.146Z",
+        "emitted_at": "2026-11-13T09:38:23.146Z",
+        "scope": {
+          "kind": "person",
+          "person_id": "mara",
+          "environment_id": null
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": "cor_gck_1",
+        "data": {
+          "guided_check_id": "gck_pulse_mara_1",
+          "beat_count": 36,
+          "at": "2026-11-13T09:38:23.146Z",
+          "seconds_left": 36
+        }
+      },
+      {
+        "seq": 4190,
+        "event_id": "evn_4190",
+        "type": "guided_check.checked",
+        "occurred_at": "2026-11-13T09:39:05Z",
+        "emitted_at": "2026-11-13T09:39:05Z",
+        "scope": {
+          "kind": "person",
+          "person_id": "mara",
+          "environment_id": null
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": "cor_gck_1",
+        "data": {
+          "guided_check_id": "gck_pulse_mara_1",
+          "revision": 100,
+          "skill_id": "pulse_check_wrist",
+          "check_id": "pulse_count_against_cameras",
+          "helper": {
+            "person_id": "tomas",
+            "display_name": "Tomas Lind"
+          },
+          "subject": {
+            "person_id": "mara",
+            "display_name": "Mara Okafor"
+          },
+          "plan_run_id": "prn_icl10_mara_1",
+          "drill_id": null,
+          "episode_id": "epi_mara_racing_1",
+          "role_assignment_id": "rol_icl10_helper",
+          "state": "checked",
+          "teach_step_no": 5,
+          "steps_done": [
+            {
+              "step_no": 1,
+              "at": "2026-11-13T09:37:00Z"
+            },
+            {
+              "step_no": 2,
+              "at": "2026-11-13T09:37:20Z"
+            },
+            {
+              "step_no": 3,
+              "at": "2026-11-13T09:37:40Z"
+            },
+            {
+              "step_no": 4,
+              "at": "2026-11-13T09:39:00Z"
+            },
+            {
+              "step_no": 5,
+              "at": "2026-11-13T09:39:05Z"
+            }
+          ],
+          "count_seconds": 60,
+          "count_started_at": "2026-11-13T09:38:00Z",
+          "count_ends_at": "2026-11-13T09:39:00Z",
+          "beats": [
+            "2026-11-13T09:38:00.300Z",
+            "2026-11-13T09:38:00.953Z",
+            "2026-11-13T09:38:01.605Z",
+            "2026-11-13T09:38:02.258Z",
+            "2026-11-13T09:38:02.911Z",
+            "2026-11-13T09:38:03.564Z",
+            "2026-11-13T09:38:04.216Z",
+            "2026-11-13T09:38:04.869Z",
+            "2026-11-13T09:38:05.522Z",
+            "2026-11-13T09:38:06.175Z",
+            "2026-11-13T09:38:06.827Z",
+            "2026-11-13T09:38:07.480Z",
+            "2026-11-13T09:38:08.133Z",
+            "2026-11-13T09:38:08.786Z",
+            "2026-11-13T09:38:09.438Z",
+            "2026-11-13T09:38:10.091Z",
+            "2026-11-13T09:38:10.744Z",
+            "2026-11-13T09:38:11.397Z",
+            "2026-11-13T09:38:12.049Z",
+            "2026-11-13T09:38:12.702Z",
+            "2026-11-13T09:38:13.355Z",
+            "2026-11-13T09:38:14.008Z",
+            "2026-11-13T09:38:14.660Z",
+            "2026-11-13T09:38:15.313Z",
+            "2026-11-13T09:38:15.966Z",
+            "2026-11-13T09:38:16.619Z",
+            "2026-11-13T09:38:17.271Z",
+            "2026-11-13T09:38:17.924Z",
+            "2026-11-13T09:38:18.577Z",
+            "2026-11-13T09:38:19.230Z",
+            "2026-11-13T09:38:19.882Z",
+            "2026-11-13T09:38:20.535Z",
+            "2026-11-13T09:38:21.188Z",
+            "2026-11-13T09:38:21.841Z",
+            "2026-11-13T09:38:22.493Z",
+            "2026-11-13T09:38:23.146Z",
+            "2026-11-13T09:38:23.799Z",
+            "2026-11-13T09:38:24.452Z",
+            "2026-11-13T09:38:25.104Z",
+            "2026-11-13T09:38:25.757Z",
+            "2026-11-13T09:38:26.410Z",
+            "2026-11-13T09:38:27.063Z",
+            "2026-11-13T09:38:27.715Z",
+            "2026-11-13T09:38:28.368Z",
+            "2026-11-13T09:38:29.021Z",
+            "2026-11-13T09:38:29.674Z",
+            "2026-11-13T09:38:30.326Z",
+            "2026-11-13T09:38:30.979Z",
+            "2026-11-13T09:38:31.632Z",
+            "2026-11-13T09:38:32.285Z",
+            "2026-11-13T09:38:32.937Z",
+            "2026-11-13T09:38:33.590Z",
+            "2026-11-13T09:38:34.243Z",
+            "2026-11-13T09:38:34.896Z",
+            "2026-11-13T09:38:35.548Z",
+            "2026-11-13T09:38:36.201Z",
+            "2026-11-13T09:38:36.854Z",
+            "2026-11-13T09:38:37.507Z",
+            "2026-11-13T09:38:38.159Z",
+            "2026-11-13T09:38:38.812Z",
+            "2026-11-13T09:38:39.465Z",
+            "2026-11-13T09:38:40.118Z",
+            "2026-11-13T09:38:40.770Z",
+            "2026-11-13T09:38:41.423Z",
+            "2026-11-13T09:38:42.076Z",
+            "2026-11-13T09:38:42.729Z",
+            "2026-11-13T09:38:43.381Z",
+            "2026-11-13T09:38:44.034Z",
+            "2026-11-13T09:38:44.687Z",
+            "2026-11-13T09:38:45.340Z",
+            "2026-11-13T09:38:45.992Z",
+            "2026-11-13T09:38:46.645Z",
+            "2026-11-13T09:38:47.298Z",
+            "2026-11-13T09:38:47.951Z",
+            "2026-11-13T09:38:48.603Z",
+            "2026-11-13T09:38:49.256Z",
+            "2026-11-13T09:38:49.909Z",
+            "2026-11-13T09:38:50.562Z",
+            "2026-11-13T09:38:51.214Z",
+            "2026-11-13T09:38:51.867Z",
+            "2026-11-13T09:38:52.520Z",
+            "2026-11-13T09:38:53.173Z",
+            "2026-11-13T09:38:53.825Z",
+            "2026-11-13T09:38:54.478Z",
+            "2026-11-13T09:38:55.131Z",
+            "2026-11-13T09:38:55.784Z",
+            "2026-11-13T09:38:56.436Z",
+            "2026-11-13T09:38:57.089Z",
+            "2026-11-13T09:38:57.742Z",
+            "2026-11-13T09:38:58.395Z",
+            "2026-11-13T09:38:59.047Z",
+            "2026-11-13T09:38:59.700Z"
+          ],
+          "beat_count": 92,
+          "count_per_minute": 92,
+          "helper_answer": "regular",
+          "answer_id": "ans_pulse_regular_1",
+          "camera_reference": {
+            "observation_id": "obs_pulse_mara_camref_1",
+            "value": 96,
+            "unit": "bpm",
+            "no_reading_reason": null,
+            "origin_mode": "SIM"
+          },
+          "result": "agree",
+          "difference": -4,
+          "tolerance": {
+            "value": 10,
+            "unit": "beats per minute",
+            "basis": "team default",
+            "to_be_set_by": "clinical review"
+          },
+          "result_text": "Your count 92 · cameras 96 · they agree",
+          "what_it_shows": {
+            "does": "You may be able to tell if you have a normal or irregular heart rate by checking your pulse.",
+            "does_not": "It cannot show why. Only an ECG can.",
+            "source_ids": [
+              "SK02",
+              "S03"
+            ]
+          },
+          "experimental": true,
+          "observation_id": "obs_pulse_mara_felt_1",
+          "origin_mode": "SIM",
+          "created_at": "2026-11-13T09:36:55Z",
+          "allowed_actions": []
+        }
+      },
+      {
+        "seq": 4191,
+        "event_id": "evn_4191",
+        "type": "plan_run.step_done",
+        "occurred_at": "2026-11-13T09:40:30Z",
+        "emitted_at": "2026-11-13T09:40:30Z",
+        "scope": {
+          "kind": "person",
+          "person_id": "mara",
+          "environment_id": "lunar_surface"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": "cor_prn_1",
+        "data": {
+          "plan_run_id": "prn_icl10_mara_1",
+          "revision": 6,
+          "plan_id": "plan_icl10",
+          "config_pins": [
+            {
+              "name": "kit-map",
+              "version": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b"
+            },
+            {
+              "name": "onboard-plans",
+              "version": "7aaab248951ab8bcd5bf193b05216727d30a3c2d4485b0dbd09a6626c15c7fe1"
+            },
+            {
+              "name": "role-rules",
+              "version": "7c65b349bf85239e49c23b417694002489fd97a911990285cdefea9a85e136e1"
+            },
+            {
+              "name": "skills-catalog",
+              "version": "65050135c78bfea42bab863c90b7e4a2c37d47d8aa9c8f551f06cdca25525ec9"
+            },
+            {
+              "name": "ui-copy",
+              "version": "296d7bbbb4ac286e63ec8a5968d96fb5cce35e256b9151e415e7b2133fba5f6e"
+            }
+          ],
+          "subject": {
+            "person_id": "mara",
+            "display_name": "Mara Okafor"
+          },
+          "episode_id": "epi_mara_racing_1",
+          "help_session_id": null,
+          "environment_id": "lunar_surface",
+          "state": "watching",
+          "opened_by": {
+            "kind": "person",
+            "id": "mara",
+            "display_name": "Mara Okafor"
+          },
+          "opened_at": "2026-11-13T09:36:00Z",
+          "steps": [
+            {
+              "step_id": "icl10_pulse_by_crewmate",
+              "stage_id": "check_another_way",
+              "state": "done",
+              "by": {
+                "kind": "person",
+                "id": "tomas",
+                "display_name": "Tomas Lind"
+              },
+              "at": "2026-11-13T09:39:05Z",
+              "substitute_step_id": null,
+              "guided_check_id": "gck_pulse_mara_1",
+              "observation_ids": [
+                "obs_pulse_mara_felt_1"
+              ],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_note_episodes",
+              "stage_id": "do_now",
+              "state": "done",
+              "by": {
+                "kind": "person",
+                "id": "mara",
+                "display_name": "Mara Okafor"
+              },
+              "at": "2026-11-13T09:40:10Z",
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_avoid_triggers",
+              "stage_id": "do_now",
+              "state": "done",
+              "by": {
+                "kind": "person",
+                "id": "mara",
+                "display_name": "Mara Okafor"
+              },
+              "at": "2026-11-13T09:40:20Z",
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_add_ecg_report",
+              "stage_id": "do_now",
+              "state": "not_available",
+              "by": {
+                "kind": "person",
+                "id": "mara",
+                "display_name": "Mara Okafor"
+              },
+              "at": "2026-11-13T09:40:30Z",
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_pulse_at_cameras",
+              "stage_id": "watch",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_pulse_at_oximeter",
+              "stage_id": "watch",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_tell_mo_if_recurs",
+              "stage_id": "watch",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_worse_chest",
+              "stage_id": "if_worse",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_worse_breath",
+              "stage_id": "if_worse",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_worse_faint",
+              "stage_id": "if_worse",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_worse_persists",
+              "stage_id": "if_worse",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_worse_heart_attack",
+              "stage_id": "if_worse",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            },
+            {
+              "step_id": "icl10_mo_review",
+              "stage_id": "medical_officer",
+              "state": "open",
+              "by": null,
+              "at": null,
+              "substitute_step_id": null,
+              "guided_check_id": null,
+              "observation_ids": [],
+              "supply_use_ids": []
+            }
+          ],
+          "rechecks": [
+            {
+              "step_id": "icl10_pulse_at_cameras",
+              "due_at": null,
+              "due_text": "Next check: interval to be set by clinical review",
+              "done_at": null,
+              "observation_ids": []
+            }
+          ],
+          "escalations": [],
+          "handoff_id": "hof_mara_1",
+          "link_state_at_open": {
+            "status": "down",
+            "gap_kind": "planned_line_of_sight",
+            "next_contact_at": "2026-11-14T11:20:40Z"
+          },
+          "close": null,
+          "allowed_actions": [
+            "step_done",
+            "not_available",
+            "use_substitute",
+            "escalate",
+            "close"
+          ]
+        }
+      },
+      {
+        "seq": 4192,
+        "event_id": "evn_4192",
+        "type": "help.session_changed",
+        "occurred_at": "2026-11-13T12:02:00Z",
+        "emitted_at": "2026-11-13T12:02:00Z",
+        "scope": {
+          "kind": "crew",
+          "person_id": null,
+          "environment_id": "lunar_surface"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": null,
+        "data": {
+          "help_session_id": "hlp_lunar_1",
+          "revision": 1,
+          "state": "open",
+          "opened_at": "2026-11-13T12:02:00Z",
+          "client_opened_at": "2026-11-13T12:01:59Z",
+          "opened_by": {
+            "kind": "person",
+            "id": "mara",
+            "display_name": "Mara Okafor"
+          },
+          "entry": {
+            "kind": "button",
+            "ref_id": null
+          },
+          "subject": {
+            "kind": "crewmate",
+            "person_id": "tomas",
+            "display_name": "Tomas Lind"
+          },
+          "place": "airlock",
+          "body_region": null,
+          "helpers": [],
+          "config_pins": [
+            {
+              "name": "help-presentation",
+              "version": "682f54eb73a7b11c2e5df233951bf608cc63a99825f070175f939a8df03b8170"
+            },
+            {
+              "name": "responder-flows",
+              "version": "23865cf8acfbfa869df24a8b0fee732e386ddbb9e4735d19d0920873d92cee64"
+            },
+            {
+              "name": "ui-copy",
+              "version": "296d7bbbb4ac286e63ec8a5968d96fb5cce35e256b9151e415e7b2133fba5f6e"
+            }
+          ],
+          "level": "emergency",
+          "level_basis": "team default",
+          "node": {
+            "kind": "triage",
+            "id": "air_safe",
+            "question": "Is the air safe? Look and listen for an alarm, smoke, fire, a burning or sharp smell, or hissing air.",
+            "answers": [
+              {
+                "index": 0,
+                "label": "Yes: no alarm, smoke or smell"
+              },
+              {
+                "index": 1,
+                "label": "Smoke, fire, or a burning, sharp or chemical smell"
+              },
+              {
+                "index": 2,
+                "label": "Pressure alarm, hissing air, or ears popping"
+              },
+              {
+                "index": 3,
+                "label": "Radiation alarm or solar storm warning"
+              },
+              {
+                "index": 4,
+                "label": "Not sure"
+              }
+            ],
+            "flow": null
+          },
+          "path": [],
+          "log": [
+            {
+              "at": "2026-11-13T12:02:00Z",
+              "text": "Mara Okafor pressed Someone needs help for Tomas Lind",
+              "by": {
+                "kind": "person",
+                "id": "mara",
+                "display_name": "Mara Okafor"
+              },
+              "kind": "system"
+            }
+          ],
+          "crew_called_at": null,
+          "broadcast_id": "brd_lunar_1",
+          "assistant": {
+            "status": "off",
+            "conversation_id": null,
+            "last_text": null
+          },
+          "ground_message_ids": [],
+          "fixed_buttons": [
+            {
+              "id": "call_crew",
+              "label": "Call crew"
+            },
+            {
+              "id": "tell_ground",
+              "label": "Tell the ground"
+            },
+            {
+              "id": "start_over",
+              "label": "Start over"
+            }
+          ],
+          "closed_at": null,
+          "close": null,
+          "allowed_actions": [
+            "answer",
+            "switch_flow",
+            "call_crew",
+            "join",
+            "start_over",
+            "set_body_region",
+            "set_place",
+            "add_note",
+            "ask_assistant",
+            "close"
+          ]
+        }
+      },
+      {
+        "seq": 4193,
+        "event_id": "evn_4193",
+        "type": "help.broadcast_changed",
+        "occurred_at": "2026-11-13T12:02:00Z",
+        "emitted_at": "2026-11-13T12:02:00Z",
+        "scope": {
+          "kind": "crew",
+          "person_id": null,
+          "environment_id": "lunar_surface"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": null,
+        "data": {
+          "broadcast_id": "brd_lunar_1",
+          "help_session_id": "hlp_lunar_1",
+          "state": "active",
+          "level": "act",
+          "subject": {
+            "person_id": "tomas",
+            "display_name": "Tomas Lind"
+          },
+          "helpers": [
+            {
+              "person_id": "ilya",
+              "display_name": "Ilya Brandt"
+            }
+          ],
+          "roles": [
+            {
+              "role_assignment_id": "rol_lunar_lead",
+              "role_id": "lead_helper",
+              "label": "Helps",
+              "person": {
+                "person_id": "mara",
+                "display_name": "Mara Okafor"
+              },
+              "state": "accepted"
+            },
+            {
+              "role_assignment_id": "rol_lunar_mo",
+              "role_id": "medical_officer",
+              "label": "Medical officer",
+              "person": {
+                "person_id": "ilya",
+                "display_name": "Ilya Brandt"
+              },
+              "state": "accepted"
+            }
+          ],
+          "place": "airlock",
+          "text": "Tomas Lind needs help at the airlock. Ilya Brandt helping.",
+          "started_at": "2026-11-13T12:02:00Z",
+          "ended_at": null
+        }
+      },
+      {
+        "seq": 4194,
+        "event_id": "evn_4194",
+        "type": "supply.used",
+        "occurred_at": "2026-11-13T12:03:05Z",
+        "emitted_at": "2026-11-13T12:03:05Z",
+        "scope": {
+          "kind": "crew",
+          "person_id": null,
+          "environment_id": "lunar_surface"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": "cor_hlp_lunar_1",
+        "data": {
+          "supply_use_id": "sup_rinse_1",
+          "supply_id": "eye_rinse_water",
+          "environment_id": "lunar_surface",
+          "quantity": 1,
+          "plan_run_id": null,
+          "help_session_id": "hlp_lunar_1",
+          "step_id": "eye_rinse",
+          "at": "2026-11-13T12:03:05Z",
+          "by": {
+            "kind": "person",
+            "id": "mara",
+            "display_name": "Mara Okafor"
+          },
+          "origin_mode": "SIM"
+        }
+      },
+      {
+        "seq": 4195,
+        "event_id": "evn_4195",
+        "type": "assistant.status_changed",
+        "occurred_at": "2026-11-13T12:03:30Z",
+        "emitted_at": "2026-11-13T12:03:30Z",
+        "scope": {
+          "kind": "crew",
+          "person_id": null,
+          "environment_id": null
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": null,
+        "data": {
+          "state": "stopped",
+          "model_release": {
+            "model_release_id": "mdl_huatuo_3_9b_1",
+            "model_id": "HuatuoGPT-3-9B",
+            "revision": "pinned at kickoff",
+            "sha256": "461e6cc4f10dcae93031a41a09c5992b4a80046294286142b44f4d68a1b7f76d",
+            "prompt_version": "prompt-1",
+            "tool_catalog_version": "tools-1",
+            "mode": "live"
+          },
+          "since": "2026-11-13T12:03:30Z",
+          "last_error": null,
+          "queue_depth": 0,
+          "policy_version": "5629df57f991935dfe9437e5cfe8f60206cac0fae06b3589b4ec7e0c07fbdf1f"
+        }
+      },
+      {
+        "seq": 4196,
+        "event_id": "evn_4196",
+        "type": "role.changed",
+        "occurred_at": "2026-11-13T12:04:10Z",
+        "emitted_at": "2026-11-13T12:04:10Z",
+        "scope": {
+          "kind": "crew",
+          "person_id": null,
+          "environment_id": "lunar_surface"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": "cor_hlp_lunar_1",
+        "data": {
+          "role_assignment_id": "rol_lunar_mo",
+          "revision": 2,
+          "help_session_id": "hlp_lunar_1",
+          "plan_run_id": null,
+          "role_id": "medical_officer",
+          "label": "Medical officer",
+          "person": {
+            "person_id": "ilya",
+            "display_name": "Ilya Brandt"
+          },
+          "skill_id": null,
+          "task_text": null,
+          "reason_code": "first_officer",
+          "reason_text": "Medical officer",
+          "context_reasons": [],
+          "state": "accepted",
+          "proposed_at": "2026-11-13T12:02:40Z",
+          "accepted_at": "2026-11-13T12:04:10Z",
+          "changed_by": null,
+          "changed_at": null,
+          "replaced_by_id": null,
+          "allowed_actions": [
+            "reassign"
+          ]
+        }
+      },
+      {
+        "seq": 4197,
+        "event_id": "evn_4197",
+        "type": "ground_message.changed",
+        "occurred_at": "2026-11-13T12:05:30Z",
+        "emitted_at": "2026-11-13T12:05:30Z",
+        "scope": {
+          "kind": "crew",
+          "person_id": null,
+          "environment_id": "lunar_surface"
+        },
+        "config_release_id": "rel_20261113_a",
+        "correlation_id": null,
+        "data": {
+          "ground_message_id": "gm_lunar_1",
+          "revision": 1,
+          "help_session_id": "hlp_lunar_1",
+          "state": "queued",
+          "lines": [
+            "Tomas Lind needs help at the airlock. Eye injury or something in the eye.",
+            "Air safe. Tomas Lind responding. No heavy bleeding. Eye injury, chemical or dust in the eye.",
+            "Steps done: Do not rub the eye. Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes. In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels.",
+            "Crew called at 12:02. Ilya Brandt helping."
+          ],
+          "queued_by": {
+            "kind": "person",
+            "id": "mara",
+            "display_name": "Mara Okafor"
+          },
+          "queued_at": "2026-11-13T12:05:30Z",
+          "sent_at": null,
+          "expected_arrival_at": null,
+          "acknowledged_at": null,
+          "one_way_delay_s": 10,
+          "status_text": "Waiting for the next contact in 23 hours. Nothing here waits for it.",
+          "simulated": true,
+          "reply": null,
+          "leaves_at": "2026-11-14T11:20:40Z",
+          "catch_up": {
+            "what_happened": [
+              "Tomas Lind needs help at the airlock. Eye injury or something in the eye.",
+              "Air safe. Tomas Lind responding. No heavy bleeding. Eye injury, chemical or dust in the eye."
+            ],
+            "what_was_done": [
+              "12:02 Do not rub the eye.",
+              "12:03 Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes.",
+              "12:03 In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels.",
+              "Crew called at 12:02. Ilya Brandt helping."
+            ],
+            "being_watched": [
+              "Nothing is being watched."
+            ],
+            "advice_welcome": [
+              "A crewmate repeats the sight check and the photo, and keeps both for the log.",
+              "Something stuck in the eye, a chemical in the eye, or any change in sight: call the medical officer at once."
+            ]
+          },
+          "session_revision": 11,
+          "allowed_actions": [],
+          "text": "Tomas Lind needs help at the airlock. Eye injury or something in the eye. Air safe. Tomas Lind responding. No heavy bleeding. Eye injury, chemical or dust in the eye. Steps done: Do not rub the eye. Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes. In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels. Crew called at 12:02. Ilya Brandt helping.",
+          "text_sha256": "c746db7e2c1a406d5fecdc4652d317836129e683594d99efba10a15325d3fa57"
+        }
+      }
+    ],
+    "next_cursor": "4197",
+    "has_more": false
+  }
+}

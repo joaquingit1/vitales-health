@@ -1,0 +1,11 @@
+{
+  "summary": "SIM request POST /v1/supplies/{id}/uses",
+  "description": "One rinse used in the eye help session. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/SupplyUseCreate",
+  "value": {
+    "quantity": 1,
+    "help_session_id": "hlp_lunar_1",
+    "step_id": "eye_rinse",
+    "client_time": "2026-11-13T12:03:05Z"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "summary": "SIM request POST /v1/demo/ground-link",
+  "description": "Demo only: return the link to the profile's schedule. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/GroundLinkDemoSwitch",
+  "value": {
+    "use_schedule": true
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "summary": "SIM POST /v1/routine/occurrences/{id}/actions complete",
+  "description": "daily_check marked done. Illustrative only: not seed data.",
+  "x-schema": "routine-occurrence.schema.json",
+  "value": {
+    "occurrence_id": "occ_sta_daily_check",
+    "revision": 2,
+    "item_id": "daily_check",
+    "person_id": "mara",
+    "environment_id": "station_leo",
+    "day": {
+      "mission_day": 19,
+      "environment_day": 19,
+      "label": "flight day 19 of 30",
+      "short_label": "Day 19"
+    },
+    "group": "today",
+    "state": "done",
+    "due_from": "2026-11-13T07:00:00Z",
+    "due_until": "2026-11-14T00:00:00Z",
+    "end_text": "done 09:15",
+    "cause": {
+      "kind": "override",
+      "override_id": "ovr_daily_check_co2",
+      "binding_id": "daily_check.co2_above_limit",
+      "started_by": "sensor_limit",
+      "insight_id": null
+    },
+    "question_set_ids": [
+      "co2_headache_vision"
+    ],
+    "suppressed_by_overlay": null,
+    "completed_at": "2026-11-13T09:15:00Z",
+    "outcome": {
+      "observation_ids": [
+        "obs_daily_check_mara"
+      ],
+      "answer_ids": [],
+      "note": null
+    },
+    "skip": null,
+    "config_release_id": "rel_20261113_a",
+    "allowed_actions": []
+  }
+}

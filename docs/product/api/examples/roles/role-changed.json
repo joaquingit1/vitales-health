@@ -1,0 +1,35 @@
+{
+  "summary": "SIM POST /v1/help-sessions/hlp_station_cpr/roles reassign",
+  "description": "A helper changed a role: the change is kept with who made it. Illustrative only: not seed data.",
+  "x-schema": "role-assignment.schema.json",
+  "value": {
+    "role_assignment_id": "rol_cpr_kit_fetcher",
+    "revision": 2,
+    "help_session_id": "hlp_station_cpr",
+    "plan_run_id": null,
+    "role_id": "kit_fetcher",
+    "label": "Brings the kit",
+    "person": {
+      "person_id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "skill_id": null,
+    "task_text": "Bring the AED and the restraint board",
+    "reason_code": "changed_by_helper",
+    "reason_text": "Changed by Sofia Reyes",
+    "context_reasons": [],
+    "state": "changed",
+    "proposed_at": "2026-11-13T09:00:25Z",
+    "accepted_at": null,
+    "changed_by": {
+      "kind": "person",
+      "id": "sofia",
+      "display_name": "Sofia Reyes"
+    },
+    "changed_at": "2026-11-13T09:01:00Z",
+    "replaced_by_id": null,
+    "allowed_actions": [
+      "reassign"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "summary": "SIM request POST /v1/help-sessions/{id}/actions",
+  "description": "Answer the problem list: eye injury. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/HelpAction",
+  "value": {
+    "action": "answer",
+    "node_id": "what_happened",
+    "answer_index": 6,
+    "client_time": "2026-11-13T12:02:32Z"
+  }
+}

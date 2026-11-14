@@ -1,0 +1,8 @@
+{
+  "summary": "SIM request POST /v1/assistant/runtime",
+  "description": "Stop the model service. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/AssistantRuntimeAction",
+  "value": {
+    "action": "stop"
+  }
+}

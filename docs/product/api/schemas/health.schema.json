@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "health.schema.json",
+  "title": "Health",
+  "description": "Hub liveness. No authentication; reveals no person data.",
+  "type": "object",
+  "properties": {
+    "status": {
+      "enum": [
+        "ok",
+        "degraded"
+      ]
+    },
+    "hub_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "config_release_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "assistant_state": {
+      "enum": [
+        "running",
+        "stopped",
+        "loading",
+        "unavailable"
+      ]
+    },
+    "adapters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "adapter_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "state": {
+            "enum": [
+              "connected",
+              "quiet",
+              "disconnected"
+            ]
+          }
+        },
+        "required": [
+          "adapter_id",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "server_time": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "status",
+    "hub_version",
+    "config_release_id",
+    "assistant_state",
+    "adapters",
+    "server_time"
+  ],
+  "additionalProperties": false
+}

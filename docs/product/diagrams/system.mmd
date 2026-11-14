@@ -1,0 +1,17 @@
+flowchart LR
+  Crew[Crew interface] --> API[Local API and controller]
+  Camera[Cameras and station pairing] --> Obs[Validated observations]
+  Band[Band and BLE devices] --> Obs
+  Manual[Manual entry and reports] --> Obs
+  Obs --> Store[Patient store and audit log]
+  API <--> Store
+  API --> Safety[Deterministic urgent rules]
+  API <--> Model[Local reasoning model]
+  Model <--> Tools[Typed tool gateway]
+  Tools --> KB[Approved evidence and pathways]
+  Tools --> Store
+  Store --> Forecast[Baseline and Chronos experiment]
+  API --> Queue[Approved handoff queue]
+  Queue --> Ground[Delayed ground console]
+  Archive[Research archive] --> Review[Review and versioning]
+  Review --> KB

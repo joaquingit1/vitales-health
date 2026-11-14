@@ -1,0 +1,20 @@
+{
+  "summary": "SIM error LEVEL_NOT_ALLOWED",
+  "description": "The error envelope for LEVEL_NOT_ALLOWED. Illustrative only: not seed data.",
+  "x-schema": "error.schema.json",
+  "value": {
+    "code": "LEVEL_NOT_ALLOWED",
+    "message": "The assistant may raise info or watch only.",
+    "retryable": false,
+    "field_errors": [
+      {
+        "field": "/level",
+        "code": "LEVEL_NOT_ALLOWED",
+        "message": "act is not allowed for raised_by assistant."
+      }
+    ],
+    "correlation_id": "cor_ins_9",
+    "current_state": null,
+    "supported_alternative": null
+  }
+}

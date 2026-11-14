@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-release.schema.json",
+  "title": "ConfigRelease",
+  "description": "A pinned set of document versions. Every warning, routine occurrence, help session and assistant turn records the release it was computed under.",
+  "type": "object",
+  "properties": {
+    "release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "state": {
+      "enum": [
+        "draft",
+        "active",
+        "superseded",
+        "rejected"
+      ]
+    },
+    "pins": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_pin"
+      },
+      "minItems": 1
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "created_by": {
+      "$ref": "common.schema.json#/$defs/actor"
+    },
+    "activated_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "activated_by": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/actor"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "superseded_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "document": {
+                "$ref": "common.schema.json#/$defs/config_name"
+              },
+              "pointer": {
+                "type": "string",
+                "minLength": 1
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "document",
+              "pointer",
+              "message"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "document": {
+                "$ref": "common.schema.json#/$defs/config_name"
+              },
+              "pointer": {
+                "type": "string",
+                "minLength": 1
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "document",
+              "pointer",
+              "message"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Non-blocking findings, for example routine triggers with no binding (they stay manual)."
+        }
+      },
+      "required": [
+        "passed",
+        "errors",
+        "warnings"
+      ],
+      "additionalProperties": false
+    },
+    "note": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "release_id",
+    "state",
+    "pins",
+    "created_at",
+    "created_by",
+    "activated_at",
+    "activated_by",
+    "superseded_at",
+    "validation",
+    "note"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "model-action.schema.json",
+  "title": "ModelAction",
+  "description": "One structured action proposed by the model per turn (CONTRACTS section 6). The controller validates it before anything happens.",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "ask"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decision_affected": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state_snapshot_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "question": {
+          "type": "string",
+          "minLength": 1
+        },
+        "choices": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "action",
+        "reason",
+        "decision_affected",
+        "state_snapshot_version",
+        "question",
+        "choices"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "request_measurement"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decision_affected": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state_snapshot_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "capability_code": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "body_region": {
+          "$ref": "common.schema.json#/$defs/body_region_or_null"
+        },
+        "condition_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^ICL[1-9][0-9]{0,2}$"
+          },
+          "uniqueItems": true
+        },
+        "source_ids": {
+          "$ref": "common.schema.json#/$defs/source_ids"
+        }
+      },
+      "required": [
+        "action",
+        "reason",
+        "decision_affected",
+        "state_snapshot_version",
+        "capability_code",
+        "body_region"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "retrieve_evidence"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decision_affected": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state_snapshot_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "query": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_ids": {
+          "$ref": "common.schema.json#/$defs/source_ids"
+        }
+      },
+      "required": [
+        "action",
+        "reason",
+        "decision_affected",
+        "state_snapshot_version",
+        "query",
+        "source_ids"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "assessment"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decision_affected": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state_snapshot_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "assessment_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        }
+      },
+      "required": [
+        "action",
+        "reason",
+        "decision_affected",
+        "state_snapshot_version",
+        "assessment_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "request_review"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decision_affected": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state_snapshot_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "to": {
+          "enum": [
+            "crew_medical_officer"
+          ],
+          "description": "Review happens on board. Nothing waits for the ground."
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "also_tell_ground": {
+          "type": "boolean",
+          "description": "Side effect: also queue a ground message. Nothing waits for it to be sent, acknowledged or answered."
+        }
+      },
+      "required": [
+        "action",
+        "reason",
+        "decision_affected",
+        "state_snapshot_version",
+        "to",
+        "note"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "stop_incomplete"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decision_affected": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state_snapshot_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "missing": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "action",
+        "reason",
+        "decision_affected",
+        "state_snapshot_version",
+        "missing"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

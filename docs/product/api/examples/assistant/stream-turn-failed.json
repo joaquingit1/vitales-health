@@ -1,0 +1,22 @@
+{
+  "summary": "SIM SSE chunk turn.failed",
+  "description": "The model stopped mid turn. Illustrative only: not seed data.",
+  "x-schema": "assistant-stream-chunk.schema.json",
+  "value": {
+    "type": "turn.failed",
+    "turn_id": "trn_3",
+    "error": {
+      "code": "MODEL_UNAVAILABLE",
+      "message": "The model service is stopped.",
+      "retryable": true,
+      "field_errors": [],
+      "correlation_id": "cor_trn_3",
+      "current_state": null,
+      "supported_alternative": {
+        "action": "open_help",
+        "href": "/v1/help-sessions",
+        "text": "Someone needs help still works."
+      }
+    }
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "assistant-message.schema.json",
+  "title": "AssistantMessage",
+  "description": "One message in a conversation. Assistant messages carry either text or one validated action.",
+  "type": "object",
+  "properties": {
+    "message_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "conversation_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "turn_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "role": {
+      "enum": [
+        "person",
+        "assistant",
+        "notice"
+      ]
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "text": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "action": {
+      "anyOf": [
+        {
+          "$ref": "model-action.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "streaming",
+        "cancelled",
+        "timed_out",
+        "rejected",
+        "failed"
+      ]
+    },
+    "error_code": {
+      "anyOf": [
+        {
+          "enum": [
+            "MALFORMED_REQUEST",
+            "UNAUTHENTICATED",
+            "UNAUTHORIZED_SCOPE",
+            "CONSENT_REQUIRED",
+            "ACTION_NOT_ALLOWED",
+            "ADAPTER_NOT_TRUSTED",
+            "AGGREGATE_ONLY",
+            "NOT_FOUND",
+            "STALE_VERSION",
+            "INVALID_TRANSITION",
+            "DUPLICATE_COMMAND",
+            "SESSION_CLOSED",
+            "CONFIG_VERSION_MISMATCH",
+            "CONFIRMATION_REQUIRED",
+            "CURSOR_EXPIRED",
+            "PAYLOAD_TOO_LARGE",
+            "UNSUPPORTED_MEDIA_TYPE",
+            "INVALID_UNIT",
+            "INVALID_VALUE",
+            "IDENTITY_MISMATCH",
+            "ORIGIN_MISMATCH",
+            "KIT_CANNOT_PERFORM",
+            "CAPABILITY_UNAVAILABLE",
+            "CONTEXT_INAPPLICABLE",
+            "SOURCE_NOT_APPROVED",
+            "REPORT_UNCONFIRMED",
+            "LEVEL_NOT_ALLOWED",
+            "APPROVAL_REQUIRED",
+            "CONFIG_INVALID",
+            "STEP_NOT_AVAILABLE",
+            "SUPPLY_BELOW_ZERO",
+            "ROLE_NOT_ELIGIBLE",
+            "VERSION_REQUIRED",
+            "INTERNAL_ERROR",
+            "MALFORMED_MODEL_OUTPUT",
+            "MODEL_OUTPUT_REJECTED",
+            "MODEL_UNAVAILABLE",
+            "MODEL_TIMEOUT"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/evidence_ref"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "required": [
+    "message_id",
+    "conversation_id",
+    "turn_id",
+    "role",
+    "created_at",
+    "text",
+    "action",
+    "status",
+    "error_code",
+    "evidence",
+    "limitations"
+  ],
+  "additionalProperties": false
+}

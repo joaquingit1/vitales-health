@@ -1,0 +1,36 @@
+{
+  "summary": "SIM POST /v1/insights/ins_gravity_mara_1/actions dismiss",
+  "description": "Mara dismissed the gravity insight. Illustrative only: not seed data.",
+  "x-schema": "insight.schema.json",
+  "value": {
+    "insight_id": "ins_gravity_mara_1",
+    "person_id": "mara",
+    "topic_id": "gravity_adjustment",
+    "level": "info",
+    "title": "Getting used to gravity",
+    "text": "Dizzy when standing is common after landing. Stand up slowly.",
+    "why": "After months weightless, the body needs time to keep blood pressure up when you stand.",
+    "evidence": [
+      {
+        "kind": "answer",
+        "ref_id": "ans_dizzy_mara_1",
+        "summary": "Dizzy when standing: yes, sol 2",
+        "observed_at": "2026-11-12T18:20:00Z"
+      }
+    ],
+    "habitat_facts": [],
+    "citation": {
+      "text": "Draft. Evidence: C09.",
+      "source_ids": [
+        "C09"
+      ]
+    },
+    "warning_id": null,
+    "routine_occurrence_ids": [],
+    "state": "dismissed",
+    "created_at": "2026-11-13T07:00:00Z",
+    "model_release_id": "mdl_huatuo_3_9b_1",
+    "origin_mode": "SIM",
+    "allowed_actions": []
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "summary": "SIM request POST /v1/help-sessions/{id}/actions",
+  "description": "Tick the first fixed step. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/HelpAction",
+  "value": {
+    "action": "tick_step",
+    "step_index": 0,
+    "client_time": "2026-11-13T12:02:50Z"
+  }
+}

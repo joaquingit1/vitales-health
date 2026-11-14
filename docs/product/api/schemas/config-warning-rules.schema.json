@@ -1,0 +1,554 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-warning-rules.schema.json",
+  "title": "warning-rules.json",
+  "description": "Every warning the hub can raise: what raises it, at which level, where it applies, its words and its steps. Levels and steps come from environment-hazards.json; titles, templates and headline fragments are team copy.",
+  "type": "object",
+  "properties": {
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review before live guidance.",
+      "minLength": 1
+    },
+    "headline": {
+      "type": "object",
+      "properties": {
+        "max_fragments": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "separator": {
+          "type": "string"
+        },
+        "none_text": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "max_fragments",
+        "separator",
+        "none_text"
+      ],
+      "additionalProperties": false
+    },
+    "definitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "raised_by": {
+            "$ref": "common.schema.json#/$defs/raised_by"
+          },
+          "level": {
+            "$ref": "common.schema.json#/$defs/level"
+          },
+          "hazard_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hazard_level_index": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sensor_type_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "environments": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/environment_id"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "scope": {
+            "enum": [
+              "habitat",
+              "person",
+              "crew"
+            ],
+            "description": "habitat: one warning for the place, shown to everyone there. person: one per person. crew: one for the whole crew."
+          },
+          "condition": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "sensor_limit"
+                  },
+                  "limit_id": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "limit_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "sensor_quiet"
+                  },
+                  "sensor_type_ids": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "common.schema.json#/$defs/config_id"
+                    },
+                    "description": "Empty list: every sensor type of the active environment."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "sensor_type_ids"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "mission_event"
+                  },
+                  "event_types": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "common.schema.json#/$defs/config_id"
+                    },
+                    "minItems": 1
+                  },
+                  "clear_event_types": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "common.schema.json#/$defs/config_id"
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "event_types",
+                  "clear_event_types"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "answer"
+                  },
+                  "question_id": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  },
+                  "presence": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "common.schema.json#/$defs/presence"
+                    },
+                    "minItems": 1
+                  },
+                  "within_days_after_event": {
+                    "type": "object",
+                    "properties": {
+                      "event_type": {
+                        "$ref": "common.schema.json#/$defs/config_id"
+                      },
+                      "days": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "basis": {
+                        "$ref": "common.schema.json#/$defs/basis"
+                      }
+                    },
+                    "required": [
+                      "event_type",
+                      "days",
+                      "basis"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "kind",
+                  "question_id",
+                  "presence"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "state_fact"
+                  },
+                  "fact": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  },
+                  "equals": {
+                    "type": [
+                      "boolean",
+                      "string",
+                      "number"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "fact",
+                  "equals"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "assistant_insight"
+                  },
+                  "topic_ids": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "common.schema.json#/$defs/config_id"
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "topic_ids"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "ground_silence"
+                  },
+                  "after_next_contact_seconds": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Seconds past GroundLink.next_contact_at with the link still down before the warning is raised. null: not set, and the rule raises nothing."
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "basis": {
+                    "$ref": "common.schema.json#/$defs/basis"
+                  },
+                  "to_be_set_by": {
+                    "$ref": "common.schema.json#/$defs/to_be_set_by"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "after_next_contact_seconds",
+                  "basis",
+                  "to_be_set_by"
+                ],
+                "additionalProperties": false,
+                "description": "The only rule that reads the ground link (EI1). Raised when the link is down, next_contact_at is set and the hub clock passes it by the threshold. A planned gap before that raises nothing (CONTRACTS section 26)."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "supply_cover_low"
+                  },
+                  "below_uses": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Raised for a supply whose computed cover, in uses, is below this. null: not set, and the rule raises nothing."
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "basis": {
+                    "$ref": "common.schema.json#/$defs/basis"
+                  },
+                  "to_be_set_by": {
+                    "$ref": "common.schema.json#/$defs/to_be_set_by"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "below_uses",
+                  "basis",
+                  "to_be_set_by"
+                ],
+                "additionalProperties": false,
+                "description": "Reads SupplyCoverView only (CONTRACTS section 25)."
+              }
+            ]
+          },
+          "clear": {
+            "type": "object",
+            "properties": {
+              "by_engine": {
+                "enum": [
+                  "condition_false",
+                  "clear_event",
+                  "never"
+                ]
+              },
+              "person_may_resolve": {
+                "type": "boolean",
+                "description": "Rule warnings only: a person may mark it resolved with a reason."
+              },
+              "expires_after_seconds": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "basis": {
+                "$ref": "common.schema.json#/$defs/basis"
+              }
+            },
+            "required": [
+              "by_engine",
+              "person_may_resolve",
+              "expires_after_seconds",
+              "basis"
+            ],
+            "additionalProperties": false
+          },
+          "content": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                "minLength": 1,
+                "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+              },
+              "what": {
+                "type": "string",
+                "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                "minLength": 1,
+                "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+              },
+              "why": {
+                "type": "string",
+                "minLength": 1
+              },
+              "steps": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "from": {
+                        "const": "hazard_what_to_do"
+                      }
+                    },
+                    "required": [
+                      "from"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "from": {
+                        "const": "listed"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "minItems": 1
+                      },
+                      "basis": {
+                        "$ref": "common.schema.json#/$defs/basis"
+                      }
+                    },
+                    "required": [
+                      "from",
+                      "items",
+                      "basis"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "from": {
+                        "const": "assistant"
+                      }
+                    },
+                    "required": [
+                      "from"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "body_regions": {
+                "$ref": "common.schema.json#/$defs/body_regions"
+              },
+              "headline": {
+                "type": "object",
+                "properties": {
+                  "fragment": {
+                    "type": "string",
+                    "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                    "minLength": 1,
+                    "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+                  },
+                  "rank": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "solo": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "fragment",
+                  "rank",
+                  "solo"
+                ],
+                "additionalProperties": false
+              },
+              "citation_template": {
+                "type": "string",
+                "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+                "minLength": 1,
+                "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+              },
+              "source_ids": {
+                "$ref": "common.schema.json#/$defs/source_ids"
+              }
+            },
+            "required": [
+              "title",
+              "what",
+              "why",
+              "steps",
+              "body_regions",
+              "headline",
+              "citation_template",
+              "source_ids"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "raised_by",
+          "level",
+          "hazard_id",
+          "hazard_level_index",
+          "sensor_type_id",
+          "environments",
+          "scope",
+          "condition",
+          "clear",
+          "content"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "raised_by": {
+                  "const": "assistant"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "level": {
+                  "enum": [
+                    "info",
+                    "watch"
+                  ]
+                },
+                "condition": {
+                  "properties": {
+                    "kind": {
+                      "const": "assistant_insight"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "condition": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "sensor_limit",
+                        "sensor_quiet"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "raised_by": {
+                  "const": "sensor_limit"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "notice",
+    "headline",
+    "definitions"
+  ],
+  "additionalProperties": false
+}

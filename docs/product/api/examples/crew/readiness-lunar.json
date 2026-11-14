@@ -1,0 +1,60 @@
+{
+  "summary": "SIM GET /v1/crew/readiness, Moon base at 09:36",
+  "description": "For the medical officer role: who holds each skill fresh and who is available now. No health data, no ranking; holders in roster order. Illustrative only: not seed data.",
+  "x-schema": "crew-readiness-view.schema.json",
+  "value": {
+    "environment_id": "lunar_surface",
+    "skills": [
+      {
+        "skill_id": "pulse_check_wrist",
+        "name": "Pulse check at the wrist",
+        "fresh_count": 1,
+        "text": "Pulse check: 1 fresh",
+        "holders": [
+          {
+            "person": {
+              "person_id": "tomas",
+              "display_name": "Tomas Lind"
+            },
+            "freshness": "fresh",
+            "last_practiced_label": "day 12",
+            "medical_officer_rank": null,
+            "available": true,
+            "unavailable_reason": null
+          }
+        ]
+      },
+      {
+        "skill_id": "cpr",
+        "name": "Chest compressions (CPR)",
+        "fresh_count": 2,
+        "text": "CPR: 2 fresh",
+        "holders": [
+          {
+            "person": {
+              "person_id": "mara",
+              "display_name": "Mara Okafor"
+            },
+            "freshness": "fresh",
+            "last_practiced_label": "day 12",
+            "medical_officer_rank": null,
+            "available": true,
+            "unavailable_reason": null
+          },
+          {
+            "person": {
+              "person_id": "tomas",
+              "display_name": "Tomas Lind"
+            },
+            "freshness": "fresh",
+            "last_practiced_label": "day 12",
+            "medical_officer_rank": null,
+            "available": true,
+            "unavailable_reason": null
+          }
+        ]
+      }
+    ],
+    "as_of": "2026-11-13T09:36:00Z"
+  }
+}

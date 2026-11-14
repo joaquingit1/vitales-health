@@ -1,0 +1,31 @@
+{
+  "summary": "SIM GET /v1/observations/obs_pulse_mara_cam2",
+  "description": "A camera pulse estimate at rest. Illustrative only: not seed data.",
+  "x-schema": "observation.schema.json",
+  "value": {
+    "schema_version": "1.0",
+    "observation_id": "obs_pulse_mara_cam2",
+    "patient_id": "mara",
+    "operator_id": "mara",
+    "mission_id": "demo-mission",
+    "episode_id": "epi_mara_racing_1",
+    "code": "pulse",
+    "value": 96,
+    "unit": "bpm",
+    "original_value": 96,
+    "original_unit": "bpm",
+    "observed_at": "2026-11-13T09:33:30Z",
+    "entered_at": "2026-11-13T09:33:31Z",
+    "origin_mode": "SIM",
+    "acquisition_method": "camera_estimate",
+    "quality_status": "accepted",
+    "quality_rule_version": "camera-quality-1",
+    "device_id": "camera_2",
+    "context": {
+      "activity": "rest",
+      "gravity": "lunar"
+    },
+    "body_region": "heart",
+    "supersedes": null
+  }
+}

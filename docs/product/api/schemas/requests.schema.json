@@ -1,0 +1,2020 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "requests.schema.json",
+  "title": "Request bodies",
+  "description": "Every request body, one definition per operation family. Referenced from openapi.yaml.",
+  "$defs": {
+    "SessionCreate": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "crew",
+            "station",
+            "ground",
+            "operator",
+            "editor"
+          ]
+        },
+        "person_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "credential": {
+          "type": "string",
+          "description": "A local credential configured on the hub (PIN or passphrase). Never a config document.",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kind",
+        "credential"
+      ],
+      "additionalProperties": false
+    },
+    "ConfigReleaseCreate": {
+      "type": "object",
+      "properties": {
+        "documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "common.schema.json#/$defs/config_name"
+              },
+              "document": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "name",
+              "document"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "documents"
+      ],
+      "additionalProperties": false,
+      "description": "Documents not listed keep their active version."
+    },
+    "EnvironmentChangeCreate": {
+      "type": "object",
+      "properties": {
+        "environment_id": {
+          "$ref": "common.schema.json#/$defs/environment_id"
+        },
+        "reason": {
+          "enum": [
+            "phase_plan",
+            "operator",
+            "ground",
+            "demo_switch"
+          ]
+        },
+        "effective_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "environment_id",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "EnvironmentChangeAction": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "confirm",
+            "reject"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "MissionEventCreate": {
+      "type": "object",
+      "properties": {
+        "event_type": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "occurred_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "person_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "origin_mode": {
+          "$ref": "common.schema.json#/$defs/origin_mode"
+        }
+      },
+      "required": [
+        "event_type",
+        "occurred_at",
+        "person_ids",
+        "origin_mode"
+      ],
+      "additionalProperties": false
+    },
+    "GroundLinkDemoSwitch": {
+      "description": "Demo only. Either use_schedule true (return to the profile's schedule) or a status with an optional delay and next contact. With status down, gap_kind defaults to the profile's link default_gap_kind and gap_planned to false.",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "use_schedule": {
+              "const": true
+            }
+          },
+          "required": [
+            "use_schedule"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "up",
+                "delayed",
+                "down"
+              ]
+            },
+            "one_way_delay_s": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "next_contact_at": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/instant"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gap_kind": {
+              "$ref": "common.schema.json#/$defs/gap_kind"
+            },
+            "gap_planned": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "OverlayCreate": {
+      "type": "object",
+      "properties": {
+        "overlay": {
+          "$ref": "common.schema.json#/$defs/overlay"
+        },
+        "planned_start": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "started_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "overlay"
+      ],
+      "additionalProperties": false,
+      "description": "Give planned_start to plan, started_at to start now."
+    },
+    "OverlayEnd": {
+      "type": "object",
+      "properties": {
+        "ended_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      },
+      "required": [
+        "ended_at"
+      ],
+      "additionalProperties": false
+    },
+    "WarningAction": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "acknowledge",
+            "resolve",
+            "dismiss",
+            "add_note"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "resolve"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "reason"
+            ],
+            "properties": {
+              "reason": true
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "add_note"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "note"
+            ],
+            "properties": {
+              "note": true
+            }
+          }
+        }
+      ]
+    },
+    "OccurrenceAction": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "complete",
+            "skip",
+            "later"
+          ]
+        },
+        "observation_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "answer_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "skip_reason": {
+          "enum": [
+            "not_available",
+            "declined",
+            "no_time",
+            "not_needed_now",
+            "other"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "later_until": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "completed_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "skip"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "skip_reason"
+            ],
+            "properties": {
+              "skip_reason": true
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "later"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "later_until"
+            ],
+            "properties": {
+              "later_until": true
+            }
+          }
+        }
+      ]
+    },
+    "OverrideCreate": {
+      "type": "object",
+      "properties": {
+        "item_id": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "trigger_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "person_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "until": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "enum": [
+                "days",
+                "person_stops"
+              ]
+            },
+            "days": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "item_id",
+        "trigger_index",
+        "person_id",
+        "until"
+      ],
+      "additionalProperties": false,
+      "description": "Starts a manual trigger. Crew medical officer or ground only."
+    },
+    "OverrideAction": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "end"
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "DailyCheckCreate": {
+      "type": "object",
+      "properties": {
+        "origin_mode": {
+          "enum": [
+            "LIVE",
+            "SIM"
+          ]
+        }
+      },
+      "required": [
+        "origin_mode"
+      ],
+      "additionalProperties": false
+    },
+    "AnswerCreate": {
+      "type": "object",
+      "properties": {
+        "question_id": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "presence": {
+          "$ref": "common.schema.json#/$defs/presence"
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "body_region": {
+          "$ref": "common.schema.json#/$defs/body_region_or_null"
+        },
+        "laterality": {
+          "$ref": "common.schema.json#/$defs/laterality"
+        },
+        "supersedes": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "answered_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      },
+      "required": [
+        "question_id",
+        "presence",
+        "answered_at"
+      ],
+      "additionalProperties": false
+    },
+    "JournalEntryCreate": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "EpisodeCreate": {
+      "type": "object",
+      "properties": {
+        "concern_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "onset": {
+          "type": "object",
+          "properties": {
+            "at": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/instant"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "precision": {
+              "enum": [
+                "exact",
+                "hour",
+                "day",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "at",
+            "precision"
+          ],
+          "additionalProperties": false
+        },
+        "origin_mode": {
+          "enum": [
+            "LIVE",
+            "SIM"
+          ]
+        }
+      },
+      "required": [
+        "concern_text",
+        "origin_mode"
+      ],
+      "additionalProperties": false
+    },
+    "ObservationCreate": {
+      "type": "object",
+      "properties": {
+        "patient_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "episode_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "code": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "observed_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "origin_mode": {
+          "$ref": "common.schema.json#/$defs/origin_mode"
+        },
+        "acquisition_method": {
+          "$ref": "common.schema.json#/$defs/acquisition_method"
+        },
+        "device_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "context": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "body_region": {
+          "$ref": "common.schema.json#/$defs/body_region_or_null"
+        },
+        "supersedes": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "measurement_request_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        }
+      },
+      "required": [
+        "patient_id",
+        "code",
+        "value",
+        "unit",
+        "observed_at",
+        "origin_mode",
+        "acquisition_method"
+      ],
+      "additionalProperties": false
+    },
+    "MeasurementRequestCreate": {
+      "type": "object",
+      "properties": {
+        "episode_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "capability_code": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decision_affected": {
+          "type": "string",
+          "minLength": 1
+        },
+        "operator_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "body_region": {
+          "$ref": "common.schema.json#/$defs/body_region_or_null"
+        },
+        "condition_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^ICL[1-9][0-9]{0,2}$"
+          },
+          "description": "ICL conditions the result would help confirm; echoed in kit_check with their CliFF links.",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "capability_code",
+        "reason",
+        "decision_affected"
+      ],
+      "additionalProperties": false
+    },
+    "KitMapWhatIf": {
+      "type": "object",
+      "properties": {
+        "add_instruments": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "add_supplies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "supply_id": {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              "quantity": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "supply_id",
+              "quantity"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "add_skills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "skill_id": {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              "person_ids": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/id"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "skill_id",
+              "person_ids"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "environment_id": {
+          "$ref": "common.schema.json#/$defs/environment_id"
+        }
+      },
+      "additionalProperties": false,
+      "description": "At least one of add_instruments, add_supplies or add_skills. environment_id defaults to the active environment. Nothing is stored.",
+      "minProperties": 1
+    },
+    "MeasurementRequestAction": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "submit",
+            "accept",
+            "decline",
+            "start",
+            "cancel"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "AttemptCreate": {
+      "type": "object",
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "started_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "ended_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "outcome": {
+          "enum": [
+            "success",
+            "failed",
+            "rejected"
+          ]
+        },
+        "failure_reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "patient_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "episode_id": {
+                "anyOf": [
+                  {
+                    "$ref": "common.schema.json#/$defs/id"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "code": {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              "value": {
+                "type": "number"
+              },
+              "unit": {
+                "type": "string"
+              },
+              "observed_at": {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              "origin_mode": {
+                "$ref": "common.schema.json#/$defs/origin_mode"
+              },
+              "acquisition_method": {
+                "$ref": "common.schema.json#/$defs/acquisition_method"
+              },
+              "device_id": {
+                "anyOf": [
+                  {
+                    "$ref": "common.schema.json#/$defs/id"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "context": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "body_region": {
+                "$ref": "common.schema.json#/$defs/body_region_or_null"
+              },
+              "supersedes": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "measurement_request_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              }
+            },
+            "required": [
+              "patient_id",
+              "code",
+              "value",
+              "unit",
+              "observed_at",
+              "origin_mode",
+              "acquisition_method"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "quality_notes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "sequence",
+        "started_at",
+        "ended_at",
+        "outcome",
+        "observations"
+      ],
+      "additionalProperties": false
+    },
+    "ReportConfirmations": {
+      "type": "object",
+      "properties": {
+        "confirmations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "draft_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "decision": {
+                "enum": [
+                  "confirm",
+                  "reject"
+                ]
+              },
+              "value": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "unit": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "draft_id",
+              "decision"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "confirmations"
+      ],
+      "additionalProperties": false
+    },
+    "AssessmentCreate": {
+      "type": "object",
+      "properties": {
+        "state_snapshot_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "state_snapshot_version"
+      ],
+      "additionalProperties": false
+    },
+    "ReviewCreate": {
+      "type": "object",
+      "properties": {
+        "assessment_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {
+                "type": "string",
+                "minLength": 1
+              },
+              "decision": {
+                "enum": [
+                  "agree",
+                  "disagree",
+                  "needs_more",
+                  "not_assessed"
+                ]
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "item",
+              "decision",
+              "rationale"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "unresolved": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "decisions",
+        "unresolved"
+      ],
+      "additionalProperties": false
+    },
+    "HandoffCreate": {
+      "type": "object",
+      "properties": {
+        "episode_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "minItems": 1
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "recipients": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "consent_ref": {
+          "$ref": "common.schema.json#/$defs/id"
+        }
+      },
+      "required": [
+        "episode_id",
+        "fields",
+        "recipients"
+      ],
+      "additionalProperties": false
+    },
+    "HandoffApprove": {
+      "type": "object",
+      "properties": {
+        "previewed_revision": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "previewed_revision"
+      ],
+      "additionalProperties": false
+    },
+    "HelpSessionCreate": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "enum": [
+                "self",
+                "crewmate",
+                "unknown"
+              ]
+            },
+            "person_id": {
+              "$ref": "common.schema.json#/$defs/id"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        "entry": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "enum": [
+                "button",
+                "red_flag",
+                "warning"
+              ]
+            },
+            "ref_id": {
+              "$ref": "common.schema.json#/$defs/id"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        "place": {
+          "type": "string",
+          "minLength": 1
+        },
+        "client_opened_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "offline_path": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "node_id": {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              "answer_index": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "at": {
+                "$ref": "common.schema.json#/$defs/instant"
+              }
+            },
+            "required": [
+              "node_id",
+              "answer_index",
+              "at"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Answers given on the cached first screen before the hub answered; replayed in order."
+        },
+        "flow_id": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        }
+      },
+      "required": [
+        "subject",
+        "entry",
+        "client_opened_at"
+      ],
+      "additionalProperties": false,
+      "description": "A red flag entry gives flow_id from help-presentation red_flag_flows and opens straight on that flow."
+    },
+    "HelpAction": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "answer",
+            "switch_flow",
+            "tick_step",
+            "untick_step",
+            "call_crew",
+            "join",
+            "leave",
+            "start_over",
+            "set_body_region",
+            "set_place",
+            "add_note",
+            "ask_assistant",
+            "close"
+          ]
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "node_id": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "answer_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "flow_id": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "step_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "body_region": {
+          "$ref": "common.schema.json#/$defs/body_region_or_null"
+        },
+        "place": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "disposition": {
+          "enum": [
+            "resolved_on_board",
+            "handed_to_crew_medical_officer",
+            "ground_consulted",
+            "false_alarm",
+            "other"
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "client_time"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "answer"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "node_id",
+              "answer_index"
+            ],
+            "properties": {
+              "node_id": true,
+              "answer_index": true
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "switch_flow"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "flow_id"
+            ],
+            "properties": {
+              "flow_id": true
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "enum": [
+                  "tick_step",
+                  "untick_step"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "step_index"
+            ],
+            "properties": {
+              "step_index": true
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "set_body_region"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "body_region"
+            ],
+            "properties": {
+              "body_region": true
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "set_place"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "place"
+            ],
+            "properties": {
+              "place": true
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "add_note"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "note"
+            ],
+            "properties": {
+              "note": true
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "ask_assistant"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "text"
+            ],
+            "properties": {
+              "text": true
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "close"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "disposition"
+            ],
+            "properties": {
+              "disposition": true
+            }
+          }
+        }
+      ]
+    },
+    "GroundMessageCreate": {
+      "type": "object",
+      "properties": {
+        "extra_note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "previewed_sha256": {
+          "$ref": "common.schema.json#/$defs/sha256"
+        }
+      },
+      "additionalProperties": false,
+      "description": "previewed_sha256: the text_sha256 of the GroundMessagePreview on the card when the person pressed Tell the ground. The hub queues the draft as it stands and records both; it never refuses the press."
+    },
+    "PlanRunCreate": {
+      "type": "object",
+      "properties": {
+        "plan_id": {
+          "type": "string",
+          "pattern": "^plan_[a-z0-9_]{1,59}$"
+        },
+        "subject_person_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "episode_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "help_session_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        }
+      },
+      "required": [
+        "plan_id",
+        "subject_person_id"
+      ],
+      "additionalProperties": false,
+      "description": "Exactly one of episode_id or help_session_id. The environment is the active one; the run pins its configuration."
+    },
+    "PlanRunAction": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "step_done",
+            "not_available",
+            "use_substitute",
+            "escalate",
+            "close"
+          ]
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "step_id": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observation_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "guided_check_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "disposition": {
+          "enum": [
+            "resolved_on_board",
+            "handed_to_medical_officer",
+            "watch_ended",
+            "preparing_return",
+            "other"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "action",
+        "client_time"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "enum": [
+                  "step_done",
+                  "not_available",
+                  "use_substitute",
+                  "escalate"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "step_id"
+            ],
+            "properties": {
+              "step_id": true
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "close"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "disposition"
+            ],
+            "properties": {
+              "disposition": true
+            }
+          }
+        }
+      ]
+    },
+    "GuidedCheckCreate": {
+      "type": "object",
+      "properties": {
+        "skill_id": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "helper_person_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "subject_person_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "plan_run_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "drill_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "role_assignment_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        }
+      },
+      "required": [
+        "skill_id",
+        "helper_person_id",
+        "subject_person_id"
+      ],
+      "additionalProperties": false,
+      "description": "At most one of plan_run_id or drill_id. The helper may never be the subject (ROLE_NOT_ELIGIBLE)."
+    },
+    "GuidedCheckBeat": {
+      "type": "object",
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      },
+      "required": [
+        "sequence",
+        "client_time"
+      ],
+      "additionalProperties": false,
+      "description": "One tap on Beat. The hub records its own receive time; sequence makes retries idempotent."
+    },
+    "GuidedCheckAction": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "step_done",
+            "start_count",
+            "answer",
+            "finish",
+            "retry",
+            "cancel"
+          ]
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "step_no": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "answer": {
+          "enum": [
+            "regular",
+            "irregular",
+            "not_sure"
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "client_time"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "step_done"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "step_no"
+            ],
+            "properties": {
+              "step_no": true
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "answer"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "answer"
+            ],
+            "properties": {
+              "answer": true
+            }
+          }
+        }
+      ]
+    },
+    "RoleAction": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "accept",
+            "reassign"
+          ]
+        },
+        "role_assignment_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "person_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      },
+      "required": [
+        "action",
+        "role_assignment_id",
+        "client_time"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "reassign"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "person_id"
+            ],
+            "properties": {
+              "person_id": true
+            }
+          }
+        }
+      ]
+    },
+    "DrillCreate": {
+      "type": "object",
+      "properties": {
+        "scenario_id": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "skill_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "participant_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "routine_occurrence_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "origin_mode": {
+          "enum": [
+            "LIVE",
+            "SIM"
+          ]
+        }
+      },
+      "required": [
+        "scenario_id",
+        "skill_ids",
+        "participant_ids",
+        "origin_mode"
+      ],
+      "additionalProperties": false
+    },
+    "DrillComplete": {
+      "type": "object",
+      "properties": {
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "participant_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "client_time"
+      ],
+      "additionalProperties": false,
+      "description": "participant_ids: who completed it, when not everyone did. No measurement is accepted here."
+    },
+    "SupplyUseCreate": {
+      "type": "object",
+      "properties": {
+        "quantity": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "plan_run_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "help_session_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "step_id": {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      },
+      "required": [
+        "quantity",
+        "client_time"
+      ],
+      "additionalProperties": false
+    },
+    "AssistantRuntimeAction": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "start",
+            "stop"
+          ]
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "ConversationCreate": {
+      "type": "object",
+      "properties": {
+        "context": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "enum": [
+                "general",
+                "episode",
+                "help_session",
+                "warning",
+                "reading",
+                "insight"
+              ]
+            },
+            "ref_id": {
+              "$ref": "common.schema.json#/$defs/id"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "context"
+      ],
+      "additionalProperties": false
+    },
+    "MessageCreate": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reply_to_action": {
+          "type": "object",
+          "properties": {
+            "message_id": {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            "choice": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "message_id",
+            "choice"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 1
+    },
+    "InsightAction": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "dismiss"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "ParticipationRebuild": {
+      "type": "object",
+      "properties": {
+        "origin_mode": {
+          "enum": [
+            "LIVE",
+            "SIM"
+          ]
+        }
+      },
+      "required": [
+        "origin_mode"
+      ],
+      "additionalProperties": false
+    },
+    "AdapterReadingBatch": {
+      "type": "object",
+      "properties": {
+        "batch_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "readings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "channel_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "adapter_sequence": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "value": {
+                "type": "number"
+              },
+              "unit": {
+                "type": "string",
+                "minLength": 1
+              },
+              "observed_at": {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              "window_start": {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              "aggregation": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "sample",
+                      "mean",
+                      "time_weighted_mean",
+                      "energy_mean",
+                      "max"
+                    ]
+                  },
+                  "window_seconds": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "window_seconds"
+                ],
+                "additionalProperties": false
+              },
+              "origin_mode": {
+                "$ref": "common.schema.json#/$defs/origin_mode"
+              },
+              "quality_status": {
+                "$ref": "common.schema.json#/$defs/quality_status"
+              },
+              "replay": {
+                "type": "object",
+                "properties": {
+                  "dataset": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "time_basis": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "dataset",
+                  "time_basis"
+                ],
+                "additionalProperties": false
+              },
+              "cabin_pressure_mmhg": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  },
+                  "basis": {
+                    "enum": [
+                      "measured",
+                      "assumed"
+                    ]
+                  }
+                },
+                "required": [
+                  "value",
+                  "basis"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "channel_id",
+              "adapter_sequence",
+              "value",
+              "unit",
+              "observed_at",
+              "origin_mode",
+              "quality_status"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 1000
+        }
+      },
+      "required": [
+        "batch_id",
+        "readings"
+      ],
+      "additionalProperties": false,
+      "description": "At most 1,000 readings per batch."
+    },
+    "GroundReceipt": {
+      "type": "object",
+      "properties": {
+        "received_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      },
+      "required": [
+        "received_at"
+      ],
+      "additionalProperties": false
+    },
+    "GroundReply": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The ground's reply, shown to the crew as it is. Not a clinical review.",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "ResearchSourceCreate": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "$ref": "common.schema.json#/$defs/source_id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1
+        },
+        "date": {
+          "type": "string",
+          "minLength": 1
+        },
+        "access": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "source_id",
+        "title",
+        "url",
+        "date",
+        "access"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

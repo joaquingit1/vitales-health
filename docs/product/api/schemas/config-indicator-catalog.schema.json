@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-indicator-catalog.schema.json",
+  "title": "indicator-catalog.json",
+  "description": "Display and baseline rules for personal indicators (sleep, mood, reaction time, vital signs). Codes are input-dictionary.json field IDs. Edited by the team.",
+  "type": "object",
+  "properties": {
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review before live guidance.",
+      "minLength": 1
+    },
+    "indicators": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "unit_display": {
+            "type": "string"
+          },
+          "decimals": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          },
+          "trend_days": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "baseline": {
+            "type": "object",
+            "properties": {
+              "method": {
+                "enum": [
+                  "median",
+                  "mean"
+                ]
+              },
+              "window_days": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "min_samples": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "basis": {
+                "$ref": "common.schema.json#/$defs/basis"
+              }
+            },
+            "required": [
+              "method",
+              "window_days",
+              "min_samples",
+              "basis"
+            ],
+            "additionalProperties": false
+          },
+          "better": {
+            "enum": [
+              "higher",
+              "lower",
+              "neither"
+            ]
+          },
+          "basis": {
+            "$ref": "common.schema.json#/$defs/basis"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "unit_display",
+          "decimals",
+          "body_region",
+          "trend_days",
+          "baseline",
+          "better",
+          "basis"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "reaction_test": {
+      "type": "object",
+      "properties": {
+        "lapse_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "basis": {
+          "$ref": "common.schema.json#/$defs/basis"
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "lapse_ms",
+        "basis",
+        "note"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "notice",
+    "indicators",
+    "reaction_test"
+  ],
+  "additionalProperties": false
+}

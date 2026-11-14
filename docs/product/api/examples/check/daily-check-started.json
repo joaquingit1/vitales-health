@@ -1,0 +1,61 @@
+{
+  "summary": "SIM POST /v1/daily-checks",
+  "description": "Today's check started on the station. The CO2 binding added its questions. Illustrative only: not seed data.",
+  "x-schema": "daily-check.schema.json",
+  "value": {
+    "daily_check_id": "dck_mara_d19",
+    "revision": 1,
+    "person_id": "mara",
+    "mission_day": 19,
+    "origin_mode": "SIM",
+    "state": "started",
+    "started_at": "2026-11-13T09:12:00Z",
+    "submitted_at": null,
+    "question_ids": [
+      "symptom_new",
+      "sleep_estimate",
+      "mood",
+      "energy",
+      "stress",
+      "co2_headache",
+      "co2_vision"
+    ],
+    "required_question_ids": [
+      "symptom_new",
+      "sleep_estimate",
+      "mood"
+    ],
+    "missing_question_ids": [
+      "symptom_new",
+      "sleep_estimate",
+      "mood"
+    ],
+    "added_question_ids": [
+      "co2_headache",
+      "co2_vision"
+    ],
+    "answers": [],
+    "estimates": [
+      {
+        "question_id": "sleep_estimate",
+        "observation_id": "obs_sleep_mara_d19",
+        "value_text": "5.2 h"
+      }
+    ],
+    "optional_parts": {
+      "observation_ids": [],
+      "reaction_test_occurrence_id": "occ_sta_reaction_test",
+      "band_confirmed": null,
+      "journal_entry_exists": false
+    },
+    "due_today_occurrence_ids": [
+      "occ_sta_daily_check",
+      "occ_sta_blood_pressure"
+    ],
+    "allowed_actions": [
+      "answer",
+      "submit",
+      "abandon"
+    ]
+  }
+}

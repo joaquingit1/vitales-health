@@ -1,0 +1,122 @@
+{
+  "summary": "SIM GET /v1/sensors/noise, quiet",
+  "description": "The noise channel stopped reporting. The card keeps the last value, says it is stale and links the sensor_quiet warning. Illustrative only: not seed data.",
+  "x-schema": "sensor-status.schema.json",
+  "value": {
+    "sensor_type_id": "noise",
+    "hazard_id": "noise",
+    "environment_id": "station_leo",
+    "name": "Noise",
+    "long_name": "Noise",
+    "body_region": "ear",
+    "channel_id": "ch_noise_station_sim",
+    "reading_state": "stale",
+    "latest_reading": {
+      "reading_id": "rdg_noise_station_sim",
+      "channel_id": "ch_noise_station_sim",
+      "sensor_type_id": "noise",
+      "hazard_id": "noise",
+      "value": 61,
+      "unit": "dBA",
+      "original_value": 61,
+      "original_unit": "dBA",
+      "conversion": null,
+      "aggregation": {
+        "kind": "sample",
+        "window_seconds": null
+      },
+      "observed_at": "2026-11-13T09:10:00Z",
+      "window_start": null,
+      "received_at": "2026-11-13T09:10:00Z",
+      "origin_mode": "SIM",
+      "adapter_id": "adp_sim",
+      "adapter_sequence": 1003,
+      "quality_status": "accepted",
+      "location": "sleep_station",
+      "replay": null,
+      "provenance": {
+        "origin_mode": "SIM",
+        "source_label": "Sim",
+        "trace": null,
+        "dataset": null,
+        "source_ids": []
+      }
+    },
+    "display_value": {
+      "value": 61,
+      "unit": "dBA",
+      "text": "61"
+    },
+    "context_label": "24-hour average",
+    "source_label": "Sim",
+    "origin_mode": "SIM",
+    "evaluation": {
+      "unit": "dBA",
+      "evaluated_at": "2026-11-13T09:40:00Z",
+      "pending_limit_ids": [],
+      "aggregated_value": 61,
+      "aggregation_label": "24-hour average",
+      "window_start": "2026-11-12T09:10:00Z",
+      "window_end": "2026-11-13T09:10:00Z",
+      "coverage": 1.0,
+      "status": "stale",
+      "level": null,
+      "limit_id": null
+    },
+    "shown_level": null,
+    "linked_warning_ids": [
+      "wrn_quiet_noise_1"
+    ],
+    "display_range": [
+      40,
+      90
+    ],
+    "limit_marks": [
+      {
+        "limit_id": "noise_24h_act",
+        "value": 70,
+        "unit": "dBA",
+        "comparator": "above",
+        "role": "warning",
+        "label": "limit 70 dBA"
+      }
+    ],
+    "stale_since": "2026-11-13T09:20:00Z",
+    "trace": null,
+    "effects": [
+      {
+        "text": "Hearing loss",
+        "body_region": "ear"
+      },
+      {
+        "text": "Headaches",
+        "body_region": "head"
+      },
+      {
+        "text": "Irritation",
+        "body_region": null
+      },
+      {
+        "text": "Worse sleep and relaxation",
+        "body_region": null
+      },
+      {
+        "text": "Harder to talk and hear each other",
+        "body_region": "ear"
+      }
+    ],
+    "todo": [
+      "Nothing to do."
+    ],
+    "here": "Constant fan noise. ISS crews use acoustic monitors from time to time.",
+    "citation": {
+      "text": "Limit: EV01. What it can do: C15, EV01, EV09.",
+      "source_ids": [
+        "C15",
+        "EV01",
+        "EV09"
+      ]
+    },
+    "series_href": "/v1/sensors/noise/series"
+  }
+}

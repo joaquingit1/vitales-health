@@ -1,0 +1,62 @@
+{
+  "summary": "EXAMPLE CONFIG participation-rules.json",
+  "description": "CONTRACTS section 8 parameters.",
+  "x-schema": "config-participation-rules.schema.json",
+  "value": {
+    "patch_thresholds": [
+      7,
+      14,
+      30
+    ],
+    "crew_goal_window_days": 7,
+    "patch_designs": [
+      {
+        "threshold": 7,
+        "patch_design_id": "patch_week",
+        "label": "First week"
+      },
+      {
+        "threshold": 14,
+        "patch_design_id": "patch_fortnight",
+        "label": "Two weeks"
+      },
+      {
+        "threshold": 30,
+        "patch_design_id": "patch_month",
+        "label": "A month of checks"
+      }
+    ],
+    "derivation_version": "participation-1",
+    "basis": "team default",
+    "practice": {
+      "counts": "drill_completed",
+      "drill_measurements_count": false,
+      "patch_designs": [
+        {
+          "kind": "first_drill",
+          "threshold": null,
+          "patch_design_id": "patch_practice_first",
+          "label": "First drill"
+        },
+        {
+          "kind": "drill_count",
+          "threshold": 3,
+          "patch_design_id": "patch_practice_three",
+          "label": "Three drills"
+        },
+        {
+          "kind": "skill_fresh",
+          "threshold": null,
+          "patch_design_id": "patch_practice_fresh",
+          "label": "Every core skill fresh"
+        }
+      ],
+      "core_skill_ids": [
+        "pulse_check_wrist",
+        "cpr"
+      ],
+      "basis": "team default",
+      "to_be_set_by": null
+    }
+  }
+}

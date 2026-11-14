@@ -1,0 +1,13 @@
+{
+  "summary": "SIM request POST /v1/routine/overrides",
+  "description": "Start a manual trigger. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/OverrideCreate",
+  "value": {
+    "item_id": "vision_self_check",
+    "trigger_index": 0,
+    "person_id": "mara",
+    "until": {
+      "kind": "person_stops"
+    }
+  }
+}

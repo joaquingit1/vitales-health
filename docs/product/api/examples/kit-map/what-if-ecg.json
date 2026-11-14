@@ -1,0 +1,175 @@
+{
+  "summary": "SIM POST /v1/kit-map/what-if add ecg_single_lead",
+  "description": "What if the station kit had a single-lead ECG: ICL10 moves to measured_here, counts become 1, 3 and 3. Nothing is stored. Illustrative only: not seed data.",
+  "x-schema": "kit-map-what-if.schema.json",
+  "value": {
+    "environment_id": "station_leo",
+    "kit_map_version": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b",
+    "added_instrument_ids": [
+      "ecg_single_lead"
+    ],
+    "ignored_instrument_ids": [],
+    "base_counts": {
+      "measured_here": 0,
+      "report_only": 3,
+      "needs_test_not_aboard": 4,
+      "total": 7
+    },
+    "what_if_counts": {
+      "measured_here": 1,
+      "report_only": 3,
+      "needs_test_not_aboard": 3,
+      "total": 7
+    },
+    "regions": [
+      {
+        "region": "head",
+        "counts": {
+          "measured_here": 1,
+          "report_only": 3,
+          "needs_test_not_aboard": 2,
+          "total": 6
+        },
+        "marks": [
+          "measured_here",
+          "report_only",
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "eyes",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 1,
+          "needs_test_not_aboard": 1,
+          "total": 2
+        },
+        "marks": [
+          "report_only",
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "neck",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 0,
+          "needs_test_not_aboard": 1,
+          "total": 1
+        },
+        "marks": [
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "shoulder",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 0,
+          "needs_test_not_aboard": 1,
+          "total": 1
+        },
+        "marks": [
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "heart",
+        "counts": {
+          "measured_here": 1,
+          "report_only": 1,
+          "needs_test_not_aboard": 1,
+          "total": 3
+        },
+        "marks": [
+          "measured_here",
+          "report_only",
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "lungs",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 1,
+          "needs_test_not_aboard": 2,
+          "total": 3
+        },
+        "marks": [
+          "report_only",
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "abdomen",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 0,
+          "needs_test_not_aboard": 1,
+          "total": 1
+        },
+        "marks": [
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "back",
+        "counts": {
+          "measured_here": 0,
+          "report_only": 0,
+          "needs_test_not_aboard": 1,
+          "total": 1
+        },
+        "marks": [
+          "needs_test_not_aboard"
+        ]
+      },
+      {
+        "region": "wrist",
+        "counts": {
+          "measured_here": 1,
+          "report_only": 2,
+          "needs_test_not_aboard": 0,
+          "total": 3
+        },
+        "marks": [
+          "measured_here",
+          "report_only"
+        ]
+      },
+      {
+        "region": "hand",
+        "counts": {
+          "measured_here": 1,
+          "report_only": 1,
+          "needs_test_not_aboard": 0,
+          "total": 2
+        },
+        "marks": [
+          "measured_here",
+          "report_only"
+        ]
+      }
+    ],
+    "changed": [
+      {
+        "condition_id": "ICL10",
+        "name": "Atrial fibrillation or flutter",
+        "from": "needs_test_not_aboard",
+        "to": "measured_here",
+        "body_regions": [
+          "heart",
+          "head",
+          "hand",
+          "wrist"
+        ],
+        "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/atrial-fibrillation-atrial-flutter-cliff-2023.pdf"
+      }
+    ],
+    "added_supplies": [],
+    "added_skills": [],
+    "plans_changed": [],
+    "cover_changed": [],
+    "persisted": false
+  }
+}

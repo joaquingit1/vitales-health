@@ -1,0 +1,448 @@
+{
+  "summary": "EXAMPLE CONFIG questionnaires.json",
+  "description": "The daily check, the three red flags and the question sets the routine bindings add. Wording from design/interaction-prototype.html where it exists.",
+  "x-schema": "config-questionnaires.schema.json",
+  "value": {
+    "notice": "Unreviewed draft: needs clinician review before live guidance.",
+    "questions": [
+      {
+        "id": "symptom_new",
+        "text": "Anything new since yesterday?",
+        "hint": "Every answer counts. Telling us something is wrong never costs your streak.",
+        "kind": "presence",
+        "answer_code": null,
+        "scale": null,
+        "unit": null,
+        "body_region": null,
+        "choices": [
+          {
+            "id": "nothing_new",
+            "label": "Nothing new",
+            "presence": "absent",
+            "opens": null
+          },
+          {
+            "id": "something_wrong",
+            "label": "Something feels wrong",
+            "presence": "present",
+            "opens": "concern"
+          },
+          {
+            "id": "prefer_not",
+            "label": "Prefer not to say",
+            "presence": "declined",
+            "opens": null
+          }
+        ]
+      },
+      {
+        "id": "sleep_estimate",
+        "text": "The band estimates {value} last night. Is that about right?",
+        "hint": "The band's estimate stays beside yours, with its method.",
+        "kind": "confirm_estimate",
+        "answer_code": "sleep_duration",
+        "scale": null,
+        "unit": "h",
+        "body_region": "wrist",
+        "choices": [
+          {
+            "id": "right",
+            "label": "That's right",
+            "presence": "present",
+            "opens": null
+          },
+          {
+            "id": "correct",
+            "label": "Correct it",
+            "presence": "present",
+            "opens": "correction"
+          }
+        ]
+      },
+      {
+        "id": "mood",
+        "text": "How are you today?",
+        "hint": "Rough is fine. These are yours, and they never earn or cost anything.",
+        "kind": "scale",
+        "answer_code": "mood",
+        "scale": {
+          "min": 0,
+          "max": 10,
+          "label": "Mood"
+        },
+        "unit": null,
+        "body_region": "head",
+        "choices": []
+      },
+      {
+        "id": "energy",
+        "text": "Energy",
+        "hint": null,
+        "kind": "scale",
+        "answer_code": null,
+        "scale": {
+          "min": 0,
+          "max": 10,
+          "label": "Energy"
+        },
+        "unit": null,
+        "body_region": null,
+        "choices": []
+      },
+      {
+        "id": "stress",
+        "text": "Stress",
+        "hint": null,
+        "kind": "scale",
+        "answer_code": "stress",
+        "scale": {
+          "min": 0,
+          "max": 10,
+          "label": "Stress"
+        },
+        "unit": null,
+        "body_region": null,
+        "choices": []
+      },
+      {
+        "id": "red_chest",
+        "text": "Chest pain or pressure",
+        "hint": null,
+        "kind": "choice",
+        "answer_code": null,
+        "scale": null,
+        "unit": null,
+        "body_region": "heart",
+        "choices": [
+          {
+            "id": "yes",
+            "label": "Yes",
+            "presence": "present",
+            "opens": "help_flow",
+            "flow_id": "chest_pain"
+          },
+          {
+            "id": "no",
+            "label": "No",
+            "presence": "absent",
+            "opens": null
+          },
+          {
+            "id": "not_sure",
+            "label": "Not sure",
+            "presence": "unknown",
+            "opens": null
+          }
+        ]
+      },
+      {
+        "id": "red_faint",
+        "text": "Fainting, or nearly",
+        "hint": null,
+        "kind": "choice",
+        "answer_code": null,
+        "scale": null,
+        "unit": null,
+        "body_region": "head",
+        "choices": [
+          {
+            "id": "yes",
+            "label": "Yes",
+            "presence": "present",
+            "opens": "help_flow",
+            "flow_id": "fainting"
+          },
+          {
+            "id": "no",
+            "label": "No",
+            "presence": "absent",
+            "opens": null
+          },
+          {
+            "id": "not_sure",
+            "label": "Not sure",
+            "presence": "unknown",
+            "opens": null
+          }
+        ]
+      },
+      {
+        "id": "red_breath",
+        "text": "Hard to breathe",
+        "hint": null,
+        "kind": "choice",
+        "answer_code": null,
+        "scale": null,
+        "unit": null,
+        "body_region": "lungs",
+        "choices": [
+          {
+            "id": "yes",
+            "label": "Yes",
+            "presence": "present",
+            "opens": "help_flow",
+            "flow_id": "breathing_difficulty"
+          },
+          {
+            "id": "no",
+            "label": "No",
+            "presence": "absent",
+            "opens": null
+          },
+          {
+            "id": "not_sure",
+            "label": "Not sure",
+            "presence": "unknown",
+            "opens": null
+          }
+        ]
+      },
+      {
+        "id": "co2_headache",
+        "text": "Do you have a headache now?",
+        "hint": "Asked because cabin CO2 is above the limit.",
+        "kind": "presence",
+        "answer_code": null,
+        "scale": null,
+        "unit": null,
+        "body_region": "head",
+        "choices": [
+          {
+            "id": "yes",
+            "label": "Yes",
+            "presence": "present",
+            "opens": null
+          },
+          {
+            "id": "no",
+            "label": "No",
+            "presence": "absent",
+            "opens": null
+          },
+          {
+            "id": "not_sure",
+            "label": "Not sure",
+            "presence": "unknown",
+            "opens": null
+          }
+        ]
+      },
+      {
+        "id": "co2_vision",
+        "text": "Any change in your vision?",
+        "hint": "Asked because cabin CO2 is above the limit.",
+        "kind": "presence",
+        "answer_code": null,
+        "scale": null,
+        "unit": null,
+        "body_region": "eyes",
+        "choices": [
+          {
+            "id": "yes",
+            "label": "Yes",
+            "presence": "present",
+            "opens": null
+          },
+          {
+            "id": "no",
+            "label": "No",
+            "presence": "absent",
+            "opens": null
+          },
+          {
+            "id": "not_sure",
+            "label": "Not sure",
+            "presence": "unknown",
+            "opens": null
+          }
+        ]
+      },
+      {
+        "id": "radiation_nausea",
+        "text": "Any nausea, vomiting, unusual tiredness or skin change?",
+        "hint": "Asked each day after a solar particle event.",
+        "kind": "presence",
+        "answer_code": null,
+        "scale": null,
+        "unit": null,
+        "body_region": "abdomen",
+        "choices": [
+          {
+            "id": "yes",
+            "label": "Yes",
+            "presence": "present",
+            "opens": null
+          },
+          {
+            "id": "no",
+            "label": "No",
+            "presence": "absent",
+            "opens": null
+          },
+          {
+            "id": "not_sure",
+            "label": "Not sure",
+            "presence": "unknown",
+            "opens": null
+          }
+        ]
+      },
+      {
+        "id": "walk_joints",
+        "text": "Any joint pain, numbness, itching or rash since the walk?",
+        "hint": "Asked after a walk outside.",
+        "kind": "presence",
+        "answer_code": null,
+        "scale": null,
+        "unit": null,
+        "body_region": "shoulder",
+        "choices": [
+          {
+            "id": "yes",
+            "label": "Yes",
+            "presence": "present",
+            "opens": null
+          },
+          {
+            "id": "no",
+            "label": "No",
+            "presence": "absent",
+            "opens": null
+          },
+          {
+            "id": "not_sure",
+            "label": "Not sure",
+            "presence": "unknown",
+            "opens": null
+          }
+        ]
+      },
+      {
+        "id": "dizzy_standing",
+        "text": "Dizzy or unsteady when you stand up?",
+        "hint": "Asked in the first days after landing.",
+        "kind": "presence",
+        "answer_code": null,
+        "scale": null,
+        "unit": null,
+        "body_region": "heart",
+        "choices": [
+          {
+            "id": "yes",
+            "label": "Yes",
+            "presence": "present",
+            "opens": null
+          },
+          {
+            "id": "no",
+            "label": "No",
+            "presence": "absent",
+            "opens": null
+          },
+          {
+            "id": "not_sure",
+            "label": "Not sure",
+            "presence": "unknown",
+            "opens": null
+          }
+        ]
+      },
+      {
+        "id": "barrier_reason",
+        "text": "This task was missed a few times. What gets in the way?",
+        "hint": "There is no wrong answer.",
+        "kind": "choice",
+        "answer_code": null,
+        "scale": null,
+        "unit": null,
+        "body_region": null,
+        "choices": [
+          {
+            "id": "no_time",
+            "label": "No time",
+            "presence": "present",
+            "opens": null
+          },
+          {
+            "id": "no_kit",
+            "label": "Equipment not available",
+            "presence": "present",
+            "opens": null
+          },
+          {
+            "id": "not_useful",
+            "label": "Does not feel useful",
+            "presence": "present",
+            "opens": null
+          },
+          {
+            "id": "prefer_not",
+            "label": "Prefer not to say",
+            "presence": "declined",
+            "opens": null
+          }
+        ]
+      }
+    ],
+    "daily_check": {
+      "question_ids": [
+        "symptom_new",
+        "sleep_estimate",
+        "mood",
+        "energy",
+        "stress"
+      ],
+      "required_question_ids": [
+        "symptom_new",
+        "sleep_estimate",
+        "mood"
+      ],
+      "hint": "Take what you can. Not available is a real answer.",
+      "done_text": "Showing up is what counts. Nothing here scores your health."
+    },
+    "red_flags": {
+      "intro": "First, three quick questions. They work with the assistant off.",
+      "after": "\"Not sure\" is not a no. Ask a crewmate to stay with you. Someone needs help is one tap away.",
+      "question_ids": [
+        "red_chest",
+        "red_faint",
+        "red_breath"
+      ]
+    },
+    "question_sets": [
+      {
+        "id": "co2_headache_vision",
+        "title": "Headache and vision",
+        "question_ids": [
+          "co2_headache",
+          "co2_vision"
+        ],
+        "reason_template": "Added because {reason}."
+      },
+      {
+        "id": "radiation_symptoms",
+        "title": "After the solar storm",
+        "question_ids": [
+          "radiation_nausea"
+        ],
+        "reason_template": "Added because {reason}."
+      },
+      {
+        "id": "after_walk",
+        "title": "After the walk",
+        "question_ids": [
+          "walk_joints"
+        ],
+        "reason_template": "Added because {reason}."
+      },
+      {
+        "id": "gravity_arrival",
+        "title": "Getting used to gravity",
+        "question_ids": [
+          "dizzy_standing"
+        ],
+        "reason_template": "Added because {reason}."
+      }
+    ]
+  }
+}

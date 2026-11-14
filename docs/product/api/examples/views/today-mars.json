@@ -1,0 +1,930 @@
+{
+  "summary": "SIM GET /v1/views/today, Mars base",
+  "description": "The Today screen for Mara Okafor on mars_surface. Illustrative only: not seed data.",
+  "x-schema": "today-view.schema.json",
+  "value": {
+    "person": {
+      "person_id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "as_of": "2026-11-13T09:10:16Z",
+    "environment": {
+      "environment_id": "mars_surface",
+      "label": "Mars surface base",
+      "place": "Mars base",
+      "day_label": "sol 3 on Mars",
+      "eva_word": "surface walk",
+      "ground_delay_text": "Up to 20 minutes one way."
+    },
+    "headline": {
+      "text": "Sol 3: getting used to gravity",
+      "warning_ids": [
+        "wrn_dizzy_mara_1"
+      ]
+    },
+    "insight": {
+      "insight_id": "ins_gravity_mara_1",
+      "person_id": "mara",
+      "topic_id": "gravity_adjustment",
+      "level": "info",
+      "title": "Getting used to gravity",
+      "text": "Dizzy when standing is common after landing. Stand up slowly.",
+      "why": "After months weightless, the body needs time to keep blood pressure up when you stand.",
+      "evidence": [
+        {
+          "kind": "answer",
+          "ref_id": "ans_dizzy_mara_1",
+          "summary": "Dizzy when standing: yes, sol 2",
+          "observed_at": "2026-11-12T18:20:00Z"
+        }
+      ],
+      "habitat_facts": [],
+      "citation": {
+        "text": "Draft. Evidence: C09.",
+        "source_ids": [
+          "C09"
+        ]
+      },
+      "warning_id": null,
+      "routine_occurrence_ids": [],
+      "state": "active",
+      "created_at": "2026-11-13T07:00:00Z",
+      "model_release_id": "mdl_huatuo_3_9b_1",
+      "origin_mode": "SIM",
+      "allowed_actions": [
+        "dismiss"
+      ]
+    },
+    "warnings": [
+      {
+        "warning_id": "wrn_dizzy_mara_1",
+        "revision": 1,
+        "definition_id": "dizzy_after_landing",
+        "config_release_id": "rel_20261113_a",
+        "level": "watch",
+        "raised_by": "rule",
+        "hazard_id": "partial_gravity",
+        "limit_id": null,
+        "sensor_type_id": null,
+        "channel_id": null,
+        "scope": "person",
+        "person_id": "mara",
+        "environment_id": "mars_surface",
+        "location": null,
+        "origin_mode": "SIM",
+        "title": "Dizzy when standing",
+        "what": "You reported dizziness after standing up, on sol 2 in gravity.",
+        "why": "After months weightless, the body needs time to keep blood pressure up when you stand.",
+        "steps": [
+          "Sit or lie down until it passes.",
+          "Tell a crewmate."
+        ],
+        "body_regions": [
+          "heart"
+        ],
+        "headline": {
+          "fragment": "Sol 3: getting used to gravity",
+          "rank": 5,
+          "solo": true
+        },
+        "evidence": [
+          {
+            "kind": "answer",
+            "ref_id": "ans_dizzy_mara_1",
+            "summary": "Dizzy when standing: yes",
+            "observed_at": "2026-11-12T18:20:00Z"
+          }
+        ],
+        "evidence_time": "2026-11-12T18:20:00Z",
+        "evidence_time_label": "yesterday 18:20",
+        "citation": {
+          "text": "Your report yesterday. Rule: dizziness when standing after landing.",
+          "source_ids": [
+            "C09"
+          ]
+        },
+        "insight_id": null,
+        "state": "raised",
+        "raised_at": "2026-11-12T18:20:05Z",
+        "acknowledgements": [],
+        "cleared_at": null,
+        "clear_reason": null,
+        "resolved": null,
+        "dismissed": null,
+        "notes": [],
+        "previous_warning_id": null,
+        "routine_override_ids": [],
+        "allowed_actions": [
+          "acknowledge",
+          "add_note",
+          "resolve"
+        ]
+      },
+      {
+        "warning_id": "wrn_water_mars_1",
+        "revision": 1,
+        "definition_id": "local_water_untested",
+        "config_release_id": "rel_20261113_a",
+        "level": "watch",
+        "raised_by": "rule",
+        "hazard_id": "perchlorate",
+        "limit_id": null,
+        "sensor_type_id": "water",
+        "channel_id": "ch_water_ice_sim",
+        "scope": "habitat",
+        "person_id": null,
+        "environment_id": "mars_surface",
+        "location": "water plant",
+        "origin_mode": "SIM",
+        "title": "Local water not yet tested",
+        "what": "The new water from local ice has not been tested for perchlorate.",
+        "why": "Perchlorate can stop the thyroid taking up iodine. Martian dust and soil carry it.",
+        "steps": [
+          "Do not drink or cook with local water until it is tested."
+        ],
+        "body_regions": [
+          "neck"
+        ],
+        "headline": {
+          "fragment": "Local water untested",
+          "rank": 30,
+          "solo": false
+        },
+        "evidence": [
+          {
+            "kind": "state_fact",
+            "ref_id": "fact_local_water_untested",
+            "summary": "Local water not yet tested",
+            "observed_at": "2026-11-13T06:00:00Z"
+          },
+          {
+            "kind": "mission_event",
+            "ref_id": "evt_water_source_1",
+            "summary": "Local water source added, Sim",
+            "observed_at": "2026-11-13T06:00:00Z"
+          }
+        ],
+        "evidence_time": "2026-11-13T06:00:00Z",
+        "evidence_time_label": "06:00",
+        "citation": {
+          "text": "Rule: local water is tested before first use.",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        "insight_id": null,
+        "state": "raised",
+        "raised_at": "2026-11-13T06:00:01Z",
+        "acknowledgements": [],
+        "cleared_at": null,
+        "clear_reason": null,
+        "resolved": null,
+        "dismissed": null,
+        "notes": [],
+        "previous_warning_id": null,
+        "routine_override_ids": [],
+        "allowed_actions": [
+          "acknowledge",
+          "add_note"
+        ]
+      }
+    ],
+    "sensors": [
+      {
+        "sensor_type_id": "rad_day",
+        "hazard_id": "radiation",
+        "environment_id": "mars_surface",
+        "name": "Radiation",
+        "long_name": "Radiation dose",
+        "body_region": null,
+        "channel_id": "ch_rad_day_mars_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_rad_day_mars_sim",
+          "channel_id": "ch_rad_day_mars_sim",
+          "sensor_type_id": "rad_day",
+          "hazard_id": "radiation",
+          "value": 0.5,
+          "unit": "mSv/day",
+          "original_value": 0.5,
+          "original_unit": "mSv/day",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T06:00:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T06:00:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1013,
+          "quality_status": "accepted",
+          "location": "surface",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 0.5,
+          "unit": "mSv/day",
+          "text": "0.5"
+        },
+        "context_label": "NASA's surface planning value",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mSv/day",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 0.5,
+          "aggregation_label": "latest",
+          "window_start": null,
+          "window_end": "2026-11-13T06:00:00Z",
+          "coverage": null,
+          "status": "no_limit_on_file",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          0,
+          1
+        ],
+        "limit_marks": [],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Higher lifetime risk of cancer",
+            "body_region": null
+          },
+          {
+            "text": "Nausea, vomiting and tiredness after a large solar particle event (acute radiation syndrome)",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Skin injury and loss of blood-forming cells after large doses",
+            "body_region": null
+          },
+          {
+            "text": "Cataract (clouding of the lens of the eye)",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Changes in thinking, movement and behavior",
+            "body_region": "head"
+          },
+          {
+            "text": "Harm to the heart and blood vessels (NASA sets circulatory dose limits)",
+            "body_region": "heart"
+          }
+        ],
+        "todo": [
+          "Nothing to do.",
+          "Wear your personal dosimeter.",
+          "NASA keeps every exposure as low as reasonably achievable, even far below the limits."
+        ],
+        "here": "About 0.5 mSv per day from the space environment in NASA's surface mission analysis. Extra shielding on Mars helps little unless it is rich in hydrogen.",
+        "citation": {
+          "text": "What it can do: EV02, EV05.",
+          "source_ids": [
+            "EV02",
+            "EV05"
+          ]
+        },
+        "series_href": "/v1/sensors/rad_day/series"
+      },
+      {
+        "sensor_type_id": "dust",
+        "hazard_id": "dust",
+        "environment_id": "mars_surface",
+        "name": "Dust",
+        "long_name": "Dust in the air",
+        "body_region": "lungs",
+        "channel_id": "ch_dust_habitat_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_dust_habitat_sim",
+          "channel_id": "ch_dust_habitat_sim",
+          "sensor_type_id": "dust",
+          "hazard_id": "dust",
+          "value": 0.04,
+          "unit": "mg/m3",
+          "original_value": 0.04,
+          "original_unit": "mg/m3",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1014,
+          "quality_status": "accepted",
+          "location": "habitat",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 0.04,
+          "unit": "mg/m³",
+          "text": "0.04"
+        },
+        "context_label": "time-weighted, habitat",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mg/m3",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 0.04,
+          "aggregation_label": "time-weighted",
+          "window_start": "2026-11-12T09:10:00Z",
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": 1.0,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          0,
+          0.15
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "dust_mars_act",
+            "value": 0.1,
+            "unit": "mg/m3",
+            "comparator": "above",
+            "role": "warning",
+            "label": "limit 0.1 mg/m³"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Eye irritation and scratching",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Skin abrasion and irritation, for example from gloves and under fingernails",
+            "body_region": "hand"
+          },
+          {
+            "text": "Lung harm; the respiratory system is believed to be the most sensitive target",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Stuffy nose and sneezing",
+            "body_region": "head"
+          },
+          {
+            "text": "Possible harm to the heart and lungs together (cardiopulmonary)",
+            "body_region": "heart"
+          },
+          {
+            "text": "Possible allergy (research pending)",
+            "body_region": null
+          },
+          {
+            "text": "Martian dust is likely toxic: highly oxidized, salty, with heavy metals and perchlorate",
+            "body_region": "lungs"
+          }
+        ],
+        "todo": [
+          "Nothing to do."
+        ],
+        "here": "Martian dust limit applies; it is stricter than the lunar limit, and peaks at ingress must stay below 10 mg/m3.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: EV08, EV19, EV23.",
+          "source_ids": [
+            "EV01",
+            "EV08",
+            "EV19",
+            "EV23"
+          ]
+        },
+        "series_href": "/v1/sensors/dust/series"
+      },
+      {
+        "sensor_type_id": "co2",
+        "hazard_id": "co2",
+        "environment_id": "mars_surface",
+        "name": "CO2",
+        "long_name": "Carbon dioxide",
+        "body_region": "head",
+        "channel_id": "ch_co2_mars_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_co2_mars_sim",
+          "channel_id": "ch_co2_mars_sim",
+          "sensor_type_id": "co2",
+          "hazard_id": "co2",
+          "value": 2.7,
+          "unit": "mmHg",
+          "original_value": 2.7,
+          "original_unit": "mmHg",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1015,
+          "quality_status": "accepted",
+          "location": "habitat",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 2.7,
+          "unit": "mmHg",
+          "text": "2.7"
+        },
+        "context_label": "one-hour average",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mmHg",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 2.7,
+          "aggregation_label": "one-hour average",
+          "window_start": "2026-11-13T08:10:00Z",
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": 1.0,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          0,
+          5
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "co2_1h_act",
+            "value": 3,
+            "unit": "mmHg",
+            "comparator": "above",
+            "role": "warning",
+            "label": "limit 3 mmHg"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Headache",
+            "body_region": "head"
+          },
+          {
+            "text": "Shortness of breath",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Tiredness",
+            "body_region": null
+          },
+          {
+            "text": "Vision changes",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Nausea",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Unconsciousness in severe overexposure",
+            "body_region": "head"
+          },
+          {
+            "text": "Poorer sleep",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Nothing to do.",
+          "Keep air moving around your face when you sleep."
+        ],
+        "here": "Same limit and the same conversion care as on the Moon.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: C15, C25, EV07.",
+          "source_ids": [
+            "C15",
+            "C25",
+            "EV01",
+            "EV07"
+          ]
+        },
+        "series_href": "/v1/sensors/co2/series"
+      },
+      {
+        "sensor_type_id": "water",
+        "hazard_id": "perchlorate",
+        "environment_id": "mars_surface",
+        "name": "Water",
+        "long_name": "Local water",
+        "body_region": "neck",
+        "channel_id": "ch_water_ice_sim",
+        "reading_state": "no_reading",
+        "latest_reading": null,
+        "display_value": {
+          "value": null,
+          "unit": "mg/L",
+          "text": "Untested"
+        },
+        "context_label": "from local ice",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mg/L",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "status": "no_reading",
+          "level": null,
+          "limit_id": null,
+          "aggregated_value": null,
+          "aggregation_label": null,
+          "window_start": null,
+          "window_end": null,
+          "coverage": null
+        },
+        "shown_level": "watch",
+        "linked_warning_ids": [
+          "wrn_water_mars_1"
+        ],
+        "display_range": [
+          0,
+          1
+        ],
+        "limit_marks": [],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "The thyroid gland takes up less iodine; long exposure to higher amounts may lower thyroid activity (hypothyroidism)",
+            "body_region": "neck"
+          },
+          {
+            "text": "Low thyroid hormone can affect the skin, heart, lungs, kidneys, gut, nerves and other organs",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Do not drink or cook with local water until it is tested."
+        ],
+        "here": "Martian dust holds 0.5 to 1% perchlorate, 3 to 4 orders of magnitude more than soils on Earth. Water from Martian sources and crops grown in it can carry perchlorate.",
+        "citation": {
+          "text": "What it can do: EV30.",
+          "source_ids": [
+            "EV30"
+          ]
+        },
+        "series_href": "/v1/sensors/water/series"
+      }
+    ],
+    "routine": {
+      "counts": {
+        "due": 3,
+        "later": 1,
+        "done": 0,
+        "open_today": 4
+      },
+      "next": [
+        {
+          "occurrence_id": "occ_mar_gravity_arrival_check",
+          "revision": 1,
+          "item_id": "gravity_arrival_check",
+          "person_id": "mara",
+          "environment_id": "mars_surface",
+          "day": {
+            "mission_day": 19,
+            "environment_day": 3,
+            "label": "sol 3 on Mars",
+            "short_label": "Sol 3"
+          },
+          "group": "today",
+          "state": "due",
+          "due_from": "2026-11-13T00:00:00Z",
+          "due_until": "2026-11-14T00:00:00Z",
+          "end_text": "due today",
+          "cause": {
+            "kind": "cadence",
+            "override_id": null,
+            "binding_id": null,
+            "started_by": null,
+            "insight_id": null
+          },
+          "question_set_ids": [],
+          "suppressed_by_overlay": null,
+          "completed_at": null,
+          "outcome": null,
+          "skip": null,
+          "config_release_id": "rel_20261113_a",
+          "allowed_actions": [
+            "complete",
+            "skip",
+            "later"
+          ]
+        },
+        {
+          "occurrence_id": "occ_mar_blood_pressure",
+          "revision": 1,
+          "item_id": "blood_pressure",
+          "person_id": "mara",
+          "environment_id": "mars_surface",
+          "day": {
+            "mission_day": 19,
+            "environment_day": 3,
+            "label": "sol 3 on Mars",
+            "short_label": "Sol 3"
+          },
+          "group": "today",
+          "state": "due",
+          "due_from": "2026-11-13T00:00:00Z",
+          "due_until": "2026-11-14T00:00:00Z",
+          "end_text": "due today",
+          "cause": {
+            "kind": "override",
+            "override_id": "ovr_bp_landing",
+            "binding_id": "blood_pressure.return_to_gravity",
+            "started_by": "rule",
+            "insight_id": null
+          },
+          "question_set_ids": [],
+          "suppressed_by_overlay": null,
+          "completed_at": null,
+          "outcome": null,
+          "skip": null,
+          "config_release_id": "rel_20261113_a",
+          "allowed_actions": [
+            "complete",
+            "skip",
+            "later"
+          ]
+        },
+        {
+          "occurrence_id": "occ_mar_daily_check",
+          "revision": 1,
+          "item_id": "daily_check",
+          "person_id": "mara",
+          "environment_id": "mars_surface",
+          "day": {
+            "mission_day": 19,
+            "environment_day": 3,
+            "label": "sol 3 on Mars",
+            "short_label": "Sol 3"
+          },
+          "group": "today",
+          "state": "due",
+          "due_from": "2026-11-13T07:00:00Z",
+          "due_until": "2026-11-14T00:00:00Z",
+          "end_text": "due now",
+          "cause": {
+            "kind": "cadence",
+            "override_id": null,
+            "binding_id": null,
+            "started_by": null,
+            "insight_id": null
+          },
+          "question_set_ids": [],
+          "suppressed_by_overlay": null,
+          "completed_at": null,
+          "outcome": null,
+          "skip": null,
+          "config_release_id": "rel_20261113_a",
+          "allowed_actions": [
+            "complete",
+            "skip",
+            "later"
+          ]
+        },
+        {
+          "occurrence_id": "occ_mar_exercise_log",
+          "revision": 1,
+          "item_id": "exercise_log",
+          "person_id": "mara",
+          "environment_id": "mars_surface",
+          "day": {
+            "mission_day": 19,
+            "environment_day": 3,
+            "label": "sol 3 on Mars",
+            "short_label": "Sol 3"
+          },
+          "group": "today",
+          "state": "later",
+          "due_from": "2026-11-13T15:00:00Z",
+          "due_until": "2026-11-13T17:00:00Z",
+          "end_text": "15:00",
+          "cause": {
+            "kind": "cadence",
+            "override_id": null,
+            "binding_id": null,
+            "started_by": null,
+            "insight_id": null
+          },
+          "question_set_ids": [],
+          "suppressed_by_overlay": null,
+          "completed_at": null,
+          "outcome": null,
+          "skip": null,
+          "config_release_id": "rel_20261113_a",
+          "allowed_actions": [
+            "complete",
+            "skip",
+            "later"
+          ]
+        }
+      ],
+      "week": [
+        {
+          "mission_day": 13,
+          "label": "day 13",
+          "done": 3,
+          "due": 3
+        },
+        {
+          "mission_day": 14,
+          "label": "day 14",
+          "done": 3,
+          "due": 3
+        },
+        {
+          "mission_day": 15,
+          "label": "day 15",
+          "done": 2,
+          "due": 2
+        },
+        {
+          "mission_day": 16,
+          "label": "day 16",
+          "done": 1,
+          "due": 1
+        },
+        {
+          "mission_day": 17,
+          "label": "Sol 1",
+          "done": 2,
+          "due": 3
+        },
+        {
+          "mission_day": 18,
+          "label": "Sol 2",
+          "done": 3,
+          "due": 4
+        },
+        {
+          "mission_day": 19,
+          "label": "Sol 3",
+          "done": 0,
+          "due": 4
+        }
+      ]
+    },
+    "needs_attention_count": 6,
+    "daily_check": {
+      "state": "not_started",
+      "daily_check_id": null
+    },
+    "streak": {
+      "patient_id": "mara",
+      "mission_id": "demo-mission",
+      "origin_mode": "SIM",
+      "as_of": "2026-11-13T09:10:16Z",
+      "current_mission_day": 19,
+      "today": "due",
+      "current_streak_days": 18,
+      "longest_streak_days": 18,
+      "completed_days_total": 18,
+      "first_mission_day": 1,
+      "days": [
+        {
+          "mission_day": 1,
+          "status": "checked"
+        },
+        {
+          "mission_day": 2,
+          "status": "checked"
+        },
+        {
+          "mission_day": 3,
+          "status": "checked"
+        },
+        {
+          "mission_day": 4,
+          "status": "checked"
+        },
+        {
+          "mission_day": 5,
+          "status": "checked"
+        },
+        {
+          "mission_day": 6,
+          "status": "checked"
+        },
+        {
+          "mission_day": 7,
+          "status": "checked"
+        },
+        {
+          "mission_day": 8,
+          "status": "checked"
+        },
+        {
+          "mission_day": 9,
+          "status": "checked"
+        },
+        {
+          "mission_day": 10,
+          "status": "checked"
+        },
+        {
+          "mission_day": 11,
+          "status": "checked"
+        },
+        {
+          "mission_day": 12,
+          "status": "checked"
+        },
+        {
+          "mission_day": 13,
+          "status": "checked"
+        },
+        {
+          "mission_day": 14,
+          "status": "checked"
+        },
+        {
+          "mission_day": 15,
+          "status": "checked"
+        },
+        {
+          "mission_day": 16,
+          "status": "checked"
+        },
+        {
+          "mission_day": 17,
+          "status": "checked"
+        },
+        {
+          "mission_day": 18,
+          "status": "checked"
+        },
+        {
+          "mission_day": 19,
+          "status": "due"
+        }
+      ],
+      "derivation_version": "participation-1",
+      "mission_clock_version": "clock-1",
+      "event_cursor": "4183"
+    },
+    "crew_goal": {
+      "mission_id": "demo-mission",
+      "origin_mode": "SIM",
+      "window_first_mission_day": 13,
+      "window_last_mission_day": 19,
+      "completed_total": 23,
+      "due_total": 28,
+      "reached": false,
+      "as_of": "2026-11-13T09:10:16Z",
+      "derivation_version": "participation-1",
+      "mission_clock_version": "clock-1"
+    },
+    "broadcasts": [],
+    "assistant_state": "running",
+    "config_release_id": "rel_20261113_a"
+  }
+}

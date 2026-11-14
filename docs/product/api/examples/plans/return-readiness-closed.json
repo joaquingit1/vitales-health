@@ -1,0 +1,26 @@
+{
+  "summary": "SIM GET /v1/return-readiness?subject=mara, Moon base",
+  "description": "Mara Okafor has no plan run with a return stage: closed, nothing listed. Illustrative only: not seed data.",
+  "x-schema": "return-readiness.schema.json",
+  "value": {
+    "subject": {
+      "person_id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "environment_id": "lunar_surface",
+    "plan_run_id": null,
+    "plan_id": null,
+    "state": "closed",
+    "criteria": [],
+    "criteria_text": null,
+    "prepare": [],
+    "decided_by": [],
+    "who_decides_text": "The commander and the medical officer. The app lists; it does not decide.",
+    "trip_text": "A three-day lunar trip",
+    "trip_source_ids": [
+      "EV25"
+    ],
+    "rtdc": null,
+    "as_of": "2026-11-13T12:35:00Z"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "summary": "SIM GET /v1/help-sessions/hlp_lunar_1/roles",
+  "description": "Act 6: Mara Okafor helps (rinse the eye) and Ilya Brandt is the medical officer: his walk ended at 11:40, so he is eligible. Shown below the steps, never before them. Illustrative only: not seed data.",
+  "x-schema": "help-roles-view.schema.json",
+  "value": {
+    "help_session_id": "hlp_lunar_1",
+    "assignments": [
+      {
+        "role_assignment_id": "rol_lunar_lead",
+        "revision": 2,
+        "help_session_id": "hlp_lunar_1",
+        "plan_run_id": null,
+        "role_id": "lead_helper",
+        "label": "Helps",
+        "person": {
+          "person_id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "skill_id": null,
+        "task_text": "Rinse the eye",
+        "reason_code": "free_to_help",
+        "reason_text": "Free to help",
+        "context_reasons": [],
+        "state": "accepted",
+        "proposed_at": "2026-11-13T12:02:40Z",
+        "accepted_at": "2026-11-13T12:02:45Z",
+        "changed_by": null,
+        "changed_at": null,
+        "replaced_by_id": null,
+        "allowed_actions": [
+          "reassign"
+        ]
+      },
+      {
+        "role_assignment_id": "rol_lunar_mo",
+        "revision": 2,
+        "help_session_id": "hlp_lunar_1",
+        "plan_run_id": null,
+        "role_id": "medical_officer",
+        "label": "Medical officer",
+        "person": {
+          "person_id": "ilya",
+          "display_name": "Ilya Brandt"
+        },
+        "skill_id": null,
+        "task_text": null,
+        "reason_code": "first_officer",
+        "reason_text": "Medical officer",
+        "context_reasons": [],
+        "state": "accepted",
+        "proposed_at": "2026-11-13T12:02:40Z",
+        "accepted_at": "2026-11-13T12:04:10Z",
+        "changed_by": null,
+        "changed_at": null,
+        "replaced_by_id": null,
+        "allowed_actions": [
+          "reassign"
+        ]
+      }
+    ],
+    "unfilled": [],
+    "as_of": "2026-11-13T12:05:00Z"
+  }
+}

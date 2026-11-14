@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event-page.schema.json",
+  "title": "EventPage",
+  "description": "Events after a cursor as JSON, for clients and tests that do not use SSE.",
+  "type": "object",
+  "properties": {
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "event.schema.json"
+      }
+    },
+    "next_cursor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "has_more": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "events",
+    "next_cursor",
+    "has_more"
+  ],
+  "additionalProperties": false
+}

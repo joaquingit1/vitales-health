@@ -8,10 +8,13 @@ would trust with a crew member's health.
 real system, not a demo shell. It must be fully usable with one laptop and its webcam; tablets, medical devices, habitat
 sensor feeds, the local medical model, the forecasting model and the ground link only add capability.
 
-**Where truth lives.** Product behavior: the planning package (``,
-PRD.md, CONTRACTS.md, `api/openapi.yaml`, USE-CASES.md). How we build: `docs/BUILD-CHARTER.md` (stack, architecture,
-gates). What each epic builds: its design in `docs/tdd/Exx.md`. Deployment: `docs/DEPLOYMENT.md`. If this file and the
-package disagree on product behavior, the package wins and you file a request.
+**Where truth lives.** Product behavior: the product package in `docs/product/` (PRD.md, CONTRACTS.md,
+`api/openapi.yaml`, USE-CASES.md, the epic briefs in `tdd/`). It is the only living copy; accepted requests are applied
+there. How we build: `docs/BUILD-CHARTER.md` (stack, architecture, gates). Shared seams between epics (identities,
+events, transactions, clock, configuration activation, ownership): `docs/SYSTEM.md`. Deployment: `docs/DEPLOYMENT.md`.
+What each epic builds: its design in `docs/tdd/Exx.md`. Runtime configuration lives in `config/`; the JSON documents in
+`docs/product/` are its specification. If this file and the package disagree on product behavior, the package wins and
+you file a request.
 
 ## 1. Hard rules
 
@@ -48,8 +51,10 @@ package disagree on product behavior, the package wins and you file a request.
 
 ## 2. Redundancy: every critical path has a second way
 
-Human rated NASA systems must tolerate at least one failure on any path that could cause a catastrophic event (NPR
-8705.2C). The level of tolerance, and whether redundancy is similar or dissimilar, comes from analysis. Our version:
+Human rated NASA systems must tolerate at least one failure on any path that could cause a catastrophic event
+(NASA-STD-8719.29, section 4.3.1, which carries the technical requirements of NPR 8705.2C). The level of tolerance,
+and whether redundancy is similar or dissimilar, comes from analysis. Our software never counts as one of the
+independent safeguards. Our version:
 
 - **Name the backup.** Every critical path in charter section 6 has a primary path, an independent backup and a fail
   safe state, written in its epic's design (section 9) and exercised by a test that removes the primary.
@@ -116,9 +121,9 @@ version stays active. Updates arrive as signed bundles through the ground link, 
 
 ## 5. How we work
 
-1. **Take work from the build board**
-   (https://claude.ai/artifact/G754md68vv6myR7y6kq88Q, or `BACKLOG.md` locally). It shows each epic's phase,
-   readiness, what it waits for, its parallel wave and its same person group. Take the whole group when you can.
+1. **Take work from the backlog** (`crew-health-build-2026-11-14/BACKLOG.md`, regenerated
+   hourly). It shows each epic's phase, readiness, what it waits for, its parallel wave and its same person group.
+   Take the whole group when you can.
 2. **Read the epic's design** (`docs/tdd/Exx.md`): it is the spec. If it is wrong or missing something, fix the design
    or file a request. Do not route around it in code.
 3. **Build inside the epic's owned paths, tests first on its critical paths.** Integrate early against fakes of the
@@ -151,8 +156,9 @@ does the delegated work a second time.
 ## 7. Intended use and what we claim
 
 Crew Health Check is a prototype for decision support and record keeping by crews isolated from Earth, used under
-the direction of the crew medical officer. Under NPR 7150.2D it is Class E software today; a flight version would be
-Class C, or higher if a program relied on it for crew health. We therefore build its safety critical core (warnings,
+the direction of the crew medical officer. Under NPR 7150.2D it is Class E software today; an operational onboard
+version would most likely be Class A, because the directive ties crew health and habitability software to Class A and
+says to take the higher class when unsure (Class C at the very least). We therefore build its safety critical core (warnings,
 Someone needs help, record durability, dose limits) to safety critical practice: a known safe state at start, full
 condition coverage of its decisions and a cyclomatic complexity of at most 15 per function. We claim no
 certification, no clinical validation and no medical device status. Four statuses stay separate everywhere,

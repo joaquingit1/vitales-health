@@ -1,0 +1,66 @@
+{
+  "summary": "SIM and REPLAY GET /v1/insights/ins_sleep_mara_1",
+  "description": "The sleep insight. Its habitat_facts entry mentions the 2014 cabin CO2 replay as a separate fact about the place, never as Mara's exposure. Illustrative only: not seed data.",
+  "x-schema": "insight.schema.json",
+  "value": {
+    "insight_id": "ins_sleep_mara_1",
+    "person_id": "mara",
+    "topic_id": "sleep_reaction",
+    "level": "watch",
+    "title": "Short nights, slower reactions",
+    "text": "Short nights, slower reactions.",
+    "why": "Three short nights, and your reaction time is slower. Short sleep slows reactions; it is a pattern, not an illness. One earlier night often brings it back.",
+    "evidence": [
+      {
+        "kind": "observation",
+        "ref_id": "obs_sleep_mara_d17",
+        "summary": "Sleep 5.6 h, band estimate, Sim",
+        "observed_at": "2026-11-11T06:30:00Z"
+      },
+      {
+        "kind": "observation",
+        "ref_id": "obs_sleep_mara_d18",
+        "summary": "Sleep 5.4 h, band estimate, Sim",
+        "observed_at": "2026-11-12T06:30:00Z"
+      },
+      {
+        "kind": "observation",
+        "ref_id": "obs_sleep_mara_d19",
+        "summary": "Sleep 5.2 h, band estimate, Sim",
+        "observed_at": "2026-11-13T06:30:00Z"
+      },
+      {
+        "kind": "observation",
+        "ref_id": "obs_pvt_mara_d19",
+        "summary": "Reaction test 291 ms, 4 lapses, Sim",
+        "observed_at": "2026-11-13T07:38:00Z"
+      }
+    ],
+    "habitat_facts": [
+      {
+        "sensor_type_id": "co2",
+        "reading_id": "rdg_co2_cabin_replay",
+        "origin_mode": "REPLAY",
+        "text": "Replay of OSDR Rodent Research-1 ISS environmental telemetry, 2014. A record of another mission's cabin, not your exposure."
+      }
+    ],
+    "citation": {
+      "text": "Draft. Evidence: OCHMO-TB-041 sleep (C15), circadian desynchrony (C23).",
+      "source_ids": [
+        "C15",
+        "C23"
+      ]
+    },
+    "warning_id": "wrn_sleep_mara_1",
+    "routine_occurrence_ids": [
+      "occ_sta_reaction_retest"
+    ],
+    "state": "active",
+    "created_at": "2026-11-13T07:40:00Z",
+    "model_release_id": "mdl_huatuo_3_9b_1",
+    "origin_mode": "SIM",
+    "allowed_actions": [
+      "dismiss"
+    ]
+  }
+}

@@ -1,0 +1,484 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "warning.schema.json",
+  "title": "Warning",
+  "description": "A warning raised by a rule, a sensor limit or the assistant (CONTRACTS section 14). Acknowledging is not resolving. The assistant raises only info or watch and never acts on a rule or sensor warning.",
+  "type": "object",
+  "properties": {
+    "warning_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "definition_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "config_release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "level": {
+      "$ref": "common.schema.json#/$defs/level"
+    },
+    "raised_by": {
+      "$ref": "common.schema.json#/$defs/raised_by"
+    },
+    "hazard_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "limit_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sensor_type_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "channel_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "scope": {
+      "enum": [
+        "habitat",
+        "person",
+        "crew"
+      ]
+    },
+    "person_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "location": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "what": {
+      "type": "string",
+      "minLength": 1
+    },
+    "why": {
+      "type": "string",
+      "minLength": 1
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "body_regions": {
+      "$ref": "common.schema.json#/$defs/body_regions"
+    },
+    "headline": {
+      "type": "object",
+      "properties": {
+        "fragment": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rank": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "solo": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "fragment",
+        "rank",
+        "solo"
+      ],
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/evidence_ref"
+      }
+    },
+    "evidence_time": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "evidence_time_label": {
+      "type": "string",
+      "description": "For example 15:36, replay time.",
+      "minLength": 1
+    },
+    "citation": {
+      "$ref": "common.schema.json#/$defs/citation"
+    },
+    "insight_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state": {
+      "enum": [
+        "raised",
+        "acknowledged",
+        "cleared",
+        "resolved",
+        "dismissed"
+      ]
+    },
+    "raised_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "acknowledgements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "person_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          }
+        },
+        "required": [
+          "person_id",
+          "at"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "cleared_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "clear_reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "condition_false",
+            "clear_event",
+            "expired",
+            "superseded",
+            "environment_changed",
+            "config_changed"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "resolved": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "by": {
+              "$ref": "common.schema.json#/$defs/actor"
+            },
+            "at": {
+              "$ref": "common.schema.json#/$defs/instant"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "by",
+            "at",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "dismissed": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "by": {
+              "$ref": "common.schema.json#/$defs/actor"
+            },
+            "at": {
+              "$ref": "common.schema.json#/$defs/instant"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "by",
+            "at",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "by": {
+            "$ref": "common.schema.json#/$defs/actor"
+          },
+          "at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "by",
+          "at",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "previous_warning_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "routine_override_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "warning_id",
+    "revision",
+    "definition_id",
+    "config_release_id",
+    "level",
+    "raised_by",
+    "hazard_id",
+    "limit_id",
+    "sensor_type_id",
+    "channel_id",
+    "scope",
+    "person_id",
+    "environment_id",
+    "location",
+    "origin_mode",
+    "title",
+    "what",
+    "why",
+    "steps",
+    "body_regions",
+    "headline",
+    "evidence",
+    "evidence_time",
+    "evidence_time_label",
+    "citation",
+    "insight_id",
+    "state",
+    "raised_at",
+    "acknowledgements",
+    "cleared_at",
+    "clear_reason",
+    "resolved",
+    "dismissed",
+    "notes",
+    "previous_warning_id",
+    "routine_override_ids",
+    "allowed_actions"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "raised_by": {
+            "const": "assistant"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "level": {
+            "enum": [
+              "info",
+              "watch"
+            ]
+          },
+          "evidence": {
+            "minItems": 1,
+            "items": {
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "observation",
+                    "answer",
+                    "daily_check",
+                    "routine_occurrence",
+                    "insight"
+                  ]
+                }
+              }
+            }
+          },
+          "insight_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "state": {
+            "enum": [
+              "raised",
+              "acknowledged",
+              "dismissed",
+              "cleared"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "raised_by": {
+            "enum": [
+              "rule",
+              "sensor_limit"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "enum": [
+              "raised",
+              "acknowledged",
+              "cleared",
+              "resolved"
+            ]
+          },
+          "dismissed": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "raised_by": {
+            "const": "sensor_limit"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "sensor_type_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "scope": {
+            "const": "person"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "person_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        }
+      }
+    }
+  ]
+}

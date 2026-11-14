@@ -1,0 +1,1170 @@
+{
+  "summary": "SIM GET /v1/views/today, transit",
+  "description": "The Today screen for Mara Okafor on transit. Illustrative only: not seed data.",
+  "x-schema": "today-view.schema.json",
+  "value": {
+    "person": {
+      "person_id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "as_of": "2026-11-13T09:10:16Z",
+    "environment": {
+      "environment_id": "transit",
+      "label": "Deep-space transit",
+      "place": "deep-space transit",
+      "day_label": "mission day 96",
+      "eva_word": "spacewalk",
+      "ground_delay_text": "Grows with distance from Earth. Up to 20 minutes one way near Mars."
+    },
+    "headline": {
+      "text": "Solar storm: go to the shelter",
+      "warning_ids": [
+        "wrn_storm_transit_1"
+      ]
+    },
+    "insight": null,
+    "warnings": [
+      {
+        "warning_id": "wrn_storm_transit_1",
+        "revision": 1,
+        "definition_id": "radiation_storm_shelter",
+        "config_release_id": "rel_20261113_a",
+        "level": "act",
+        "raised_by": "rule",
+        "hazard_id": "radiation",
+        "limit_id": null,
+        "sensor_type_id": "rad",
+        "channel_id": "ch_rad_transit_sim",
+        "scope": "crew",
+        "person_id": null,
+        "environment_id": "transit",
+        "location": null,
+        "origin_mode": "SIM",
+        "title": "Solar storm: go to the shelter",
+        "what": "The radiation monitor shows a sharp rise, and the ground warns of a solar particle event.",
+        "why": "A large solar event can give a big dose in hours. Shielding stops most solar particles, and the shelter has the most.",
+        "steps": [
+          "Go to the storm shelter now.",
+          "If you are outside, end the walk and come back in.",
+          "Stay in the shelter until the all clear."
+        ],
+        "body_regions": [],
+        "headline": {
+          "fragment": "Solar storm: go to the shelter",
+          "rank": 1,
+          "solo": true
+        },
+        "evidence": [
+          {
+            "kind": "mission_event",
+            "ref_id": "evt_spe_alert_1",
+            "summary": "Space weather alert from the ground, Sim",
+            "observed_at": "2026-11-13T08:51:00Z"
+          },
+          {
+            "kind": "reading",
+            "ref_id": "rdg_rad_transit_sim",
+            "summary": "Dose rate 48 µGy/h, Sim",
+            "observed_at": "2026-11-13T09:10:00Z"
+          }
+        ],
+        "evidence_time": "2026-11-13T08:52:00Z",
+        "evidence_time_label": "08:52",
+        "citation": {
+          "text": "Radiation monitor, Sim, and the ground's warning. Alert dose rates are set by the program.",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        "insight_id": null,
+        "state": "raised",
+        "raised_at": "2026-11-13T08:52:00Z",
+        "acknowledgements": [],
+        "cleared_at": null,
+        "clear_reason": null,
+        "resolved": null,
+        "dismissed": null,
+        "notes": [],
+        "previous_warning_id": null,
+        "routine_override_ids": [
+          "ovr_dosimeter_spe",
+          "ovr_daily_check_spe"
+        ],
+        "allowed_actions": [
+          "acknowledge",
+          "add_note"
+        ]
+      }
+    ],
+    "sensors": [
+      {
+        "sensor_type_id": "rad",
+        "hazard_id": "radiation",
+        "environment_id": "transit",
+        "name": "Radiation",
+        "long_name": "Radiation dose rate",
+        "body_region": null,
+        "channel_id": "ch_rad_transit_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_rad_transit_sim",
+          "channel_id": "ch_rad_transit_sim",
+          "sensor_type_id": "rad",
+          "hazard_id": "radiation",
+          "value": 48,
+          "unit": "µGy/h",
+          "original_value": 48,
+          "original_unit": "µGy/h",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1005,
+          "quality_status": "accepted",
+          "location": "cabin",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 48,
+          "unit": "µGy/h",
+          "text": "48"
+        },
+        "context_label": "rising fast, storm warning",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "µGy/h",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [
+            "rad_rate_watch",
+            "rad_rate_act"
+          ],
+          "aggregated_value": 48,
+          "aggregation_label": "two-hour mean",
+          "window_start": "2026-11-13T07:10:00Z",
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": 1.0,
+          "status": "threshold_pending",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": "act",
+        "linked_warning_ids": [
+          "wrn_storm_transit_1"
+        ],
+        "display_range": [
+          0,
+          60
+        ],
+        "limit_marks": [],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Higher lifetime risk of cancer",
+            "body_region": null
+          },
+          {
+            "text": "Nausea, vomiting and tiredness after a large solar particle event (acute radiation syndrome)",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Skin injury and loss of blood-forming cells after large doses",
+            "body_region": null
+          },
+          {
+            "text": "Cataract (clouding of the lens of the eye)",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Changes in thinking, movement and behavior",
+            "body_region": "head"
+          },
+          {
+            "text": "Harm to the heart and blood vessels (NASA sets circulatory dose limits)",
+            "body_region": "heart"
+          }
+        ],
+        "todo": [
+          "Go to the storm shelter now.",
+          "If you are outside, end the walk and come back in.",
+          "Stay in the shelter until the all clear."
+        ],
+        "here": "Outside Earth's magnetic field. Unshielded cosmic-ray dose in free space is about 1.5 mSv per day at solar minimum; ship designs for stays over 60 days aim below 1.3 mSv per day. Solar particle events need a storm shelter.",
+        "citation": {
+          "text": "What it can do: EV02, EV05.",
+          "source_ids": [
+            "EV02",
+            "EV05"
+          ]
+        },
+        "series_href": "/v1/sensors/rad/series"
+      },
+      {
+        "sensor_type_id": "co2",
+        "hazard_id": "co2",
+        "environment_id": "transit",
+        "name": "CO2",
+        "long_name": "Carbon dioxide",
+        "body_region": "head",
+        "channel_id": "ch_co2_transit_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_co2_transit_sim",
+          "channel_id": "ch_co2_transit_sim",
+          "sensor_type_id": "co2",
+          "hazard_id": "co2",
+          "value": 2.4,
+          "unit": "mmHg",
+          "original_value": 2.4,
+          "original_unit": "mmHg",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1006,
+          "quality_status": "accepted",
+          "location": "cabin",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 2.4,
+          "unit": "mmHg",
+          "text": "2.4"
+        },
+        "context_label": "one-hour average",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mmHg",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 2.4,
+          "aggregation_label": "one-hour average",
+          "window_start": "2026-11-13T08:10:00Z",
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": 1.0,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          0,
+          5
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "co2_1h_act",
+            "value": 3,
+            "unit": "mmHg",
+            "comparator": "above",
+            "role": "warning",
+            "label": "limit 3 mmHg"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Headache",
+            "body_region": "head"
+          },
+          {
+            "text": "Shortness of breath",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Tiredness",
+            "body_region": null
+          },
+          {
+            "text": "Vision changes",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Nausea",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Unconsciousness in severe overexposure",
+            "body_region": "head"
+          },
+          {
+            "text": "Poorer sleep",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Nothing to do.",
+          "Keep air moving around your face when you sleep."
+        ],
+        "here": "Same machines and the same limit. When the average stays high for days, degraded scrubbers must be found and repaired or extra scrubbing switched on; far from Earth the crew does more of this work itself.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: C15, C25, EV07.",
+          "source_ids": [
+            "C15",
+            "C25",
+            "EV01",
+            "EV07"
+          ]
+        },
+        "series_href": "/v1/sensors/co2/series"
+      },
+      {
+        "sensor_type_id": "o2",
+        "hazard_id": "oxygen",
+        "environment_id": "transit",
+        "name": "Oxygen",
+        "long_name": "Oxygen you breathe in",
+        "body_region": "head",
+        "channel_id": "ch_o2_transit_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_o2_transit_sim",
+          "channel_id": "ch_o2_transit_sim",
+          "sensor_type_id": "o2",
+          "hazard_id": "oxygen",
+          "value": 150,
+          "unit": "mmHg",
+          "original_value": 150,
+          "original_unit": "mmHg",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1007,
+          "quality_status": "accepted",
+          "location": "cabin",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 150,
+          "unit": "mmHg",
+          "text": "150"
+        },
+        "context_label": "inspired oxygen",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mmHg",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 150,
+          "aggregation_label": "inspired oxygen",
+          "window_start": null,
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": null,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          100,
+          200
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "o2_low_act",
+            "value": 127,
+            "unit": "mmHg",
+            "comparator": "below",
+            "role": "warning",
+            "label": "low limit 127 mmHg"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Mental changes, at times not noticed by the person",
+            "body_region": "head"
+          },
+          {
+            "text": "Worse color, night and side vision",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Tiredness, nausea, headache, dizziness and mood changes",
+            "body_region": "head"
+          },
+          {
+            "text": "Fast breathing (hyperventilation)",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Poorer sleep",
+            "body_region": null
+          },
+          {
+            "text": "Small areas of lung collapse (absorption atelectasis) when oxygen is above half the air",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Oxygen toxicity: breathing problems or tissue injury",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Fire: materials burn more easily and hotter in oxygen-rich air",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Nothing to do."
+        ],
+        "here": "Same as a station; all oxygen comes from on-board systems.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: EV01, EV06, EV14.",
+          "source_ids": [
+            "EV01",
+            "EV06",
+            "EV14"
+          ]
+        },
+        "series_href": "/v1/sensors/o2/series"
+      },
+      {
+        "sensor_type_id": "noise",
+        "hazard_id": "noise",
+        "environment_id": "transit",
+        "name": "Noise",
+        "long_name": "Noise",
+        "body_region": "ear",
+        "channel_id": "ch_noise_transit_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_noise_transit_sim",
+          "channel_id": "ch_noise_transit_sim",
+          "sensor_type_id": "noise",
+          "hazard_id": "noise",
+          "value": 57,
+          "unit": "dBA",
+          "original_value": 57,
+          "original_unit": "dBA",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1008,
+          "quality_status": "accepted",
+          "location": "cabin",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 57,
+          "unit": "dBA",
+          "text": "57"
+        },
+        "context_label": "24-hour average",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "dBA",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 57,
+          "aggregation_label": "24-hour average",
+          "window_start": "2026-11-12T09:10:00Z",
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": 1.0,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          40,
+          90
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "noise_24h_act",
+            "value": 70,
+            "unit": "dBA",
+            "comparator": "above",
+            "role": "warning",
+            "label": "limit 70 dBA"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Hearing loss",
+            "body_region": "ear"
+          },
+          {
+            "text": "Headaches",
+            "body_region": "head"
+          },
+          {
+            "text": "Irritation",
+            "body_region": null
+          },
+          {
+            "text": "Worse sleep and relaxation",
+            "body_region": null
+          },
+          {
+            "text": "Harder to talk and hear each other",
+            "body_region": "ear"
+          }
+        ],
+        "todo": [
+          "Nothing to do."
+        ],
+        "here": "Months of the same noise. Quiet sleep areas matter more: the stricter sleep limit applies on missions over 30 days.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: C15, EV01, EV09.",
+          "source_ids": [
+            "C15",
+            "EV01",
+            "EV09"
+          ]
+        },
+        "series_href": "/v1/sensors/noise/series"
+      }
+    ],
+    "routine": {
+      "counts": {
+        "due": 2,
+        "later": 1,
+        "done": 0,
+        "open_today": 3
+      },
+      "next": [
+        {
+          "occurrence_id": "occ_tra_daily_check",
+          "revision": 1,
+          "item_id": "daily_check",
+          "person_id": "mara",
+          "environment_id": "transit",
+          "day": {
+            "mission_day": 96,
+            "environment_day": 94,
+            "label": "mission day 96",
+            "short_label": "Day 96"
+          },
+          "group": "today",
+          "state": "due",
+          "due_from": "2026-11-13T07:00:00Z",
+          "due_until": "2026-11-14T00:00:00Z",
+          "end_text": "due now",
+          "cause": {
+            "kind": "override",
+            "override_id": "ovr_daily_check_spe",
+            "binding_id": "daily_check.solar_particle_event",
+            "started_by": "rule",
+            "insight_id": null
+          },
+          "question_set_ids": [
+            "radiation_symptoms"
+          ],
+          "suppressed_by_overlay": null,
+          "completed_at": null,
+          "outcome": null,
+          "skip": null,
+          "config_release_id": "rel_20261113_a",
+          "allowed_actions": [
+            "complete",
+            "skip",
+            "later"
+          ]
+        },
+        {
+          "occurrence_id": "occ_tra_radiation_dosimeter",
+          "revision": 1,
+          "item_id": "radiation_dosimeter",
+          "person_id": "mara",
+          "environment_id": "transit",
+          "day": {
+            "mission_day": 96,
+            "environment_day": 94,
+            "label": "mission day 96",
+            "short_label": "Day 96"
+          },
+          "group": "today",
+          "state": "due",
+          "due_from": "2026-11-13T08:52:00Z",
+          "due_until": "2026-11-14T00:00:00Z",
+          "end_text": "due now",
+          "cause": {
+            "kind": "override",
+            "override_id": "ovr_dosimeter_spe",
+            "binding_id": "radiation_dosimeter.solar_particle_event",
+            "started_by": "rule",
+            "insight_id": null
+          },
+          "question_set_ids": [],
+          "suppressed_by_overlay": null,
+          "completed_at": null,
+          "outcome": null,
+          "skip": null,
+          "config_release_id": "rel_20261113_a",
+          "allowed_actions": [
+            "complete",
+            "skip",
+            "later"
+          ]
+        },
+        {
+          "occurrence_id": "occ_tra_exercise_log",
+          "revision": 1,
+          "item_id": "exercise_log",
+          "person_id": "mara",
+          "environment_id": "transit",
+          "day": {
+            "mission_day": 96,
+            "environment_day": 94,
+            "label": "mission day 96",
+            "short_label": "Day 96"
+          },
+          "group": "today",
+          "state": "later",
+          "due_from": "2026-11-13T15:00:00Z",
+          "due_until": "2026-11-13T17:00:00Z",
+          "end_text": "15:00",
+          "cause": {
+            "kind": "cadence",
+            "override_id": null,
+            "binding_id": null,
+            "started_by": null,
+            "insight_id": null
+          },
+          "question_set_ids": [],
+          "suppressed_by_overlay": null,
+          "completed_at": null,
+          "outcome": null,
+          "skip": null,
+          "config_release_id": "rel_20261113_a",
+          "allowed_actions": [
+            "complete",
+            "skip",
+            "later"
+          ]
+        }
+      ],
+      "week": [
+        {
+          "mission_day": 90,
+          "label": "Day 90",
+          "done": 4,
+          "due": 4
+        },
+        {
+          "mission_day": 91,
+          "label": "Day 91",
+          "done": 4,
+          "due": 4
+        },
+        {
+          "mission_day": 92,
+          "label": "Day 92",
+          "done": 3,
+          "due": 4
+        },
+        {
+          "mission_day": 93,
+          "label": "Day 93",
+          "done": 4,
+          "due": 4
+        },
+        {
+          "mission_day": 94,
+          "label": "Day 94",
+          "done": 4,
+          "due": 5
+        },
+        {
+          "mission_day": 95,
+          "label": "Day 95",
+          "done": 3,
+          "due": 4
+        },
+        {
+          "mission_day": 96,
+          "label": "Day 96",
+          "done": 0,
+          "due": 3
+        }
+      ]
+    },
+    "needs_attention_count": 4,
+    "daily_check": {
+      "state": "not_started",
+      "daily_check_id": null
+    },
+    "streak": {
+      "patient_id": "mara",
+      "mission_id": "demo-mission",
+      "origin_mode": "SIM",
+      "as_of": "2026-11-13T09:10:16Z",
+      "current_mission_day": 96,
+      "today": "due",
+      "current_streak_days": 18,
+      "longest_streak_days": 76,
+      "completed_days_total": 94,
+      "first_mission_day": 1,
+      "days": [
+        {
+          "mission_day": 1,
+          "status": "checked"
+        },
+        {
+          "mission_day": 2,
+          "status": "checked"
+        },
+        {
+          "mission_day": 3,
+          "status": "checked"
+        },
+        {
+          "mission_day": 4,
+          "status": "checked"
+        },
+        {
+          "mission_day": 5,
+          "status": "checked"
+        },
+        {
+          "mission_day": 6,
+          "status": "checked"
+        },
+        {
+          "mission_day": 7,
+          "status": "checked"
+        },
+        {
+          "mission_day": 8,
+          "status": "checked"
+        },
+        {
+          "mission_day": 9,
+          "status": "checked"
+        },
+        {
+          "mission_day": 10,
+          "status": "checked"
+        },
+        {
+          "mission_day": 11,
+          "status": "checked"
+        },
+        {
+          "mission_day": 12,
+          "status": "checked"
+        },
+        {
+          "mission_day": 13,
+          "status": "checked"
+        },
+        {
+          "mission_day": 14,
+          "status": "checked"
+        },
+        {
+          "mission_day": 15,
+          "status": "checked"
+        },
+        {
+          "mission_day": 16,
+          "status": "checked"
+        },
+        {
+          "mission_day": 17,
+          "status": "checked"
+        },
+        {
+          "mission_day": 18,
+          "status": "checked"
+        },
+        {
+          "mission_day": 19,
+          "status": "checked"
+        },
+        {
+          "mission_day": 20,
+          "status": "checked"
+        },
+        {
+          "mission_day": 21,
+          "status": "checked"
+        },
+        {
+          "mission_day": 22,
+          "status": "checked"
+        },
+        {
+          "mission_day": 23,
+          "status": "checked"
+        },
+        {
+          "mission_day": 24,
+          "status": "checked"
+        },
+        {
+          "mission_day": 25,
+          "status": "checked"
+        },
+        {
+          "mission_day": 26,
+          "status": "checked"
+        },
+        {
+          "mission_day": 27,
+          "status": "checked"
+        },
+        {
+          "mission_day": 28,
+          "status": "checked"
+        },
+        {
+          "mission_day": 29,
+          "status": "checked"
+        },
+        {
+          "mission_day": 30,
+          "status": "checked"
+        },
+        {
+          "mission_day": 31,
+          "status": "checked"
+        },
+        {
+          "mission_day": 32,
+          "status": "checked"
+        },
+        {
+          "mission_day": 33,
+          "status": "checked"
+        },
+        {
+          "mission_day": 34,
+          "status": "checked"
+        },
+        {
+          "mission_day": 35,
+          "status": "checked"
+        },
+        {
+          "mission_day": 36,
+          "status": "checked"
+        },
+        {
+          "mission_day": 37,
+          "status": "checked"
+        },
+        {
+          "mission_day": 38,
+          "status": "checked"
+        },
+        {
+          "mission_day": 39,
+          "status": "checked"
+        },
+        {
+          "mission_day": 40,
+          "status": "checked"
+        },
+        {
+          "mission_day": 41,
+          "status": "checked"
+        },
+        {
+          "mission_day": 42,
+          "status": "checked"
+        },
+        {
+          "mission_day": 43,
+          "status": "checked"
+        },
+        {
+          "mission_day": 44,
+          "status": "checked"
+        },
+        {
+          "mission_day": 45,
+          "status": "checked"
+        },
+        {
+          "mission_day": 46,
+          "status": "checked"
+        },
+        {
+          "mission_day": 47,
+          "status": "checked"
+        },
+        {
+          "mission_day": 48,
+          "status": "checked"
+        },
+        {
+          "mission_day": 49,
+          "status": "checked"
+        },
+        {
+          "mission_day": 50,
+          "status": "checked"
+        },
+        {
+          "mission_day": 51,
+          "status": "checked"
+        },
+        {
+          "mission_day": 52,
+          "status": "checked"
+        },
+        {
+          "mission_day": 53,
+          "status": "checked"
+        },
+        {
+          "mission_day": 54,
+          "status": "checked"
+        },
+        {
+          "mission_day": 55,
+          "status": "checked"
+        },
+        {
+          "mission_day": 56,
+          "status": "checked"
+        },
+        {
+          "mission_day": 57,
+          "status": "checked"
+        },
+        {
+          "mission_day": 58,
+          "status": "checked"
+        },
+        {
+          "mission_day": 59,
+          "status": "checked"
+        },
+        {
+          "mission_day": 60,
+          "status": "checked"
+        },
+        {
+          "mission_day": 61,
+          "status": "checked"
+        },
+        {
+          "mission_day": 62,
+          "status": "checked"
+        },
+        {
+          "mission_day": 63,
+          "status": "checked"
+        },
+        {
+          "mission_day": 64,
+          "status": "checked"
+        },
+        {
+          "mission_day": 65,
+          "status": "checked"
+        },
+        {
+          "mission_day": 66,
+          "status": "checked"
+        },
+        {
+          "mission_day": 67,
+          "status": "checked"
+        },
+        {
+          "mission_day": 68,
+          "status": "checked"
+        },
+        {
+          "mission_day": 69,
+          "status": "checked"
+        },
+        {
+          "mission_day": 70,
+          "status": "checked"
+        },
+        {
+          "mission_day": 71,
+          "status": "checked"
+        },
+        {
+          "mission_day": 72,
+          "status": "checked"
+        },
+        {
+          "mission_day": 73,
+          "status": "checked"
+        },
+        {
+          "mission_day": 74,
+          "status": "checked"
+        },
+        {
+          "mission_day": 75,
+          "status": "checked"
+        },
+        {
+          "mission_day": 76,
+          "status": "checked"
+        },
+        {
+          "mission_day": 77,
+          "status": "missed"
+        },
+        {
+          "mission_day": 78,
+          "status": "checked"
+        },
+        {
+          "mission_day": 79,
+          "status": "checked"
+        },
+        {
+          "mission_day": 80,
+          "status": "checked"
+        },
+        {
+          "mission_day": 81,
+          "status": "checked"
+        },
+        {
+          "mission_day": 82,
+          "status": "checked"
+        },
+        {
+          "mission_day": 83,
+          "status": "checked"
+        },
+        {
+          "mission_day": 84,
+          "status": "checked"
+        },
+        {
+          "mission_day": 85,
+          "status": "checked"
+        },
+        {
+          "mission_day": 86,
+          "status": "checked"
+        },
+        {
+          "mission_day": 87,
+          "status": "checked"
+        },
+        {
+          "mission_day": 88,
+          "status": "checked"
+        },
+        {
+          "mission_day": 89,
+          "status": "checked"
+        },
+        {
+          "mission_day": 90,
+          "status": "checked"
+        },
+        {
+          "mission_day": 91,
+          "status": "checked"
+        },
+        {
+          "mission_day": 92,
+          "status": "checked"
+        },
+        {
+          "mission_day": 93,
+          "status": "checked"
+        },
+        {
+          "mission_day": 94,
+          "status": "checked"
+        },
+        {
+          "mission_day": 95,
+          "status": "checked"
+        },
+        {
+          "mission_day": 96,
+          "status": "due"
+        }
+      ],
+      "derivation_version": "participation-1",
+      "mission_clock_version": "clock-1",
+      "event_cursor": "4183"
+    },
+    "crew_goal": {
+      "mission_id": "demo-mission",
+      "origin_mode": "SIM",
+      "window_first_mission_day": 90,
+      "window_last_mission_day": 96,
+      "completed_total": 23,
+      "due_total": 28,
+      "reached": false,
+      "as_of": "2026-11-13T09:10:16Z",
+      "derivation_version": "participation-1",
+      "mission_clock_version": "clock-1"
+    },
+    "broadcasts": [],
+    "assistant_state": "running",
+    "config_release_id": "rel_20261113_a"
+  }
+}

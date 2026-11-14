@@ -1,0 +1,9 @@
+{
+  "summary": "SIM request POST /v1/environment/changes",
+  "description": "Propose the demo switch to the Moon base. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/EnvironmentChangeCreate",
+  "value": {
+    "environment_id": "lunar_surface",
+    "reason": "demo_switch"
+  }
+}

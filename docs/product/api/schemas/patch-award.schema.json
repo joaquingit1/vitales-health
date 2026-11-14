@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "patch-award.schema.json",
+  "title": "PatchAward",
+  "description": "Derived, private to the person (CONTRACTS section 8).",
+  "type": "object",
+  "properties": {
+    "award_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "patient_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "mission_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "origin_mode": {
+      "enum": [
+        "LIVE",
+        "SIM"
+      ]
+    },
+    "threshold": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "patch_design_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "reached_by_completion_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "reached_on_mission_day": {
+      "$ref": "common.schema.json#/$defs/mission_day"
+    },
+    "derivation_version": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "award_id",
+    "patient_id",
+    "mission_id",
+    "origin_mode",
+    "threshold",
+    "patch_design_id",
+    "reached_by_completion_id",
+    "reached_on_mission_day",
+    "derivation_version"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "context.schema.json",
+  "title": "Context",
+  "description": "What the session person needs to render any screen: who they are, the mission day, the active environment, their overlays, the ground link and the pinned releases.",
+  "type": "object",
+  "properties": {
+    "person": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/person_ref"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/role"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "mission_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "mission_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "today": {
+      "type": "object",
+      "properties": {
+        "mission_day": {
+          "$ref": "common.schema.json#/$defs/mission_day"
+        },
+        "environment_day": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "short_label": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "mission_day",
+        "environment_day",
+        "label",
+        "short_label"
+      ],
+      "additionalProperties": false
+    },
+    "met": {
+      "$ref": "common.schema.json#/$defs/met"
+    },
+    "server_time": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "profile_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "environment_id": {
+          "$ref": "common.schema.json#/$defs/environment_id"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "place": {
+          "type": "string",
+          "minLength": 1
+        },
+        "eva_word": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "profile_id",
+        "environment_id",
+        "label",
+        "place",
+        "eva_word"
+      ],
+      "additionalProperties": false
+    },
+    "overlays": {
+      "type": "array",
+      "items": {
+        "$ref": "activity-overlay.schema.json"
+      }
+    },
+    "ground_link": {
+      "$ref": "ground-link.schema.json"
+    },
+    "config_release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "config_versions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_pin"
+      },
+      "minItems": 1
+    },
+    "model_release_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "assistant_state": {
+      "enum": [
+        "running",
+        "stopped",
+        "loading",
+        "unavailable"
+      ]
+    }
+  },
+  "required": [
+    "person",
+    "roles",
+    "mission_id",
+    "mission_mode",
+    "today",
+    "met",
+    "server_time",
+    "environment",
+    "overlays",
+    "ground_link",
+    "config_release_id",
+    "config_versions",
+    "model_release_id",
+    "assistant_state"
+  ],
+  "additionalProperties": false
+}

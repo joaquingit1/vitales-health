@@ -1,0 +1,477 @@
+{
+  "summary": "SIM GET /v1/routine/today, Moon base",
+  "description": "Mara's routine for today on lunar_surface, grouped, with counts and active overrides. Illustrative only: not seed data.",
+  "x-schema": "routine-schedule.schema.json",
+  "value": {
+    "person_id": "mara",
+    "environment_id": "lunar_surface",
+    "range": "today",
+    "day": {
+      "mission_day": 19,
+      "environment_day": 4,
+      "label": "surface day 4",
+      "short_label": "Day 4"
+    },
+    "as_of": "2026-11-13T12:10:00Z",
+    "groups": [
+      {
+        "group_id": "today",
+        "label": "Today",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_lun_dust_exposure_check",
+            "revision": 1,
+            "item_id": "dust_exposure_check",
+            "person_id": "mara",
+            "environment_id": "lunar_surface",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 4,
+              "label": "surface day 4",
+              "short_label": "Day 4"
+            },
+            "group": "today",
+            "state": "due",
+            "due_from": "2026-11-13T11:55:00Z",
+            "due_until": "2026-11-14T00:00:00Z",
+            "end_text": "due now",
+            "cause": {
+              "kind": "override",
+              "override_id": "ovr_dust_check_lunar",
+              "binding_id": "dust_exposure_check.dust_alert",
+              "started_by": "sensor_limit",
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          },
+          {
+            "occurrence_id": "occ_lun_gravity_arrival_check",
+            "revision": 1,
+            "item_id": "gravity_arrival_check",
+            "person_id": "mara",
+            "environment_id": "lunar_surface",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 4,
+              "label": "surface day 4",
+              "short_label": "Day 4"
+            },
+            "group": "today",
+            "state": "due",
+            "due_from": "2026-11-13T00:00:00Z",
+            "due_until": "2026-11-14T00:00:00Z",
+            "end_text": "due today",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          },
+          {
+            "occurrence_id": "occ_lun_daily_check",
+            "revision": 2,
+            "item_id": "daily_check",
+            "person_id": "mara",
+            "environment_id": "lunar_surface",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 4,
+              "label": "surface day 4",
+              "short_label": "Day 4"
+            },
+            "group": "today",
+            "state": "done",
+            "due_from": "2026-11-13T07:00:00Z",
+            "due_until": "2026-11-14T00:00:00Z",
+            "end_text": "done 07:40",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": "2026-11-13T07:40:00Z",
+            "outcome": {
+              "observation_ids": [
+                "obs_daily_check_mara"
+              ],
+              "answer_ids": [],
+              "note": null
+            },
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_lun_exercise_log",
+            "revision": 1,
+            "item_id": "exercise_log",
+            "person_id": "mara",
+            "environment_id": "lunar_surface",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 4,
+              "label": "surface day 4",
+              "short_label": "Day 4"
+            },
+            "group": "today",
+            "state": "later",
+            "due_from": "2026-11-13T16:00:00Z",
+            "due_until": "2026-11-13T18:00:00Z",
+            "end_text": "16:00",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": [
+              "complete",
+              "skip",
+              "later"
+            ]
+          }
+        ]
+      },
+      {
+        "group_id": "week",
+        "label": "This week",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_lun_blood_pressure",
+            "revision": 1,
+            "item_id": "blood_pressure",
+            "person_id": "mara",
+            "environment_id": "lunar_surface",
+            "day": {
+              "mission_day": 21,
+              "environment_day": 6,
+              "label": "surface day 6",
+              "short_label": "Day 6"
+            },
+            "group": "week",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "day 6",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_lun_body_mass",
+            "revision": 1,
+            "item_id": "body_mass",
+            "person_id": "mara",
+            "environment_id": "lunar_surface",
+            "day": {
+              "mission_day": 22,
+              "environment_day": 7,
+              "label": "surface day 7",
+              "short_label": "Day 7"
+            },
+            "group": "week",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "day 7",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          }
+        ]
+      },
+      {
+        "group_id": "month",
+        "label": "This month",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_lun_hearing_check",
+            "revision": 1,
+            "item_id": "hearing_check",
+            "person_id": "mara",
+            "environment_id": "lunar_surface",
+            "day": {
+              "mission_day": 33,
+              "environment_day": 18,
+              "label": "surface day 18",
+              "short_label": "Day 18"
+            },
+            "group": "month",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "day 18",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_lun_cognitive_test",
+            "revision": 1,
+            "item_id": "cognitive_test",
+            "person_id": "mara",
+            "environment_id": "lunar_surface",
+            "day": {
+              "mission_day": 35,
+              "environment_day": 20,
+              "label": "surface day 20",
+              "short_label": "Day 20"
+            },
+            "group": "month",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "day 20",
+            "cause": {
+              "kind": "cadence",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          }
+        ]
+      },
+      {
+        "group_id": "walk",
+        "label": "Walks",
+        "occurrences": [
+          {
+            "occurrence_id": "occ_lun_pre_eva_check",
+            "revision": 1,
+            "item_id": "pre_eva_check",
+            "person_id": "mara",
+            "environment_id": "lunar_surface",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 4,
+              "label": "surface day 4",
+              "short_label": "Day 4"
+            },
+            "group": "walk",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "next walk day 6",
+            "cause": {
+              "kind": "per_eva",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          },
+          {
+            "occurrence_id": "occ_lun_post_eva_check",
+            "revision": 1,
+            "item_id": "post_eva_check",
+            "person_id": "mara",
+            "environment_id": "lunar_surface",
+            "day": {
+              "mission_day": 19,
+              "environment_day": 4,
+              "label": "surface day 4",
+              "short_label": "Day 4"
+            },
+            "group": "walk",
+            "state": "not_due",
+            "due_from": null,
+            "due_until": null,
+            "end_text": "next walk day 6",
+            "cause": {
+              "kind": "per_eva",
+              "override_id": null,
+              "binding_id": null,
+              "started_by": null,
+              "insight_id": null
+            },
+            "question_set_ids": [],
+            "suppressed_by_overlay": null,
+            "completed_at": null,
+            "outcome": null,
+            "skip": null,
+            "config_release_id": "rel_20261113_a",
+            "allowed_actions": []
+          }
+        ]
+      }
+    ],
+    "counts": {
+      "due": 2,
+      "later": 1,
+      "done": 1,
+      "open_today": 3
+    },
+    "days": [
+      {
+        "mission_day": 13,
+        "label": "day 13",
+        "done": 4,
+        "due": 4
+      },
+      {
+        "mission_day": 14,
+        "label": "day 14",
+        "done": 3,
+        "due": 3
+      },
+      {
+        "mission_day": 15,
+        "label": "day 15",
+        "done": 4,
+        "due": 4
+      },
+      {
+        "mission_day": 16,
+        "label": "Day 1",
+        "done": 4,
+        "due": 4
+      },
+      {
+        "mission_day": 17,
+        "label": "Day 2",
+        "done": 5,
+        "due": 5
+      },
+      {
+        "mission_day": 18,
+        "label": "Day 3",
+        "done": 4,
+        "due": 4
+      },
+      {
+        "mission_day": 19,
+        "label": "Day 4",
+        "done": 1,
+        "due": 5
+      }
+    ],
+    "active_overrides": [
+      {
+        "override_id": "ovr_dust_check_lunar",
+        "revision": 1,
+        "item_id": "dust_exposure_check",
+        "person_id": null,
+        "audience": "everyone_in_location",
+        "binding_id": "dust_exposure_check.dust_alert",
+        "trigger_index": 0,
+        "trigger_text": "Habitat dust monitor alert (sensor_limit)",
+        "started_by": "sensor_limit",
+        "source": {
+          "kind": "warning",
+          "ref_id": "wrn_dust_lunar_1"
+        },
+        "new_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "dust alert",
+          "note": "everyone in that area does the check"
+        },
+        "cadence_text": "Everyone in that area does the check",
+        "reason_text": "Habitat dust monitor alert",
+        "state": "active",
+        "started_at": "2026-11-13T11:55:00Z",
+        "ends": {
+          "kind": "effect_complete",
+          "at": null,
+          "text": "after the added check"
+        },
+        "ended_at": null,
+        "end_reason": null,
+        "basis": "team default",
+        "source_ids": [
+          "RT03"
+        ],
+        "config_release_id": "rel_20261113_a",
+        "allowed_actions": []
+      }
+    ],
+    "misses": {
+      "count": 0,
+      "window_days": 7,
+      "barrier_question_due": false
+    },
+    "config_release_id": "rel_20261113_a"
+  }
+}

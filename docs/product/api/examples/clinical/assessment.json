@@ -1,0 +1,37 @@
+{
+  "summary": "SIM GET /v1/assessments/asm_mara_1",
+  "description": "A model assessment draft over state snapshot 5. Illustrative only: not seed data.",
+  "x-schema": "assessment.schema.json",
+  "value": {
+    "assessment_id": "asm_mara_1",
+    "episode_id": "epi_mara_racing_1",
+    "origin": "model",
+    "state_snapshot_version": 5,
+    "evidence_release_id": "evr_1",
+    "model_release_id": "mdl_huatuo_3_9b_1",
+    "findings": [
+      {
+        "text": "Pulse at rest 96 bpm by camera, Sim, after one failed attempt.",
+        "body_region": "heart",
+        "evidence": [
+          {
+            "kind": "observation",
+            "ref_id": "obs_pulse_mara_cam2"
+          }
+        ]
+      }
+    ],
+    "hypotheses": [],
+    "contradictions": [],
+    "missing_evidence": [
+      {
+        "text": "The heart's rhythm: needs an ECG, which this kit does not have.",
+        "body_region": "heart",
+        "evidence": []
+      }
+    ],
+    "next_step": "Check it another way: a crewmate feels the pulse for 60 seconds while the cameras count it. Then follow the plan aboard.",
+    "validation_status": "draft",
+    "created_at": "2026-11-13T09:35:00Z"
+  }
+}

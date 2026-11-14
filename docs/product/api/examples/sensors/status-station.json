@@ -1,0 +1,630 @@
+{
+  "summary": "SIM and REPLAY GET /v1/sensors, station",
+  "description": "Every sensor card for station_leo: value, evaluation, shown level, limit marks, effects and what to do. Illustrative only: not seed data.",
+  "x-schema": "list:sensor-status.schema.json",
+  "value": {
+    "items": [
+      {
+        "sensor_type_id": "co2",
+        "hazard_id": "co2",
+        "environment_id": "station_leo",
+        "name": "CO2",
+        "long_name": "Carbon dioxide",
+        "body_region": "head",
+        "channel_id": "ch_co2_cabin_replay",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_co2_cabin_replay",
+          "channel_id": "ch_co2_cabin_replay",
+          "sensor_type_id": "co2",
+          "hazard_id": "co2",
+          "value": 3.531,
+          "unit": "mmHg",
+          "original_value": 4646.0,
+          "original_unit": "ppm",
+          "conversion": {
+            "method": "ppm_to_mmhg",
+            "cabin_pressure_mmhg": 760,
+            "pressure_basis": "assumed",
+            "factor": null
+          },
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2014-10-07T15:36:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:08:00Z",
+          "origin_mode": "REPLAY",
+          "adapter_id": "adp_replay_osdr",
+          "adapter_sequence": 5033,
+          "quality_status": "accepted",
+          "location": "cabin",
+          "replay": {
+            "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+            "original_observed_at": "2014-10-07T15:36:00Z",
+            "time_basis": "Times as in the source file, read as UTC."
+          },
+          "provenance": {
+            "origin_mode": "REPLAY",
+            "source_label": "Replay, ISS 2014",
+            "trace": "Trace: OSDR Rodent Research-1 cabin CO2, 7 Oct 2014, converted at an assumed 760 mmHg.",
+            "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 3.5003,
+          "unit": "mmHg",
+          "text": "3.5"
+        },
+        "context_label": "one-hour average",
+        "source_label": "Replay, ISS 2014",
+        "origin_mode": "REPLAY",
+        "evaluation": {
+          "unit": "mmHg",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 3.5003,
+          "aggregation_label": "one-hour average",
+          "window_start": "2014-10-07T14:36:00Z",
+          "window_end": "2014-10-07T15:36:00Z",
+          "coverage": 1.0,
+          "status": "beyond_limit",
+          "level": "act",
+          "limit_id": "co2_1h_act"
+        },
+        "shown_level": "act",
+        "linked_warning_ids": [
+          "wrn_co2_station_1"
+        ],
+        "display_range": [
+          0,
+          5
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "co2_1h_act",
+            "value": 3,
+            "unit": "mmHg",
+            "comparator": "above",
+            "role": "warning",
+            "label": "limit 3 mmHg"
+          }
+        ],
+        "stale_since": null,
+        "trace": "Trace: OSDR Rodent Research-1 cabin CO2, 7 Oct 2014, converted at an assumed 760 mmHg.",
+        "effects": [
+          {
+            "text": "Headache",
+            "body_region": "head"
+          },
+          {
+            "text": "Shortness of breath",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Tiredness",
+            "body_region": null
+          },
+          {
+            "text": "Vision changes",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Nausea",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Unconsciousness in severe overexposure",
+            "body_region": "head"
+          },
+          {
+            "text": "Poorer sleep",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Tell the crew and the ground.",
+          "Move to a well-ventilated module.",
+          "Report headache, breathlessness or tiredness.",
+          "The flight control team finds and repairs the CO2 scrubbers or switches on extra scrubbing."
+        ],
+        "here": "Removed by scrubbers. NASA's brief gives an ISS range of 1 to 9 mmHg. Pockets can form around the face during sleep if the air does not move.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: C15, C25, EV07.",
+          "source_ids": [
+            "C15",
+            "C25",
+            "EV01",
+            "EV07"
+          ]
+        },
+        "series_href": "/v1/sensors/co2/series"
+      },
+      {
+        "sensor_type_id": "rad",
+        "hazard_id": "radiation",
+        "environment_id": "station_leo",
+        "name": "Radiation",
+        "long_name": "Radiation dose rate",
+        "body_region": null,
+        "channel_id": "ch_rad_columbus_replay",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_rad_columbus_replay",
+          "channel_id": "ch_rad_columbus_replay",
+          "sensor_type_id": "rad",
+          "hazard_id": "radiation",
+          "value": 6.5721,
+          "unit": "µGy/h",
+          "original_value": 6.572122,
+          "original_unit": "µGy/h",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2022-04-02T01:04:40Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:09:30Z",
+          "origin_mode": "REPLAY",
+          "adapter_id": "adp_replay_osdr",
+          "adapter_sequence": 84,
+          "quality_status": "accepted",
+          "location": "columbus",
+          "replay": {
+            "dataset": "OSDR RadLab DosTel1, 1 to 2 Apr 2022",
+            "original_observed_at": "2022-04-02T01:04:40Z",
+            "time_basis": "Times as in the source file, read as UTC."
+          },
+          "provenance": {
+            "origin_mode": "REPLAY",
+            "source_label": "Replay, ISS 2022",
+            "trace": "Trace: OSDR RadLab, DosTel1, 1 to 2 Apr 2022. An instrument's dose rate, not a person's dose.",
+            "dataset": "OSDR RadLab DosTel1, 1 to 2 Apr 2022",
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 6.0819,
+          "unit": "µGy/h",
+          "text": "6.1"
+        },
+        "context_label": "two-hour mean, Columbus module",
+        "source_label": "Replay, ISS 2022",
+        "origin_mode": "REPLAY",
+        "evaluation": {
+          "unit": "µGy/h",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [
+            "rad_rate_watch",
+            "rad_rate_act"
+          ],
+          "aggregated_value": 6.0819,
+          "aggregation_label": "two-hour mean",
+          "window_start": "2022-04-01T23:04:40Z",
+          "window_end": "2022-04-02T01:04:40Z",
+          "coverage": 1.0,
+          "status": "threshold_pending",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          0,
+          60
+        ],
+        "limit_marks": [],
+        "stale_since": null,
+        "trace": "Trace: OSDR RadLab, DosTel1, 1 to 2 Apr 2022. An instrument's dose rate, not a person's dose.",
+        "effects": [
+          {
+            "text": "Higher lifetime risk of cancer",
+            "body_region": null
+          },
+          {
+            "text": "Nausea, vomiting and tiredness after a large solar particle event (acute radiation syndrome)",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Skin injury and loss of blood-forming cells after large doses",
+            "body_region": null
+          },
+          {
+            "text": "Cataract (clouding of the lens of the eye)",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Changes in thinking, movement and behavior",
+            "body_region": "head"
+          },
+          {
+            "text": "Harm to the heart and blood vessels (NASA sets circulatory dose limits)",
+            "body_region": "heart"
+          }
+        ],
+        "todo": [
+          "Nothing to do.",
+          "Wear your personal dosimeter.",
+          "NASA keeps every exposure as low as reasonably achievable, even far below the limits."
+        ],
+        "here": "Inside Earth's magnetic field. Short passes through the South Atlantic Anomaly add trapped-particle dose; normal shielding is enough for these.",
+        "citation": {
+          "text": "What it can do: EV02, EV05.",
+          "source_ids": [
+            "EV02",
+            "EV05"
+          ]
+        },
+        "series_href": "/v1/sensors/rad/series"
+      },
+      {
+        "sensor_type_id": "o2",
+        "hazard_id": "oxygen",
+        "environment_id": "station_leo",
+        "name": "Oxygen",
+        "long_name": "Oxygen you breathe in",
+        "body_region": "head",
+        "channel_id": "ch_o2_station_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_o2_station_sim",
+          "channel_id": "ch_o2_station_sim",
+          "sensor_type_id": "o2",
+          "hazard_id": "oxygen",
+          "value": 149,
+          "unit": "mmHg",
+          "original_value": 149,
+          "original_unit": "mmHg",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1002,
+          "quality_status": "accepted",
+          "location": "cabin",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 149,
+          "unit": "mmHg",
+          "text": "149"
+        },
+        "context_label": "inspired oxygen",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "mmHg",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 149,
+          "aggregation_label": "inspired oxygen",
+          "window_start": null,
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": null,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          100,
+          200
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "o2_low_act",
+            "value": 127,
+            "unit": "mmHg",
+            "comparator": "below",
+            "role": "warning",
+            "label": "low limit 127 mmHg"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Mental changes, at times not noticed by the person",
+            "body_region": "head"
+          },
+          {
+            "text": "Worse color, night and side vision",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Tiredness, nausea, headache, dizziness and mood changes",
+            "body_region": "head"
+          },
+          {
+            "text": "Fast breathing (hyperventilation)",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Poorer sleep",
+            "body_region": null
+          },
+          {
+            "text": "Small areas of lung collapse (absorption atelectasis) when oxygen is above half the air",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Oxygen toxicity: breathing problems or tissue injury",
+            "body_region": "lungs"
+          },
+          {
+            "text": "Fire: materials burn more easily and hotter in oxygen-rich air",
+            "body_region": null
+          }
+        ],
+        "todo": [
+          "Nothing to do."
+        ],
+        "here": "Air like sea level. The normal target range applies.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: EV01, EV06, EV14.",
+          "source_ids": [
+            "EV01",
+            "EV06",
+            "EV14"
+          ]
+        },
+        "series_href": "/v1/sensors/o2/series"
+      },
+      {
+        "sensor_type_id": "noise",
+        "hazard_id": "noise",
+        "environment_id": "station_leo",
+        "name": "Noise",
+        "long_name": "Noise",
+        "body_region": "ear",
+        "channel_id": "ch_noise_station_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_noise_station_sim",
+          "channel_id": "ch_noise_station_sim",
+          "sensor_type_id": "noise",
+          "hazard_id": "noise",
+          "value": 61,
+          "unit": "dBA",
+          "original_value": 61,
+          "original_unit": "dBA",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T09:10:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T09:10:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1003,
+          "quality_status": "accepted",
+          "location": "sleep_station",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 61,
+          "unit": "dBA",
+          "text": "61"
+        },
+        "context_label": "24-hour average",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "dBA",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 61,
+          "aggregation_label": "24-hour average",
+          "window_start": "2026-11-12T09:10:00Z",
+          "window_end": "2026-11-13T09:10:00Z",
+          "coverage": 1.0,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          40,
+          90
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "noise_24h_act",
+            "value": 70,
+            "unit": "dBA",
+            "comparator": "above",
+            "role": "warning",
+            "label": "limit 70 dBA"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Hearing loss",
+            "body_region": "ear"
+          },
+          {
+            "text": "Headaches",
+            "body_region": "head"
+          },
+          {
+            "text": "Irritation",
+            "body_region": null
+          },
+          {
+            "text": "Worse sleep and relaxation",
+            "body_region": null
+          },
+          {
+            "text": "Harder to talk and hear each other",
+            "body_region": "ear"
+          }
+        ],
+        "todo": [
+          "Nothing to do."
+        ],
+        "here": "Constant fan noise. ISS crews use acoustic monitors from time to time.",
+        "citation": {
+          "text": "Limit: EV01. What it can do: C15, EV01, EV09.",
+          "source_ids": [
+            "C15",
+            "EV01",
+            "EV09"
+          ]
+        },
+        "series_href": "/v1/sensors/noise/series"
+      },
+      {
+        "sensor_type_id": "air",
+        "hazard_id": "toxic_vocs",
+        "environment_id": "station_leo",
+        "name": "Air",
+        "long_name": "Air contaminants",
+        "body_region": "lungs",
+        "channel_id": "ch_air_station_sim",
+        "reading_state": "current",
+        "latest_reading": {
+          "reading_id": "rdg_air_station_sim",
+          "channel_id": "ch_air_station_sim",
+          "sensor_type_id": "air",
+          "hazard_id": "toxic_vocs",
+          "value": 0.3,
+          "unit": "index",
+          "original_value": 0.3,
+          "original_unit": "index",
+          "conversion": null,
+          "aggregation": {
+            "kind": "sample",
+            "window_seconds": null
+          },
+          "observed_at": "2026-11-13T06:00:00Z",
+          "window_start": null,
+          "received_at": "2026-11-13T06:00:00Z",
+          "origin_mode": "SIM",
+          "adapter_id": "adp_sim",
+          "adapter_sequence": 1004,
+          "quality_status": "accepted",
+          "location": "cabin",
+          "replay": null,
+          "provenance": {
+            "origin_mode": "SIM",
+            "source_label": "Sim",
+            "trace": null,
+            "dataset": null,
+            "source_ids": []
+          }
+        },
+        "display_value": {
+          "value": 0.3,
+          "unit": "",
+          "text": "0.3"
+        },
+        "context_label": "toxicity index",
+        "source_label": "Sim",
+        "origin_mode": "SIM",
+        "evaluation": {
+          "unit": "index",
+          "evaluated_at": "2026-11-13T09:10:16Z",
+          "pending_limit_ids": [],
+          "aggregated_value": 0.3,
+          "aggregation_label": "toxicity index",
+          "window_start": null,
+          "window_end": "2026-11-13T06:00:00Z",
+          "coverage": null,
+          "status": "within_limit",
+          "level": null,
+          "limit_id": null
+        },
+        "shown_level": null,
+        "linked_warning_ids": [],
+        "display_range": [
+          0,
+          1.5
+        ],
+        "limit_marks": [
+          {
+            "limit_id": "air_index_info",
+            "value": 1,
+            "unit": "index",
+            "comparator": "below",
+            "role": "display_only",
+            "label": "limit 1"
+          }
+        ],
+        "stale_since": null,
+        "trace": null,
+        "effects": [
+          {
+            "text": "Eye, nose and throat irritation",
+            "body_region": "eyes"
+          },
+          {
+            "text": "Headaches, loss of coordination and nausea",
+            "body_region": "head"
+          },
+          {
+            "text": "Liver damage",
+            "body_region": "abdomen"
+          },
+          {
+            "text": "Kidney damage",
+            "body_region": "flank"
+          },
+          {
+            "text": "Damage to the central nervous system",
+            "body_region": "head"
+          },
+          {
+            "text": "Formaldehyde irritates the airways and can cause cancer after long exposure",
+            "body_region": "lungs"
+          }
+        ],
+        "todo": [
+          "Nothing to do."
+        ],
+        "here": "Off-gassing from hardware and payload chemicals. Formaldehyde has been tracked on the ISS for years.",
+        "citation": {
+          "text": "Limit: EV03. What it can do: EV07, EV31.",
+          "source_ids": [
+            "EV03",
+            "EV07",
+            "EV31"
+          ]
+        },
+        "series_href": "/v1/sensors/air/series"
+      }
+    ],
+    "page": {
+      "next_cursor": null,
+      "total": 5
+    }
+  }
+}

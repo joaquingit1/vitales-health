@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ground-link.schema.json",
+  "title": "GroundLink",
+  "description": "The state of the link to the ground (CONTRACTS sections 12 and 26). Nothing on board waits on it: while it is down only ground messages and handoffs wait in the queue. Clients show status, next_contact_at and the gap words; nothing else changes when it is down. Only three readers may read it: the ground_log stage of a plan, the Habitat line and the ground_silence warning rule (EI1).",
+  "type": "object",
+  "properties": {
+    "status": {
+      "enum": [
+        "up",
+        "delayed",
+        "down"
+      ],
+      "description": "up: available for a near real time exchange. delayed: available, each message takes one_way_delay_s one way. down: no link; messages wait in the queue until it is up or delayed again."
+    },
+    "one_way_delay_s": {
+      "anyOf": [
+        {
+          "type": "number",
+          "description": "The one-way delay a message takes when the link is available. Kept while the link is down. Null when unknown.",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "next_contact_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_contact_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source": {
+      "enum": [
+        "schedule",
+        "measured",
+        "demo_switch"
+      ],
+      "description": "schedule: from the active environment profile's comms_queue. measured: reported by a comms adapter (no adapter is defined in this package). demo_switch: set with POST /v1/demo/ground-link."
+    },
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "delay_text": {
+      "type": "string",
+      "description": "earth_delay of the active environment in environment-hazards.json with parenthesised source IDs removed, for example Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay.",
+      "minLength": 1
+    },
+    "delay_source_ids": {
+      "$ref": "common.schema.json#/$defs/source_ids"
+    },
+    "gap_kind": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/gap_kind"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "gap_planned": {
+      "type": "boolean",
+      "description": "True when the gap is in the environment's contact schedule or was set as planned by the demo switch. A planned gap raises nothing; only silence past next_contact_at plus the ground_silence threshold raises a warning (CONTRACTS section 26)."
+    }
+  },
+  "required": [
+    "status",
+    "one_way_delay_s",
+    "next_contact_at",
+    "last_contact_at",
+    "source",
+    "environment_id",
+    "delay_text",
+    "delay_source_ids",
+    "gap_kind",
+    "gap_planned"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "down"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "gap_kind": {
+            "$ref": "common.schema.json#/$defs/gap_kind"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "up",
+              "delayed"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "gap_kind": {
+            "type": "null"
+          },
+          "gap_planned": {
+            "const": false
+          }
+        }
+      }
+    }
+  ]
+}

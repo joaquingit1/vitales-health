@@ -1,0 +1,54 @@
+{
+  "summary": "SIM GET /v1/ground-messages/gm_lunar_1, sent",
+  "description": "After the next contact: sent by the simulated comms queue. It reaches the ground after the one-way delay. Illustrative only: not seed data.",
+  "x-schema": "ground-message.schema.json",
+  "value": {
+    "ground_message_id": "gm_lunar_1",
+    "revision": 2,
+    "help_session_id": "hlp_lunar_1",
+    "state": "sent",
+    "lines": [
+      "Tomas Lind needs help at the airlock. Eye injury or something in the eye.",
+      "Air safe. Tomas Lind responding. No heavy bleeding. Eye injury, chemical or dust in the eye.",
+      "Steps done: Do not rub the eye. Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes. In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels.",
+      "Crew called at 12:02. Ilya Brandt helping."
+    ],
+    "queued_by": {
+      "kind": "person",
+      "id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "queued_at": "2026-11-13T12:05:30Z",
+    "sent_at": "2026-11-14T11:20:41Z",
+    "expected_arrival_at": "2026-11-14T11:20:51Z",
+    "acknowledged_at": null,
+    "one_way_delay_s": 10,
+    "status_text": "Sent at 11:20. The ground will see it in about 10 seconds. Keep going: nothing here waits for a reply.",
+    "simulated": true,
+    "reply": null,
+    "leaves_at": null,
+    "catch_up": {
+      "what_happened": [
+        "Tomas Lind needs help at the airlock. Eye injury or something in the eye.",
+        "Air safe. Tomas Lind responding. No heavy bleeding. Eye injury, chemical or dust in the eye."
+      ],
+      "what_was_done": [
+        "12:02 Do not rub the eye.",
+        "12:03 Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes.",
+        "12:03 In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels.",
+        "Crew called at 12:02. Ilya Brandt helping."
+      ],
+      "being_watched": [
+        "Nothing is being watched."
+      ],
+      "advice_welcome": [
+        "A crewmate repeats the sight check and the photo, and keeps both for the log.",
+        "Something stuck in the eye, a chemical in the eye, or any change in sight: call the medical officer at once."
+      ]
+    },
+    "session_revision": 11,
+    "allowed_actions": [],
+    "text": "Tomas Lind needs help at the airlock. Eye injury or something in the eye. Air safe. Tomas Lind responding. No heavy bleeding. Eye injury, chemical or dust in the eye. Steps done: Do not rub the eye. Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes. In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels. Crew called at 12:02. Ilya Brandt helping.",
+    "text_sha256": "c746db7e2c1a406d5fecdc4652d317836129e683594d99efba10a15325d3fa57"
+  }
+}

@@ -1,0 +1,1090 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event.schema.json",
+  "title": "Event",
+  "description": "One event on GET /v1/events (CONTRACTS section 18). seq is a hub-wide, strictly increasing integer and is also the SSE id.",
+  "type": "object",
+  "properties": {
+    "seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "type": {
+      "enum": [
+        "config.release_activated",
+        "environment.change_proposed",
+        "environment.activated",
+        "environment.change_rejected",
+        "overlay.changed",
+        "mission.event_recorded",
+        "ground_link.changed",
+        "sensor.status_changed",
+        "sensor.quiet",
+        "sensor.resumed",
+        "warning.raised",
+        "warning.updated",
+        "warning.cleared",
+        "routine.occurrence_changed",
+        "routine.override_changed",
+        "help.session_changed",
+        "help.broadcast_changed",
+        "ground_message.changed",
+        "assistant.status_changed",
+        "insight.changed",
+        "job.progress",
+        "measurement_request.changed",
+        "handoff.changed",
+        "participation.streak_changed",
+        "participation.crew_goal_changed",
+        "plan_run.changed",
+        "plan_run.step_done",
+        "plan_run.escalated",
+        "guided_check.beat",
+        "guided_check.checked",
+        "coaching.sample",
+        "role.proposed",
+        "role.changed",
+        "skill.practiced",
+        "supply.used",
+        "drill.changed"
+      ]
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "emitted_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "person",
+            "habitat",
+            "crew",
+            "ground",
+            "operator"
+          ]
+        },
+        "person_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "environment_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/environment_id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "person_id",
+        "environment_id"
+      ],
+      "additionalProperties": false
+    },
+    "config_release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "correlation_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "data": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "seq",
+    "event_id",
+    "type",
+    "occurred_at",
+    "emitted_at",
+    "scope",
+    "config_release_id",
+    "correlation_id",
+    "data"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "config.release_activated"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "config-release.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew",
+                  "ground",
+                  "operator"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "environment.change_proposed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "environment-profile.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew",
+                  "operator"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "environment.activated"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "environment-profile.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew",
+                  "ground",
+                  "operator"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "environment.change_rejected"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "environment-profile.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew",
+                  "operator"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "overlay.changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "activity-overlay.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person",
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "mission.event_recorded"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "mission-event.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew",
+                  "operator"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "ground_link.changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "ground-link.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew",
+                  "ground",
+                  "operator"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "sensor.status_changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "sensor-status.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "habitat"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "sensor.quiet"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "sensor-channel.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "habitat",
+                  "operator"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "sensor.resumed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "sensor-channel.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "habitat",
+                  "operator"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "warning.raised"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "warning.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person",
+                  "habitat",
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "warning.updated"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "warning.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person",
+                  "habitat",
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "warning.cleared"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "warning.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person",
+                  "habitat",
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "routine.occurrence_changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "routine-occurrence.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "routine.override_changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "routine-override.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person",
+                  "habitat",
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "help.session_changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "help-session.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "help.broadcast_changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "crew-broadcast.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "ground_message.changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "ground-message.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew",
+                  "ground"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "assistant.status_changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "assistant-status.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew",
+                  "operator"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "insight.changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "insight.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "job.progress"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "job.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person",
+                  "operator"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "measurement_request.changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "measurement-request.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "handoff.changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "handoff.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person",
+                  "ground"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "participation.streak_changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "streak-view.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "participation.crew_goal_changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "crew-goal-view.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "plan_run.changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "plan-run.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person",
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "plan_run.step_done"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "plan-run.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person",
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "plan_run.escalated"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "plan-run.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person",
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "guided_check.beat"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "guided_check_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "beat_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "at": {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              "seconds_left": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "guided_check_id",
+              "beat_count",
+              "at",
+              "seconds_left"
+            ],
+            "additionalProperties": false
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "guided_check.checked"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "guided-check.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "coaching.sample"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "coaching-sample.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "role.proposed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "role-assignment.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "role.changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "role-assignment.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "skill.practiced"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "skill-record.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person",
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "supply.used"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "supply-use.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "drill.changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "$ref": "drill.schema.json"
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

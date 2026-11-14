@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "insight.schema.json",
+  "title": "Insight",
+  "description": "A pattern the assistant found in the session person's own records. It may raise an info or watch warning and add one occurrence of an existing routine item; nothing else. Its evidence is the person's own records only; a habitat reading, and above all a REPLAY channel, may appear only in habitat_facts and never as the person's exposure (VALIDATION V10).",
+  "type": "object",
+  "properties": {
+    "insight_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "person_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "topic_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "level": {
+      "enum": [
+        "info",
+        "watch"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "why": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "common.schema.json#/$defs/evidence_ref"
+          },
+          {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "observation",
+                  "answer",
+                  "daily_check",
+                  "routine_occurrence"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "Only the person's own records. The hub rejects an insight whose evidence names a sensor reading, another person's record or any REPLAY record (VALIDATION V10).",
+      "minItems": 1
+    },
+    "habitat_facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sensor_type_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "reading_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "origin_mode": {
+            "$ref": "common.schema.json#/$defs/origin_mode"
+          },
+          "text": {
+            "type": "string",
+            "description": "Rendered by the hub, never by the model: ui-copy designed_states.replay_note for a REPLAY reading, designed_states.habitat_fact otherwise.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "sensor_type_id",
+          "reading_id",
+          "origin_mode",
+          "text"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Habitat readings the insight may mention as separate facts. Never evidence. The model names only reading_id."
+    },
+    "citation": {
+      "$ref": "common.schema.json#/$defs/citation"
+    },
+    "warning_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "routine_occurrence_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "state": {
+      "enum": [
+        "active",
+        "dismissed",
+        "expired"
+      ]
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "model_release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "insight_id",
+    "person_id",
+    "topic_id",
+    "level",
+    "title",
+    "text",
+    "why",
+    "evidence",
+    "habitat_facts",
+    "citation",
+    "warning_id",
+    "routine_occurrence_ids",
+    "state",
+    "created_at",
+    "model_release_id",
+    "origin_mode",
+    "allowed_actions"
+  ],
+  "additionalProperties": false
+}

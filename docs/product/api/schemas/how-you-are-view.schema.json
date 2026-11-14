@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "how-you-are-view.schema.json",
+  "title": "HowYouAreView",
+  "description": "The person's own indicators against their own usual, and their latest vital signs.",
+  "type": "object",
+  "properties": {
+    "person_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "indicators": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "today": {
+            "$ref": "common.schema.json#/$defs/number_display"
+          },
+          "usual": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/number_display"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "delta_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "enum": [
+              "within_usual",
+              "below_usual",
+              "above_usual",
+              "no_baseline",
+              "no_reading"
+            ]
+          },
+          "trend": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "mission_day": {
+                  "$ref": "common.schema.json#/$defs/mission_day"
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "mission_day",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "extra": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "$ref": "common.schema.json#/$defs/config_id"
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "today": {
+                  "$ref": "common.schema.json#/$defs/number_display"
+                },
+                "usual": {
+                  "anyOf": [
+                    {
+                      "$ref": "common.schema.json#/$defs/number_display"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "code",
+                "label",
+                "today",
+                "usual"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "origin_mode": {
+            "$ref": "common.schema.json#/$defs/origin_mode"
+          },
+          "source_label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "today",
+          "usual",
+          "delta_text",
+          "state",
+          "trend",
+          "extra",
+          "origin_mode",
+          "source_label",
+          "body_region"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "vitals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "detail": {
+            "type": "string",
+            "minLength": 1
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "origin_mode": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/origin_mode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "body_region": {
+            "$ref": "common.schema.json#/$defs/body_region_or_null"
+          },
+          "mark": {
+            "enum": [
+              "measurement",
+              "reported",
+              "gap",
+              "none"
+            ]
+          },
+          "occurrence_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "value_text",
+          "detail",
+          "observed_at",
+          "origin_mode",
+          "body_region",
+          "mark",
+          "occurrence_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "why": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1
+            },
+            "citation": {
+              "$ref": "common.schema.json#/$defs/citation"
+            },
+            "insight_id": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "text",
+            "citation",
+            "insight_id"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "person_id",
+    "as_of",
+    "indicators",
+    "vitals",
+    "why"
+  ],
+  "additionalProperties": false
+}

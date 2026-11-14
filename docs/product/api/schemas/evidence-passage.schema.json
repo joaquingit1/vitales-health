@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "evidence-passage.schema.json",
+  "title": "EvidencePassage",
+  "description": "One passage from the pinned evidence release, with the uses it is approved for.",
+  "type": "object",
+  "properties": {
+    "passage_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "source_id": {
+      "$ref": "common.schema.json#/$defs/source_id"
+    },
+    "release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "allowed_uses": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "risk_context",
+          "patient_instruction",
+          "routine_basis",
+          "limit_basis"
+        ]
+      },
+      "minItems": 1
+    },
+    "status": {
+      "enum": [
+        "approved",
+        "superseded",
+        "withdrawn"
+      ]
+    }
+  },
+  "required": [
+    "passage_id",
+    "source_id",
+    "release_id",
+    "text",
+    "allowed_uses",
+    "status"
+  ],
+  "additionalProperties": false
+}

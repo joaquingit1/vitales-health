@@ -1,0 +1,189 @@
+{
+  "summary": "SIM GET /v1/mission, Moon base",
+  "description": "Mission clock, the active profile for lunar_surface and the ground link. Illustrative only: not seed data.",
+  "x-schema": "mission-context.schema.json",
+  "value": {
+    "mission_id": "demo-mission",
+    "mission_mode": "SIM",
+    "epoch": "2026-10-26T00:00:00Z",
+    "clock_version": "clock-1",
+    "planned_length_days": null,
+    "today": {
+      "mission_day": 19,
+      "environment_day": 4,
+      "label": "surface day 4",
+      "short_label": "Day 4"
+    },
+    "met": "018/12:10:00",
+    "mission_time": "12:10",
+    "active_profile": {
+      "profile_id": "env_lunar_surface_1",
+      "revision": 2,
+      "environment_id": "lunar_surface",
+      "state": "active",
+      "label": "Lunar surface base",
+      "place": "Moon base",
+      "eva_word": "surface walk",
+      "reason": "mission_start",
+      "proposed_by": {
+        "kind": "operator",
+        "id": "op_demo",
+        "display_name": "Demo operator"
+      },
+      "proposed_at": "2026-11-10T00:00:00Z",
+      "effective_at": "2026-11-10T00:00:00Z",
+      "confirmations_required": 1,
+      "confirmations": [
+        {
+          "person_id": "mara",
+          "at": "2026-11-10T00:00:00Z"
+        }
+      ],
+      "rejected_by": null,
+      "activated_at": "2026-11-10T00:00:00Z",
+      "superseded_at": null,
+      "environment_day_start": "2026-11-10T00:00:00Z",
+      "config_release_id": "rel_20261113_a",
+      "hazard_ids": [
+        "radiation",
+        "co2",
+        "oxygen",
+        "pressure_dcs",
+        "toxic_combustion",
+        "toxic_ammonia",
+        "toxic_propellants",
+        "toxic_vocs",
+        "dust",
+        "noise",
+        "thermal_humidity",
+        "water_quality",
+        "microbial",
+        "partial_gravity",
+        "isolation_confinement",
+        "circadian_light",
+        "distance_autonomy"
+      ],
+      "limit_ids": [
+        "co2_1h_act",
+        "co2_7d_watch",
+        "o2_low_watch",
+        "o2_low_act",
+        "o2_low_emergency",
+        "o2_high_act",
+        "noise_24h_act",
+        "noise_peak_emergency",
+        "air_index_info",
+        "air_index_watch",
+        "dust_lunar_act",
+        "rad_rate_watch",
+        "rad_rate_act"
+      ],
+      "warning_definition_ids": [
+        "co2_above_limit",
+        "co2_week_high",
+        "oxygen_low_watch",
+        "oxygen_low_act",
+        "oxygen_low_emergency",
+        "oxygen_high_act",
+        "noise_day_act",
+        "noise_peak_emergency",
+        "air_index_watch",
+        "dust_lunar_act",
+        "sensor_quiet",
+        "radiation_storm_shelter",
+        "dizzy_after_landing",
+        "ground_silence",
+        "supply_cover_low",
+        "assistant_pattern"
+      ],
+      "sensor_type_ids": [
+        "dust",
+        "rad",
+        "co2",
+        "o2"
+      ],
+      "sensor_channel_ids": [
+        "ch_dust_airlock_sim",
+        "ch_rad_lunar_sim",
+        "ch_co2_lunar_sim",
+        "ch_o2_lunar_sim"
+      ],
+      "routine_item_ids": [
+        "daily_check",
+        "resting_pulse",
+        "breathing_rate",
+        "blood_pressure",
+        "oxygen_saturation",
+        "body_temperature",
+        "body_mass",
+        "hydration",
+        "exercise_log",
+        "reaction_test",
+        "cognitive_test",
+        "vision_self_check",
+        "eye_imaging_sans",
+        "hearing_check",
+        "noise_dosimetry",
+        "radiation_dosimeter",
+        "pre_eva_check",
+        "post_eva_check",
+        "dust_exposure_check",
+        "behavioral_self_check",
+        "private_medical_conference",
+        "private_psych_conference",
+        "periodic_health_exam",
+        "dental_skin_check",
+        "medical_kit_inventory",
+        "emergency_drill",
+        "water_sampling",
+        "air_sampling",
+        "surface_sampling",
+        "housekeeping_clean",
+        "preflight_baselines",
+        "preflight_quarantine",
+        "early_flight_adaptation",
+        "gravity_arrival_check",
+        "pre_return_prep",
+        "post_return_recovery"
+      ],
+      "ground": {
+        "delay_text": "Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay.",
+        "simulated_one_way_delay_seconds": 10
+      },
+      "allowed_actions": []
+    },
+    "pending_change": null,
+    "crew": [
+      {
+        "person_id": "mara",
+        "display_name": "Mara Okafor"
+      },
+      {
+        "person_id": "ilya",
+        "display_name": "Ilya Brandt"
+      },
+      {
+        "person_id": "sofia",
+        "display_name": "Sofia Reyes"
+      },
+      {
+        "person_id": "tomas",
+        "display_name": "Tomas Lind"
+      }
+    ],
+    "ground_link": {
+      "status": "down",
+      "one_way_delay_s": 10,
+      "next_contact_at": "2026-11-14T11:20:40Z",
+      "last_contact_at": "2026-11-13T09:20:40Z",
+      "source": "demo_switch",
+      "environment_id": "lunar_surface",
+      "delay_text": "Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay.",
+      "delay_source_ids": [
+        "EV01"
+      ],
+      "gap_kind": "planned_line_of_sight",
+      "gap_planned": true
+    }
+  }
+}

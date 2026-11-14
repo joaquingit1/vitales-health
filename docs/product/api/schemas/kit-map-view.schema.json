@@ -1,0 +1,389 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kit-map-view.schema.json",
+  "title": "KitMapView",
+  "description": "The kit map for one environment, computed by the hub from kit-map.json and that environment's kit. Rejected rows are left out.",
+  "type": "object",
+  "properties": {
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "kit_map_version": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "kit_map_label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "example": {
+      "type": "boolean"
+    },
+    "kit": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "instrument_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "instrument_id",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "instrument_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "aboard": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "instrument_id",
+          "name",
+          "aboard"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "measured_here": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "report_only": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "needs_test_not_aboard": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "measured_here",
+        "report_only",
+        "needs_test_not_aboard",
+        "total"
+      ],
+      "additionalProperties": false
+    },
+    "regions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/body_region"
+              },
+              {
+                "const": "whole_body"
+              }
+            ]
+          },
+          "counts": {
+            "type": "object",
+            "properties": {
+              "measured_here": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "report_only": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "needs_test_not_aboard": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "measured_here",
+              "report_only",
+              "needs_test_not_aboard",
+              "total"
+            ],
+            "additionalProperties": false
+          },
+          "marks": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "measured_here",
+                "report_only",
+                "needs_test_not_aboard"
+              ]
+            },
+            "description": "States present in this region, in the fixed order measured_here, report_only, needs_test_not_aboard. The client draws one glyph per entry.",
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "region",
+          "counts",
+          "marks"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "conditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "condition_id": {
+            "type": "string",
+            "pattern": "^ICL[1-9][0-9]{0,2}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "enum": [
+              "measured_here",
+              "report_only",
+              "needs_test_not_aboard"
+            ]
+          },
+          "body_regions": {
+            "$ref": "common.schema.json#/$defs/body_regions"
+          },
+          "tests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "index": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "instruments": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  }
+                },
+                "needs_no_instrument": {
+                  "type": "boolean"
+                },
+                "fully_aboard": {
+                  "type": "boolean"
+                },
+                "missing": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "common.schema.json#/$defs/config_id"
+                  }
+                }
+              },
+              "required": [
+                "index",
+                "name",
+                "instruments",
+                "needs_no_instrument",
+                "fully_aboard",
+                "missing"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "missing_instruments": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/config_id"
+            },
+            "description": "The smallest missing set among tests that need instruments (ties: the first test in order). Empty for measured_here and when no test needs an instrument.",
+            "uniqueItems": true
+          },
+          "missing_text": {
+            "anyOf": [
+              {
+                "type": "string",
+                "description": "Rendered from ui-copy kit_check_templates.cannot, for example This kit can't: needs an ECG.",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "report_only_findings": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "cliff_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "review_state": {
+            "enum": [
+              "unreviewed",
+              "reviewed"
+            ]
+          },
+          "plan_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "description": "Copied from the kit-map.json row: the onboard-plans.json plan for this condition (CONTRACTS section 22).",
+                "pattern": "^plan_[a-z0-9_]{1,59}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plan_written_for": {
+            "anyOf": [
+              {
+                "enum": [
+                  "condition",
+                  "family",
+                  "flow"
+                ],
+                "description": "From the plan; null when the row has no plan."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plan_aboard": {
+            "type": "boolean",
+            "description": "True when the row's plan, in this environment, has an any_crew step in check_another_way, do_now or watch that can run with this kit and stock, and a watch or check_another_way step (EI3)."
+          },
+          "ground_needs": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/ground_needs"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "treatment_scope": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/form_quote"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rtdc": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/rtdc"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "condition_id",
+          "name",
+          "state",
+          "body_regions",
+          "tests",
+          "missing_instruments",
+          "missing_text",
+          "report_only_findings",
+          "cliff_url",
+          "review_state",
+          "plan_id",
+          "plan_written_for",
+          "plan_aboard",
+          "ground_needs",
+          "treatment_scope",
+          "rtdc"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "plans_aboard": {
+      "type": "integer",
+      "description": "Rows with plan_aboard true in this environment.",
+      "minimum": 0
+    },
+    "plans_written_for_condition": {
+      "type": "integer",
+      "description": "Rows whose plan is written for the condition (written_for condition).",
+      "minimum": 0
+    },
+    "plans_from_family": {
+      "type": "integer",
+      "description": "Rows whose plan comes from its family (written_for family).",
+      "minimum": 0
+    },
+    "plans_to_write": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^ICL[1-9][0-9]{0,2}$"
+      },
+      "description": "Rows without a plan aboard here, named so the release validator and the This kit card can show them (EI3).",
+      "uniqueItems": true
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "environment_id",
+    "kit_map_version",
+    "kit_map_label",
+    "example",
+    "kit",
+    "candidates",
+    "counts",
+    "regions",
+    "conditions",
+    "plans_aboard",
+    "plans_written_for_condition",
+    "plans_from_family",
+    "plans_to_write",
+    "as_of"
+  ],
+  "additionalProperties": false
+}

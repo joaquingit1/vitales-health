@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crew-readiness-view.schema.json",
+  "title": "CrewReadinessView",
+  "description": "GET /v1/crew/readiness, crew_medical_officer only: for each skill, who holds it fresh and who is available now (CONTRACTS section 24). No health data, no ranking, never in participation views.",
+  "type": "object",
+  "properties": {
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "skill_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fresh_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "text": {
+            "type": "string",
+            "description": "ui-copy readiness_words fresh_count or nobody_fresh.",
+            "minLength": 1
+          },
+          "holders": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "person": {
+                  "$ref": "common.schema.json#/$defs/person_ref"
+                },
+                "freshness": {
+                  "enum": [
+                    "fresh",
+                    "due",
+                    "stale",
+                    "never"
+                  ]
+                },
+                "last_practiced_label": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "medical_officer_rank": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "available": {
+                  "type": "boolean"
+                },
+                "unavailable_reason": {
+                  "anyOf": [
+                    {
+                      "enum": [
+                        "on_eva",
+                        "asleep",
+                        "is_subject"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "person",
+                "freshness",
+                "last_practiced_label",
+                "medical_officer_rank",
+                "available",
+                "unavailable_reason"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Listed in roster order, never sorted by freshness."
+          }
+        },
+        "required": [
+          "skill_id",
+          "name",
+          "fresh_count",
+          "text",
+          "holders"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  },
+  "required": [
+    "environment_id",
+    "skills",
+    "as_of"
+  ],
+  "additionalProperties": false
+}

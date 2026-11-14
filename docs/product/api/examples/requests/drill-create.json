@@ -1,0 +1,17 @@
+{
+  "summary": "SIM request POST /v1/drills",
+  "description": "Start the CPR drill on the station manikin. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/DrillCreate",
+  "value": {
+    "scenario_id": "drill_cpr_manikin",
+    "skill_ids": [
+      "cpr"
+    ],
+    "participant_ids": [
+      "mara",
+      "tomas"
+    ],
+    "routine_occurrence_id": "occ_drill_d12",
+    "origin_mode": "SIM"
+  }
+}

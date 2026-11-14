@@ -1,0 +1,335 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-role-rules.schema.json",
+  "title": "role-rules.json",
+  "description": "How the role engine proposes who does what in a help session or a plan step: the roles, eligibility, the medical officer cascade, the roles each flow needs and the reason phrases. Proposals only: every role can be changed by the helper.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "example": {
+      "type": "boolean"
+    },
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review.",
+      "minLength": 1
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role_id": {
+            "enum": [
+              "lead_helper",
+              "second_helper",
+              "kit_fetcher",
+              "medical_officer",
+              "communicator"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "on_site": {
+            "type": "boolean",
+            "description": "True when the role needs the person at the patient's side."
+          }
+        },
+        "required": [
+          "role_id",
+          "label",
+          "on_site"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "eligibility": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rule_id": {
+            "enum": [
+              "never_subject",
+              "not_on_eva_for_on_site",
+              "one_role_each",
+              "awake_first"
+            ]
+          },
+          "kind": {
+            "enum": [
+              "exclude",
+              "prefer"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "rule_id",
+          "kind",
+          "text"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "medical_officer_cascade": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": [
+              "officer_rank",
+              "freshest_skill_holder"
+            ]
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason_code": {
+            "enum": [
+              "first_officer",
+              "officer_is_subject",
+              "officer_on_eva",
+              "officer_asleep",
+              "second_officer",
+              "freshest_skill",
+              "free_to_help",
+              "changed_by_helper"
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "rank",
+          "reason_code"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Tried in order until someone is eligible.",
+      "minItems": 1
+    },
+    "flow_roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "flow_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "role_id": {
+                  "enum": [
+                    "lead_helper",
+                    "second_helper",
+                    "kit_fetcher",
+                    "medical_officer",
+                    "communicator"
+                  ]
+                },
+                "skill_id": {
+                  "anyOf": [
+                    {
+                      "$ref": "common.schema.json#/$defs/config_id"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "task_text": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "required": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "role_id",
+                "skill_id",
+                "task_text",
+                "required"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "flow_id",
+          "roles"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "default_roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role_id": {
+            "enum": [
+              "lead_helper",
+              "second_helper",
+              "kit_fetcher",
+              "medical_officer",
+              "communicator"
+            ]
+          },
+          "skill_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "task_text": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "role_id",
+          "skill_id",
+          "task_text",
+          "required"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "plan_step_role": {
+      "enum": [
+        "lead_helper",
+        "second_helper",
+        "kit_fetcher",
+        "medical_officer",
+        "communicator"
+      ],
+      "description": "The role proposed for a plan step whose who is skill:<skill_id>."
+    },
+    "reason_phrases": {
+      "type": "object",
+      "properties": {
+        "first_officer": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "officer_is_subject": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "officer_on_eva": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "officer_asleep": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "second_officer": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "freshest_skill": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "free_to_help": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "changed_by_helper": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "first_officer",
+        "officer_is_subject",
+        "officer_on_eva",
+        "officer_asleep",
+        "second_officer",
+        "freshest_skill",
+        "free_to_help",
+        "changed_by_helper"
+      ],
+      "additionalProperties": false
+    },
+    "basis": {
+      "$ref": "common.schema.json#/$defs/basis"
+    }
+  },
+  "required": [
+    "version",
+    "example",
+    "roles",
+    "eligibility",
+    "medical_officer_cascade",
+    "flow_roles",
+    "default_roles",
+    "plan_step_role",
+    "reason_phrases",
+    "basis"
+  ],
+  "additionalProperties": false
+}

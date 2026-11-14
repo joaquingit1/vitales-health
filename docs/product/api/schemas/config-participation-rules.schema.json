@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-participation-rules.schema.json",
+  "title": "participation-rules.json",
+  "description": "Parameters of CONTRACTS section 8. The derivation itself is fixed; only these values are configuration.",
+  "type": "object",
+  "properties": {
+    "patch_thresholds": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "crew_goal_window_days": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "patch_designs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "threshold": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "patch_design_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "threshold",
+          "patch_design_id",
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "derivation_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "basis": {
+      "$ref": "common.schema.json#/$defs/basis"
+    },
+    "practice": {
+      "type": "object",
+      "properties": {
+        "counts": {
+          "const": "drill_completed"
+        },
+        "drill_measurements_count": {
+          "const": false
+        },
+        "patch_designs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "first_drill",
+                  "drill_count",
+                  "skill_fresh"
+                ],
+                "description": "first_drill: the first completed drill. drill_count: threshold completed drills. skill_fresh: every core skill practiced within its freshness cadence."
+              },
+              "threshold": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "patch_design_id": {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "threshold",
+              "patch_design_id",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "core_skill_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "description": "skills-catalog skill IDs the skill_fresh patch needs.",
+          "uniqueItems": true
+        },
+        "basis": {
+          "$ref": "common.schema.json#/$defs/basis"
+        },
+        "to_be_set_by": {
+          "$ref": "common.schema.json#/$defs/to_be_set_by"
+        }
+      },
+      "required": [
+        "counts",
+        "drill_measurements_count",
+        "patch_designs",
+        "core_skill_ids",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false,
+      "description": "Practice patches (CONTRACTS section 24). Only a completed drill counts; a drill's camera numbers are shown live and never stored, ranked or rewarded (EI10). Practice never changes the streak or the crew goal."
+    }
+  },
+  "required": [
+    "patch_thresholds",
+    "crew_goal_window_days",
+    "patch_designs",
+    "derivation_version",
+    "basis"
+  ],
+  "additionalProperties": false
+}

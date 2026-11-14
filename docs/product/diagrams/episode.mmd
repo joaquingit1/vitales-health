@@ -1,0 +1,12 @@
+stateDiagram-v2
+  [*] --> Draft
+  Draft --> Open: person starts concern
+  Open --> AwaitingInformation: accepted request
+  AwaitingInformation --> Open: result or unavailable
+  Open --> AwaitingReview: review needed
+  AwaitingReview --> Followup: attributed review
+  Followup --> Open: new concern or evidence
+  Open --> Resolved: authorized reason recorded
+  Followup --> Resolved: authorized reason recorded
+  Resolved --> Open: recurrence
+  note right of Open: Acknowledged is an event, not resolution

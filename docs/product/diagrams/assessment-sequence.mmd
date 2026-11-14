@@ -1,0 +1,27 @@
+sequenceDiagram
+  actor Person
+  participant UI
+  participant Controller
+  participant Safety
+  participant LLM
+  participant Evidence
+  participant Device
+  Person->>UI: Describe concern
+  UI->>Controller: Persist answers
+  Controller->>Safety: Check urgent signals
+  alt Urgent signal
+    Safety-->>UI: Fixed local response
+  else No identified urgent signal
+    Controller->>LLM: Scoped state and allowed tools
+    LLM->>Evidence: Request approved passages
+    Evidence-->>LLM: Passages or no support
+    LLM-->>Controller: Propose useful measurement
+    Controller-->>UI: Feasible request with reason
+    Person->>UI: Accept or decline
+    UI->>Controller: Actual choice
+    Controller->>Device: Acquire if accepted and available
+    Device-->>Controller: Result or failure
+    Controller->>LLM: Persisted outcome
+    LLM-->>Controller: Assessment and gaps
+    Controller-->>UI: Validated explanation
+  end

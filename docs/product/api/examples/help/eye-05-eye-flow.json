@@ -1,0 +1,296 @@
+{
+  "summary": "SIM GET /v1/help-sessions/hlp_lunar_1, step 05",
+  "description": "Eye injury picked; the eye flow's fixed steps, with the Moon note. Moon base, Tomas Lind, opened by Mara Okafor. Illustrative only: not seed data.",
+  "x-schema": "help-session.schema.json",
+  "value": {
+    "help_session_id": "hlp_lunar_1",
+    "revision": 5,
+    "state": "open",
+    "opened_at": "2026-11-13T12:02:00Z",
+    "client_opened_at": "2026-11-13T12:01:59Z",
+    "opened_by": {
+      "kind": "person",
+      "id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "entry": {
+      "kind": "button",
+      "ref_id": null
+    },
+    "subject": {
+      "kind": "crewmate",
+      "person_id": "tomas",
+      "display_name": "Tomas Lind"
+    },
+    "place": "airlock",
+    "body_region": "eyes",
+    "helpers": [],
+    "config_pins": [
+      {
+        "name": "help-presentation",
+        "version": "682f54eb73a7b11c2e5df233951bf608cc63a99825f070175f939a8df03b8170"
+      },
+      {
+        "name": "responder-flows",
+        "version": "23865cf8acfbfa869df24a8b0fee732e386ddbb9e4735d19d0920873d92cee64"
+      },
+      {
+        "name": "ui-copy",
+        "version": "296d7bbbb4ac286e63ec8a5968d96fb5cce35e256b9151e415e7b2133fba5f6e"
+      }
+    ],
+    "level": "act",
+    "level_basis": "team default",
+    "node": {
+      "kind": "flow",
+      "id": "eye_injury",
+      "question": null,
+      "answers": [],
+      "flow": {
+        "title": "Eye injury or something in the eye",
+        "plain": "Something got into the eye or hit it. Dust from the Moon or Mars is sharp and can scratch the eye. Rinse it. Do not rub it.",
+        "immediate_steps": [
+          {
+            "index": 0,
+            "text": "Do not rub the eye.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 1,
+            "text": "If an object is stuck in the eye, do not remove it. Cover the eye with a rigid shield that rests on the bone around the eye, not on the eye.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 2,
+            "text": "Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 3,
+            "text": "In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels.",
+            "ticked_at": null,
+            "ticked_by": null
+          },
+          {
+            "index": 4,
+            "text": "Call the CMO.",
+            "ticked_at": null,
+            "ticked_by": null
+          }
+        ],
+        "questions": [
+          "What got in, or what hit the eye?",
+          "Was it a chemical, dust from outside, or a sharp object?",
+          "Can you see as well as before with that eye?",
+          "Pain, light hurting, or a gritty feeling?",
+          "Contact lenses in?"
+        ],
+        "measurements": [
+          {
+            "what": "Sight in each eye",
+            "how": "Cover the other eye. Read the same text on the screen with each eye and record any difference. Test card and distance: to be set by clinical review.",
+            "instrument": "app screen"
+          },
+          {
+            "what": "Photo of the eye",
+            "how": "A still, close photo in good light for the CMO, kept with the log for the ground. Do not touch the eye.",
+            "instrument": "camera station"
+          }
+        ],
+        "treatment_steps": [
+          {
+            "step": "Rinse with lots of clean water",
+            "who": "any crew",
+            "kit": "eye wash set, drink bag, towels"
+          },
+          {
+            "step": "Rigid shield over an eye with something stuck in it, with no pressure on the eye",
+            "who": "any crew",
+            "kit": "eye shield, if listed"
+          },
+          {
+            "step": "Remove a loose particle and check the eye surface for scratches, as in the onboard procedure",
+            "who": "crew medical officer",
+            "kit": "as in the onboard procedure"
+          },
+          {
+            "step": "Eye medicines, as in the onboard procedure",
+            "who": "crew medical officer",
+            "kit": "as in the onboard procedure"
+          },
+          {
+            "step": "Follow up check by a crewmate: look at the eye and ask about sight at the next check (interval to be set by clinical review), with a photo kept for the log",
+            "who": "any crew",
+            "kit": "camera station"
+          },
+          {
+            "step": "Log for the ground with the photos, for a later diagnosis of eye damage. It leaves at the next contact; nothing waits for it.",
+            "who": "ground",
+            "kit": "message link with photos"
+          }
+        ],
+        "call_ground_when": "Log for the ground at once for something stuck in the eye, a chemical in the eye, or any change in sight; otherwise when pain or grittiness does not settle after rinsing (how long to wait: to be set by clinical review). It leaves at the next contact; nothing here waits for it.",
+        "environment_note": "Lunar dust is very abrasive and can injure the eye. Dust carried inside can float in a vehicle in weightlessness.",
+        "body_regions": [
+          "eyes"
+        ],
+        "citation": {
+          "text": "Responder flow eye_injury, responder-flows.json.",
+          "source_ids": [
+            "RS08",
+            "RS30",
+            "RS31",
+            "RS32",
+            "RS33",
+            "RS34",
+            "RS35",
+            "RS45",
+            "RS46"
+          ]
+        }
+      }
+    },
+    "path": [
+      {
+        "node_id": "air_safe",
+        "kind": "triage",
+        "answer_index": 0,
+        "answer_label": "Yes: no alarm, smoke or smell",
+        "at": "2026-11-13T12:02:08Z",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        }
+      },
+      {
+        "node_id": "responding",
+        "kind": "triage",
+        "answer_index": 0,
+        "answer_label": "Yes, they answer",
+        "at": "2026-11-13T12:02:16Z",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        }
+      },
+      {
+        "node_id": "severe_bleeding_check",
+        "kind": "triage",
+        "answer_index": 1,
+        "answer_label": "No",
+        "at": "2026-11-13T12:02:24Z",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        }
+      },
+      {
+        "node_id": "what_happened",
+        "kind": "triage",
+        "answer_index": 6,
+        "answer_label": "Eye injury, chemical or dust in the eye",
+        "at": "2026-11-13T12:02:32Z",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        }
+      }
+    ],
+    "log": [
+      {
+        "at": "2026-11-13T12:02:00Z",
+        "text": "Mara Okafor pressed Someone needs help for Tomas Lind",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "kind": "system"
+      },
+      {
+        "at": "2026-11-13T12:02:08Z",
+        "text": "Air safe",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "kind": "answer"
+      },
+      {
+        "at": "2026-11-13T12:02:16Z",
+        "text": "Tomas Lind responding",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "kind": "answer"
+      },
+      {
+        "at": "2026-11-13T12:02:24Z",
+        "text": "No heavy bleeding",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "kind": "answer"
+      },
+      {
+        "at": "2026-11-13T12:02:32Z",
+        "text": "Eye injury, chemical or dust in the eye",
+        "by": {
+          "kind": "person",
+          "id": "mara",
+          "display_name": "Mara Okafor"
+        },
+        "kind": "answer"
+      }
+    ],
+    "crew_called_at": null,
+    "broadcast_id": "brd_lunar_1",
+    "assistant": {
+      "status": "off",
+      "conversation_id": null,
+      "last_text": null
+    },
+    "ground_message_ids": [],
+    "fixed_buttons": [
+      {
+        "id": "call_crew",
+        "label": "Call crew"
+      },
+      {
+        "id": "tell_ground",
+        "label": "Tell the ground"
+      },
+      {
+        "id": "start_over",
+        "label": "Start over"
+      }
+    ],
+    "closed_at": null,
+    "close": null,
+    "allowed_actions": [
+      "switch_flow",
+      "call_crew",
+      "join",
+      "start_over",
+      "set_body_region",
+      "set_place",
+      "add_note",
+      "ask_assistant",
+      "close",
+      "tick_step",
+      "untick_step"
+    ]
+  }
+}

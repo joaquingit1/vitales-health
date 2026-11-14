@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensor-evaluation.schema.json",
+  "title": "SensorEvaluation",
+  "description": "The sensor monitor's result for one sensor type against its limits (CONTRACTS section 13).",
+  "type": "object",
+  "properties": {
+    "status": {
+      "enum": [
+        "within_limit",
+        "beyond_limit",
+        "insufficient_data",
+        "stale",
+        "no_limit_on_file",
+        "threshold_pending",
+        "no_reading"
+      ]
+    },
+    "level": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/level"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "limit_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/config_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "aggregated_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "unit": {
+      "type": "string",
+      "minLength": 1
+    },
+    "aggregation_label": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "window_start": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "window_end": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "coverage": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "evaluated_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "pending_limit_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      }
+    }
+  },
+  "required": [
+    "status",
+    "level",
+    "limit_id",
+    "aggregated_value",
+    "unit",
+    "aggregation_label",
+    "window_start",
+    "window_end",
+    "coverage",
+    "evaluated_at",
+    "pending_limit_ids"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "beyond_limit"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "level": {
+            "$ref": "common.schema.json#/$defs/level"
+          },
+          "limit_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "within_limit",
+              "insufficient_data",
+              "stale",
+              "no_limit_on_file",
+              "threshold_pending",
+              "no_reading"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "level": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

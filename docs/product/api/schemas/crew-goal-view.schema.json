@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crew-goal-view.schema.json",
+  "title": "CrewGoalView",
+  "description": "Derived crew total (CONTRACTS section 8). No person, no per-person or per-day count.",
+  "type": "object",
+  "properties": {
+    "mission_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "origin_mode": {
+      "enum": [
+        "LIVE",
+        "SIM"
+      ]
+    },
+    "window_first_mission_day": {
+      "$ref": "common.schema.json#/$defs/mission_day"
+    },
+    "window_last_mission_day": {
+      "$ref": "common.schema.json#/$defs/mission_day"
+    },
+    "completed_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "due_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "reached": {
+      "type": "boolean"
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "derivation_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mission_clock_version": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "mission_id",
+    "origin_mode",
+    "window_first_mission_day",
+    "window_last_mission_day",
+    "completed_total",
+    "due_total",
+    "reached",
+    "as_of",
+    "derivation_version",
+    "mission_clock_version"
+  ],
+  "additionalProperties": false
+}

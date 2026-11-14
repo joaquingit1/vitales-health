@@ -1,0 +1,20 @@
+{
+  "summary": "SIM POST /v1/overlays",
+  "description": "A planned sleep overlay. Illustrative only: not seed data.",
+  "x-schema": "activity-overlay.schema.json",
+  "value": {
+    "overlay_id": "ovl_sleep_mara_1",
+    "revision": 1,
+    "person_id": "mara",
+    "overlay": "sleep",
+    "state": "planned",
+    "planned_start": "2026-11-13T21:30:00Z",
+    "started_at": null,
+    "ended_at": null,
+    "source": {
+      "kind": "person",
+      "ref_id": null
+    },
+    "location": null
+  }
+}

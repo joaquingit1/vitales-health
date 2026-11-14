@@ -1,7 +1,7 @@
 # Build charter
 
 Binding for every agent and person building Crew Health Check. The planning package at
-`` is the product source of truth (PITCH.md wins on story and demo,
+`docs/product/` is the product source of truth (PITCH.md wins on story and demo,
 PRD.md on product behavior, CONTRACTS.md and `api/openapi.yaml` on shared objects and endpoints, USE-CASES.md on flows).
 This charter decides how it is built. Where the two disagree on a product question, the package wins and the
 disagreement is filed as a request (section 7).
@@ -43,10 +43,10 @@ Chosen for reliability, offline operation, auditability and alignment with what 
 | Crew app | TypeScript (strict), Vue 3, Vite, installable as an offline web app; the visual system of `docs/product/design/interaction-prototype.html` (its tokens, type and point-cloud body renderer) reproduced exactly | Runs in any browser on the laptop or a crew tablet with nothing installed; Vue is the framework of NASA Open MCT, so components and telemetry views share one framework |
 | Habitat telemetry views | NASA Open MCT (Apache 2.0) plots and tables fed by the hub's telemetry endpoints (historical and realtime) | Open MCT is NASA's mission operations framework for exactly this job |
 | Ground console | An Open MCT application with Crew Health Check plugins, read only | The ground reads; it is never a step (USE-CASES rule 7) |
-| Ground link | Store-and-forward bundles following DTN Bundle Protocol version 7 (RFC 9171, CBOR); transports are adapters: file drop (removable media), a local DTN node (for example ION or HDTN) when present, plain HTTPS on Earth | DTN is NASA's protocol for delayed and disrupted links and runs on the ISS; the app never waits for delivery |
+| Ground link | Store-and-forward bundles following DTN Bundle Protocol version 7 (RFC 9171, CBOR); transports are adapters: file drop (removable media), a local DTN node (µD3TN or dtn7-rs; never HDTN, which is archived) when present, as decided in docs/DEPLOYMENT.md, plain HTTPS on Earth | DTN is NASA's protocol for delayed and disrupted links and runs on the ISS; the app never waits for delivery |
 | Medical devices | Bluetooth SIG health profiles (Pulse Oximeter, Blood Pressure, Health Thermometer, Heart Rate) through `bleak`, with IEEE 11073 semantics; manual entry for every device as the always-available fallback | Standard profiles mean any compliant kit device works without custom drivers |
 | Cameras | A Python worker on the device that holds the camera: OpenCV capture, face and torso landmarks, rPPG (POS and CHROM) and motion-based breathing, with a signal-quality gate that refuses rather than guesses | Frames never leave the device that captured them |
-| Clinical data interchange | HL7 FHIR R5 resources (Observation, Device, Condition, CarePlan, MedicationStatement) with LOINC codes and UCUM units, as an export and import format; internal records follow CONTRACTS.md | The standard health data model; lets a real medical data architecture ingest our records |
+| Clinical data interchange | HL7 FHIR R4 4.0.1 resources (R4 because the device and patient summary guides build on it; docs/SYSTEM.md) (Observation, Device, Condition, CarePlan, MedicationStatement) with LOINC codes and UCUM units, as an export and import format; internal records follow CONTRACTS.md | The standard health data model; lets a real medical data architecture ingest our records |
 | Local medical model | HuatuoGPT-3-9B served by `llama.cpp` (`llama-server`, OpenAI-compatible API) in its own process, behind the typed tool gateway; quantization and the "weights unchanged" rule are decided and documented in the E17 TDD | Portable C++ runtime that runs on any laptop CPU or GPU, isolated so it can be stopped without affecting anything else |
 | Forecasting | Chronos-2 in an isolated worker (PyTorch, CPU or Apple GPU), experimental view only | Never in a safety path |
 | Knowledge and evidence | SQLite FTS5 plus a local vector index (`sqlite-vec`), files addressed by content hash | Same storage engine as the hub, nothing extra to run |

@@ -1,0 +1,12 @@
+flowchart TD
+  Exa[Exa and recovered research] --> Archive[Research catalog]
+  Archive --> Review[Extraction and review]
+  Review --> Corpus[Approved evidence release]
+  Corpus --> Tools[Retrieval and typed tools]
+  Model[Existing HuatuoGPT-3 weights] --> Runtime[Local reasoning runtime]
+  Tools --> Runtime
+  Dev[Development cases] --> Config[Prompt and orchestration experiments]
+  Config --> Runtime
+  Runtime --> Eval[Evaluate exact deployment configuration]
+  Holdout[Sealed HealthBench and NASA cases] --> Eval
+  Eval --> Release[Promote or retain baseline]

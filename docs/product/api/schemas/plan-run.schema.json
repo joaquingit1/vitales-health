@@ -1,0 +1,386 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "plan-run.schema.json",
+  "title": "PlanRun",
+  "description": "One plan being run for one person (CONTRACTS section 22). No state waits for the ground (EI5): active while steps are open, watching while only watch steps and rechecks remain, escalated once an if_worse step opened Someone needs help, closed with a disposition.",
+  "type": "object",
+  "properties": {
+    "plan_run_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "plan_id": {
+      "type": "string",
+      "description": "An onboard-plans.json plan ID.",
+      "pattern": "^plan_[a-z0-9_]{1,59}$"
+    },
+    "config_pins": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_pin"
+      },
+      "description": "onboard-plans, skills-catalog, role-rules, kit-map and ui-copy as pinned at open. A run keeps them to its end.",
+      "minItems": 1
+    },
+    "subject": {
+      "$ref": "common.schema.json#/$defs/person_ref"
+    },
+    "episode_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "help_session_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "environment_id": {
+      "$ref": "common.schema.json#/$defs/environment_id"
+    },
+    "state": {
+      "enum": [
+        "active",
+        "watching",
+        "escalated",
+        "closed"
+      ]
+    },
+    "opened_by": {
+      "$ref": "common.schema.json#/$defs/actor"
+    },
+    "opened_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "stage_id": {
+            "$ref": "common.schema.json#/$defs/plan_stage"
+          },
+          "state": {
+            "enum": [
+              "open",
+              "done",
+              "not_available",
+              "substituted"
+            ],
+            "description": "open until a person marks it. not_available: a person found it cannot run (it then shows its substitute). substituted: its substitute ran instead."
+          },
+          "by": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/actor"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "at": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "substitute_step_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/config_id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "guided_check_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observation_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/id"
+            }
+          },
+          "supply_use_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/id"
+            }
+          }
+        },
+        "required": [
+          "step_id",
+          "stage_id",
+          "state",
+          "by",
+          "at",
+          "substitute_step_id",
+          "guided_check_id",
+          "observation_ids",
+          "supply_use_ids"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "rechecks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "due_at": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "due_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "done_at": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observation_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/id"
+            }
+          }
+        },
+        "required": [
+          "step_id",
+          "due_at",
+          "due_text",
+          "done_at",
+          "observation_ids"
+        ],
+        "additionalProperties": false
+      },
+      "description": "due_at is null while the interval is to be set; due_text then says who sets it."
+    },
+    "escalations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "help_session_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          }
+        },
+        "required": [
+          "step_id",
+          "help_session_id",
+          "at"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "handoff_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "link_state_at_open": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "up",
+            "delayed",
+            "down"
+          ]
+        },
+        "gap_kind": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/gap_kind"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "next_contact_at": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/instant"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "gap_kind",
+        "next_contact_at"
+      ],
+      "additionalProperties": false,
+      "description": "Audit only. No rule, step or state reads it (EI1)."
+    },
+    "close": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "disposition": {
+              "enum": [
+                "resolved_on_board",
+                "handed_to_medical_officer",
+                "watch_ended",
+                "preparing_return",
+                "other"
+              ]
+            },
+            "note": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "by": {
+              "$ref": "common.schema.json#/$defs/actor"
+            },
+            "at": {
+              "$ref": "common.schema.json#/$defs/instant"
+            }
+          },
+          "required": [
+            "disposition",
+            "note",
+            "by",
+            "at"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "plan_run_id",
+    "revision",
+    "plan_id",
+    "config_pins",
+    "subject",
+    "episode_id",
+    "help_session_id",
+    "environment_id",
+    "state",
+    "opened_by",
+    "opened_at",
+    "steps",
+    "rechecks",
+    "escalations",
+    "handoff_id",
+    "link_state_at_open",
+    "close",
+    "allowed_actions"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "closed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "close": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "active",
+              "watching",
+              "escalated"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "close": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

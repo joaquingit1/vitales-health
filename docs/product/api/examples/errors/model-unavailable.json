@@ -1,0 +1,18 @@
+{
+  "summary": "SIM error MODEL_UNAVAILABLE",
+  "description": "The error envelope for MODEL_UNAVAILABLE. Illustrative only: not seed data.",
+  "x-schema": "error.schema.json",
+  "value": {
+    "code": "MODEL_UNAVAILABLE",
+    "message": "The model service is stopped.",
+    "retryable": true,
+    "field_errors": [],
+    "correlation_id": "cor_trn_3",
+    "current_state": null,
+    "supported_alternative": {
+      "action": "open_help",
+      "href": "/v1/help-sessions",
+      "text": "Someone needs help still works."
+    }
+  }
+}

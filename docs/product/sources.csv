@@ -1,0 +1,23 @@
+source_id,title,url,access_status,supports,captured_date
+L01,Introducing HealthBench | OpenAI,https://openai.com/index/healthbench/,Primary page text captured,Model/runtime/evaluation capability; not validation of our product,2026-11-14
+L02,simple-evals/healthbench_eval.py at main · openai/simple-evals · GitHub,https://github.com/openai/simple-evals/blob/main/healthbench_eval.py,Primary page text captured; partial content,Model/runtime/evaluation capability; not validation of our product,2026-11-14
+L03,FreedomIntelligence/HuatuoGPT-3-9B · Hugging Face,https://huggingface.co/FreedomIntelligence/HuatuoGPT-3-9B,Primary page text captured,Model/runtime/evaluation capability; not validation of our product,2026-11-14
+L04,GitHub - stanfordmlgroup/MedAgentBench: MedAgentBench: A Realistic Virtual EHR Environment to Benchmark Medical LLM Agents · GitHub,https://github.com/stanfordmlgroup/MedAgentBench,Primary page text captured,Model/runtime/evaluation capability; not validation of our product,2026-11-14
+L05,llama.cpp/docs/function-calling.md at master · ggml-org/llama.cpp · GitHub,https://github.com/ggml-org/llama.cpp/blob/master/docs/function-calling.md,Primary page text captured; partial content,Model/runtime/evaluation capability; not validation of our product,2026-11-14
+L06,GitHub - ml-explore/mlx-lm: Run LLMs with MLX · GitHub,https://github.com/ml-explore/mlx-lm,Primary page text captured,Model/runtime/evaluation capability; not validation of our product,2026-11-14
+L07,Medical RAG / MIRAGE primary paper,https://arxiv.org/abs/2402.13178,Exa primary-paper extract reviewed,Motivates retrieval configuration evaluation,2026-11-14
+L08,AgentClinic primary repository,https://github.com/samuelschmidgall/agentclinic,Exa discovered; primary paper extract reviewed,Candidate interactive evaluation; implementation review pending,2026-11-14
+S01,"NASA ExMC Evidence Library Methods, Rev B",https://ntrs.nasa.gov/api/citations/20240004774/downloads/HRP-48036%20RevB_ExMC%20Evidence%20Library%20Methods.pdf,PDF extracted and inventories checked,NASA inventory membership and modeling methodology,2026-11-14
+S02,NASA-STD-3001 Appendix E,https://www.nasa.gov/reference/appendix-e-health-and-medical-care-technical-requirements/,Primary page opened; condition-list table extraction,Medical capability planning; not prevalence,2026-11-14
+S03,"Arrhythmias - Diagnosis | NHLBI, NIH",https://www.nhlbi.nih.gov/health/arrhythmias/diagnosis,Primary page text captured,Selected clinical principle,2026-11-14
+S04,"Heart Attack - Diagnosis | NHLBI, NIH",https://www.nhlbi.nih.gov/health/heart-attack/diagnosis,Primary page text captured,Selected clinical principle,2026-11-14
+S05,Diagnosis of Kidney Stones - NIDDK,https://www.niddk.nih.gov/health-information/urologic-diseases/kidney-stones/diagnosis,Primary page text captured,Selected clinical principle,2026-11-14
+S06,Diagnosis of Urinary Retention - NIDDK,https://www.niddk.nih.gov/health-information/urologic-diseases/urinary-retention/diagnosis,Primary page text captured,Selected clinical principle,2026-11-14
+S07,National Eye Institute Statement on Detection of Glaucoma and Adult Vision Screening | National Eye Institute,https://www.nei.nih.gov/about/education-and-outreach/glaucoma-resources/national-eye-institute-statement-detection-glaucoma-and-adult-vision-screening,Primary page text captured,Selected clinical principle,2026-11-14
+S08,Managing Acute Radiation Syndrome (ARS) - Radiation Emergency Medical Management,https://remm.hhs.gov/ars.htm,Primary page text captured; partial content,Selected clinical principle,2026-11-14
+S09,Diagnosis of Appendicitis - NIDDK,https://www.niddk.nih.gov/health-information/digestive-diseases/appendicitis/diagnosis,Primary page text captured,Selected clinical principle,2026-11-14
+S10,Depression - National Institute of Mental Health (NIMH),https://www.nimh.nih.gov/health/publications/depression,Primary page text captured,Selected clinical principle,2026-11-14
+S11,NIAMS osteoporosis diagnosis,https://www.niams.nih.gov/health-topics/osteoporosis/diagnosis-treatment-and-steps-to-take,Primary page opened,Bone density assessment principle,2026-11-14
+S12,NASA SANS technical brief,https://www.nasa.gov/wp-content/uploads/2024/02/ochmo-mtb-001-sans.pdf,Primary PDF opened,Ocular findings and specialist assessment context,2026-11-14
+S13,NASA Integrated Medical Model documentation,https://www.nasa.gov/integrated-medical-model-documentation/,Catalog; not all linked PDFs read,Condition evidence catalog,2026-11-14
+S14,NASA Human Research Roadmap evidence,https://humanresearchroadmap.nasa.gov/Evidence/,Catalog,Human-system risk evidence,2026-11-14

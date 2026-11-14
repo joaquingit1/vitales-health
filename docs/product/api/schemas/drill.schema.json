@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "drill.schema.json",
+  "title": "Drill",
+  "description": "A practice run of one or more skills (CONTRACTS section 24). Completion writes each participant's SkillRecord and counts toward practice patches. Its camera numbers are never stored (EI10).",
+  "type": "object",
+  "properties": {
+    "drill_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "scenario_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "skill_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/person_ref"
+      },
+      "minItems": 1
+    },
+    "routine_occurrence_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state": {
+      "enum": [
+        "running",
+        "completed",
+        "abandoned"
+      ]
+    },
+    "started_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "abandoned_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stores_measurements": {
+      "const": false
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    }
+  },
+  "required": [
+    "drill_id",
+    "revision",
+    "scenario_id",
+    "skill_ids",
+    "participants",
+    "routine_occurrence_id",
+    "state",
+    "started_at",
+    "completed_at",
+    "abandoned_at",
+    "stores_measurements",
+    "origin_mode",
+    "allowed_actions"
+  ],
+  "additionalProperties": false
+}

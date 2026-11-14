@@ -126,3 +126,58 @@ The humidity kernel also shares each segment's quadrature decay factors across a
 It uses the same accepted Gauss-Legendre ladder, choosing a rung sufficient for the largest
 span in that segment. This avoids recomputing a parameter-independent exponential for every
 draw. Oracle tests continue to check the public exact path at the specified tolerance.
+
+## Measured performance
+
+The initial day-100 profiles preceded the performance implementation. Cumulative function
+costs overlap and must not be added.
+
+The acetaminophen assessment and its profile completed. Its harness then failed while
+printing a nonexistent top-level `n_batches` attribute; the retained profile records 25
+adaptive batch calls. Later harnesses read `estimate.monte_carlo.n_batches` correctly.
+
+| Lot | assess_lot seconds | Batches | Estimate seconds | Forecast seconds | Dominant costs |
+|---|---:|---:|---:|---:|---|
+| lot-apap-001 | 324.624 | 25 | 157.033 | 167.113 | Humidity integral 208.998 s, including quadrature 164.251 s; accumulation 298.724 s. |
+| lot-pmz-inj-001 | 114.344 | 36 | 73.092 | 40.840 | Thermal parts 35.714 s; cumulative sums 9.942 s; accumulation 93.751 s. |
+
+The completed benchmark runs all demo lots through `assess_inventory` sequentially in
+one process, at the fixture's exact timestamp strings. It uses the committed settings,
+including automatic worker threads (8 CPUs on this host), and sets native BLAS/OpenMP
+threads to 1. Reaction-classes and storage-zones are version 0.5.0; engine-settings is
+0.3.0. These are shared-host timings, with verification work also running during part of
+the benchmark. Totals include result serialization and output-file writing. Per-lot
+measurements directly wrap each assessment, including its forecasts.
+
+The earlier profiles used different calibration and timestamp seed material. They locate
+the original costs but do not provide a controlled speedup comparison with this benchmark.
+
+Each table cell below is seconds / batches. For the two amoxicillin/clavulanate lots,
+batch counts are amoxicillin, clavulanic acid, in that order.
+
+| Lot | Day 100 | Day 250 | Day 400 |
+|---|---:|---:|---:|
+| lot-amc-001 | 121.68 / 45,2 | 251.15 / 6,100 | 61.20 / 6,8 |
+| lot-amc-002 | 923.73 / 81,76 | 575.37 / 2,84 | 923.40 / 6,100 |
+| lot-apap-001 | 247.69 / 58 | 14.09 / 2 | 18.85 / 2 |
+| lot-apap-002 | 22.80 / 2 | 53.53 / 6 | 21.35 / 2 |
+| lot-asa-001 | 184.26 / 62 | 401.44 / 100 | 11.89 / 2 |
+| lot-epi-ai-001 | 3.28 / 2 | 5.92 / 2 | 11.93 / 3 |
+| lot-epi-ai-002 | 3.26 / 2 | 5.52 / 2 | 8.19 / 2 |
+| lot-epi-syr-001 | 7.07 / 5 | 5.89 / 2 | 8.29 / 2 |
+| lot-ibu-001 | 220.88 / 88 | 16.86 / 5 | 18.08 / 4 |
+| lot-levo-001 | 103.13 / 66 | 6.94 / 3 | 6.93 / 2 |
+| lot-pmz-inj-001 | 92.67 / 63 | 246.72 / 100 | 363.73 / 100 |
+| lot-pmz-tab-001 | 331.22 / 100 | 36.56 / 6 | 18.92 / 2 |
+| lot-vitc-001 | 329.23 / 78 | 13.20 / 2 | 43.63 / 5 |
+
+| Day | Total seconds | Total batches | Compressed estimates | Exact estimates without a failed probe | Failed-probe fallbacks | Largest probe relative error |
+|---|---:|---:|---:|---:|---:|---:|
+| 100 | 2591.421583833988 | 730 | 7 | 8 | 0 | 3.3648199449022743e-12 |
+| 250 | 1634.4597775830189 | 422 | 7 | 8 | 0 | 4.8301494963694365e-11 |
+| 400 | 1518.44568574999 | 246 | 7 | 8 | 0 | 3.8722167902913496e-11 |
+
+The 120-second day-100 and 300-second day-400 targets are missed. Day 100 alone exceeds
+the 900-second end-to-end budget. Exchanging humidity histories remain exact and dominate
+much of the cost; future projections also remain expensive. No setting, tolerance or
+acceptance rule was changed to improve these measurements.

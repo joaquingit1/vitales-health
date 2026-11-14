@@ -1,0 +1,2673 @@
+{
+  "summary": "EXAMPLE CONFIG onboard-plans.json",
+  "description": "ICL10's plan written for the condition, the eye_injury flow's plan, and plans for the other six example rows built only from their DEMO-CONDITIONS.md lines.",
+  "x-schema": "config-onboard-plans.schema.json",
+  "value": {
+    "version": "onboard-plans-example-1",
+    "example": true,
+    "notice": "Unreviewed draft: needs clinician review",
+    "sources": [
+      {
+        "source_id": "SK01",
+        "title": "British Heart Foundation, Checking your pulse",
+        "url": "https://www.bhf.org.uk/informationsupport/tests/checking-your-pulse",
+        "date": "Published 18 October 2024",
+        "quote": "If your pulse feels irregular, you should check for a full 60 seconds."
+      },
+      {
+        "source_id": "SK02",
+        "title": "British Heart Foundation, Your heart rate",
+        "url": "https://www.bhf.org.uk/informationsupport/how-a-healthy-heart-works/your-heart-rate",
+        "date": "Opened 14 November 2026",
+        "quote": "You may be able to tell if you have a normal or irregular heart rate by checking your pulse"
+      }
+    ],
+    "plans": [
+      {
+        "plan_id": "plan_icl10",
+        "title": "Racing heart that comes and goes",
+        "scope": {
+          "condition_id": "ICL10"
+        },
+        "written_for": "condition",
+        "mode": "stabilize",
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "stages": [
+          {
+            "stage_id": "check_another_way",
+            "steps": [
+              {
+                "step_id": "icl10_pulse_by_crewmate",
+                "text": "A crewmate feels your pulse at the wrist for 60 seconds while the cameras count it.",
+                "text_first_time": null,
+                "who": "skill:pulse_check_wrist",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": [
+                    "pulse_check_wrist"
+                  ]
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "wrist",
+                "landmark_id": "wrist_pulse_point",
+                "guided_check_skill_id": "pulse_check_wrist",
+                "cannot_replace_text": "It cannot replace an ECG.",
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C05",
+                  "SK01",
+                  "SK02"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "do_now",
+            "steps": [
+              {
+                "step_id": "icl10_note_episodes",
+                "text": "Note when it starts and stops, how often it happens and what you were doing.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C02"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl10_avoid_triggers",
+                "text": "Avoid things that can trigger it, such as stress, caffeine and alcohol. This can help if it is not caused by a health condition.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C01"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl10_add_ecg_report",
+                "text": "Add an existing ECG report if there is one.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "watch",
+            "steps": [
+              {
+                "step_id": "icl10_pulse_at_cameras",
+                "text": "Measure your pulse at the camera station again, sitting still.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [
+                    "camera_station"
+                  ],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": "icl10_pulse_at_oximeter",
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "heart",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": {
+                  "cadence": null,
+                  "n": null,
+                  "interval_seconds": null,
+                  "basis": "team default",
+                  "to_be_set_by": "clinical review"
+                },
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C03",
+                  "C05"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl10_pulse_at_oximeter",
+                "text": "Measure your pulse with the kit oximeter: hand warm, relaxed and below heart level, sitting still, until it shows one steady number.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [
+                    "pulse_oximeter"
+                  ],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": true,
+                "environments": null,
+                "body_region": "hand",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": {
+                  "cadence": null,
+                  "n": null,
+                  "interval_seconds": null,
+                  "basis": "team default",
+                  "to_be_set_by": "clinical review"
+                },
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C08"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl10_tell_mo_if_recurs",
+                "text": "If it keeps coming back or happens more often, tell the medical officer.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C01"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "if_worse",
+            "steps": [
+              {
+                "step_id": "icl10_worse_chest",
+                "text": "Chest pain or discomfort with the racing heart",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "chest_pain",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C01",
+                  "C02"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl10_worse_breath",
+                "text": "Shortness of breath or difficulty breathing",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "breathing_difficulty",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C01",
+                  "C02"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl10_worse_faint",
+                "text": "Feeling faint or fainting",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "fainting",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C01"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl10_worse_persists",
+                "text": "It is still there and does not go away (how long: threshold to be set by clinical review)",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C01"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl10_worse_heart_attack",
+                "text": "Any heart attack symptom",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "chest_pain",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C10"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "medical_officer",
+            "steps": [
+              {
+                "step_id": "icl10_mo_review",
+                "text": "The medical officer reviews. Anything more, as in the onboard procedure.",
+                "text_first_time": null,
+                "who": "crew_medical_officer",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "ground_log",
+            "blocking": false,
+            "items": []
+          }
+        ],
+        "source_ids": [
+          "C01",
+          "C02",
+          "C03",
+          "C05",
+          "C08",
+          "C10",
+          "SK01",
+          "SK02"
+        ],
+        "review_state": "unreviewed",
+        "written_by": null,
+        "checked_by": null
+      },
+      {
+        "plan_id": "plan_eye_injury",
+        "title": "Eye injury or something in the eye",
+        "scope": {
+          "flow_id": "eye_injury"
+        },
+        "written_for": "flow",
+        "mode": "resolve",
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "stages": [
+          {
+            "stage_id": "check_another_way",
+            "steps": [
+              {
+                "step_id": "eye_sight_check",
+                "text": "Cover the other eye. Read the same text on the screen with each eye and record any difference. Test card and distance: to be set by clinical review.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": "This kit cannot examine the eye surface.",
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "eye_photo",
+                "text": "Take a still, close photo of the eye in good light, kept for the medical officer and the log. Do not touch the eye.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [
+                    "camera_station"
+                  ],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": "This kit cannot examine the eye surface.",
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "do_now",
+            "steps": [
+              {
+                "step_id": "eye_no_rub",
+                "text": "Do not rub the eye.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "RS31"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "eye_object_shield",
+                "text": "If an object is stuck in the eye, do not remove it. Cover the eye with a rigid shield that rests on the bone around the eye, not on the eye.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [
+                    {
+                      "supply_id": "eye_shield",
+                      "per_use": 1,
+                      "basis": "team default",
+                      "to_be_set_by": null
+                    }
+                  ],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "RS30",
+                  "RS31",
+                  "RS32"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "eye_rinse",
+                "text": "Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [
+                    {
+                      "supply_id": "eye_rinse_water",
+                      "per_use": 1,
+                      "basis": "team default",
+                      "to_be_set_by": null
+                    }
+                  ],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "RS30",
+                  "RS34",
+                  "RS46"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "eye_rinse_weightless",
+                "text": "In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [
+                    {
+                      "supply_id": "eye_wash_set",
+                      "per_use": null,
+                      "basis": "team default",
+                      "to_be_set_by": null
+                    },
+                    {
+                      "supply_id": "towels",
+                      "per_use": null,
+                      "basis": "team default",
+                      "to_be_set_by": "the flight surgeon"
+                    }
+                  ],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": [
+                  "station_leo",
+                  "transit"
+                ],
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "RS08",
+                  "RS45"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "watch",
+            "steps": [
+              {
+                "step_id": "eye_followup_check",
+                "text": "A crewmate repeats the sight check and the photo, and keeps both for the log.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [
+                    "camera_station"
+                  ],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": {
+                  "cadence": null,
+                  "n": null,
+                  "interval_seconds": null,
+                  "basis": "team default",
+                  "to_be_set_by": "clinical review"
+                },
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": {
+                  "quote": "Ground support will be necessary in the follow up for the best case and in both the evaluation and follow up for the worst case scenario.",
+                  "source_id": "RS32",
+                  "page": 8
+                },
+                "source_ids": [
+                  "RS32"
+                ],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "eye_pain_persists",
+                "text": "Pain or a gritty feeling that does not settle after rinsing: tell the medical officer. How long to wait: to be set by clinical review.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "if_worse",
+            "steps": [
+              {
+                "step_id": "eye_worse_sight",
+                "text": "Something stuck in the eye, a chemical in the eye, or any change in sight: call the medical officer at once.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": {
+                  "quote": "Later diagnosis of damage will require ground communications.",
+                  "source_id": "RS33",
+                  "page": 7
+                },
+                "source_ids": [
+                  "RS33"
+                ],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "medical_officer",
+            "steps": [
+              {
+                "step_id": "eye_mo_remove_check",
+                "text": "Remove a loose particle and check the eye surface for scratches, as in the onboard procedure.",
+                "text_first_time": null,
+                "who": "crew_medical_officer",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "RS32",
+                  "RS08"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "eye_mo_medicines",
+                "text": "Eye medicines, as in the onboard procedure.",
+                "text_first_time": null,
+                "who": "crew_medical_officer",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": {
+                  "named_as": "as in the onboard procedure"
+                },
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "RS08"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "return",
+            "environments": [
+              "lunar_surface"
+            ],
+            "criteria": [
+              {
+                "text": "Something has pierced the eye.",
+                "source_ids": [
+                  "RS30",
+                  "RS32"
+                ],
+                "to_be_set_by": "flight rules"
+              }
+            ],
+            "prepare": [
+              {
+                "step_id": "eye_return_prepare",
+                "text": "What to prepare for the trip: to be set by flight rules.",
+                "text_first_time": null,
+                "who": "crew_medical_officer",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ],
+            "decided_by": [
+              "commander",
+              "crew_medical_officer"
+            ],
+            "rtdc": {
+              "treated_best": {
+                "min_pct": 0,
+                "max_pct": 0
+              },
+              "treated_worst": {
+                "min_pct": 96,
+                "max_pct": 100
+              },
+              "untreated_best": {
+                "min_pct": 0,
+                "max_pct": 100
+              },
+              "untreated_worst": {
+                "min_pct": 100,
+                "max_pct": 100
+              },
+              "source_id": "RS32",
+              "page": 5
+            }
+          },
+          {
+            "stage_id": "ground_log",
+            "blocking": false,
+            "items": []
+          }
+        ],
+        "source_ids": [
+          "RS08",
+          "RS30",
+          "RS31",
+          "RS32",
+          "RS33",
+          "RS34",
+          "RS45",
+          "RS46"
+        ],
+        "review_state": "unreviewed",
+        "written_by": null,
+        "checked_by": null
+      },
+      {
+        "plan_id": "plan_icl3",
+        "title": "Heart attack symptoms",
+        "scope": {
+          "condition_id": "ICL3"
+        },
+        "written_for": "condition",
+        "mode": "stabilize",
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "stages": [
+          {
+            "stage_id": "watch",
+            "steps": [
+              {
+                "step_id": "icl3_keep_bp",
+                "text": "Keep each blood pressure reading with its time, so it can be compared with your own baseline.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [
+                    "bp_cuff"
+                  ],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "shoulder",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "if_worse",
+            "steps": [
+              {
+                "step_id": "icl3_worse_any",
+                "text": "Any heart attack symptom: press Someone needs help now. Every minute matters.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "chest_pain",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C10"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl3_worse_chest",
+                "text": "Chest pain, heaviness or discomfort",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "chest_pain",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C10"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl3_worse_spread",
+                "text": "Pain or discomfort in the arms, back, shoulders, neck, jaw or above the belly button",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "chest_pain",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C10"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl3_worse_breath",
+                "text": "Shortness of breath at rest or with little activity",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "chest_pain",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C10"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl3_worse_other",
+                "text": "Sweating a lot for no reason, nausea or vomiting, light-headedness or sudden dizziness",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "chest_pain",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C10"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl3_worse_racing",
+                "text": "A racing heart with chest pain, shortness of breath or feeling faint",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "chest_pain",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C01"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl3_worse_collapse",
+                "text": "Collapse or no response",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C11"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "medical_officer",
+            "steps": [
+              {
+                "step_id": "icl3_mo_review",
+                "text": "The medical officer reviews. Anything more, as in the onboard procedure.",
+                "text_first_time": null,
+                "who": "crew_medical_officer",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "ground_log",
+            "blocking": false,
+            "items": []
+          }
+        ],
+        "source_ids": [
+          "C01",
+          "C10",
+          "C11"
+        ],
+        "review_state": "unreviewed",
+        "written_by": null,
+        "checked_by": null
+      },
+      {
+        "plan_id": "plan_icl14",
+        "title": "Anxiety",
+        "scope": {
+          "condition_id": "ICL14"
+        },
+        "written_for": "condition",
+        "mode": "resolve",
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "stages": [
+          {
+            "stage_id": "do_now",
+            "steps": [
+              {
+                "step_id": "icl14_protect_sleep",
+                "text": "Protect the next sleep period.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C23"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "watch",
+            "steps": [
+              {
+                "step_id": "icl14_mood_daily",
+                "text": "Rate your mood at each daily check, to see whether it persists.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "head",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": {
+                  "cadence": "daily",
+                  "n": null,
+                  "interval_seconds": null,
+                  "basis": "team default",
+                  "to_be_set_by": null
+                },
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "S10"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl14_tell_mo",
+                "text": "If symptoms persist or do not go away, talk to the medical officer.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "S10"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "if_worse",
+            "steps": [
+              {
+                "step_id": "icl14_worse_chest",
+                "text": "Chest pain",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "chest_pain",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C01",
+                  "C12"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl14_worse_breath",
+                "text": "Shortness of breath",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "breathing_difficulty",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C01",
+                  "C12"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl14_worse_faint",
+                "text": "Feeling faint",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "fainting",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C01"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl14_worse_suicide",
+                "text": "Thoughts of death or suicide",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "mental_health_crisis",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "S10"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "medical_officer",
+            "steps": [
+              {
+                "step_id": "icl14_mo_review",
+                "text": "The medical officer reviews. Anything more, as in the onboard procedure.",
+                "text_first_time": null,
+                "who": "crew_medical_officer",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "ground_log",
+            "blocking": false,
+            "items": [
+              {
+                "text": "Ask for a private conversation with the ground, when the link allows.",
+                "source_ids": [
+                  "C14"
+                ]
+              }
+            ]
+          }
+        ],
+        "source_ids": [
+          "C01",
+          "C12",
+          "C14",
+          "C23",
+          "S10"
+        ],
+        "review_state": "unreviewed",
+        "written_by": null,
+        "checked_by": null
+      },
+      {
+        "plan_id": "plan_icl95",
+        "title": "Trouble sleeping",
+        "scope": {
+          "condition_id": "ICL95"
+        },
+        "written_for": "condition",
+        "mode": "resolve",
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "stages": [
+          {
+            "stage_id": "do_now",
+            "steps": [
+              {
+                "step_id": "icl95_sleep_space",
+                "text": "Keep the sleep space cool, dark and quiet.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C23"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl95_caffeine",
+                "text": "No caffeine in the 6 to 12 hours before sleep, depending on the person.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C23"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl95_before_sleep",
+                "text": "In the 2 hours before sleep, avoid vigorous exercise and large or spicy meals, and avoid bright or blue-enriched light.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C23"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "watch",
+            "steps": [
+              {
+                "step_id": "icl95_band",
+                "text": "Wear the band overnight, and confirm or correct its estimate in the morning.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [
+                    "wrist_band"
+                  ],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "wrist",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": {
+                  "cadence": "daily",
+                  "n": null,
+                  "interval_seconds": null,
+                  "basis": "team default",
+                  "to_be_set_by": null
+                },
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "if_worse",
+            "steps": [
+              {
+                "step_id": "icl95_worse_suicide",
+                "text": "Thoughts of death or suicide",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "mental_health_crisis",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "S10",
+                  "C20"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl95_worse_nodding",
+                "text": "Nodding off during a task: tell a crewmate and stop any critical task now. The formal route is to be set by clinical and operations review.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C20"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl95_worse_gasping",
+                "text": "Waking gasping or out of breath: tell the medical officer. Whether it should open Someone needs help is to be set by clinical review.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C19"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "medical_officer",
+            "steps": [
+              {
+                "step_id": "icl95_mo_review",
+                "text": "The medical officer reviews. Anything more, as in the onboard procedure.",
+                "text_first_time": null,
+                "who": "crew_medical_officer",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "ground_log",
+            "blocking": false,
+            "items": []
+          }
+        ],
+        "source_ids": [
+          "C19",
+          "C20",
+          "C23",
+          "S10"
+        ],
+        "review_state": "unreviewed",
+        "written_by": null,
+        "checked_by": null
+      },
+      {
+        "plan_id": "plan_icl18",
+        "title": "Sleep loss and slower reactions",
+        "scope": {
+          "condition_id": "ICL18"
+        },
+        "written_for": "condition",
+        "mode": "resolve",
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "stages": [
+          {
+            "stage_id": "do_now",
+            "steps": [
+              {
+                "step_id": "icl18_protect_sleep",
+                "text": "Protect the next sleep period.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C23"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl18_light",
+                "text": "If you feel fatigued, keep up light exposure through the day.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C23"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "watch",
+            "steps": [
+              {
+                "step_id": "icl18_reaction",
+                "text": "Take the reaction test and compare it with your own usual. How much slower matters: threshold to be set by clinical review.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": {
+                  "cadence": null,
+                  "n": null,
+                  "interval_seconds": null,
+                  "basis": "team default",
+                  "to_be_set_by": "clinical review"
+                },
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C24"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "if_worse",
+            "steps": [
+              {
+                "step_id": "icl18_worse_suicide",
+                "text": "Thoughts of death or suicide",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": "mental_health_crisis",
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "S10",
+                  "C20"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl18_worse_nodding",
+                "text": "Nodding off during a task: tell a crewmate and stop any critical task now. The formal route is to be set by clinical and operations review.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C20"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "medical_officer",
+            "steps": [
+              {
+                "step_id": "icl18_mo_review",
+                "text": "The medical officer reviews. Anything more, as in the onboard procedure.",
+                "text_first_time": null,
+                "who": "crew_medical_officer",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "ground_log",
+            "blocking": false,
+            "items": []
+          }
+        ],
+        "source_ids": [
+          "C20",
+          "C23",
+          "C24",
+          "S10"
+        ],
+        "review_state": "unreviewed",
+        "written_by": null,
+        "checked_by": null
+      },
+      {
+        "plan_id": "plan_icl64",
+        "title": "Headache with high cabin CO2",
+        "scope": {
+          "condition_id": "ICL64"
+        },
+        "written_for": "condition",
+        "mode": "resolve",
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "stages": [
+          {
+            "stage_id": "do_now",
+            "steps": [
+              {
+                "step_id": "icl64_report_time",
+                "text": "Report symptoms with their time.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "head",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl64_vehicle_co2",
+                "text": "If the cabin average stays above the limit over several days, follow the vehicle's procedure to find and repair degraded CO2 scrubbing or add supplemental scrubbing.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": {
+                  "quote": "If the average ppCO2 is exceeded over several days for unknown reasons, the Flight Control Team will take corrective actions to either identify, diagnose, and repair degraded CO2 scrubbing equipment or activate supplemental CO2 scrubbing equipment as needed.",
+                  "source_id": "C25",
+                  "page": null
+                },
+                "source_ids": [
+                  "C25"
+                ],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl64_air_moving",
+                "text": "Keep air moving around the face during sleep.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C15"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "watch",
+            "steps": [
+              {
+                "step_id": "icl64_tell_mo",
+                "text": "Headache with vision or eye problems, worse with coughing, sneezing, bending down or exercise, or with vomiting: tell the medical officer promptly.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "head",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C27"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "if_worse",
+            "steps": [
+              {
+                "step_id": "icl64_worse_seizure",
+                "text": "A seizure",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C27"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl64_worse_numb",
+                "text": "Numbness or weakness in the body or face",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C27"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl64_worse_sudden",
+                "text": "It started suddenly and is extremely painful",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C27"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl64_worse_head_injury",
+                "text": "A head injury within the last 3 months",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C27"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl64_worse_speech",
+                "text": "Difficulty speaking, balancing, walking or remembering",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C27"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl64_worse_drowsy",
+                "text": "Drowsy or confused",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C27"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl64_worse_vision",
+                "text": "Loss of vision",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C27"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl64_worse_fever",
+                "text": "A very high temperature, a stiff neck, or bright light bothering the eyes",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C27"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "medical_officer",
+            "steps": [
+              {
+                "step_id": "icl64_mo_review",
+                "text": "The medical officer reviews. Anything more, as in the onboard procedure.",
+                "text_first_time": null,
+                "who": "crew_medical_officer",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [],
+                "basis": "team default",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "ground_log",
+            "blocking": false,
+            "items": []
+          }
+        ],
+        "source_ids": [
+          "C15",
+          "C25",
+          "C27"
+        ],
+        "review_state": "unreviewed",
+        "written_by": null,
+        "checked_by": null
+      },
+      {
+        "plan_id": "plan_icl100",
+        "title": "Vision changes in flight (SANS)",
+        "scope": {
+          "condition_id": "ICL100"
+        },
+        "written_for": "condition",
+        "mode": "resolve",
+        "environments": [
+          "station_leo",
+          "transit",
+          "lunar_surface",
+          "mars_surface"
+        ],
+        "stages": [
+          {
+            "stage_id": "watch",
+            "steps": [
+              {
+                "step_id": "icl100_ask_eye_check",
+                "text": "In-flight eye checks are scheduled, and more can be done when clinically indicated. A new change in vision is a reason to ask for one.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "S12"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl100_tell_mo",
+                "text": "Blurred or double vision, flashing lights or shapes, a dark shadow moving across the vision, pain in one or both eyes, or a headache with vision or eye problems: tell the medical officer promptly.",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C28",
+                  "C27"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "if_worse",
+            "steps": [
+              {
+                "step_id": "icl100_worse_sight",
+                "text": "Suddenly cannot see from one or both eyes",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C28"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl100_worse_pain",
+                "text": "Sudden severe eye pain",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C28"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              },
+              {
+                "step_id": "icl100_worse_headache",
+                "text": "Headache with loss of vision",
+                "text_first_time": null,
+                "who": "any_crew",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": null,
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": true,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "C27"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "medical_officer",
+            "steps": [
+              {
+                "step_id": "icl100_mo_glasses",
+                "text": "The medical officer decides on glasses of higher power, as in the onboard procedure.",
+                "text_first_time": null,
+                "who": "crew_medical_officer",
+                "needs": {
+                  "instruments": [],
+                  "supplies": [],
+                  "skills": []
+                },
+                "substitute_step_id": null,
+                "substitute_only": false,
+                "environments": null,
+                "body_region": "eyes",
+                "landmark_id": null,
+                "guided_check_skill_id": null,
+                "cannot_replace_text": null,
+                "recheck": null,
+                "opens_help": false,
+                "opens_flow_id": null,
+                "medicine": null,
+                "replaces_ground_task": null,
+                "source_ids": [
+                  "S12"
+                ],
+                "basis": "sourced",
+                "review_state": "unreviewed"
+              }
+            ]
+          },
+          {
+            "stage_id": "ground_log",
+            "blocking": false,
+            "items": []
+          }
+        ],
+        "source_ids": [
+          "C27",
+          "C28",
+          "S12"
+        ],
+        "review_state": "unreviewed",
+        "written_by": null,
+        "checked_by": null
+      }
+    ]
+  }
+}

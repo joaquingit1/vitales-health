@@ -1,0 +1,119 @@
+{
+  "summary": "SIM GET /v1/routine/tasks/daily_check",
+  "description": "The daily check item on the station while the CO2 override is active. Illustrative only: not seed data.",
+  "x-schema": "routine-task.schema.json",
+  "value": {
+    "item_id": "daily_check",
+    "name": "Daily check: symptoms, sleep and mood",
+    "plain": "Answer three short questions each day: anything new in your body, how you slept, and how your mood is.",
+    "why": "Small changes are easiest to catch early, and astronauts often sleep less than they need. Your own answers, day after day, build the baseline that every other reading is compared with.",
+    "who": [
+      "self"
+    ],
+    "instrument": "The app; the wrist band offers a sleep estimate that you confirm or correct",
+    "minutes": 3,
+    "steps": [
+      "Open Today and tap Daily check.",
+      "Symptoms: tap the body area if something is new or worse. If nothing is new, tap Nothing new.",
+      "Sleep: look at the wrist band estimate. Keep it if it is right, or change it. Your correction is saved next to the band's number, which is never erased.",
+      "Mood: move the slider to how you feel right now. There is no right answer.",
+      "If anything feels urgent, press Someone needs help instead of finishing the check.",
+      "The check is done when these three questions are answered. Other readings are optional."
+    ],
+    "body_region": null,
+    "environment_id": "station_leo",
+    "base_cadence": {
+      "word": "daily",
+      "n": null
+    },
+    "effective_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "CO2 alert",
+      "note": "add a headache and vision question at the next check and again 2 hours later"
+    },
+    "cadence_text": "Add a headache and vision question at the next check and again 2 hours later",
+    "basis": "team default",
+    "triggers": [
+      {
+        "index": 0,
+        "trigger_text": "You report a new or worse symptom",
+        "binding_id": null,
+        "mode": "manual",
+        "new_cadence": {
+          "word": "daily",
+          "n": null,
+          "note": "a follow-up question each morning until you mark it resolved"
+        },
+        "basis": "team default"
+      },
+      {
+        "index": 1,
+        "trigger_text": "Cabin CO2 is above the one-hour limit of 3 mmHg (sensor_limit)",
+        "binding_id": "daily_check.co2_above_limit",
+        "mode": "automatic",
+        "new_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "CO2 alert",
+          "note": "add a headache and vision question at the next check and again 2 hours later"
+        },
+        "basis": "team default"
+      },
+      {
+        "index": 2,
+        "trigger_text": "A solar particle event alert",
+        "binding_id": "daily_check.solar_particle_event",
+        "mode": "automatic",
+        "new_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "solar particle event",
+          "note": "ask about nausea, vomiting, tiredness and skin each day for the next 3 days"
+        },
+        "basis": "team default"
+      },
+      {
+        "index": 3,
+        "trigger_text": "You come back from a spacewalk",
+        "binding_id": "daily_check.after_walk",
+        "mode": "automatic",
+        "new_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "spacewalk",
+          "note": "ask about joint pain, numbness, itching or rash that evening and the next morning"
+        },
+        "basis": "team default"
+      },
+      {
+        "index": 4,
+        "trigger_text": "Sleep under 6 hours (band estimate or your own answer)",
+        "binding_id": null,
+        "mode": "manual",
+        "new_cadence": {
+          "word": "after_event",
+          "n": null,
+          "event": "short sleep",
+          "note": "offer the reaction test that morning"
+        },
+        "basis": "team default"
+      }
+    ],
+    "active_override_ids": [
+      "ovr_daily_check_co2"
+    ],
+    "next_occurrence_id": "occ_sta_daily_check",
+    "citation": {
+      "text": "Routine item daily_check, routine-schedule.json.",
+      "source_ids": [
+        "C15",
+        "C25",
+        "RT02",
+        "RT09",
+        "RT11",
+        "RT25"
+      ]
+    }
+  }
+}

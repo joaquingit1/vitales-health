@@ -1,0 +1,421 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-help-presentation.schema.json",
+  "title": "help-presentation.json",
+  "description": "How the help module presents responder-flows.json: the start node, the fixed buttons, log lines, the crew broadcast, the readings panel, per flow levels and the ground message. Team copy and team defaults; the steps themselves come only from responder-flows.json.",
+  "type": "object",
+  "properties": {
+    "notice": {
+      "type": "string",
+      "description": "Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review before live guidance.",
+      "minLength": 1
+    },
+    "start_node_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "fixed_buttons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "enum": [
+              "call_crew",
+              "tell_ground",
+              "start_over"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "answer_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "node_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "answer_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "log_template": {
+            "type": "string",
+            "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+            "minLength": 1,
+            "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+          }
+        },
+        "required": [
+          "node_id",
+          "answer_index",
+          "log_template"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Log line per triage answer. An answer with no entry logs its own label."
+    },
+    "flow_levels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "flow_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "level": {
+            "enum": [
+              "act",
+              "emergency"
+            ]
+          },
+          "basis": {
+            "$ref": "common.schema.json#/$defs/basis"
+          }
+        },
+        "required": [
+          "flow_id",
+          "level",
+          "basis"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "default_flow_level": {
+      "enum": [
+        "act",
+        "emergency"
+      ]
+    },
+    "broadcast": {
+      "type": "object",
+      "properties": {
+        "template": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "helping_template": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "nobody_helping": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "template",
+        "helping_template",
+        "nobody_helping"
+      ],
+      "additionalProperties": false
+    },
+    "readings_panel": {
+      "type": "object",
+      "properties": {
+        "codes": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "minItems": 1
+        },
+        "max_age_minutes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "basis": {
+          "$ref": "common.schema.json#/$defs/basis"
+        }
+      },
+      "required": [
+        "codes",
+        "max_age_minutes",
+        "basis"
+      ],
+      "additionalProperties": false
+    },
+    "log_templates": {
+      "type": "object",
+      "properties": {
+        "opened": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "crew_called": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "joined": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "left": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "step_done": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "step_undone": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "flow_switched": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "started_over": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "note": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "assistant": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "ground_message_queued": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "ground_message_sent": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "ground_message_acknowledged": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "ground_reply": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "closed": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "opened",
+        "crew_called",
+        "joined",
+        "left",
+        "step_done",
+        "step_undone",
+        "flow_switched",
+        "started_over",
+        "note",
+        "assistant",
+        "ground_message_queued",
+        "ground_message_sent",
+        "ground_message_acknowledged",
+        "ground_reply",
+        "closed"
+      ],
+      "additionalProperties": false,
+      "description": "Log line per event of the session. answer_log covers triage answers."
+    },
+    "disposition_words": {
+      "type": "object",
+      "properties": {
+        "resolved_on_board": {
+          "type": "string",
+          "minLength": 1
+        },
+        "handed_to_crew_medical_officer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ground_consulted": {
+          "type": "string",
+          "minLength": 1
+        },
+        "false_alarm": {
+          "type": "string",
+          "minLength": 1
+        },
+        "other": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "resolved_on_board",
+        "handed_to_crew_medical_officer",
+        "ground_consulted",
+        "false_alarm",
+        "other"
+      ],
+      "additionalProperties": false
+    },
+    "ground_message": {
+      "type": "object",
+      "properties": {
+        "header_template": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "answers_template": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "steps_template": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "crew_template": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "queued_template": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "waiting_template": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "sent_template": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        },
+        "acknowledged_template": {
+          "type": "string",
+          "description": "Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+          "minLength": 1,
+          "pattern": "^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$"
+        }
+      },
+      "required": [
+        "header_template",
+        "answers_template",
+        "steps_template",
+        "crew_template",
+        "queued_template",
+        "sent_template",
+        "acknowledged_template"
+      ],
+      "additionalProperties": false,
+      "description": "Lines of the message, in this order: header, answers, steps (only when a step is ticked), crew (only when the crew was called). queued_template (link up or delayed), waiting_template (link down: it waits for the next contact), sent_template and acknowledged_template give GroundMessage.status_text."
+    },
+    "assistant_line": {
+      "type": "object",
+      "properties": {
+        "waiting_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stopped_text": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "waiting_text",
+        "stopped_text"
+      ],
+      "additionalProperties": false
+    },
+    "red_flag_flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          },
+          "flow_id": {
+            "$ref": "common.schema.json#/$defs/config_id"
+          }
+        },
+        "required": [
+          "question_id",
+          "flow_id"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "notice",
+    "start_node_id",
+    "fixed_buttons",
+    "answer_log",
+    "flow_levels",
+    "default_flow_level",
+    "broadcast",
+    "readings_panel",
+    "log_templates",
+    "disposition_words",
+    "ground_message",
+    "assistant_line",
+    "red_flag_flows"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,49 @@
+{
+  "summary": "REPLAY GET /v1/sensors/rad/series?aggregation=latest&bucket=1800",
+  "description": "DosTel1 dose rate in Columbus, 1 to 2 Apr 2022, from nasa-data/radlab_dostel_sample.csv, in 30 minute buckets. An instrument's dose rate, not a person's dose. Illustrative only: not seed data.",
+  "x-schema": "sensor-series.schema.json",
+  "value": {
+    "sensor_type_id": "rad",
+    "channel_id": "ch_rad_columbus_replay",
+    "aggregation_id": "latest",
+    "unit": "µGy/h",
+    "origin_mode": "REPLAY",
+    "from": "2022-04-01T23:00:00Z",
+    "to": "2022-04-02T01:04:40Z",
+    "points": [
+      {
+        "t": "2022-04-01T23:00:00Z",
+        "value": 9.8155,
+        "coverage": 1.0
+      },
+      {
+        "t": "2022-04-01T23:30:00Z",
+        "value": 4.9819,
+        "coverage": 1.0
+      },
+      {
+        "t": "2022-04-02T00:00:00Z",
+        "value": 7.1798,
+        "coverage": 1.0
+      },
+      {
+        "t": "2022-04-02T00:30:00Z",
+        "value": 7.8839,
+        "coverage": 1.0
+      },
+      {
+        "t": "2022-04-02T01:04:40Z",
+        "value": 3.4161,
+        "coverage": 1.0
+      }
+    ],
+    "limit_marks": [],
+    "provenance": {
+      "origin_mode": "REPLAY",
+      "source_label": "Replay, ISS 2022",
+      "trace": "Trace: OSDR RadLab, DosTel1, 1 to 2 Apr 2022. An instrument's dose rate, not a person's dose.",
+      "dataset": "OSDR RadLab DosTel1, 1 to 2 Apr 2022",
+      "source_ids": []
+    }
+  }
+}

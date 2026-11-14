@@ -1,0 +1,233 @@
+{
+  "summary": "SIM GET /v1/views/how-you-are",
+  "description": "Mara's indicators against her own usual, with her latest vital signs. Illustrative only: not seed data.",
+  "x-schema": "how-you-are-view.schema.json",
+  "value": {
+    "person_id": "mara",
+    "as_of": "2026-11-13T09:10:16Z",
+    "indicators": [
+      {
+        "code": "sleep_duration",
+        "label": "Sleep",
+        "today": {
+          "value": 5.2,
+          "unit": "h",
+          "text": "5 h 12 min"
+        },
+        "usual": {
+          "value": 6.8,
+          "unit": "h",
+          "text": "6 h 48 min"
+        },
+        "delta_text": "1 h 36 min under your usual",
+        "state": "below_usual",
+        "trend": [
+          {
+            "mission_day": 13,
+            "value": 6.8
+          },
+          {
+            "mission_day": 14,
+            "value": 6.5
+          },
+          {
+            "mission_day": 15,
+            "value": 7
+          },
+          {
+            "mission_day": 16,
+            "value": 6.6
+          },
+          {
+            "mission_day": 17,
+            "value": 5.6
+          },
+          {
+            "mission_day": 18,
+            "value": 5.4
+          },
+          {
+            "mission_day": 19,
+            "value": 5.2
+          }
+        ],
+        "extra": [],
+        "origin_mode": "SIM",
+        "source_label": "Band estimate, Sim",
+        "body_region": "wrist"
+      },
+      {
+        "code": "mood",
+        "label": "Mood",
+        "today": {
+          "value": 6,
+          "unit": "of 10",
+          "text": "6"
+        },
+        "usual": {
+          "value": 7,
+          "unit": "of 10",
+          "text": "7"
+        },
+        "delta_text": "Below your usual 7",
+        "state": "below_usual",
+        "trend": [
+          {
+            "mission_day": 13,
+            "value": 7
+          },
+          {
+            "mission_day": 14,
+            "value": 7
+          },
+          {
+            "mission_day": 15,
+            "value": 8
+          },
+          {
+            "mission_day": 16,
+            "value": 7
+          },
+          {
+            "mission_day": 17,
+            "value": 7
+          },
+          {
+            "mission_day": 18,
+            "value": 7
+          },
+          {
+            "mission_day": 19,
+            "value": 6
+          }
+        ],
+        "extra": [],
+        "origin_mode": "SIM",
+        "source_label": "Self rated, Sim",
+        "body_region": "head"
+      },
+      {
+        "code": "pvt_median",
+        "label": "Reaction time",
+        "today": {
+          "value": 291,
+          "unit": "ms",
+          "text": "291 ms"
+        },
+        "usual": {
+          "value": 268,
+          "unit": "ms",
+          "text": "268 ms"
+        },
+        "delta_text": "4 lapses, usual 1",
+        "state": "above_usual",
+        "trend": [
+          {
+            "mission_day": 13,
+            "value": 266
+          },
+          {
+            "mission_day": 14,
+            "value": 270
+          },
+          {
+            "mission_day": 15,
+            "value": 262
+          },
+          {
+            "mission_day": 16,
+            "value": 268
+          },
+          {
+            "mission_day": 17,
+            "value": 280
+          },
+          {
+            "mission_day": 18,
+            "value": 286
+          },
+          {
+            "mission_day": 19,
+            "value": 291
+          }
+        ],
+        "extra": [
+          {
+            "code": "pvt_lapses",
+            "label": "Lapses",
+            "today": {
+              "value": 4,
+              "unit": "",
+              "text": "4"
+            },
+            "usual": {
+              "value": 1,
+              "unit": "",
+              "text": "1"
+            }
+          }
+        ],
+        "origin_mode": "SIM",
+        "source_label": "Reaction test, Sim",
+        "body_region": "eyes"
+      }
+    ],
+    "vitals": [
+      {
+        "code": "pulse",
+        "label": "Pulse at rest",
+        "value_text": "Pulse 58 bpm at rest",
+        "detail": "07:37, camera station",
+        "observed_at": "2026-11-13T07:37:00Z",
+        "origin_mode": "SIM",
+        "body_region": "heart",
+        "mark": "measurement",
+        "occurrence_id": null
+      },
+      {
+        "code": "respiratory_rate",
+        "label": "Breathing",
+        "value_text": "Breathing 14 per minute",
+        "detail": "07:37, camera station",
+        "observed_at": "2026-11-13T07:37:00Z",
+        "origin_mode": "SIM",
+        "body_region": "lungs",
+        "mark": "measurement",
+        "occurrence_id": null
+      },
+      {
+        "code": "spo2",
+        "label": "Blood oxygen",
+        "value_text": "Blood oxygen 97%",
+        "detail": "07:44, kit oximeter",
+        "observed_at": "2026-11-13T07:44:00Z",
+        "origin_mode": "SIM",
+        "body_region": "hand",
+        "mark": "measurement",
+        "occurrence_id": null
+      },
+      {
+        "code": "blood_pressure",
+        "label": "Blood pressure",
+        "value_text": "Blood pressure",
+        "detail": "due today, kit cuff",
+        "observed_at": null,
+        "origin_mode": null,
+        "body_region": "shoulder",
+        "mark": "gap",
+        "occurrence_id": "occ_sta_blood_pressure"
+      }
+    ],
+    "why": {
+      "text": "Three short nights, and your reaction time is slower. Short sleep slows reactions; it is a pattern, not an illness. One earlier night often brings it back.",
+      "citation": {
+        "text": "Draft. Evidence: OCHMO-TB-041 sleep (C15), circadian desynchrony (C23).",
+        "source_ids": [
+          "C15",
+          "C23"
+        ]
+      },
+      "insight_id": "ins_sleep_mara_1"
+    }
+  }
+}

@@ -1,0 +1,650 @@
+{
+  "summary": "SIM GET /v1/plans/plan_eye_injury?environment=transit",
+  "description": "The same plan in transit: the weightless rinse step appears and there is no return stage. Illustrative only: not seed data.",
+  "x-schema": "plan-view.schema.json",
+  "value": {
+    "plan_id": "plan_eye_injury",
+    "title": "Eye injury or something in the eye",
+    "condition_id": null,
+    "flow_id": "eye_injury",
+    "written_for": "flow",
+    "mode": "resolve",
+    "mode_text": "Resolve here",
+    "tag_text": "Onboard plan eye injury · unreviewed draft",
+    "environment_id": "transit",
+    "release_id": "rel_20261113_a",
+    "plan_version": "7aaab248951ab8bcd5bf193b05216727d30a3c2d4485b0dbd09a6626c15c7fe1",
+    "notice": "Unreviewed draft: needs clinician review",
+    "review_state": "unreviewed",
+    "stages": [
+      {
+        "stage_id": "check_another_way",
+        "label": "Check it another way",
+        "steps": [
+          {
+            "step_id": "eye_sight_check",
+            "text": "Cover the other eye. Read the same text on the screen with each eye and record any difference. Test card and distance: to be set by clinical review.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "ilya",
+                "display_name": "Ilya Brandt",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "sofia",
+                "display_name": "Sofia Reyes",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": "eyes",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": "This kit cannot examine the eye surface.",
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [],
+            "basis": "team default",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "eye_photo",
+            "text": "Take a still, close photo of the eye in good light, kept for the medical officer and the log. Do not touch the eye.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "ilya",
+                "display_name": "Ilya Brandt",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "sofia",
+                "display_name": "Sofia Reyes",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": "eyes",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": "This kit cannot examine the eye surface.",
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [],
+            "basis": "team default",
+            "review_state": "unreviewed"
+          }
+        ]
+      },
+      {
+        "stage_id": "do_now",
+        "label": "Now",
+        "steps": [
+          {
+            "step_id": "eye_no_rub",
+            "text": "Do not rub the eye.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "ilya",
+                "display_name": "Ilya Brandt",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "sofia",
+                "display_name": "Sofia Reyes",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": "eyes",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "RS31"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "eye_object_shield",
+            "text": "If an object is stuck in the eye, do not remove it. Cover the eye with a rigid shield that rests on the bone around the eye, not on the eye.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "not_aboard",
+            "availability_text": "Not aboard",
+            "missing": {
+              "instruments": [],
+              "supplies": [
+                "eye_shield"
+              ],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "ilya",
+                "display_name": "Ilya Brandt",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "sofia",
+                "display_name": "Sofia Reyes",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": "eyes",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [
+              {
+                "supply_id": "eye_shield",
+                "uses_left": null
+              }
+            ],
+            "source_ids": [
+              "RS30",
+              "RS31",
+              "RS32"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "eye_rinse",
+            "text": "Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "ilya",
+                "display_name": "Ilya Brandt",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "sofia",
+                "display_name": "Sofia Reyes",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": "eyes",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [
+              {
+                "supply_id": "eye_rinse_water",
+                "uses_left": 5
+              }
+            ],
+            "source_ids": [
+              "RS30",
+              "RS34",
+              "RS46"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "eye_rinse_weightless",
+            "text": "In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "ilya",
+                "display_name": "Ilya Brandt",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "sofia",
+                "display_name": "Sofia Reyes",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": "eyes",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [
+              {
+                "supply_id": "towels",
+                "uses_left": null
+              }
+            ],
+            "source_ids": [
+              "RS08",
+              "RS45"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          }
+        ]
+      },
+      {
+        "stage_id": "watch",
+        "label": "Watch",
+        "steps": [
+          {
+            "step_id": "eye_followup_check",
+            "text": "A crewmate repeats the sight check and the photo, and keeps both for the log.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "ilya",
+                "display_name": "Ilya Brandt",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "sofia",
+                "display_name": "Sofia Reyes",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": "eyes",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": {
+              "cadence": null,
+              "interval_seconds": null,
+              "basis": "team default",
+              "to_be_set_by": "clinical review",
+              "text": "Next check: interval to be set by clinical review"
+            },
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": {
+              "quote": "Ground support will be necessary in the follow up for the best case and in both the evaluation and follow up for the worst case scenario.",
+              "source_id": "RS32",
+              "page": 8
+            },
+            "supply_cover_after": [],
+            "source_ids": [
+              "RS32"
+            ],
+            "basis": "team default",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "eye_pain_persists",
+            "text": "Pain or a gritty feeling that does not settle after rinsing: tell the medical officer. How long to wait: to be set by clinical review.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "ilya",
+                "display_name": "Ilya Brandt",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "sofia",
+                "display_name": "Sofia Reyes",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": "eyes",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [],
+            "basis": "team default",
+            "review_state": "unreviewed"
+          }
+        ]
+      },
+      {
+        "stage_id": "if_worse",
+        "label": "If it gets worse",
+        "steps": [
+          {
+            "step_id": "eye_worse_sight",
+            "text": "Something stuck in the eye, a chemical in the eye, or any change in sight: call the medical officer at once.",
+            "text_first_time": null,
+            "who": "any_crew",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "mara",
+                "display_name": "Mara Okafor",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "ilya",
+                "display_name": "Ilya Brandt",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "sofia",
+                "display_name": "Sofia Reyes",
+                "reason_code": "any_crew"
+              },
+              {
+                "person_id": "tomas",
+                "display_name": "Tomas Lind",
+                "reason_code": "any_crew"
+              }
+            ],
+            "body_region": "eyes",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": {
+              "quote": "Later diagnosis of damage will require ground communications.",
+              "source_id": "RS33",
+              "page": 7
+            },
+            "supply_cover_after": [],
+            "source_ids": [
+              "RS33"
+            ],
+            "basis": "team default",
+            "review_state": "unreviewed"
+          }
+        ]
+      },
+      {
+        "stage_id": "medical_officer",
+        "label": "Medical officer",
+        "steps": [
+          {
+            "step_id": "eye_mo_remove_check",
+            "text": "Remove a loose particle and check the eye surface for scratches, as in the onboard procedure.",
+            "text_first_time": null,
+            "who": "crew_medical_officer",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "ilya",
+                "display_name": "Ilya Brandt",
+                "reason_code": "medical_officer"
+              },
+              {
+                "person_id": "sofia",
+                "display_name": "Sofia Reyes",
+                "reason_code": "medical_officer"
+              }
+            ],
+            "body_region": "eyes",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": null,
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "RS32",
+              "RS08"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          },
+          {
+            "step_id": "eye_mo_medicines",
+            "text": "Eye medicines, as in the onboard procedure.",
+            "text_first_time": null,
+            "who": "crew_medical_officer",
+            "availability": "aboard",
+            "availability_text": null,
+            "missing": {
+              "instruments": [],
+              "supplies": [],
+              "skills": []
+            },
+            "substitute_step_id": null,
+            "substitute_only": false,
+            "who_can": [
+              {
+                "person_id": "ilya",
+                "display_name": "Ilya Brandt",
+                "reason_code": "medical_officer"
+              },
+              {
+                "person_id": "sofia",
+                "display_name": "Sofia Reyes",
+                "reason_code": "medical_officer"
+              }
+            ],
+            "body_region": "eyes",
+            "landmark_id": null,
+            "guided_check_skill_id": null,
+            "cannot_replace_text": null,
+            "recheck": null,
+            "opens_help": false,
+            "opens_flow_id": null,
+            "medicine": {
+              "named_as": "as in the onboard procedure"
+            },
+            "replaces_ground_task": null,
+            "supply_cover_after": [],
+            "source_ids": [
+              "RS08"
+            ],
+            "basis": "sourced",
+            "review_state": "unreviewed"
+          }
+        ]
+      },
+      {
+        "stage_id": "ground_log",
+        "label": "Log for the ground",
+        "blocking": false,
+        "row_text": "Log for the ground. It leaves at the next contact. Nothing here waits for it.",
+        "items": [],
+        "link_text": "Ground link up · the log goes now",
+        "leaves_at": null
+      }
+    ],
+    "plan_aboard": true,
+    "waits_for_medical_officer": false,
+    "no_return_text": "Return is not an option from here. The plan stays aboard.",
+    "as_of": "2026-11-13T09:10:16Z"
+  }
+}

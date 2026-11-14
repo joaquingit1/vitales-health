@@ -43,3 +43,17 @@ Proposed API addition: a module-local `ForecastState` record containing the reta
 The full single-process inventory run at `2028-04-19T00:00:00Z` took 2591.421583833988 seconds, exceeding the unchanged 120-second target. The run uses reaction-classes and storage-zones version 0.5.0. Its 15 ingredient estimates had zero failed-probe fallbacks and a maximum probe relative error of 3.3648199449022743e-12. `lot-pmz-tab-001` reached 100 batches and correctly reports `mc_not_converged`.
 
 Evaluating the saved output with CX-D's unchanged `builders.evaluate_expectation` finds `x-apap-002-in-spec` false: the lot is `do_not_use`, while the fixture expects `in_specification`. Its lower 5% potency quantile is 84.3750887607355%, below the unchanged 90% lower limit; the median is 93.97116991104033%. The product's toxic-degradant restriction also forbids adjustment. This is a potency-driven decision, not condemnation solely by an unidentified degradant. The other two day-100 fixture expectations pass. No expectation, prior or decision threshold was changed.
+
+## Demo day-250 finding
+
+The inventory run at `2028-09-16T00:00:00Z` took 1634.4597775830189 seconds. Its 15 ingredient estimates had zero failed-probe fallbacks and a maximum probe relative error of 4.8301494963694365e-11. Clavulanic acid in `lot-amc-001`, aspirin in `lot-asa-001`, and promethazine in `lot-pmz-inj-001` reached 100 batches and report `mc_not_converged`.
+
+The unchanged expectation evaluator finds `x-amc-002-assay` false: it expects conflict or reanchoring flags, but the first-window assay tail probability is 0.07166164299915496, above the unchanged conflict threshold of 0.001. The final effective sample size is 43050.23737493141, above the 1000 floor, and the weighted run converged in 84 batches. The engine correctly used `assay-amc-002-clav-d200` without invoking conflict or ESS fallback. The expected lot state and assay-id checks pass, as does the remaining day-250 expectation. No threshold or expected flag was changed.
+
+## Completed performance and expectation audit
+
+Day 400 took 1518.44568574999 seconds, exceeding the unchanged 300-second target. All four day-400 fixture expectations pass. Clavulanic acid in `lot-amc-002` and promethazine in `lot-pmz-inj-001` reached 100 batches and report `mc_not_converged`. There were zero failed-probe fallbacks and the maximum probe error was 3.8722167902913496e-11.
+
+Across all three dates, 21 of 45 ingredient estimates used compression and 24 used exact evaluation because their histories did not qualify for compression. None fell back after a failed probe. The largest probe error was 4.8301494963694365e-11. All saved inventory outputs validate against the schema and their configuration pins match the current bundle. The unchanged fixture evaluator passes 9 of 11 expectations; the two failures are documented above. This audit reuses the completed benchmark outputs and does not claim execution of the full slow truth, coverage or virtual-study suites.
+
+The three inventory calls and output serialization total 5744.327047166997 seconds. Day 100 alone exceeds the 900-second end-to-end budget, so that performance target is also missed. Exact integration of exchanging-package histories and per-draw future projections remain the principal performance limitations. Full timing tables and the initial profiles are recorded in `docs/design/COMPRESSION.md`.

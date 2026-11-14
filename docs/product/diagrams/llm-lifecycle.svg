@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="540" viewBox="0 0 1160 540" role="img" aria-label="Lifecycle: recovered sources are reviewed into approved evidence used by the runtime through retrieval; development cases drive tool-use experiments; the existing weights are pinned; the exact deployment is evaluated independently against a sealed vault, then released or rolled back." font-family="Outfit, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<defs>
+<pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r="1" fill="rgba(28,30,28,0.065)"/></pattern>
+<filter id="sh" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#1c1e1c" flood-opacity="0.05"/><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#1c1e1c" flood-opacity="0.08"/></filter>
+<linearGradient id="deep" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d4c37"/><stop offset="1" stop-color="#113324"/></linearGradient>
+<marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0.5,0.8 L7,4 L0.5,7.2" fill="none" stroke="#6b6f69" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+<rect width="1160" height="540" fill="#f3f3ef"/><rect width="1160" height="540" fill="url(#dots)"/>
+<text x="40" y="54" font-size="24" font-weight="300" fill="#1c1e1c">Improving the assistant without new weights</text>
+<text x="40" y="80" font-size="13" fill="#6b6f69">Evidence, development and evaluation stay on separate paths.</text>
+<rect x="40" y="130" width="240" height="84" rx="18" fill="#fcfcfa" filter="url(#sh)"/><text x="60" y="166" font-size="16" font-weight="500" fill="#1c1e1c">Sources and Exa</text><text x="60" y="190" font-size="13" fill="#6b6f69">recovered catalog; trust selectively</text>
+<rect x="320" y="130" width="240" height="84" rx="18" fill="#fcfcfa" filter="url(#sh)"/><text x="340" y="166" font-size="16" font-weight="500" fill="#1c1e1c">Extraction and review</text><text x="340" y="190" font-size="13" fill="#6b6f69">tables, applicability, rights</text>
+<rect x="600" y="130" width="240" height="84" rx="18" fill="#fcfcfa" filter="url(#sh)"/><text x="620" y="166" font-size="16" font-weight="500" fill="#1c1e1c">Approved evidence</text><text x="620" y="190" font-size="13" fill="#6b6f69">offline retrieval bundle</text>
+<rect x="880" y="130" width="240" height="84" rx="18" fill="#fcfcfa" filter="url(#sh)"/><text x="900" y="166" font-size="16" font-weight="500" fill="#1c1e1c">Existing model weights</text><text x="900" y="190" font-size="13" fill="#6b6f69">pinned local quantization</text>
+<rect x="40" y="270" width="240" height="84" rx="18" fill="#fcfcfa" filter="url(#sh)"/><text x="60" y="306" font-size="16" font-weight="500" fill="#1c1e1c">Development cases</text><text x="60" y="330" font-size="13" fill="#6b6f69">kept apart from the holdout</text>
+<rect x="320" y="270" width="240" height="84" rx="18" fill="#fcfcfa" filter="url(#sh)"/><text x="340" y="306" font-size="16" font-weight="500" fill="#1c1e1c">Tool-use experiments</text><text x="340" y="330" font-size="13" fill="#6b6f69">prompts, context, tools</text>
+<rect x="600" y="270" width="240" height="84" rx="18" fill="url(#deep)" filter="url(#sh)"/><circle cx="816" cy="294" r="9" fill="#e2f55c" opacity="0.3"/><circle cx="816" cy="294" r="4.5" fill="#e2f55c"/><text x="620" y="306" font-size="16" font-weight="500" fill="#fff">Runtime assessment</text><text x="620" y="330" font-size="13" fill="rgba(255,255,255,0.8)">patient facts and typed tools</text>
+<rect x="880" y="270" width="240" height="84" rx="18" fill="#fcfcfa" filter="url(#sh)"/><text x="900" y="306" font-size="16" font-weight="500" fill="#1c1e1c">Release or rollback</text><text x="900" y="330" font-size="13" fill="#6b6f69">measured quality and integrity</text>
+<rect x="320" y="410" width="240" height="84" rx="18" fill="#fcfcfa" filter="url(#sh)"/><text x="340" y="446" font-size="16" font-weight="500" fill="#1c1e1c">Sealed evaluation vault</text><text x="340" y="470" font-size="13" fill="#6b6f69">HealthBench and NASA cases</text>
+<rect x="600" y="410" width="240" height="84" rx="18" fill="#fcfcfa" filter="url(#sh)"/><text x="620" y="446" font-size="16" font-weight="500" fill="#1c1e1c">Independent evaluation</text><text x="620" y="470" font-size="13" fill="#6b6f69">rubrics, failure analysis</text>
+<path d="M286 172 H312" fill="none" stroke="#6b6f69" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ar)"/>
+<path d="M566 172 H592" fill="none" stroke="#6b6f69" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ar)"/>
+<path d="M680 220 V262" fill="none" stroke="#6b6f69" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ar)"/>
+<text x="690" y="244" font-size="12" fill="#6b6f69" text-anchor="start">retrieval</text>
+<path d="M940 220 V240 H790 V262" fill="none" stroke="#6b6f69" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ar)"/>
+<path d="M286 312 H312" fill="none" stroke="#6b6f69" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ar)"/>
+<path d="M566 312 H592" fill="none" stroke="#6b6f69" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ar)"/>
+<path d="M720 360 V402" fill="none" stroke="#6b6f69" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ar)"/>
+<text x="730" y="384" font-size="12" fill="#6b6f69" text-anchor="start">the exact deployment</text>
+<path d="M566 452 H592" fill="none" stroke="#6b6f69" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ar)"/>
+<path d="M846 452 H1000 V362" fill="none" stroke="#6b6f69" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ar)"/>
+</svg>

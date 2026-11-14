@@ -1,0 +1,23 @@
+{
+  "summary": "SIM POST /v1/daily-checks/dck_mara_d19/answers",
+  "description": "One answer revision. Illustrative only: not seed data.",
+  "x-schema": "answer.schema.json",
+  "value": {
+    "answer_id": "ans_symptom_new_d19",
+    "question_id": "symptom_new",
+    "questionnaire_version": "6a0671c1cda20cc0ea5855bfcf6bfbcc568bd1ab4173480db693f04226ad6736",
+    "presence": "absent",
+    "value": "no",
+    "unit": null,
+    "body_region": null,
+    "laterality": null,
+    "actor": {
+      "kind": "person",
+      "id": "mara",
+      "display_name": "Mara Okafor"
+    },
+    "answered_at": "2026-11-13T09:13:00Z",
+    "origin_mode": "SIM",
+    "supersedes": null
+  }
+}
