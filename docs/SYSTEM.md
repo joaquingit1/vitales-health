@@ -3,8 +3,8 @@
 The architecture every builder follows. The planning package wins on product behavior and shared shapes (PRD.md,
 CONTRACTS.md, `api/openapi.yaml`); `docs/BUILD-CHARTER.md` wins on how we build; this document fixes the processes, the
 module map, the shared kernel, the repository layout, the data lifecycle, the cross-cutting rules and the build order.
-`docs/DEPLOYMENT.md` says where each process runs. Contract changes this document needs are requests in section 13;
-until each is approved, the interim stated with it applies.
+`docs/DEPLOYMENT.md` says where each process runs. Part A of `docs/requests/COORDINATOR-DECISIONS.md` overrides conflicting package lines; its A3 is the
+central supersession index. Requests live in `docs/requests/SYSTEM.md`; section 13 references them.
 
 ## 1. Principles
 
@@ -12,7 +12,8 @@ until each is approved, the interim stated with it applies.
 2. The minimum setup is complete: every safety function runs on one laptop with the model stopped, devices absent and
    the link down. Optional parts are separate processes with health checks, timeouts and restart policies.
 3. Modules talk through application ports and events only; the composition root wires them; import-linter enforces it.
-4. One command is one SQLite transaction: state change, audit entry, outbox event, command identity (CONTRACTS 20).
+4. One hub command commits state, audit, outbox, command identity and replication atomically (5.7). Private journal
+   writes use D4's two-store acknowledgment barrier (5.8.1).
 5. Valid input is never lost because something downstream failed (section 8.6).
 6. Clinical content is never merged automatically and never authorized by competence alone (sections 8.4, DEPLOYMENT
    4.4).
@@ -44,7 +45,9 @@ The ground node and every peer hub are replicas reachable only through bundles o
 
 ## 3. Runtime processes
 
-Ports are deployment settings (`crew-health.toml`) with these defaults; every worker listens on loopback only. Budgets
+Ports are deployment settings (`crew-health.toml`) with these native loopback defaults. Container workers bind their
+private network interface with no published host port; native/container routing and authentication are in DEPLOYMENT
+7.3. Every profile tests authenticated cross-process connectivity. Budgets
 are for the reference laptop (Apple M3, 16 GB, PRD section 10) and are verified by the reference deployment (8.7).
 
 | Process | Owner | Port | Budget (RSS, CPU) | Health check | Restart policy | When it is down |
@@ -71,7 +74,7 @@ worker: model turns, assessments, forecasts and extraction run as Jobs (CONTRACT
 
 `hub/src/crew_health/<module>/` with `domain/` (pure types and rules), `application/` (use cases and the module's port
 protocols in `ports.py`), `adapters/` (SQLite repositories under `adapters/migrations/NNNN_<module>.sql`, device and
-transport clients) and `api/` (FastAPI routers). Each module exposes `module.py` with `register(registry: ModuleRegistry)`
+transport clients) and `api/` (FastAPI routers). Each module exposes `module.py` with `register(registry: ModuleRegistry) -> None`
 for the composition root (5.12). Tests in `hub/tests/<module>/`. Tables carry the module name as prefix
 (`rules_warning`, `help_session`). A module owns its tables; no other module reads them.
 
@@ -89,7 +92,7 @@ for the composition root (5.12). Tests in `hub/tests/<module>/`. Tables carry th
 | Sensor ingest and monitor | `sensors` | E23 | `sensors_channel`, `sensors_reading`, `sensors_evaluation`, `sensors_status` | `SensorStateQuery`, `SensorSeriesReader`; domain events `SensorEvaluated`, `ChannelFreshnessChanged` | `ConfigReader`, `Clock` | `sensor.status_changed`, `sensor.quiet`, `sensor.resumed` | none |
 | Rule engine | `rules` | E24 | `rules_warning`, `rules_dwell`, `rules_trigger`, `rules_note` | `WarningQueries`, `WarningCommands`, `InsightWarningPort`, `AssistantWarningGuard` | `SensorStateQuery`, `MissionStatePort`, `RecordFactsPort`, `AnswerQuery`, `GroundLinkQuery`, `SupplyCoverFacts`, `InsightQuery` | `warning.raised`, `warning.updated`, `warning.cleared` | Domain events `SensorEvaluated`, `ChannelFreshnessChanged`, `AnswerAccepted`, `SupplyCoverChanged`, mission domain events |
 | Routine scheduler | `routine` | E25 | `routine_occurrence`, `routine_override`, `routine_deadline` | `RoutineQueries`, `RoutineCommands` | `MissionStatePort`, `OverlayPort`, `Scheduler`, `WarningQueries` | `routine.occurrence_changed`, `routine.override_changed` | `DailyCheckSubmitted`, `WarningRaised`, `WarningCleared`, drill and guided check completions |
-| Records (core) | `records` | E01 | `records_observation`, `records_answer` | `ObservationReader`, `AnswerQuery`, `RecordFactsPort`, `ObservationCommands`; domain event `AnswerAccepted` | `SessionContext`, `ConsentQueries` | none (no observation event in CONTRACTS 18) | none |
+| Records (core) | `records` | E01 | `records_observation`, `records_answer` | `ObservationReader`, `AnswerQuery`, `RecordFactsPort`, `ObservationCommands`; `AnswerAccepted` (internal domain payload) | `SessionContext`, `ConsentQueries` | none (no observation event in CONTRACTS 18) | none |
 | Records (daily checks, journal, profile) | `checks` | E03 | `checks_daily_check`, `checks_profile`; `private_journal_entry` in the private store | `DailyCheckQueries`, `ProfileFactsPort`, `JournalPort`; domain events `DailyCheckSubmitted`, `DailyCheckAbandoned`, `CheckCompletionRecorded` | `ObservationCommands`, `AnswerQuery`, `MissionClock` | none | none |
 | Records (intake) | `intake` | E04 | `intake_concern`, `intake_chain` | `IntakeQueries` | `AnswerQuery`, `EpisodePort` (implemented by E15), `ConditionRegistryPort` | none | `AnswerAccepted` |
 | Records (measurement requests, attempts, capabilities, gaps) | `measurement` | E05 | `measurement_request`, `measurement_attempt`, `measurement_gap` | `CapabilityQueries`, `MeasurementCommands`, `GapProposalPort` | `KitGate` (E27), `RequestGatePort` (E11), `ConsentQueries` | `measurement_request.changed` | none |
@@ -98,17 +101,17 @@ for the composition root (5.12). Tests in `hub/tests/<module>/`. Tables carry th
 | Records (urgency, pathways) | `pathways` | E11 | `pathways_urgency`, `pathways_signal`, `pathways_effect` | `UrgencyQueries`, `UrgencyCommands`, `InferenceGate`, `RequestGatePort`, `PathwayQueries` | `EpisodeFacts`, `HelpEntryPort` (E26), `AssistantTurnControl` (E13), `ClinicalAuthorityQuery` (E31), `EvidenceQueryPort` (E10), `KitGate` | none | `AnswerAccepted` (in transaction); `help.session_changed`, `warning.raised` (durable subscription) |
 | Records (handoffs) | `handoff` | E16 | `handoff_handoff`, `handoff_receipt` | `HandoffQueries`, `GroundInboxView` | `EpisodeReader`, `ReportQueries`, `BundleOutbox` | `handoff.changed` | none |
 | Kit map | `kitmap` | E27 | `kitmap_check`, `kitmap_whatif` | `KitGate`, `KitMapQueries`, `EquipmentFacts` | `CapabilityQueries`, `MissionStatePort`, `CoverPlanningPort` (E32), `RosterPort` | none | `config.release_activated` |
-| Guidance eligibility (new, 8.2) | `guidance` | E27 | none | `GuidanceEligibility.evaluate`, pure `decide` | `ApprovalFacts` (E10), `EnvironmentFacts` (E23), `EquipmentFacts` (E27), `SkillFacts` (E31), `StockFacts` (E32) | none | none |
+| Guidance eligibility (new, 8.2) | `guidance` | E27 | none | `GuidanceEligibility.evaluate`, pure `decide` | `ContentFacts` (E10), `EnvironmentFacts` (E23), `EquipmentFacts` (E27), `SkillFacts` (E31), `StockFacts` (E32) | none | none |
 | Plan engine | `plans` | E28 | `plans_run`, `plans_step_state`, `plans_escalation` | `PlanQueries`, `PlanRunReader`, `PlanAvailability` | `GuidanceEligibility`, `SupplyLedgerPort`, `StockReader`, `HelpEntryPort`, `RoleQueryPort` | `plan_run.changed`, `plan_run.step_done`, `plan_run.escalated` | `GuidedCheckCompleted` (in transaction) |
 | Plan engine (return readiness) | `readiness` | E33 | `readiness_run` | `ReadinessQueries` | `PlanQueries`, `MissionStatePort`, `GuidanceEligibility` | none | `environment.activated` |
 | Teach and check | `teach` | E30 | `teach_guided_check`, `teach_beat`, `teach_sample` | `GuidedCheckQueries`; domain event `GuidedCheckCompleted` | `ObservationCommands`, `PlanRunReader`, `HelpSessionReader`, `GuidanceEligibility` | `guided_check.beat`, `guided_check.checked`, `coaching.sample` | none |
 | Role engine, skills and drills | `roles` | E31 | `roles_assignment`, `roles_skill_record`, `roles_drill`, `roles_patch` | `RoleQueryPort`, `ClinicalAuthorityQuery` (8.4), `SkillFacts` | `RosterPort`, `OverlayPort`, `LocationPort`, `HelpSessionReader`, `PlanRunReader` | `role.proposed`, `role.changed`, `skill.practiced`, `drill.changed` | `help.session_changed`, `GuidedCheckCompleted` |
-| Supplies ledger | `supplies` | E32 | `supplies_stock`, `supplies_use`, `supplies_custody` | `SupplyLedgerPort`, `StockReader`, `SupplyCoverFacts`, `CoverPlanningPort`, `StockFacts`; domain event `SupplyCoverChanged` | `MissionStatePort`, `LocationPort`, `PlanRunReader`, `HelpSessionReader` | `supply.used` | none |
+| Supplies ledger | `supplies` | E32 | `supplies_stock`, `supplies_use`, `supplies_custody` | `SupplyLedgerPort`, `StockReader`, `SupplyCoverFacts`, `CoverPlanningPort`, `StockFacts`; `SupplyCoverChanged` (internal domain payload) | `MissionStatePort`, `LocationPort`, `PlanRunReader`, `HelpSessionReader` | `supply.used` | none |
 | Supplies (medicines) | `medicines` | E32 | `medicines_assessment`, `medicines_proposal`, `medicines_administration` | `MedicineQueries` | `pharmacy` package (only from `medicines/adapters`), `ClinicalAuthorityQuery`, `ProfileFactsPort`, `ObservationReader` | none | none |
 | Catch-up composer | `catchup` | E29 | `catchup_message`, `catchup_line` | `GroundLogComposer`, `GroundLogView` | `HelpLogSnapshot` reads (E26), `GroundLinkQuery`, `ConfigReader` | none | `help.session_changed`, `plan_run.*`, `supply.used` |
 | Help | `help` | E26 | `help_session`, `help_action`, `help_broadcast`, `help_ground_message`, `help_log_snapshot` | `HelpEntryPort`, `HelpSessionReader`, `HelpLogSnapshots` | `SessionContext`, `MissionStatePort`, `LocationPort`; optional `BroadcastRolesSource` (E31), `HelpAssistantPort` (E13), `GroundLogComposer` (E29), `WarningQueries` (E24) | `help.session_changed`, `help.broadcast_changed`, `ground_message.changed` | none required |
 | Assistant controller | `assistant` | E13 | `assistant_conversation`, `assistant_turn`, `assistant_insight`, `assistant_job` | `AssistantTurnControl`, `InsightQuery`, `HelpAssistantPort` | `ToolGateway` (E12), `InferenceGate` (E11), `AssistantWarningGuard` (E24), `GuidanceEligibility` | `assistant.status_changed`, `insight.changed`, `job.progress` | `warning.*` |
-| Participation | `participation` | E22 | `participation_completion`, `participation_award` | `CompletionRecorder` | `MissionStatePort`, `MissionClock`, `RosterPort` | `participation.streak_changed`, `participation.crew_goal_changed` | `CheckCompletionRecorded` and other completion domain events |
+| Participation | `participation` | E22 | `participation_completion`, `participation_award`, `participation_goal_consent` | `CompletionRecorder` | `MissionStatePort`, `MissionClock`, `RosterPort` | `participation.streak_changed`, `participation.crew_goal_changed` | `CheckCompletionRecorded` and other completion domain events |
 | Views | `views` (Today, How you are) | E03 | none | `TodayView`, `HowYouAreView` | Query ports of the modules above; `IndicatorSummaryPort` (E14) | none | none |
 | Views (Habitat, Records, Ground inbox) | built in `mission` (E23), `episodes` (E15), `handoff` (E16) | as listed | none | `HabitatView`, `RecordsView`, `GroundInboxView` | Query ports | none | none |
 | HTTP API | `app` (assembly, middleware, error envelope) | E01 | none | `create_app(settings) -> FastAPI` | Every module's `register` | none | none |
@@ -155,50 +158,79 @@ for the composition root (5.12). Tests in `hub/tests/<module>/`. Tables carry th
 
 ## 5. Shared kernel (E01)
 
-Exact signatures. Pure parts live in `crew_health.kernel` (no I/O, importable from any `domain`); stateful parts in
-`crew_health.platform` behind the protocols below. Every module imports only these names, never E01 adapters.
-In-memory fakes of every protocol ship in `crew_health.kernel.testing` on the first day, so every epic builds against
-them while E01 implements the real ones.
+These are the exact public signatures, using Python 3.14 syntax and postponed annotations. Files import their named
+kernel types from the files shown below. The kernel imports only the standard library and the generated, standard
+library only `crew_health.contracts_gen.enums` (`ErrorCode`, `EventType`, `ConfigName`, `Role`).
+`crew_health` and `contracts_gen` package initializers are empty so importing enums has no model/framework side effect. It never imports
+Pydantic, FastAPI, sqlite3, networking, platform adapters or feature modules. Generated wire models are parsed at the
+API or adapter boundary and mapped to these types. E01 supplies bounded in-memory fakes in `kernel.testing` using
+injected identifiers and time. No fake reads files, starts threads or reads the wall clock.
 
 ### 5.1 Identifiers
 
 ```python
 # crew_health/kernel/ids.py
-ID_PATTERN: Final = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$")   # common.schema.json#/$defs/id
+ID_PATTERN: Final[str] = r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
 
 class IdFactory(Protocol):
     def new(self, prefix: str) -> str: ...
-        # f"{prefix}_{uuid.uuid7().hex}" (RFC 9562, Python 3.14); unique across nodes without coordination
     def derived(self, prefix: str, *parts: str) -> str: ...
-        # f"{prefix}_{sha256('\x1f'.join(parts).encode()).hexdigest()[:32]}"; equal on every node for equal parts
 
-def require_id(value: str) -> str: ...   # raises ProblemError(ErrorCode.MALFORMED_REQUEST) when the pattern fails
+def require_id(value: str) -> str: ...
 ```
 
-Prefixes are registered in `crew_health.kernel.id_prefixes` (one constant per record type, owned by the module that
-creates the record, collected by E01). Client generated IDs are never authorization (CONTRACTS 5).
+`new` is implemented in platform using an injected UUIDv7 source. `derived` hashes the UTF-8 RFC 8785 encoding of
+`[prefix, *parts]` and returns `prefix + "_" + digest[:32]`. A length-delimited array avoids separator collisions.
+Both validate the complete result and raise `ProblemError(MALFORMED_REQUEST)` on invalid input. Each module declares
+its prefixes in its own `module.py`; assembly rejects collisions at startup. No epic edits a central prefix file.
+Client IDs never authorize access.
 
 ### 5.2 Clock, hybrid logical clock and corrections
 
 ```python
 # crew_health/kernel/clock.py
 class Clock(Protocol):
-    def now(self) -> datetime: ...          # tz=UTC, never naive; one read per command (UnitOfWork.now)
+    def now(self) -> datetime: ...
     def monotonic_ns(self) -> int: ...
-    def process_epoch(self) -> str: ...     # new value at every process start
+    def process_epoch(self) -> str: ...
 
 @dataclass(frozen=True, slots=True, order=True)
 class Hlc:
     physical_ms: int
     logical: int
     node_id: str
-
-class HlcClock(Protocol):
-    def tick(self) -> Hlc: ...
-    def observe(self, remote: Hlc) -> Hlc: ...
+    incarnation_id: str
 
 @dataclass(frozen=True, slots=True)
-class ClockCorrected:                        # domain event; also a row in clock_correction
+class ClockCorrection:
+    correction_id: str
+    source_clock_id: str
+    version: int
+    valid_from: datetime
+    valid_until: datetime | None
+    offset_ms: int
+    uncertainty_ms: int
+    recorded_at: datetime
+    source: Literal["operator", "measured", "ground"]
+
+@dataclass(frozen=True, slots=True)
+class TimeInput:
+    original_at: datetime
+    source_clock_id: str
+    source_clock_version: int
+    basis: Literal["source_raw", "hub_corrected"]
+    origin_mode: Literal["LIVE", "REPLAY", "SIM"]
+
+@dataclass(frozen=True, slots=True)
+class NormalizedTime:
+    original_at: datetime
+    corrected_at: datetime | None
+    correction_id: str | None
+    uncertainty_ms: int | None
+    state: Literal["known", "unknown", "future", "replay"]
+
+@dataclass(frozen=True, slots=True)
+class ClockCorrected:
     event_type: ClassVar[str] = "clock.corrected"
     previous_offset_ms: int
     offset_ms: int
@@ -207,37 +239,90 @@ class ClockCorrected:                        # domain event; also a row in clock
     source: Literal["operator", "measured", "ground"]
 
 @dataclass(frozen=True, slots=True)
-class ClockRegressed:                        # wall clock moved behind the last committed instant
+class ClockRegressed:
     event_type: ClassVar[str] = "clock.regressed"
     observed_at: datetime
     last_committed_at: datetime
     delta_ms: int
+
+class ClockCorrections(Protocol):
+    def apply(self, uow: UnitOfWork, correction: ClockCorrection) -> ClockCorrected: ...
+    def history(self, snapshot: ReadSnapshot, *, after_version: int, limit: int) -> tuple[ClockCorrection, ...]: ...
+    def normalize(self, snapshot: ReadSnapshot, value: TimeInput) -> NormalizedTime: ...
+    def elapsed(self, snapshot: ReadSnapshot, start: TimeInput, end: TimeInput) -> timedelta | None: ...
+
+class HlcClock(Protocol):
+    def tick(self, uow: UnitOfWork) -> Hlc: ...
+    def observe(self, uow: UnitOfWork, remote: Hlc) -> Hlc: ...
 ```
 
-Rules: no domain code reads the wall clock; ordering inside a hub is by `seq`, across hubs by `Hlc`; durations use
-`monotonic_ns` within a process epoch and are invalid across epochs (E30, E32). A backward jump larger than
-`clock.regression_tolerance_ms` publishes `ClockRegressed`; modules suspend expiry based clears until a correction is
-recorded (E24 3.11).
+All datetimes are aware UTC, validated at construction; offsets and uncertainties are finite bounded integers.
+`Clock.now` is the corrected hub time. `UnitOfWork.now` captures it once. Corrections append immutable versions;
+`apply` validates increasing version, explicit effective half-open range and trusted local operator or measured source
+(or authenticated ground suggestion accepted locally). It commits the correction, audit and event together. Reads
+choose the highest accepted correction version covering the original timestamp and source clock; unknown mapping
+returns `unknown`, never receipt time. The original input, source version and correction ID stay with the record;
+re-evaluation appends provenance instead of rewriting history. For `source_raw`, corrected time is original time plus the selected offset. For
+`hub_corrected`, subtract the offset of `source_clock_version` at capture before adding the selected offset; missing
+capture version is unknown. Thus an already corrected hub timestamp never receives the same offset twice. Select
+effective ranges on the source raw timeline, not arrival time. `elapsed` normalizes both endpoints with the same correction history snapshot and returns
+unknown for missing mappings, excessive uncertainty, negative intervals or disjoint clock histories.
+
+D3: freshness uses corrected observation time, never arrival. A value is fresh only if its entire uncertainty interval
+fits inside the freshness window and no endpoint is in the future. A future time beyond `clock.future_tolerance_ms`
+is flagged `future`; a smaller skew still cannot count toward clearing until its upper bound is at or before now.
+Unknown, future and regressed times cannot clear warnings. A regression beyond `clock.regression_tolerance_ms` emits
+`ClockRegressed` and suspends time-based clearing until a correction and sweep finish. Forward jumps sweep overdue
+work without inventing observations; backward jumps neither replay completed jobs nor overwrite newer facts.
+
+REPLAY preserves dataset UTC, dataset ID and original date. Its aggregation endpoint follows data time as CONTRACTS
+13 specifies. An explicitly selected replay clock can evaluate a scenario at that endpoint; live freshness still shows
+the original age and REPLAY label. Replay facts never clear a LIVE warning. SIM uses its injected scenario clock and
+partition. Within one process epoch durations use monotonic time; after restart use the correction-aware durable
+interval, never compare monotonic counters from different epochs.
+
+HLC algorithm: let `p` be corrected hub milliseconds, `(l,c)` the durable local high water and `(r,d)` the remote stamp.
+For tick, `m=max(p,l)` and counter is `c+1` if `m==l`, else zero. For observe, `m=max(p,l,r)`; counter is
+`max(c,d)+1` if `m==l==r`, `c+1` if only `m==l`, `d+1` if only `m==r`, else zero. The `(node_id, incarnation_id)` pair breaks equal stamps lexically; local stamps always use the current
+write incarnation from DEPLOYMENT 4.2. Reject untrusted future remote stamps beyond `clock.hlc_future_ms` into
+quarantine, never advance the clock from them. Counter overflow at `clock.hlc_logical_max` fails loudly. Persist the
+high water in the same transaction as each record and replication entry; rollback returns no stamp to callers.
+Restart loads it before any write. Restore uses a new incarnation and the fencing protocol in DEPLOYMENT 4.2.
 
 ### 5.3 Mission elapsed time
 
 ```python
 # crew_health/kernel/met.py
 @dataclass(frozen=True, slots=True)
+class MissionClockVersion:
+    clock_version: int
+    epoch: datetime
+    effective_from: datetime
+    effective_until: datetime | None
+    day_label_template: str
+
+@dataclass(frozen=True, slots=True)
 class MetLabel:
-    met: str              # "DDD/HH:MM:SS", common.schema.json#/$defs/met
+    met: str
     mission_day: int
-    day_label: str        # rendered from the mission clock configuration, for example "flight day 19 of 30"
+    day_label: str
     clock_version: int
 
 class MissionClock(Protocol):
-    def met(self, at: datetime) -> MetLabel: ...
-    def label(self, at: datetime) -> tuple[str, int]: ...          # (day label, clock_version)
-    def mission_day(self, at: datetime) -> int: ...
-    def day_bounds(self, mission_day: int) -> tuple[datetime, datetime]: ...
+    def version_at(self, at: datetime) -> MissionClockVersion: ...
+    def met(self, at: datetime, *, version: int | None = None) -> MetLabel: ...
+    def label(self, at: datetime, *, version: int | None = None) -> tuple[str, int]: ...
+    def mission_day(self, at: datetime, *, version: int | None = None) -> int: ...
+    def day_bounds(self, mission_day: int, *, version: int) -> tuple[datetime, datetime]: ...
 ```
 
-Labels stored with records keep their `clock_version`; a later correction never rewrites them (E24 3.11).
+The mission configuration's epoch and explicit effective ranges select the highest accepted clock version covering
+`at`; gaps are `CONFIG_INVALID`, never a guessed epoch. With elapsed whole seconds `s=floor((at-epoch).total_seconds())`,
+mission day is `floor(s/86400)+1`, MET is elapsed days (zero based) and HH:MM:SS; 86400 is the contract definition of a
+mission day, not a tunable cadence. A day is `[epoch+(day-1)*86400s, epoch+day*86400s)`, so a boundary belongs to the
+new day. Pre-epoch MET that cannot fit the wire pattern is `INVALID_VALUE`, not clamped. Stored labels retain their
+version. An explicit retrospective correction triggers an audited rebuild recording old and new day assignments
+(CONTRACTS 389); ordinary activation never moves past completions. REPLAY selects its dataset mission clock.
 
 ### 5.4 Units (UCUM)
 
@@ -245,30 +330,60 @@ Labels stored with records keep their `clock_version`; a later correction never 
 # crew_health/kernel/units.py
 @dataclass(frozen=True, slots=True)
 class Unit:
-    code: str                         # case sensitive UCUM code, for example "mm[Hg]", "/min", "Cel", "%", "[ppm]"
+    code: str
 
 @dataclass(frozen=True, slots=True)
 class Quantity:
-    value: Decimal                    # finite; NaN and infinity raise at construction
+    value: Decimal
     unit: Unit
 
+@dataclass(frozen=True, slots=True)
+class WireQuantity:
+    value: Decimal
+    unit: str
+
+@dataclass(frozen=True, slots=True)
+class PressureContext:
+    pressure: Quantity
+    basis: Literal["measured", "assumed"]
+    source_ref: str
+    observed_at: datetime | None
+
+@dataclass(frozen=True, slots=True)
+class ConvertedQuantity:
+    original: WireQuantity
+    canonical: Quantity
+    conversion: str
+    mapping_version: str
+    pressure: PressureContext | None
+    rounding: str
+
 class UnitRegistry(Protocol):
-    def parse(self, code: str) -> Unit: ...                       # ProblemError(INVALID_UNIT) if unknown
+    def parse(self, code: str) -> Unit: ...
     def convert(self, quantity: Quantity, to: Unit) -> Quantity: ...
     def commensurable(self, a: Unit, b: Unit) -> bool: ...
+
+class WireUnitConverter(Protocol):
+    def convert(self, value: WireQuantity, *, indicator_code: str, release: ReleaseHandle,
+                to: Unit, pressure: PressureContext | None = None) -> ConvertedQuantity: ...
 ```
 
-Implementation: `ucumvert` parses UCUM and builds a `pint` registry (medical-systems-standards.md 4.7 [MS55]). Wire
-numbers are parsed with `parse_float=Decimal`; no bare `float` crosses a module boundary (AGENTS.md rule 8); numeric
-kernels (rPPG, forecasting) may use floats inside a worker and return `Quantity`. The allowed unit codes are the ones
-the configuration documents declare; a loader check rejects any other.
+Quantities reject nonfinite values; units are case sensitive UCUM. Ordinary conversion rejects incompatible dimensions.
+The wire mapper reads a versioned, sourced unit mapping in the accepted release overlay (D12, R-SYS-19), including
+`bpm` to `/min`, `mmHg` to `mm[Hg]` and `ppm` to `[ppm]`; labels are never parsed heuristically. It also verifies the
+indicator's accepted units from the sensor catalog or observation definition. No raw float crosses a port.
+
+Contextual `ppm_to_mmhg` requires explicit positive cabin pressure and its measured or assumed basis. It computes
+`ppm / 1000000 * pressure_in_mmHg`, retaining original value/unit, mapping version, pressure and source. It never
+supplies an assumed 760 on its own. Canonical sensor values round once to four decimal places (CONTRACTS 659), decimal
+half even under D12; calculations retain the unrounded Decimal internally. Unknown mapping, pressure or provenance
+fails `INVALID_UNIT` or `INVALID_VALUE`, and the input remains available with its rejection reason. `ucumvert`/`pint`
+implement the registry only in adapters; kernel contains no dependency on either.
 
 ### 5.5 Errors and the RFC 9457 mapping
 
 ```python
 # crew_health/kernel/errors.py
-ErrorCode = contracts_gen.ErrorCode          # StrEnum generated from error.schema.json (38 codes)
-
 @dataclass(frozen=True, slots=True)
 class FieldError:
     field: str
@@ -281,68 +396,77 @@ class ProblemError(Exception):
                  supported_alternative: Mapping[str, object] | None = None,
                  retryable: bool | None = None) -> None: ...
     code: ErrorCode
-    status: int                               # from contracts_gen.ERROR_STATUS[code]
-    retryable: bool                           # default from contracts_gen.ERROR_RETRYABLE[code]
+    status: int
+    retryable: bool
 
-class StorageUnavailable(ProblemError):      # code INTERNAL_ERROR, retryable True
+class StorageUnavailable(ProblemError):
+    def __init__(self, cause: Literal["disk_full", "locked", "io_error", "corrupt"]) -> None: ...
     cause: Literal["disk_full", "locked", "io_error", "corrupt"]
 
 @dataclass(frozen=True, slots=True)
-class Problem:                                # RFC 9457 view of the same error
-    type: str                                 # f"urn:crew-health:error:{code}"
-    title: str                                # the code's title from ui-copy designed states
+class Problem:
+    type: str
+    title: str
     status: int
-    detail: str                               # message
-    instance: str                             # f"urn:crew-health:correlation:{correlation_id}"
+    detail: str
+    instance: str
 
+# crew_health/app/errors.py, outside kernel; contracts_gen is the generated wire model package
+# titles and safe messages come from the validated ui-copy document
 def to_envelope(error: ProblemError, correlation_id: str) -> contracts_gen.ErrorEnvelope: ...
-def to_problem(error: ProblemError, correlation_id: str) -> Problem: ...
+def to_problem(error: ProblemError, correlation_id: str, *, title: str) -> Problem: ...
 ```
 
-Decision: the wire body is the package `ErrorEnvelope` (closed schema; CONTRACTS 5 and the charter preamble make the
-contract win on shared objects). `Problem` is the RFC 9457 mapping used in logs and offered on the wire only after
-request R-SYS-1. Modules raise typed `ProblemError` subclasses; no bare exception crosses a layer; the API layer maps
-any other exception to `INTERNAL_ERROR` with the correlation ID and logs it.
+D5 settles R-SYS-1: ErrorEnvelope on the wire, RFC 9457 in logs. Status and retryability come from generated contract
+tables. `type` is `urn:crew-health:error:<code>` and instance is the correlation ID URN. Unknown exceptions become
+`INTERNAL_ERROR`; storage and integrity errors cannot be isolated as evaluator failures. Log serialization replaces
+all free text and field values with allowlisted codes and references; it never logs the exception object, request,
+`current_state` or raw traceback locals. Stored-result visibility is checked before including even a resource ID.
 
 ### 5.6 Configuration loading with provenance
 
 ```python
 # crew_health/kernel/config.py
-ConfigName = contracts_gen.ConfigName        # the 18 document names
-
 @dataclass(frozen=True, slots=True)
 class ConfigDocumentView:
     name: ConfigName
-    version: str                              # sha256 of the raw bytes (CONTRACTS 11)
-    model: BaseModel                          # generated Pydantic model of that document
+    version: str
     raw: bytes
 
 class ReleaseHandle(Protocol):
-    release_id: str
+    @property
+    def release_id(self) -> str: ...
     def document(self, name: ConfigName) -> ConfigDocumentView: ...
     def version_of(self, name: ConfigName) -> str: ...
 
+@dataclass(frozen=True, slots=True)
+class CandidateRelease:
+    release_id: str
+    documents: Mapping[ConfigName, ConfigDocumentView]
+
 class ConfigReleaseReader(Protocol):
-    def active(self) -> ReleaseHandle: ...    # inside a UnitOfWork or ReadSnapshot: the release at its start
+    def active(self) -> ReleaseHandle: ...
     def release(self, release_id: str) -> ReleaseHandle: ...
 
 class ConfigReader(Protocol):
     def document(self, name: ConfigName, version: str | None = None) -> ConfigDocumentView: ...
-        # any version ever activated stays readable, so pinned sessions and runs resolve (R-E11-10)
 
 @dataclass(frozen=True, slots=True)
 class Finding:
     check_id: str
     document: ConfigName | None
-    pointer: str                              # JSON pointer
+    pointer: str
     message: str
 
 class ReleaseCheck(Protocol):
-    check_id: str
-    def check(self, candidate: CandidateRelease) -> Sequence[Finding]: ...   # pure
+    @property
+    def check_id(self) -> str: ...
+    def check(self, candidate: CandidateRelease) -> tuple[Finding, ...]: ...
 
 class ActivationGuard(Protocol):
-    def check(self, uow: UnitOfWork, candidate: CandidateRelease) -> Sequence[Finding]: ...  # state aware
+    @property
+    def check_id(self) -> str: ...
+    def check(self, uow: UnitOfWork, candidate: CandidateRelease) -> tuple[Finding, ...]: ...
 
 class LoaderCheckRegistry(Protocol):
     def register(self, check: ReleaseCheck) -> None: ...
@@ -350,17 +474,48 @@ class LoaderCheckRegistry(Protocol):
 
 class TemplateRenderer(Protocol):
     def render(self, field_key: str, template: str, values: Mapping[str, str]) -> str: ...
-        # an unknown placeholder renders ui-copy designed_states.unknown and is logged
+
+@dataclass(frozen=True, slots=True)
+class ReleaseRevision:
+    release_id: str
+    revision: int
+    etag: str
+
+class ReleaseActivation(Protocol):
+    def revision(self, snapshot: ReadSnapshot, release_id: str) -> ReleaseRevision: ...
+    def activate(self, uow: UnitOfWork, session: SessionContext, *, release_id: str,
+                 expected_etag: str) -> ReleaseRevision: ...
 ```
 
-Activation follows the cFS table pattern: validate into the inactive slot (schema, the 16 checks, registered checks,
-guards inside the activation's `BEGIN IMMEDIATE`), swap atomically, keep the previous release for rollback, publish
-`config.release_activated`. Provenance per document is what CONTRACTS 11 defines (`basis`, `source_ids`,
-`to_be_set_by`); release provenance (bundle hash, signer, carrier message) is request R-SYS-14.
+Readers are bound to a UnitOfWork or ReadSnapshot; `active` means active at its start. Document versions hash raw
+bytes; typed parsing and generated model validation happen at startup outside kernel. Every activated version remains
+readable for pinned work. Candidate maps are immutable. Unknown template values render configured unknown text and
+log the field key only.
+
+Activation validates schema, all 16 loader checks, module checks and state guards inside the write transaction,
+then atomically swaps the active release with audit, outbox and replication entries. Any failure rejects the candidate
+and retains the last good release, never downgraded to a warning. Editor or operator can activate, including while
+sessions are open. Existing sessions, runs and warnings keep their pins; D1 prevents clearing or lowering an active
+warning; stock cannot become negative. Clinical-review absence is a label under Q1/Q7/Q18, not a validation failure.
+D8 defines the strong ETag of the release object, read through response headers without adding undeclared JSON fields.
+Release provenance is stored in audit until R-SYS-14's wire extension is applied.
 
 ### 5.7 Unit of work, event envelope and in-transaction bus
 
 ```python
+# crew_health/kernel/storage.py; concrete sqlite3 types occur only in platform/storage.py
+# Decimal quantities persist as validated decimal text plus UCUM, never an SQL REAL.
+type SqlValue = str | int | bytes | None
+
+@dataclass(frozen=True, slots=True)
+class StatementResult:
+    affected_rows: int
+    last_row_id: int | None
+
+class StorageSession(Protocol):
+    def execute(self, sql: str, parameters: tuple[SqlValue, ...] = ()) -> StatementResult: ...
+    def rows(self, sql: str, parameters: tuple[SqlValue, ...], *, limit: int) -> tuple[tuple[SqlValue, ...], ...]: ...
+
 # crew_health/kernel/uow.py
 @dataclass(frozen=True, slots=True)
 class Actor:
@@ -371,16 +526,44 @@ class DomainEvent(Protocol):
     event_type: ClassVar[str]
 
 @dataclass(frozen=True, slots=True)
+class Audience:
+    rule: str
+    object_ref: str
+    projection: str
+    policy_version: str
+
+@dataclass(frozen=True, slots=True)
+class EventScope:
+    kind: Literal["person", "habitat", "crew", "ground", "operator"]
+    person_id: str | None
+    environment_id: str | None
+
+@dataclass(frozen=True, slots=True)
 class OutboxEvent:
-    type: contracts_gen.EventType             # the 36 types of CONTRACTS 18
-    scope: Literal["person", "habitat", "crew", "ground", "operator"]
-    data: BaseModel                           # the contract object CONTRACTS 18 names for the type
-    person_id: str | None = None              # required when scope is "person"
-    audience: Audience | None = None          # privacy filter (8.3)
+    type: EventType
+    occurred_at: datetime
+    scope: EventScope
+    config_release_id: str
+    correlation_id: str | None
+    data_json: bytes
+    audience: Audience
+
+@dataclass(frozen=True, slots=True)
+class StoredEvent:
+    seq: int
+    event_id: str
+    type: EventType
+    occurred_at: datetime
+    emitted_at: datetime
+    scope: EventScope
+    config_release_id: str
+    correlation_id: str | None
+    data_json: bytes
+    audience: Audience
 
 class UnitOfWork(Protocol):
     @property
-    def connection(self) -> sqlite3.Connection: ...   # used only by the owning module's repositories
+    def connection(self) -> StorageSession: ...
     @property
     def now(self) -> datetime: ...
     @property
@@ -389,20 +572,21 @@ class UnitOfWork(Protocol):
     def release(self) -> ReleaseHandle: ...
     @property
     def correlation_id(self) -> str: ...
-    def publish(self, event: DomainEvent) -> None: ...       # in-transaction bus, synchronous
-    def emit(self, event: OutboxEvent) -> None: ...          # outbox row; delivered after commit
-    def audit(self, entry: AuditEntry) -> None: ...          # hash chained (5.9)
-    def schedule(self, key: str, at: datetime, handler: str,
-                 payload: Mapping[str, str] | None = None) -> None: ...
+    def publish(self, event: DomainEvent) -> None: ...
+    def emit(self, event: OutboxEvent) -> StoredEvent: ...
+    def audit(self, entry: AuditEntry) -> None: ...
+    def schedule(self, job: ScheduledJob, *, expected_generation: int | None) -> int: ...
+    def cancel_schedule(self, key: str, *, expected_generation: int) -> bool: ...
+    def replicate(self, change: ReplicationChange) -> ReplicationRef: ...
     def savepoint(self, name: str) -> AbstractContextManager[None]: ...
 
 class UnitOfWorkFactory(Protocol):
     def begin(self, *, actor: Actor, command: CommandIdentity | None = None,
-              immediate: bool = True) -> AbstractContextManager[UnitOfWork]: ...
+              correlation_id: str) -> AbstractContextManager[UnitOfWork]: ...
 
-class ReadSnapshot(Protocol):                 # one SQLite read transaction
+class ReadSnapshot(Protocol):
     @property
-    def connection(self) -> sqlite3.Connection: ...
+    def connection(self) -> StorageSession: ...
     @property
     def release(self) -> ReleaseHandle: ...
     @property
@@ -417,57 +601,59 @@ class DomainEventBus(Protocol):
     def publish(self, uow: UnitOfWork, event: DomainEvent) -> None: ...
 
 @dataclass(frozen=True, slots=True)
-class SessionContext:                          # built by E02 from the bearer token; kernel type so any module reads it
+class SessionContext:
     session_id: str
-    kind: Literal["crew", "station", "ground", "operator", "editor", "adapter", "node"]
+    kind: Literal["crew", "station", "ground", "operator", "editor", "adapter"]
     actor: Actor
     person_id: str | None
-    roles: frozenset[str]                      # common.schema.json#/$defs/role values
-
-@dataclass(frozen=True, slots=True)
-class Audience:
-    rule: str                                  # name of an AudienceRule registered by the owning module
-    object_ref: str
+    roles: frozenset[Role]
 
 class AudienceRule(Protocol):
-    def admits(self, snapshot: ReadSnapshot, session: SessionContext, object_ref: str) -> bool: ...
+    def admits(self, snapshot: ReadSnapshot, session: SessionContext, audience: Audience) -> bool: ...
 
-@dataclass(frozen=True, slots=True)
-class StoredEvent:
-    seq: int
-    type: contracts_gen.EventType
-    scope: str
-    person_id: str | None
-    data_json: bytes
-    committed_at: datetime
-
-@dataclass(frozen=True, slots=True)
-class CandidateRelease:
-    release_id: str
-    documents: Mapping[ConfigName, ConfigDocumentView]
-```
-
-The `node` session kind exists only after request R-SYS-3.
-
-Rules:
-
-- SQLite: WAL, `synchronous=FULL`, `foreign_keys=ON`, STRICT tables, one writer connection per process with
-  `busy_timeout` from settings; `BEGIN IMMEDIATE` for commands. The busy timeout is the only wait.
-- The producer owns the transaction. In-transaction handlers run synchronously in registration order, with reentrancy
-  depth at most `event_bus.max_depth` (default 4, E25). A handler error rolls back the command, except evaluators
-  wrapped by 8.6.
-- `emit` writes one outbox row per scope; a type CONTRACTS 18 lists for two scopes is emitted as two rows (answers E26
-  Q11). `seq` is `INTEGER PRIMARY KEY AUTOINCREMENT` in `events_outbox`, assigned in the transaction, so commit order is
-  `seq` order. SSE delivery starts after commit.
-- Durable in-process subscribers (R-E11-10):
-
-```python
 class OutboxSubscriptions(Protocol):
-    def register(self, subscriber: str, types: frozenset[contracts_gen.EventType],
+    def register(self, subscriber: str, types: frozenset[EventType],
                  handler: Callable[[UnitOfWork, StoredEvent], None]) -> None: ...
-        # after commit, at least once, in seq order, cursor per subscriber in events_cursor,
-        # handler and cursor advance commit in one transaction; handlers are idempotent by seq
+
+@dataclass(frozen=True, slots=True)
+class ReplicationChange:
+    record_type: str
+    record_id: str
+    operation: Literal["create", "version", "append", "retract"]
+    payload_json: bytes
+    causal_refs: tuple[str, ...]
+    release_id: str
+    audience: Audience
+
+@dataclass(frozen=True, slots=True)
+class ReplicationRef:
+    origin_node_id: str
+    origin_incarnation: str
+    origin_seq: int
 ```
+
+Actor kind is the contracted actor enum, separate from session kind and role; an editor credential uses its
+attributed person/operator actor with the editor role, never an invented wire actor kind.
+Only a module's repository adapters use `connection`, only for their tables; no raw connection escapes platform.
+`rows` enforces `storage.max_rows` and raises on excess rather than silently truncating. `execute` bounds input bytes.
+ReadSnapshot rejects mutations. SQLite implementation uses WAL, FULL synchronous, foreign keys, STRICT tables and
+one writer with bounded busy timeout. Every command begins IMMEDIATE; successful context exit commits once, any
+exception rolls back. Nested transactions and public manual commits are forbidden.
+
+State, command identity/result reference, audit, outbox, scheduled changes, replication log and origin sequence
+allocation commit atomically. Each repository mutation declares its replication change; missing declarations fail
+commit. Journal plaintext is exempt from replication and uses 5.8.1. Savepoint rollback also rolls back buffered
+events and replication changes. Domain events dispatch through a bounded iterative FIFO, in stable handler-name
+order, with no recursive publish; excess fanout fails the transaction. Evaluator isolation is only as in 8.6.
+
+`emit` assigns event ID and local sequence once and sets `emitted_at=uow.now`; validates data against the Event type's
+schema outside kernel. It persists every field above before commit. The generated Event maps these exact fields,
+with scope as `{kind, person_id, environment_id}` and decoded `data_json` as `data`; only `audience` is internal.
+The producer supplies the work's pinned release, not the currently active release. Retries replay the same event ID,
+time, release and JSON. Audience metadata is mandatory; current grant checks can suppress delivery but cannot expand
+the saved projection. Per-scope rows have distinct IDs and sequence numbers. SSE starts after commit. Durable
+subscriber effects and its cursor advance share a new transaction; duplicate seq is a no-op, storage failure retries
+without cursor advance. Retention waits for all subscribers.
 
 ### 5.8 Idempotency and command identity
 
@@ -475,27 +661,133 @@ class OutboxSubscriptions(Protocol):
 # crew_health/kernel/commands.py
 @dataclass(frozen=True, slots=True)
 class CommandIdentity:
-    key: str                  # Idempotency-Key header; clients generate a UUIDv7 at the moment of intent
-    actor_ref: str            # person ID of the session, or the actor ID for non-person sessions
-    operation: str            # operationId
-    body_sha256: str          # sha256 of the RFC 8785 canonical request body
-    durable: bool             # True for the clinical commands of 8.6
+    key: str
+    actor_ref: str
+    operation: str
+    target: str
+    parameters_sha256: str
+    body_fingerprint: str
+    fingerprint_kind: Literal["sha256", "hmac_sha256"]
+    durable: bool
 
 @dataclass(frozen=True, slots=True)
 class StoredResult:
     status: int
-    body: bytes
-    resource_ref: str | None  # ID of the created or changed resource
+    resource_ref: str | None
+    result_code: str
+    safe_body: bytes | None
 
 class IdempotencyStore(Protocol):
     def lookup(self, uow: UnitOfWork, identity: CommandIdentity) -> StoredResult | None: ...
     def record(self, uow: UnitOfWork, identity: CommandIdentity, result: StoredResult) -> None: ...
+
+class ResultVisibility(Protocol):
+    def authorize(self, snapshot: ReadSnapshot | UnitOfWork, session: SessionContext,
+                  identity: CommandIdentity, result: StoredResult) -> None: ...
+
+def command_identity(*, key: str, actor_ref: str, operation: str, target: str,
+                     parameters_json: bytes, body_fingerprint: str,
+                     fingerprint_kind: Literal["sha256", "hmac_sha256"], durable: bool) -> CommandIdentity: ...
 ```
 
-Lookup happens first, before any mutable precondition, and again inside `BEGIN IMMEDIATE` (E24 response 9). The
-24 hour cache (`platform_idempotency`) follows CONTRACTS 5; the durable ledger (`platform_command_ledger`) keeps
-`(key, actor_ref, operation, body_sha256, resource_ref, committed_at, origin_node_id)` for the life of the mission for
-durable commands (8.6).
+The boundary creates `target` from the matched route and canonical validated path IDs, never an untrusted URL string;
+parameters include every semantically relevant query/header (revision, pin and origin partition), exclude tokens and
+transport/correlation headers, and preserve ordered lists. Hash canonical RFC 8785 JSON with UTF-8 and SHA-256.
+A key is unique within the authenticated actor namespace across operations and targets. Any operation, target,
+parameter or body mismatch is `409 DUPLICATE_COMMAND`, including reuse on another plan's identical action body.
+Both the 24 hour cache and mission-life ledger compare the entire identity. Matching execution is never repeated.
+
+Authenticate and check current operation access first; lookup before mutable business preconditions, repeat inside
+the write transaction. Before returning any saved result, recheck object and field visibility under the current grant.
+Revoked access returns `UNAUTHORIZED_SCOPE` without its reference or contents and without re-execution. Private text
+never enters either cache: store references and safe codes, reconstruct an authorized representation from the owning
+store. Exact original bodies may be cached only for P0/P1 responses. Beyond 24 hours a matching durable command returns
+`DUPLICATE_COMMAND` with only an authorized `current_state`; clients treat a matching durable receipt as acceptance
+(D6). Fingerprints of private command bodies use keyed HMAC, never a guessable plaintext hash.
+
+#### 5.8.1 Private journal two-store protocol (D4)
+
+```python
+# crew_health/kernel/private.py
+@dataclass(frozen=True, slots=True)
+class PrivateIntent:
+    identity: CommandIdentity
+    owner_person_id: str
+    entry_id: str
+    plaintext: bytes
+
+@dataclass(frozen=True, slots=True)
+class SealedPrivateRef:
+    entry_id: str
+    owner_person_id: str
+    command_key: str
+    fingerprint: str
+    key_id: str
+    ciphertext_sha256: str
+
+@dataclass(frozen=True, slots=True)
+class PrivateReceipt:
+    entry_id: str
+    command_key: str
+    hub_reference_seq: int
+
+class PrivateStore(Protocol):
+    def seal(self, intent: PrivateIntent) -> SealedPrivateRef: ...
+    def verify(self, reference: SealedPrivateRef) -> bool: ...
+    def acknowledge(self, reference: SealedPrivateRef, receipt: PrivateReceipt) -> None: ...
+    def discard_orphan(self, reference: SealedPrivateRef) -> None: ...
+    def pending(self, *, after_entry_id: str | None, limit: int) -> tuple[SealedPrivateRef, ...]: ...
+
+class PrivateJournalCoordinator(Protocol):
+    def write(self, session: SessionContext, intent: PrivateIntent) -> PrivateReceipt: ...
+    def recover(self, *, limit: int) -> int: ...
+
+class PrivateKeyVault(Protocol):
+    def create_entry_key(self, *, owner_person_id: str, entry_id: str) -> str: ...
+    def revoke(self, *, owner_person_id: str, entry_ids: tuple[str, ...], command_key: str) -> str: ...
+    def is_revoked(self, *, entry_id: str) -> bool: ...
+    def fingerprint(self, *, owner_person_id: str, canonical_identity_and_body: bytes) -> str: ...
+    def encrypt(self, *, key_id: str, plaintext: bytes, associated_data: bytes) -> SealedBlob: ...
+    def decrypt(self, session: SessionContext, *, reference: SealedPrivateRef,
+                blob: SealedBlob, associated_data: bytes) -> bytes: ...
+
+@dataclass(frozen=True, slots=True)
+class SealedBlob:
+    nonce: bytes
+    ciphertext: bytes
+    wrapped_dek: bytes
+```
+
+Platform owns the coordinator; E03 owns the journal repository. It validates owner authentication, bounded body and
+identity first. It recomputes the identity fingerprint through the vault, never trusts a supplied digest, and
+constructs PrivateIntent only within that owner-authorized path. Vault decrypt checks current owner session, live hub
+reference and revocation generation on every read; an orphan cannot be read. HMAC-SHA256 uses a per-owner random fingerprint secret kept only in the live key vault; its input
+covers operation, target, parameters and canonical private body. The hub stores only that keyed fingerprint and
+references. No journal body or response text goes to logs, generic command caches, replication, browser persistence,
+service worker caches or client command journals. An unsent edit stays in owner-session memory with a visible unsaved
+state; locking clears it. No offline acceptance is claimed.
+
+Order: (1) seal and FULL-commit private ciphertext with entry ID, key, HMAC and command identity; (2) verify the sealed
+entry and commit hub reference, durable deduplication and reference-only audit in one hub transaction; (3) persist the
+private receipt marker, then acknowledge the client only after both stores are durable. Private error messages contain
+codes only. A repeat with the same key and HMAC returns the same receipt; a mismatch conflicts. Startup recovery runs
+before journal writes or backup and joins only by command key and keyed fingerprint, never plaintext.
+
+| Crash point | Recovery and retry |
+|---|---|
+| Before private commit | No accepted record. Retry seals once; incomplete key allocation is garbage collected only after checking both stores |
+| After private commit, before hub commit | Orphan is unacknowledged. Recovery discards it and revokes its entry key after proving no hub reference, or a same-owner retry completes the reference with the same identity |
+| During hub commit | Inspect committed ledger/reference after SQLite recovery. Never infer acceptance from a client timeout |
+| After hub commit, before receipt marker | Verify private ciphertext and repair the marker; never discard this entry; retry returns the committed receipt |
+| After marker, before or after client acknowledgment | Both stores retain the entry and identity; retry returns the receipt without another entry |
+| Hub reference with missing or corrupt ciphertext | Integrity fault, journal read/write disabled with visible restore path; never an empty successful entry |
+
+Backup takes the shared journal/backup barrier after recovery: pause new journal writes and deletions, finish in-flight
+coordinators, capture a hub snapshot and matching private snapshot at one reference watermark, then release the barrier.
+A signed manifest binds both hashes, watermark, audit head, key-vault generation and deduplication checkpoint. Verify
+every live hub reference resolves to ciphertext or a committed deletion tombstone before rotating. Never restore only
+one store. Current vault revocations override old manifests (7.4); accepted ciphertext and deduplication survive a
+crash between every write and acknowledgment.
 
 ### 5.9 Audit hash chain
 
@@ -503,84 +795,218 @@ durable commands (8.6).
 # crew_health/kernel/audit.py
 @dataclass(frozen=True, slots=True)
 class AuditEntry:
-    action: str                               # "<module>.<verb>", for example "help.session_opened"
+    event_id: str
+    event_type: str
+    event_version: int
     actor: Actor
-    refs: Mapping[str, str]                   # object IDs only
-    safe_metadata: Mapping[str, str | int | bool]   # never journal text, symptoms, prompts or document content
+    refs: Mapping[str, str]
+    correlation_id: str
+    causation_id: str | None
+    safe_metadata: Mapping[str, str | int | bool]
+
+@dataclass(frozen=True, slots=True)
+class AuditEnvelope:
+    origin_node_id: str
+    origin_incarnation: str
+    audit_seq: int
+    at: datetime
+    entry: AuditEntry
+    prev_hash: str
+
+@dataclass(frozen=True, slots=True)
+class AuditVerification:
+    ok: bool
+    first_bad_seq: int | None
+    head_seq: int
+    head_hash: str
 
 class AuditVerifier(Protocol):
-    def verify(self, from_seq: int = 1) -> AuditVerification: ...   # ok, first bad seq, head hash
+    def verify(self, *, expected_head_seq: int, expected_head_hash: str) -> AuditVerification: ...
+
+def audit_bytes(envelope: AuditEnvelope) -> bytes: ...
+def audit_hash(envelope: AuditEnvelope) -> str: ...
 ```
 
-Stored row: `audit_seq`, `at`, `entry_json` (RFC 8785 canonical), `prev_hash`, `entry_hash = sha256(prev_hash ||
-entry_json)`, genesis `prev_hash` 32 zero bytes. Append only: a SQLite trigger refuses UPDATE and DELETE. The head hash
-travels in sync status and ground bundles (DEPLOYMENT.md 5.6).
+`audit_bytes` serializes every envelope field, including sequence, UTC timestamp with six fractional digits and Z,
+actor, version, references, correlation, causation and previous hash as RFC 8785 UTF-8 JSON. Integers stay within the
+canonical encoder's exact range. `entry_hash=SHA256(b"crew-health.audit.v1\0" + audit_bytes(envelope))`, lowercase hex;
+genesis previous hash is 64 zero characters. The digest itself is the only stored field excluded from the preimage.
+All indexed columns must equal the canonical envelope. No unchained timestamp or metadata column is authoritative.
+Append-only triggers reject update/delete; appends and chain head update share the command transaction.
+
+Verification checks contiguous sequence, unique identity, canonical bytes, every previous link and the independently
+checkpointed expected head, detecting timestamp alteration and truncation. Backup manifests pin heads; local sealed
+checkpoints and peer receipts anchor later heads without revealing private references. Restore verifies to the manifest
+head and records a new incarnation linked to it; an older checkpoint is visibly a recovery, never claimed as current.
+No offline hash chain alone proves absence of a privileged rewrite without a trusted checkpoint.
 
 ### 5.10 Scheduler and health
 
 ```python
+# crew_health/kernel/scheduler.py
+@dataclass(frozen=True, slots=True)
+class AbsoluteDeadline:
+    at: datetime
+
+@dataclass(frozen=True, slots=True)
+class ElapsedDeadline:
+    anchor: TimeInput
+    duration: timedelta
+
+@dataclass(frozen=True, slots=True)
+class ScheduledJob:
+    key: str
+    handler: str
+    deadline: AbsoluteDeadline | ElapsedDeadline
+    payload: Mapping[str, str]
+    ownership_epoch: int | None
+
 class Scheduler(Protocol):
-    def call_at(self, key: str, at: datetime, handler: str,
-                payload: Mapping[str, str] | None = None) -> None: ...   # durable, idempotent by key
+    def replace(self, uow: UnitOfWork, job: ScheduledJob, *, expected_generation: int | None) -> int: ...
+    def cancel(self, uow: UnitOfWork, key: str, *, expected_generation: int) -> bool: ...
 
 class SchedulerRegistry(Protocol):
-    def register(self, handler: str, fn: Callable[[UnitOfWork, Mapping[str, str]], None]) -> None: ...
+    def register(self, handler: str, fn: Callable[[UnitOfWork, ScheduledJob], None]) -> None: ...
 
-class HealthState(Protocol):                   # in memory; served by GET /v1/health without a write
+@dataclass(frozen=True, slots=True)
+class ComponentHealth:
+    component: str
+    code: str | None
+    since: datetime | None
+
+@dataclass(frozen=True, slots=True)
+class HealthSnapshot:
+    status: Literal["ok", "degraded"]
+    components: tuple[ComponentHealth, ...]
+
+class HealthState(Protocol):
     def mark_degraded(self, component: str, code: str, since: datetime) -> None: ...
     def mark_ok(self, component: str) -> None: ...
     def snapshot(self) -> HealthSnapshot: ...
 ```
 
-Jobs live in `platform_scheduler`; due jobs run each in its own unit of work; on start every module re-registers its
-durable deadlines; a `ClockCorrected` event reschedules by the new offset.
+A new key expects `None`; replacement compares the current generation and increments it. Stale generations fail
+`STALE_VERSION`; cancellation of an already cancelled same generation returns false. `uow.schedule/cancel_schedule`
+are the identical transactional operations. Payloads contain bounded references, no private text. A dispatcher checks
+ownership epoch and generation inside IMMEDIATE, applies the handler and marks that generation completed in the same
+transaction; crash before commit rolls back both, crash after commit cannot rerun effects. External work uses an
+outbox/job receipt, never an external call inside this transaction. Startup reconciles persisted jobs by key without
+resetting generation or completed state.
+
+Absolute deadlines (a stated next contact plus its silence allowance, appointment, expiry instant) never shift with a
+clock offset. Elapsed deadlines (dwell, retry delay, ongoing duration) retain their anchor and duration and are
+recomputed using 5.2 corrections, preserving elapsed time across a hub correction. If time is unknown, leave a visible
+pending job and prohibit safety clearing. Correction and recomputation commit together; overdue jobs dispatch in
+bounded deadline/key order. Forward/backward jump tests cover both classes, retries and duplicate callbacks.
+
+Health component details are internal until R-SYS-9. Current Health JSON exposes only its declared fields and overall
+`status=degraded`. The station uses that status or a failed health call to render a configured general fault notice
+that warning evaluation may be unavailable; it does not invent an evaluator code or a `since` timestamp on the wire.
+Diagnostics CLI reads the internal snapshot with codes/times. Durable pending evaluations rebuild degradation on start.
 
 ### 5.11 Settings
 
 ```python
+# crew_health/kernel/settings.py
+@dataclass(frozen=True, slots=True)
+class SettingSpec:
+    key: str
+    kind: Literal["integer", "quantity", "boolean", "text"]
+    unit: Unit | None
+    minimum: Decimal | None
+    maximum: Decimal | None
+    max_text_bytes: int | None
+    basis: str
+
 class HubSettings(Protocol):
-    def get(self, key: str) -> Quantity | int | bool | str: ...
+    def integer(self, key: str) -> int: ...
+    def quantity(self, key: str) -> Quantity: ...
+    def boolean(self, key: str) -> bool: ...
+    def text(self, key: str) -> str: ...
 ```
 
-Two sources, both validated at start: deployment settings in `<data_dir>/crew-health.toml` (DEPLOYMENT.md 6.2) and the
-hub settings document `<data_dir>/hub-settings.json`, schema `hub/src/crew_health/platform/schemas/hub-settings.schema.json`
-(E01), holding operational bounds with `{value, unit, basis, to_be_set_by}` per key: queue and page sizes, timeouts,
-retries, cache sizes, idle lock, event retention, backup interval, sync bounds. These carry no clinical or mission
-meaning; anything that does belongs in the 18 configuration documents (CONTRACTS 20 "Nothing is hardcoded"). The
-runtime limits requested by R-E11-9, R-E24-15 (operational part), E26 finding 19, E28 finding 19 and E32 section 11
-are keys here.
+Wrong types or unknown keys are startup `CONFIG_INVALID`, never coercions or defaults. Deployment settings live in
+`crew-health.toml`; operational bounds in `hub-settings.json`, each `{value, unit, basis, to_be_set_by}` with schema
+minimum and maximum. E01 owns the base schema; modules register bounded settings descriptors from their own manifest.
+Mission content lives in the release, including D12 overlays, never here. Each descriptor supplies a concrete validated
+upper limit; unresolved values prevent that optional service starting, not a silent unbounded loop.
+
+| Setting family | Bound enforced | Basis |
+|---|---|---|
+| `storage.busy_timeout_ms`, `storage.max_rows`, `storage.max_statement_bytes`, `storage.reserve_mb` | Every database call, result and reserve allocation | Deployment disk and measured transaction envelope |
+| `event_bus.max_events`, `events.page_size`, `events.retention_hours`, `events.max_subscribers` | Iterative dispatch, reads, retention and subscribers | Measured hub load; subscriber retention cannot drop unconsumed events |
+| `clock.regression_tolerance_ms`, `clock.future_tolerance_ms`, `clock.max_uncertainty_ms`, `clock.hlc_future_ms`, `clock.hlc_logical_max`, `clock.history_page_size` | Time normalization, remote skew, counter and correction pages | Clock measurement envelope; no setting permits stale clearing |
+| `commands.max_bytes`, `commands.cache_entries`, `private.max_entry_bytes`, `private.recovery_batch` | Boundary bodies, safe cache and recovery pages | Contract maxima and laptop memory |
+| `scheduler.batch_size`, `scheduler.poll_ms`, `scheduler.max_jobs`, `scheduler.retry_max`, `scheduler.retry_backoff_ms` | Dispatch, persistent queue and failure retry | Operational throughput; exhausted work stays visible pending |
+| `sync.page_entries`, `sync.pending_max`, `sync.max_bytes`, `sync.retry_max`, `sync.timeout_ms`, `sync.transfer_timeout_ms` | Authorized projections, buffers, calls and transfer retry | Transport capacity; no dropped accepted records |
+| `bundle.max_bytes`, `bundle.max_inflight`, `bundle.retry_max`, `bundle.retry_backoff_ms`, `bundle.renewal_batch` | Envelope construction and per-contact retry | Transport capacity; lifetime is release content, D11 |
+| `workers.<name>.timeout_ms`, `workers.<name>.health_ms`, `workers.<name>.restart_max`, `workers.<name>.restart_window_ms`, `workers.<name>.backoff_max_ms`, `workers.<name>.rss_mb`, `workers.<name>.cpus` | Every process call, health and restart budget | Section 3 reference measurement; hub retries indefinitely at bounded rate |
+| `backup.interval_minutes`, `backup.keep`, `backup.timeout_ms`, `logs.keep_days`, `logs.max_bytes` | Backup and log storage | Deployment capacity; no deletion of unreplicated clinical records |
+| `security.enrollment_code_minutes`, `security.idle_lock_minutes`, `security.auth_attempts`, `security.auth_window_ms` | Enrollment, session lock and login rate | Local security policy |
+| `registry.max_modules`, `registry.max_ports`, `registry.max_hooks`, `registry.startup_timeout_ms` | Discovery and startup work | Installed artifact manifest |
+
+Each module lists any further bounds in its design and registers them with type, unit, minimum, maximum and source.
+All numerical budgets in section 3 and DEPLOYMENT 7.3 are seeded operational settings, not literals in request code.
 
 ### 5.12 Composition root and startup order
+
+The registry is an application assembly interface, not a kernel import. It may import FastAPI; feature domains cannot.
+All callbacks below are bounded by the startup setting. Fact providers for guidance are optional; the guidance rule
+itself and all required loader checks are mandatory.
 
 ```python
 # crew_health/app/registry.py
 class StartupPhase(IntEnum):
-    STORAGE = 10          # integrity check, migrations
-    CONFIG = 20           # load and validate the active release
+    STORAGE = 10
+    CONFIG = 20
     CLOCK = 30
-    STATE_SWEEP = 40      # E23 freshness sweep, E24 dwell reset, E25 deadline re-registration
-    INGEST = 50           # adapters accepted
+    STATE_SWEEP = 40
+    INGEST = 50
     SERVE = 60
+
+class Resolver(Protocol):
+    def require[P](self, port: type[P]) -> P: ...
+    def optional[P](self, port: type[P]) -> P | None: ...
 
 class ModuleRegistry(Protocol):
     def router(self, router: APIRouter) -> None: ...
-    def provide[P](self, port: type[P], impl: P) -> None: ...
-    def require[P](self, port: type[P]) -> P: ...           # raises at startup when a hard port is missing
-    def optional[P](self, port: type[P]) -> P | None: ...   # None when the providing module is not installed
+    def provide[P](self, port: type[P], factory: Callable[[Resolver], P]) -> None: ...
+    def bind(self, name: str, fn: Callable[[Resolver], None]) -> None: ...
     def subscribe[E: DomainEvent](self, event_type: type[E], handler: Callable[[UnitOfWork, E], None], *,
                                   name: str) -> None: ...
     def audience_rule(self, name: str, rule: AudienceRule) -> None: ...
-    def durable_subscriber(self, subscriber: str, types: frozenset[contracts_gen.EventType],
+    def durable_subscriber(self, subscriber: str, types: frozenset[EventType],
                            handler: Callable[[UnitOfWork, StoredEvent], None]) -> None: ...
     def loader_check(self, check: ReleaseCheck) -> None: ...
     def activation_guard(self, guard: ActivationGuard) -> None: ...
-    def scheduler_handler(self, name: str, fn: Callable[[UnitOfWork, Mapping[str, str]], None]) -> None: ...
+    def scheduler_handler(self, name: str, fn: Callable[[UnitOfWork, ScheduledJob], None]) -> None: ...
     def on_startup(self, phase: StartupPhase, fn: Callable[[], None]) -> None: ...
+    def id_prefix(self, *, record_type: str, prefix: str) -> None: ...
+    def setting(self, spec: SettingSpec) -> None: ...
+
+# each crew_health/<module>/module.py owns these entry functions
+def register(registry: ModuleRegistry) -> None: ...
 ```
 
-`crew_health/app/assembly.py` (E01) imports each installed module's `module.register` in a fixed order. A module that
-is absent leaves its optional ports `None`; consumers implement the documented fallback. This is how hard and optional
-dependencies (section 9) appear in code.
+E01's assembly discovers installed first-party `crew_health.<name>.module` files by a fixed naming convention and
+sorted module name. The signed build manifest lists their hashes; no configuration, request or database value is an
+import path. Build-time discovery generates the static import list and import-linter rules (6.4); installation verifies
+it against actual packages, rejecting missing/unlisted plugins. An epic plugs in by adding its owned module file;
+assembly and hub/pyproject.toml never need an epic edit. Module import has no I/O or registration side effects.
+
+Pass 1 invokes every `register` to declare factories and named bindings; `register` cannot call `require` or construct
+another provider. Pass 2 resolves factories by a deterministic topological dependency walk, rejects cycles, duplicate
+ports and missing required ports, then invokes bindings. For mutual dependencies use consumer-owned protocols plus
+late bindings; never a factory cycle. Pass 3 freezes and validates audiences, scheduler handlers, settings and the full
+loader-check inventory, including E10 checks 2 and 11 or E01's equivalent offline source/condition registry checks.
+Absent semantic validation is fatal, never skipped because a provider is optional.
+
+Then execute STORAGE (integrity, migration, restore fencing, journal recovery), CONFIG (all validation), CLOCK (load
+histories/high water), STATE_SWEEP (freshness, warnings, timers, pending evaluations), INGEST, SERVE. Configuration
+validation may read stored clock data but cannot require the later live sweep. Before SERVE only liveness and static
+emergency resources are available. Failure keeps the hub in visible safe mode with cached/printed help and no accepted
+mutations. E27 delivers the kernel-only guidance rule and bounded unknown-provider facade before its kit-map UI.
+The facade depends on consumer-owned fact protocols, not imports of E10/E23/E31/E32 implementations.
 
 ## 6. Repository layout, workspaces and contracts
 
@@ -638,18 +1064,21 @@ client only from `@crew-health/contracts`; TypeScript `strict`; no shared type i
 
 ### 6.4 Import-linter contracts
 
-Kept in `hub/pyproject.toml` (E01 owns the file; epics add their entries by request, as E11 and E24 did):
+E01 owns the generator `hub/src/crew_health/app/import_contracts.py`; a build discovers module directories and
+generates contracts for each automatically. `hub/pyproject.toml` invokes the generator once by convention. Each module
+may add stricter rules in its owned `architecture.toml`; it cannot relax the base rules. CI runs `python -m crew_health.app.import_contracts --output <temporary-file>`, then
+`lint-imports --config <temporary-file>`, and rejects any module omitted from discovery. Adding a module edits no shared file:
 
 | Contract | Kind | Rule |
 |---|---|---|
-| `kernel-pure` | forbidden | `crew_health.kernel` imports no `sqlite3`, `fastapi`, `httpx`, `crew_health.platform` or any module |
+| `kernel-pure` | forbidden | `crew_health.kernel` imports only standard library and pure generated `contracts_gen.enums`; forbids `sqlite3`, `fastapi`, `pydantic`, `httpx`, platform and feature modules, including transitive imports |
 | `<module>-layers` | layers | `api` > `adapters` > `application` > `domain` inside every module |
-| `domain-pure` | forbidden | Any `*.domain` imports nothing but `crew_health.kernel` and the standard library |
+| `domain-pure` | forbidden | Any `*.domain` imports only its own domain, `crew_health.kernel` and the standard library |
 | `modules-independent` | independence | No module imports another module's `domain`, `adapters` or `api`; cross-module imports only of `<other>.application.ports` |
 | `app-only-assembles` | forbidden | Only `crew_health.app` imports `*.module` |
 | `pharmacy-only-from-medicines` | forbidden | Only `crew_health.medicines.adapters` imports `pharmacy` |
 | `ground-link-readers` | forbidden | Only `rules` (ground silence evaluator), `catchup`, `mission` (Habitat line) and `groundlink` import `groundlink.application.ports` |
-| `no-model-in-safety` | forbidden | `help`, `rules`, `sensors`, `routine`, `records`, `pathways`, `plans` never import `assistant`, `tools` or any model client |
+| `no-model-in-safety` | forbidden | Safety modules never import assistant implementations, tools or model clients. Optional assistant integration uses consumer-owned application protocols, bound only by assembly |
 | `rules-no-vehicle-write`, `pathways-no-io-clients` | forbidden | As E24 and E11 request |
 
 Cycles between modules are broken by declaring the needed protocol in the consumer's `application/ports.py` and
@@ -665,8 +1094,10 @@ wiring the provider at the composition root (E32 section 2 pattern).
   `ERROR_STATUS` and `ERROR_RETRYABLE` tables from CONTRACTS 5). TypeScript: `openapi-typescript` produces
   `packages/contracts-ts/src/generated/`. Both run with `uv run --project hub python -m crew_health.contracts_gen.build`
   and `pnpm -C packages/contracts-ts generate`; CI regenerates and fails on a diff.
-- A contract change is a request; after approval the coordinator updates the copy and `SHA256SUMS` in one change and
-  regenerates.
+- Base copies remain byte-identical to the package. D12 supplies a separate, deterministic decision overlay for
+  accepted Part A supersessions; generated effective validators and models record both base SHA and decision-overlay
+  SHA. CI proves each overlay edit matches an A3 row, validates examples against the effective schema and reports
+  obsolete base assertions as superseded, never silently weakens a test. Pending requests do not enter the overlay.
 
 ## 7. Data lifecycle
 
@@ -680,17 +1111,20 @@ wiring the provider at the composition root (E32 section 2 pattern).
 | Event outbox | `events.retention_hours` (hub settings) and until every durable subscriber passed; older cursors get `410 CURSOR_EXPIRED` | `hub.sqlite` |
 | Sensor readings | Mission life at the configured cadence; REPLAY and SIM kept separate by `origin_mode` | `hub.sqlite` |
 | Raw camera frames | Never stored (CONTRACTS 10) | none |
-| Journal, private reports | Until the owner deletes them | `private.sqlite`, per person encryption |
+| Journal, private reports | Until the owner deletes them | `private.sqlite`, per-entry encryption with owner-only vault access |
 | Backups | Last `backup.keep` verified snapshots plus the golden copy | `backups/`, golden medium |
 | Ground bundles | Until acked; expired transmission copies removed, local records kept | `outbox/` |
 | Logs and crash reports | `logs.keep_days`; crash reports until downlinked | `logs/`, `crash/` |
 
 ### 7.2 Backup and restore
 
-SQLite online backup of `hub.sqlite` and `private.sqlite` every `backup.interval_minutes`, before every migration,
-release activation and software install; each backup is verified (`integrity_check`, audit chain) before it rotates an
-older one out. Restore works on any machine of any supported operating system (portable database,
-vehicle-computing.md 3.5).
+Backup uses the D4 barrier and paired manifest in 5.8.1, not independent snapshots. It runs every
+`backup.interval_minutes` and before migration, activation or software install, within `backup.timeout_ms`. Verify both
+databases, every hub/private reference, command ledger checkpoint, replication/incarnation state, audit head and release
+hash before rotating. Key-vault secrets are never in a data backup. A restore validates the pair and current vault
+revocations, fences the old writer, creates a fresh incarnation and reconciles deduplication before writes (DEPLOYMENT
+4.2, 7.5). Private ciphertext is portable; decryption requires the current owner-authorized vault. A missing vault is
+visible unavailable private data, never a fallback to a stale key snapshot.
 
 ### 7.3 Export: HL7 FHIR R4 with LOINC and UCUM
 
@@ -698,7 +1132,7 @@ vehicle-computing.md 3.5).
 with gateway, untrusted device clock and idempotent re-upload semantics) and the International Patient Summary are both
 built on R4 (health-data-standards.md "Key conclusions", 1 "PHD IG" and "IPS"; medical-systems-standards.md 4.2 and 8.1
 item 1). Observation is normative in R4 and R5, so nothing the hub records is lost (health-data-standards.md 1). R6 is
-not final. The charter row says R5: request R-SYS-2.
+not a target here. BUILD-CHARTER section 2 already specifies R4; R-SYS-2 concerns the mapping document only.
 
 - Building: `fhir.resources` 8.3.0 has no R4 models (R5 default, R4B and STU3 sub-packages; health-data-standards.md
   4 "Python libraries"), so the exporter builds with the R4B models for the resources whose R4 and R4B structure is the
@@ -712,19 +1146,36 @@ not final. The charter row says R5: request R-SYS-2.
   `HTEST` security label and REPLAY a local tag; idempotent upload by a PHD style `identifier` and conditional create in
   a transaction Bundle; the ground log is an IPS shaped document Bundle.
 - The code tables are content, so they belong in a configuration document (`export-mapping.json`), request R-SYS-2.
-  Interim: the exporter reads them from `config/export-mapping.json` validated by a schema E29 owns, outside the 18
-  document release, and the export is labeled "mapping not in a reviewed release".
+  Until that document is part of the signed, pinned, validated release, FHIR export is off and says mapping unavailable.
+  Onboard records, consent-filtered approved handoffs and catch-up remain available; no ad hoc clinical mapping ships.
 - Never exported: journal entries, private reports, raw prompts, audit metadata beyond references, anything the subject
   has not consented to send (CONTRACTS: the journal is "never in prompts, indexes, exports or other people's events").
 
 ### 7.4 Deletion of private data
 
-- Journal and private reports: deleting an entry destroys its encryption with the entry; deleting a person's private
-  data destroys their wrapped data key, which makes every copy in every backup unreadable at once (crypto shredding,
-  DEPLOYMENT.md 5.4). The deletion itself is audited by reference only.
-- Data already delivered to the ground cannot be recalled by the hub; a deletion request bundle asks the ground node
-  to delete its copy and the ground's receipt is recorded. The crew is told this before any private item is sent.
-- Accepted clinical records are never deleted on board during a mission; corrections supersede them (CONTRACTS 3).
+- Each private entry has a distinct data encryption key (DEK), wrapped by a distinct entry wrapping key in the live
+  key vault. Data backups contain ciphertext and wrapped DEKs only. Owner credentials authenticate vault access; they
+  cannot derive entry wrapping keys. Node backup keys cannot unwrap them. The live vault and its recovery device, if
+  provisioned, are mutable erasure domains, never versioned/copied into data backups or golden images.
+- Deletion first records a durable revocation intent in the vault. The vault denies unwrap immediately and destroys
+  the entry wrapping key in every registered vault replica; only after all replicas attest deletion does the hub
+  commit the deletion tombstone and reference-only audit and acknowledge complete deletion. Offline replicas leave
+  deletion pending, visibly, and cannot serve unwrap while stale. On one laptop this is one local vault, with no ground
+  dependency. Person deletion performs this for every owned entry, then removes the owner fingerprint secret.
+- Vault generation and revocation ledger are monotonic and outside snapshot restore. Startup/restore refuses any older
+  or unverified vault generation. Interrupted deletions resume from the intent, never resurrect a key. Retained keys
+  remain usable; deleting entry A cannot destroy entry B's key. OS keystore integration must document secure key
+  deletion and exclusion from OS/cloud snapshots; whole-disk snapshot copies containing vault secrets are unsupported.
+- Restore test: back up entries A and B; delete A and verify every registered key replica's receipt; restore that old
+  data backup against the current vault. A fails unwrap and is displayed deleted, B decrypts under owner access.
+  Restore of an old vault image is rejected; a backup wrapper plus owner credentials never recovers A. Run the same
+  test for person deletion, power loss at each phase and an offline vault replica. Do not claim completed erasure while
+  a key-bearing recovery copy is unaccounted for. Total loss of every live vault loses private recovery; data backups
+  intentionally cannot restore keys. This tradeoff is stated in the recovery screen before provisioning.
+- Journal is never sent. A report explicitly sent by its owner is an immutable approved snapshot; deletion cannot
+  recall an already delivered recipient copy. Send a reference-only deletion request and record its receipt, and tell
+  the owner this limitation before sharing.
+- Accepted clinical records remain append only during the mission; corrections supersede them (CONTRACTS 3).
 
 ## 8. Cross-cutting resolutions
 
@@ -747,41 +1198,103 @@ not final. The charter row says R5: request R-SYS-2.
 
 **E24 and E32 (warning inputs from supplies).**
 
-- Producer owns the transaction. E32 publishes the domain event `SupplyCoverChanged` inside the supply use's
-  transaction with `supply_id`, `environment_id`, `custody_location_id` (after R-SYS-6), `mission_id`, `origin_mode`,
-  `supply_use_id`, `at` and `cover: CoverFact` (`last_use_id`, `last_use_at`, quantities as `Quantity`). The name
-  `SupplyUseRecorded` in E24 is retired.
-- E24's handler runs synchronously in that transaction. On release activation and on start, E24 calls
-  `SupplyCoverFacts.rows(uow, environment_id)`. Public clients get `supply.used` after commit.
-- A null cover never raises, clears or becomes zero (E24 response 11). Recovery: the start-up re-evaluation from
-  `rows` replaces any lost delivery, since delivery is in transaction and cannot be lost after commit.
+Canonical definitions live only in `crew_health/supplies/application/ports.py` (E32). E24 imports these exact
+names; neither side declares a local variant. The producer owns the transaction and emits one batch per partition.
+
+```python
+@dataclass(frozen=True, slots=True)
+class SupplyPartition:
+    mission_id: str
+    environment_id: str
+    custody_location_id: str
+    origin_mode: Literal["LIVE", "REPLAY", "SIM"]
+
+@dataclass(frozen=True, slots=True)
+class CoverFact:
+    supply_id: str
+    supply_name: str
+    quantity_now: Quantity | None
+    per_use: Quantity | None
+    cover_uses: int | None
+    quantity_text: str
+    per_use_text: str | None
+    last_use_id: str | None
+    last_use_at: datetime | None
+    release_id: str
+    stock_revision: int
+    source_refs: tuple[str, ...]
+
+@dataclass(frozen=True, slots=True)
+class SupplyCoverChanged:
+    event_type: ClassVar[str] = "supplies.cover_changed"
+    partition: SupplyPartition
+    cause: Literal["use", "stock_edit", "release_activation", "custody_transfer", "recovery"]
+    cause_ref: str
+    observed_at: datetime
+    rows: tuple[CoverFact, ...]
+
+class SupplyCoverFacts(Protocol):
+    def rows(self, view: UnitOfWork | ReadSnapshot, *, partition: SupplyPartition,
+             after_supply_id: str | None, limit: int) -> tuple[CoverFact, ...]: ...
+```
+
+Rows are sorted by supply ID, unique, bounded by the registered batch setting; paged scans share one snapshot. The
+batch contains every changed supply in that partition, not one arbitrary row. Quantities carry units, display text
+comes from pinned configuration, and null stock/per-use gives null cover, never zero. `last_use_at` is observation
+time, never delivery time. Release changes preserve last-use fields; older batches never replace newer revisions.
+E24 handles the batch synchronously under 8.6, retains provenance, and rescans on startup and activation. A null cover
+cannot raise or clear a warning. Q19 leaves the low threshold inactive until configured. `SupplyUseRecorded` is retired;
+public clients still receive contracted `supply.used` after commit. Until locations land, custody is the environment's
+single local site and no cross-site stock transfer is enabled (R-SYS-6).
 
 **E10 and E19 (knowledge paths and review flow).** Section 4.4 gives the file split and separate stores. Review flows
 one way: E19 records reviews, claims and per-use approvals and exports them as the review export; E10's
-`ReleaseBuilderPort.build(review_export)` turns them into a release with approvals per purpose at exact content
-hashes; E10 alone serves passages, and only through `read_approved(release_id, passage_id, purpose)`. The PathwayVersion
+`ReleaseBuilderPort.build(review_export)` pins provenance, permitted purposes and review status at exact content
+hashes. E10 serves eligible passages through its public purpose-checked reader; legacy `read_approved` means
+source/purpose eligible, never a requirement for clinical sign-off (Q1/Q18). Unreviewed content carries the visible
+"not clinically reviewed" label; withdrawal, absent provenance and disallowed purpose still block use. The PathwayVersion
 shape is dropped (E11 response 7): E11 evaluates E10's `pathway_card` at the pinned release.
 
 **Other seams settled here.** Section 4.4 table, plus:
 
 - E28 and E30: E30 publishes the domain event `GuidedCheckCompleted(guided_check_id, plan_run_id, step_id, outcome,
-  observation_ids)` inside its transaction; E28 handles it in the same transaction. Outcome `disagree` writes no value
-  and never completes a step (CONTRACTS 23).
+  observation_ids)` inside its transaction; E28 handles it there. Q8 overrides the package disagreement prohibition:
+  preserve the valid manual Observation and every available camera Observation, their methods, operators, times,
+  origin and disagreement, without averaging or overwriting either. `disagree` moves the check to `retry`; the plan
+  step remains incomplete and no successful skill practice is awarded. A retry appends a new attempt and keeps prior
+  observations. `agree` or `no_reference` moves to `checked` and may complete the eligible step; missing camera is
+  labeled unchecked. A camera failure or disagreement never vetoes manual capture; drills still keep health data out
+  of the clinical record under EI10.
 - E04 and E15: E04 declares `EpisodePort` in its ports; E15 implements it; E04's chain index is rebuildable from
   answers.
 - E27 and E32: `CoverPlanningPort` is defined by E27 and implemented by E32; every quantity is a `Quantity`.
-- GroundMessagePreview (E26 Q10): E26 writes a durable `HelpLogSnapshot` of the facts it owns in the close or queue
-  transaction; E29 composes `catch_up` and `leaves_at` after commit from that snapshot through a durable job; if
-  composition fails the message is queued with the snapshot and `composition_pending`, never with empty activity lists.
+- GroundMessagePreview (E26 Q10): E26 builds the durable `HelpLogSnapshot` at the session revision inside the press
+  transaction. Preview and press use the same pure line composer and pinned templates. The transaction stores approved
+  `lines`, `text`, UTF-8 `text_sha256`, revision, snapshot and `state=queued`, and returns the full generated GroundMessage
+  shape, including `catch_up`, `leaves_at`, all nullable delivery fields and `allowed_actions`. No `composition_pending`
+  property appears on the wire. If E29 is absent or composition fails, the snapshot fallback supplies header/answers
+  to `what_happened`, one line per known tick and crew call to `what_was_done`, and configured unknown lines for
+  unavailable watch/advice facts. Empty known activity is distinct from missing facts; never claim `nothing_watched`
+  when unknown. `leaves_at` is next contact if queued/down, otherwise null, also null when contact is unknown.
+  `status_text` shows configured unknown contact text. Optional transport enrichment cannot alter the approved text or
+  hash; newly shared clinical facts require another explicit approval. No worker call or ground response blocks press.
+
+**Warning delivery and review state (D1/D2/Q9).** Active warnings retain their defining release; configuration changes
+never clear or lower them. A solar-storm shelter call is Emergency and wakes everyone. During sleep, Act routes at
+once to an awake officer or crew member on duty; only an unacknowledged configured interval wakes the sleeper. Lower
+levels wait for waking; Emergency never waits. E24 owns the routing timer, with an elapsed deadline under 5.10.
+Source, threshold, input-quality and provenance checks remain in force; missing clinical sign-off is labeled under Q1,
+not treated as a runtime dependency on a clinician. Q8's camera validation reference uses a consenting second person's
+30-second manual pulse count and an oximeter when available; taught check duration still comes from its pinned catalog.
 
 ### 8.2 One eligibility rule for clinical guidance
 
-Owner: module `guidance`, built by E27 as its first deliverable (it depends only on the kernel). Every module that
-shows clinical guidance calls it: E26 help steps and readings, E28 plan steps, E30 teach steps, E33 preparation steps,
-E11 pathway cards, E12 and E13 assistant suggestions (a suggestion must reference an eligible step or passage).
+E27's first deliverable `guidance` depends only on the kernel. It is required by E26, E28, E30, E33, E11, E12 and
+E13. Optional fact providers return typed unknowns, never optimistic defaults. Source/purpose/applicability checks
+remain mandatory; Q1/Q7/Q18 make clinical review a display state independent of eligibility. No ground role is required.
 
 ```python
-# crew_health/guidance/domain/rule.py
+# crew_health/guidance/application/ports.py; domain consumes kernel value types through a local mapper
 @dataclass(frozen=True, slots=True)
 class ContentRef:
     kind: Literal["flow_step", "plan_step", "teach_step", "passage", "pathway_card", "prepare_step"]
@@ -791,20 +1304,22 @@ class ContentRef:
 @dataclass(frozen=True, slots=True)
 class Requirements:
     instruments: frozenset[str]
-    supplies: Mapping[str, Quantity]
+    supplies: Mapping[str, Quantity | None]
     skills: frozenset[str]
-    operator: Literal["self", "crewmate", "medical_officer"] | None
+    operator: Literal["any_crew", "skill", "crew_medical_officer"]
+    operator_skill_id: str | None
 
 @dataclass(frozen=True, slots=True)
 class GuidanceRequest:
     content: ContentRef
-    purpose: str                      # evidence-passage.schema.json purposes, for example "patient_instruction"
-    release_id: str                   # the pinned release
+    purpose: str
+    release_id: str
     origin_mode: Literal["LIVE", "REPLAY", "SIM"]
     subject_person_id: str | None
     patient_location_id: str | None
     requirements: Requirements
-    fixed_first_screen: bool          # a fixed first screen of Someone needs help (CONTRACTS 16)
+    fixed_first_screen: bool
+    proposed_operator_id: str | None
 
 @dataclass(frozen=True, slots=True)
 class Known[T]:
@@ -812,48 +1327,87 @@ class Known[T]:
 
 @dataclass(frozen=True, slots=True)
 class Unknown:
-    provider: str                     # "approval", "environment", "equipment", "skills", "stock"
-    reason: str                       # "provider_absent", "provider_failed", "no_data"
+    provider: str
+    reason: str
 
 type Fact[T] = Known[T] | Unknown
 
 @dataclass(frozen=True, slots=True)
+class StockFact:
+    aboard: bool
+    quantity_now: Quantity | None
+    per_use: Quantity | None
+    consumable: bool
+
+@dataclass(frozen=True, slots=True)
+class OperatorFact:
+    person_id: str
+    roster_order: int
+    awake: bool
+    on_site: bool
+    on_eva: bool
+    officer_rank: int | None
+    skill_freshness: Mapping[str, Literal["fresh", "due", "stale"]]
+
+@dataclass(frozen=True, slots=True)
 class GuidanceFacts:
-    approved_for_purpose: Fact[bool]
+    source_and_hash_valid: Fact[bool]
+    purpose_allowed: Fact[bool]
+    clinical_review: Literal["clinically_reviewed", "not_clinically_reviewed"]
+    withdrawn: Fact[bool]
     simulation_only: Fact[bool]
+    pinned_release_matches: bool
     environment_applicable: Fact[bool]
-    missing_instruments: Fact[frozenset[str]]
-    available_skill_holders: Fact[frozenset[str]]   # person IDs: fresh, awake, on site, not the subject
-    supplies_short: Fact[frozenset[str]]
+    instruments_here: Fact[frozenset[str]]
+    stock: Mapping[str, Fact[StockFact]]
+    operators: Fact[tuple[OperatorFact, ...]]
     substitute: ContentRef | None
 
 @dataclass(frozen=True, slots=True)
 class GuidanceDecision:
     outcome: Literal["show", "show_with_substitute", "not_here", "not_supported"]
-    reasons: tuple[str, ...]          # reason codes rendered from ui-copy
-    unknown: tuple[str, ...]          # dimensions whose facts were unknown
-    label: Literal["live", "simulation_only"]
+    availability: Literal["aboard", "substituted", "not_aboard", "needs_skill_holder", "unknown"]
+    executable: bool
+    who_can: tuple[str, ...]
+    reasons: tuple[str, ...]
+    unknown: tuple[str, ...]
+    label: Literal["live", "replay", "simulation_only"]
+    clinical_review: Literal["clinically_reviewed", "not_clinically_reviewed"]
     substitute: ContentRef | None
 
-def decide(request: GuidanceRequest, facts: GuidanceFacts) -> GuidanceDecision: ...   # pure, total
+def decide(request: GuidanceRequest, facts: GuidanceFacts) -> GuidanceDecision: ...
 
 class GuidanceEligibility(Protocol):
     def evaluate(self, snapshot: ReadSnapshot, request: GuidanceRequest) -> GuidanceDecision: ...
 ```
 
-| Dimension | Fact provider | Passes when | Fails | Unknown |
-|---|---|---|---|---|
-| Review purpose | `ApprovalFacts` (E10) | Approved for this purpose at this exact content hash in the pinned release | `not_supported` | `not_supported` |
-| Content version | Pinned release | `release_id` equals the session's or run's pin | `not_supported` until re-pinned | n/a |
-| Simulation | Review state and `origin_mode` | Simulation-only content only in SIM or practice, labeled | `not_supported` in LIVE | n/a |
-| Environment | `EnvironmentFacts` (E23) | The patient location's environment is applicable and no context exclusion applies (R-E11-8) | `not_here` | Hidden, except fixed first screens: shown with "not confirmed for this place" |
-| Equipment | `EquipmentFacts` (E27) | Every instrument present at the patient location (kit map and attached devices) | Substitute if configured, else `not_here` | As environment |
-| Skills | `SkillFacts` (E31) | A fresh holder who is awake, on site and not the subject exists, or the step is self care | Substitute or the teach and check path, else `not_here` | As environment |
-| Stock | `StockFacts` (E32) | Every supply above zero in the custody location | Substitute, else `not_here` | As environment |
+The pure rule computes the primary result; the facade resolves a configured substitute once, under the same snapshot
+and pin, then calls the same rule for it. Loader rejects substitute cycles; no recursive evaluation. E27's facade
+adapts every optional provider to these facts. The internal fields are not undeclared additions to PlanView JSON.
 
-When nothing eligible remains, the screen shows the configured "no supported guidance" state and the human path (call
-the crew medical officer, follow the vehicle procedure). The rule never hides the fixed first screens of Someone needs
-help; it only labels what it cannot confirm.
+| Ordered dimension | Deterministic calculation |
+|---|---|
+| Source, hash, purpose, withdrawal, pin | Missing/unknown source or purpose, withdrawn content or wrong pin is `not_supported`; no clinical review alone never blocks. Preserve and show the exact review label |
+| Origin | Simulation-only content in LIVE or REPLAY is `not_supported`; SIM practice is labeled; origin partitions never mix |
+| Environment | Known inapplicable content is left out. Unknown is unavailable guidance with a reason, except the fixed entry screen described below |
+| Instruments and stock | Missing instruments, absent stock row, not aboard or zero stock are missing. For a consumable with `per_use` and quantity set, compare quantity against `per_use` in matching units, not against zero. Configured null quantity/per-use preserves package availability and null cover; it is distinct from an Unknown provider. Do not invent a SupplyUse amount; an explicit stock-consuming command still validates its quantity and nonnegative balance |
+| Skills | For every required skill, including the skill in `who`, find a non-subject holder whose record is `fresh` or `due`. Different skills may have different holders. Stale/missing records cannot satisfy a skill |
+| Availability | Missing instrument/supply takes precedence: `substituted` if the configured substitute has its own instruments and supplies, else `not_aboard`; otherwise missing skill gives `needs_skill_holder`; otherwise `aboard`. Unknown facts stay unknown and never enable execution |
+| Operator | `who_can` follows roster order among awake, on-site people not on EVA. `any_crew` includes the subject; `skill` requires that skill and excludes subject; officer requires rank and excludes subject. An empty list leaves the step visible but non-executable. A proposed operator must belong to this list; assignment is not a competence or record-access grant |
+| Substitute | Its source, purpose, pin, origin, environment, quantities, every skill and operator are checked too. It can be displayed as the package's equipment substitute while non-executable for missing skills/operator; never shown as doable without all checks |
+
+Accumulate every failure/unknown in the table order, then stable dimension/key order, with no dependence on provider
+arrival order. Content rejection dominates environment, which dominates resource/skill availability; operator denial
+always prevents execution. `Requirements.supplies` maps each required item to its pinned step per-use quantity or null; StockFact.per_use
+is that same effective requirement, not a substituted default from a different plan or active release.
+Q14's acting-officer medication authorization is an additional action-specific query in 8.4, never a shortcut around
+source, quantity, allergy, interaction or engine gates.
+
+Fixed first screens are the release's validated emergency entry content, available from the signed cache before auth,
+storage or providers. Missing environment/equipment facts add a configured "not confirmed here" label, never hide
+entry or permit a measurement/dose action that fails its checks. Missing source validation does not turn arbitrary
+content into a fixed first screen: use the last good emergency cache or printed vehicle procedure. Other unsupported
+content shows the configured human path. Unreviewed sourced content always displays "not clinically reviewed".
 
 ### 8.3 Privacy
 
@@ -861,7 +1415,7 @@ help; it only labels what it cannot confirm.
 |---|---|---|---|---|---|
 | P0 operational broadcast | CrewBroadcast: someone needs help at a place, who is responding | All crew and station sessions | `help.broadcast_changed` (crew) | Yes | Ground log line as configured |
 | P1 crew operational | Habitat and crew warnings, crew routine, environment, link status | Per role (CONTRACTS 20) | As CONTRACTS 18 | Yes | Catch-up lines as configured |
-| P2 clinical session record | HelpSession log, SubjectSummary, episodes, observations, plan runs, assessments, doses | Subject; opener and current helpers while the session is open (CONTRACTS 16); medical officers and the acting officer; others only with consent | Delivered only to sessions that may read the object | In memory for the signed in reader only; discarded at sign-out, leave, close or loss of access | Only through an approved handoff (E16) or the catch-up lines CONTRACTS 26 defines |
+| P2 clinical record | HelpSession log, limited SubjectSummary, episodes, observations, plan runs, assessments, doses | Object and field grants below; help membership or officer status never grants a general chart | Delivered only to sessions that may read the object | In memory for the signed in reader only; discarded at sign-out, leave, close or loss of access | Only through an approved handoff (E16) or the catch-up lines CONTRACTS 26 defines |
 | P3 private | Journal, private reports, private medical communications | Owner only; consented recipients for reports | Never | Never | Never, except a report the owner sends |
 
 Mechanisms:
@@ -870,19 +1424,34 @@ Mechanisms:
   owning module, checking subject, purpose, consent, open session membership and authority; failures are `403
   UNAUTHORIZED_SCOPE` (after close the subject summary returns `UNAUTHORIZED_SCOPE`, V64).
 - **Events**: the event log delivers an event only to sessions for which the owning module's audience rule admits the
-  object. `help.session_changed` goes to the opener, current helpers, the subject and medical officers; every other
-  crew and station session receives `help.broadcast_changed` only (request R-SYS-7 records this). Ground scope events
+  object and fields. `help.session_changed` goes only to authorized session readers under the object grants below;
+  every other crew and station session receives `help.broadcast_changed` only (request R-SYS-7 records this). Ground scope events
   are emitted by `groundlink` when an item is delivered, never when it is queued, so a ground session never reads a
   queued message (E26 finding 14).
 - **Caches**: the client offline store keeps P0, P1 and configuration by version; queued commands are partitioned by
   person, encrypted, and replayed only under that person's session (DEPLOYMENT.md 5.5).
 - **Logs**: IDs and codes only; free text, queries and prompts are never logged; query fingerprints use a per install
   secret salt (E10 finding 15).
-- **Emergency access**: while a help session is open, helpers read the subject summary; a medical officer's or acting
-  officer's read outside that is allowed for care, labeled and audited (break glass).
-- **Crew goal inference**: a live aggregate in a crew of two or three reveals individuals (audit finding 5). Interim:
-  E22 keeps the goal but updates it only at the configured day boundary; request R-SYS-11 adds explicit visibility
-  rules to `participation-rules.json`.
+- **Object and field grants**: the subject reads their own records. A helper reads only an accepted task's necessary
+  fields and, while the help session is open, SubjectSummary's configured recent readings with source/age and allergies
+  and medicines by name only (CONTRACTS 924). This is not a grant to the referenced Observation endpoint or full chart.
+  Help logs are projected to the authorized session purpose; each summary read is audited. Leaving, closure, role
+  expiry or consent revocation ends the grant and invalidates cache/event delivery. A crew or acting medical officer
+  reads explicitly shared objects/fields only (PRD 146), even when allowed to disposition a case. Station gets P0/P1,
+  fixed emergency content and broadcasts; D9 denies clinical plan lists/details without an authenticated person grant.
+- **Emergency access**: the limited open-session summary is the existing emergency exception. Its trigger is a real
+  open help session and authenticated opener/current helper/subject; scope is the panel above, duration ends on leave
+  or close, and every read is audited. No general officer break-glass chart permission is introduced. An incapacitated
+  subject can still receive fixed help, manual capture and this panel; nothing waits for a new consent or ground role.
+- **Crew goal consent (Q15/D10)**: E22 owns `participation_goal_consent`, keyed by mission, origin mode and person,
+  with explicit owner action, time, revision and policy version; missing consent is off. E02 authenticates that owner.
+  E22 filters both completed and due contributions before deriving the aggregate, including rebuilds, exports and
+  events. Consent starts prospectively, not a retrospective exposure of prior activity. Revocation immediately removes
+  the member's contributions from the current rolling window, invalidates caches and sends only a new aggregate with
+  no identity or contributor count. Personal completions/streaks remain private and unchanged. Day-boundary publication
+  can reduce inference but never replaces opt-in; revoked results are removed immediately. Until the opt-in UI/API is
+  applied, everyone is excluded. With no opted-in due contributions, `reached` is false and the configured no-activity
+  state is shown. Crew views show goal progress only, no per-person totals or participation identity.
 
 ### 8.4 Authority: assignment, competence and clinical authorization are separate
 
@@ -901,9 +1470,24 @@ class AuthorityDecision:
     reason: str
 
 class ClinicalAuthorityQuery(Protocol):
-    def authority(self, snapshot: ReadSnapshot, *, person_id: str, subject_person_id: str,
-                  action: Literal["urgency_disposition", "dose_confirmation", "record_review"],
-                  medicine_id: str | None = None, at: datetime) -> AuthorityDecision: ...
+    def authority(self, snapshot: ReadSnapshot | UnitOfWork, *, person_id: str, subject_person_id: str,
+                  action: Literal["urgency_disposition", "dose_confirmation", "record_review", "clinician_assessed"],
+                  dose: DoseAuthorityContext | None, at: datetime) -> AuthorityDecision: ...
+
+@dataclass(frozen=True, slots=True)
+class DoseAuthorityContext:
+    proposal_id: str
+    proposal_revision: int
+    medicine_id: str
+    lot_id: str
+    recommended_dose: Quantity
+    label_dose: Quantity
+    compensated: bool
+    engine_context_fingerprint: str
+    plan_run_id: str | None
+    plan_step_id: str | None
+    condition_id: str | None
+    pinned_release_id: str
 ```
 
 Rules:
@@ -914,10 +1498,20 @@ Rules:
    unavailable), the crew member whom Who helps (E31) assigns the `medical_officer` duty and who accepts it is the
    acting medical officer and may record urgency dispositions. Every such record shows `acting_medical_officer` and the
    audit names the assignment (R-E11-2 for the Episode field; R-SYS-5 for the session view).
-3. **Dose confirmation (pending the owner).** Requires a crew medical officer; the acting officer may confirm only a
-   medicine whose configuration allows any trained crew member at the label dose, and only at that dose. Otherwise
-   `403 ACTION_NOT_ALLOWED` with `supported_alternative` naming the medical officer path. The configuration flag is
-   request R-SYS-5; until it exists no medicine allows it.
+3. **Dose confirmation (Q11/Q14).** The crew medical officer or accepted acting officer may confirm the engine's
+   recommended dose, including a compensated dose. For an acting officer require either the product's
+   `any_trained_crew` permission with the required training, or that the subject's active plan step names this medicine
+   for this condition. Resolve proposal, lot, current assignment, product permission, training and plan context from
+   trusted ports in the same transaction, never trust caller-supplied booleans. Check proposal revision/fingerprint,
+   all dose limits, validated range, coverage, toxic degradants, fixed-device exclusion and product opt-out. Never use
+   a `do_not_use` lot. Show degraded potency estimate and interval, recommended dose beside label dose, and any
+   shortfall after capping; do not remove a gate to reach a dose. Recompute
+   when lot, quantity, unit, weight or concurrent administrations change. Never allow allergy or interaction overrides.
+   Record `acting` with the accepted assignment on confirmation and audit. Ground/pharmacist approval is never a gate.
+   Permission fields live in E32's sourced formulary; R-SYS-5 documents the accepted wire propagation, not a pending
+   decision. The assistant can point to the proposal but cannot confirm or compute a dose.
+   Q16 also permits an acting clinical review, visibly acting; `clinician_assessed` resolution requires a crew medical
+   officer and leaves the episode open and visible otherwise. Authority never creates a chart-reading grant.
 4. A drill never confers authority; drills record practice only for skills their scenario exercises (E31 finding 8).
 5. `ROLE_NOT_ELIGIBLE` covers the subject and anyone on a walk for on-site roles (PRD 11 roles and drills).
 
@@ -936,10 +1530,9 @@ Interim: one location per environment; crew movement recorded as configured miss
 
 **Disconnected sortie (two crew groups).**
 
-1. *Before departure*, on the base hub: the rover crew's routine timers move to the rover hub (home hub transfer
-   record); the rover kit's stock moves to the rover custody location by a custody transfer (single writer: the rover
-   hub from now on); a sync gives the rover hub the roster, active releases, open episodes of the rover crew as read
-   replicas, and both hubs' version vectors.
+1. *Before departure*, authorize the rover's exact record projections (8.3), install validated releases and transfer
+   routine and stock ownership using 8.5.1. A read replica or copied stock row never grants write custody. Departure
+   requires the transfer's durable destination acceptance; interrupted transfer is visible and retains the human backup.
 2. *Apart*: each hub records independently and raises its own alerts; help, plans and warnings run locally. If both
    medical officers stay at the base, the rover's acting medical officer comes from Who helps on the rover hub (8.4).
    An open episode homed at the base is read only on the rover; new rover findings are new records (observations,
@@ -947,28 +1540,57 @@ Interim: one location per environment; crew movement recorded as configured miss
 3. *Return*: anti-entropy sync (DEPLOYMENT.md 4.3). Observations union; housekeeping by HLC; every clinical object
    changed on both sides appears as "two versions, choose" for a medical officer; custody transfers back by a new
    transfer record; streaks recompute from completions with their original times (E22). Nothing is merged silently;
-   the conflict list is shown on Today for medical officers until resolved.
+   the conflict list is shown on Today for authorized onboard reviewers until resolved; acting review follows Q16.
 4. *Environment change* (E28 finding 4, E33 finding 6): open plan runs keep their history; from the change, actions
    are re-evaluated by 8.2 against the new location and its custody; steps whose equipment or stock stayed behind show
    `not_here`; uses after the move are charged where the step happens.
 
+#### 8.5.1 Ownership transfer with fencing
+
+E01 platform owns the transfer mechanism; E25 and E32 supply resource snapshots through their ports. The immutable
+record includes `transfer_id`, resource kind/ID, source/destination node and incarnation, old/new ownership epoch,
+source final revision, snapshot hash, last timer generation or stock ledger head, phase, command key and audit refs.
+One unique transfer exists per resource and epoch. Both peers authenticate and validate the snapshot, consent and
+configuration; no ground party participates.
+
+| Phase | Durable action and failure behavior |
+|---|---|
+| Prepared at destination | Destination stores snapshot and acceptance of proposed epoch but cannot mutate or fire timers; source remains sole owner. Retried prepare returns the same acceptance |
+| Fenced at source | Source atomically checks final revision, appends transfer certificate and replication entry, cancels/fences owned timer generations and disallows stock mutations at the old epoch. Certificate binds destination and snapshot hash. Source cannot unilaterally resume after this phase |
+| Accepted at destination | Destination verifies the certificate and exact snapshot, durably installs new epoch, stock head and pending timers in one transaction, then acknowledges. Retried certificate is idempotent. Only now can it consume stock or fire timers |
+| Completed at source | Source records destination receipt; remains a read replica. Lost receipt cannot cause a second owner; resend certificate and query destination status |
+
+Every mutation and timer checks the active epoch in the same write transaction. A stale epoch is rejected. Prepare
+can be cancelled before source fencing, recorded on both sides; after fencing, reversal is a new transfer from the
+accepted destination, never a timeout promotion. During a link failure between fence and acceptance neither side
+claims ownership: cached routine checklist and printed cards carry due work with a visible timer-transfer notice;
+manual administration/use is recorded as a pending fact, never a second stock decrement or a completed timer action.
+On reconnection the destination accepts the same certificate and reconciles those facts without duplicates. Do not
+depart with an unaccepted transfer. If a node dies, restore and reconcile the certificate under DEPLOYMENT 4.2 before
+resuming that resource; unrelated local safety functions continue. A timeout alerts the crew but cannot elect an owner.
+
+Test link loss and power loss before/after every phase, repeated messages, concurrent source changes, stale restored
+source and destination, stock uses at the boundary and overdue routine jobs. Assert at most one writer/timer owner,
+no negative stock, no lost accepted use, no missed occurrence concealed and an explicit backup during the handover gap.
+
 ### 8.6 Durability
 
 1. **Durable command identity.** Clients create each command's Idempotency-Key as a UUIDv7 at the moment of intent and
-   persist it in their command journal with the actor, device, release ID, client time and body. The hub keeps the
+   persist it in their command journal with the actor, device, release ID, client time and body, except journal/private
+   text, which stays in owner-session memory and uses 5.8.1. The hub keeps the
    24 hour cache of CONTRACTS 5 and, for durable commands, the permanent ledger of 5.8. A replay of a durable command
-   after 24 hours with the same key and body returns `409 DUPLICATE_COMMAND` with `current_state` set to the created or
-   changed resource, which the client treats as accepted (inside the existing contract; R-SYS-8 documents it). Durable
+   after 24 hours with the same complete identity returns `409 DUPLICATE_COMMAND` with `current_state` limited to the currently authorized result, which the client treats as accepted (inside the existing contract; R-SYS-8 documents it). Durable
    commands are the POST operations on `/v1/observations`, `/v1/daily-checks/{id}/answers`, `/v1/daily-checks/{id}/submit`,
    `/v1/episodes`, `/v1/episodes/{id}/answers`, `/v1/episodes/{id}/reviews`, `/v1/help-sessions`,
    `/v1/help-sessions/{id}/actions`, `/v1/urgent-events`, `/v1/plan-runs`, `/v1/plan-runs/{id}/actions`,
    `/v1/guided-checks/{id}/actions`, `/v1/supplies/{id}/uses`, `/v1/reports/{id}/confirmations`,
    `/v1/handoffs/{id}/approve`, `/v1/warnings/{id}/actions`, `/v1/journal` and the requested urgency and dose commands.
-2. **Capture first, evaluate second.** In-transaction evaluators (rules on readings and answers, urgency
-   classification, cover facts) run inside a savepoint. If an evaluator fails with anything other than a domain
-   rejection, the savepoint rolls back, the valid input commits with an `evaluation_pending` marker and a durable
+2. **Capture first, evaluate second (D13).** In-transaction evaluators (rules on readings and answers, urgency
+   classification, cover facts) run inside a savepoint. If an evaluator raises a typed evaluator-computation failure (never storage, I/O,
+   integrity, authorization or domain-validation errors), the savepoint rolls back, the valid input commits with an `evaluation_pending` marker and a durable
    re-evaluation job, health marks the evaluator degraded, and existing warnings and urgency stay exactly as they were
-   (never cleared by a failed evaluation). Views show "Warnings may be out of date since T" from health (R-SYS-9). This
+   (never cleared by a failed evaluation). Current views show a configured general degraded notice from Health.status;
+   only internal diagnostics carry evaluator and since until R-SYS-9 is applied (5.10). This
    replaces E24's "reading not committed without evaluation" row for evaluator faults (R-SYS-12).
 3. **Storage faults are different.** Disk full, a locked database or an I/O error commits nothing: the command fails
    with `INTERNAL_ERROR` retryable, the client and adapters keep their queues, health shows the cause and guidance keeps
@@ -1009,7 +1631,7 @@ Runs early and stays green on every merge (`eval/scenarios/skeleton/`, owned by 
 | W1.4 | Authenticated `GET /v1/observations/{id}` returns the record; another person gets `403`; no session gets `401` | CP1 |
 | W1.5 | REPLAY of the RR-1 CO2 file raises `co2_1h_act` (CONTRACTS 20 test vector); `warning.raised` reaches the station view | CP2 |
 | W1.6 | Hub stopped: the station renders the Someone needs help first screen from cache within 500 ms; actions queue; on restart one session exists | CP1 (first screen), CP2 (replay) |
-| W2.1 | A real local model turn through the tool gateway citing an approved passage; then the model is stopped and the assistant shows off while help is unaffected | CP3 |
+| W2.1 | A real local model turn through the tool gateway citing a sourced, purpose-eligible passage with its clinical-review label; then the model is stopped and the assistant shows off while help is unaffected | CP3 |
 | W2.2 | Camera success (accepted pulse, method camera) and refusal ("Not measured: signal quality too low") | CP2 |
 | W2.3 | Private journal: written, unreadable by another session, absent from events, exports and logs; deletion shreds it | CP2 |
 | W2.4 | Daily check submitted, CheckCompletion recorded, the person's streak changes and only that person receives the event | CP2 |
@@ -1019,7 +1641,9 @@ Runs early and stays green on every merge (`eval/scenarios/skeleton/`, owned by 
 Hard: the epic cannot build or run its acceptance without it. Optional: integration that adds capability; the epic
 builds against a fake and runs with the documented fallback. Package dependencies not listed as hard are optional.
 E01 is hard for every epic except itself. Someone needs help (E26) has no hard dependency on the model (E13, E17) or
-the ground (E16, E29).
+the ground (E16, E29). `E27-guidance` is a separately greenlit kernel-only deliverable, not a dependency on
+the full E27 kit-map implementation; E01 includes offline emergency-content and source registry validation when E10
+is absent. E28/E33 inherit guidance through their hard E27/E28 edges.
 
 | Epic | Hard | Optional |
 |---|---|---|
@@ -1033,9 +1657,9 @@ the ground (E16, E29).
 | E08 | E01, E02, E05 | E14 |
 | E09 | E01, E02, E05 | E14, E15 |
 | E10 | E01 | E17, E19, E29 |
-| E11 | E01, E02 | E10, E13, E15, E26, E27, E31 |
-| E12 | E01, E02, E10 | E05, E09, E11, E15, E17, E27 |
-| E13 | E01, E02, E11, E12 | E04, E10, E15, E17, E24, E26 |
+| E11 | E01, E02, E27-guidance | E10, E13, E15, E26, E31 |
+| E12 | E01, E02, E10, E27-guidance | E05, E09, E11, E15, E17 |
+| E13 | E01, E02, E11, E12, E27-guidance | E04, E10, E15, E17, E24, E26 |
 | E14 | E01, E05 | E08 |
 | E15 | E01, E02, E04 | E05, E09, E11, E31 |
 | E16 | E01, E02, E15 | E09, E29 |
@@ -1048,24 +1672,26 @@ the ground (E16, E29).
 | E23 | E01, E02 | E05, E10 |
 | E24 | E01, E23 | E03, E11, E13, E25, E29, E32 |
 | E25 | E01, E23 | E03, E24, E31, E32 |
-| E26 | E01, E02, E23 | E03, E11, E13, E15, E16, E24, E28, E29, E31 |
-| E27 | E01, E02, E23 | E05, E10, E28, E31, E32 |
+| E26 | E01, E02, E23, E27-guidance | E03, E11, E13, E15, E16, E24, E28, E29, E31 |
+| E27-guidance | E01 | none (fact providers optional; unknown facts enforced) |
+| E27 | E01, E02, E23, E27-guidance | E05, E10, E28, E31, E32 |
 | E28 | E01, E02, E23, E27 | E10, E15, E26, E29, E30, E31, E32 |
 | E29 | E01, E23 | E10, E16, E24, E26, E28, E32 |
-| E30 | E01, E02, E05 | E06, E07, E22, E28, E31 |
+| E30 | E01, E02, E05, E27-guidance | E06, E07, E22, E28, E31 |
 | E31 | E01, E02, E23 | E22, E25, E26, E28, E30 |
 | E32 | E01, E02, E23, E27 | E11, E15, E24, E26, E28, E31 |
 | E33 | E01, E02, E23, E28 | E31, E32 |
 
 ## 10. Build order and integration checkpoints
 
-The seams that must exist before parallel work (first hours, E01 with E02, E20 and E23 in support):
+The seams that must exist before parallel work (first hours, E01 with E02, E20, E23 and E27-guidance in support):
 
 1. `contracts/` copies, `SHA256SUMS`, generated Pydantic and TypeScript types.
 2. `crew_health.kernel` protocols of section 5 with in-memory fakes in `crew_health.kernel.testing`, the
    `ModuleRegistry`, and a module template that passes import-linter.
 3. The event type and error code enums, the outbox and SSE stub, the session dependency `require_roles`.
-4. The supervisor and `uv run crew-health` serving an empty crew app shell (E20, E03).
+4. E27-guidance with unknown-provider behavior and tests; mandatory loader-check providers or complete offline equivalents.
+5. The supervisor and `uv run crew-health` serving an empty crew app shell (E20, E03).
 
 Waves computed from the hard dependencies of section 9 (wave = 1 + the highest wave among hard dependencies). A wave
 is the earliest point at which an epic can be greenlit; with the kernel fakes every epic can start building at once.
@@ -1073,7 +1699,7 @@ is the earliest point at which an epic can be greenlit; with the kernel fakes ev
 | Wave | Epics |
 |---|---|
 | 0 | E01 |
-| 1 | E02, E10, E18, E20 |
+| 1 | E02, E10, E18, E20, E27-guidance |
 | 2 | E03, E05, E11, E12, E19, E21, E23 |
 | 3 | E04, E06, E07, E08, E09, E13, E14, E17, E22, E24, E25, E26, E27, E29, E30, E31 |
 | 4 | E15, E28, E32 |
@@ -1081,7 +1707,7 @@ is the earliest point at which an epic can be greenlit; with the kernel fakes ev
 
 | Checkpoint (KICKOFF.md 4) | Integration evidence from this architecture |
 |---|---|
-| Seams merged (first hours) | Seams 1 to 4 above; every epic builds against the kernel fakes |
+| Seams merged (first hours) | Seams 1 to 5 above; every epic builds against the kernel fakes |
 | CP1 (Sat 13:00) | Walking skeleton W1.1 to W1.4 and the W1.6 first screen (E26 renders it without E23's place line if E23 is not yet in) |
 | CP2 (Sat 18:00) | Adapters with success, failure, unavailable, stale and identity handling; W1.5, W1.6 replay, W2.2 to W2.4; environment switch |
 | CP3 (Sat 23:00) | Retrieval, tools, pathways, the assessment, plans, guided check, roles, help session, ground log queued; W2.1 |
@@ -1089,7 +1715,8 @@ is the earliest point at which an epic can be greenlit; with the kernel fakes ev
 | Demo freeze (Sun 14:00) | All D assertions in stub mode and one clean live run |
 
 Multi-node sync (DEPLOYMENT.md 4) is not on this path: every record carries a UUIDv7 ID and an origin node from wave 0,
-so sync can be added after the freeze without changing a table.
+and the atomic replication log, incarnation fencing and durable deduplication are implemented from wave 0. Transport
+integration may come later; multi-node acceptance cannot pass until privacy filtering and transfer fault tests pass.
 
 ## 11. Answers to design questions addressed to this document and DEPLOYMENT.md
 
@@ -1097,7 +1724,7 @@ so sync can be added after the freeze without changing a table.
 |---|---|
 | E03 Q-E03-2, E22 Q-E22-5 views and mission reader | Section 4.4 |
 | E03 Q-E03-3, E22 Q-E22-3, E25 R-E25-17, E04 R-E04-9, E11 R-E11-14, E24 R-E24-11, E28 item 18, E32 R-E32-20, E33 X12 (several hubs) | One hub per site; UUIDv7 IDs; replication by DEPLOYMENT.md 4; urgency, plan runs and supply custody have one home node; a rover hub activates its own environment and kit; interim for every epic: one hub |
-| E03 Q-E03-4 | Data directory and files: DEPLOYMENT.md 6.1; journal in `private.sqlite`, backed up encrypted and shredded per person; TLS from the hub's local CA at enrollment; idle lock in hub settings (E02 policy) |
+| E03 Q-E03-4 | Data directory and files: DEPLOYMENT.md 6.1; journal in `private.sqlite`, backed up as ciphertext, with per-entry revocation in the current vault; TLS from the hub's local CA at enrollment; idle lock in hub settings (E02 policy) |
 | E03 Q-E03-5 | E14 |
 | E04 R-E04-6, E26 Q10 | Section 4.4 and 8.1 |
 | E04 R-E04-8 | `questionnaires.json` owned by E03; E04 writes the intake section content by request to E03 |
@@ -1123,25 +1750,14 @@ Class E today; an operational onboard version would most likely be Class A (AGEN
 core (sensor monitor, rule engine, warning states, help fixed steps, configuration loader, record durability, dose
 limits) carries full condition coverage of its decisions, cyclomatic complexity of at most 15 and mutation testing
 (DEPLOYMENT.md 8). Alert levels map to NASA-STD-3001 classes (info Advisory, watch Caution, act Warning, emergency
-Emergency; medical-systems-standards.md 6.2 and 8.3), and the app never uses vehicle alarm tones.
+Emergency; medical-systems-standards.md 6.2 and 8.3), and the app never uses vehicle alarm tones. Q17 keeps the
+reference design as default; the optional configured flight readability theme provides ink-3 contrast of at least
+6:1 and a short clock on narrow screens. State this deviation in claims; do not claim default NASA-STD-3001 compliance.
+Numerical verification, model validation, clinical validation and mission acceptance remain separate.
 
 ## 13. Requests
 
-| ID | Target | Proposal | Interim |
-|---|---|---|---|
-| R-SYS-1 | Charter 3.6, AGENTS.md section 3; package `api/schemas/error.schema.json` | Charter and AGENTS: "Errors are typed per module and map to the ErrorEnvelope of CONTRACTS section 5; SYSTEM.md 5.5 gives the RFC 9457 mapping". Package: add optional `type` (URI), `title`, `status` (integer), `detail`, `instance` to ErrorEnvelope, and allow `application/problem+json` | Wire body is the ErrorEnvelope; `Problem` in logs |
-| R-SYS-2 | Charter section 2 "Clinical data interchange"; CONTRACTS 11 | Export HL7 FHIR R4 4.0.1 (PHD IG, IPS); add document `export-mapping.json` with schema `config-export-mapping.schema.json`: `{codes: [{indicator_code, system, code, display, unit_ucum}], local_codes: [...], origin_labels: {SIM, REPLAY}, basis, source_ids, to_be_set_by}`, owner E29, and a loader check that every exported indicator has a mapping | Exporter reads `config/export-mapping.json` outside the release, labeled |
-| R-SYS-3 | `api/openapi.yaml`, `session.schema.json`, CONTRACTS 20 | Tag Sync; session kind and role `node` (mutual TLS peer hubs only); `GET /v1/sync/status` returns `{node_id, software_version, release_id, vector: {node_id: integer}, audit_head: sha256, queues}`; `GET /v1/sync/entries?origin=&after=&limit=` returns `{entries: ReplicationEntry[], next_after}`; `POST /v1/sync/entries` body `{from_node_id, entries: ReplicationEntry[] (maxItems 500)}` returns `{applied, duplicates, quarantined, vector}`; `ReplicationEntry` per DEPLOYMENT.md 4.2; errors `MALFORMED_REQUEST`, `UNAUTHENTICATED`, `UNAUTHORIZED_SCOPE`, `PAYLOAD_TOO_LARGE`, `INVALID_VALUE` | Sync by file only (`crew-health sync export/import`) |
-| R-SYS-4 | `api/openapi.yaml`, `session.schema.json` | `POST /v1/devices/enrollments` (`x-roles: [operator]`) returns `{code, expires_at}`; `POST /v1/devices` (no session, body `{code, kind, name}`) returns `{device_id, ca_certificate}`; `DELETE /v1/devices/{device_id}` (operator) revokes; optional `device_id` in SessionCreate and Session | CLI enrollment and revocation; revocation ends all sessions |
-| R-SYS-5 | `session.schema.json`; E32's medicine configuration | Session view: `acting_medical_officer: null or {role_assignment_id, for_subject_person_id, since}`. Medicine entries: required `confirmation_authority: "crew_medical_officer" or "acting_medical_officer_at_label_dose"` with `basis`, `to_be_set_by`; every package example `crew_medical_officer` | Acting state shown from R-E11-2 data; no medicine allows acting confirmation |
-| R-SYS-6 | `config-environment-profiles.schema.json`, `help-session.schema.json`, `episode.schema.json`, supply schemas, mission schema | `locations: [{location_id, label, kind: "habitat_module" or "medical_bay" or "pressurized_rover" or "transit_vehicle" or "eva_site", node_id}]` per environment profile; optional `patient_location_id` on HelpSession and Episode; `custody_location_id` on SupplyStock and SupplyUse; `phase` on the mission view; mission event types `crew_departed`, `crew_arrived`, `custody_transferred` with `person_ids`, `location_id` | One location per environment; a sortie is a separate hub |
-| R-SYS-7 | CONTRACTS 18 | Add: "`help.session_changed` is delivered to the opener, current helpers, the subject and medical officers; other crew and station sessions receive `help.broadcast_changed` only. Ground scope copies are emitted when an item reaches the ground, never at queue time" | Implemented as stated (role filtering CONTRACTS 18 already allows) |
-| R-SYS-8 | CONTRACTS 5 | Add: "For the durable commands of SYSTEM.md 8.6 the hub keeps the key, actor, operation and body hash for the mission; a replay after 24 hours with the same key and body returns 409 `DUPLICATE_COMMAND` with `current_state` set to the resulting resource" | As stated (uses existing code) |
-| R-SYS-9 | `health` response schema; TodayView and HabitatView | Health component `rules` (and `pathways`) with state `degraded` and code `EVALUATION_UNAVAILABLE`, `since`; views add `evaluation_notice: null or {since}` | Health only; the station reads `/v1/health` |
-| R-SYS-10 | Root `pyproject.toml` (engine team); charter section 8 | `[tool.uv.workspace] members = ["hub", "workers/*", "adapters/*", "eval/bench", "eval/harness"]`; gate commands add `uv run python scripts/validate_hub.py` and run hub gates with `--project hub` until the workspace exists | Standalone `hub` project with path sources |
-| R-SYS-11 | `participation-rules.json` schema (E22) | `crew_goal_visibility: {min_contributors: integer, update: "live" or "day_boundary", basis, to_be_set_by}` | Day boundary updates |
-| R-SYS-12 | E24 design section 9 | Row "Rule fault during ingest": readings commit with `evaluation_pending`, re-evaluation job, health degraded, warnings untouched; storage faults keep "nothing committed" | E24 implements 8.6 |
-| R-SYS-13 | E26 design sections 2 and 4 | Consumer of red flag urgency is E11; add `HelpEntryPort.open_from_red_flag` and `HelpSessionReader.context` and `.readable_by` | As in 8.1 |
-| R-SYS-14 | `config-release.schema.json` | `provenance: {source: "local" or "ground_bundle", bundle_sha256: sha256 or null, signer_key_id: string or null, carried_by_message_id: id or null}` | Recorded in the audit entry only |
-| R-SYS-15 | E27 design | Add the `guidance` module (8.2) as E27's first deliverable; providers from E10, E23, E31, E32 | E26, E28 and E30 build against the fake of `GuidanceEligibility` |
-| R-SYS-16 | Charter section 2 "Ground link" | Replace "a local DTN node (for example ION or HDTN)" with "a local DTN node (µD3TN or dtn7-rs; ION where a program runs it; not HDTN, archived)" | As DEPLOYMENT.md 3.8 |
+The canonical entries, exact proposals, reasons, status and acceptance-preserving interims are in
+[docs/requests/SYSTEM.md](requests/SYSTEM.md). IDs R-SYS-1 through R-SYS-16 remain stable there; R-SYS-17 through
+R-SYS-21 record review package seams. This section defines no separate proposal or interim. Binding Part A decisions
+and their package-line index are in [COORDINATOR-DECISIONS.md](requests/COORDINATOR-DECISIONS.md#part-a-system-and-product-decisions).

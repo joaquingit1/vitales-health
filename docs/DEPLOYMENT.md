@@ -2,10 +2,10 @@
 
 How Crew Health Check is deployed on a spacecraft, a station, a surface base, a rover and on Earth. Binding for every
 epic design (section 9 of each TDD names these tiers) and for E20 (packaging and resilience). The software architecture
-that runs on these nodes is in `docs/SYSTEM.md`; requests to change contracts are listed in SYSTEM.md section 13 with
-the IDs `R-SYS-n` used below.
+that runs on these nodes is in `docs/SYSTEM.md`; canonical requests live in `docs/requests/SYSTEM.md` with
+the IDs `R-SYS-n` used below. Part A of COORDINATOR-DECISIONS.md is binding; A3 indexes superseded package lines.
 
-Evidence base, cited by file and section: the research in `crew-health-build-2026-11-14/research/`
+Evidence base, cited by file and section: the build research artifact `crew-health-build-2026-11-14/research/`
 (`vehicle-computing.md`, `surface-mobility-comms.md`, `medical-systems-standards.md`, `health-data-standards.md`,
 `software-regulatory-standards.md`). Source tags in brackets (for example [VC18]) are the research files' own source IDs.
 Where we choose differently from what the evidence shows NASA doing, the text says why.
@@ -80,7 +80,7 @@ absent and the ground link down (charter section 1, rule 2).
 | Hub | The laptop runs `uv run crew-health` (native, no containers). The hub binds `127.0.0.1:8080` only (CONTRACTS section 10: localhost by default) and serves the built crew app on the same origin |
 | Clients | The laptop's browser. At rest it shows a `station` session (no person: habitat view, broadcasts, help entry). A crew member signs in with a PIN or passphrase for personal work; the idle lock returns to the station session (answers E26 Q9) |
 | Workers | Camera worker on the same laptop reading the built in webcam. Model server and forecast worker only when enabled in settings and resources allow (section 7.3) |
-| Data | All records in `<data_dir>/hub.sqlite`; private entries (journal, private reports) in `<data_dir>/private.sqlite`, encrypted per person (section 5.4); rolling backups in `<data_dir>/backups/`; outbox bundles in `<data_dir>/outbox/`; the golden copy on a separate volume or removable medium (section 7.5). Raw camera frames are never stored (CONTRACTS section 10) |
+| Data | All records in `<data_dir>/hub.sqlite`; private entries (journal, private reports) in `<data_dir>/private.sqlite`, encrypted per entry with owner access (section 5.4); rolling backups in `<data_dir>/backups/`; outbox bundles in `<data_dir>/outbox/`; the golden copy on a separate volume or removable medium (section 7.5). Raw camera frames are never stored (CONTRACTS section 10) |
 | Failure | The hub process dies: the supervisor restarts it (section 7.2); the open browser keeps the cached first help screen and active plan steps and queues commands (E26, E28). The laptop dies: restore the last backup on any other laptop with `crew-health restore` (portable database, vehicle-computing.md 3.5) and use the printed help and plan cards until then (`crew-health help print-cards`, E26; plan print view, E28) |
 | Power and compute | Target the reference laptop of PRD section 10 (Apple M3, 16 GB). Hub and camera stay CPU light; the model is loaded on demand and unloaded when idle (vehicle-computing.md 3.7). Budgets in SYSTEM.md section 3 |
 | Required | Laptop, browser, webcam for camera checks (manual entry when absent) |
@@ -162,7 +162,7 @@ surface-mobility-comms.md 7.7).
 |---|---|
 | Hubs | One hub per site (section 4.1). A pressurized rover carries a laptop hub with its own SQLite, rules, alerts and cached plans (surface-mobility-comms.md 7.1, 7.5). A transit vehicle may carry a medical station hub plus a crew laptop replica (7.5 table) |
 | EVA | Not a node. Suit data reaches the host hub through an adapter live if exposed or as a post EVA import; nothing is pushed to the suited crew, and the IV crewmember owns messages and suit data (surface-mobility-comms.md 4 and 7.6 [SM26] [SM35]). The LTV is not a node either; an LTV sortie's devices are clients of the hub they return to |
-| Data | Each hub holds the records it created plus replicas from its peers (section 4). A rover sortie carries its own kit and supplies as a custody location (SYSTEM.md section 8.5) |
+| Data | Each hub holds the records it created plus authorized projections from its peers (section 4). A rover sortie carries its own kit and supplies as a custody location (SYSTEM.md section 8.5) |
 | Failure | Hubs out of contact keep working fully; nothing waits on a peer; each raises its own alerts. A rover hub that dies is restored from its last backup or its records are recovered from the base on return up to the last sync |
 | Power and compute | Battery cycles (8 h driving, 16 h charging per Earth day in the JAXA concept [SM24]); start in seconds and recover after power loss (WAL, integrity check). The rover hub runs without the model by default |
 | Required | The second hub node |
@@ -218,7 +218,8 @@ records that refer to it (proposals, notes, observations).
 ### 4.2 Identifiers and the replication log
 
 - **Node ID**: `node_id` matches the contract `id` pattern, for example `hab-1`, `rover-1`, `ground-1`; unique per
-  mission; set at install (settings `node.id`) and never reused.
+  mission and installation. A separate random `origin_incarnation` is generated at first install and every restore,
+  is never reused, and is persisted before writes. Site identity is stable; write incarnation is not.
 - **Record IDs**: every ID the hub generates is `<prefix>_<uuid7 hex>` (RFC 9562 UUIDv7 from Python 3.14's
   `uuid.uuid7()`), globally unique without coordination. IDs the contracts call deterministic (routine occurrences) are
   derived (SYSTEM.md section 5.1) and are equal on every node by design.
@@ -227,46 +228,85 @@ records that refer to it (proposals, notes, observations).
 | Field | Meaning |
 |---|---|
 | `origin_node_id` | Node that created the entry |
-| `origin_seq` | Strictly increasing per origin node, gap free |
-| `hlc` | Hybrid logical clock `(physical_ms, logical, origin_node_id)`; orders entries across nodes, never the wall clock alone (surface-mobility-comms.md 7.2 item 5) |
+| `origin_incarnation` | Unique write epoch of that node; new after restore |
+| `origin_seq` | Gap-free committed sequence within `(origin_node_id, origin_incarnation)` |
+| `hlc` | Hybrid logical clock `(physical_ms, logical, origin_node_id, origin_incarnation)`; orders entries across nodes, never the wall clock alone (surface-mobility-comms.md 7.2 item 5) |
 | `record_type` | One of the replicated types of 4.4 |
 | `record_id` | The object's ID |
 | `op` | `create`, `version` (a new full state of a single-writer object), `append` (a new record referring to another), `retract` (correction that points at an earlier entry) |
 | `payload` | Canonical JSON (RFC 8785) of the contract shape, plus internal provenance (`origin_mode`, author, device) |
 | `payload_sha256` | Hash of the canonical payload |
 | `causal_refs` | Record IDs this entry depends on |
-| `release_id` | The configuration release in force when the entry was created |
+| `release_id` | The work's pinned configuration release, which can differ from the active release |
+| `audience` | Owning module's purpose, object/field projection and policy version; never an implicit export grant |
 
 Records are never updated in place across nodes; a correction is a new entry pointing to the old one; attachments are
 content addressed (surface-mobility-comms.md 7.2 item 1).
 
+#### 4.2.1 Atomic append and recovery incarnation
+
+The state mutation, origin-sequence allocation, replication entry, HLC high water, audit, outbox and command ledger
+commit in the same hub transaction (SYSTEM 5.7). Rollback allocates no committed sequence. Replication identity is
+`(origin_node_id, origin_incarnation, origin_seq)`; every hash covers all entry fields, not just payload. A duplicate
+identity with different content is corruption. Record IDs and command deduplication identities do not change on restore.
+
+Restore is an explicit recovery operation, not copying a database over a running writer. Stop and fence the old writer,
+revoke its transport credentials, verify the paired backup and record a new incarnation with its backup checkpoint and
+parent incarnation. A replacement cannot assert the old custody epoch: restored ownership resources remain fenced
+until their transfer heads are reconciled. A peer's old sequence 100 and the restored backup's 80 therefore cannot
+collide: new writes use the new incarnation, and missing old entries are fetched or shown as a recovery gap.
+
+Before admitting retries or modifications of restored objects, recover the mission-life deduplication ledger and
+resource heads through the current local recovery journal or authorized peer receipt/checkpoint. Every accepted
+command has a durable receipt with identity fingerprint and result reference; receipt recovery reveals no private
+body. If the checkpoint is incomplete, those commands/objects stay in visible reconciliation mode: never treat absence
+from the old backup as proof the command never ran. New captures use new IDs in the new incarnation, and emergency
+entry/manual capture remain available. Queued old commands remain pending until their identities are reconciled;
+clients must not mint replacement keys for them. No promise of recovering post-backup data from a destroyed disk with
+no surviving copy is made. The recovery screen reports the verified cutoff and unresolved accepted-record gaps.
+A tested local current recovery medium enables offline recovery without a ground role; a peer is optional.
+
 ### 4.3 Exchange protocol
 
-1. **Status.** Each side sends a status record: `node_id`, software version, active release ID, version vector
-   `{origin_node_id: highest contiguous origin_seq}`, last sync per peer, queue sizes and the audit chain head hash
-   (surface-mobility-comms.md 7.2 item 4, the CAST blind side gap).
-2. **Send.** The sender sends, per origin node, the entries above the receiver's vector in `origin_seq` order, in pages
-   of at most `sync.page_entries` (hub settings).
-3. **Apply.** The receiver applies each origin's entries in `origin_seq` order. An entry whose `causal_refs` are not yet
-   present waits in a bounded buffer (`sync.pending_max`); past the bound it is quarantined with a visible "waiting for"
-   reason. Applying an entry is one local command: state change, audit entry and local outbox event commit together,
-   with a new local `seq` (CONTRACTS section 18 `seq` is hub local and never shared).
-4. **Idempotency.** `(origin_node_id, origin_seq)` is the primary key. A duplicate with the same `payload_sha256` is a
-   no-op; the same key with a different hash is corruption: the entry is quarantined, the sync stops for that origin and
-   health shows the fault.
-5. **Ack.** The receiver returns its new vector; the sender records it. Nothing is deleted on ack; the log is the
-   history.
-6. **Transports, one format.** (a) HTTPS between hubs on a LAN with mutual TLS using node certificates; (b) a sync file
-   (`.chsync`): a signed, encrypted bundle of pages written to removable media or a shared folder and imported with
-   `crew-health sync import`; (c) the ground outbox (4.6). All three carry the same entries
-   (surface-mobility-comms.md 7.2 item 3). The HTTP sync endpoints are request R-SYS-3; until approved, sync runs by
-   file only, which needs no contract change.
+1. **Authorize before materializing.** The owning module evaluates recipient identity, purpose, object consent and
+   field grant using SYSTEM 8.3. Recheck at export, before transmission, and at import/read. LAN, files, backups of
+   recipient projections and ground transport use this same policy. Unknown grants exclude the object. Journals never
+   leave; private reports leave only as an owner-approved snapshot, never as their private-store row.
+2. **Recipient streams.** The sender builds a durable stream for `(recipient_id, purpose, policy_epoch)` with a new
+   contiguous `delivery_seq` for each authorized projection. An internal scan cursor advances over the local log even
+   when all records are excluded; neither excluded IDs, hashes, counts nor skip markers go to the recipient. A wire
+   vector is `{stream_id: highest_contiguous_delivery_seq}`, not the raw origin vector. This permits filtering without
+   gaps or leaking excluded records. Origin identity for a permitted record is inside its projection; revisions of the
+   same allowed object remain idempotent by origin identity plus projection hash.
+3. **Send and apply.** Send bounded pages in delivery order. The receiver validates destination, signature, policy
+   epoch, schema, source incarnation and projection type. Apply projection, receipt cursor, local audit and authorized
+   local event in one transaction. A missing causal reference is either an explicitly redacted/absent optional link or
+   a required authorized dependency; required ones wait in a bounded pending buffer, then visible quarantine. Never
+   export a forbidden dependency to make a projection complete. Projected objects are typed replica views, never full
+   clinical write objects inferred from missing fields.
+4. **Duplicates and acknowledgments.** Same stream/sequence and hash is a no-op; different hash stops that stream as
+   corruption. ACK advances only the highest contiguous committed delivery sequence. Source log and command ledger
+   remain intact. The stable approved snapshot ID and hash identify a ground payload independently of transmission.
+5. **Grant changes.** Revocation fences the old policy epoch and cancels unsent projections and cached views; a signed
+   control record removes recipient access and receives an acknowledgment. A new grant creates a new stream epoch and
+   explicitly authorized backfill; it never sends historical exclusions automatically. Already delivered information
+   cannot be recalled, and the owner is told that before sharing. An offline recipient displays its consent snapshot's
+   age and cannot forward data beyond its grant. Immediate remote erasure is never claimed.
+6. **Transports.** Mutual TLS LAN and signed, recipient-encrypted `.chsync` files carry the same authorized projection
+   envelope. HTTP endpoints are pending R-SYS-3; CLI files remain available under the same checks. Ground transport
+   carries only explicitly approved HandoffSnapshot/GroundMessage/catch-up projections and consented attachments,
+   plus public configuration/receipts. It never carries raw answers, notes, observations, dose records or clinical
+   replication log rows merely because a ground vector is behind.
+
+Status shows recipient-visible queue counts, stream cursors and a signed opaque audit checkpoint, never private audit
+references. Onboard peers receive only subject-authorized clinical projections needed at that site; P0/P1 operational
+facts use their role-specific projections. Local source vectors remain internal for recovery, never an export shortcut.
 
 ### 4.4 Conflict rules per record type
 
 | Record type | Writer | Rule when two nodes changed it apart |
 |---|---|---|
-| Observations, sensor readings, answers, notes, attachments, mission events, audit entries | Append only | Union; never a conflict (surface-mobility-comms.md 7.4 item 1) |
+| Observations, sensor readings, answers, notes, attachments, mission events, reference-only audit receipts | Append only, only authorized projections | Union of distinct record IDs; never a conflict (surface-mobility-comms.md 7.4 item 1) |
 | Supersession of an observation | Home node of the observation | A correction is a new record; both stay visible |
 | Housekeeping: routine occurrence actions, card dismissals, acknowledgements, reschedules | Any node, per person action | Deterministic last writer wins by HLC; the losing write is kept in history (7.4 item 2). Routine special case (E25 R-E25-17): a person's completion with `completed_at` inside the window beats a timer miss recorded by a node that did not see it |
 | Warnings | The node with the sensor or the rule input | Never merged; a replica shows origin node and age. A warning is cleared only by its own node's rule (7.4 item 5) |
@@ -275,15 +315,17 @@ content addressed (surface-mobility-comms.md 7.2 item 1).
 | Supply ledger | The node holding custody of the stock location | Single writer per custody location; uses recorded elsewhere arrive as proposals; no negative balance can arise from a merge (SYSTEM.md 8.5) |
 | Roster, role assignments, skill records, consent, identity corrections | Home node (the base hub for the roster) | Never auto merged; proposals only |
 | Configuration releases, evidence releases | Signed bundles | Not merged; each hub validates and activates on its own, with crew confirmation (section 7.6) |
-| Journal and private reports | Never replicated | Stay on the node where they were written (CONTRACTS: journal is author only, never in exports) |
-| Participation (streaks, patches, crew goal) | Derived | Recomputed on each node from the CheckCompletion events it holds (E22 `import_synced`) |
+| Journal and private reports | Private store never replicated | Journal stays local; a report explicitly shared by its owner becomes an approved snapshot, not a replicated private-store row |
+| Participation (streaks, patches, crew goal) | Derived | Personal derivation on the owner-authorized node only; crew progress uses Q15 opted-in aggregates, never exports individual completions |
 
 ### 4.5 What never merges automatically
 
 Clinical content (episodes, urgency and dispositions, assessments, reviews, plan runs, dose decisions,
 administrations), roster and authority records, consent, identity corrections, configuration releases and supply
 custody transfers. Each conflict produces a visible conflict record listing both versions, their nodes, authors and
-HLC, routed to a crew medical officer (or the acting one) on the site that receives it.
+HLC for an explicitly authorized onboard reviewer. Officer/acting status alone grants no chart access; acting
+clinical review follows Q16 and cannot produce `clinician_assessed` resolution. Custody follows SYSTEM 8.5.1, never
+a last-writer merge.
 
 ### 4.6 Ground link bundles
 
@@ -292,12 +334,21 @@ HLC, routed to a crew medical officer (or the acting one) on the site that recei
   CBOR or JSON, compressed, signed with the node key (Ed25519) and encrypted to the destination key
   (surface-mobility-comms.md 7.3 item 1 [SM03]). BPSec (RFC 9172) applies when a real DTN adapter carries it [SM04].
 - **Acks.** BPv7 status reports are off by default, so the ground returns application ack bundles listing the record
-  IDs it holds; the hub keeps every record until acked, resends at later contacts, and shows sent, delivered and read
+  IDs and approved payload hashes it holds; the hub keeps every record until acked, resends at later contacts, and shows sent, delivered and read
   separately (7.3 item 3 [SM35]).
 - **Priorities.** P0 urgent summaries of a few kilobytes, P1 the daily log of tens of kilobytes, P2 images and raw
   waveforms only on request; never video (7.3 item 4; vehicle-computing.md 3.6).
-- **Lifetimes** come from the active environment profile (configuration): hours for LEO, weeks for the Moon, at least
-  two months for Mars (7.3 item 5). Expiry removes only the transmission copy.
+- **Lifetimes (D11).** Signed environment-profile extension `comms_queue.bundle_lifetime` is an object with positive bounded
+  integer `value`, `unit="s"`, `basis`, `source_ids` and `to_be_set_by` provenance, validated at activation. No mission duration
+  is a code constant or a guessed default. Missing lifetime disables BPv7 transmission with a visible reason; local
+  queues and the existing simulated contact queue continue, without pretending delivery.
+- **Expiry and renewal.** Expiry deletes only an envelope, never the approved payload or its queue record. Before the
+  next contact a bounded renewal batch rechecks recipient grant and creates a new signed envelope with new creation
+  time, sequence and current configured lifetime, retaining approved snapshot ID/hash and P0/P1/P2 priority. Within
+  priority use original approval time then ID, so repeated expiry cannot starve an older message. ACK of snapshot
+  ID/hash completes all its envelope attempts; a duplicate ACK is harmless. Attempt retry/backoff and inflight caps
+  are hub settings (SYSTEM 5.11); exhaustion waits visibly for a later contact or operator retry, never drops the
+  message. Revocation cancels unsent content; a renewal cannot enlarge the approved field selection.
 - **Contact plan** comes from the environment profile (`comms_queue`, `earth_delay`; GroundLink `source` schedule,
   measured or demo switch; CONTRACTS section 12). Only the ground stage, the Habitat line and the ground silence rule
   read the link (PRD 11, link independence).
@@ -349,7 +400,7 @@ the device.
 |---|---|
 | Whole disk | Operating system full disk encryption (BitLocker, FileVault, LUKS), administered by the ground IT that already manages the laptops (vehicle-computing.md 3.4 [VC05]) |
 | `hub.sqlite` and backups | File permissions to the service account; backups encrypted with the node's backup key (AES-256-GCM, `cryptography`) |
-| `private.sqlite` (journal, private reports) | Each entry encrypted with the owner's data key (AES-256-GCM). The data key is wrapped by a key derived from the person's credential (Argon2id), so the hub can show a journal only while its owner is signed in. Deleting the wrapped key deletes the entry in every backup at once (crypto shredding), which meets CONTRACTS section 10 "journal deletion includes backups" |
+| `private.sqlite` (journal, private reports) | AES-256-GCM with a unique random DEK and nonce per entry/version, owner/entry/version bound as associated data. DEK wrapped under a unique entry wrapping key held only in the current local key vault. Owner credentials authorize access; no credential-derived secret can reconstruct an erased wrapping key. Data backups contain ciphertext and wrapped DEKs, never wrapping keys. SYSTEM 7.4 defines revocation, pending deletion and restore tests |
 | Sync files and bundles | Signed (Ed25519 node key) and encrypted to the destination (X25519 and AES-256-GCM) |
 | In transit | Loopback HTTP for T0; TLS 1.3 on the LAN listener; mutual TLS between hubs; bundles protected end to end |
 
@@ -362,7 +413,7 @@ medical communications (medical-systems-standards.md 1.2 and 3.4 [EV02]).
 | On the device | Exposure | Mitigation |
 |---|---|---|
 | Configuration cache (help flows, plans, copy) | Mission content, no personal data | None needed |
-| Queued commands of the last signed-in person | Answers and help actions not yet accepted | Encrypted in IndexedDB with a non-extractable WebCrypto key; partitioned by person; replayed only under that person's session; quarantined for a medical officer if the device is revoked, never discarded |
+| Queued commands of the last signed-in person | Answers and help actions not yet accepted | Encrypted in IndexedDB with a non-extractable WebCrypto key; partitioned by person; replayed only under that person's session; quarantined under the original owner grant if revoked; a medical officer receives no automatic access; never silently discarded |
 | Rendered views | Only while a session is open and unlocked | Idle lock; tokens expire; revocation ends sessions |
 | Journal, private reports | Never cached on a client | n/a |
 
@@ -371,7 +422,7 @@ medical communications (medical-systems-standards.md 1.2 and 3.4 [EV02]).
 Every command writes an audit entry in its transaction into a hash chain (SYSTEM.md 5.9). Session creation and end,
 enrollment, revocation, sync import, bundle in and out, release activation and rollback, restore and every break glass
 read are audited. Audit entries hold references and state changes, never journal text, symptoms or prompts (CONTRACTS
-"Audit logs store references"). The chain head travels in every sync status and ground bundle, so a peer or the ground
+"Audit logs store references"). Only the signed chain head checkpoint travels in authorized sync status and ground bundles, so a peer or the ground
 can detect a rewritten history.
 
 ## 6. Settings and files on a node
@@ -384,7 +435,8 @@ on macOS, `/var/lib/crew-health` on Linux; a user directory in development) and 
 ```
 <data_dir>/
   hub.sqlite                 records, events, audit, outbox, idempotency, command ledger, replication log
-  private.sqlite             journal and private reports, encrypted per person
+  private.sqlite             journal and private reports, encrypted per entry
+  key-vault/                 live entry wrapping keys and monotonic revocations; excluded from snapshots
   knowledge/                 evidence releases (E10), content addressed
   research/                  research catalog (E10) and workbench (E19) stores, ground and editor hosts only
   config/releases/           validated configuration releases by ID (active and inactive slots)
@@ -400,8 +452,8 @@ on macOS, `/var/lib/crew-health` on Linux; a user directory in development) and 
 `<data_dir>/crew-health.toml` holds deployment settings that are not mission content: `node.id`, `profile`
 (`flight`, `ground`, `demo`), listeners and ports, `network.lan.enabled`, TLS paths, which workers run, and the hub
 settings document path. Operational bounds (queue sizes, timeouts, retries, cache sizes) live in the hub settings
-document of SYSTEM.md 5.11, each with its basis. Mission content (thresholds, cadences, words, steps) lives only in the
-18 configuration documents (CONTRACTS section 11).
+document of SYSTEM.md 5.11, each with its basis. Mission content (thresholds, cadences, words, steps) lives only in signed configuration documents: the
+18 base documents plus accepted decision-overlay extensions such as D12 unit mappings (CONTRACTS section 11).
 
 ## 7. Packaging, install, update and recovery
 
@@ -437,60 +489,101 @@ failure starts read-only safe mode and offers restore.
 
 ### 7.3 Containers (OCI compose profiles)
 
-Containers are for multi-node work, CI and ground nodes. They are never needed for T0. Images: `crew-health-hub` (hub,
-supervisor, built crew app), `crew-health-camera` (Linux only, needs `/dev/video*`), `crew-health-adapters`,
-`crew-health-model` (llama.cpp `llama-server`), `crew-health-forecast`, `crew-health-groundlink` (agent plus optional
-µD3TN), `crew-health-ground` (ground node with the console). Images run as non-root with read-only root filesystems and
-the data directory as the only writable volume.
+T0 is native and needs no containers. Linux images run non-root with read-only roots and bounded writable data/tmp
+volumes. The signed image manifest lists hub, camera (Linux with an explicitly passed video device), adapters, model,
+embedding, forecast, groundlink and ground console. LIVE, REPLAY and SIM adapters require an explicit profile;
+`crew` never starts demonstration inputs automatically.
 
-| Profile | Services | Use |
+| Profile | Services | Connectivity gate |
 |---|---|---|
-| `minimal` | hub | CI end to end; any Linux host |
-| `crew` | hub, adapters (REPLAY and SIM), camera on Linux | A habitat hub on a Linux machine |
-| `full` | crew plus model, embedding, forecast, groundlink | The full flight stack on one machine |
-| `ground` | ground node, groundlink, console | Earth side |
+| `minimal` | hub | Browser to loopback published hub port and static emergency cache |
+| `crew` | hub, selected adapters, camera when enabled | Authenticated ingest and worker health through private service DNS |
+| `full` | crew plus model, embedding, forecast, groundlink | One bounded request/response per enabled worker and an isolated-worker failure test |
+| `ground` | ground node, groundlink, console | Authorized bundle import and console read; no onboard dependency |
 
-Resource limits for a 16 GB machine (compose `mem_limit` and `cpus`; the same numbers are the native supervisor's
-budget in SYSTEM.md section 3): hub 768 MB and 2 CPUs; camera 1 GB and 2 CPUs; adapters 256 MB; model 7.5 GB and 6 CPUs;
-embedding 768 MB; forecast 1.5 GB and 2 CPUs; groundlink 256 MB. The model and the forecast worker are never resident
-together on a 16 GB machine: the supervisor pauses forecasting and embedding builds around interactive model requests
-(PRD section 10). With the model loaded these budgets total about 15 GB including an assumed 4.5 GB for the operating
-system and browsers, so the reference deployment (SYSTEM.md 8.7) decides the final split; if the measured total swaps,
-the embedding server is unloaded during generation and dense retrieval runs before the model turn starts. On macOS the
-model runs natively (Metal), since containers do not reach the Apple GPU.
+Native processes bind `127.0.0.1` (and explicit `::1` when used), with per-service random tokens loaded through
+service-account protected files. Health can be unauthenticated only on that local private listener. A remote camera
+or adapter host uses enrolled mutual TLS on the hub LAN listener; no frames cross it.
+
+Linux compose creates an internal bridge. Workers bind `0.0.0.0:<port>` **inside that isolated container network**,
+with no host `ports` mapping, no host networking and per-service tokens or mutual TLS. Hub addresses workers by
+service DNS (`camera`, `model`, `forecast`, etc.), never another container's loopback. Only the hub is published at
+host `127.0.0.1:8080`; optional LAN `8443` needs explicit configuration, TLS and enrollment. Network policy permits
+only required hub/worker edges. The image/profile smoke test verifies service discovery, authenticated calls and that
+worker ports cannot be reached from the host LAN.
+
+Apple Silicon `minimal` and `crew` may use containers for hub/adapters, but Metal inference and the camera run native.
+The native worker still binds loopback. A supervised native gateway exposes a Unix-domain socket in a private shared
+runtime directory; a companion container mounts only that socket and bridges it onto the internal compose network
+with a service token. The gateway connects to native loopback, bounds calls and authenticates the container client.
+Docker Desktop/Podman profile packaging must prove socket sharing and request/response connectivity; if that runtime
+cannot pass, `full` runs wholly native on macOS. It never opens a native Metal worker on a host external interface or
+assumes `host.docker.internal` can reach a loopback-only listener. The wholly native macOS profile is required and
+fully usable without Docker. Linux native needs no bridge; Windows uses native loopback for the T0 profile.
+
+Resource budgets are SYSTEM 3 settings: hub 768 MB and 2 CPUs; camera 1 GB and 2 CPUs; adapters 256 MB; model 7.5 GB
+and 6 CPUs; embedding 768 MB; forecast 1.5 GB and 2 CPUs; groundlink 256 MB. Model and forecast are never resident
+together on the 16 GB reference machine. Measure total RSS including browser/OS at SYSTEM 8.7; unload embedding after
+retrieval if needed, and do not claim an unmeasured budget fits. No optional worker exhaustion can stop help or capture.
 
 ### 7.4 Offline install and update
 
 No network on board (vehicle-computing.md 3.4). Every software update is one signed artifact, as MEC disk images,
 Playbook's self-contained VM and HDTN builds uploaded to a laptop were [VC18] [VC23] [VC10]:
 
-- `crew-health-<version>-<platform>.chpkg`: a wheelhouse for every Python dependency (built per platform in CI), the
-  `uv` binary, the built crew app and ground console, migrations, the SBOM and a manifest of SHA-256 hashes, signed with
-  the mission software key (Ed25519). Model weights and evidence releases are separate signed artifacts because of size.
-- `crew-health install <bundle>` verifies the signature against the pinned mission key, installs into a new versioned
-  directory with `uv sync --offline --find-links <wheelhouse>`, runs `doctor`, takes a backup, applies migrations and
-  switches the `current` pointer. The previous version stays installed.
-- Migrations within a mission are additive only (expand, never contract), so the previous software version can still
-  read the database after an upgrade; a destructive migration needs a planned export and import.
-- `crew-health rollback-software` switches the pointer back. Ground IT can run all of this without the developer
-  present (vehicle-computing.md 3.4 [VC05] [VC23]).
+- `crew-health-<version>-<os>-<arch>.chpkg` contains a native signed installer/bootstrap executable, a pinned
+  relocatable Python 3.14 interpreter with standard library, `uv`, the complete platform wheelhouse, locked dependency
+  manifest, built crew/ground assets, migrations, CA material, SBOM/licences and signed hashes. No system Python,
+  compiler, Node, npm, pnpm or online package resolution is required. Built UI uses a preinstalled supported browser,
+  checked by bootstrap; offline browser installer is included where redistribution permits, otherwise the signed
+  prerequisites manifest identifies the verified installed browser version before deployment.
+- Per supported target (Windows x86_64, Linux x86_64, macOS arm64; other architectures only when their CI artifact
+  passes), bundle all redistributable native dependencies: OpenCV/video libraries, SQLite extensions, BLE dependencies,
+  and runtime libraries. Linux declares exact minimum kernel/glibc and requires BlueZ/video permissions only for the
+  optional adapters. Windows includes the required redistributable runtime installer. macOS declares minimum OS/Metal
+  framework version, architecture and code-signing requirements. `doctor` verifies these without network. Absent
+  optional hardware never fails hub/manual-entry installation.
+- Native `llama-server` and embedding executables plus their matching CPU/Metal shared libraries are included for each
+  enabled target; Apple Metal shaders/resources are bundled, requiring no compiler download. Forecast artifacts contain
+  the pinned PyTorch runtime and all libraries. Weights and evidence are separate signed offline artifacts with hashes;
+  absence reports model unavailable while all onboard safety flows work. OCI distribution includes exported images and
+  its verified offline container-runtime prerequisite or installer; native T0 remains independent of it.
+- Bootstrap verifies the artifact using a pinned mission software key, installs to a new version directory and uses
+  the bundled interpreter with `uv sync --offline --find-links <wheelhouse>` and the bundled lock. It checks no URL
+  dependencies remain, runs doctor, takes a paired backup, applies additive migrations and switches `current` atomically.
+  Previous software stays installed. In-mission migrations expand only; contraction requires a separate migration plan
+  and cannot be smuggled into rollback.
+- Software rollback switches code to the previous compatible version without rolling data or deduplication back.
+  Data restore is the fenced operation below. CI tests clean install, upgrade and rollback with network disabled and
+  empty package/runtime caches on every target, including native Metal startup on an Apple runner. Any external
+  prerequisite is verified as part of the image manifest, never silently assumed from a developer's laptop.
 
 ### 7.5 Golden image and restore
 
-A read-only golden copy holds the last known good software install, the last good configuration release and the most
-recent verified backup, on a separate volume or removable medium. `crew-health restore --golden` rebuilds a working hub
-from it in one command on the same or a replacement laptop (Ingenuity [VC51], EXPRESS re-imaging [VC15]). Backups use
-SQLite's online backup API every `backup.interval_minutes` and before every migration and release activation; each is
-verified by `integrity_check` before it replaces an older one.
+A read-only golden copy contains the verified software, last good signed configuration and a verified paired backup
+manifest on separate media. It contains no key-vault secrets. `crew-health restore --golden` verifies both stores and
+the audit head, applies current vault revocations, reconciles the current command receipt checkpoint and performs the
+new-incarnation fencing in 4.2.1 before mutations resume. Restoring the same backup twice creates two different
+incarnations; never resume old counters or custody. A lost/replaced machine needs local operator fencing of the former
+writer and current recovery material, not ground permission. Unknown current heads remain visible reconciliation work;
+printed help, static emergency entry and new local records remain available.
+
+Backup and restore share SYSTEM 5.8.1's barrier, manifest, reference checks and crash matrix; `integrity_check` alone
+cannot prove journal consistency or recover keys. A separate current vault recovery device, when used, participates
+in deletion acknowledgments and cannot be a historical backup. Test restoring a pre-deletion backup with retained
+and revoked entries, and a sequence-80 backup after a peer has sequence 100, including duplicate command retries.
 
 ### 7.6 Configuration and evidence updates through the ground link
 
 Configuration works like flight tables (AGENTS.md section 3; the cFS table pattern): a release arrives as a signed
-bundle in the inbox; the loader validates it into the inactive slot with the 16 checks; nothing changes until a crew
-member (the operator or a medical officer) activates it, outside an active help session or plan run, with the change
-visible (surface-mobility-comms.md 7.4 item 4 [V2 10126]). Activation is atomic; the previous release stays for rollback;
-open help sessions and plan runs keep their pinned versions. The audit entry and the release record carry the
-provenance: bundle hash, signer key ID, source release and the ground message that carried it (request R-SYS-14 adds
+bundle in the inbox; the loader validates it into the inactive slot with all 16 checks and registered semantic checks/guards.
+An authenticated editor or operator activates it with the current release ETag (D8), with the change visible
+(surface-mobility-comms.md 7.4 item 4 [V2 10126]). Activation is atomic; the previous release stays for rollback;
+open help sessions and plan runs keep their pinned versions.
+They do not block activation. Medical-officer status alone does not authorize activation. D1 keeps active warnings
+on their original definition until their pinned clearing rule or an authorized resolution with reason; activation
+cannot lower them. Q1/Q7/Q18 do not make absent clinical sign-off a runtime activation gate. Audit retains the transport
+provenance until R-SYS-14 adds it to the release view: bundle hash, signer key ID, source release and the ground message that carried it (request R-SYS-14 adds
 these to ConfigRelease). Evidence releases (E10) follow the same path.
 
 ## 8. CI and container plan
@@ -499,19 +592,19 @@ GitHub Actions, one workflow per concern; every gate produces its evidence as an
 
 | Job | Runs | Gates |
 |---|---|---|
-| `contracts` | Contract SHA guard; regenerate Pydantic and TypeScript types and diff against committed; validate every configuration document and `knowledge/**` against schemas; no en or em dash in owned files | Any drift or invalid document |
+| `contracts` | Base contract SHA guard plus D12 decision-overlay traceability and effective-schema checks; regenerate Pydantic and TypeScript types and diff against committed; validate every configuration document and `knowledge/**` against schemas; no en or em dash in owned files | Any drift or invalid document |
 | `lint` | `ruff check`, `ruff format --check`, `mypy --strict` per package, `lint-imports`, `eslint`, `prettier --check`, `vue-tsc` | Any warning (AGENTS.md code rule 10) |
 | `hub-tests` | `pytest` with branch coverage on Ubuntu, macOS and Windows runners (the ISS and Orion fleets are Windows [VC03] [VC25]) | Failures; branch coverage below 95% on `domain` and `application` |
 | `property` | Hypothesis and fast-check suites for parsers, rule engines and unit conversions | Failures |
 | `faults` | Fault injection: kill during write, disk full, clock jump, corrupt configuration, model stopped, devices absent, link down | Any accepted record lost; any safety function unavailable |
 | `ui-tests` | `pnpm -C ui/crew typecheck && test`, the same for `ui/ground` | Failures |
-| `contract-tests` | Schemathesis against the running hub with `contracts/api/openapi.yaml`; UI against recorded examples | Any response that breaks the contract |
+| `contract-tests` | Schemathesis against the running hub with the effective OpenAPI from the guarded base and D12 overlay; UI against recorded examples | Any response that breaks the contract |
 | `e2e` | The demo fixture `fixtures/demo-mara-fd19` through its six acts in the `minimal` compose profile with Playwright, model stopped where the scenario allows; the help first screen latency check | Failing V or D scenario; help first screen over 500 ms |
 | `traceability` | The R, V and D matrix from pytest markers | An untested requirement in a built epic |
 | `mutation` | `mutmut` on the critical path packages (nightly and on demand) | Score below the epic's threshold |
 | `supply-chain` | CycloneDX SBOM for Python (`cyclonedx-py`) and npm (`@cyclonedx/cyclonedx-npm`); `pip-audit` on the exported lock; `pnpm audit`; licence report into `THIRD-PARTY.md` | Known vulnerable dependency without a recorded verdict; unknown licence |
 | `images` | Build every image with BuildKit, attach the SBOM, scan, smoke test each compose profile's health checks | Unhealthy service |
-| `bundle` | Build the offline install artifact per platform and verify install, upgrade and rollback on a clean runner | Any step fails |
+| `bundle` | Build each OS/architecture artifact; verify install, upgrade, rollback and required runtime launch with network disabled and empty caches | Any step fails |
 
 The reference deployment measurements (SYSTEM.md 8.7) need the real laptop and camera and are recorded by hand into
 `eval/` with the machine described; CI checks that the record exists and is not older than the build it describes.
@@ -522,13 +615,13 @@ PRD section 11 targets:
 
 | Target | Tier | Mechanism |
 |---|---|---|
-| Someone needs help first screen in 500 ms, model stopped, under load | T0 | Help path depends only on E01, E02 and E23; first screen rendered from the client cache before any network call; hub serves it without touching the model; e2e latency check under combined load (SYSTEM.md 8.7) |
+| Someone needs help first screen in 500 ms, model stopped, under load | T0 | Help guidance depends on E01, E02, E23 and the early E27-guidance rule; first screen rendered from the client cache before any network call; hub serves it without touching the model; e2e latency check under combined load (SYSTEM.md 8.7) |
 | Warnings never raised or lowered by the assistant | T0 | Domain types and transitions in E24, SQLite constraints, API roles (E24 section 9) |
 | Sensors: no stale or offline reading shown as current; Replay shows its original date | T4 | Freshness states from `observed_at`; origin and age on every value; E23 freshness sweep before ingest resumes |
 | Routine: no misses filled in | T0 | Deterministic occurrences; timers only on the person's current hub (4.4) |
 | Configuration: nothing held in client code | T0 | Codegen from contracts; client renders served text; CI `contracts` job |
 | Data durability: no lost accepted record, idempotent commands | T0 | WAL with `synchronous=FULL`; one command one transaction; 24 hour idempotency cache plus the durable command ledger (SYSTEM.md 8.6); `faults` job |
-| Privacy: zero cross-patient, journal or report leakage | T0 to T7 | Object-level authorization, event audience filter, cache classes, ground projection (SYSTEM.md 8.3); private store per person (5.4) |
+| Privacy: zero cross-patient, journal or report leakage | T0 to T7 | Object-level authorization, event audience filter, cache classes, ground projection (SYSTEM.md 8.3); entry keys and current vault revocations (5.4) |
 | Tool integrity | T0 | Typed tool gateway (E12); domain checks before anything is recorded |
 | Usability: origin and states distinguishable | T0 | Origin word and age on every value; designed states from ui-copy |
 | Camera pulse MAE ≤ 5 bpm, bias, rejection | T0 webcam, T3 oximeter reference | Camera worker quality gate refuses rather than guesses; venue protocol (E06) |
@@ -546,7 +639,7 @@ PRD section 11 targets:
 | Band | T3 | E08 adapter, sync and scoring |
 | Forecast | T0 with forecast worker | Isolated worker; deterministic baselines when absent (E14) |
 | LLM | T0 with model | E18 harness |
-| Evidence | T0 | Shared eligibility rule (SYSTEM.md 8.2) and E10 approved passages; fixed "not supported" state |
+| Evidence | T0 | Shared eligibility rule (SYSTEM.md 8.2) and sourced purpose-eligible passages with Q1/Q18 review labels; fixed "not supported" state |
 | Recovery: network, model, device loss, clock skew, duplicates, corrupt files visible | T0 to T7 | Supervisor, health states, idempotent ingest, clock correction events, release last good, quarantine (4.3) |
 
 Charter fallback ladder:

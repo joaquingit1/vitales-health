@@ -19,6 +19,14 @@ engine.
 | D6 | Idempotency keys kept 24 hours versus long ground outages. | As SYSTEM.md 5.8 and 8.6: the durable command ledger. |
 | D7 | "Every number in configuration" versus ordinary operational constants. | Domain content is configuration; queue sizes, timeouts, batch sizes and retries are hub settings (SYSTEM.md 5.11). |
 
+| D8 | Config activation requires an object-revision If-Match but ConfigRelease has no revision field or response ETag. | Keep the closed ConfigRelease JSON. Expose a strong ETag header on create, detail read and activate responses: quoted `<release_id>:<object_revision>:<activation_generation>`, with positive monotonic object revision and hub-wide activation generation stored by E01. Detail reads provide the token; collection readers fetch the detail before activating. If-Match compares both revisions in the activation transaction; missing is VERSION_REQUIRED and mismatch is STALE_VERSION. Increment the activation generation on every activation/rollback and object revisions on every release-state change. Editor and operator remain the only activation roles; open work keeps its pins. Apply the header contract through the decision overlay, then propagate it centrally to the package. |
+| D9 | listPlanRuns grants station and medical officers every clinical run, contrary to PRD object-sharing rules. | Station has no clinical plan-run list or detail access: return UNAUTHORIZED_SCOPE for those operations. Serve public plan content and broadcasts through existing nonclinical views. A person sees their own runs or an explicit object/field grant; crew and acting medical officer status alone grants no chart. Task helpers see only their accepted task projection. Apply the same rule to events, caches, exports, sync and ground snapshots. No new general break-glass access is authorized. |
+| D10 | Crew-goal derivation includes every roster member without Q15 consent state or an opt-in operation. | E22 owns durable per-person, mission and origin-mode goal consent, default off. Add GET and PUT /v1/me/crew-goal-consent (crew only); the PUT body is {enabled: boolean}, uses Idempotency-Key and If-Match, and returns {mission_id, origin_mode, enabled, effective_at, revision}. A missing row is revision 0 and disabled. Only the authenticated owner changes it. Enabling includes contributions prospectively; revocation immediately excludes that member from the rolling aggregate and invalidates caches. Both completed and due totals use consent. Personal completion records never become public. Zero opted-in due contributions is no goal activity and reached false, never fabricated success. No ground role is needed. |
+| D11 | BPv7 lifetime is absent from the closed environment-profile comms_queue schema. | Add optional comms_queue.bundle_lifetime with {value: positive integer, unit: "s", basis, source_ids, to_be_set_by}; maximum 315360000 seconds is a serialization/operational ceiling, not a mission default. Mission authors choose a sourced value; no implicit value. Missing field leaves BPv7 transmission unavailable while local approved queues and the existing simulated contact queue work. Expired envelopes are re-created at a later contact with the same approved snapshot ID/hash and priority, new transport identity and current configured lifetime. Recheck consent, bound per-contact retries and never delete unacknowledged approved content on expiry. |
+| D12 | The package is frozen during architecture revision, but accepted Part A changes and UCUM wire mappings need executable contract support. | Keep package and verbatim base copies intact. E01 generates an effective contract from the base plus a separately versioned, signed decision overlay; every overlay change traces to an A3 line and accepted Part A decision. Pending requests cannot enter it. Preserve base and effective hashes and test both, labeling superseded assertions explicitly. Add unit-mapping.json to the effective release: versioned mappings by indicator and wire unit to UCUM, conversion ID, decimal rounding and provenance. Seed bpm to /min, mmHg to mm[Hg], ppm to [ppm] from CONTRACTS 86 and 659; contextual ppm_to_mmhg requires explicit sourced pressure. Sensor rounding is four decimal places, decimal half even. Every document loads atomically and validates before activation. This implements existing decisions without weakening any unrelated schema or source, privacy, unit, safety or acceptance check. |
+
+| D13 | CONTRACTS 748 requires rule evaluation in the input transaction but an evaluator failure can prevent durable capture of a valid reading. | Run evaluation in a savepoint inside the producer transaction. Only typed computation failures may roll back evaluation while the validated input, evaluation_pending marker, durable retry and reference-only fault audit commit together. Existing warning/urgency state is never cleared or lowered; show degraded evaluation. Storage, I/O, integrity, authorization, configuration-validation and input-validation errors abort the whole command and are never swallowed. Recovery re-evaluates pending inputs under their original observation time and release without overwriting newer state. |
+
 ## A2. Product decisions
 
 The owner delegated open product questions to the coordinator on 14 November; owner answers are marked. "Applies to"
@@ -45,6 +53,270 @@ names the designs that must follow the decision.
 | Q21 | Next engine fix round. | After the walking skeleton runs end to end: TV-H-5, the two packaged fits, performance. | pharmacy |
 | Q23 | Where the product package lives. | `docs/product/` is the living source of truth; accepted requests are applied there. | all |
 | Q24 | Local copies of NASA source documents. | **Owner:** later, never in bulk: one request at a time with a pause between requests. | E10 |
+
+## A3. Package lines superseded by decisions
+
+The package is unchanged in this revision. Each row identifies the exact original line whose requirement, example or
+closed extension point is superseded. Only the stated part changes; all other safety checks and acceptance criteria
+remain. D12 makes these changes executable through a separately hashed effective-contract overlay until the package
+owner propagates them. It is not permission for an epic to edit the package or to skip validation. Paths below are
+relative to `docs/product/`; numbers refer to the unchanged files. Repeated constraints are listed individually.
+
+| Package file and line | Decision | What designs and builders do instead |
+|---|---|---|
+| `CONTRACTS.md:43` | Q15, D10 | Filter both goal totals by explicit per-member opt-in, default off; revocation removes contributions immediately, never publish member counts or identities. |
+| `CONTRACTS.md:86` | D12 | Preserve contracted wire units and original quantities; use sourced UCUM mapping and explicit pressure context; round sensor canonical output once, half even, to four decimals. |
+| `CONTRACTS.md:127` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `CONTRACTS.md:129` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `CONTRACTS.md:248` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `CONTRACTS.md:362` | Q15, D10 | Filter both goal totals by explicit per-member opt-in, default off; revocation removes contributions immediately, never publish member counts or identities. |
+| `CONTRACTS.md:363` | Q15, D10 | Filter both goal totals by explicit per-member opt-in, default off; revocation removes contributions immediately, never publish member counts or identities. |
+| `CONTRACTS.md:364` | Q15, D10 | Filter both goal totals by explicit per-member opt-in, default off; revocation removes contributions immediately, never publish member counts or identities. |
+| `CONTRACTS.md:388` | Q15, D10 | Filter both goal totals by explicit per-member opt-in, default off; revocation removes contributions immediately, never publish member counts or identities. |
+| `CONTRACTS.md:396` | Q15, D10 | Filter both goal totals by explicit per-member opt-in, default off; revocation removes contributions immediately, never publish member counts or identities. |
+| `CONTRACTS.md:403` | Q15, D10 | Filter both goal totals by explicit per-member opt-in, default off; revocation removes contributions immediately, never publish member counts or identities. |
+| `CONTRACTS.md:489` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `CONTRACTS.md:490` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `CONTRACTS.md:521` | D1 | Retain active warning definition pins; definition removal cannot clear/lower. Only pinned clearing rules or an authorized medical-officer resolution with reason may end it. |
+| `CONTRACTS.md:531` | Q11, Q14 | Permit only deterministic E32 dose proposals/confirmations under Q11/Q14; keep assistant-invented doses prohibited and the names-only SubjectSummary unchanged. |
+| `CONTRACTS.md:659` | D12 | Preserve contracted wire units and original quantities; use sourced UCUM mapping and explicit pressure context; round sensor canonical output once, half even, to four decimals. |
+| `CONTRACTS.md:661` | D3 | Keep original observation time immutable and add corrected-clock provenance internally; never substitute arrival time; REPLAY retains original date. |
+| `CONTRACTS.md:668` | D3 | Freshness uses corrected observed_at; retain received_at only as transport provenance. Only fresh observations after raising may clear. |
+| `CONTRACTS.md:782` | D1 | Retain active warning definition pins; definition removal cannot clear/lower. Only pinned clearing rules or an authorized medical-officer resolution with reason may end it. |
+| `CONTRACTS.md:1134` | Q8 | Preserve manual and available camera observations with method/origin and disagreement; retry stays incomplete; never close a gap or infer a diagnosis. |
+| `CONTRACTS.md:1155` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `CONTRACTS.md:1208` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `CONTRACTS.md:1333` | Q8 | Preserve manual and available camera observations with method/origin and disagreement; retry stays incomplete; never close a gap or infer a diagnosis. |
+| `CONTRACTS.md:1460` | Q11, Q14 | Permit only deterministic E32 dose proposals/confirmations under Q11/Q14; keep assistant-invented doses prohibited and the names-only SubjectSummary unchanged. |
+| `CONTRACTS.md:1462` | Q8 | Preserve manual and available camera observations with method/origin and disagreement; retry stays incomplete; never close a gap or infer a diagnosis. |
+| `KICKOFF.md:77` | Q15, D10 | CP2 retains goal-rebuild tests and adds opt-in/default-off/revocation evidence; no implicit all-crew contribution. |
+| `PRD.md:114` | Q15, D10 | Filter both goal totals by explicit per-member opt-in, default off; revocation removes contributions immediately, never publish member counts or identities. |
+| `PRD.md:137` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:159` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:226` | Q15, D10 | Filter both goal totals by explicit per-member opt-in, default off; revocation removes contributions immediately, never publish member counts or identities. |
+| `PRD.md:233` | Q15, D10 | Filter both goal totals by explicit per-member opt-in, default off; revocation removes contributions immediately, never publish member counts or identities. |
+| `PRD.md:249` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:263` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:278` | Q9, D2 | Act goes to an awake responder immediately; wake the sleeper only after configured unacknowledged interval. Emergency wakes everyone; routine suppression and EVA policy otherwise remain. |
+| `PRD.md:286` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:289` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:313` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:336` | Q11, Q14 | Permit only deterministic E32 dose proposals/confirmations under Q11/Q14; keep assistant-invented doses prohibited and the names-only SubjectSummary unchanged. |
+| `PRD.md:359` | Q8 | Preserve manual and available camera observations with method/origin and disagreement; retry stays incomplete; never close a gap or infer a diagnosis. |
+| `PRD.md:382` | Q11, Q14 | Permit only deterministic E32 dose proposals/confirmations under Q11/Q14; keep assistant-invented doses prohibited and the names-only SubjectSummary unchanged. |
+| `PRD.md:401` | Q11, Q14 | Permit only deterministic E32 dose proposals/confirmations under Q11/Q14; keep assistant-invented doses prohibited and the names-only SubjectSummary unchanged. |
+| `PRD.md:403` | Q8 | Preserve manual and available camera observations with method/origin and disagreement; retry stays incomplete; never close a gap or infer a diagnosis. |
+| `PRD.md:417` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:419` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:426` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:433` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:528` | Q8 | Preserve manual and available camera observations with method/origin and disagreement; retry stays incomplete; never close a gap or infer a diagnosis. |
+| `PRD.md:542` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:548` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:550` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:552` | Q11, Q14 | Permit only deterministic E32 dose proposals/confirmations under Q11/Q14; keep assistant-invented doses prohibited and the names-only SubjectSummary unchanged. |
+| `PRD.md:562` | Q11, Q14 | Permit only deterministic E32 dose proposals/confirmations under Q11/Q14; keep assistant-invented doses prohibited and the names-only SubjectSummary unchanged. |
+| `PRD.md:620` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `PRD.md:663` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `USE-CASES.md:11` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `USE-CASES.md:35` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `USE-CASES.md:46` | Q9, D2 | Apply the awake-responder cascade for Act during sleep; Emergency wakes everyone. Preserve routine suppression. |
+| `USE-CASES.md:148` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `USE-CASES.md:176` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `USE-CASES.md:187` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `USE-CASES.md:250` | Q8 | Preserve manual and available camera observations with method/origin and disagreement; retry stays incomplete; never close a gap or infer a diagnosis. |
+| `VALIDATION.md:94` | Q9, D2 | V74 tests awake responder routing, configured sleep escalation and unconditional Emergency interruption; other suppression checks remain. |
+| `VALIDATION.md:106` | Q8 | Preserve manual and available camera observations with method/origin and disagreement; retry stays incomplete; never close a gap or infer a diagnosis. |
+| `VALIDATION.md:124` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `VALIDATION.md:150` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `VALIDATION.md:165` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `VALIDATION.md:176` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `api/README.md:74` | Q11, Q14 | Permit only deterministic E32 dose proposals/confirmations under Q11/Q14; keep assistant-invented doses prohibited and the names-only SubjectSummary unchanged. |
+| `api/examples/config/assistant-policy.example.json:6` | Q1, Q7, Q18 | Effective displayed notice is "not clinically reviewed"; source/purpose/applicability validation still applies. |
+| `api/examples/config/environment-profiles.example.json:6` | Q1, Q7, Q18 | Effective displayed notice is "not clinically reviewed"; source/purpose/applicability validation still applies. |
+| `api/examples/config/help-presentation.example.json:6` | Q1, Q7, Q18 | Effective displayed notice is "not clinically reviewed"; source/purpose/applicability validation still applies. |
+| `api/examples/config/indicator-catalog.example.json:6` | Q1, Q7, Q18 | Effective displayed notice is "not clinically reviewed"; source/purpose/applicability validation still applies. |
+| `api/examples/config/questionnaires.example.json:6` | Q1, Q7, Q18 | Effective displayed notice is "not clinically reviewed"; source/purpose/applicability validation still applies. |
+| `api/examples/config/routine-rules.example.json:6` | Q1, Q7, Q18 | Effective displayed notice is "not clinically reviewed"; source/purpose/applicability validation still applies. |
+| `api/examples/config/sensor-catalog.example.json:6` | Q1, Q7, Q18 | Effective displayed notice is "not clinically reviewed"; source/purpose/applicability validation still applies. |
+| `api/examples/config/sensor-limits.example.json:6` | Q1, Q7, Q18 | Effective displayed notice is "not clinically reviewed"; source/purpose/applicability validation still applies. |
+| `api/examples/config/warning-rules.example.json:6` | Q1, Q7, Q18 | Effective displayed notice is "not clinically reviewed"; source/purpose/applicability validation still applies. |
+| `api/examples/config/warning-rules.example.json:594` | D2 | Effective storm-shelter definition is emergency; wake everyone. |
+| `api/examples/configuration/document-sensor-catalog.json:12` | Q1, Q7, Q18 | Effective displayed notice is "not clinically reviewed"; source/purpose/applicability validation still applies. |
+| `api/examples/configuration/document-sensor-catalog.json:20` | D12 | Preserve these wire spellings; effective unit-mapping resolves UCUM and requires pressure provenance for ppm_to_mmhg. |
+| `api/examples/configuration/document-sensor-catalog.json:29` | D12 | Preserve these wire spellings; effective unit-mapping resolves UCUM and requires pressure provenance for ppm_to_mmhg. |
+| `api/examples/configuration/document-sensor-catalog.json:30` | D12 | Preserve these wire spellings; effective unit-mapping resolves UCUM and requires pressure provenance for ppm_to_mmhg. |
+| `api/examples/kit-map.example.json:4` | Q1, Q7, Q18 | Effective displayed notice is "not clinically reviewed"; source/purpose/applicability validation still applies. |
+| `api/examples/plans/guided-check-disagree.json:3` | Q8 | Effective fixture includes its retained manual observation ID and independently checked count; keep camera reference, correction and retry. |
+| `api/examples/plans/guided-check-disagree.json:145` | Q8 | Effective fixture includes its retained manual observation ID and independently checked count; keep camera reference, correction and retry. |
+| `api/examples/requests/config-release.json:10` | Q1, Q7, Q18 | Effective displayed notice is "not clinically reviewed"; source/purpose/applicability validation still applies. |
+| `api/examples/views/habitat-transit.json:605` | D2 | Effective storm-shelter warning is emergency, with matching configured level words. |
+| `api/examples/views/today-transit.json:32` | D2 | Effective storm-shelter warning is emergency, with matching configured level words. |
+| `api/examples/warnings/list-transit.json:12` | D2 | Effective storm-shelter warning is emergency, with matching configured level words. |
+| `api/openapi.yaml:885` | D8 | Expose the strong release/object/activation ETag in create/detail/activation response headers and compare it transactionally; keep editor/operator roles and open pins. |
+| `api/openapi.yaml:893` | D8 | Expose the strong release/object/activation ETag in create/detail/activation response headers and compare it transactionally; keep editor/operator roles and open pins. |
+| `api/openapi.yaml:901` | D8 | Expose the strong release/object/activation ETag in create/detail/activation response headers and compare it transactionally; keep editor/operator roles and open pins. |
+| `api/openapi.yaml:6593` | D9 | Deny station clinical runs; officer lists are filtered by explicit object/field sharing, with ground receiving approved snapshots only. |
+| `api/openapi.yaml:6597` | D9 | Deny station clinical runs; officer lists are filtered by explicit object/field sharing, with ground receiving approved snapshots only. |
+| `api/openapi.yaml:11666` | D8 | Expose the strong release/object/activation ETag in create/detail/activation response headers and compare it transactionally; keep editor/operator roles and open pins. |
+| `api/schemas/common.schema.json:482` | D12 | Add unit-mapping.json to the effective ConfigName enum and signed release/check inventory; base enum remains unchanged. |
+| `api/schemas/config-environment-profiles.schema.json:233` | D11 | Extend effective comms_queue with optional sourced bundle_lifetime object; require a value for BPv7, never assume one. |
+| `api/schemas/config-environment-profiles.schema.json:262` | D11 | Extend effective comms_queue with optional sourced bundle_lifetime object; require a value for BPv7, never assume one. |
+| `api/schemas/config-onboard-plans.schema.json:398` | Q11, Q14 | Keep plan text sourced and link the named medicine to E32 proposals; no model-generated amount or global ban on the medicine engine schema. |
+| `api/schemas/config-onboard-plans.schema.json:774` | Q11, Q14 | Keep plan text sourced and link the named medicine to E32 proposals; no model-generated amount or global ban on the medicine engine schema. |
+| `api/schemas/config-release.schema.json:139` | D8 | Keep closed JSON; concurrency token is an exposed HTTP ETag, not an undeclared revision property. |
+| `api/schemas/evidence-passage.schema.json:5` | Q1, Q18 | Separate source/purpose approval from clinical_review; effective model adds required clinical_review with clinically_reviewed/not_clinically_reviewed values and visible label; unreviewed patient_instruction is allowed with source and purpose checks. |
+| `api/schemas/evidence-passage.schema.json:35` | Q1, Q18 | Separate source/purpose approval from clinical_review; effective model adds required clinical_review with clinically_reviewed/not_clinically_reviewed values and visible label; unreviewed patient_instruction is allowed with source and purpose checks. |
+| `api/schemas/evidence-passage.schema.json:49` | Q1, Q18 | Separate source/purpose approval from clinical_review; effective model adds required clinical_review with clinically_reviewed/not_clinically_reviewed values and visible label; unreviewed patient_instruction is allowed with source and purpose checks. |
+| `api/schemas/guided-check.schema.json:5` | Q8 | Replace disagreement no-observation constraint with a manual observation reference; camera reference remains separate; keep retry state and all other checks. |
+| `api/schemas/guided-check.schema.json:406` | Q8 | Replace disagreement no-observation constraint with a manual observation reference; camera reference remains separate; keep retry state and all other checks. |
+| `api/schemas/guided-check.schema.json:413` | Q8 | Replace disagreement no-observation constraint with a manual observation reference; camera reference remains separate; keep retry state and all other checks. |
+| `api/schemas/warning.schema.json:222` | D1 | Do not emit config_changed to clear an active warning; keep legacy value parseable for historical records only. |
+| `backlog.json:14` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:28` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:42` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:56` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:70` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:84` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:98` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:112` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:126` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:140` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:154` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:168` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:182` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:196` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:210` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:224` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:238` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:252` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:266` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:280` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:294` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:308` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:322` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:336` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:350` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:364` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:378` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:392` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:406` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:420` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:434` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:448` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:459` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `backlog.json:462` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:476` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:490` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:502` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `backlog.json:504` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:518` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:532` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:546` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:560` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:574` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:588` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:602` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:616` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:630` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:644` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:658` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:672` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:686` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:700` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:714` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:728` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:742` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:756` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:770` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:784` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:798` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:812` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:826` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:840` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:854` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:868` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:882` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:896` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:910` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:924` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:936` | Q15, D10 | Filter both goal totals by explicit per-member opt-in, default off; revocation removes contributions immediately, never publish member counts or identities. |
+| `backlog.json:938` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:950` | Q15, D10 | Filter both goal totals by explicit per-member opt-in, default off; revocation removes contributions immediately, never publish member counts or identities. |
+| `backlog.json:952` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:966` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:980` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:994` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1008` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1022` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1036` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1050` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1064` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1078` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1092` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1104` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `backlog.json:1106` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1120` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1134` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1145` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `backlog.json:1146` | Q1, Q7, Q18 | Sourced, hash-pinned, purpose-eligible applicable content may run labeled "not clinically reviewed"; review workflow remains and cannot imply clinical validation. |
+| `backlog.json:1148` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1162` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1176` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1190` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1204` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1218` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1232` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1246` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1260` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1272` | Q11, Q14 | Permit only deterministic E32 dose proposals/confirmations under Q11/Q14; keep assistant-invented doses prohibited and the names-only SubjectSummary unchanged. |
+| `backlog.json:1274` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1288` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1302` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1316` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1330` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1344` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1358` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1372` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1386` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1400` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1414` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1428` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1440` | Q8 | Preserve manual and available camera observations with method/origin and disagreement; retry stays incomplete; never close a gap or infer a diagnosis. |
+| `backlog.json:1442` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1456` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1470` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1484` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1498` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1512` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1526` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1540` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1554` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1568` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1582` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1596` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1610` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1624` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1638` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1652` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1666` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `backlog.json:1680` | Q1, Q7, Q18 | Clinical review is a visible status, not a runtime gate; keep trained-operator, source, applicability and simulation checks. |
+| `tdd/E30.md:15` | Q8 | Preserve manual and available camera observations with method/origin and disagreement; retry stays incomplete; never close a gap or infer a diagnosis. |
+| `tdd/E30.md:25` | Q8 | Preserve manual and available camera observations with method/origin and disagreement; retry stays incomplete; never close a gap or infer a diagnosis. |
+| `api/openapi.yaml:6764` | D9 | The plan detail role declaration is only a coarse gate; station is denied and ground sees approved snapshots only. Person reads need the matching object/field grant. |
+| `api/openapi.yaml:6768` | D9 | Remove station from effective clinical plan detail roles; fixed plan content and broadcasts remain available. |
+| `api/openapi.yaml:11635` | D9 | A subject query parameter never grants chart access; station cannot use it to read clinical runs and officer reads still require explicit sharing. |
+| `api/examples/configuration/release-active.json:1` | D8 | Effective HTTP example includes its response ETag alongside unchanged ConfigRelease JSON. |
+| `VALIDATION.md:225` | Q5, Q6, Q8 | Venue reference is a consenting adult team member's independent 30-second manual pulse count; an oximeter adds a reference when present. Freeze consent/protocol and report every refusal and disagreement. |
+| `VALIDATION.md:227` | Q5, Q6, Q8 | Use the Q8 manual reference for camera validation and preserve separately configured teach timing. Without a manikin CPR teaching is SIM rehearsal and earns no CPR quality claim. |
+| `CONTRACTS.md:210` | D6 | Cache for 24 hours, retain durable identity for mission life, bind target/semantic parameters as well as body, and authorize stored-result visibility before replay. |
+| `api/openapi.yaml:11657` | D6 | Effective Idempotency-Key description includes resource/parameter identity, mission-life durable receipt and current access checks. |
+| `CONTRACTS.md:1108` | D4 | Hub changes still commit atomically; journal uses a sealed private write then hub-reference transaction and acknowledgment only after both stores. |
+| `CONTRACTS.md:1114` | D4 | Separate journal storage obeys the two-store recovery and paired-backup barrier, never independent uncoordinated commits. |
+| `CONTRACTS.md:783` | D1 | An active rule/sensor warning's manual resolution requires a medical officer and reason; assistant cannot resolve it. |
+| `api/schemas/sensor-channel.schema.json:5` | D3 | Derive freshness from corrected observed_at; last_received_at remains a transport field. |
+| `CONTRACTS.md:519` | D12 | Effective releases pin the 18 base documents plus the accepted unit-mapping document and decision-overlay version. |
+| `CONTRACTS.md:748` | D13 | Attempt rule evaluation inside the transaction savepoint; a typed computation failure preserves valid capture with durable pending evaluation and a visible fault, never clears a warning. |
 
 # Part B. Medicine potency engine
 
