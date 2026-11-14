@@ -170,6 +170,9 @@ version stays active. Updates arrive as signed bundles through the ground link, 
   rule it will break.
 - **Verify by evidence, not by redoing.** Run the gate commands, read the review verdict and read the diff of the
   critical paths.
+- **Stop at zero blockers.** A review passes when it finds no blocker; majors and minors get fixed but never start
+  another round. Every review loop has a cap (SYSTEM.md two reviews, a design one cold review, a build three
+  rounds); at the cap the coordinator decides, the loop does not continue.
 - **Settle shared things before fanning out.** Seams, package contradictions and product questions are decided once,
   before the agents that depend on them start. Thirty agents each deciding a contradiction their own way produce
   thirty findings.
