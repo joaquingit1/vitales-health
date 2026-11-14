@@ -155,6 +155,10 @@ version stays active. Updates arrive as signed bundles through the ground link, 
    prior art, competitors, numbers), read `docs/product/RESEARCH-ANNEX.md`, `docs/product/NASA-SOURCES.md` and the rest
    of `docs/product/`; the team already researched most of it, with sources linked. Search the web only for what they
    lack or to check for something newer, and file what you find, with its source, as a request to add it to the annex.
+10. **Turn your own mistakes into rules.** When you notice a mistake of yours that cost the team time or rework (a
+    wrong assumption, a skipped check, a source not read, work done twice), name the behaviour that caused it and write
+    the rule that prevents it: in section 6 when it can happen to any agent working here, otherwise in your own tool's
+    memory. Fix the cause, not only the instance.
 
 **When you orchestrate other agents** (use whatever models and tools you prefer):
 
