@@ -47,7 +47,7 @@ you file a request.
    crew member, the ground or a log unless consent and role rules in the contracts allow it.
 8. **Units travel with values.** Every quantity carries its UCUM unit in its type; no bare float crosses a module
    boundary. Mars Climate Orbiter was lost to a unit mismatch between two teams' software.
-9. **Stay in your lane.** Edit only the paths your epic owns (its design, section 13). Contracts and shared shapes
+9. **Stay in your lane.** Claim your epic on `docs/build/BOARD.md` before you start. Edit only the paths your epic owns (its design, section 13). Contracts and shared shapes
    change only through a request in `docs/requests/<epic>.md`. Meanwhile, pick the least surprising behavior the
    existing contract allows, never one that skips a safety check, a validation or an acceptance criterion; if the
    contract allows nothing safe, the feature stays off and says so. A request exists once it is in
