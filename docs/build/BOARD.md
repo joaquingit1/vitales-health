@@ -26,7 +26,7 @@ Hard dependencies (✅ when built) are what an epic needs to pass its acceptance
 | E02 | Consent, authentication and privacy | 🔨 In progress | agent | E01 | E03, E04, E05, E06, E07, E08, E09, E11, E12, E13, E15, E15-core, E16, E19, E21, E23, E26, E27, E28, E30, E31, E32, E33 | [tasks](E02/tasks.json) | [design](../tdd/E02.md) |
 | E03 | Crew experience and daily check | ⬜ Open (agents #3) |  | E01, E02 | E04, E22 | [tasks](E03/tasks.json) | [design](../tdd/E03.md) |
 | E04 | Guided complaint intake | ⬜ Open (agents #22) |  | E01, E02, E03, E23, E15-core | E15 | [tasks](E04/tasks.json) | [design](../tdd/E04.md) |
-| E05 | Capabilities and measurement workflow | ⬜ Open (agents #4) |  | E01, E02 | E06, E07, E08, E09, E14, E30 | [tasks](E05/tasks.json) | [design](../tdd/E05.md) |
+| E05 | Capabilities and measurement workflow | ⬜ Open (agents #4) | @joaquingit1 | E01, E02 | E06, E07, E08, E09, E14, E30 | [tasks](E05/tasks.json) | [design](../tdd/E05.md) |
 | E06 | Personal and station cameras | ⬜ Open (agents #9) |  | E01, E02, E05 | none | [tasks](E06/tasks.json) | [brief](../product/tdd/E06.md) |
 | E07 | Oximeter and clinical device adapters | ⬜ Open (agents #10) |  | E01, E02, E05 | none | [tasks](E07/tasks.json) | [brief](../product/tdd/E07.md) |
 | E08 | Wrist activity band and sleep pipeline | ⬜ Open (agents #11) |  | E01, E02, E05 | none | [tasks](E08/tasks.json) | [brief](../product/tdd/E08.md) |
@@ -47,11 +47,11 @@ Hard dependencies (✅ when built) are what an epic needs to pass its acceptance
 | E23 | Environment profile and habitat sensors | ⬜ Open (agents #8) | @fedegutman | E01, E02 | E04, E15-core, E22, E24, E25, E26, E27, E28, E29, E31, E32, E33 | [tasks](E23/tasks.json) | [design](../tdd/E23.md) |
 | E24 | Warnings engine | ⬜ Open (agents #16) | @fedegutman | E01, E23 | none | [tasks](E24/tasks.json) | [design](../tdd/E24.md) |
 | E25 | Routine scheduler and task guidance | ⬜ Open (agents #17) |  | E01, E23 | none | [tasks](E25/tasks.json) | [design](../tdd/E25.md) |
-| E26 | Someone needs help | ⬜ Open (agents #18) |  | E01, E02, E23, E27-guidance | E28 | [tasks](E26/tasks.json) | [design](../tdd/E26.md) |
-| E27 | Kit map: what this ship can test | ⬜ Open (agents #2) |  | E01, E02, E23, E27-guidance | E11, E12, E13, E26, E27, E28, E30, E32 | [tasks](E27/tasks.json) | [design](../tdd/E27.md) |
+| E26 | Someone needs help | ⬜ Open (agents #18) | @joaquingit1 | E01, E02, E23, E27-guidance | E28 | [tasks](E26/tasks.json) | [design](../tdd/E26.md) |
+| E27 | Kit map: what this ship can test | ⬜ Open (agents #2) | @joaquingit1 | E01, E02, E23, E27-guidance | E11, E12, E13, E26, E27, E28, E30, E32 | [tasks](E27/tasks.json) | [design](../tdd/E27.md) |
 | E28 | Onboard plans: no dead ends | ⬜ Open (agents #24) |  | E01, E02, E23, E26, E27 | E33 | [tasks](E28/tasks.json) | [design](../tdd/E28.md) |
 | E29 | The ground as a reader | ⬜ Open (agents #19) |  | E01, E23 | none | [tasks](E29/tasks.json) | [brief](../product/tdd/E29.md) |
-| E30 | Teach and check | ⬜ Open (agents #20) |  | E01, E02, E05, E27-guidance | none | [tasks](E30/tasks.json) | [design](../tdd/E30.md) |
-| E31 | Who helps | ⬜ Open (agents #21) |  | E01, E02, E23 | none | [tasks](E31/tasks.json) | [design](../tdd/E31.md) |
+| E30 | Teach and check | ⬜ Open (agents #20) | @joaquingit1 | E01, E02, E05, E27-guidance | none | [tasks](E30/tasks.json) | [design](../tdd/E30.md) |
+| E31 | Who helps | ⬜ Open (agents #21) | @joaquingit1 | E01, E02, E23 | none | [tasks](E31/tasks.json) | [design](../tdd/E31.md) |
 | E32 | Treat here: supplies and planning | ⬜ Open (agents #25) |  | E01, E02, E23, E27 | none | [tasks](E32/tasks.json) | [design](../tdd/E32.md) |
 | E33 | Stay or return | ⬜ Open (agents #28) |  | E01, E02, E23, E28 | none | [tasks](E33/tasks.json) | [design](../tdd/E33.md) |
