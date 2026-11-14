@@ -215,7 +215,7 @@ def preserve_instant_pattern(root: Path, generated: Path) -> None:
     pattern = object_map(common["instant"])["pattern"]
     if not isinstance(pattern, str):
         raise ValueError("instant pattern is missing")
-    tree = ast.parse(generated.read_text())
+    tree = ast.parse(generated.read_text(encoding="utf-8"))
     classes = [node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == "Instant"]
     if len(classes) != 1:
         raise ValueError("generated Instant model is missing or ambiguous")
@@ -240,7 +240,10 @@ def preserve_instant_pattern(root: Path, generated: Path) -> None:
         position += 1
     tree.body[position:position] = imports
     generated.write_text(
-        "# Generated from common.schema.json; preserves #/$defs/instant/pattern.\n" + ast.unparse(tree) + "\n"
+        "# Generated from common.schema.json; preserves #/$defs/instant/pattern.\n"
+        + ast.unparse(tree)
+        + "\n",
+        encoding="utf-8",
     )
 
 

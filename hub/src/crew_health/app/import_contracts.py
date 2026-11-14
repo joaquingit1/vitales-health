@@ -48,7 +48,7 @@ def verify_modules(root: Path, expected: dict[str, str], *, max_modules: int) ->
 
 
 def _imports(path: Path, root: Path, *, pure: bool = True) -> tuple[str, ...]:
-    source = ast.parse(path.read_text(), filename=str(path))
+    source = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     if pure:
         _check_pure_access(source)
     names: list[str] = []
@@ -222,7 +222,7 @@ def _feature_edge(module: str, layer: str, target: str) -> None:
 
 
 def _check_registration_source(path: Path) -> None:
-    tree = ast.parse(path.read_text())
+    tree = ast.parse(path.read_text(encoding="utf-8"))
     for node in tree.body:
         if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant):
             continue
