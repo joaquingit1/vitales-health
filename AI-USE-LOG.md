@@ -51,3 +51,8 @@ marked "checked by coordinator" was accepted only after its gate commands passed
 | Sat 17:32 | Supervisor E21 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E21/ | Coordinator |
 | Sat 17:33 | Supervisor E10 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E10/ | Coordinator |
 | Sat 17:33 | Supervisor E03 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E03/ | Coordinator |
+| Sat 17:36 | Coder E15 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E15/ | Plan review (GPT-6 Astra) |
+| Sat 17:37 | Supervisor E12 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E12/ | Coordinator |
+| Sat 17:37 | Coder E28 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E28/ | Plan review (GPT-6 Astra) |
+| Sat 17:37 | Coder E24 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E24/ | Plan review (GPT-6 Astra) |
+| Sat 17:38 | Coder E32 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E32/ | Plan review (GPT-6 Astra) |
