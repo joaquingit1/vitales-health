@@ -51,7 +51,8 @@ you file a request.
    change only through a request in `docs/requests/<epic>.md`. Meanwhile, pick the least surprising behavior the
    existing contract allows, never one that skips a safety check, a validation or an acceptance criterion; if the
    contract allows nothing safe, the feature stays off and says so. A request exists once it is in
-   `docs/requests/<epic>.md`; one that lives only inside a design is never decided.
+   `docs/requests/<epic>.md`; one that lives only inside a design is never decided. A pending request never blocks a
+   code task (D19): build everything that does not need it, keep the request's interim, and list the gap in your report.
 
 ## 2. Redundancy: every critical path has a second way
 
