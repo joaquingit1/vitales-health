@@ -56,6 +56,7 @@ class Limits:
     raw_row_max_bytes: int
     registry_max_bytes: int
     aggregate_bucket_s: int
+    plausibility_history_max: int
 
     @classmethod
     def of(cls, settings: HubSettings) -> Limits:
@@ -71,6 +72,7 @@ class Limits:
             settings.integer("sensors.raw_row_max_bytes"),
             settings.integer("commands.max_bytes"),
             settings.integer("sensors.aggregate_bucket_s"),
+            settings.integer("sensors.plausibility_history_max"),
         )
 
 
@@ -113,7 +115,6 @@ class Runtime:
     read_file: Callable[[str], bytes] | None = None
     deployment_profile: str = ""
     demo_registry_path: str = ""
-    criteria_available: bool = False  # R-E23-2: no sourced plausibility criteria exist yet
 
     def need_converter(self) -> WireUnitConverter:
         if self.converter is None:

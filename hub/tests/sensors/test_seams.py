@@ -46,7 +46,7 @@ def station(tmp_path: Path) -> Station:
     st.initialize("SIM")
     st.advance(seconds=60)
     rows = [
-        reading("ch_co2", n, 2.0 + n / 10, "mmHg", st.clock.at - timedelta(seconds=40 - 5 * n))
+        reading("ch_co2", n, 2.0 + n / 10000, "mmHg", st.clock.at - timedelta(seconds=40 - 5 * n))
         for n in range(1, 6)
     ]
     assert (
@@ -108,7 +108,7 @@ def test_status_series_channel_and_reading_reads(station: Station) -> None:
     )
     assert (
         body["evaluation"]["status"] == "insufficient_data"
-    )  # no sourced plausibility criteria: not evaluated
+    )  # five readings cover too little of the one-hour window to evaluate (plausibility now passes)
     assert body["shown_level"] is None and body["linked_warning_ids"] == [] and body["limit_marks"]
     assert (
         "ch_co2_b" in body["trace"] or body["trace"] is not None

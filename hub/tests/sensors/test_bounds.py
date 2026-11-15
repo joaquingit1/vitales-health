@@ -84,9 +84,19 @@ def item(**changes: Any) -> dict[str, Any]:
 
 def parse(doc: object, **kw: Any) -> Any:
     raw = doc if isinstance(doc, bytes) else json.dumps(doc).encode()
-    limits: dict[str, Any] = {"max_channels": 4, "max_bytes": 100000, "criteria_available": False}
+    limits: dict[str, Any] = {"max_channels": 4, "max_bytes": 100000}
     limits.update(kw)
     return parse_registry(raw, types(), **limits)
+
+
+RAD_LIVE = item(
+    sensor_type_id="rad",
+    hazard_id="radiation",
+    origin_mode="LIVE",
+    input_unit="µGy/h",
+    expected_interval_seconds=None,
+    stale_after_seconds=600,
+)
 
 
 @pytest.mark.trace("T-E23-083", "T-E23-085", "AGENTS-3.2")
@@ -111,7 +121,7 @@ def test_the_registry_accepts_a_valid_document_and_names_every_defect_of_an_inva
         (item(stale_after_seconds=5), "must exceed the interval"),
         (item(expected_interval_seconds=7), "override needs its basis"),
         (item(origin_mode="REPLAY"), "names its dataset"),
-        (item(origin_mode="LIVE"), "refused"),
+        (RAD_LIVE, "refused, criteria_missing"),  # rad has no sourced criteria; co2 LIVE is accepted below
         (item(health_url=None), "health url"),
     ]
     for entry, expected in cases:
@@ -139,9 +149,11 @@ def test_a_malformed_registry_document_is_rejected_whole() -> None:
     with pytest.raises(RegistryRejected, match="health_url"):
         parse({"channels": [item(health_url="")]})
     ok = parse(
-        {"channels": [item(origin_mode="LIVE")]}, criteria_available=True
-    )  # sourced criteria would allow LIVE
+        {"channels": [item(origin_mode="LIVE")]}
+    )  # co2 has sourced criteria in the catalog: LIVE allowed
     assert ok[0].facts.origin_mode == "LIVE"
+    with pytest.raises(RegistryRejected, match="criteria_missing"):  # rad has none: LIVE refused (T-E23-070)
+        parse({"channels": [RAD_LIVE]})
 
 
 @pytest.mark.trace("T-E23-092", "R35")

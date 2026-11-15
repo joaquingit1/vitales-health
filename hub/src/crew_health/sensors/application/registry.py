@@ -79,9 +79,7 @@ def _item(index: int, item: object) -> tuple[dict[str, Any], str | None]:
     return item, health
 
 
-def _cross_check(
-    index: int, item: dict[str, Any], sensor_type: SensorTypeFacts | None, *, criteria_available: bool
-) -> list[str]:
+def _cross_check(index: int, item: dict[str, Any], sensor_type: SensorTypeFacts | None) -> list[str]:
     pointer = f"/channels/{index}"
     if sensor_type is None:
         return [pointer + "/sensor_type_id: not in the active catalog"]
@@ -101,7 +99,7 @@ def _cross_check(
         found.append(pointer + "/stale_after_seconds: must exceed the interval or the channel flaps stale")
     if item["origin_mode"] == "REPLAY" and not item["dataset"]:
         found.append(pointer + "/dataset: a REPLAY channel names its dataset")
-    policy = registration_policy(item["origin_mode"], criteria_available=criteria_available)
+    policy = registration_policy(item["origin_mode"], criteria_available=sensor_type.plausibility is not None)
     if not policy.register:
         found.append(pointer + "/origin_mode: refused, " + policy.reason)
     if not item.get("health_url"):
@@ -115,7 +113,6 @@ def parse_registry(
     *,
     max_channels: int,
     max_bytes: int,
-    criteria_available: bool,
 ) -> tuple[RegistryChannel, ...]:
     """Validate and map. Raises RegistryRejected with every finding; nothing is partly accepted."""
     if len(raw) > max_bytes:
@@ -139,9 +136,7 @@ def parse_registry(
         if item["channel_id"] in seen:
             findings.append(f"/channels/{index}/channel_id: duplicate")
         seen.add(item["channel_id"])
-        problems = _cross_check(
-            index, item, by_id.get(item["sensor_type_id"]), criteria_available=criteria_available
-        )
+        problems = _cross_check(index, item, by_id.get(item["sensor_type_id"]))
         findings.extend(problems)
         if problems:
             continue
@@ -197,7 +192,6 @@ def install(rt: Runtime, uow: UnitOfWork, raw: bytes, *, source: str) -> int:
             config.sensor_types,
             max_channels=rt.limits.max_channels,
             max_bytes=rt.limits.registry_max_bytes,
-            criteria_available=rt.criteria_available,
         )
     except RegistryRejected as error:
         _audit(rt, uow, "sensors.registry_rejected", {"source": source, "findings": len(error.findings)})
