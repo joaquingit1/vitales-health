@@ -22,7 +22,7 @@ from crew_health.rules.domain.activation import definition_status
 from crew_health.rules.domain.errors import NotVisible
 from crew_health.rules.domain.visibility import Viewer, can_see
 from crew_health.rules.domain.vocabulary import ACTIVE, EnvironmentId, Level, OriginMode, WarningAction
-from crew_health.rules.domain.warning import PersonActor, SessionActor, Warning
+from crew_health.rules.domain.warning import Actor, AssistantActor, PersonActor, SessionActor, Warning
 
 type View = ReadSnapshot | UnitOfWork
 
@@ -31,14 +31,19 @@ def viewer_of(session: SessionContext) -> Viewer:
     return Viewer(session.kind, session.person_id)
 
 
+def actor_of(session: SessionContext) -> Actor:
+    """The domain actor of a session. An assistant actor stays the assistant even inside a crew member's session,
+    so no transition accepts it (AGENTS 1 rule 4): the session kind never launders the assistant into a person."""
+    if session.actor.kind == "assistant":
+        return AssistantActor(session.actor.id)
+    if session.kind == "crew" and session.person_id is not None and session.actor.kind == "person":
+        return PersonActor(session.person_id)
+    return SessionActor(session.kind, session.actor.id)
+
+
 def requester_of(session: SessionContext, w: Warning) -> actions.Requester:
-    viewer = viewer_of(session)
-    actor = (
-        PersonActor(session.person_id)
-        if session.kind == "crew" and session.person_id is not None
-        else SessionActor(session.kind, session.actor.id)
-    )
-    return actions.Requester(viewer, actor, "none", None, session.kind == "crew")
+    actor = actor_of(session)
+    return actions.Requester(viewer_of(session), actor, "none", None, isinstance(actor, PersonActor))
 
 
 def served(w: Warning) -> guidance.ServedSteps:

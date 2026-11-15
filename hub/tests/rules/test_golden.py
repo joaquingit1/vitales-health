@@ -1,7 +1,8 @@
 """T-E24-131: independently sourced golden cases agree with the configured release (AGENTS.md 1).
 
 The cases live in `golden/cases.yaml`, each with its document, section and a quote that must occur
-verbatim in that document. This runner executes the pure domain against the cases; it never edits them.
+verbatim in that document, and the second reviewer's recorded check against that source. This runner executes the
+pure domain against the cases; it never edits them.
 """
 
 from __future__ import annotations
@@ -36,10 +37,10 @@ def normal(text: str) -> str:
 
 
 def test_the_golden_file_declares_its_review_state_and_every_quote_is_in_its_source() -> None:
-    assert (
-        CASES["checked_by"] is None
-    )  # reported as pending in the build report: no second person has checked it
+    assert CASES["checked_by"]  # a second reviewer, not the author, checked every case against its source
+    outcomes = ("agrees:", "agrees_with_assumption:", "corrected:", "needs_decision:")
     for case in CASES["cases"]:
+        assert str(case.get("check", "")).startswith(outcomes), case["id"]
         source = case["source"]
         text = normal((h.ROOT / source["document"]).read_text(encoding="utf-8"))
         assert normal(source["quote"]) in text, case["id"]
@@ -114,14 +115,20 @@ def test_escalation_golden(case: dict[str, Any], world: h.World) -> None:
     before = {w.warning_id for w in world.warnings.values()}
     results = [h.result(limit, crossed=True, clear_holds=False) for limit in case["input"]["crossed"]]
     world.feed(world.sensor(results=results, **kw))
-    new = [w for w in world.warnings.values() if w.warning_id not in before]
-    assert sorted(w.definition_id for w in new) == sorted(case["expected"]["raised"])
-    superseded = [
-        w.definition_id
-        for w in world.warnings.values()
-        if w.clear_reason and w.clear_reason.value == "superseded"
-    ]
-    assert sorted(superseded) == sorted(case["expected"]["superseded"])
+    expected = case["expected"]
+    if "active_after" in expected:
+        active = sorted(w.definition_id for w in world.warnings.values() if w.active)
+        assert active == sorted(expected["active_after"])
+    if "raised" in expected:
+        new = [w for w in world.warnings.values() if w.warning_id not in before]
+        assert sorted(w.definition_id for w in new) == sorted(expected["raised"])
+    if "superseded" in expected:
+        superseded = [
+            w.definition_id
+            for w in world.warnings.values()
+            if w.clear_reason and w.clear_reason.value == "superseded"
+        ]
+        assert sorted(superseded) == sorted(expected["superseded"])
 
 
 @pytest.mark.parametrize("case", BY_KIND["occurrences"], ids=lambda c: c["id"])

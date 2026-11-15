@@ -1,8 +1,8 @@
 """E24 on a real station (real SQLite, E01 mechanisms, real mission and sensors modules, real HTTP).
 
 T-E24-023 CO2 raise end to end, 050 acknowledge, 054 headers, 056/124 durable replay, 072 evaluator fault, 106
-storage fault, 060/062 assistant guard, 051 privacy. The E23 plausibility gate is answered "passed" in the test only
-(R-E23-2: no sourced criteria exist), see e24_station.
+storage fault, 060/062 assistant guard, 051 privacy. Every reading passes E23's real sourced plausibility checks
+(R-E23-2), with nothing patched.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from typing import Any
 
 import e23_station as base
 import pytest
-from e24_station import build, patched, post, seconds  # noqa: F401
+from e24_station import build, patched, post, seconds, wobble  # noqa: F401
 
 from crew_health.kernel.errors import StorageUnavailable
 from crew_health.kernel.scheduler import HealthState
@@ -25,7 +25,8 @@ pytestmark = pytest.mark.E24
 
 def _rows(st: base.Station, value: float, start: int, count: int) -> list[Any]:
     return [
-        base.reading("ch_co2", start + n, value, "mmHg", seconds(st, (count - n) * 5)) for n in range(count)
+        base.reading("ch_co2", start + n, value + wobble("co2", 5, n), "mmHg", seconds(st, (count - n) * 5))
+        for n in range(count)
     ]
 
 

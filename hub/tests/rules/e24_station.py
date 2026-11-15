@@ -4,6 +4,7 @@ in e23_station (session source, unit registry, roster). Configuration is the shi
 
 from __future__ import annotations
 
+import json
 import sys
 from collections.abc import Iterator
 from datetime import timedelta
@@ -19,8 +20,6 @@ import e23_station as base  # noqa: E402
 from crew_health.rules import module as rules_module  # noqa: E402
 from crew_health.rules.settings import DEFAULTS as RULE_DEFAULTS  # noqa: E402
 from crew_health.rules.settings import specifications as rule_specs  # noqa: E402
-from crew_health.sensors.application import evaluate as evaluate_module  # noqa: E402
-from crew_health.sensors.domain.plausibility import PlausibilityResult  # noqa: E402
 
 ADAPTER = base.ADAPTER
 _SENSORS = base.sensors_module
@@ -39,14 +38,16 @@ def patched(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     monkeypatch.setattr(base, "sensor_specs", lambda: (*original(), *rule_specs()))
     monkeypatch.setattr(base, "SENSOR_DEFAULTS", {**base.SENSOR_DEFAULTS, **RULE_DEFAULTS})
     monkeypatch.setattr(base, "sensors_module", _Both)
-    # R-E23-2: E23 has no sourced plausibility criteria, so it evaluates nothing in any origin. These tests exercise
-    # E24 on an evaluated channel, so the gate is answered "passed" here, in the test only, labeled as such.
-    monkeypatch.setattr(
-        evaluate_module,
-        "assess",
-        lambda kind, reading: PlausibilityResult("passed", "test_fixture_r_e23_2", None),
-    )
     yield
+
+
+def wobble(sensor_type_id: str, interval_seconds: int, n: int) -> float:
+    """A real sensor's reading moves. E23 cannot prove a constant value is not stuck (R-E23-2: a run longer than its
+    bounded history is "unavailable" and never evaluated), so test feeds alternate by half the catalog's plausible
+    rate over one interval: plausible, never stuck, and too small to move any limit decision."""
+    catalog = json.loads((base.ROOT / "config" / "sensor-catalog.json").read_text(encoding="utf-8"))
+    (kind,) = [t for t in catalog["sensor_types"] if t["id"] == sensor_type_id]
+    return float(kind["plausibility"]["rate"]["max_per_second"]) * interval_seconds / 2 * (n % 2)
 
 
 def build(tmp: Path, registry: dict[str, Any] | None = None, **kw: Any) -> base.Station:
