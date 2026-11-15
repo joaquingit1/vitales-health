@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import { createWebHistory } from "vue-router";
 import "./design/tokens.css";
+import "./design/app.css";
 import { SESSION_LOCK, SessionLock, bindBrowser, stationScreen } from "./features/identity/sessionLock";
 import { CREW_API, CrewApi } from "./shell/api/client";
 import App from "./shell/App.vue";
