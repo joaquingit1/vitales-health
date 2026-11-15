@@ -521,6 +521,24 @@
    "name": "CPR practice manikin",
    "unit": "manikin",
    "consumable": false
+  },
+  {
+   "supply_id": "eye_shield",
+   "name": "Rigid eye shield",
+   "unit": "shield",
+   "consumable": true
+  },
+  {
+   "supply_id": "eye_wash_set",
+   "name": "Eye wash set",
+   "unit": "set",
+   "consumable": false
+  },
+  {
+   "supply_id": "towels",
+   "name": "Towels",
+   "unit": "towel",
+   "consumable": true
   }
  ],
  "stock": {

@@ -48,6 +48,8 @@ from crew_health.kitmap.api.router import RequireRoles as KitmapRoles
 from crew_health.kitmap.application.ports import RosterPort as KitmapRoster
 from crew_health.measurement.application.ports import ConsentQueries as MeasurementConsent
 from crew_health.measurement.application.ports import SessionAuthenticator as MeasurementAuthenticator
+from crew_health.medicines.application.ports import ConsentQueries as MedicinesConsent
+from crew_health.medicines.module import RequestAuthenticator as MedicinesAuthenticator
 from crew_health.plans.api.router import RequestAuthenticator as PlansAuthenticator
 from crew_health.records.adapters.policies import ReleaseObservationPolicies
 from crew_health.records.application.commands import RecordsCommands
@@ -60,6 +62,7 @@ from crew_health.roles.application.ports import RosterPort as RolesRoster
 from crew_health.routine.application.ports import RequestAuthenticator as RoutineAuthenticator
 from crew_health.routine.application.ports import RosterMember as RoutineMember
 from crew_health.routine.application.ports import RosterPort as RoutineRoster
+from crew_health.supplies.api.router import RequestAuthenticator as SuppliesAuthenticator
 from crew_health.teach.application.ports import OriginMode as TeachOrigin
 from crew_health.teach.application.ports import PersonDirectory, PersonRef, RecordRouting
 from crew_health.teach.application.ports import RequestAuthenticator as TeachAuthenticator
@@ -121,7 +124,7 @@ class SessionGate:
     def session_for(self, request: Request, operation_id: str) -> SessionContext:
         return self._admitted(self.security.authenticate(request), operation_id)
 
-    # plans and roles RequestAuthenticator
+    # plans, roles, medicines and supplies RequestAuthenticator
     def session(self, request: Request, operation_id: str) -> SessionContext:
         return self.session_for(request, operation_id)
 
@@ -425,6 +428,8 @@ def compose(
         (RoutineAuthenticator, headers, on_security),
         (MeasurementAuthenticator, lambda r: MeasurementGate(headers(r)), on_security),
         (EpisodesAuthenticator, lambda r: MeasurementGate(headers(r)), on_security),
+        (MedicinesAuthenticator, gate, on_security),
+        (SuppliesAuthenticator, gate, on_security),
         (HelpRoster, lambda r: HelpRosterAdapter(identity(r)), on_identity),
         (RolesRoster, lambda r: RolesRosterAdapter(identity(r)), on_identity),
         (KitmapRoster, lambda r: KitmapRosterAdapter(identity(r)), on_identity),
@@ -433,6 +438,7 @@ def compose(
         (RecordRouting, lambda r: RoutingAdapter(identity(r), demo), on_identity),
         (CatchupConsent, consent, (ConsentService,)),
         (MeasurementConsent, consent, (ConsentService,)),
+        (MedicinesConsent, consent, (ConsentService,)),
         (
             ConsentObservations,
             lambda r: ObservationsAdapter(r.require(RecordsStore)),  # type: ignore[type-abstract]

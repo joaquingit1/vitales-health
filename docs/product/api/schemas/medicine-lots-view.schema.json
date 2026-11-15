@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "medicine-lots-view.schema.json",
+  "title": "medicine-lots-view",
+  "description": "Medicines aboard (docs/tdd/E32.md R-E32-10).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "environment_id",
+    "assessment",
+    "lots"
+  ],
+  "properties": {
+    "environment_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "assessment": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "run_id",
+            "as_of",
+            "status",
+            "origin_mode"
+          ],
+          "properties": {
+            "run_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "as_of": {
+              "$ref": "common.schema.json#/$defs/instant"
+            },
+            "status": {
+              "type": "string",
+              "minLength": 1
+            },
+            "origin_mode": {
+              "$ref": "common.schema.json#/$defs/origin_mode"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "lots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "lot_id",
+          "product_id",
+          "name",
+          "quantity_now",
+          "lot_status",
+          "excluded_by",
+          "state",
+          "potency",
+          "crossing_utc",
+          "labeled_expiry"
+        ],
+        "properties": {
+          "lot_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "product_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quantity_now": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "ucum"
+            ],
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0
+              },
+              "ucum": {
+                "type": "string",
+                "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+              }
+            }
+          },
+          "lot_status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "recalled",
+              "consumed"
+            ]
+          },
+          "excluded_by": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "in_specification",
+                  "adjust",
+                  "do_not_use"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "potency": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "ingredient_id",
+                "low",
+                "median",
+                "high"
+              ],
+              "properties": {
+                "ingredient_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "low": {
+                  "type": "number"
+                },
+                "median": {
+                  "type": "number"
+                },
+                "high": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "crossing_utc": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "labeled_expiry": {
+            "$ref": "common.schema.json#/$defs/instant"
+          }
+        }
+      }
+    }
+  }
+}

@@ -201,7 +201,8 @@ def test_generated_enums_and_closed_error_model() -> None:
     assert set(Role) == set(source["role"]["enum"])
     assert set(EvidenceKind) == set(source["evidence_ref"]["properties"]["kind"]["enum"])
     assert len(ErrorCode) == len(ERROR_STATUS)
-    assert len(EventType) == 36
+    events = json.loads((ROOT / "contracts/api/schemas/event.schema.json").read_bytes())["properties"]
+    assert set(EventType) == set(events["type"]["enum"])
     with pytest.raises(ValidationError):
         ErrorEnvelope.model_validate(
             {

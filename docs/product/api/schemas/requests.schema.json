@@ -2015,6 +2015,396 @@
         "access"
       ],
       "additionalProperties": false
+    },
+    "MedicineInspectionCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lot_id",
+        "finding",
+        "client_time"
+      ],
+      "properties": {
+        "lot_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "finding": {
+          "type": "string",
+          "enum": [
+            "no_change",
+            "color_change",
+            "cracking",
+            "crystals",
+            "cloudiness",
+            "precipitate",
+            "particles",
+            "swollen_package",
+            "phase_separation",
+            "other"
+          ],
+          "description": "The pharmacy engine's inspection vocabulary (contracts/pharmacy/inputs.schema.json InspectionRecord); any finding other than no_change excludes the lot at once."
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      }
+    },
+    "MedicationContextCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "part",
+        "state",
+        "client_time"
+      ],
+      "properties": {
+        "part": {
+          "type": "string",
+          "enum": [
+            "allergies",
+            "other_medicines",
+            "renal",
+            "hepatic",
+            "conditions"
+          ]
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "documented",
+            "none_known",
+            "none",
+            "unknown",
+            "normal",
+            "impaired"
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "maxItems": 200
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      }
+    },
+    "WorkingDiagnosisCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "condition_id",
+        "subject_person_id",
+        "client_time"
+      ],
+      "properties": {
+        "condition_id": {
+          "type": "string",
+          "pattern": "^ICL[0-9]+$"
+        },
+        "subject_person_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "basis_text": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "certainty_text": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "supersedes": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      }
+    },
+    "DoseProposalCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "working_diagnosis_id",
+        "product_id",
+        "client_time"
+      ],
+      "properties": {
+        "working_diagnosis_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "product_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lot_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "enum": [
+            "labeled"
+          ]
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      }
+    },
+    "DoseConfirm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lot_id",
+        "overrides",
+        "acknowledged_alert_ids",
+        "client_time"
+      ],
+      "properties": {
+        "lot_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "alert_id",
+              "reason_code"
+            ],
+            "properties": {
+              "alert_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reason_code": {
+                "type": "string",
+                "minLength": 1
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 2000
+              }
+            }
+          }
+        },
+        "acknowledged_alert_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      }
+    },
+    "ManualAdministrationCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_person_id",
+        "product_id",
+        "lot_id",
+        "amount",
+        "administered_at",
+        "reason_text",
+        "client_time"
+      ],
+      "properties": {
+        "subject_person_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "product_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lot_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "amount": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "ucum"
+          ],
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "ucum": {
+              "type": "string",
+              "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+            }
+          }
+        },
+        "administered_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "reason_text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      }
+    },
+    "AdministrationCorrectionCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason_text",
+        "client_time"
+      ],
+      "properties": {
+        "reason_text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      }
+    },
+    "LotMovementCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "quantity",
+        "client_time"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "return",
+            "waste",
+            "count_correction"
+          ]
+        },
+        "quantity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "ucum"
+          ],
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "ucum": {
+              "type": "string",
+              "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+            }
+          }
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      }
+    },
+    "MedicineAssayCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One measured assay of an ingredient of a lot (pharmacy AssayRecord); scheduling an assessment follows (E32 4.4).",
+      "required": [
+        "lot_id",
+        "ingredient_id",
+        "measured_at",
+        "measurand",
+        "value_percent",
+        "sd_percent",
+        "site",
+        "method",
+        "laboratory",
+        "client_time"
+      ],
+      "properties": {
+        "lot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "ingredient_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "measured_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "measurand": {
+          "type": "string",
+          "enum": [
+            "total",
+            "active"
+          ]
+        },
+        "value_percent": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000,
+          "description": "Percent of label claim."
+        },
+        "sd_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "site": {
+          "type": "string",
+          "enum": [
+            "onboard",
+            "ground"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "laboratory": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      }
     }
   }
 }

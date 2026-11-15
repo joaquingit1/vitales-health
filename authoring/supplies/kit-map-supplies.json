@@ -1,0 +1,88 @@
+{
+ "about": "E32 content of the kit map (E27 design section 6, R-E32-01): authoring/kitmap/build.py copies supplies, stock, candidate_supplies and candidate_skills into config/kit-map.json. The kit-map schema gives a catalog entry no citation field, so each supply's sources are kept here under provenance; build.py refuses a supply without one. RS IDs are in docs/product/RESPONDER-FLOWS.md (sources table); every source is NASA's except RS30 (NHS), used only for the rinse duration, which no NASA source states.",
+ "supplies": [
+  {
+   "supply_id": "eye_rinse_water",
+   "name": "Clean water for an eye rinse",
+   "unit": "rinse",
+   "consumable": true
+  },
+  {
+   "supply_id": "eye_shield",
+   "name": "Rigid eye shield",
+   "unit": "shield",
+   "consumable": true
+  },
+  {
+   "supply_id": "eye_wash_set",
+   "name": "Eye wash set",
+   "unit": "set",
+   "consumable": false
+  },
+  {
+   "supply_id": "towels",
+   "name": "Towels",
+   "unit": "towel",
+   "consumable": true
+  }
+ ],
+ "stock": {
+  "station_leo": [],
+  "transit": [],
+  "lunar_surface": [],
+  "mars_surface": []
+ },
+ "candidate_supplies": [],
+ "candidate_skills": [],
+ "provenance": {
+  "eye_rinse_water": [
+   {
+    "source_id": "RS33",
+    "locator": "Burn Chemical Eye CliFF (2023), p. 1",
+    "quote": "Immediate eye irrigation therapy is the most important initial management of chemical eye burns"
+   },
+   {
+    "source_id": "RS08",
+    "locator": "ISS Medical Checklist JSC-48522-E4 (2001, historical), p. 558, Eye problems: chemical burn",
+    "quote": "Prior to SSE configuration, attempt eye irrigation with Drink Bag, Drink Straw."
+   },
+   {
+    "source_id": "RS30",
+    "locator": "Eye injuries (NHS; not NASA), duration only",
+    "quote": "run lots of water over your eyeball for at least 20 minutes"
+   }
+  ],
+  "eye_shield": [
+   {
+    "source_id": "RS32",
+    "locator": "Eye Foreign Body CliFF (2023), p. 8",
+    "quote": "Place a rigid shield over the eye and tape it to the skin covering the rigid periorbital bone so that there is no pressure on the globe"
+   },
+   {
+    "source_id": "RS33",
+    "locator": "Burn Chemical Eye CliFF (2023), p. 7",
+    "quote": "Shielding of the eye will also be needed to protect from further damage."
+   },
+   {
+    "source_id": "RS08",
+    "locator": "ISS Medical Checklist JSC-48522-E4 (2001, historical), p. 590, Eye problems: penetrating object",
+    "quote": "Tape metal Eye Shield over Eye Pad."
+   }
+  ],
+  "eye_wash_set": [
+   {
+    "source_id": "RS08",
+    "locator": "ISS Medical Checklist JSC-48522-E4 (2001, historical), p. 558, Eye problems: chemical burn; SSE is the Space Station Eyewash (Figure 1 of the procedure)",
+    "quote": "For definitive eye flush, deploy SSE near SVO-ZV interface."
+   }
+  ],
+  "towels": [
+   {
+    "source_id": "RS08",
+    "locator": "ISS Medical Checklist JSC-48522-E4 (2001, historical), p. 558, Eye problems: chemical burn",
+    "quote": "Use Towels to absorb excess water."
+   }
+  ]
+ },
+ "stock_note": "No stock row. RS08 is the only source with packed quantities (p. 988: Eye Shield, Metallic, 1; p. 1002: Space Station Eyewash (SSE), 1), and it is a superseded 2001 ISS inventory, not a packing list for any environment the product serves. E32 8.2: no packed quantity has a source today, and S-L4 rejects a sourced row until R-E32-03 adds source_ids. No source gives a rinse water volume. A step that needs a supply without stock reads not aboard and fails closed (E28 14c) until the flight surgeon sets a team default row."
+}

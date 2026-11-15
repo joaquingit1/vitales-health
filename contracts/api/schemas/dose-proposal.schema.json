@@ -1,0 +1,471 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dose-proposal.schema.json",
+  "title": "dose-proposal",
+  "description": "Medicines aboard (docs/tdd/E32.md R-E32-10).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "proposal_id",
+    "revision",
+    "outcome",
+    "state",
+    "subject_person_id",
+    "working_diagnosis_id",
+    "product_id",
+    "lot_id",
+    "amount",
+    "amount_text",
+    "ingredients",
+    "potency",
+    "refusal",
+    "alerts",
+    "trace",
+    "review_state",
+    "next_dose_earliest_at",
+    "created_at",
+    "expires_at",
+    "origin_mode",
+    "notice"
+  ],
+  "properties": {
+    "proposal_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "proposal",
+        "refusal"
+      ]
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "confirmed",
+        "expired",
+        "superseded",
+        "refusal"
+      ]
+    },
+    "subject_person_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "working_diagnosis_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "product_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lot_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "amount": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "ucum"
+          ],
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "ucum": {
+              "type": "string",
+              "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "amount_text": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ingredients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ingredient_id",
+          "target",
+          "accounting",
+          "expected_median",
+          "expected_low",
+          "remaining_allowance"
+        ],
+        "properties": {
+          "ingredient_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "ucum"
+            ],
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0
+              },
+              "ucum": {
+                "type": "string",
+                "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+              }
+            }
+          },
+          "accounting": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "ucum"
+            ],
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0
+              },
+              "ucum": {
+                "type": "string",
+                "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+              }
+            }
+          },
+          "expected_median": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "value",
+                  "ucum"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "ucum": {
+                    "type": "string",
+                    "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_low": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "value",
+                  "ucum"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "ucum": {
+                    "type": "string",
+                    "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "remaining_allowance": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "ucum"
+            ],
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0
+              },
+              "ucum": {
+                "type": "string",
+                "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "potency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "status",
+        "assessment_run_id",
+        "intervals"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "enum": [
+            "labeled",
+            "labeled_with_estimate",
+            "compensated"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "estimated",
+            "stale",
+            "none"
+          ]
+        },
+        "assessment_run_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "intervals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "ingredient_id",
+              "low",
+              "median",
+              "high"
+            ],
+            "properties": {
+              "ingredient_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "low": {
+                "type": "number"
+              },
+              "median": {
+                "type": "number"
+              },
+              "high": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "refusal": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code",
+            "detail_text",
+            "alternatives"
+          ],
+          "properties": {
+            "code": {
+              "type": "string",
+              "minLength": 1
+            },
+            "detail_text": {
+              "type": "string",
+              "minLength": 1
+            },
+            "alternatives": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "lot_ids",
+                "product_ids"
+              ],
+              "properties": {
+                "lot_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "product_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "alert_id",
+          "kind",
+          "level",
+          "text",
+          "reason_codes",
+          "override_roles"
+        ],
+        "properties": {
+          "alert_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "override_required",
+              "acknowledge",
+              "info"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason_codes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "override_roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "trace": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "step",
+          "source",
+          "value_text"
+        ],
+        "properties": {
+          "step": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value_text": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "review_state": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "draft",
+            "reviewed",
+            "approved"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "next_dose_earliest_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "expires_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "notice": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

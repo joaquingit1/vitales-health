@@ -79,6 +79,8 @@ from crew_health.kernel.uow import (
     UnitOfWork,
 )
 from crew_health.measurement.application.ports import CommandFingerprint as MeasurementFingerprint
+from crew_health.medicines.adapters.weights import RecordsObservations, RecordsWeightReader
+from crew_health.medicines.application.ports import WeightReader
 from crew_health.platform.adapters.evaluation import EvaluationRepository
 from crew_health.platform.adapters.fingerprint import KeyedCommandFingerprint
 from crew_health.platform.adapters.ledger import CommandLedger
@@ -95,6 +97,7 @@ from crew_health.platform.storage import SQLiteDatabase
 from crew_health.records.api.router import create_router as records_router
 from crew_health.records.application.commands import RecordsCommands
 from crew_health.records.application.queries import RecordsQueries
+from crew_health.records.application.seams import RecordsStore
 from crew_health.records.domain.observations import ObservationInput, ObservationRecord
 from crew_health.records.module import register as register_records
 
@@ -520,6 +523,19 @@ class ReleaseAudience:
         return audience.rule == "config.release"
 
 
+def _seam_bindings(registry: DeclarationRegistry) -> None:
+    """Seams whose consumer reads a structural copy the provider's module may not hand over itself (SYSTEM 5.12):
+    medicines (E32 M-L4) reads body weight through records' store, whose seams module imports records' domain and
+    so is closed to medicines. Bound only when records provides its store and nobody bound the port already."""
+    store, weights = cast(type[object], RecordsStore), cast(type[object], WeightReader)
+    if store in registry.providers and weights not in registry.providers:
+        registry.provide(
+            weights,
+            lambda resolver: RecordsWeightReader(cast(RecordsObservations, resolver.require(store))),
+            requires=(store,),
+        )
+
+
 def _event_access(registry: DeclarationRegistry) -> None:
     """Event delivery filters with exactly the declared audience rules and local projections (SYSTEM 5.7, 5.12):
     an audience no module declared admits nobody. The session authorizer is the sessions provider's (E02)."""
@@ -689,6 +705,7 @@ def _startup(
                 requires=(KeyedCommandFingerprint,),
             )
     assistant_seams.compose(registry, lambda: runtime.hub_segment)
+    _seam_bindings(registry)
     _event_access(registry)
     platform_services(registry, runtime)
     allowlist = _storage_declarations(registry, db)
