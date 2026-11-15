@@ -237,11 +237,14 @@ class SqliteMissionStore:
         return states
 
     def save_fact(self, uow: UnitOfWork, fact: FactState) -> None:
-        uow.connection.execute(
-            "INSERT INTO mission_state_fact VALUES (?, ?, ?, ?) ON CONFLICT(fact_key) DO UPDATE SET "
-            "record_json = excluded.record_json",
-            (_fact_key(fact.fact, fact.environment_id), fact.fact, fact.environment_id, _FACT.dump_json(fact).decode()),
-        )
+        key = _fact_key(fact.fact, fact.environment_id)
+        body = _FACT.dump_json(fact).decode()
+        if uow.connection.rows("SELECT 1 FROM mission_state_fact WHERE fact_key = ?", (key,), limit=1):
+            uow.connection.execute("UPDATE mission_state_fact SET record_json = ? WHERE fact_key = ?", (body, key))
+        else:  # no UPSERT: E01's replicated-table triggers use INSERT OR IGNORE, which an outer ON CONFLICT overrides
+            uow.connection.execute(
+                "INSERT INTO mission_state_fact VALUES (?, ?, ?, ?)", (key, fact.fact, fact.environment_id, body)
+            )
 
 
 def table_declarations() -> tuple[tuple[str, str, str], ...]:

@@ -38,6 +38,7 @@ from crew_health.sensors.domain.loader_checks import SensorBounds
 from crew_health.sensors.domain.reading import Instant
 
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # e23_station for the integration tests
 PRODUCT = ROOT / "docs" / "product"
 EXAMPLES = PRODUCT / "api" / "examples" / "config"
 NASA = PRODUCT / "nasa-data"

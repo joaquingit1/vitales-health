@@ -239,10 +239,11 @@ def _reading(row: tuple[SqlValue, ...]) -> ReadingRecord:
 class SqliteSensorStore:
     """SensorStore over E01's StorageSession. `export_readings` turns on the `sensors/reading/1` projection."""
 
-    def __init__(self, *, row_limit: int, export_readings: bool = False) -> None:
-        if not 1 <= row_limit <= 100000:
-            raise ValueError("sensor row limit outside its bound")
+    def __init__(self, *, row_limit: int, page_rows: int, export_readings: bool = False) -> None:
+        if not 1 <= row_limit <= 1000 or not 1 <= page_rows <= 1000:
+            raise ValueError("sensor row limits outside storage.max_rows")
         self._limit = row_limit
+        self._page = page_rows
         self._export = READING_PROJECTION if export_readings else None
 
     # --- channels -----------------------------------------------------------------------------------------
@@ -393,23 +394,33 @@ class SqliteSensorStore:
     def readings_since(
         self, view: View, channel_id: str, *, since: datetime | None, up_to_rev: int | None, limit: int
     ) -> Sequence[ReadingRecord]:
-        clauses = ["channel_id = ?"]
-        if since is not None:
-            clauses.append("observed_at > ?")
+        """Ascending by observed time then revision, at most `limit + 1` rows (one more means over the bound).
+
+        Read in pages of `storage.max_rows` by keyset, so a window of many thousands of rows never needs one big
+        read and never skips or repeats a row.
+        """
+        clauses = ["channel_id = ?", "(observed_at > ? OR (observed_at = ? AND rev > ?))"]
         if up_to_rev is not None:
             clauses.append("rev <= ?")
         sql = (
             f"SELECT {_READING_COLUMNS} FROM sensors_reading WHERE {' AND '.join(clauses)} "
             "ORDER BY observed_at, rev LIMIT ?"
         )
-        typed: list[SqlValue] = [channel_id]
-        if since is not None:
-            typed.append(stamp(since))
-        if up_to_rev is not None:
-            typed.append(up_to_rev)
-        typed.append(limit + 1)
-        rows = view.connection.rows(sql, tuple(typed), limit=limit + 1)
-        return tuple(_reading(r) for r in rows)
+        floor = ("" if since is None else stamp(since), 0)
+        found: list[ReadingRecord] = []
+        while len(found) <= limit:
+            want = min(self._page, limit + 1 - len(found))
+            parameters: list[SqlValue] = [channel_id, floor[0], floor[0], floor[1]]
+            if up_to_rev is not None:
+                parameters.append(up_to_rev)
+            parameters.append(want)
+            page = [_reading(r) for r in view.connection.rows(sql, tuple(parameters), limit=want)]
+            found.extend(page)
+            if len(page) < want:
+                break
+            last = page[-1]
+            floor = (stamp(last.observed_at), last.rev or 0)
+        return tuple(found)
 
     def instant_peers(
         self, view: View, channel_id: str, corrected_at: datetime, origin: Origin, dataset: str | None
@@ -493,22 +504,26 @@ class SqliteSensorStore:
         return tuple(_evaluation(r) for r in rows)
 
     def save_evaluation(self, uow: UnitOfWork, row: EvaluationRow) -> None:
-        uow.connection.execute(
-            "INSERT INTO sensors_evaluation VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(evaluation_id) DO UPDATE "
-            "SET input_rev = excluded.input_rev, high_water_at = excluded.high_water_at, "
-            "status = excluded.status, evaluation_json = excluded.evaluation_json "
-            "WHERE excluded.input_rev >= sensors_evaluation.input_rev",
-            (
-                row.evaluation_id,
-                row.channel_id,
-                row.profile_id,
-                row.config_release_id,
-                row.input_rev,
-                _opt(row.high_water_at),
-                row.status,
-                row.evaluation_json,
-            ),
+        """Insert, or replace with a not older input revision. An older input never overwrites a newer state.
+
+        No UPSERT: E01's replicated-table triggers use INSERT OR IGNORE, which an outer ON CONFLICT overrides."""
+        held = uow.connection.rows(
+            "SELECT input_rev FROM sensors_evaluation WHERE evaluation_id = ?", (row.evaluation_id,), limit=1
         )
+        if not held:
+            uow.connection.execute(
+                "INSERT INTO sensors_evaluation VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (row.evaluation_id, row.channel_id, row.profile_id, row.config_release_id, row.input_rev,
+                 _opt(row.high_water_at), row.status, row.evaluation_json),
+            )
+        elif _int(held[0][0]) <= row.input_rev:
+            uow.connection.execute(
+                "UPDATE sensors_evaluation SET input_rev = ?, high_water_at = ?, status = ?, evaluation_json = ? "
+                "WHERE evaluation_id = ?",
+                (row.input_rev, _opt(row.high_water_at), row.status, row.evaluation_json, row.evaluation_id),
+            )
+        else:
+            return
         declare(uow, "sensors_evaluation", row.evaluation_id, "version")
 
     # --- status, batches, environment ---------------------------------------------------------------------
@@ -527,22 +542,29 @@ class SqliteSensorStore:
 
     def save_status(self, uow: UnitOfWork, row: StatusRow) -> None:
         key = row.sensor_type_id + ":" + row.environment_id
-        uow.connection.execute(
-            "INSERT INTO sensors_status VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(status_key) DO UPDATE SET "
-            "revision = excluded.revision, last_emitted_at = excluded.last_emitted_at, "
-            "pending_emit_at = excluded.pending_emit_at",
-            (key, row.sensor_type_id, row.environment_id, row.revision, _opt(row.last_emitted_at), _opt(row.pending_emit_at)),
-        )
+        held = uow.connection.rows("SELECT 1 FROM sensors_status WHERE status_key = ?", (key,), limit=1)
+        values: tuple[SqlValue, ...] = (row.revision, _opt(row.last_emitted_at), _opt(row.pending_emit_at))
+        if held:
+            uow.connection.execute(
+                "UPDATE sensors_status SET revision = ?, last_emitted_at = ?, pending_emit_at = ? WHERE status_key = ?",
+                (*values, key),
+            )
+        else:
+            uow.connection.execute(
+                "INSERT INTO sensors_status VALUES (?, ?, ?, ?, ?, ?)",
+                (key, row.sensor_type_id, row.environment_id, *values),
+            )
         declare(uow, "sensors_status", key, "version")
 
     def save_batch(self, uow: UnitOfWork, row: BatchRow) -> None:
         key = row.adapter_id + ":" + row.batch_id
-        done = uow.connection.execute(
-            "INSERT INTO sensors_batch VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(batch_key) DO NOTHING",
+        if uow.connection.rows("SELECT 1 FROM sensors_batch WHERE batch_key = ?", (key,), limit=1):
+            return  # the first record of a batch id is the one kept
+        uow.connection.execute(
+            "INSERT INTO sensors_batch VALUES (?, ?, ?, ?, ?, ?, ?)",
             (key, row.adapter_id, row.batch_id, row.accepted, row.duplicates, row.rejected_json, stamp(row.received_at)),
         )
-        if done.affected_rows:
-            declare(uow, "sensors_batch", key, "create")
+        declare(uow, "sensors_batch", key, "create")
 
     def environment(self, view: View) -> EnvironmentRow | None:
         rows = view.connection.rows(
@@ -560,12 +582,16 @@ class SqliteSensorStore:
         return _schedule(view, key)
 
     def save_environment(self, uow: UnitOfWork, row: EnvironmentRow) -> None:
-        uow.connection.execute(
-            "INSERT INTO sensors_environment VALUES ('current', ?, ?, ?, ?) ON CONFLICT(environment_key) DO UPDATE "
-            "SET profile_id = excluded.profile_id, environment_id = excluded.environment_id, "
-            "mission_mode = excluded.mission_mode, activated_at = excluded.activated_at",
-            (row.profile_id, row.environment_id, row.mission_mode, stamp(row.activated_at)),
-        )
+        held = uow.connection.rows("SELECT 1 FROM sensors_environment WHERE environment_key = 'current'", (), limit=1)
+        values: tuple[SqlValue, ...] = (row.profile_id, row.environment_id, row.mission_mode, stamp(row.activated_at))
+        if held:
+            uow.connection.execute(
+                "UPDATE sensors_environment SET profile_id = ?, environment_id = ?, mission_mode = ?, "
+                "activated_at = ? WHERE environment_key = 'current'",
+                values,
+            )
+        else:
+            uow.connection.execute("INSERT INTO sensors_environment VALUES ('current', ?, ?, ?, ?)", values)
         declare(uow, "sensors_environment", "current", "version")
 
 

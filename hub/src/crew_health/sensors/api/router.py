@@ -57,7 +57,7 @@ def _session(request: Request) -> SessionContext:
 
 
 def _reply(body: object, view: object, status: int = 200) -> JSONResponse:
-    content = body.model_dump(mode="json", by_alias=True) if hasattr(body, "model_dump") else body  # type: ignore[union-attr]
+    content = body.model_dump(mode="json", by_alias=True, exclude_unset=True) if hasattr(body, "model_dump") else body  # type: ignore[union-attr]
     release = view.release.release_id  # type: ignore[attr-defined]
     return JSONResponse(content, status_code=status, headers={"Config-Release": release})
 
@@ -141,7 +141,7 @@ def build_router(api: SensorsApi) -> APIRouter:
             if env is None:
                 raise ProblemError(ErrorCode.INTERNAL_ERROR, "mission_not_initialized", retryable=True)
             kinds = list(profile_sensor_types(view, env.environment_id))
-            items = [status_model(rt, view, k).model_dump(mode="json") for k in kinds]
+            items = [status_model(rt, view, k).model_dump(mode="json", exclude_unset=True) for k in kinds]
             return _reply(_page(kinds, items, after, limit), view)
 
     router.add_api_route("/v1/sensors", sensors, methods=["GET"], operation_id="listSensorStatus")
@@ -176,7 +176,7 @@ def build_router(api: SensorsApi) -> APIRouter:
             env = rt.store.environment(view)
             states = list(rt.store.channels(view))
             keys = [c.facts.channel_id for c in states]
-            items = [channel_model(view, c, env).model_dump(mode="json") for c in states]
+            items = [channel_model(view, c, env).model_dump(mode="json", exclude_unset=True) for c in states]
             return _reply(_page(keys, items, after, limit), view)
 
     router.add_api_route("/v1/sensor-channels", channels, methods=["GET"], operation_id="listSensorChannels")

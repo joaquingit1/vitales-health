@@ -29,6 +29,7 @@ from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.uow import Actor, ReadSnapshotFactory, UnitOfWork, UnitOfWorkFactory
 from crew_health.kitmap.application.ports import MissionStatePort as KitmapMissionStatePort
 from crew_health.measurement.application.ports import MissionStatePort as MeasurementMissionStatePort
+from crew_health.mission.adapters.audit_policy import POLICIES, register_policies
 from crew_health.mission.adapters.config_reader import (
     Check7Profiles,
     Check12EffectFilters,
@@ -52,25 +53,29 @@ from crew_health.mission.adapters.sqlite_repository import SqliteMissionStore, t
 from crew_health.mission.api.router import MissionApi, build_router
 from crew_health.mission.application.commands import Platform
 from crew_health.mission.application.deadlines import sweep_overdue
+from crew_health.mission.application.init import initialize_mission
 from crew_health.mission.application.hub_time import event_time
 from crew_health.mission.application.ports import (
     ActivationParticipant,
     DayLabelPort,
     EnvironmentFacts,
     LocationPort,
+    MissionInitializer,
     MissionStatePort,
+    OriginMode,
     OverlayPort,
     RosterPort,
 )
 from crew_health.mission.application.use_cases import (
     ACTIVATE_HANDLER,
+    Caller,
     POST_EVA_HANDLER,
     EventTimeFacts,
     Services,
     activate_due,
     end_post_eva,
 )
-from crew_health.mission.domain.loader_checks import MissionBounds
+from crew_health.mission.domain.loader_checks import CHECK_7, CHECK_12, MissionBounds
 from crew_health.mission.domain.profile import ProfileLists
 from crew_health.mission.settings import specifications
 from crew_health.roles.application.ports import DayLabelPort as RolesDayLabelPort
@@ -168,6 +173,7 @@ def _bind(live: _Live) -> Callable[[Resolver], None]:
         api.ids = resolver.require(IdFactory)
         api.page_max = settings.integer("mission.page_max")
         api.event_time = stamped
+        register_policies(resolver.require(UnitOfWorkFactory), POLICIES)
         tables = replicated_tables_of(resolver.require(UnitOfWorkFactory))
         for table, record_type, key in table_declarations():
             tables.register_replicated_table(table, record_type=record_type, key_column=key)
@@ -211,6 +217,42 @@ def _consumer(registry: ModuleRegistry, port: type[object], build: Callable[[Liv
     registry.provide(port, factory, requires=(HubSettings, ReadSnapshotFactory, MissionClock))
 
 
+class _Initializer:
+    """The operator's one-shot initialization, bound with the rest in pass 2."""
+
+    def __init__(self, live: _Live) -> None:
+        self._live = live
+
+    def initialize(
+        self,
+        *,
+        operator_id: str,
+        mission_mode: OriginMode,
+        planned_length_days: int | None,
+        site_node_id: str,
+        environment_id: str,
+    ) -> str:
+        services, platform = self._live.services(), self._live.api.platform
+        if platform is None:
+            raise ProblemError(ErrorCode.INTERNAL_ERROR, "mission_not_bound", retryable=True)
+        actor = Actor("operator", operator_id)
+        with platform.uows.begin(actor=actor, correlation_id="mission_init_" + operator_id) as uow:
+            record = initialize_mission(
+                services,
+                uow,
+                Caller(actor, None, frozenset({"operator"})),
+                mission_mode=mission_mode,
+                planned_length_days=planned_length_days,
+                site_node_id=site_node_id,
+                environment_id=environment_id,
+            )
+            identity = services.store.identity(uow)
+        if identity is None:
+            raise ProblemError(ErrorCode.INTERNAL_ERROR, "mission_identity_missing", retryable=True)
+        del record
+        return identity.mission_id
+
+
 def register(registry: ModuleRegistry) -> None:
     api = MissionApi()
     live = _Live(api)
@@ -234,9 +276,10 @@ def register(registry: ModuleRegistry) -> None:
         (GuidanceEnvironmentFacts, GuidanceEnvironment),
     ):
         _consumer(registry, port, build)
-    profiles, filters = _Late(Check7Profiles.check_id), _Late(Check12EffectFilters.check_id)
+    profiles, filters = _Late(CHECK_7), _Late(CHECK_12 + ".effect")
     registry.loader_check(profiles)
     registry.loader_check(filters)
+    registry.provide(MissionInitializer, lambda _: _Initializer(live))
     registry.bind("mission", _bind(live))
     registry.on_startup(StartupPhase.STORAGE, _storage_hook(live, profiles, filters))
     registry.on_startup(StartupPhase.STATE_SWEEP, _sweep_hook(live))

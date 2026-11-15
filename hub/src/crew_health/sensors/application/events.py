@@ -26,7 +26,7 @@ def emit(
     payload: BaseModel,
     environment_id: str | None,
 ) -> None:
-    data = json.dumps(payload.model_dump(mode="json"), sort_keys=True).encode()
+    data = json.dumps(payload.model_dump(mode="json", exclude_unset=True), sort_keys=True).encode()
     audience = Audience("sensors.local", object_ref, AudienceProjectionKey("sensors", kind.value, 1), "1")
     for scope in scopes:
         uow.emit(

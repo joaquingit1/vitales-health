@@ -39,7 +39,9 @@ def number(value: Decimal | None) -> float | None:
     return None if value is None else float(value)
 
 
-def decide_now(view: View, channel: ChannelState, environment: EnvironmentRow | None) -> FreshnessDecision:
+def decide_now(
+    view: View, channel: ChannelState, environment: EnvironmentRow | None, *, sticky: bool = True
+) -> FreshnessDecision:
     """Freshness at this view's `now`. A previously stale channel stays stale until eligible new data arrives."""
     reference = channel.reference
     anchor: TimeFacts | None = None
@@ -55,7 +57,7 @@ def decide_now(view: View, channel: ChannelState, environment: EnvironmentRow | 
         reference=reference,
         quiet_anchor=anchor,
     )
-    if channel.freshness == "stale" and decision.state == "current":
+    if sticky and channel.freshness == "stale" and decision.state == "current":
         return FreshnessDecision("stale", decision.clock_state, channel.stale_since, None, "stale_until_new_data")
     return decision
 
@@ -117,8 +119,8 @@ def reading_model(record: ReadingRecord, channel: ChannelState, config: SensorCo
             "provenance": {
                 "origin_mode": record.origin_mode,
                 "source_label": channel.facts.source_label,
-                "trace": record.provenance_trace,
-                "dataset": channel.facts.dataset,
+                **({} if record.provenance_trace is None else {"trace": record.provenance_trace}),
+                **({} if channel.facts.dataset is None else {"dataset": channel.facts.dataset}),
             },
         }
     )
@@ -190,7 +192,7 @@ def status_model(rt: Runtime, view: View, sensor_type_id: str, *, release_id: st
             env.mission_mode, "No channel", view.now,
         )
     )
-    latest = _latest(rt, view, card.channel_id, channels, config)
+    latest = None if card.reading_state == "no_reading" else _latest(rt, view, card.channel_id, channels, config, env)
     ev = card.evaluation
     return SensorStatus.model_validate(
         {
@@ -202,7 +204,7 @@ def status_model(rt: Runtime, view: View, sensor_type_id: str, *, release_id: st
             "body_region": card.body_region,
             "channel_id": card.channel_id,
             "reading_state": card.reading_state,
-            "latest_reading": None if latest is None else latest.model_dump(mode="json"),
+            "latest_reading": None if latest is None else latest.model_dump(mode="json", exclude_unset=True),
             "display_value": {"value": number(card.display_value.value), "unit": card.display_value.unit, "text": card.display_value.text},
             "context_label": card.context_label,
             "source_label": card.source_label,
@@ -233,14 +235,20 @@ def _unsupported(release: Any) -> str:
         raise ProblemError(ErrorCode.CONFIG_INVALID, "ui-copy has no designed_states.not_available_here", retryable=True) from error
 
 
-def _latest(rt: Runtime, view: View, channel_id: str | None, channels: Sequence[ChannelState], config: SensorConfig) -> SensorReading | None:
+def _latest(rt: Runtime, view: View, channel_id: str | None, channels: Sequence[ChannelState], config: SensorConfig, env: EnvironmentRow) -> SensorReading | None:
     if channel_id is None:
         return None
     state = next((c for c in channels if c.facts.channel_id == channel_id), None)
     if state is None:
         return None
-    records = [r for r in rt.store.readings_since(view, channel_id, since=None, up_to_rev=None, limit=rt.limits.window_scan_max_readings) if r.quality_status != "rejected"]
+    records = [r for r in rt.store.readings_since(view, channel_id, since=None, up_to_rev=None, limit=rt.limits.window_scan_max_readings) if r.quality_status != "rejected" and _after_activation(r, env)]
     return None if not records else reading_model(max(records, key=lambda r: (r.observed_at, r.rev or 0)), state, config)
+
+
+def _after_activation(record: ReadingRecord, env: EnvironmentRow) -> bool:
+    """DE23-13: only readings after activation belong to the active place (REPLAY by receive time)."""
+    basis = record.received_at if record.origin_mode == "REPLAY" else record.corrected_at
+    return basis is not None and basis >= env.activated_at
 
 
 def series_model(rt: Runtime, view: View, sensor_type_id: str, *, since: datetime | None, until: datetime | None) -> SensorSeries:
@@ -255,7 +263,7 @@ def series_model(rt: Runtime, view: View, sensor_type_id: str, *, since: datetim
     if status.channel_id is None:
         raise ProblemError(ErrorCode.NOT_FOUND, ErrorCode.NOT_FOUND.value)
     limit = rt.limits.series_max_points
-    records = [r for r in rt.store.readings_since(view, status.channel_id.root, since=since, up_to_rev=None, limit=limit) if r.quality_status != "rejected" and r.time_state in ("known", "replay")]
+    records = [r for r in rt.store.readings_since(view, status.channel_id.root, since=since, up_to_rev=None, limit=limit) if r.quality_status != "rejected" and r.time_state in ("known", "replay") and _after_activation(r, env)]
     if len(records) > limit:
         raise ProblemError(ErrorCode.INVALID_VALUE, "series above sensors.series_max_points")
     spec = kind.aggregation(kind.display_aggregation_id)

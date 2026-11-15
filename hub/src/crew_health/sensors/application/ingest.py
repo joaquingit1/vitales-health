@@ -28,7 +28,7 @@ from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.evaluation import EvaluationInput as KernelInput
 from crew_health.kernel.units import PressureContext, Quantity, Unit
 from crew_health.kernel.uow import UnitOfWork
-from crew_health.sensors.application.deadlines import refresh, schedule_deadline
+from crew_health.sensors.application.deadlines import note_status_change, refresh, schedule_deadline
 from crew_health.sensors.application.runtime import (
     EVALUATION_UNAVAILABLE,
     EVALUATOR,
@@ -270,10 +270,12 @@ class _Batch:
             reference_at=reference_at,
         )
         rt.store.save_channel(uow, updated)
-        updated = refresh(rt, uow, updated, cause="reading")
+        updated = refresh(rt, uow, updated, cause="reading", status=False)
         base = reference.corrected_at if reference is not None else None
         schedule_deadline(rt, uow, updated, anchor=stamp, at=base)
         self._evaluate(record, updated)
+        if self.environment is not None and before != _signature(rt, uow, updated):
+            note_status_change(rt, uow, channel.facts.sensor_type_id, self.environment.environment_id)
         self.touched.setdefault(channel.facts.channel_id, (channel.facts.sensor_type_id, before))
 
     def _evaluate(self, record: ReadingRecord, channel: ChannelState) -> None:
@@ -309,7 +311,7 @@ class _Batch:
         rt, uow = self.rt, self.uow
         changed = sorted({t for c, (t, before) in self.touched.items() if before != _signature(rt, uow, rt.store.channel(uow, c))})
         rt.store.save_batch(uow, BatchRow(self.adapter_id, self.batch_id, self.accepted, self.duplicates, json.dumps([{"index": r.index, "code": r.code, "raw": r.raw} for r in self.rejected]), uow.now))
-        uow.audit(AuditEntry(rt.ids.new("aud"), "sensors.batch_ingested", 1, uow.actor, {"adapter": self.adapter_id, "batch": self.batch_id}, uow.correlation_id, None, {}))
+        uow.audit(AuditEntry(rt.ids.new("aud"), "sensors.batch_ingested", 1, uow.actor, {"batch": self.adapter_id + ":" + self.batch_id}, uow.correlation_id, None, {}))
         rejected = tuple((r.index, r.code, self.messages.get(r.code) or r.code) for r in sorted(self.rejected, key=lambda r: r.index))
         return IngestOutcome(self.batch_id, self.accepted, self.duplicates, tuple(self.ids), rejected, tuple(changed))
 

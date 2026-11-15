@@ -59,3 +59,10 @@ class SensorSeriesReader(Protocol):
 
 class ProvenanceStreamsPort(Protocol):
     def habitat_streams(self, snapshot: ReadSnapshot) -> Sequence[HabitatStream]: ...
+
+
+class FreshnessSweeper(Protocol):
+    """One tick of the independent freshness sweep, as its own unit of work (E23 3.4). The timer, the startup
+    sweep and operator tooling call it; it needs no HTTP identity and no session."""
+
+    def sweep_once(self) -> int: ...  # the number of channels it looked at

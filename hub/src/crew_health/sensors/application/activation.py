@@ -15,7 +15,7 @@ from crew_health.contracts_gen.schemas.environment_profile_schema import Environ
 from crew_health.kernel.audit import AuditEntry
 from crew_health.kernel.uow import UnitOfWork
 from crew_health.sensors.application.deadlines import refresh, schedule_deadline
-from crew_health.sensors.application.registry import install
+from crew_health.sensors.application.registry import install_file
 from crew_health.sensors.application.runtime import Runtime
 from crew_health.sensors.application.store import EnvironmentRow
 
@@ -40,7 +40,7 @@ class SensorActivation:
             rt.store.save_channel(uow, watched)
             refresh(rt, uow, watched, cause="activation")
             schedule_deadline(rt, uow, watched, anchor=None, at=uow.now)
-        uow.audit(AuditEntry(rt.ids.new("aud"), "sensors.environment_activated", 1, uow.actor, {"profile_id": profile.profile_id.root}, uow.correlation_id, None, {}))
+        uow.audit(AuditEntry(rt.ids.new("aud"), "sensors.environment_activated", 1, uow.actor, {"environment": "current"}, uow.correlation_id, None, {}))
 
     def _demo(self, uow: UnitOfWork, mission_mode: str) -> None:
         """The demo registry exists only in the demo profile and a SIM or REPLAY mission, loaded in this same unit
@@ -48,6 +48,6 @@ class SensorActivation:
         rt = self._rt
         if rt.deployment_profile != "demo" or mission_mode not in ("SIM", "REPLAY"):
             return
-        if not rt.demo_registry_path or rt.read_file is None:
+        if not rt.demo_registry_path:
             return
-        install(rt, uow, rt.read_file(rt.demo_registry_path), source="demo")
+        install_file(rt, uow, rt.demo_registry_path, source="demo")

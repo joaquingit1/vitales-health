@@ -42,6 +42,7 @@ from crew_health.mission.domain.profile import ProfileRecord
 from crew_health.mission.domain.state_facts import FactState
 
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "hub" / "tests" / "sensors"))  # the shared real station
 PRODUCT = ROOT / "docs" / "product"
 EXAMPLES = PRODUCT / "api" / "examples" / "config"
 EPOCH = datetime(2026, 1, 1, tzinfo=UTC)

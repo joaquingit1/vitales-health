@@ -36,6 +36,7 @@ from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.units import UnitRegistry, WireUnitConverter
 from crew_health.kernel.uow import Actor, ReadSnapshotFactory, UnitOfWork, UnitOfWorkFactory
 from crew_health.mission.application.ports import ActivationParticipant, MissionStatePort
+from crew_health.sensors.adapters.audit_policy import POLICIES, register_policies
 from crew_health.sensors.adapters.config_reader import (
     Check4SensorLimits,
     Check12Sensors,
@@ -51,9 +52,9 @@ from crew_health.sensors.application.activation import SensorActivation
 from crew_health.sensors.application.commands import Platform
 from crew_health.sensors.application.deadlines import freshness_job, status_job
 from crew_health.sensors.application.evaluate import SensorEvaluator
-from crew_health.sensors.application.ports import ProvenanceStreamsPort, SensorSeriesReader, SensorStateQuery
+from crew_health.sensors.application.ports import FreshnessSweeper, ProvenanceStreamsPort, SensorSeriesReader, SensorStateQuery
 from crew_health.sensors.application.providers import SensorProviders
-from crew_health.sensors.application.registry import install
+from crew_health.sensors.application.registry import install_file
 from crew_health.sensors.application.runtime import (
     EVALUATOR,
     EVALUATOR_VERSION,
@@ -159,7 +160,10 @@ def _bind(live: _Live, check4: _Late, check12: _Late, guard: _Late, evaluator_re
         live.resolver = resolver
         settings = resolver.require(HubSettings)
         limits = Limits.of(settings)
-        store = SqliteSensorStore(row_limit=limits.window_scan_max_readings)
+        store = SqliteSensorStore(
+            row_limit=min(limits.max_channels, settings.integer("storage.max_rows")),
+            page_rows=settings.integer("storage.max_rows"),
+        )
         health = resolver.optional(HealthState)
         rt = Runtime(
             store=store,
@@ -189,6 +193,7 @@ def _bind(live: _Live, check4: _Late, check12: _Late, guard: _Late, evaluator_re
         )
         live.sweep = FreshnessSweep(rt)
         _bind_checks(resolver, settings, store, limits, check4, check12, guard)
+        register_policies(resolver.require(UnitOfWorkFactory), POLICIES)
         tables = replicated_tables_of(resolver.require(UnitOfWorkFactory))
         for table, record_type, key in table_declarations():
             tables.register_replicated_table(table, record_type=record_type, key_column=key)
@@ -246,7 +251,7 @@ def _sweep_hook(live: _Live) -> Callable[[], None]:
         path = settings.text("sensors.channel_registry_path")
         with uows.begin(actor=_ENGINE, correlation_id="sensors_startup") as uow:
             if path:
-                install(rt, uow, _read(path), source="registry")
+                install_file(rt, uow, path, source="registry")
             sweep.tick(uow)
         if settings.boolean("sensors.sweep_timer_enabled"):
             def tick() -> None:
@@ -277,6 +282,7 @@ def register(registry: ModuleRegistry) -> None:
     registry.provide(SensorSeriesReader, lambda _: _Providers(live))
     registry.provide(ProvenanceStreamsPort, lambda _: _Providers(live))
     registry.provide(ActivationParticipant, lambda _: _Participant(live))
+    registry.provide(FreshnessSweeper, lambda _: _Sweeper(live))
     check4, check12, guard = _Late("4"), _Late("12.sensor"), _Late("12.scan_bound")
     registry.loader_check(check4)  # type: ignore[arg-type]
     registry.loader_check(check12)  # type: ignore[arg-type]
@@ -316,6 +322,18 @@ class _Providers:
 
     def habitat_streams(self, snapshot):  # type: ignore[no-untyped-def]
         return self._real().habitat_streams(snapshot)
+
+
+class _Sweeper:
+    def __init__(self, live: _Live) -> None:
+        self._live = live
+
+    def sweep_once(self) -> int:
+        resolver, sweep = self._live.resolver, self._live.sweep
+        if resolver is None or sweep is None:
+            raise ProblemError(ErrorCode.INTERNAL_ERROR, "sensors_not_bound", retryable=True)
+        with resolver.require(UnitOfWorkFactory).begin(actor=_ENGINE, correlation_id="sensors_sweep") as uow:
+            return sweep.tick(uow)
 
 
 class _Participant:

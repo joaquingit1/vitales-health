@@ -43,10 +43,10 @@ def schedule_deadline(rt: Runtime, uow: UnitOfWork, channel: ChannelState, *, an
     uow.schedule(job, expected_generation=None if current is None else current.generation)
 
 
-def refresh(rt: Runtime, uow: UnitOfWork, channel: ChannelState, *, cause: Cause) -> ChannelState:
+def refresh(rt: Runtime, uow: UnitOfWork, channel: ChannelState, *, cause: Cause, status: bool = True) -> ChannelState:
     """Recompute freshness at uow.now; persist and announce a transition. Never lifts stale without new data."""
     environment = rt.store.environment(uow)
-    decision = decide_now(uow, channel, environment)
+    decision = decide_now(uow, channel, environment, sticky=cause != "reading")
     allow_current = cause == "reading"
     state = decision.state if (decision.state != "current" or allow_current or channel.freshness != "stale") else "stale"
     if channel.freshness == "stale" and state == "current" and not allow_current:
@@ -62,17 +62,17 @@ def refresh(rt: Runtime, uow: UnitOfWork, channel: ChannelState, *, cause: Cause
         return channel
     rt.store.save_channel(uow, updated)
     if state != channel.freshness:
-        announce(rt, uow, channel, updated, environment_id=None if environment is None else environment.environment_id)
+        announce(rt, uow, channel, updated, environment_id=None if environment is None else environment.environment_id, status=status)
     return updated
 
 
-def announce(rt: Runtime, uow: UnitOfWork, before: ChannelState, after: ChannelState, *, environment_id: str | None) -> None:
+def announce(rt: Runtime, uow: UnitOfWork, before: ChannelState, after: ChannelState, *, environment_id: str | None, status: bool) -> None:
     model = channel_model(uow, after, rt.store.environment(uow))
     if before.freshness == "current" and after.freshness == "stale":
         emit(uow, EventType.SENSOR_QUIET, ("habitat", "operator"), after.facts.channel_id, model, environment_id)
     elif before.freshness == "stale" and after.freshness == "current":
         emit(uow, EventType.SENSOR_RESUMED, ("habitat", "operator"), after.facts.channel_id, model, environment_id)
-    if environment_id is not None:
+    if environment_id is not None and status:
         note_status_change(rt, uow, after.facts.sensor_type_id, environment_id)
 
 

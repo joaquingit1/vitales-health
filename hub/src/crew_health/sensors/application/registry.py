@@ -158,6 +158,7 @@ def parse_registry(
                     tuple(item["environment_ids"]),
                 ),
                 item["location"],
+                item["input_unit"],
                 bool(item["trusted"]),
                 health,
                 version,
@@ -166,6 +167,18 @@ def parse_registry(
     if findings:
         raise RegistryRejected(tuple(findings))
     return tuple(result)
+
+
+def install_file(rt: Runtime, uow: UnitOfWork, path: str, *, source: str) -> int:
+    """Read the registry file; an unreadable one is audited and changes nothing (the last good one stays)."""
+    if rt.read_file is None:
+        return 0
+    try:
+        raw = rt.read_file(path)
+    except OSError:
+        _audit(rt, uow, "sensors.registry_unreadable", {"source": source})
+        return 0
+    return install(rt, uow, raw, source=source)
 
 
 def install(rt: Runtime, uow: UnitOfWork, raw: bytes, *, source: str) -> int:
@@ -183,7 +196,7 @@ def install(rt: Runtime, uow: UnitOfWork, raw: bytes, *, source: str) -> int:
             criteria_available=rt.criteria_available,
         )
     except RegistryRejected as error:
-        _audit(rt, uow, "sensors.registry_rejected", {"source": source, "findings": str(len(error.findings))})
+        _audit(rt, uow, "sensors.registry_rejected", {"source": source, "findings": len(error.findings)})
         return 0
     for channel in channels:
         rt.store.register_channel(uow, channel)
@@ -191,5 +204,5 @@ def install(rt: Runtime, uow: UnitOfWork, raw: bytes, *, source: str) -> int:
     return len(channels)
 
 
-def _audit(rt: Runtime, uow: UnitOfWork, kind: str, refs: dict[str, str]) -> None:
-    uow.audit(AuditEntry(rt.ids.new("aud"), kind, 1, uow.actor, refs, uow.correlation_id, None, {}))
+def _audit(rt: Runtime, uow: UnitOfWork, kind: str, metadata: dict[str, str | int]) -> None:
+    uow.audit(AuditEntry(rt.ids.new("aud"), kind, 1, uow.actor, {}, uow.correlation_id, None, metadata))
