@@ -123,7 +123,8 @@ def test_shot_a_the_kit_map_counts_come_from_the_server(served: Served) -> None:
     assert kit["environment_id"] == "station_leo"
     counts = kit["counts"]
     assert isinstance(counts, dict) and isinstance(kit["conditions"], list)
-    assert counts["total"] == len(kit["conditions"]) > 0
+    configured = json.loads((ROOT / "config/kit-map.json").read_text(encoding="utf-8"))["conditions"]
+    assert counts["total"] == len(kit["conditions"]) == len(configured)
     assert (
         counts["measured_here"] + counts["report_only"] + counts["needs_test_not_aboard"] == counts["total"]
     )

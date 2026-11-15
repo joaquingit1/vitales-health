@@ -627,8 +627,8 @@
     "api/schemas/config-help-presentation.schema.json": "bbee41efbb991c23738940bdbf7f7107146dc184dbe54685e6f1b0fc654a6e36",
     "api/schemas/config-index.schema.json": "de870ab4a8c7c1460a20a8c976dd6c0360f20c579856c8a07a71ed5133de4bfd",
     "api/schemas/config-indicator-catalog.schema.json": "3a03eb8efcb0ed700fe53bc315a110fcb29410ae26bacff25f52f28e72a04e42",
-    "api/schemas/config-kit-map.schema.json": "3961e6fd22467e40e1075df84584e9a6d09cf3a4589071a063aefab8ca446f8c",
-    "api/schemas/config-onboard-plans.schema.json": "31bf7545f4b1d7406de37dbda41d7447325e80f35daf06365cc467027947bffe",
+    "api/schemas/config-kit-map.schema.json": "d89f67dd45fecbb1c4493946f5c2cc59652c93422975a7485c1780792b742f60",
+    "api/schemas/config-onboard-plans.schema.json": "26e88e0b16be6e4e3e279ce9f82cc81c38cf234196c42acedcecc3d2be4f25f7",
     "api/schemas/config-participation-rules.schema.json": "33b688e0ed1d5af9f6601b811c0eeebc044b04e0c4068f1ae31c0e2afce6e6ec",
     "api/schemas/config-questionnaires.schema.json": "f9419c705b36ac3ef5d3963b446cfeb623ed72dff24914c5fd0514b0612fce38",
     "api/schemas/config-release.schema.json": "7cd5c41c829e6df01f3bf81cde14b42bb017919dc7572112c15a7afbb20ed9bf",
@@ -672,22 +672,22 @@
     "api/schemas/insight.schema.json": "d9b321cdd86cef438451b1dacdbb34a083e424ebb070ebafc96e5623592f9e55",
     "api/schemas/job.schema.json": "d7fa8e3418230fb4147ef7437083c1f02b95648950918b38c2cebe4fb4cc0ec5",
     "api/schemas/journal-entry.schema.json": "a96ffa24d996a046c1e5876b916bdf3dc318748bee45e312ba4b5457b8c1889e",
-    "api/schemas/kit-check.schema.json": "58c9673ae9843d2e9e187fa2b75667f0d2c75b50fb3c64ea97e49dcd3eaece22",
-    "api/schemas/kit-map-view.schema.json": "edefc5253af3e3297c17411d6c3ae3404ec31dc482d86078e294ab9e8e5c3981",
-    "api/schemas/kit-map-what-if.schema.json": "aed740400a9a47201c3d5c6fef82c2fa1cb673f169a80f3f0854b13b662156fb",
+    "api/schemas/kit-check.schema.json": "39989f081654dcb6eba46acdbb77efcba69a5d63e09a508339754fb129ab3ad3",
+    "api/schemas/kit-map-view.schema.json": "f2575a91382fcb4f5582601291d1b5b3aaba4d5a3cd37b633950ad830a9efc41",
+    "api/schemas/kit-map-what-if.schema.json": "f3b4271c8e1d248ac6936da2905c9220a486bdaae0340b6159db7946a060c986",
     "api/schemas/measurement-request.schema.json": "29174c3628d782a44355740f8405cce796b29638abd2c3d7a9f524c8d634fa6f",
     "api/schemas/mission-context.schema.json": "7d1fc95e1443340cca0f25aaadb0c0fbc94cbb919d8a1cf73b7f23471a42545e",
     "api/schemas/mission-event.schema.json": "fd5e1693eb51ba0716b2c0e9e87a037f9e4be0092317081775dc000a21a0fdff",
-    "api/schemas/model-action.schema.json": "d25483a93d87f73de77f25376a2e319e1c5f2a1bbeb76fb087b92718755bd94d",
+    "api/schemas/model-action.schema.json": "02fe9df35960e19bf448d94ba00df9e0cd2bf8a030e3bc57cade4daa5ddd241f",
     "api/schemas/my-skills-view.schema.json": "d0603603086e158686c667abd7829a5da52ddad9e176779ec7ce330e7de506c2",
     "api/schemas/observation.schema.json": "691e85725f903763ff53ea02a2778c81876cb8a97eb16546e82669f4e494c267",
     "api/schemas/patch-award.schema.json": "4585df3bb3a5c74c7d5a6bb350054d6839bdfcaa8db410369e24c353bfb6d0d9",
     "api/schemas/plan-run.schema.json": "4e5ae6b2d4b431eb757d4394384e93eaea6eb3180981282930f12119e9430333",
-    "api/schemas/plan-view.schema.json": "cd5ef5df95537e26d06b99c6fb5b523f1178a5f5675e906aa2381e1abe1c10e6",
+    "api/schemas/plan-view.schema.json": "aaf7cd759c39641852e0348a0dbea23e63541246137cee57e727e4847e29cf4e",
     "api/schemas/rebuild-result.schema.json": "ada7e44c1869fb6381090ee14301b6277bad50fe190288f6fc6b7575b194ecb6",
     "api/schemas/records-view.schema.json": "6dd5e848f3d3f73141b8cc80ff956b5fc4c5700fbb2be07f5f6ee53304fdcf82",
     "api/schemas/report.schema.json": "eb5fc81686a033b3973c433210ae6a184accdae6f0f154763f7e2a910428c8cc",
-    "api/schemas/requests.schema.json": "447c5d00bc7fe4c50c560bf1bf7a0435cfee7373478d5ed1c03958d95f7e0c91",
+    "api/schemas/requests.schema.json": "eba3f7e2d6858c9cb776a7f2a1ea80bafa672ac58c862a8304a6595b9c843ce5",
     "api/schemas/research-source.schema.json": "82e40f9db763b7c27d0d6a353ca6220e9da226c2069a79ade971d87fdd712971",
     "api/schemas/return-readiness.schema.json": "e430c1806139fc5f2e240114930cbc6353709bd30c10a8e71ddbd118bab4507e",
     "api/schemas/role-assignment.schema.json": "a21e537a4b459f9ae5357b3c8b51977210006d7b97bcd6962110f0975d1cd8aa",
@@ -719,7 +719,7 @@
     "crew_health.clock.module": "0020a6efc5fd66be224f70aa76c7bce80d9ec85a0b94d4d5a738934a17670fa9",
     "crew_health.config.module": "0fd8fc4cec098708aa98fee188a084796ea77c1cc52493ec5f9846c6ee1f1a64",
     "crew_health.consent.module": "60501e11021686a0b8e9494f6f32828e3d0a5a0aaf40fa3cf5995c230ac5c9c0",
-    "crew_health.episodes.module": "e287b5fefb750d61decf9b35c4196321db9c33c3a97b4392c91de17b84ed28d6",
+    "crew_health.episodes.module": "5c3e26fb7e09c7f2a07cb779ff780d69e3fee181e0a3714e077832f4195db58f",
     "crew_health.events.module": "9c658bf7cc77a7b35ce219fcf6284a7bd4d4391995057ee598597bc10a995953",
     "crew_health.groundlink.module": "8d41427784f6f7e48d248c907437fca66078b9fb76fc2f095b39cd4fd56a77d1",
     "crew_health.guidance.module": "28a6a6a2803c18244d6eb215fe1293ed5f45a30768bf724ade2ec52532e0d553",
@@ -757,8 +757,8 @@
     "schemas/config_help_presentation_schema.py": "fa43d25bc871f2cc1d94466de9fd18de726d545bb14a69f21afa3a6e790a93c8",
     "schemas/config_index_schema.py": "ab5b7a754ae7bbf4684e7fde523a48107ee057559d7c0b309e519bd6936ceac7",
     "schemas/config_indicator_catalog_schema.py": "ea948e6838feaa3a80095aa759905d0a2634c7fb630aa8c91935662859bb19c3",
-    "schemas/config_kit_map_schema.py": "f8aeb2536633e09d9fa27ea8d7484becf8873aa508040de7326f6cac8b725765",
-    "schemas/config_onboard_plans_schema.py": "5672d53a307a1b7de992a203e4af770deb701374534df8a8b1f44125400812e1",
+    "schemas/config_kit_map_schema.py": "e577f06cc68caa7b4ddb2fb1701fb5688fbfbfa8e87cbd8749e6b99f95f5b36b",
+    "schemas/config_onboard_plans_schema.py": "d6122bccba2cc751768ae0d1518f30f2b42c3bf58a1cee8c5b4968f5af73121b",
     "schemas/config_participation_rules_schema.py": "c52458b6822046eeae185bf1a23d8cfba150b21c6e5430b24841a9408a3596d0",
     "schemas/config_questionnaires_schema.py": "6e8ee785be0befa4899c498a36c0785d8b0ac26350c65351a653f2c900f3fc3c",
     "schemas/config_release_schema.py": "795c91d95c6e3e24f8da32cb053cd2eda93678f7f69f1cd1c90ad0a93b42f662",
@@ -802,22 +802,22 @@
     "schemas/insight_schema.py": "34ed9414b647b29d9606d6e399def44c84ebdfc338218e9ba6955a24a166203f",
     "schemas/job_schema.py": "8090a6e6eb183ca8ba7e446bebe6c6c1f5c25796288372ae7ecffbb77171023e",
     "schemas/journal_entry_schema.py": "493552b8d2a9d2e5bb37054ebd233a78cfc1c2a6d5426945b3348e89e09af105",
-    "schemas/kit_check_schema.py": "587dfc929e5d37d27a1357164440c47e75290b7afb60c21b5e73d31a13256934",
-    "schemas/kit_map_view_schema.py": "6a48b2160e3d7748f1e7e9451a92bc5c594a873962c3d0199803d7537166e656",
-    "schemas/kit_map_what_if_schema.py": "a2bae3ee329bbd8ae06d4cf56d7f51ebdc5998fee408d8ad756570d61eecf997",
+    "schemas/kit_check_schema.py": "8a1ad06ffd1920822f83642a85ee7be96556c8d966f5da968cce223e449071a7",
+    "schemas/kit_map_view_schema.py": "8be1dd898f13eb91aee56d1e74d88e78787eb1d3ab638ac7e97ae8ae42eecd49",
+    "schemas/kit_map_what_if_schema.py": "7deb5158755038d26aea76102fbda0262dc669e24a6e6b56fd8443603663ed23",
     "schemas/measurement_request_schema.py": "4341e1a02891081e866d1fdf6012e5bc003d8ab32af68a48ca1e8e532d501a70",
     "schemas/mission_context_schema.py": "e19473c6cd4335ec45738d216d4f74faca37cb676d4d0b338cfd939577b0a2fc",
     "schemas/mission_event_schema.py": "5cfb8bf3f815d94d56288e4153e3d84a00ebd73baa800ffa34be3a33aee19994",
-    "schemas/model_action_schema.py": "a05e0a05c4f06dbb0b008d12bcd167cdf3184a1215b3a71ab1ac5bdef34011f1",
+    "schemas/model_action_schema.py": "57b1313e765cb47f1d8637ab3e32864ac6a814b06cd3abe3546987473778a2b6",
     "schemas/my_skills_view_schema.py": "06b02226962989da2933f9e33b18194494c0a3671c19d8934f53ba5b325e47b6",
     "schemas/observation_schema.py": "c197d7be9153640de904a00b7a45543e4badbaa89dc542cadea640ff90039d20",
     "schemas/patch_award_schema.py": "76f6090cadc214a1833230f95bb464f6662a99df20e5ace8ceaedfda91ce370e",
     "schemas/plan_run_schema.py": "d0b435005eb396983075cc8c7b935d7f080266278e007e243c762e5eba314583",
-    "schemas/plan_view_schema.py": "ec0e7fb9f739ccfb3db707f6bc8ebb5a64b654609c97a26a4d1e019ffe349b34",
+    "schemas/plan_view_schema.py": "6ba8e38e3530ba76fe7764cfc45d680c5bfe2c7fd09f1ce1dbd6c86d6c026d64",
     "schemas/rebuild_result_schema.py": "64b35c332bf5725c4bf2e22b05bfad51e17989e9492c8e2ad454b0d114468685",
     "schemas/records_view_schema.py": "77a7feb10617640596fd27cd4116fa8ac161bbf043d3aef8dc4b23194c94a240",
     "schemas/report_schema.py": "73bedbc787d783de37fa53f0586fb70ff4dded5e77bc497bf546a9ab056b8262",
-    "schemas/requests_schema.py": "56c6e71da47f79cda5eec699c708e388b8e3000518d0f9ad1122a51bdbf41b21",
+    "schemas/requests_schema.py": "f87c4b6b9427beb3fa88fede700bf325568bfe12378021193172424e2c2b280a",
     "schemas/research_source_schema.py": "665648c8c70e1e816c4e62117063362a4b0300674519571444d80c33db5769c1",
     "schemas/return_readiness_schema.py": "9d22f8083e81e8902d94864f79347c128df4bb4bec0d331a2ebd81ef330e6b95",
     "schemas/role_assignment_schema.py": "71d8ba3c2fbf6b11a211ef3a4bdc7d66d97b8263592f99e96e5660c0f52bab09",
@@ -844,9 +844,9 @@
   "overlay": {
     "files": {
       "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
-      "part-a.json": "f6928d6dcb6ea7a4878374e0eca8c9c29c2d2cff54e5dd78183f478f916071ea"
+      "part-a.json": "35de455967b4a02825bdaaaac5a641cd7247cf763f89c8f1a09ce0a56aed246c"
     },
-    "manifest_sha256": "00ff11ae088504540cde7ca17d6a42a58f1224d6782862536a52c89b07d5a310",
+    "manifest_sha256": "df738a59529d115d1447398351638aa5fc28aab6680f80bb0f42f4e1b48ec38c",
     "traces": [
       {
         "a3": [
@@ -933,9 +933,141 @@
         "pointer": "/properties/documents/maxItems",
         "target": "api/schemas/config-index.schema.json",
         "value": 19
+      },
+      {
+        "a3": [
+          "api/schemas/config-kit-map.schema.json:389"
+        ],
+        "decision": "D22",
+        "expected": "^ICL[1-9][0-9]{0,2}$",
+        "id": "d22-config-kit-map-1",
+        "op": "replace",
+        "pointer": "/properties/conditions/items/properties/condition_id/pattern",
+        "target": "api/schemas/config-kit-map.schema.json",
+        "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+      },
+      {
+        "a3": [
+          "api/schemas/config-onboard-plans.schema.json:95"
+        ],
+        "decision": "D22",
+        "expected": "^ICL[1-9][0-9]{0,2}$",
+        "id": "d22-config-onboard-plans-1",
+        "op": "replace",
+        "pointer": "/properties/plans/items/properties/scope/oneOf/0/properties/condition_id/pattern",
+        "target": "api/schemas/config-onboard-plans.schema.json",
+        "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+      },
+      {
+        "a3": [
+          "api/schemas/kit-check.schema.json:31"
+        ],
+        "decision": "D22",
+        "expected": "^ICL[1-9][0-9]{0,2}$",
+        "id": "d22-kit-check-1",
+        "op": "replace",
+        "pointer": "/properties/condition_ids/items/pattern",
+        "target": "api/schemas/kit-check.schema.json",
+        "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+      },
+      {
+        "a3": [
+          "api/schemas/kit-map-view.schema.json:164"
+        ],
+        "decision": "D22",
+        "expected": "^ICL[1-9][0-9]{0,2}$",
+        "id": "d22-kit-map-view-1",
+        "op": "replace",
+        "pointer": "/properties/conditions/items/properties/condition_id/pattern",
+        "target": "api/schemas/kit-map-view.schema.json",
+        "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+      },
+      {
+        "a3": [
+          "api/schemas/kit-map-view.schema.json:363"
+        ],
+        "decision": "D22",
+        "expected": "^ICL[1-9][0-9]{0,2}$",
+        "id": "d22-kit-map-view-2",
+        "op": "replace",
+        "pointer": "/properties/plans_to_write/items/pattern",
+        "target": "api/schemas/kit-map-view.schema.json",
+        "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+      },
+      {
+        "a3": [
+          "api/schemas/kit-map-what-if.schema.json:156"
+        ],
+        "decision": "D22",
+        "expected": "^ICL[1-9][0-9]{0,2}$",
+        "id": "d22-kit-map-what-if-1",
+        "op": "replace",
+        "pointer": "/properties/changed/items/properties/condition_id/pattern",
+        "target": "api/schemas/kit-map-what-if.schema.json",
+        "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+      },
+      {
+        "a3": [
+          "api/schemas/kit-map-what-if.schema.json:253"
+        ],
+        "decision": "D22",
+        "expected": "^ICL[1-9][0-9]{0,2}$",
+        "id": "d22-kit-map-what-if-2",
+        "op": "replace",
+        "pointer": "/properties/plans_changed/items/properties/condition_id/anyOf/0/pattern",
+        "target": "api/schemas/kit-map-what-if.schema.json",
+        "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+      },
+      {
+        "a3": [
+          "api/schemas/model-action.schema.json:89"
+        ],
+        "decision": "D22",
+        "expected": "^ICL[1-9][0-9]{0,2}$",
+        "id": "d22-model-action-1",
+        "op": "replace",
+        "pointer": "/oneOf/1/properties/condition_ids/items/pattern",
+        "target": "api/schemas/model-action.schema.json",
+        "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+      },
+      {
+        "a3": [
+          "api/schemas/plan-view.schema.json:21"
+        ],
+        "decision": "D22",
+        "expected": "^ICL[1-9][0-9]{0,2}$",
+        "id": "d22-plan-view-1",
+        "op": "replace",
+        "pointer": "/properties/condition_id/anyOf/0/pattern",
+        "target": "api/schemas/plan-view.schema.json",
+        "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+      },
+      {
+        "a3": [
+          "api/schemas/plan-view.schema.json:968"
+        ],
+        "decision": "D22",
+        "expected": "^ICL[1-9][0-9]{0,2}$",
+        "id": "d22-plan-view-2",
+        "op": "replace",
+        "pointer": "/allOf/0/oneOf/0/properties/condition_id/pattern",
+        "target": "api/schemas/plan-view.schema.json",
+        "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+      },
+      {
+        "a3": [
+          "api/schemas/requests.schema.json:681"
+        ],
+        "decision": "D22",
+        "expected": "^ICL[1-9][0-9]{0,2}$",
+        "id": "d22-requests-1",
+        "op": "replace",
+        "pointer": "/$defs/MeasurementRequestCreate/properties/condition_ids/items/pattern",
+        "target": "api/schemas/requests.schema.json",
+        "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
       }
     ],
-    "version": "part-a-d12-2"
+    "version": "part-a-d12-d22-3"
   },
   "sources": {
     "docs/product/CONTRACTS.md": "7ea599049f13a702a4ae3d677fda656ef9532b821e5eae07c964b2e08eba9f77"

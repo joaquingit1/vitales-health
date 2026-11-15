@@ -175,28 +175,12 @@ class Fixture:
 
 
 def _resources(fixture: Fixture, target: Path) -> HubResources:
-    """The repository resources a hub reads, with config/kit-map.json and config/onboard-plans.json replaced by
-    the release documents the fixture names (see its `release.basis`)."""
+    """The repository resources a hub reads, copied as they are: the first start activates the repository's own
+    config/ release (the fixture's `release.basis`)."""
+    if fixture.section("release").get("source") != "config":
+        raise DemoError("the demo serves only the repository's config/ release")
     for name in COPIED:
         shutil.copytree(fixture.root / name, target / name)
-    release = fixture.section("release")
-    kit_map = fixture.cited(release["kit_map"])
-    plans = fixture.cited(release["onboard_plans"])
-    if not isinstance(plans, dict):
-        raise DemoError("onboard plans are not an object")
-    # The plans release check verifies form quotes and rtdc against the saved forms; the package example's few
-    # quotes and its one rtdc are not in them, so they are removed as most of its steps already are
-    # (hub/tests/app/conftest.py does the same).
-    for plan in plans["plans"]:
-        for stage in plan["stages"]:
-            if stage.get("rtdc") is not None:
-                stage["rtdc"] = None
-            for step in stage.get("steps", []):
-                step["replaces_ground_task"] = None
-    for name, value in (("kit-map", kit_map), ("onboard-plans", plans)):
-        (target / "config" / (name + ".json")).write_text(
-            json.dumps(value, ensure_ascii=False), encoding="utf-8"
-        )
     return HubResources(target)
 
 

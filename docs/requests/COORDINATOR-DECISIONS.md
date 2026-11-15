@@ -346,6 +346,18 @@ relative to `docs/product/`; numbers refer to the unchanged files. Repeated cons
 | `api/schemas/error.schema.json:90` | D6 | Allow the closed accepted_command receipt in current_state for an authorized matching durable replay. Mismatched identities always return null; no clinical values or body fingerprints are exposed. |
 | `CONTRACTS.md:1085` | D9 | Medical-officer status does not grant every plan run; require current object/field sharing for clinical reads. |
 
+| `api/schemas/config-kit-map.schema.json:389` | D22 | Accept a single uppercase condition variant suffix, including ICL36A and ICL36B; preserve every other identifier and validation rule. |
+| `api/schemas/config-onboard-plans.schema.json:95` | D22 | Accept a single uppercase condition variant suffix, including ICL36A and ICL36B; preserve every other identifier and validation rule. |
+| `api/schemas/kit-check.schema.json:31` | D22 | Accept a single uppercase condition variant suffix, including ICL36A and ICL36B; preserve every other identifier and validation rule. |
+| `api/schemas/kit-map-view.schema.json:164` | D22 | Accept a single uppercase condition variant suffix, including ICL36A and ICL36B; preserve every other identifier and validation rule. |
+| `api/schemas/kit-map-view.schema.json:363` | D22 | Accept a single uppercase condition variant suffix, including ICL36A and ICL36B; preserve every other identifier and validation rule. |
+| `api/schemas/kit-map-what-if.schema.json:156` | D22 | Accept a single uppercase condition variant suffix, including ICL36A and ICL36B; preserve every other identifier and validation rule. |
+| `api/schemas/kit-map-what-if.schema.json:253` | D22 | Accept a single uppercase condition variant suffix, including ICL36A and ICL36B; preserve every other identifier and validation rule. |
+| `api/schemas/model-action.schema.json:89` | D22 | Accept a single uppercase condition variant suffix, including ICL36A and ICL36B; preserve every other identifier and validation rule. |
+| `api/schemas/plan-view.schema.json:21` | D22 | Accept a single uppercase condition variant suffix, including ICL36A and ICL36B; preserve every other identifier and validation rule. |
+| `api/schemas/plan-view.schema.json:968` | D22 | Accept a single uppercase condition variant suffix, including ICL36A and ICL36B; preserve every other identifier and validation rule. |
+| `api/schemas/requests.schema.json:681` | D22 | Accept a single uppercase condition variant suffix, including ICL36A and ICL36B; preserve every other identifier and validation rule. |
+
 # Part B. Medicine potency engine
 
 ## 0. Why the independent tests fail: root causes found
