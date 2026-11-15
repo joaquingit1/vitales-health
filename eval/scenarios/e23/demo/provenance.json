@@ -177,7 +177,7 @@
         "consumers": [
           {
             "epic": "E23",
-            "component": "simulators/habitat CO2, temperature and humidity feeds",
+            "component": "adapters/habitat feed_rr1_co2_replay, and the simulators/habitat replay feeders rr1_co2, rr1_temperature and rr1_humidity",
             "use": "Primary REPLAY profile for the CO2 channel; contract examples reading-co2-replay and series-co2-replay are computed from this file."
           },
           {
@@ -257,7 +257,7 @@
         "consumers": [
           {
             "epic": "E23",
-            "component": "simulators/habitat radiation feed",
+            "component": "adapters/habitat feed_dostel1_rad_replay, and the simulators/habitat replay feeder dostel1_rad",
             "use": "Short REPLAY sample for the radiation channel ingest."
           },
           {

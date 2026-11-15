@@ -22,6 +22,7 @@ from crew_health_adapter_habitat.queue import DurableQueue
 ROOT = Path(__file__).resolve().parents[3]
 DEMO = ROOT / "eval" / "scenarios" / "e23" / "demo"
 NASA = ROOT / "docs" / "product" / "nasa-data"
+SIM_CONFIG = ROOT / "simulators" / "habitat" / "config"
 START = datetime(2026, 11, 14, 9, 0, 0, tzinfo=UTC)
 
 

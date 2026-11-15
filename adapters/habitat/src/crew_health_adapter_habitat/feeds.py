@@ -155,15 +155,8 @@ def _sim(raw: Mapping[str, Any] | None, base: Path) -> Mapping[str, Any] | None:
     if raw is None:
         return None
     if raw["type"] == "twin":
-        return {**raw, "data_dir": str(_inside_dir(base, raw["data_dir"]))}
+        return {**raw, "config_dir": str((base / raw["config_dir"]).resolve())}
     return raw
-
-
-def _inside_dir(base: Path, name: str) -> Path:
-    target = (base / name).resolve()
-    if target != base and base not in target.parents:
-        raise FeedInvalid("twin data directory outside the feed directory")
-    return target
 
 
 def _pressure(raw: Mapping[str, Any] | None) -> CabinPressure | None:

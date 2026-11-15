@@ -316,6 +316,19 @@ name = "crew-health-sim-habitat"
 version = "0.1.0"
 source = { editable = "../../simulators/habitat" }
 
+[package.metadata]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "hypothesis", specifier = ">=6.170" },
+    { name = "jsonschema", specifier = ">=4.26" },
+    { name = "mypy", specifier = ">=2.4" },
+    { name = "pytest", specifier = ">=9.2" },
+    { name = "referencing", specifier = ">=0.37" },
+    { name = "ruff", specifier = ">=0.17" },
+    { name = "types-jsonschema", specifier = ">=4.26" },
+]
+
 [[package]]
 name = "dbus-fast"
 version = "5.2.0"

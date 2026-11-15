@@ -12,6 +12,8 @@ import io
 import json
 import struct
 import tempfile
+from collections.abc import Iterator
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -20,7 +22,7 @@ from typing import Any
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
-from support import DEMO, NASA, FakeClock, feed_by_id, scratch_feeds
+from support import DEMO, NASA, SIM_CONFIG, FakeClock, feed_by_id, scratch_feeds
 
 from crew_health_adapter_habitat.ble_ess import (
     ESS_CHARACTERISTICS,
@@ -49,9 +51,17 @@ from crew_health_adapter_habitat.ports import (
     utc_text,
 )
 from crew_health_adapter_habitat.replay import CsvReplaySource, parse_dataset_time
-from crew_health_adapter_habitat.sim import FrozenSource, GeneratorSource, TwinBleLink, build_sim_source
+from crew_health_adapter_habitat.sim import (
+    FrozenSource,
+    GeneratorSource,
+    TwinBleLink,
+    TwinWorld,
+    build_sim_source,
+    load_twin_world,
+)
 from crew_health_adapter_habitat.xtce import XtceSource, load_xtce, parse_packet
-from crew_health_sim_habitat import EssTwin, LinkLost, PacketTwin, space_packet
+from crew_health_sim_habitat.packets import PacketTwin, space_packet
+from crew_health_sim_habitat.runner import Tick
 
 pytestmark = pytest.mark.e23
 EXAMPLES = settings(max_examples=1000, deadline=None)
@@ -302,40 +312,84 @@ def test_ble_payloads_decode_exactly_or_are_rejected_with_a_code(uuid: int, payl
     try:
         value = decode(spec, payload)
     except ParseRejected as rejected:
-        assert rejected.code in {"BAD_LENGTH", "NOT_KNOWN", "SATURATED"}
+        assert rejected.code in {"BAD_LENGTH", "NOT_KNOWN", "SATURATED", "OUT_OF_RANGE"}
         return
-    assert len(payload) == 2 and value.is_finite()
+    assert len(payload) == spec.size
+    assert value.is_finite()
     raw = int.from_bytes(payload, "little", signed=spec.fmt == "sint16")
     assert value == Decimal(raw) * spec.resolution
-    assert (raw & 0xFFFF) not in {spec.unknown_raw, spec.saturated_raw}
+    assert int.from_bytes(payload, "little") not in {spec.unknown_raw, spec.saturated_raw}
+
+
+# Worked by hand from the GSS (version date 2026-09-09), not from the parser table or the simulator's encoder:
+# raw = value / 10^d, little endian. Temperature, Section 3.235, Table 3.361: 23.45 degC = 2345 = 0x0929;
+# -273.15 = -27315 = 0x954D as two's complement; 327.67 = 0x7FFF; 0x8000 is not known. Humidity, Section 3.134,
+# Table 3.226: 100.00 % = 10000 = 0x2710, 0.00 % = 0, 45.67 % = 4567 = 0x11D7; 0xFFFF is not known and every
+# other value is prohibited. Pressure, Section 3.195, Table 3.303: 101325 Pa = 1013250 = 0x000F7602. CO2,
+# Section 3.54, Table 3.94: 2650 ppm = 0x0A5A; allowed 0 to 65533; 0xFFFE saturated; 0xFFFF not known.
+GSS_VALUES = [
+    (0x2A6E, b"\x29\x09", "23.45"), (0x2A6E, b"\x4d\x95", "-273.15"), (0x2A6E, b"\xff\x7f", "327.67"),
+    (0x2A6F, b"\x10\x27", "100.00"), (0x2A6F, b"\x00\x00", "0.00"), (0x2A6F, b"\xd7\x11", "45.67"),
+    (0x2A6D, b"\x02\x76\x0f\x00", "101325.0"), (0x2A6D, b"\xff\xff\xff\xff", "429496729.5"),
+    (0x2B8C, b"\x5a\x0a", "2650"), (0x2B8C, b"\xfd\xff", "65533"),
+]  # fmt: skip
+GSS_REJECTED = [
+    (0x2A6E, b"\x00\x80", "NOT_KNOWN"), (0x2A6E, b"\x4c\x95", "OUT_OF_RANGE"),  # below -273.15
+    (0x2A6F, b"\xff\xff", "NOT_KNOWN"), (0x2A6F, b"\x11\x27", "OUT_OF_RANGE"),  # 100.01 %
+    (0x2B8C, b"\xfe\xff", "SATURATED"), (0x2B8C, b"\xff\xff", "NOT_KNOWN"),
+    (0x2A6F, b"\x10", "BAD_LENGTH"), (0x2A6D, b"\x01\x02", "BAD_LENGTH"), (0x2A6E, b"\x01\x02\x03", "BAD_LENGTH"),
+]  # fmt: skip
+
+
+@pytest.mark.trace("T-E23-074")
+def test_the_characteristic_table_decodes_the_values_worked_by_hand_from_the_gss() -> None:
+    for uuid, payload, expected in GSS_VALUES:
+        assert decode(ESS_CHARACTERISTICS[uuid], payload) == Decimal(expected), (hex(uuid), payload)
+    assert {u: (s.fmt, s.resolution, s.unit) for u, s in ESS_CHARACTERISTICS.items()} == {
+        0x2A6E: ("sint16", Decimal("0.01"), "Cel"),
+        0x2A6F: ("uint16", Decimal("0.01"), "%"),
+        0x2A6D: ("uint32", Decimal("0.1"), "Pa"),
+        0x2B8C: ("uint16", Decimal(1), "ppm"),
+    }
+    assert all(
+        "GSS Section" in s.source and "AN Section 3.8.2" in s.source for s in ESS_CHARACTERISTICS.values()
+    )
+
+
+@pytest.mark.trace("T-E23-074")
+def test_codes_the_gss_reserves_or_prohibits_are_rejected_never_turned_into_numbers() -> None:
+    for uuid, payload, code in GSS_REJECTED:
+        with pytest.raises(ParseRejected) as caught:
+            decode(ESS_CHARACTERISTICS[uuid], payload)
+        assert caught.value.code == code, (hex(uuid), payload)
 
 
 @pytest.mark.trace("T-E23-074")
 @EXAMPLES
-@given(raw=st.integers(0, 0xFFFD), uuid=st.sampled_from([0x2A6F, 0x2B8C]))
-def test_the_twin_encoding_and_the_adapter_parser_agree_for_unsigned_characteristics(
-    raw: int, uuid: int
-) -> None:
-    payload = struct.pack("<H", raw)  # written here, independently of both the twin and the parser
-    assert decode(ESS_CHARACTERISTICS[uuid], payload) == Decimal(raw) * ESS_CHARACTERISTICS[uuid].resolution
+@given(raw=st.integers(0, 10000))
+def test_humidity_round_trips_inside_its_allowed_range(raw: int) -> None:
+    assert decode(ESS_CHARACTERISTICS[0x2A6F], struct.pack("<H", raw)) == Decimal(raw) * Decimal("0.01")
 
 
 @pytest.mark.trace("T-E23-074")
 @EXAMPLES
-@given(raw=st.integers(-32767, 32767))
-def test_temperature_round_trips(raw: int) -> None:
+@given(raw=st.integers(0, 0xFFFD))
+def test_co2_round_trips_below_the_saturation_code(raw: int) -> None:
+    assert decode(ESS_CHARACTERISTICS[0x2B8C], struct.pack("<H", raw)) == Decimal(raw)
+
+
+@pytest.mark.trace("T-E23-074")
+@EXAMPLES
+@given(raw=st.integers(-27315, 32767))
+def test_temperature_round_trips_inside_its_allowed_range(raw: int) -> None:
     assert decode(ESS_CHARACTERISTICS[0x2A6E], struct.pack("<h", raw)) == Decimal(raw) * Decimal("0.01")
 
 
-def test_unknown_and_saturated_codes_are_rejected_not_turned_into_numbers() -> None:
-    co2, temp = ESS_CHARACTERISTICS[0x2B8C], ESS_CHARACTERISTICS[0x2A6E]
-    for payload, code in ((struct.pack("<H", 0xFFFF), "NOT_KNOWN"), (struct.pack("<H", 0xFFFE), "SATURATED")):
-        with pytest.raises(ParseRejected) as caught:
-            decode(co2, payload)
-        assert caught.value.code == code
-    with pytest.raises(ParseRejected) as caught:
-        decode(temp, struct.pack("<h", -32768))
-    assert caught.value.code == "NOT_KNOWN"
+@pytest.mark.trace("T-E23-074")
+@EXAMPLES
+@given(raw=st.integers(0, 2**32 - 1))
+def test_pressure_round_trips_over_its_whole_type(raw: int) -> None:
+    assert decode(ESS_CHARACTERISTICS[0x2A6D], struct.pack("<I", raw)) == Decimal(raw) * Decimal("0.1")
 
 
 def test_origin_comes_from_the_device_identity_and_live_needs_sourced_criteria() -> None:
@@ -351,56 +405,187 @@ def drain(source: Any) -> list[SourceItem]:
     return list(source.items(0))
 
 
-@pytest.mark.trace("T-E23-074", "T-E23-062")
-def test_the_twin_streams_the_recorded_rr1_values_through_the_real_ess_parser(twin_data: Path) -> None:
-    clock = FakeClock()
-    expected = independent_rows(twin_data / "eda_rr1_telemetry.csv", column="co2_iss")
-    link = TwinBleLink(EssTwin(0x2B8C, "nominal", twin_data, seed=1))
+ESS_SCENARIO = "ess_link_and_byte_faults"
+# Device outputs each characteristic mirrors, and the factor from the device's unit to the characteristic's.
+ESS_REGISTERS = {
+    0x2A6E: ("sim_temp_rh_cabin", "temperature", 1.0),
+    0x2A6F: ("sim_temp_rh_cabin", "humidity", 1.0),
+    0x2A6D: ("sim_baro_cabin", "pressure", 1000.0),  # kPa to Pa
+}
+
+
+@pytest.fixture(scope="module")
+def world() -> TwinWorld:
+    return load_twin_world(SIM_CONFIG)
+
+
+@dataclass
+class Recorded:
+    """What a run saw: each notification with the tick time it arrived at, and each device register."""
+
+    notes: list[tuple[float, Notification]]
+    registers: dict[int, dict[float, float]]
+    gaps: int
+
+
+def run_link(world: TwinWorld, scenario_id: str, uuids: tuple[int, ...]) -> Recorded:
+    """Drive the twin through the BleLink port, reconnecting after each lost link until the run ends."""
+    scenario, faults = world.run(scenario_id)
+    now = [0.0]
+    registers: dict[int, dict[float, float]] = {u: {} for u in uuids}
+
+    def ticks() -> Iterator[Tick]:
+        for tick in world.ticks(scenario):
+            now[0] = tick.t_s
+            for r in tick.readings:
+                for uuid in uuids:
+                    device, output, factor = ESS_REGISTERS[uuid]
+                    if (r.device_id, r.output) == (device, output):
+                        registers[uuid][tick.t_s] = r.quantity.value * factor
+            yield tick
+
+    link = TwinBleLink(world.ess, faults, ticks(), uuids)
     assert link.identity().simulated is True  # declares itself simulated, so the hub labels it SIM
-    items = drain(EssSource(link, "ch_co2_cabin_sim", 0x2B8C, clock))
-    assert [str(i.row.quantity.value) for i in items if i.row] == [v for _, v in expected]
-    assert all(i.row and i.row.quantity.unit == "ppm" for i in items)
-    temps = drain(EssSource(TwinBleLink(EssTwin(0x2A6E, "nominal", twin_data, 1)), "c", 0x2A6E, clock))
-    assert [Decimal(str(i.row.quantity.value)) for i in temps if i.row][:3] == [
-        Decimal(v)
-        for _, v in independent_rows(twin_data / "eda_rr1_telemetry.csv", column="temperature_iss")[:3]
-    ]
+    notes: list[tuple[float, Notification]] = []
+    gaps = 0
+    while True:
+        try:
+            notes.extend((now[0], n) for n in link.notifications())
+            break
+        except SourceUnavailable:
+            gaps += 1
+    link.close()
+    return Recorded(notes, registers, gaps)
 
 
-def fault(twin_data: Path, name: str, uuid: int = 0x2B8C) -> list[SourceItem]:
-    return drain(EssSource(TwinBleLink(EssTwin(uuid, name, twin_data, 3)), "ch", uuid, FakeClock()))
+@pytest.fixture(scope="module")
+def faulted(world: TwinWorld) -> Recorded:
+    return run_link(world, ESS_SCENARIO, tuple(ESS_REGISTERS))
+
+
+def window(world: TwinWorld, fault: str) -> tuple[float, float]:
+    item = next(f for f in world.ess.scenarios[ESS_SCENARIO].faults if f.fault == fault)
+    return item.start_s, item.start_s + item.duration_s
+
+
+def decoded(rec: Recorded, uuid: int) -> list[tuple[float, Decimal | str]]:
+    """Each notification of one characteristic through the real parser: a value or its reject code."""
+    out: list[tuple[float, Decimal | str]] = []
+    for t_s, note in rec.notes:
+        if note.uuid16 == uuid:
+            try:
+                out.append((t_s, decode(ESS_CHARACTERISTICS[uuid], note.payload)))
+            except ParseRejected as rejected:
+                out.append((t_s, rejected.code))
+    return out
+
+
+@pytest.mark.trace("T-E23-074", "T-E23-062")
+def test_the_real_ess_parser_decodes_the_twin_bytes_to_the_device_registers(world: TwinWorld) -> None:
+    scenario = replace(world.scenarios["station_nominal"], duration_s=1800.0)
+    ticks = list(world.ticks(scenario))
+    for uuid, (device, output, factor) in ESS_REGISTERS.items():
+        link = TwinBleLink(world.ess, (), iter(ticks), (uuid,))
+        items = drain(EssSource(link, "ch", uuid, FakeClock()))
+        expected = [
+            r.quantity.value * factor
+            for t in ticks
+            for r in t.readings
+            if (r.device_id, r.output) == (device, output)
+        ]
+        resolution = float(ESS_CHARACTERISTICS[uuid].resolution)
+        assert items
+        assert len(items) == len(expected)
+        for item, register in zip(items, expected, strict=True):
+            assert item.row is not None, (hex(uuid), item.reject_code)
+            assert float(item.row.quantity.value) == pytest.approx(register, abs=resolution / 2 + 1e-9)
+            assert item.row.quantity.unit == ESS_CHARACTERISTICS[uuid].unit
+
+
+@pytest.mark.trace("T-E23-062", "AGENTS-3")
+def test_a_lost_link_stops_notifications_and_a_reconnect_resumes_them_with_a_gap(
+    world: TwinWorld, faulted: Recorded
+) -> None:
+    start, end = window(world, "disconnect")
+    assert faulted.gaps == 1
+    times = sorted({t for t, _ in faulted.notes})
+    assert not [t for t in times if start <= t < end]  # nothing is sent while the link is down
+    assert max(t for t in times if t < start) >= start - 60.0
+    assert min(t for t in times if t >= start) >= end  # and nothing is invented after it
+
+
+@pytest.mark.trace("T-E23-062", "AGENTS-5")
+def test_a_prohibited_humidity_code_reaches_the_parser_as_out_of_range(
+    world: TwinWorld, faulted: Recorded
+) -> None:
+    start, end = window(world, "out_of_range")
+    humidity = decoded(faulted, 0x2A6F)
+    inside = [v for t, v in humidity if start <= t < end]
+    assert inside
+    assert set(inside) == {"OUT_OF_RANGE"}  # 104.50 % is prohibited by the GSS; no number comes out
+    assert all(isinstance(v, Decimal) for t, v in humidity if not start <= t < end)
+
+
+@pytest.mark.trace("T-E23-062", "AGENTS-5")
+def test_a_stuck_temperature_repeats_while_the_register_moves(world: TwinWorld, faulted: Recorded) -> None:
+    start, end = window(world, "stuck")
+    temperature = decoded(faulted, 0x2A6E)
+    held = [v for t, v in temperature if start <= t < end]
+    assert len(held) > 5
+    assert len(set(held)) == 1
+    register = [r for t, r in faulted.registers[0x2A6E].items() if start <= t < end]
+    assert max(register) - min(register) > 0.0  # the device moved; the bytes did not
+
+
+@pytest.mark.trace("T-E23-062", "AGENTS-5")
+def test_a_drifting_pressure_gains_its_rate_on_the_wire(world: TwinWorld, faulted: Recorded) -> None:
+    fault = next(f for f in world.ess.scenarios[ESS_SCENARIO].faults if f.fault == "drift")
+    assert fault.value == 600.0  # Pa per hour, from the twin's scenario
+    start, end = window(world, "drift")
+    seen = 0
+    for t, value in decoded(faulted, 0x2A6D):
+        assert isinstance(value, Decimal)
+        register = faulted.registers[0x2A6D][t]
+        excess = float(value) - register
+        if start <= t < end:
+            seen += 1
+            assert excess == pytest.approx(fault.value * (t - start) / 3600.0, abs=0.06)
+        else:
+            assert excess == pytest.approx(0.0, abs=0.06)
+    assert seen > 100
 
 
 @pytest.mark.trace("T-E23-062", "AGENTS-4")
-def test_twin_fault_scenarios_reach_the_parser_and_the_guard(twin_data: Path) -> None:
-    base = fault(twin_data, "nominal")
-
-    def codes(items: list[SourceItem]) -> list[str | None]:
-        return [i.reject_code for i in items]
-
-    assert (
-        codes(fault(twin_data, "saturation"))[3:6] == ["SATURATED"] * 3
-        and codes(fault(twin_data, "saturation"))[:3] == [None] * 3
-    )
-    assert set(codes(fault(twin_data, "not_known"))[3:]) == {"NOT_KNOWN"}
-    low = fault(twin_data, "low_signal")
-    assert 0 < len(low) < len(base) and [i.position for i in low] == list(
-        range(1, len(low) + 1)
-    )  # gaps stay gaps
-    stuck = [i.row.quantity.value for i in fault(twin_data, "stuck") if i.row]
-    assert len(set(stuck[2:])) == 1
+def test_the_ess_source_labels_positions_and_reject_codes_for_the_fault_run(world: TwinWorld) -> None:
+    scenario, faults = world.run(ESS_SCENARIO)
+    link = TwinBleLink(world.ess, faults, world.ticks(scenario), (0x2A6F,))
+    source = EssSource(link, "ch", 0x2A6F, FakeClock())
+    items: list[SourceItem] = []
     with pytest.raises(SourceUnavailable):
-        drain(EssSource(TwinBleLink(EssTwin(0x2B8C, "disconnect", twin_data, 3)), "ch", 0x2B8C, FakeClock()))
-    drift = [i.row.quantity.value for i in fault(twin_data, "drift") if i.row]
-    assert drift[10] - drift[0] > base[10].row.quantity.value - base[0].row.quantity.value  # type: ignore[union-attr]
-    noisy = [i.row.quantity.value for i in fault(twin_data, "motion_noise") if i.row]
-    assert noisy[6] != base[6].row.quantity.value  # type: ignore[union-attr]
-    out = [i.row.quantity.value for i in fault(twin_data, "out_of_range") if i.row]
-    assert out[3] == Decimal(60000)
+        for item in source.items(0):
+            items.append(item)
+    assert [i.position for i in items] == list(range(1, len(items) + 1))
+    assert all(i.row is not None for i in items)  # before the disconnect every humidity byte is a value
+    resumed = list(EssSource(link, "ch", 0x2A6F, FakeClock()).items(len(items)))
+    assert resumed[0].position == len(items) + 1
+    assert "OUT_OF_RANGE" in {i.reject_code for i in resumed}
+
+
+def test_a_twin_scenario_or_characteristic_that_does_not_exist_is_refused() -> None:
+    base = {"type": "twin", "protocol": "ble_ess", "scenario": "station_nominal", "select": "0x2A6E"}
+    config_dir = str(SIM_CONFIG)
+    build = build_sim_source
+    clock, epoch = FakeClock(), datetime(2026, 1, 1, tzinfo=UTC)
+    assert build(sim_feed({**base, "config_dir": config_dir}), clock, epoch) is not None
+    for edit in ({"scenario": "nope"}, {"protocol": "xtce", "select": "nope"}, {"config_dir": str(DEMO)}):
+        with pytest.raises(FeedInvalid):
+            build(sim_feed({**base, "config_dir": config_dir, **edit}), clock, epoch)
+    with pytest.raises(ParseRejected):  # a characteristic the table does not have
+        build(sim_feed({**base, "config_dir": config_dir, "select": "0x1234"}), clock, epoch)
 
 
 @pytest.mark.trace("T-E23-062", "AGENTS-2")
-def test_guard_flags_each_fault_with_scratch_criteria_and_never_invents_thresholds(twin_data: Path) -> None:
+def test_guard_flags_each_fault_with_scratch_criteria_and_never_invents_thresholds() -> None:
     scratch = Criteria(  # test scratch criteria: they exercise the mechanism and are not a clinical limit
         basis="test scratch", minimum=Decimal(0), maximum=Decimal(20000), saturation=(Decimal(65534),),
         stuck_count=4, stuck_span_s=Decimal(30), max_rate_per_s=Decimal(500),
@@ -448,12 +633,18 @@ def test_the_guard_never_raises_and_only_returns_the_four_qualities(values: list
 
 # ----- XTCE and CCSDS ------------------------------------------------------------------------------------------
 
+DOSE_APID = 514  # the apid ccsds-packets.json gives the dose_rate stream, written here from that file's text
+
+
+def dose_twin() -> PacketTwin:
+    return PacketTwin(load_twin_world(SIM_CONFIG).packets, "dose_rate")
+
 
 @pytest.mark.trace("T-E23-074")
 @EXAMPLES
 @given(packet=st.binary(max_size=40))
 def test_garbage_packets_are_rejected_with_codes_and_never_raise_other_errors(packet: bytes) -> None:
-    containers = load_xtce(PacketTwin("dose_rate", "nominal", DEMO).xtce_document())
+    containers = load_xtce(dose_twin().xtce_document())
     try:
         found = parse_packet(containers, packet)
     except ParseRejected as rejected:
@@ -473,19 +664,20 @@ def test_garbage_packets_are_rejected_with_codes_and_never_raise_other_errors(pa
 @EXAMPLES
 @given(value=st.floats(width=32, allow_nan=True, allow_infinity=True), count=st.integers(0, 0x3FFF))
 def test_float_packets_decode_exactly_and_non_finite_values_are_rejected(value: float, count: int) -> None:
-    containers = load_xtce(PacketTwin("dose_rate", "nominal", DEMO).xtce_document())
-    packet = space_packet(513, struct.pack(">f", value), count)
+    containers = load_xtce(dose_twin().xtce_document())
+    packet = space_packet(DOSE_APID, struct.pack(">f", value), count)
     if value != value or value in (float("inf"), float("-inf")):
         with pytest.raises(ParseRejected) as caught:
             parse_packet(containers, packet)
         assert caught.value.code == "NON_FINITE"
         return
     [found] = parse_packet(containers, packet)
-    assert found.quantity.value == Decimal(repr(value)) and found.quantity.unit == "µGy/h"
+    assert found.quantity.value == Decimal(repr(value))
+    assert found.quantity.unit == "µGy/h"
 
 
 def test_xtce_documents_with_entities_or_missing_units_are_refused() -> None:
-    good = PacketTwin("dose_rate", "nominal", DEMO).xtce_document()
+    good = dose_twin().xtce_document()
     with pytest.raises(FeedInvalid):
         load_xtce(b'<!DOCTYPE x [<!ENTITY a "b">]>' + good)
     with pytest.raises(FeedInvalid):
@@ -497,115 +689,51 @@ def test_xtce_documents_with_entities_or_missing_units_are_refused() -> None:
 
 
 @pytest.mark.trace("T-E23-074", "T-E23-062")
-def test_the_packet_twin_streams_recorded_radiation_and_noise_through_the_real_xtce_parser() -> None:
-    twin = PacketTwin("dose_rate", "nominal", DEMO)
-    assert twin.identity().simulated is True
-    source = XtceSource(load_xtce(twin.xtce_document()), twin.packets(), "ch_rad", "dose_rate", FakeClock())
-    items = drain(source)
-    recorded = [
-        float(v)
-        for _, v in independent_rows(
-            DEMO / "radlab_dostel_sample.csv", column="absorbed_dose_rate", where=("instrument_id", "DosTel1")
+def test_the_packet_twin_streams_simulated_dose_and_co2_through_the_real_xtce_parser(
+    world: TwinWorld,
+) -> None:
+    scenario = replace(world.scenarios["station_nominal"], duration_s=1800.0)
+    ticks = list(world.ticks(scenario))
+    for stream, device, output, unit in (
+        ("dose_rate", "sim_area_dosimeter_cabin", "dose_rate", "µGy/h"),
+        ("co2_ppm", "sim_ndir_co2_cabin", "co2", "ppm"),
+    ):
+        twin = PacketTwin(world.packets, stream)
+        assert twin.simulated is True
+        source = XtceSource(
+            load_xtce(twin.xtce_document()), twin.packets(iter(ticks)), "ch", stream, FakeClock()
         )
-    ]
-    got = [float(i.row.quantity.value) for i in items if i.row]
-    assert len(got) == len(recorded) and all(
-        abs(g - r) <= abs(r) * 1e-6 for g, r in zip(got, recorded, strict=True)
-    )
-    assert all(i.row.quantity.unit == "µGy/h" for i in items if i.row)
+        got = [i.row.quantity for i in drain(source) if i.row]
+        registers = [
+            r.quantity.value for t in ticks for r in t.readings if (r.device_id, r.output) == (device, output)
+        ]
+        assert 0 < len(got) <= len(registers)  # a device still warming up sends no packet
+        assert {q.unit for q in got} == {unit}
+        for quantity, register in zip(got, registers[len(registers) - len(got) :], strict=True):
+            assert float(quantity.value) == pytest.approx(register, rel=1e-6, abs=1e-9)
+
+
+@pytest.mark.trace("T-E23-062", "AGENTS-5")
+def test_a_packet_for_another_apid_is_rejected_and_a_gap_stays_a_gap(world: TwinWorld) -> None:
+    containers = load_xtce(dose_twin().xtce_document())
+    other = PacketTwin(world.packets, "co2_ppm")
+    scenario = replace(world.scenarios["station_nominal"], duration_s=600.0)
+    packets = list(other.packets(world.ticks(scenario)))
+    assert packets
+    with pytest.raises(ParseRejected) as caught:
+        parse_packet(containers, packets[0])
+    assert caught.value.code == "UNKNOWN_APID"
+    source = XtceSource(containers, iter(packets), "ch", "dose_rate", FakeClock())
+    assert {i.reject_code for i in drain(source)} == {"UNKNOWN_APID"}
 
 
 @pytest.mark.trace("T-E23-062")
-def test_the_packet_twin_faults_and_the_noise_level_come_from_the_nasa_files(twin_data: Path) -> None:
-    noise = PacketTwin("sound_level", "nominal", twin_data)
-    got = drain(
-        XtceSource(load_xtce(noise.xtce_document()), noise.packets(), "ch_noise", "sound_level", FakeClock())
-    )
-    [spot] = [
-        r
-        for r in csv.DictReader((twin_data / "iss_acoustic_levels.csv").open(encoding="utf-8"))
-        if r["location"] == "U.S. Lab"
-    ]
-    assert {i.row.quantity.value for i in got if i.row} == {Decimal(spot["sound_level_dba"])} and got[
-        0
-    ].row.quantity.unit == "dBA"  # type: ignore[union-attr]
-    stuck = PacketTwin("dose_rate", "stuck", twin_data)
-    values = [
-        i.row.quantity.value
-        for i in drain(
-            XtceSource(load_xtce(stuck.xtce_document()), stuck.packets(), "c", "dose_rate", FakeClock())
-        )
-        if i.row
-    ]
-    assert len(set(values[3:])) == 1
-    gone = PacketTwin("dose_rate", "disconnect", twin_data)
-    with pytest.raises(LinkLost):
-        list(gone.packets())
-
-
-# ----- NASA case scenarios of the twin -------------------------------------------------------------------------
-
-
-@pytest.mark.trace("T-E23-062", "AGENTS-4")
-def test_the_co2_rise_is_shaped_from_the_printed_levels_of_the_iss_symptom_case(twin_data: Path) -> None:
-    """Levels from co2_symptom_reports.csv lines 2 (2.7), 4 (above 4, relief about 2) and 3 (up to 7.5 mm Hg) at an
-    assumed 760 mm Hg. The case is qualitative: the shape is not a recorded series."""
-    lines = (
-        (twin_data / "iss-co2-symptom-reports-2001-2009" / "co2_symptom_reports.csv")
-        .read_text(encoding="utf-8")
-        .splitlines()
-    )
-    assert (
-        lines[1].startswith("sts112_iss9a,")
-        and lines[2].startswith("sts113_iss11a,")
-        and lines[3].startswith("expedition6,")
-    )
-
-    def ppm(mmhg: float) -> Decimal:
-        return Decimal(str(mmhg)) / 760 * 1_000_000
-
-    values = [i.row.quantity.value for i in fault(twin_data, "co2_rise_iss_2001_2009") if i.row]
-    assert (
-        abs(values[0] - ppm(2.7)) <= 1 and abs(max(values) - ppm(7.5)) <= 1 and abs(values[-1] - ppm(2)) <= 1
-    )
-    assert any(abs(v - ppm(4)) <= 1 for v in values)  # passes through the Expedition 6 level
-    peak = values.index(max(values))
-    assert values[peak - 1] < values[peak] and values[:peak] == sorted(
-        values[:peak]
-    )  # rises monotonically to the peak
-
-
-@pytest.mark.trace("T-E23-062", "AGENTS-4")
-def test_the_solar_particle_event_replays_recorded_dostel2_rows_around_the_documented_onset(
-    twin_data: Path,
-) -> None:
-    """spe-2017-09-iss-columbus outcome.json lines 20 and 62: onset 2017-09-10 16:06 UTC, first protons at the ISS
-    about 2017-09-11 04:30 UTC. The twin replays the DosTel2 rows of 10 Sep 16:00 to 12 Sep 00:00."""
-    twin = PacketTwin("dose_rate", "spe_2017_09", twin_data)
-    items = drain(XtceSource(load_xtce(twin.xtce_document()), twin.packets(), "c", "dose_rate", FakeClock()))
-    rows = [
-        r
-        for r in csv.DictReader((twin_data / "radlab_iss_2017-09_spe.csv").open(encoding="utf-8"))
-        if r["instrument_id"] == "DosTel2"
-        and "2017-09-10T16:00:00" <= r["timestamp"] <= "2017-09-12T00:00:00"
-    ]
-    got = [float(i.row.quantity.value) for i in items if i.row]
-    assert len(got) == len(rows) > 1000
-    assert all(
-        abs(g - float(r["absorbed_dose_rate"])) <= abs(float(r["absorbed_dose_rate"])) * 1e-6
-        for g, r in zip(got, rows, strict=True)
-    )
-    before = max(
-        float(r["absorbed_dose_rate"])
-        for r in rows
-        if r["timestamp"] < "2017-09-11T04:00:00" and abs(float(r["latitude"])) >= 45
-    )
-    after = max(
-        float(r["absorbed_dose_rate"])
-        for r in rows
-        if r["timestamp"] >= "2017-09-11T04:18:00" and abs(float(r["latitude"])) >= 45
-    )
-    assert after > before  # the documented rise at high latitude (outcome.json line 77)
+def test_the_demo_sim_feed_posts_co2_packets_from_the_simulated_device() -> None:
+    feed = feed_by_id("feed_co2_cabin_sim")
+    assert feed.sim is not None and feed.sim["protocol"] == "xtce"
+    source = build_sim_source(feed, FakeClock(), datetime(2026, 1, 1, tzinfo=UTC))
+    first = [i for _, i in zip(range(10), source.items(0), strict=False)]
+    assert all(i.row is not None and i.row.quantity.unit == "ppm" for i in first)
 
 
 # ----- SIM kinds -----------------------------------------------------------------------------------------------
@@ -657,9 +785,8 @@ def test_a_sim_feed_reaching_a_device_that_is_not_simulated_is_refused() -> None
                     "type": "twin",
                     "protocol": "ble_ess",
                     "scenario": "nope",
-                    "select": "0x2B8C",
-                    "seed": 1,
-                    "data_dir": str(DEMO),
+                    "select": "0x2A6E",
+                    "config_dir": str(SIM_CONFIG),
                 }
             ),
             FakeClock(),

@@ -57,24 +57,23 @@
       "unit": "ppm",
       "sim": {
         "type": "twin",
-        "protocol": "ble_ess",
-        "scenario": "nominal",
-        "select": "0x2B8C",
-        "seed": 1,
-        "data_dir": "."
+        "protocol": "xtce",
+        "scenario": "station_nominal",
+        "select": "co2_ppm",
+        "config_dir": "../../../../simulators/habitat/config"
       },
       "pace": {"mode": "fixed", "interval_s": 5},
       "cabin_pressure": {
         "value": 760,
         "basis": "assumed",
         "source": {
-          "text": "The twin streams ppm. NASA-SOURCES.md section 2 states the 760 mmHg assumption used to convert ppm to mmHg.",
+          "text": "The packet twin streams ppm. NASA-SOURCES.md section 2 states the 760 mmHg assumption used to convert ppm to mmHg.",
           "source_ids": ["N02"]
         }
       },
       "basis": {
-        "sim": {"text": "The habitat simulator twin replays the RR-1 ISS CO2 recording as Bluetooth Environmental Sensing notifications; the adapter parses the same bytes a real sensor would send. The device identity declares it simulated.", "source_ids": ["N02"]},
-        "pace": {"text": "One notification every 5 s, the catalog CO2 interval (EV01).", "source_ids": ["EV01"]}
+        "sim": {"text": "The habitat simulator's CCSDS packet twin sends the simulated NDIR CO2 module's ppm output (scenario station_nominal) as space packets described by an XTCE document; the adapter parses the same bytes a telemetry link would carry. The twin declares itself simulated. The Bluetooth Environmental Sensing twin has no CO2 characteristic, so CO2 SIM goes through the packet twin.", "source_ids": ["EV01"]},
+        "pace": {"text": "One packet every 5 s, the catalog CO2 interval (EV01).", "source_ids": ["EV01"]}
       }
     }
   ]

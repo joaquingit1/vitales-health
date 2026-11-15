@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import shutil
 from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
-from support import NASA, Rig, make_rig
+from support import Rig, make_rig
 
 
 @pytest.fixture
@@ -24,19 +23,3 @@ def small_rig(tmp_path: Path) -> Iterator[Rig]:
     )
     yield made
     made.queue.close()
-
-
-@pytest.fixture
-def twin_data(tmp_path: Path) -> Path:
-    """The NASA files the twin replays, gathered in one directory (the twin reads files by relative name)."""
-    target = tmp_path / "twin_data"
-    (target / "iss-co2-symptom-reports-2001-2009").mkdir(parents=True)
-    shutil.copy(NASA / "habitat-environment" / "eda_rr1_telemetry.csv", target)
-    shutil.copy(NASA / "radiation" / "radlab_dostel_sample.csv", target)
-    shutil.copy(NASA / "radiation" / "radlab_iss_2017-09_spe.csv", target)
-    shutil.copy(NASA / "acoustics" / "iss_acoustic_levels.csv", target)
-    shutil.copy(
-        NASA / "cases" / "iss-co2-symptom-reports-2001-2009" / "co2_symptom_reports.csv",
-        target / "iss-co2-symptom-reports-2001-2009",
-    )
-    return target

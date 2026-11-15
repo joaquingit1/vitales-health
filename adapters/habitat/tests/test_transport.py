@@ -622,21 +622,38 @@ def test_the_adapter_never_adds_clock_fields_and_passes_the_source_time_unchange
 
 @pytest.mark.trace("T-E23-062", "AGENTS-6")
 def test_a_device_disconnect_keeps_everything_already_queued_and_is_loud(rig: Rig, tmp_path: Path) -> None:
-    from support import demo_feeds
+    from support import SIM_CONFIG, demo_feeds
 
     base = {f.feed_id: f for f in demo_feeds()}["feed_co2_cabin_sim"]
-    assert base.sim is not None
-    feed = replace(base, sim={**base.sim, "scenario": "disconnect"})
+    sim = {
+        "type": "twin",
+        "protocol": "ble_ess",
+        "scenario": "ess_link_and_byte_faults",
+        "select": "0x2A6F",
+        "config_dir": str(SIM_CONFIG),
+    }
+    feed = replace(base, sim=sim, unit="%")
     rig.queue.close()
     rig.queue = DurableQueue(rig.tmp / "queue.db", rig.settings, "adp_sim")
     from crew_health_adapter_habitat.errors import SourceUnavailable
+    from crew_health_adapter_habitat.sim import load_twin_world
 
+    world = load_twin_world(SIM_CONFIG)
+    scenario, faults = world.run("ess_link_and_byte_faults")
+    lost_at = next(f.start_s for f in faults if f.fault == "disconnect")
+    before = sum(
+        1
+        for tick in world.ticks(scenario)
+        if tick.t_s < lost_at
+        for r in tick.readings
+        if (r.device_id, r.output) == ("sim_temp_rh_cabin", "humidity")
+    )  # the humidity samples taken before the link was lost, counted from the devices
     with pytest.raises(SourceUnavailable):
         run_pipeline(rig, feed)
     delivered = sum(len(batch_rows(q)) for q in rig.hub.requests)
-    assert (
-        rig.queue.depth() + delivered == 5 and rig.queue.progress(feed.feed_id) == 5
-    )  # the five before the loss
+    assert before > 5
+    assert rig.queue.depth() + delivered == before
+    assert rig.queue.progress(feed.feed_id) == before
 
 
 # ----- health ---------------------------------------------------------------------------------------------------
