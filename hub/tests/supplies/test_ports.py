@@ -3,9 +3,10 @@ consumer modules from main (lesson 15), plus the structural kitmap copy compared
 
 from __future__ import annotations
 
-import hashlib
 import inspect
+import sqlite3
 from collections.abc import Iterator
+from contextlib import closing
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -205,23 +206,33 @@ class _Release:
     release_id: str
 
 
-def _sha(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def _write_marks(station: Station, watcher: sqlite3.Connection) -> tuple[object, ...]:
+    """What any committed write moves under WAL: the data version another connection sees, and the ledger, outbox
+    and audit counts with their last sequence (E32-T-20)."""
+    version = watcher.execute("PRAGMA data_version").fetchone()[0]
+    return (
+        version,
+        station.rows("SELECT count(*), max(rowid) FROM supplies_use"),
+        station.rows("SELECT count(*), max(rowid) FROM events_outbox"),
+        station.rows("SELECT count(*), max(rowid) FROM platform_audit"),
+    )
 
 
-@pytest.mark.trace("E32-T-21", "E32-T-20", "R59", "V92", "HZ4")
+@pytest.mark.trace("E32-T-21", "E32-T-20", "R59", "V92", "HZ4", "m14")
 def test_the_station_what_if_moves_eye_shield_cover_from_null_to_two_and_writes_nothing(
     station: Station,
 ) -> None:
     planning = station.resolver.require(CoverPlanningPort)  # type: ignore[type-abstract]
-    before = _sha(station.db.path)
-    with station.db.snapshot() as view:
-        context = kitmap_ports.KitMapContext(view, _Release("release_1"), "station_leo", AT)  # type: ignore[arg-type]
-        additions = [kitmap_ports.SupplyAddition("eye_shield", Quantity(Decimal(2), Unit("shield")))]
-        changes = planning.cover_changed(context, add_supplies=additions)
-    assert [(c.supply_id, c.from_uses, c.to_uses) for c in changes] == [("eye_shield", None, 2)]
-    assert _sha(station.db.path) == before
-    assert station.rows("SELECT count(*) FROM events_outbox") == [(0,)]
+    with closing(sqlite3.connect(station.db.path)) as watcher:
+        before = _write_marks(station, watcher)
+        with station.db.snapshot() as view:
+            context = kitmap_ports.KitMapContext(view, _Release("release_1"), "station_leo", AT)  # type: ignore[arg-type]
+            additions = [kitmap_ports.SupplyAddition("eye_shield", Quantity(Decimal(2), Unit("shield")))]
+            changes = planning.cover_changed(context, add_supplies=additions)
+        assert [(c.supply_id, c.from_uses, c.to_uses) for c in changes] == [("eye_shield", None, 2)]
+        assert _write_marks(station, watcher) == before
+        station.client.post("/v1/supplies/eye_rinse_water/uses", headers=headers(), json=use_body(1))
+        assert _write_marks(station, watcher)[0] != before[0]  # the probe sees a real write under WAL
 
 
 @pytest.mark.trace("E32-T-22", "V92")
