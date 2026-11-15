@@ -18,6 +18,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from crew_health.app.assembly import BuildCatalog, Runtime, create_app
+from crew_health.app.camera_reports import HubReports
 from crew_health.app.demo_mission import DemoMission
 from crew_health.app.installed_modules import REGISTRATIONS
 from crew_health.app.privacy import DemoOperatorRecord
@@ -182,6 +183,7 @@ def serve(
     demo: DemoOperatorRecord | None = None,
     mission: DemoMission | None = None,
     ready: Callable[[Runtime], Callable[[], None]] | None = None,
+    reports: HubReports | None = None,
 ) -> int:
     db = open_database(database, _read_settings(settings))
     try:
@@ -190,7 +192,7 @@ def serve(
             build=BuildCatalog.installed(SOURCE),
             contract_path=resources.contracts / "api/openapi.yaml",
             schema_directory=resources.contracts / "api/schemas",
-            configure=production(resources, origin=origin, demo=demo, mission=mission),
+            configure=production(resources, origin=origin, demo=demo, mission=mission, reports=reports),
             bootstrap=partial(bootstrap_release, resources),
         )
         runtime = cast(Runtime, app.state.runtime)

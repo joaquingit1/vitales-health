@@ -108,10 +108,9 @@ def test_serve_on_an_empty_directory_bootstraps_the_release_and_reports_ready_af
     assert cli.main(["doctor", "--database", str(database)]) == 0
 
 
-def test_serve_from_the_repository_resources_refuses_the_first_release(tmp_path: Path) -> None:
-    """The unmodified repository resources do not yet make a valid first release (see conftest.py: D22's kit-map
-    suffix fails check 1 and the configured kit-map and onboard-plans disagree), so the hub stays in visible safe
-    mode with nothing activated. This test fails once the configured documents validate together."""
+def test_serve_from_the_repository_resources_activates_the_first_release(tmp_path: Path) -> None:
+    """The unmodified repository resources make a valid first release (D22's condition ID variants, the kit map's
+    plan IDs and supplies matching onboard-plans), so a confirmed first start activates it and serves ready."""
     seen: list[tuple[str | None, tuple[int, str]]] = []
     database = tmp_path / "hub.sqlite"
     argv = [
@@ -128,7 +127,7 @@ def test_serve_from_the_repository_resources_refuses_the_first_release(tmp_path:
         seen.append((app.state.runtime.fault_code, health(app)))
 
     assert cli.main(argv, server=server) == 0
-    assert seen == [("CONFIG_INVALID", (200, "degraded"))]
+    assert seen == [(None, (200, "ok"))]
 
 
 def test_serve_without_the_time_confirmation_stays_degraded_with_clearing_frozen(tmp_path: Path) -> None:

@@ -47,14 +47,8 @@
     "basis": "VALIDATION 3 act 3: Ilya Brandt and Sofia Reyes are in an eva overlay on surface walk 1 until 11:40; DEMO-PLAN times are UTC-3"
   },
   "release": {
-    "kit_map": {
-      "file": "contracts/api/examples/kit-map.example.json"
-    },
-    "onboard_plans": {
-      "file": "contracts/api/examples/config/onboard-plans.example.json",
-      "pointer": "/value"
-    },
-    "basis": "Until D22's condition ID pattern lands, config/kit-map.json (119 rows) fails loader check 1 on ICL36A and ICL36B, so the demo serves the package's paired kit-map and onboard-plans examples, as hub/tests/app/conftest.py does"
+    "source": "config",
+    "basis": "the repository's own config/ release (config/kit-map.json, 119 rows, with D22's condition ID variants), activated at first start as a station hub activates it"
   },
   "time_confirmation": {
     "uncertainty_ms": 500,
