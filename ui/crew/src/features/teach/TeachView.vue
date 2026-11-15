@@ -262,7 +262,7 @@ onBeforeUnmount(() => {
           >
             {{ fill(WORDS.stepOf, { i: current.step_no, n: steps.teach_steps.length }) }}
           </p>
-          <div class="list t-steps">
+          <div class="nsteps t-steps">
             <div
               v-for="s in shown"
               :key="s.step_no"
