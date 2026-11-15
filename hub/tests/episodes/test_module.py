@@ -12,6 +12,7 @@ from crew_health.episodes.application.rules import EpisodeRulesSource
 from crew_health.episodes.domain.onset import Onset
 from crew_health.episodes.module import Registry, register, setting_defaults, setting_specs
 from crew_health.kernel.commands import IdempotencyStore
+from crew_health.kernel.config import CandidateRelease, ReleaseCheck
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.scheduler import HealthState
 from crew_health.kernel.settings import HubSettings
@@ -65,6 +66,8 @@ def test_real_registration_resolves_exact_consumer_classes_and_dispatches(tmp_pa
     assert ClinicalAuthorityQuery in registry.providers
     assert ports.RecordAuthorization in registry.providers
     resolver = registry.resolve()
+    words_check = cast(ReleaseCheck, registry.declarations["loader_checks"]["episodes.EP6"])
+    assert words_check.check(CandidateRelease("release_missing_words", {}))
     kernel = resolver.require(ports.EpisodeKernel)  # type: ignore[type-abstract]
     facts = resolver.require(ports.EpisodeFacts)  # type: ignore[type-abstract]
     records = resolver.require(ports.EpisodeRecordsSource)  # type: ignore[type-abstract]
@@ -105,3 +108,13 @@ def test_real_registration_resolves_exact_consumer_classes_and_dispatches(tmp_pa
     context = plans.visible(PATIENT, ref.episode_id)
     assert context is not None and context.subject_person_id == "person_a"
     assert "episodes.maintenance" in registry.declarations["scheduler_handlers"]
+
+
+@pytest.mark.trace("T-E15-042", "R43")
+def test_unconfigured_episodes_do_not_reject_other_modules_config() -> None:
+    registry = DeclarationRegistry(max_ports=100, max_hooks=200)
+    registry.provide(HubSettings, lambda _: MemorySettings(setting_specs(), setting_defaults()))  # type: ignore[type-abstract]
+    register(cast(Registry, registry))
+    registry.resolve()
+    words_check = cast(ReleaseCheck, registry.declarations["loader_checks"]["episodes.EP6"])
+    assert words_check.check(CandidateRelease("release_without_episode_provider", {})) == ()

@@ -11,7 +11,12 @@ from crew_health.kernel.config import CandidateRelease, ConfigName, Finding
 class EpisodeWordsCheck:
     check_id = "episodes.EP6"
 
+    def __init__(self, *, enabled: bool = True) -> None:
+        self.enabled = enabled
+
     def check(self, candidate: CandidateRelease) -> tuple[Finding, ...]:
+        if not self.enabled:
+            return ()
         view = candidate.documents.get(ConfigName.UI_COPY)
         if view is None:
             return (Finding(self.check_id, ConfigName.UI_COPY, "/", "episode words unavailable"),)
