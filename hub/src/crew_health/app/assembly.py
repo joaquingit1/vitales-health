@@ -13,7 +13,7 @@ from fastapi import APIRouter, FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from crew_health.app import assistant_seams, plans_seams
+from crew_health.app import assistant_seams, guidance_seams, plans_seams
 from crew_health.app.errors import to_envelope
 from crew_health.app.import_contracts import module_digest, module_migrations, verify_modules
 from crew_health.app.installed_modules import REGISTRATIONS
@@ -667,6 +667,7 @@ def _startup(
         register(registry)
     configure(registry)
     plans_seams.compose(registry)
+    guidance_seams.compose(registry)
     # SYSTEM 5.8: one keyed body fingerprint (platform) under every module's CommandFingerprint port.
     for port in (MeasurementFingerprint, EpisodeFingerprint):
         if port not in registry.providers:

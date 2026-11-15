@@ -318,6 +318,7 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
         MissionStatePort,
     ):
         registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))
+    registry.provide(cast(type[object], OverlayPort), bound, requires=(ClockIdentity,))
 
 
 def _camera_f1(registry: ModuleRegistry, provided: Mapping[object, object], reports: object | None) -> None:

@@ -219,14 +219,56 @@ def test_shot_c_a_camera_pulse_request_reaches_the_twin_and_records_a_sim_readin
     assert "quantity" not in refused and "mara" not in json.dumps(refused)
 
 
-def test_shot_d_the_icl10_plan_runs_from_help_and_the_guided_check_refuses_without_guidance_facts(
+def _steps(plan: dict[str, object]) -> dict[str, dict[str, object]]:
+    stages = plan["stages"]
+    assert isinstance(stages, list)
+    return {step["step_id"]: step for stage in stages for step in stage.get("steps", [])}
+
+
+def test_the_icl10_plan_shows_real_availability_and_the_ground_line(served: Served) -> None:
+    """GET /v1/conditions/ICL10/plan on the served hub: content facts from the release's onboard plans and source
+    registry, the environment from the demo mission, roles' operators over E02's roster and the demo overlays."""
+    status, plan = served.get("/v1/conditions/ICL10/plan", served.sign_in("mara"))
+    assert status == 200, plan
+    steps = _steps(plan)
+    note = steps["icl10_note_episodes"]
+    assert (note["availability"], note["availability_text"]) == ("aboard", None)
+    who = note["who_can"]
+    assert isinstance(who, list) and {p["person_id"] for p in who} == {"mara", "ilya", "sofia", "tomas"}
+    review = steps["icl10_mo_review"]
+    assert review["availability"] == "aboard"
+    assert isinstance(review["who_can"], list) and "ilya" in {p["person_id"] for p in review["who_can"]}
+    # Nobody has a recorded pulse check practice yet: the step waits for a skill holder, it is not "Unknown".
+    assert steps["icl10_pulse_by_crewmate"]["availability"] == "needs_skill_holder"
+    ground = next(s for s in plan["stages"] if s["stage_id"] == "ground_log")  # type: ignore[union-attr]
+    assert ground["link_text"]
+
+
+def test_shot_d_eva_ilya_puts_the_medical_officer_on_a_surface_walk(served: Served) -> None:
+    """`demo cue eva-ilya` records Ilya's eva overlay; roles reads it through OverlayPort, so the plan's medical
+    officer step and every crew step leave her out while she walks."""
+    assert served.cue("eva-ilya") == 0
+    assert served.cue("eva-ilya") == 0  # I-O1: a second start keeps the one active walk
+    overlays = json.loads((served.directory / "overlays.json").read_text(encoding="utf-8"))["overlays"]
+    assert [(o["person_id"], o["overlay"], o["state"]) for o in overlays] == [("ilya", "eva", "active")]
+    status, plan = served.get("/v1/conditions/ICL10/plan", served.sign_in("tomas"))
+    assert status == 200, plan
+    steps = _steps(plan)
+    for step_id in ("icl10_mo_review", "icl10_note_episodes"):
+        who = steps[step_id]["who_can"]
+        assert isinstance(who, list) and who and "ilya" not in {p["person_id"] for p in who}
+
+
+def test_shot_d_the_icl10_plan_runs_from_help_and_the_guided_check_refuses_without_a_skill_holder(
     served: Served,
 ) -> None:
     """Shot D on the served hub: Mara presses Someone needs help, the ICL10 plan run starts from that help session
     (E28: a help session in place of an episode, since E04 is not merged) and lists its pulse_check_wrist step.
-    The guided check Mara asks Tomas to do is refused: guidance eligibility (SYSTEM 8.2) fails closed because its
-    content facts (E10 knowledge), environment facts (E23) and operator presence (E31 over E23's overlays) have
-    no provider yet, so no teach step reaches the crew (AGENTS 6, fail closed)."""
+    Guidance now has its content, environment and operator facts, so what still refuses is the plan itself: the
+    step's operator is skill:pulse_check_wrist and nobody holds a fresh or due practice record, so the step is
+    needs_skill_holder, not runnable, and teach refuses the guided check (run_closed, CONTEXT_INAPPLICABLE). Roles
+    proposes nobody: its recompute pass writes the roles.proposed audit entry, which has no registered AuditPolicy
+    (SYSTEM 5.8), so the pass fails with INVALID_VALUE before any proposal is stored."""
     mara = served.sign_in("mara")
     opened_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     status, session = served.post(
