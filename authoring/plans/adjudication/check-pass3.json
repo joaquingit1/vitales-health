@@ -1,0 +1,568 @@
+{
+  "checked_by": "model:gpt-6.1-sol",
+  "checked_at": "2026-11-14",
+  "pass": 3,
+  "method": "Compared every current family plan with its condition assessment, verbatim family fields, template and source registry using scripted fidelity checks and individual judgments of urgency, limitations, equipment demands and clinical support.",
+  "plans": {
+    "plan_icl1": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "9029791aa25a2f3eadbcf47f64a982ede8adf311e8560491adda3d9d490ac00f"
+    },
+    "plan_icl2": {
+      "verdict": "disagrees",
+      "reason": "icl2_note.source_ids and icl2_mo_review.source_ids are empty; family repro.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "c7950e3c3bb73dd94036f07297309b3ab92589a6c65876ced71b163b8f07641b"
+    },
+    "plan_icl4": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "2c734bed1cd8129ea08e32a115d1401f09da206a66b74d70aa4c243e04b0c3b6"
+    },
+    "plan_icl5": {
+      "verdict": "disagrees",
+      "reason": "icl5_note.source_ids and icl5_mo_review.source_ids are empty; family allergy.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "a6f541d15d96d83400c59cb9eb6888b3d5c6f24f8a4920600b58f648762a9487"
+    },
+    "plan_icl6": {
+      "verdict": "disagrees",
+      "reason": "icl6_note.source_ids and icl6_mo_review.source_ids are empty; family pressure.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "645a2ec72467f8f998df5b1f533f61384826cfe045302cda8a73e2e136bc75c9"
+    },
+    "plan_icl7": {
+      "verdict": "disagrees",
+      "reason": "icl7_note.source_ids and icl7_mo_review.source_ids are empty; family allergy.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "634a03bfd3b66c4706e55a8f47ea334b8db66ffe78249306002894890f6c2157"
+    },
+    "plan_icl8": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "56bf55ed8b185be5045c0fba3b87aa747429332de310aca26c2289fb984277c4"
+    },
+    "plan_icl9": {
+      "verdict": "disagrees",
+      "reason": "icl9_note.source_ids and icl9_mo_review.source_ids are empty; family msk.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "e3f3b495b50aaab25b0bae2b2ecc4fcd9e9cd53636df8c6067836dea251a437b"
+    },
+    "plan_icl11": {
+      "verdict": "disagrees",
+      "reason": "icl11_note.source_ids and icl11_mo_review.source_ids are empty; family ent.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "50d17b64225c5cd1ee91c921ab934cdd5e1fffabe6fbc5fe2d7a7b239ee0d78c"
+    },
+    "plan_icl12": {
+      "verdict": "disagrees",
+      "reason": "icl12_note.source_ids and icl12_mo_review.source_ids are empty; family overdose.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "7687b3c59bfcc72cf06536a0f2dff83dbbfc999e5b145bd70be8e325a7942105"
+    },
+    "plan_icl13": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "2f7be66e75904fbf188aa277ee8f7374c111e9c180175b289d49cda198e97229"
+    },
+    "plan_icl15": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "a40637c93ab7c8137e5333f6e016bcae1e82efdcbb896ba0a20c2f0ef7c8080f"
+    },
+    "plan_icl16": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "9a98560e81a8710469c041948d437fbf86545067d7152a23dad13f2ef1429ed2"
+    },
+    "plan_icl17": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "629ef3386741e5fe341e95868324906072e23ad6d92afe6b5da3b4f615a72dec"
+    },
+    "plan_icl19": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "6ec59cb65373845bd0fea089bc47e15d24893af19b32eed06056a563a8a9e333"
+    },
+    "plan_icl20": {
+      "verdict": "disagrees",
+      "reason": "icl20_note.source_ids and icl20_mo_review.source_ids are empty; family thermal.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "956d54a61a41f7a1b3184dfb4bd10c77b55117879c5f64bb8ee23fa340b35149"
+    },
+    "plan_icl21": {
+      "verdict": "disagrees",
+      "reason": "icl21_note.source_ids and icl21_mo_review.source_ids are empty; family thermal.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "b1179fbe52687cd455c76b4c3ecb75a1dddb21a023a7dc44a5c2cd8977dc6262"
+    },
+    "plan_icl22": {
+      "verdict": "disagrees",
+      "reason": "icl22_note.source_ids and icl22_mo_review.source_ids are empty; family thermal.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "d8946b97d5871847fef238d8120acb8037b343ea0df332d39edd695ba5809cdb"
+    },
+    "plan_icl23": {
+      "verdict": "disagrees",
+      "reason": "icl23_note.source_ids and icl23_mo_review.source_ids are empty; family neuro.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "20b014bc3b20615d9296518c1fd3c9025869d81a517cbc15bd1b20bbcebf9bb2"
+    },
+    "plan_icl24": {
+      "verdict": "disagrees",
+      "reason": "icl24_note.source_ids and icl24_mo_review.source_ids are empty; family ent.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "35ea0db4c3fc65e739295ab7c8dea10ba03dd1be919be469639c91893506e68f"
+    },
+    "plan_icl25": {
+      "verdict": "disagrees",
+      "reason": "icl25_note.source_ids and icl25_mo_review.source_ids are empty; family airway.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "14c3f8fddc38d9f996de6a91c434df7bbedb413448357239c376923a91b03eb8"
+    },
+    "plan_icl26": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "a2d29c777944aba76b9944887bf5a458c192c720e2a97c89b57a8237ec936327"
+    },
+    "plan_icl28": {
+      "verdict": "disagrees",
+      "reason": "icl28_note.source_ids and icl28_mo_review.source_ids are empty; family dental.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "9933080db293611e3d1e72234eea2508ba925bb44febfa576cbab98fdf9f798e"
+    },
+    "plan_icl29": {
+      "verdict": "disagrees",
+      "reason": "icl29_note.source_ids and icl29_mo_review.source_ids are empty; family dental.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "832f7cf914520c95aa0efe2fed2ff326bd82ac9792b2f1303dde47ebe55395a6"
+    },
+    "plan_icl30": {
+      "verdict": "disagrees",
+      "reason": "icl30_note.source_ids and icl30_mo_review.source_ids are empty; family dental.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "d3a8b545e0b8ead4da857f085f2898c57602e0ffb74f8fb0c704b9996148cbe9"
+    },
+    "plan_icl31": {
+      "verdict": "disagrees",
+      "reason": "icl31_note.source_ids and icl31_mo_review.source_ids are empty; family dental.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "a45697747a18eb479c75be83f0e663f30dbd2543cdb69a4b543dbc66f7d6b287"
+    },
+    "plan_icl32": {
+      "verdict": "disagrees",
+      "reason": "icl32_note.source_ids and icl32_mo_review.source_ids are empty; family dental.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "913d72a43cd79da0fea46eea15aea42bb8757921fc2e4bef036c04c772b061e3"
+    },
+    "plan_icl33": {
+      "verdict": "disagrees",
+      "reason": "icl33_note.source_ids and icl33_mo_review.source_ids are empty; family injury.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "4e6e3d83b080c154c096d8f4426ab4cc3055f668a9b4e9f2f188dc897ea46712"
+    },
+    "plan_icl34": {
+      "verdict": "disagrees",
+      "reason": "icl34_note.source_ids and icl34_mo_review.source_ids are empty; family injury.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "6a1b6c777e4911c88d2f669fe57bed39a94e53a8dd59cc7fda6fcce04b8a183b"
+    },
+    "plan_icl35": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "1ff6d97770da03526a0e9ff1b09eb64697b2a3bf6cbb28fc08cdbdce3223ecee"
+    },
+    "plan_icl36a": {
+      "verdict": "disagrees",
+      "reason": "icl36a_note.source_ids and icl36a_mo_review.source_ids are empty; family dust.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "fdc9640ce691e967989c18f5608ffb1808dd629ba4277ecd27a2e6f9139a51cb"
+    },
+    "plan_icl36b": {
+      "verdict": "disagrees",
+      "reason": "icl36b_note.source_ids and icl36b_mo_review.source_ids are empty; family dust.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "267e6aeb29627ec37dd2d35270562d420a53954905b1f83f6c2139fd6db5859b"
+    },
+    "plan_icl37": {
+      "verdict": "disagrees",
+      "reason": "icl37_note.source_ids and icl37_mo_review.source_ids are empty; family pressure.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "34b21e1c100cb09fa36ffe85260aad81f14102f450bb82897eea90f4952cdf45"
+    },
+    "plan_icl38": {
+      "verdict": "disagrees",
+      "reason": "icl38_note.source_ids and icl38_mo_review.source_ids are empty; family ent.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "8c5ab01c487d85ad0b7f6da3528cf79cb041e46b35d7e0747c0a6424301131a2"
+    },
+    "plan_icl39": {
+      "verdict": "disagrees",
+      "reason": "icl39_note.source_ids and icl39_mo_review.source_ids are empty; family pressure.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "3606f4800f9a8a38929a041190b1d46ad5699fde2a9caf892f9e26bb68f211a0"
+    },
+    "plan_icl40": {
+      "verdict": "disagrees",
+      "reason": "icl40_note.source_ids and icl40_mo_review.source_ids are empty; family hydration.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "588748262d40dea6921d21e109141bb815a9adef9394ac3c6399d0239379f509"
+    },
+    "plan_icl41": {
+      "verdict": "disagrees",
+      "reason": "icl41_note.source_ids and icl41_mo_review.source_ids are empty; family injury.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "b37463c2b1df3831b9a17a9aaa2447a250a9ba098fa4dea523c25e4abf4c2612"
+    },
+    "plan_icl42": {
+      "verdict": "disagrees",
+      "reason": "icl42_note.source_ids and icl42_mo_review.source_ids are empty; family injury.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "70cafbb063664bbc454f7b59c55cf99631c84171f34bac32e1ec564ce9745195"
+    },
+    "plan_icl43": {
+      "verdict": "disagrees",
+      "reason": "icl43_note.source_ids and icl43_mo_review.source_ids are empty; family thermal.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "98ffebe69d36559cc4e33e4732587d947d0f7f5421aea19362b6235abdd8cf8d"
+    },
+    "plan_icl44": {
+      "verdict": "disagrees",
+      "reason": "icl44_note.source_ids and icl44_mo_review.source_ids are empty; family neuropathy.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "de4829f3d591a086f4d1a335f140a4629457f2b2c18b017a8e331d2d4e56c3fd"
+    },
+    "plan_icl45": {
+      "verdict": "disagrees",
+      "reason": "icl45_note.source_ids and icl45_mo_review.source_ids are empty; family injury.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "e9732043872de8c7c84e29e68e1b5c8be0e4d5bccbd8cdf0388e2058fe99df29"
+    },
+    "plan_icl46": {
+      "verdict": "disagrees",
+      "reason": "icl46_note.source_ids and icl46_mo_review.source_ids are empty; family injury.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "17fdaa9440b7535da37dfdf8c36b2582aace77a48dde0dd063ee3781473e8c56"
+    },
+    "plan_icl47": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "2ef1bb9e38e5f67d64562e4c09f534335b11ca089db245f8516f4f2491695da6"
+    },
+    "plan_icl48": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "838faeeab15900ae514972dfbe0b1cd30cb8759cb817223c2160579b18cac037"
+    },
+    "plan_icl49": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "4027924d89ee40a8fda9c38068b316a01c96f756d72d9b99aefdc91c38b90880"
+    },
+    "plan_icl50": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "9f22abee5c89b1a1f56a0a46e2fb1b24c5936ba7ef5af907649b35daead5c599"
+    },
+    "plan_icl51": {
+      "verdict": "disagrees",
+      "reason": "icl51_note.source_ids and icl51_mo_review.source_ids are empty; family fracture.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "bc1fd3f925a96b755d5a987166d32cdac03c339721f4127fdc8d78f6eb2eb261"
+    },
+    "plan_icl52": {
+      "verdict": "disagrees",
+      "reason": "icl52_note.source_ids and icl52_mo_review.source_ids are empty; family fracture.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "fad3fd3c8e94bef2773755eb7673d9ec746e231ddda9511b7faad90fa7190e4a"
+    },
+    "plan_icl53": {
+      "verdict": "disagrees",
+      "reason": "icl53_note.source_ids and icl53_mo_review.source_ids are empty; family fracture.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "e0661a44bd43491b3ccfad6def08d641e869cacf355ff6e22f79098697447ebc"
+    },
+    "plan_icl54": {
+      "verdict": "disagrees",
+      "reason": "icl54_note.source_ids and icl54_mo_review.source_ids are empty; family fracture.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "e0c9215e1d5a7abf378924630391d787e9f759e3f0bc8de37f26f2137b8680e0"
+    },
+    "plan_icl55": {
+      "verdict": "disagrees",
+      "reason": "icl55_note.source_ids and icl55_mo_review.source_ids are empty; family fracture.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "3bff597d2c3064bb70d6b6cb048bdd4e32c74cd52baec44b7297e0546fe4ff67"
+    },
+    "plan_icl56": {
+      "verdict": "disagrees",
+      "reason": "icl56_note.source_ids and icl56_mo_review.source_ids are empty; family fracture.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "41a2f39095b9026f27620a5d61d57ecc1d4380da1537232eb9808cf0673e67cd"
+    },
+    "plan_icl57": {
+      "verdict": "disagrees",
+      "reason": "icl57_note.source_ids and icl57_mo_review.source_ids are empty; family fracture.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "9040a8e149ac6b37e3291294ca95d40f234a3b1847b4454dc144ce843fa31e0d"
+    },
+    "plan_icl58": {
+      "verdict": "disagrees",
+      "reason": "icl58_note.source_ids and icl58_mo_review.source_ids are empty; family gi.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "fd2397d170697bae1bc8dcbfa87e3342957007176bff41f225de0e86e1b1090b"
+    },
+    "plan_icl59": {
+      "verdict": "disagrees",
+      "reason": "icl59_note.source_ids and icl59_mo_review.source_ids are empty; family gi.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "b93f3ddfb425483603e13b8ae7d0f1bdc1498d11e0028691f40d5d30da4ffaa8"
+    },
+    "plan_icl60": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "46df25a0aaf1c2b1728f9655163a13c08b99e5a731f9698974c68df73af88554"
+    },
+    "plan_icl61": {
+      "verdict": "disagrees",
+      "reason": "icl61_note.source_ids and icl61_mo_review.source_ids are empty; family vestibular.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "29a69083fb5879ae2196e387c4b62fdf6979249944997653b6767c7277906526"
+    },
+    "plan_icl62": {
+      "verdict": "disagrees",
+      "reason": "icl62_note.source_ids and icl62_mo_review.source_ids are empty; family orthostatic.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "208b50ead4f9f9656193d7eac655e413e832dd1cdb0cb7b911f9f19422466de6"
+    },
+    "plan_icl63": {
+      "verdict": "disagrees",
+      "reason": "icl63_note.source_ids and icl63_mo_review.source_ids are empty; family headache.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "d012c1d2a52a08fcf20e16cbb72503869326d33f1daf63bbd16d6276c1adee42"
+    },
+    "plan_icl65": {
+      "verdict": "disagrees",
+      "reason": "icl65_note.source_ids and icl65_mo_review.source_ids are empty; family hearing.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "a93c9db3130f1b170d781d3455dd06ee28960b858c58e2796c206e597d1e2421"
+    },
+    "plan_icl66": {
+      "verdict": "disagrees",
+      "reason": "icl66_note.source_ids and icl66_mo_review.source_ids are empty; family hearing.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "42a65519dfb03275bc3d03390efccbab56f6ff7cfdf8e89b70356385b8fc985f"
+    },
+    "plan_icl67": {
+      "verdict": "disagrees",
+      "reason": "icl67_note.source_ids and icl67_mo_review.source_ids are empty; family gi.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "ed781a1a845f669538f674628e8b79698c451569ec431e932cfe3f931724afec"
+    },
+    "plan_icl68": {
+      "verdict": "disagrees",
+      "reason": "icl68_note.source_ids and icl68_mo_review.source_ids are empty; family skin.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "0816157aa758cd34d8ac26c7534e121d387d5e6aaf9532543072de36a15cef3e"
+    },
+    "plan_icl70": {
+      "verdict": "disagrees",
+      "reason": "icl70_note.source_ids and icl70_mo_review.source_ids are empty; family ent.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "d3c31a14c53489b10e30d5bbdcb589f8936151d1197832aac470d6552f7882da"
+    },
+    "plan_icl71": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "1634c6575ae4a4bf86df269af3aa9c90fe4ce70ea5d80a3142c2a852279613be"
+    },
+    "plan_icl72": {
+      "verdict": "disagrees",
+      "reason": "icl72_note.source_ids and icl72_mo_review.source_ids are empty; family neuropathy.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "5a6b896edeb0e6fab3e2c0883f97c94010e1b955408fe0d0fec00a179b82136a"
+    },
+    "plan_icl73": {
+      "verdict": "disagrees",
+      "reason": "icl73_note.source_ids and icl73_mo_review.source_ids are empty; family ent.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "0464b48c5078bef8807f1c47b53375e4497b1bdf27d61e52204afd97306ff48b"
+    },
+    "plan_icl74": {
+      "verdict": "disagrees",
+      "reason": "icl74_note.source_ids and icl74_mo_review.source_ids are empty; family ent.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "acd7edb54f01573429384ccd6d6dac80d555dc01818062e773584783070fee91"
+    },
+    "plan_icl75": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "18b4d64f2b2680639885765d3d034497b808b053e5be75aa2502992a4588a73f"
+    },
+    "plan_icl76": {
+      "verdict": "disagrees",
+      "reason": "icl76_note.source_ids and icl76_mo_review.source_ids are empty; family repro.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "302e5daca3851f2ec088665fa2e32a9a6d82072704f1bba3f56007c37cf03195"
+    },
+    "plan_icl77": {
+      "verdict": "disagrees",
+      "reason": "icl77_note.source_ids and icl77_mo_review.source_ids are empty; family uti.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "0a4ac3cef4b0bbabc46c3743695f38659c29d5bd51806efbf2948963c2ce5f5b"
+    },
+    "plan_icl78": {
+      "verdict": "disagrees",
+      "reason": "icl78_note.source_ids and icl78_mo_review.source_ids are empty; family skin.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "68fd27703b0dc79d08715d6ea518e76dfa638e3145dc5588706773a72c6c0ef5"
+    },
+    "plan_icl80": {
+      "verdict": "disagrees",
+      "reason": "icl80_note.source_ids and icl80_mo_review.source_ids are empty; family airway.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "e610b3b600511230ad7e118b3a32f086398cedb675046da3e3d2ecb2e2b55bf7"
+    },
+    "plan_icl81": {
+      "verdict": "disagrees",
+      "reason": "icl81_note.source_ids and icl81_mo_review.source_ids are empty; family resp.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "27e924fbc0a95c1d25c61859a62542032a06349c9ebce1f2febd994cf3b4cd95"
+    },
+    "plan_icl82": {
+      "verdict": "disagrees",
+      "reason": "icl82_note.source_ids and icl82_mo_review.source_ids are empty; family resp.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "4ef82768b283f578b0c30ffc93e4f014f90b2be0315eacff601c53419f8a5ed2"
+    },
+    "plan_icl83": {
+      "verdict": "disagrees",
+      "reason": "icl83_note.source_ids and icl83_mo_review.source_ids are empty; family neuro.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "c4d2aa24c3795baca97f804b57330bb62131687157cd47286351bcae1939da29"
+    },
+    "plan_icl84": {
+      "verdict": "disagrees",
+      "reason": "icl84_note.source_ids and icl84_mo_review.source_ids are empty; family sepsis.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "b6f8a8472daff887f9d5a9f896957f74be628e123bcca76044cfd88c47b56c5b"
+    },
+    "plan_icl85": {
+      "verdict": "disagrees",
+      "reason": "icl85_note.source_ids and icl85_mo_review.source_ids are empty; family shock.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "00953a315359b320c8d87bacccb6f69f63e6496850ef95922e22809c35abf04e"
+    },
+    "plan_icl86": {
+      "verdict": "disagrees",
+      "reason": "icl86_note.source_ids and icl86_mo_review.source_ids are empty; family skin.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "ebae85d76d5c92ecacb76ded5299c80f6aa4c652fd4945fc6021d23ddbd04015"
+    },
+    "plan_icl87": {
+      "verdict": "disagrees",
+      "reason": "icl87_note.source_ids and icl87_mo_review.source_ids are empty; family skin.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "eedda82c4e014e1adc31d7b02429e26e0ec99358e6d1338fb8daeff6fcc9e4fb"
+    },
+    "plan_icl88": {
+      "verdict": "disagrees",
+      "reason": "icl88_note.source_ids and icl88_mo_review.source_ids are empty; family skin.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "c858785e55485e234815bcb9ca7ed8abc1558166b82442734ab7a57c8989687c"
+    },
+    "plan_icl89": {
+      "verdict": "disagrees",
+      "reason": "icl89_note.source_ids and icl89_mo_review.source_ids are empty; family skin.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "a128ad3f833f1992412beb16955d7647248af50a05b46794ff66979a6da4160e"
+    },
+    "plan_icl90": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "e06fd16b9ffd1811ed66901e4c76ec51b7bdb9ceb64674a260b1ae15a0483b38"
+    },
+    "plan_icl91": {
+      "verdict": "disagrees",
+      "reason": "icl91_note.source_ids and icl91_mo_review.source_ids are empty; family msk.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "ab8078f07d28b13e0a24d75351ee53324ce68aab113d547f5b656b517a99cce4"
+    },
+    "plan_icl92": {
+      "verdict": "disagrees",
+      "reason": "icl92_note.source_ids and icl92_mo_review.source_ids are empty; family gi.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "00b4f0102a4ad8aeb28dd9b15435c2191f386c86e0133b6b8d4a65128f5d7b32"
+    },
+    "plan_icl93": {
+      "verdict": "disagrees",
+      "reason": "icl93_note.source_ids and icl93_mo_review.source_ids are empty; family ent.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "17066a88906d9b78c906ead5cbd50860275c6260e1306c4e5473746c57e40b65"
+    },
+    "plan_icl94": {
+      "verdict": "disagrees",
+      "reason": "icl94_note.source_ids and icl94_mo_review.source_ids are empty; family headache.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "fd01aae470ba4223cdeab19961531b58599b5146b82d1c2a4424a05cc410c45d"
+    },
+    "plan_icl96": {
+      "verdict": "disagrees",
+      "reason": "icl96_note.source_ids and icl96_mo_review.source_ids are empty; family ent.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "0046d7faad418a134ee47d321eeac29565096a2c60e6c715c0fcad00aca1a05e"
+    },
+    "plan_icl97": {
+      "verdict": "disagrees",
+      "reason": "icl97_note.source_ids and icl97_mo_review.source_ids are empty; family vestibular.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "bbf79e5b40a81bf47340f0622b9e8afd960b08e6080b46bd5fce6fd249a27d4d"
+    },
+    "plan_icl98": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "616b2e19e66dd2d1b3ba7e12171d3bdc6e42e2dc18c8bc7059b6a1df4f33c79e"
+    },
+    "plan_icl99": {
+      "verdict": "agrees",
+      "reason": "",
+      "plan_sha256": "4e18e8a21ffd1212f4ad599f6cb3296e73b5003f53f9ad20796fa31bc1abc69b"
+    },
+    "plan_icl101": {
+      "verdict": "disagrees",
+      "reason": "icl101_note.source_ids and icl101_mo_review.source_ids are empty; family msk.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "61b4327360b8d4867ca76ef8349d99519d3856bc25e7208f7a216426779461c7"
+    },
+    "plan_icl102": {
+      "verdict": "disagrees",
+      "reason": "icl102_note.source_ids and icl102_mo_review.source_ids are empty; family msk.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "a2c06c9ee8ab321b78c99e077870839bc137aa0e887c9c902b0ef9bbff940857"
+    },
+    "plan_icl103": {
+      "verdict": "disagrees",
+      "reason": "icl103_note.source_ids and icl103_mo_review.source_ids are empty; family msk.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "ce8286f97b9ed71afa32fbcea82af5e01a7d75ccdc0e9edcec884bdd2c981052"
+    },
+    "plan_icl104": {
+      "verdict": "disagrees",
+      "reason": "icl104_note.source_ids and icl104_mo_review.source_ids are empty; family msk.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "6e5449cfe84dc357c245e3182bc66b3158c33dec4fa5d5651efa1d01b11e1e75"
+    },
+    "plan_icl105": {
+      "verdict": "disagrees",
+      "reason": "icl105_note.source_ids and icl105_mo_review.source_ids are empty; family resp.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "2be5e50f70139ec2bf435d5505477c60afc0f0ce14573fddb0409e9ed04650c5"
+    },
+    "plan_icl106": {
+      "verdict": "disagrees",
+      "reason": "icl106_note.source_ids and icl106_mo_review.source_ids are empty; family airway.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "359ef97264b2ad08b64000a997f62137e33833c15c522ccf05b0b6f3ba978801"
+    },
+    "plan_icl107": {
+      "verdict": "disagrees",
+      "reason": "icl107_note.source_ids and icl107_mo_review.source_ids are empty; family msk.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "da9374dce3f1fe5ef6bd9119f7095f629ca22e44a9238dc182f873387c1ada3b"
+    },
+    "plan_icl108": {
+      "verdict": "disagrees",
+      "reason": "icl108_note.source_ids and icl108_mo_review.source_ids are empty; family msk.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "7536d60bce26bd8489fc0b31d3c1f85c09a81af7d41487bf9bb6abeeba4a44f5"
+    },
+    "plan_icl109": {
+      "verdict": "disagrees",
+      "reason": "icl109_note.source_ids and icl109_mo_review.source_ids are empty; family toxic.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "cfb7159193c3deb4df07124b81192eda1eb70ab6468c629a1dc13e37ce28aab8"
+    },
+    "plan_icl110": {
+      "verdict": "disagrees",
+      "reason": "icl110_note.source_ids and icl110_mo_review.source_ids are empty; family toxic.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "e5fb7509f7124c2b164c2c8d7a7baac2ef3e48264af5ef41a65c3c64d8437eb4"
+    },
+    "plan_icl111": {
+      "verdict": "disagrees",
+      "reason": "icl111_note.source_ids and icl111_mo_review.source_ids are empty; family toxic.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "9fd090314bff0653966dc4401dd2d8e8bf0a58b41cad8afa74bedad4b1394b80"
+    },
+    "plan_icl112": {
+      "verdict": "disagrees",
+      "reason": "icl112_note.source_ids and icl112_mo_review.source_ids are empty; family injury.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "06cb3545dcfe67bae4dd0bd69153bc9e0fa10c74a53778b8b084b1a94a4bc6ae"
+    },
+    "plan_icl113": {
+      "verdict": "disagrees",
+      "reason": "icl113_note.source_ids and icl113_mo_review.source_ids are empty; family injury.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "dbce507334ebe5138f363eeea606a99a4520102200ba0341c2c0880c31f29ab3"
+    },
+    "plan_icl114": {
+      "verdict": "disagrees",
+      "reason": "icl114_note.source_ids and icl114_mo_review.source_ids are empty; family neuro.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "445e628a801ae451706e03e3c8cecd6f354ce348a12fe4e0dbe0996d588f2e25"
+    },
+    "plan_icl115": {
+      "verdict": "disagrees",
+      "reason": "icl115_note.source_ids and icl115_mo_review.source_ids are empty; family neuro.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "a7663ffc46bc29926e7120b08cfb7b4f905cb85f82fd66b4b64e57d7a42e9fb3"
+    },
+    "plan_icl116": {
+      "verdict": "disagrees",
+      "reason": "icl116_note.source_ids and icl116_mo_review.source_ids are empty; family shock.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "270a35b09119e7d48dd270dc8817ffb33ebe33bfa5d7e56d5c327540709496c5"
+    },
+    "plan_icl117": {
+      "verdict": "disagrees",
+      "reason": "icl117_note.source_ids and icl117_mo_review.source_ids are empty; family uti.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "c53a5ffac1ef8310d677f160e8c8eec76527620226ea284f58dbf98f32dcba0d"
+    },
+    "plan_icl118": {
+      "verdict": "disagrees",
+      "reason": "icl118_note.source_ids and icl118_mo_review.source_ids are empty; family repro.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "cc7abfa305e397179c5a5eabb55519f8aa494ccf0a23eca0f7bc02d0e8e28ed7"
+    },
+    "plan_icl119": {
+      "verdict": "disagrees",
+      "reason": "icl119_note.source_ids and icl119_mo_review.source_ids are empty; family vte.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "1c27a838460c60e589ee6f02f3067a47bb608a2c099737670e3fc0bc1a4eab4e"
+    },
+    "plan_icl122": {
+      "verdict": "disagrees",
+      "reason": "icl122_note.source_ids and icl122_mo_review.source_ids are empty; family vestibular.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "1512a85a8d86921af8050eec69173418b371ee8cd905e6ac51dcc59727107084"
+    },
+    "plan_icl123": {
+      "verdict": "disagrees",
+      "reason": "icl123_note.source_ids and icl123_mo_review.source_ids are empty; family repro.source_ids lists only S01, which sources.csv supports for inventory membership, not clinical assessment.",
+      "plan_sha256": "e24b9c949278dd3372a2dfc5146afc444097d5ae03f20527d5c91f885e648a3c"
+    }
+  }
+}

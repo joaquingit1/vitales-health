@@ -1,0 +1,454 @@
+{
+  "plan_id": "plan_unresponsive_breathing",
+  "title": "Not responding but breathing normally",
+  "scope": {
+    "flow_id": "unresponsive_breathing"
+  },
+  "written_for": "flow",
+  "mode": "stabilize",
+  "environments": [
+    "station_leo",
+    "transit",
+    "lunar_surface",
+    "mars_surface"
+  ],
+  "stages": [
+    {
+      "stage_id": "do_now",
+      "steps": [
+        {
+          "step_id": "unr_watch_breathing",
+          "text": "Keep checking their breathing the whole time.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS02",
+            "RS06"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "unr_airway",
+          "text": "Keep the airway open: head tilted back gently, chin lifted.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "head",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS06"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "unr_neck_in_line",
+          "text": "If a head or neck injury is possible, keep the head and neck in line with the body while you keep the airway open.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "head",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS06"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "unr_recovery_gravity",
+          "text": "Only if they are breathing normally, roll them onto their side in the recovery position. If they are not breathing normally, go back to the first screen and start chest compressions. Whether the recovery position works as on Earth in partial gravity: to be set by clinical review.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": [
+            "lunar_surface",
+            "mars_surface"
+          ],
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS06"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "unr_weightless_hold",
+          "text": "In weightlessness, how to hold or strap them: to be set by clinical review.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": [
+            "station_leo",
+            "transit"
+          ],
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "unr_stay",
+          "text": "Stay with them. Do not leave them alone.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "unr_record_history",
+          "text": "Ask what happened just before: a blow to the head, a faint, a fit or an alarm. Ask how long they have been like this, whether they have diabetes or any known illness, whether they are on any treatment, and whether there is any injury or bleeding.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "watch",
+      "steps": [
+        {
+          "step_id": "unr_spo2",
+          "text": "Clip the oximeter on a finger, hand warm, relaxed and still, until it shows one steady number. A normal number does not cancel serious symptoms. The level that needs action: to be set by clinical review. Never delay or stop keeping the airway open and watching their breathing for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "pulse_oximeter"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "lungs",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "unr_bp",
+          "text": "Put the cuff on the bare upper arm and follow the device instructions, arm supported and still. The level that needs action: to be set by clinical review. Never delay or stop keeping the airway open and watching their breathing for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "bp_cuff"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "unr_temp",
+          "text": "Take their temperature with the kit thermometer as its instructions say. Record the number and the time. Never delay or stop keeping the airway open and watching their breathing for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "thermometer"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "unr_cam_breath",
+          "text": "If they are already still in front of the cameras, read their breathing rate there. Never delay a step for it. If it fails, count their breaths and enter the number. Never delay or stop keeping the airway open and watching their breathing for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "camera_station"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "lungs",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "if_worse",
+      "steps": [
+        {
+          "step_id": "unr_worse_breathing",
+          "text": "If their breathing stops or turns to gasping, go back to the first screen and start chest compressions at once.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS02",
+            "RS06"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "unr_worse_reopen",
+          "text": "If anything else changes, open Someone needs help again.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": true,
+          "opens_flow_id": "unresponsive_breathing",
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "medical_officer",
+      "steps": [
+        {
+          "step_id": "unr_mo_oxygen",
+          "text": "Oxygen if the kit lists an oxygen supply, and further care, as in the onboard procedure.",
+          "text_first_time": null,
+          "who": "crew_medical_officer",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": {
+            "named_as": "as in the onboard procedure"
+          },
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS08"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "ground_log",
+      "blocking": false,
+      "items": [
+        {
+          "text": "The cause as far as known, how they were found, the readings and the next steps, for review.",
+          "source_ids": [
+            "RS25",
+            "RS29"
+          ]
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "RS02",
+    "RS06",
+    "RS08",
+    "RS25",
+    "RS29"
+  ],
+  "review_state": "unreviewed",
+  "written_by": "model:claude-sonnet-5-5",
+  "checked_by": null
+}

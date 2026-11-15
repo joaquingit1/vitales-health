@@ -1,0 +1,362 @@
+{
+  "plan_id": "plan_solar_particle_event",
+  "title": "Solar particle event: take shelter",
+  "scope": {
+    "flow_id": "solar_particle_event"
+  },
+  "written_for": "flow",
+  "mode": "stabilize",
+  "environments": [
+    "station_leo",
+    "transit",
+    "lunar_surface",
+    "mars_surface"
+  ],
+  "stages": [
+    {
+      "stage_id": "do_now",
+      "steps": [
+        {
+          "step_id": "spe_shelter",
+          "text": "Stay in the shelter area, behind as much stowage and equipment mass as you can.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS53",
+            "RS54"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "spe_lunar_soil",
+          "text": "Use the shelter covered with lunar soil, if the base has one.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": [
+            "lunar_surface"
+          ],
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS53"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "spe_tracker",
+          "text": "Keep your personal radiation tracker on, if you have one.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "watch",
+      "steps": [
+        {
+          "step_id": "spe_watch_monitors",
+          "text": "If the habitat has radiation sensors or you have a tracker, keep watching them. How long to stay is set by flight rules and the onboard radiation monitors.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "spe_dose",
+          "text": "If the habitat has radiation sensors, or you have a personal tracker, read them. The levels that call for shelter are set by flight rules. Never delay or stop reaching the shelter for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "spe_sick_check",
+          "text": "After the event, ask about nausea, vomiting, headache, tiredness or skin redness. If anyone vomits, record the time of the first vomiting. Never delay or stop reaching the shelter for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "spe_temp",
+          "text": "If someone feels unwell, take their temperature with the kit thermometer as its instructions say. Record the number and the time. Never delay or stop reaching the shelter for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "thermometer"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "spe_bp",
+          "text": "If someone feels unwell, put the cuff on the bare upper arm and follow the device instructions, arm supported and still. The level that needs action: to be set by clinical review. Never delay or stop reaching the shelter for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "bp_cuff"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "spe_spo2",
+          "text": "If someone feels unwell, clip the oximeter on a finger, hand warm, relaxed and still, until it shows one steady number. A normal number does not cancel serious symptoms. The level that needs action: to be set by clinical review. Never delay or stop reaching the shelter for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "pulse_oximeter"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "if_worse",
+      "steps": [
+        {
+          "step_id": "spe_worse_reopen",
+          "text": "If anyone has nausea, vomiting or skin redness after the event, open Someone needs help again.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": true,
+          "opens_flow_id": "solar_particle_event",
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "medical_officer",
+      "steps": [
+        {
+          "step_id": "spe_mo_treat",
+          "text": "Treat nausea, vomiting and diarrhoea, as in the onboard procedure.",
+          "text_first_time": null,
+          "who": "crew_medical_officer",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": {
+            "named_as": "as in the onboard procedure"
+          },
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS55"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "ground_log",
+      "blocking": false,
+      "items": [
+        {
+          "text": "The dose readings, and anyone with nausea, vomiting or skin redness, with the time of the first vomiting, for dose assessment and advice.",
+          "source_ids": [
+            "RS55",
+            "S08"
+          ]
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "RS53",
+    "RS54",
+    "RS55",
+    "S08"
+  ],
+  "review_state": "unreviewed",
+  "written_by": "model:claude-sonnet-5-5",
+  "checked_by": null
+}

@@ -1,0 +1,289 @@
+{
+  "plan_id": "plan_icl14",
+  "title": "Anxiety",
+  "scope": {
+    "condition_id": "ICL14"
+  },
+  "written_for": "condition",
+  "mode": "resolve",
+  "environments": [
+    "station_leo",
+    "transit",
+    "lunar_surface",
+    "mars_surface"
+  ],
+  "stages": [
+    {
+      "stage_id": "do_now",
+      "steps": [
+        {
+          "step_id": "icl14_protect_sleep",
+          "text": "Protect the next sleep period.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "C23"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "watch",
+      "steps": [
+        {
+          "step_id": "icl14_mood_daily",
+          "text": "Rate your mood at each daily check, to see whether it persists.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "head",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": {
+            "cadence": "daily",
+            "n": null,
+            "interval_seconds": null,
+            "basis": "team default",
+            "to_be_set_by": null
+          },
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "S10"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "icl14_tell_mo",
+          "text": "If symptoms persist or do not go away, talk to the medical officer.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "S10"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "if_worse",
+      "steps": [
+        {
+          "step_id": "icl14_worse_chest",
+          "text": "Chest pain",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": true,
+          "opens_flow_id": "chest_pain",
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "C01",
+            "C12"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "icl14_worse_breath",
+          "text": "Shortness of breath",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": true,
+          "opens_flow_id": "breathing_difficulty",
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "C01",
+            "C12"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "icl14_worse_faint",
+          "text": "Feeling faint",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": true,
+          "opens_flow_id": "fainting",
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "C01"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "icl14_worse_suicide",
+          "text": "Thoughts of death or suicide",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": true,
+          "opens_flow_id": "mental_health_crisis",
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "S10"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "medical_officer",
+      "steps": [
+        {
+          "step_id": "icl14_mo_review",
+          "text": "The medical officer reviews. Anything more, as in the onboard procedure.",
+          "text_first_time": null,
+          "who": "crew_medical_officer",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "ground_log",
+      "blocking": false,
+      "items": [
+        {
+          "text": "Ask for a private conversation with the ground, when the link allows.",
+          "source_ids": [
+            "C14"
+          ]
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "C01",
+    "C12",
+    "C14",
+    "C23",
+    "S10"
+  ],
+  "review_state": "unreviewed",
+  "written_by": null,
+  "checked_by": null
+}
