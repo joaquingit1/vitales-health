@@ -1,0 +1,15 @@
+:root {
+  --page: #f3f3ef;
+  --paper: #fcfcfa;
+  --tile: #e8e8e3;
+  --ink: #1c1e1c;
+  --ink-2: #555954;
+  --ink-3: #6b6f69;
+  --line: rgba(28, 30, 28, 0.12);
+  --lime: #e2f55c;
+  --green: #1f4d38;
+  --green-2: #2f6b4a;
+  --sans: "Outfit", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
