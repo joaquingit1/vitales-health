@@ -54,7 +54,7 @@ class ChangedItem(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    condition_id: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
+    condition_id: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}[A-Z]?$")
     name: str = Field(..., min_length=1)
     from_: Literal["measured_here", "report_only", "needs_test_not_aboard"] = Field(..., alias="from")
     to: Literal["measured_here", "report_only", "needs_test_not_aboard"]
@@ -79,7 +79,7 @@ class AddedSkill(BaseModel):
 
 
 class ConditionId(RootModel[str]):
-    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
+    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}[A-Z]?$")
 
 
 class From(BaseModel):
