@@ -1,0 +1,592 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "episode-details.schema.json",
+  "title": "EpisodeDetails",
+  "description": "E15 opt-in read model from E15 section 14 requests R-E15-1 to R-E15-6. Legacy application/json remains the frozen Episode shape.",
+  "type": "object",
+  "properties": {
+    "episode_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "patient_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "concern_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "onset": {
+      "type": "object",
+      "properties": {
+        "at": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/instant"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "precision": {
+          "enum": [
+            "exact",
+            "hour",
+            "day",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "at",
+        "precision"
+      ],
+      "additionalProperties": false
+    },
+    "state": {
+      "enum": [
+        "draft",
+        "open",
+        "awaiting_information",
+        "awaiting_review",
+        "followup",
+        "resolved"
+      ]
+    },
+    "urgency_state": {
+      "enum": [
+        "none",
+        "needs_urgent_review",
+        "active_response",
+        "disposition_recorded"
+      ]
+    },
+    "answers": {
+      "type": "array",
+      "items": {
+        "$ref": "answer.schema.json"
+      }
+    },
+    "measurement_request_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "capability_gaps": {
+      "type": "array",
+      "items": {
+        "$ref": "capability-gap.schema.json"
+      }
+    },
+    "assessment_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "help_session_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "followup_tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1
+          },
+          "due_at": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "owner": {
+            "$ref": "common.schema.json#/$defs/actor"
+          },
+          "state": {
+            "enum": [
+              "open",
+              "done",
+              "cancelled"
+            ]
+          },
+          "kind": {
+            "enum": [
+              "review",
+              "review_item",
+              "custom"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "due_status": {
+            "enum": [
+              "set",
+              "none",
+              "threshold_pending"
+            ]
+          },
+          "overdue": {
+            "type": "boolean"
+          },
+          "due_policy_id": {
+            "type": "string"
+          },
+          "config_release_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "created_at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          },
+          "created_by": {
+            "$ref": "common.schema.json#/$defs/actor"
+          },
+          "closed": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "at": {
+                    "$ref": "common.schema.json#/$defs/instant"
+                  },
+                  "by": {
+                    "$ref": "common.schema.json#/$defs/actor"
+                  },
+                  "note": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "review_id": {
+                    "anyOf": [
+                      {
+                        "$ref": "common.schema.json#/$defs/id"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "cancellation_reason": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "at",
+                  "by",
+                  "note",
+                  "review_id",
+                  "cancellation_reason"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "assessment",
+                    "correction",
+                    "request",
+                    "review",
+                    "person"
+                  ]
+                },
+                "ref_id": {
+                  "$ref": "common.schema.json#/$defs/id"
+                }
+              },
+              "required": [
+                "kind",
+                "ref_id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "allowed_actions": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "complete_followup",
+                "cancel_followup",
+                "reassign_followup"
+              ]
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "task_id",
+          "action",
+          "due_at",
+          "owner",
+          "state",
+          "kind",
+          "revision",
+          "due_status",
+          "overdue",
+          "due_policy_id",
+          "config_release_id",
+          "created_at",
+          "created_by",
+          "closed",
+          "sources",
+          "allowed_actions"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "allowed_actions": {
+      "$ref": "common.schema.json#/$defs/allowed_actions"
+    },
+    "withheld_answer_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "config_release_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "unavailable_parts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "acknowledgments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ack_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "by": {
+            "$ref": "common.schema.json#/$defs/actor"
+          },
+          "at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          }
+        },
+        "required": [
+          "ack_id",
+          "by",
+          "at"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "review_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "resolution": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "resolution_id": {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            "reason": {
+              "enum": [
+                "measurement_anomaly_not_reproduced",
+                "symptoms_reported_resolved",
+                "clinician_assessed"
+              ]
+            },
+            "rationale": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "by": {
+              "$ref": "common.schema.json#/$defs/actor"
+            },
+            "authority": {
+              "enum": [
+                "patient",
+                "crew_medical_officer"
+              ]
+            },
+            "at": {
+              "$ref": "common.schema.json#/$defs/instant"
+            },
+            "evidence": {
+              "type": "object",
+              "properties": {
+                "observation_ids": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "common.schema.json#/$defs/id"
+                  }
+                },
+                "review_id": {
+                  "anyOf": [
+                    {
+                      "$ref": "common.schema.json#/$defs/id"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "observation_ids",
+                "review_id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "resolution_id",
+            "reason",
+            "rationale",
+            "by",
+            "authority",
+            "at",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reopenings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "reopen_id": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "reason": {
+            "enum": [
+              "symptoms_recurred",
+              "evidence_changed",
+              "recorded_in_error",
+              "answer_after_resolution",
+              "urgency_raised",
+              "new_activity",
+              "review_unresolved"
+            ]
+          },
+          "by": {
+            "$ref": "common.schema.json#/$defs/actor"
+          },
+          "at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          },
+          "cause_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "reopen_id",
+          "reason",
+          "by",
+          "at",
+          "cause_ref"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "onset_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "onset": {
+            "type": "object",
+            "properties": {
+              "at": {
+                "anyOf": [
+                  {
+                    "$ref": "common.schema.json#/$defs/instant"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "precision": {
+                "enum": [
+                  "exact",
+                  "hour",
+                  "day",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "at",
+              "precision"
+            ],
+            "additionalProperties": false
+          },
+          "recorded_at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          },
+          "by": {
+            "$ref": "common.schema.json#/$defs/actor"
+          }
+        },
+        "required": [
+          "onset",
+          "recorded_at",
+          "by"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "history_cursors": {
+      "type": "object",
+      "properties": {
+        "ack": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "resolution": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reopen": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "onset": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "review": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "ack",
+        "resolution",
+        "reopen",
+        "onset",
+        "review"
+      ],
+      "additionalProperties": false
+    },
+    "observation_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
+    },
+    "resolve_reasons": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "measurement_anomaly_not_reproduced",
+          "symptoms_reported_resolved",
+          "clinician_assessed"
+        ]
+      }
+    }
+  },
+  "required": [
+    "episode_id",
+    "revision",
+    "patient_id",
+    "origin_mode",
+    "concern_text",
+    "onset",
+    "state",
+    "urgency_state",
+    "answers",
+    "measurement_request_ids",
+    "capability_gaps",
+    "assessment_ids",
+    "help_session_ids",
+    "followup_tasks",
+    "created_at",
+    "allowed_actions",
+    "withheld_answer_count",
+    "config_release_id",
+    "unavailable_parts",
+    "acknowledgments",
+    "review_ids",
+    "resolution",
+    "reopenings",
+    "onset_history",
+    "history_cursors",
+    "observation_ids",
+    "resolve_reasons"
+  ],
+  "additionalProperties": false
+}

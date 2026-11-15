@@ -718,6 +718,7 @@
     "crew_health.catchup.module": "637c2ef8c1fb3c739356156a61a0a34a94fe298aaaf5cb123c0cedb350630452",
     "crew_health.clock.module": "0020a6efc5fd66be224f70aa76c7bce80d9ec85a0b94d4d5a738934a17670fa9",
     "crew_health.config.module": "0fd8fc4cec098708aa98fee188a084796ea77c1cc52493ec5f9846c6ee1f1a64",
+    "crew_health.episodes.module": "e287b5fefb750d61decf9b35c4196321db9c33c3a97b4392c91de17b84ed28d6",
     "crew_health.events.module": "9c658bf7cc77a7b35ce219fcf6284a7bd4d4391995057ee598597bc10a995953",
     "crew_health.groundlink.module": "8d41427784f6f7e48d248c907437fca66078b9fb76fc2f095b39cd4fd56a77d1",
     "crew_health.guidance.module": "28a6a6a2803c18244d6eb215fe1293ed5f45a30768bf724ade2ec52532e0d553",
