@@ -32,12 +32,14 @@ from crew_health.kernel.testing import MemoryIds, MemoryRelease
 from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
 from crew_health.medicines import module as medicines_module
+from crew_health.medicines.adapters.weights import RecordsObservations, RecordsWeightReader
 from crew_health.medicines.application import settings as medicines_settings
 from crew_health.medicines.application.ports import (
     ActingOfficerPort,
     MedicationRecordReader,
     PotencyEngine,
     RunOutcome,
+    WeightReader,
 )
 from crew_health.medicines.application.use_cases import Deps
 from crew_health.medicines.domain.model import LotSummary
@@ -349,6 +351,13 @@ def build_station(
         registry.provide(TaskQueue, lambda _: service)  # type: ignore[type-abstract]
     if records is not None:
         registry.provide(cast(type[object], RecordsStore), lambda _: records)
+        registry.provide(  # the assembly's binding of records' store to the medicines weight port
+            cast(type[object], WeightReader),
+            lambda r: RecordsWeightReader(
+                cast(RecordsObservations, r.require(cast(type[object], RecordsStore)))
+            ),
+            requires=(cast(type[object], RecordsStore),),
+        )
     resolver = registry.resolve()
     app = FastAPI()
     for router in registry.declarations["routers"].values():

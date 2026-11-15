@@ -20,7 +20,6 @@ from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.settings import HubSettings, SettingSpec
 from crew_health.kernel.tasks import TaskQueue, TaskRegistration
 from crew_health.kernel.uow import (
-    Actor,
     AudienceRule,
     LocalProjectionRegistration,
     ReadSnapshotFactory,
@@ -31,17 +30,13 @@ from crew_health.medicines.adapters.documents import parse, read_documents, read
 from crew_health.medicines.adapters.potency import PharmacyBundleCheck, PotencyWorker
 from crew_health.medicines.adapters.runs import SqlitePotencyStore
 from crew_health.medicines.adapters.sqlite import SqliteMedicines
-from crew_health.medicines.adapters.weights import RecordsObservations, RecordsWeightReader
 from crew_health.medicines.api.router import build_router
 from crew_health.medicines.application import assessments, events, scheduling
 from crew_health.medicines.application.ports import ActingOfficerPort, MedicationRecordReader, WeightReader
 from crew_health.medicines.application.settings import CONFIG_DIR, ENGINE_PYTHON, read_limits, specs
 from crew_health.medicines.application.use_cases import Deps, Documents, active_medicine_names
 from crew_health.medicines.domain.documents import DocumentsInvalid
-from crew_health.records.application.ports import RecordsStore
 from crew_health.supplies.application.ports import MissionStatePort
-
-STARTUP = Actor("engine", "medicines.startup")
 
 
 class Resolver(Protocol):
@@ -88,8 +83,9 @@ class DocumentsHolder:
 
 
 def _weights(resolver: Resolver) -> WeightReader | None:
-    store = resolver.optional(cast(type[object], RecordsStore))
-    return None if store is None else RecordsWeightReader(cast(RecordsObservations, store))
+    """The assembly binds records' store as `RecordsWeightReader(store)` (medicines may not import records' port
+    module, which imports records' domain); without that binding weight stays absent and per-kilogram rules refuse."""
+    return resolver.optional(cast(type[object], WeightReader))  # type: ignore[return-value]
 
 
 def build_deps(resolver: Resolver, documents: DocumentsHolder) -> Deps:
@@ -138,13 +134,13 @@ def start(deps: Deps, documents: DocumentsHolder, config_dir: Path, conditions: 
 
     try:
         documents.current = assessments.import_bundle(
-            deps, STARTUP, read_pharmacy(config_dir / "pharmacy"), documents_of
+            deps, assessments.STARTUP, read_pharmacy(config_dir / "pharmacy"), documents_of
         )
     except ProblemError, DocumentsInvalid:
         documents.current = assessments.active_documents(deps, documents_of)
         if documents.current is None:
             raise
-    assessments.recover(deps, STARTUP)
+    assessments.recover(deps, assessments.STARTUP)
 
 
 class MedicinesRuntime:

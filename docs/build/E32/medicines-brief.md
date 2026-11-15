@@ -87,3 +87,17 @@ that is safe to use, with every number traceable, and nothing that waits for the
   named by the hub setting `medicines.engine_python`, with a deadline, a memory cap sampled inside the child, and a
   lowered priority (E32 5.3). Runs are scheduled through E01's TaskQueue; a hub composed without one answers the
   schedule with `CAPABILITY_UNAVAILABLE` and says why.
+- Audit policies, replication tables and the medicines migration are registered by the module's own composition
+  until E01's registry hooks land on main (m11); the switch is a registration change, not a schema change.
+- Assessment inputs carry assays and inspections only: `sensor_series` stays empty until a habitat port and
+  `channel_bindings` exist, and the engine is told so rather than given a default storage history (rule 5).
+- Finding from the real engine, reported and not tuned (AGENTS section 10): with no sensor series, the shipped bundle
+  rates `lot-apap-001` and `lot-pmz-tab-001` `do_not_use` at an as-of of 2028-03-01 (0.05 quantile near 55% of
+  label, below the lower limit, plus degradant and coverage reasons). At the fixture's as-of of 2027-11-01 the real
+  engine reproduces the fixture states within 0.001 on every quantile. A station running the default bundle today
+  therefore excludes those lots until assays arrive; that is the engine's answer and E32 shows it as such.
+- Weight comes through medicines' own `WeightReader` port. Medicines may not import records' port module (it imports
+  records' domain, and the import contract forbids that), so the app assembly binds it:
+  `WeightReader = RecordsWeightReader(RecordsStore)`, a structural copy of `RecordsStore.observations` checked by a
+  signature test. Until the assembly carries that binding, weight stays absent and per-kilogram rules refuse
+  `weight_missing`.

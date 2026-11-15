@@ -35,6 +35,7 @@ from crew_health.medicines.application.ports import (
 from crew_health.medicines.application.use_cases import Deps, Documents
 
 WORKER = Actor("engine", "medicines.worker")
+STARTUP = Actor("engine", "medicines.startup")
 INPUTS_SCHEMA = "pharmacy/inputs.schema.json"  # the const of contracts/pharmacy/inputs.schema.json
 _HELD_OUTCOMES = 8  # outcomes between execute and apply; one run at a time, so one is normally held
 
