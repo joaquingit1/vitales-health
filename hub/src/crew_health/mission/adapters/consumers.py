@@ -18,6 +18,7 @@ from crew_health.mission.adapters.live_state import LiveMissionState
 from crew_health.mission.application.ports import MissionFacts
 from crew_health.roles.application.ports import MissionFacts as RolesMissionFacts
 from crew_health.roles.application.ports import OverlayFact as RolesOverlayFact
+from crew_health.routine.application.ports import MissionFacts as RoutineMissionFacts
 
 PROVIDER = "environment"
 
@@ -78,6 +79,26 @@ class RolesMission:
 
     def day_end(self, instant: datetime) -> datetime:
         return self._state.day_end(instant)
+
+
+class RoutineMission:
+    """routine.application.ports.MissionStatePort. Without it routine finds no mission facts and refuses every
+    schedule read (Today, week) with CAPABILITY_UNAVAILABLE."""
+
+    def __init__(self, state: LiveMissionState) -> None:
+        self._state = state
+
+    def current(self, uow: UnitOfWork | ReadSnapshot | None = None) -> RoutineMissionFacts | None:
+        facts = self._state.current(uow)
+        if facts is None:
+            return None
+        return RoutineMissionFacts(
+            facts.mission_id,
+            facts.mission_mode,
+            facts.active_environment_id,
+            facts.planned_length_days,
+            facts.site_node_id,
+        )
 
 
 class RolesOverlays:

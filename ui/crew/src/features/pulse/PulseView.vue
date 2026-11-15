@@ -18,7 +18,7 @@ import {
   type Observation,
 } from "./hub";
 import { WORDS } from "./words";
-import { rememberPulseRequest } from "../today/cards/pulseReadings";
+import { pulseReadings, rememberPulseRequest } from "../today/cards/pulseReadings";
 
 type Phase = "idle" | "starting" | "reading" | "failed" | "done" | "refused";
 interface Tried {
@@ -50,14 +50,21 @@ const cameras = computed(() => {
 });
 const hm = (iso: string | null | undefined): string =>
   iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }) : "";
+/* a finished reading closes the request: the line says when it was done (ui-copy occurrence_end_text.done_today) */
+const doneLine = (iso: string): string => {
+  const text = copy("occurrence_end_text.done_today", { time: hm(iso) });
+  return (text[0] ?? "").toUpperCase() + text.slice(1);
+};
 const lede = computed(() =>
   phase.value === "reading" || phase.value === "starting"
     ? WORDS.ledeReading
     : phase.value === "failed"
       ? WORDS.ledeFailed
-      : request.value
-        ? WORDS.ledeRequested
-        : WORDS.ledeIdle,
+      : phase.value === "done" && reading.value
+        ? doneLine(reading.value.observed_at)
+        : request.value
+          ? WORDS.ledeRequested
+          : WORDS.ledeIdle,
 );
 
 onMounted(async () => {
@@ -66,6 +73,16 @@ onMounted(async () => {
     capability.value = caps.items.find((c) => c.code === "pulse") ?? null;
   } catch (failure) {
     problem.value = refusal(failure);
+  }
+  /* Pulse today starts with the readings this session already recorded (the same reads as the Today card) */
+  const earlier = await pulseReadings(api).catch(() => []);
+  if (alive && tries.value.length === 0) {
+    tries.value = earlier.map((observation) => ({
+      at: observation.observed_at,
+      outcome: "success" as const,
+      reason: null,
+      observation,
+    }));
   }
 });
 /** The stage: the face lights while the cameras read; the measured dot lands on the region, beside the test not aboard. */
@@ -146,6 +163,9 @@ async function measure(): Promise<void> {
       observation,
     });
     phase.value = observation ? "done" : "failed";
+    if (observation) {
+      stage.recorded += 1;
+    }
   } catch (failure) {
     problem.value = refusal(failure);
     phase.value = "refused";
@@ -205,107 +225,110 @@ defineExpose({ phase });
           ><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
         </RouterLink>
       </div>
-      <p
-        class="sub"
-        data-test="lede"
-      >
-        {{ lede }}
-      </p>
-      <div class="cams">
-        <div
-          v-for="cam in cameras.length ? cameras : ['']"
-          :key="cam"
-          class="cam"
-          :class="{
-            scan: phase === 'reading' || phase === 'starting',
-            ok: phase === 'done' && reading?.device_id === cam,
-            off: phase === 'failed' || (phase === 'done' && reading?.device_id !== cam),
-          }"
-        >
-          <svg
-            class="icon"
-            viewBox="0 0 24 24"
-          ><ellipse
-            cx="12"
-            cy="11"
-            rx="6"
-            ry="7.5"
-          /><path d="M9.5 10h.01M14.5 10h.01M10 14.5c1.2.8 2.8.8 4 0" /></svg>
-          <span>{{ cam ? deviceWords(cam) : (capability?.instrument_ids[0] ? deviceWords(capability.instrument_ids[0]) : "") }}</span>
-        </div>
-      </div>
-
-      <div
-        v-if="phase === 'failed' && last"
-        data-test="no-reading"
-      >
-        <div class="result">
-          <span class="r-num word">{{ copy("designed_states.no_reading") }}</span>
-          <span class="tag watch">{{ WORDS.keptFailed }}</span>
-        </div>
-        <div class="rows-l">
-          <span><i>{{ WORDS.why }}</i>{{ last.reason }}</span>
-          <span><i>{{ WORDS.taken }}</i>{{ hm(last.at) }}</span>
-        </div>
-      </div>
-      <div
-        v-else-if="phase === 'done' && reading"
-        data-test="reading"
-      >
-        <div class="result">
-          <div class="big">
-            {{ reading.value }}<small>{{ unitWords(reading.unit) }}</small>
+      <div class="m-body">
+        <div class="cams m-cams">
+          <div
+            v-for="cam in cameras.length ? cameras : ['']"
+            :key="cam"
+            class="cam"
+            :class="{
+              scan: phase === 'reading' || phase === 'starting',
+              ok: phase === 'done' && reading?.device_id === cam,
+              off: phase === 'failed' || (phase === 'done' && reading?.device_id !== cam),
+            }"
+          >
+            <svg
+              class="icon"
+              viewBox="0 0 24 24"
+            ><ellipse
+              cx="12"
+              cy="11"
+              rx="6"
+              ry="7.5"
+            /><path d="M9.5 10h.01M14.5 10h.01M10 14.5c1.2.8 2.8.8 4 0" /></svg>
+            <span>{{ cam ? deviceWords(cam) : (capability?.instrument_ids[0] ? deviceWords(capability.instrument_ids[0]) : "") }}</span>
           </div>
-          <span class="tag"><SourceWord :origin="reading.origin_mode" />, {{ deviceWords(reading.device_id) }}</span>
         </div>
-        <div class="rows-l">
-          <span><i>{{ WORDS.taken }}</i>{{ hm(reading.observed_at) }}</span>
-          <span><i>{{ WORDS.quality }}</i>{{ reading.quality_status }}</span>
-        </div>
-      </div>
-      <div
-        v-else-if="phase === 'refused'"
-        class="result"
-      >
-        <span
-          class="r-num word"
-          data-test="refused"
-        >{{ problem }}</span>
-      </div>
+        <div class="m-side">
+          <p
+            class="sub"
+            data-test="lede"
+          >
+            {{ lede }}
+          </p>
+          <div
+            v-if="phase === 'failed' && last"
+            data-test="no-reading"
+          >
+            <div class="result">
+              <span class="r-num word">{{ copy("designed_states.no_reading") }}</span>
+              <span class="tag watch">{{ WORDS.keptFailed }}</span>
+            </div>
+            <div class="rows-l">
+              <span><i>{{ WORDS.why }}</i>{{ last.reason }}</span>
+              <span><i>{{ WORDS.taken }}</i>{{ hm(last.at) }}</span>
+            </div>
+          </div>
+          <div
+            v-else-if="phase === 'done' && reading"
+            data-test="reading"
+          >
+            <div class="result">
+              <div class="big">
+                {{ reading.value }}<small>{{ unitWords(reading.unit) }}</small>
+              </div>
+              <span class="tag"><SourceWord :origin="reading.origin_mode" />, {{ deviceWords(reading.device_id) }}</span>
+            </div>
+            <div class="rows-l">
+              <span><i>{{ WORDS.taken }}</i>{{ hm(reading.observed_at) }}</span>
+              <span><i>{{ WORDS.quality }}</i>{{ reading.quality_status }}</span>
+            </div>
+          </div>
+          <div
+            v-else-if="phase === 'refused'"
+            class="result"
+          >
+            <span
+              class="r-num word"
+              data-test="refused"
+            >{{ problem }}</span>
+          </div>
 
-      <div class="acts">
-        <button
-          v-if="phase === 'idle' || phase === 'refused'"
-          class="pill do"
-          type="button"
-          :disabled="!capability || capability.status !== 'available'"
-          @click="measure"
-        >
-          {{ WORDS.start }}
-        </button>
-        <button
-          v-if="phase === 'failed'"
-          class="pill do"
-          type="button"
-          @click="measure"
-        >
-          {{ WORDS.tryAgain }}
-        </button>
-        <button
-          v-if="phase === 'reading'"
-          class="pill"
-          type="button"
-          @click="cancel"
-        >
-          {{ WORDS.cancel }}
-        </button>
+          <div class="acts">
+            <button
+              v-if="phase === 'idle' || phase === 'refused'"
+              class="pill do"
+              type="button"
+              :disabled="!capability || capability.status !== 'available'"
+              @click="measure"
+            >
+              {{ WORDS.start }}
+            </button>
+            <button
+              v-if="phase === 'failed'"
+              class="pill do"
+              type="button"
+              @click="measure"
+            >
+              {{ WORDS.tryAgain }}
+            </button>
+            <button
+              v-if="phase === 'reading'"
+              class="pill"
+              type="button"
+              @click="cancel"
+            >
+              {{ WORDS.cancel }}
+            </button>
+          </div>
+          <p
+            v-if="problem && phase !== 'refused'"
+            class="fine"
+          >
+            {{ problem }}
+          </p>
+        </div>
       </div>
-      <p
-        v-if="problem && phase !== 'refused'"
-        class="fine"
-      >
-        {{ problem }}
-      </p>
     </article>
 
     <article
@@ -316,7 +339,15 @@ defineExpose({ phase });
           {{ WORDS.todayTitle }}
         </h2>
       </div>
+      <p
+        v-if="bars.length === 0"
+        class="sub"
+        data-test="today-empty"
+      >
+        {{ copy("designed_states.no_reading") }}
+      </p>
       <div
+        v-else
         class="bars"
         :style="{ gridTemplateColumns: `repeat(${String(Math.max(3, bars.length))}, 1fr)` }"
       >
@@ -356,4 +387,20 @@ defineExpose({ phase });
 
 <style scoped>
 .go { color: inherit; }
+/* Content flows top down and each card sizes to it: no row stretches a card into a blank half. */
+.cards.f-measure { grid-template-rows: auto auto; align-content: start; }
+.f-measure > .card { align-self: start; }
+/* the camera tile is the card's hero; the instruction, Start and the result sit beside it */
+.m-body { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 20px; align-items: start; margin-top: 14px; }
+.m-cams { grid-template-columns: minmax(0, 1fr); margin-top: 0; }
+.m-cams .cam { aspect-ratio: 16 / 9; }
+.m-cams .cam .icon { width: 18%; }
+.m-side { display: flex; flex-direction: column; min-width: 0; }
+.m-side .acts { margin-top: 0; }
+.m-today .bars { flex: none; height: 150px; margin-top: 30px; }
+.m-today .sub { margin-top: 6px; }
+@media (max-width: 720px) {
+  .m-body { grid-template-columns: minmax(0, 1fr); }
+  .f-measure .m-today { height: auto; }
+}
 </style>

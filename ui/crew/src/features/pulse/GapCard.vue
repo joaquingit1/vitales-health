@@ -32,6 +32,20 @@ const another = computed(() => {
   return stage && "steps" in stage ? stage : null;
 });
 const step = computed(() => another.value?.steps[0] ?? null);
+/* The plan footnote: its tag, then the plan document's notice. When the tag already ends with the notice's first
+   sentence (the review words), that sentence is said once and the rest of the notice follows as written. */
+const footnote = computed(() => {
+  const p = plan.value;
+  if (p === null) return "";
+  const notice = p.notice.trim();
+  const tag = p.tag_text.trim();
+  const head = notice.split(/[:.]/, 1)[0] ?? "";
+  if (head !== "" && tag.toLowerCase().endsWith(head.toLowerCase())) {
+    const rest = notice.slice(head.length + 1).trim();
+    return rest === "" ? tag : `${tag}. ${rest}`;
+  }
+  return tag.toLowerCase().includes(notice.toLowerCase()) ? tag : `${tag} · ${notice}`;
+});
 /* The reference's "Check it another way" (11-assess, 12-teach): offered when the step is a guided check whose
    instruments and supplies are aboard. A missing skill holder is what the teach step answers, so it does not hide
    the action; the hub still decides when the run starts. */
@@ -221,8 +235,14 @@ onMounted(() => {
     <p
       v-if="plan"
       class="fine"
+      data-test="plan-footnote"
     >
-      {{ plan.tag_text.toLowerCase().includes(plan.notice.toLowerCase()) ? plan.tag_text : `${plan.tag_text} · ${plan.notice}` }}
+      {{ footnote }}
     </p>
   </article>
 </template>
+
+<style scoped>
+/* the action flows right under its text, the footnote right under the action: nothing is pushed to the bottom */
+.a-gap .acts { margin-top: 0; }
+</style>

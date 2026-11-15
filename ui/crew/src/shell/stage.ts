@@ -11,12 +11,14 @@ export interface StageState {
   headline: string;
   marks: FigureMark[];
   focus: string | null;
+  /** Bumped by a screen that has just recorded a reading, so the panel reads the latest readings again. */
+  recorded: number;
 }
 
 export const STAGE: InjectionKey<StageState> = Symbol("stage");
 
 export function createStage(): StageState {
-  return reactive({ subline: "", headline: "", marks: [], focus: null });
+  return reactive({ subline: "", headline: "", marks: [], focus: null, recorded: 0 });
 }
 
 export function useStage(): StageState {

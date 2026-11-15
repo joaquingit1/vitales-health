@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { components } from "@crew-health/contracts";
 import { computed, onBeforeUnmount, onMounted, ref, type Component } from "vue";
 import { RouterLink } from "vue-router";
 import { CHROME, fill } from "../../design/chrome";
 import { copy } from "../../design/copy";
+import { refusalText } from "../../design/refusal";
 import SourceWord from "../../design/SourceWord.vue";
 import { ApiProblem, useCrewApi, type Health } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
@@ -58,6 +60,13 @@ const assistantLine = computed((): string | null => {
   }
 });
 const instruments = ref<ReadonlyMap<string, string>>(new Map());
+/* The To do line: what the routine has due today (getRoutineToday), its designed refusal, or nothing while it loads. */
+type RoutineSchedule = components["schemas"]["routine-schedule.schema"];
+const todo = ref("");
+function todoLine(schedule: RoutineSchedule): string {
+  const due = schedule.counts.due;
+  return due > 0 ? `${String(due)} ${copy("occurrence_end_text.due_today")}` : copy("designed_states.nothing_due");
+}
 const LINK_POLL_MS = 2000;
 let poll = 0;
 
@@ -117,7 +126,15 @@ onMounted(async () => {
       kitFailed.value = true;
     },
   );
-  await Promise.all([health, linkRead, kitRead]);
+  const routineRead = api.get<RoutineSchedule>("/v1/routine/today").then(
+    (value) => {
+      todo.value = todoLine(value);
+    },
+    (error: unknown) => {
+      todo.value = refusalText(error instanceof ApiProblem ? error.code : null);
+    },
+  );
+  await Promise.all([health, linkRead, kitRead, routineRead]);
   const environment = link.value?.environment_id ?? kit.value?.environment_id ?? null;
   if (environment !== null) {
     place.value = await placeOf(api, environment).catch(() => null);
@@ -232,7 +249,7 @@ onBeforeUnmount(() => {
       <component :is="howYouAreCard" />
     </article>
 
-    <!-- attention items: one line while the routine is not served (E25 brings the full card) -->
+    <!-- attention items: one line from the routine's counts (E25 brings the full card) -->
     <div
       class="todo-row area-todo"
       data-testid="todo-card"
@@ -241,7 +258,7 @@ onBeforeUnmount(() => {
       <span
         class="todo-state"
         data-testid="todo-state"
-      >{{ copy("designed_states.not_available_here") }}</span>
+      >{{ todo }}</span>
       <article
         v-for="slot in otherSlots"
         :key="slot.id"

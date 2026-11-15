@@ -156,7 +156,8 @@ class PlanViews:
         ]
         review = copy.text("review_state_words", plan.review_state)
         # R28-2 is pending: the example notice supplies the review words until ui-copy has them.
-        review = review or doc.notice.partition(":")[0].lower()
+        # Only the notice's first clause: a notice written in sentences ends it with a period, not a colon.
+        review = review or doc.notice.partition(":")[0].partition(".")[0].lower()
         label = plan.condition_id or plan.flow_id or plan.plan_id
         tag = text(copy, "plan_lines", "plan_tag")
         if "{review_state}" not in tag:
