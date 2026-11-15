@@ -248,19 +248,21 @@ class MissionEventStore:
 
 
 class DeadlineStore:
-    def put(self, c: Conn, key: str, kind: str, due_at: datetime | None, elapsed: int | None, now: datetime) -> None:
+    def put(
+        self, c: Conn, key: str, kind: str, due_at: datetime | None, elapsed: int | None, now: datetime, generation: int
+    ) -> None:
         c.execute("DELETE FROM rules_deadline WHERE deadline_key = ?", (key,))
         c.execute(
-            "INSERT INTO rules_deadline VALUES (?,?,?,?,?,0)",
-            (key, kind, None if due_at is None else codec.instant(due_at), elapsed, codec.instant(now)),
+            "INSERT INTO rules_deadline VALUES (?,?,?,?,?,?)",
+            (key, kind, None if due_at is None else codec.instant(due_at), elapsed, codec.instant(now), generation),
         )
 
     def delete(self, c: Conn, key: str) -> None:
         c.execute("DELETE FROM rules_deadline WHERE deadline_key = ?", (key,))
 
-    def get(self, c: Conn, key: str) -> tuple[str, datetime | None, int | None, datetime] | None:
+    def get(self, c: Conn, key: str) -> tuple[str, datetime | None, int | None, datetime, int] | None:
         rows = c.rows(
-            "SELECT kind, due_at, elapsed_seconds, anchored_at FROM rules_deadline WHERE deadline_key = ?",
+            "SELECT kind, due_at, elapsed_seconds, anchored_at, generation FROM rules_deadline WHERE deadline_key = ?",
             (key,),
             limit=1,
         )
@@ -268,7 +270,7 @@ class DeadlineStore:
             return None
         r = rows[0]
         return (_s(r[0]), None if r[1] is None else codec.parse_instant(r[1]),
-                None if r[2] is None else _i(r[2]), codec.parse_instant(r[3]))  # fmt: skip
+                None if r[2] is None else _i(r[2]), codec.parse_instant(r[3]), _i(r[4]))  # fmt: skip
 
     def page(self, c: Conn, *, after: str, limit: int) -> tuple[str, ...]:
         rows = c.rows(
