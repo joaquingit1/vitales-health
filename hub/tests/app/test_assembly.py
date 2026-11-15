@@ -90,7 +90,9 @@ def test_catalog_module_hash_mismatch_is_detected_before_startup(tmp_path: Path)
     catalog = static_core(tmp_path)
     catalog.verify(128)
     module = catalog.root / "config/module.py"
-    module.write_text(module.read_text() + "\n# Corrupt packaged module fixture\n")
+    module.write_text(
+        module.read_text(encoding="utf-8") + "\n# Corrupt packaged module fixture\n", encoding="utf-8"
+    )
     with pytest.raises(ValueError, match="installed modules differ"):
         catalog.verify(128)
 

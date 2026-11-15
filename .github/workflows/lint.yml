@@ -1,6 +1,5 @@
 # Lint job of docs/DEPLOYMENT.md section 8: any warning fails (AGENTS.md code rule 10).
-# Scope today: the hub (hub/), scripts/ and the generated TypeScript contracts package. The crew and ground apps join
-# when E03 and E16 create them. Not covered yet, each reported on PR #7: eval/ (19 import order findings under the hub
+# Scope: hub, scripts, generated TypeScript contracts and the actual crew application. Not covered yet, each reported on PR #7: eval/ (19 import order findings under the hub
 # ruff configuration, in scenario files their epics are still building), adapters/, workers/ and simulators/ (they need
 # per-project jobs), and the potency engine (its dev tools are not installed by a plain sync).
 # Generated contract code under hub/src/crew_health/contracts_gen/ is excluded from ruff and from mypy file discovery
@@ -8,9 +7,7 @@
 name: lint
 
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_call:
   workflow_dispatch:
 
 permissions:
@@ -25,6 +22,9 @@ env:
   GENERATED: hub/src/crew_health/contracts_gen/schemas,hub/src/crew_health/contracts_gen/enums.py
   # Python comes only from uv's managed builds, at the version pinned in .python-version and hub/.python-version.
   UV_PYTHON_PREFERENCE: only-managed
+  OMP_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
   # Ratchet for mypy --strict on hub/tests: the job fails when the error count rises above this number. Lower it
   # whenever annotations bring the count down; the gate is complete at 0. Count on 15 Nov 2026 after PR 32 (E02): 791 errors in 48 files.
   MYPY_TESTS_BASELINE: "791"
@@ -44,14 +44,9 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - uses: ./.github/actions/locked-setup
         with:
-          version: "0.12.19"
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-      - name: Install locked dependencies
-        run: |
-          uv sync --project hub --locked
-          pnpm install --frozen-lockfile
+          javascript: 'true'
       - name: ruff check
         run: |
           uv run --project hub --locked ruff check --extend-exclude "$GENERATED" hub
@@ -85,8 +80,16 @@ jobs:
         run: |
           uv run --project hub --locked python -m crew_health.app.import_contracts --output "$RUNNER_TEMP/imports.ini"
           uv run --project hub --locked lint-imports --config "$RUNNER_TEMP/imports.ini"
-      - name: TypeScript contracts typecheck
-        run: pnpm -C packages/contracts-ts typecheck
+      - name: TypeScript contracts and crew checks
+        run: |
+          pnpm -C packages/contracts-ts typecheck
+          pnpm -C ui/crew typecheck
+          pnpm -C ui/crew lint
+          pnpm -C ui/crew test
+          tests=()
+          while IFS= read -r -d '' test; do tests+=("$test"); done < <(find ui/crew/src -name '*.test.mjs' -print0)
+          if [ "${#tests[@]}" -gt 0 ]; then pnpm exec node --experimental-strip-types --test "${tests[@]}"; fi
+          pnpm -C ui/crew build
 
   # AGENTS.md section 5 rule 5: every dependency of every Python project, extras included, installs on Windows from
   # wheels. One Linux job resolves each project for the Windows platform.

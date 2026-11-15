@@ -79,7 +79,7 @@ export function episodeEditor(host: HTMLElement, words: EditorWords, choices: ()
           const add = document.createElement('button'); add.type = 'button'; add.textContent = words.addDecision;
           add.addEventListener('click', () => { if (rows.length < current.maxReviewDecisions) addRow(); add.disabled = rows.length >= current.maxReviewDecisions; }); form.append(add); input('unresolved', false, true);
         } else if (action !== 'acknowledge') { finish(null); return; }
-      } catch (error) { finish(null); return; }
+      } catch { finish(null); return; }
       const submit = document.createElement('button'); submit.type = 'submit'; submit.textContent = words.submit;
       const cancel = document.createElement('button'); cancel.type = 'button'; cancel.textContent = words.cancel;
       cancel.addEventListener('click', () => finish(null)); form.append(submit, cancel);

@@ -65,7 +65,7 @@ def _pnpm_launcher() -> list[str]:
 def test_javascript_tools_use_project_runtime(tmp_path: Path, command: list[str]) -> None:
     launcher = _pnpm_launcher()
     broken_node = tmp_path / ("node.cmd" if os.name == "nt" else "node")
-    broken_node.write_text("@exit /b 97\n" if os.name == "nt" else "#!/bin/sh\nexit 97\n")
+    broken_node.write_text("@exit /b 97\n" if os.name == "nt" else "#!/bin/sh\nexit 97\n", encoding="utf-8")
     broken_node.chmod(0o755)
     result = subprocess.run(
         [*launcher, "-C", "packages/contracts-ts", *command],
@@ -95,9 +95,9 @@ def test_base_corruption_fails(tmp_path: Path, fault: str) -> None:
     elif fault == "missing":
         target.unlink()
     elif fault == "extra":
-        (target.parent / "extra.json").write_text("{}")
+        (target.parent / "extra.json").write_text("{}", encoding="utf-8")
     else:
-        (tmp_path / "docs/product/package-manifest.json").write_text("{}")
+        (tmp_path / "docs/product/package-manifest.json").write_text("{}", encoding="utf-8")
     with pytest.raises(ValueError):
         verify_base(tmp_path)
 
@@ -166,7 +166,7 @@ def test_unallocated_overlay_and_unlisted_output_fail(tmp_path: Path) -> None:
 
     (tmp_path / "destination").mkdir()
     (tmp_path / "staging").mkdir()
-    (tmp_path / "destination/unlisted.py").write_text("unowned")
+    (tmp_path / "destination/unlisted.py").write_text("unowned", encoding="utf-8")
     with pytest.raises(ValueError):
         publish(tmp_path / "destination", tmp_path / "staging", {}, modules={}, source_hashes={})
     assert (tmp_path / "destination/unlisted.py").read_text(encoding="utf-8") == "unowned"
@@ -307,7 +307,7 @@ def test_overlay_fault_is_rejected_before_effective_generation(tmp_path: Path, f
 def test_duplicate_inventory_and_missing_manifest_fail(tmp_path: Path) -> None:
     from crew_health.contracts_gen.build import load_json
 
-    (tmp_path / "duplicate.json").write_text('{"files":[],"files":[]}')
+    (tmp_path / "duplicate.json").write_text('{"files":[],"files":[]}', encoding="utf-8")
     with pytest.raises(ValueError):
         load_json(tmp_path / "duplicate.json")
     with pytest.raises(FileNotFoundError):
@@ -366,10 +366,28 @@ def test_enum_status_source_must_match_package_inventory(tmp_path: Path) -> None
     shutil.copy(ROOT / "docs/product/package-manifest.json", tmp_path / "docs/product/package-manifest.json")
     source = (ROOT / "docs/product/CONTRACTS.md").read_text(encoding="utf-8")
     (tmp_path / "docs/product/CONTRACTS.md").write_text(
-        source.replace("| `INTERNAL_ERROR` | 500 |", "| `INTERNAL_ERROR` | 200 |")
+        source.replace("| `INTERNAL_ERROR` | 500 |", "| `INTERNAL_ERROR` | 200 |"), encoding="utf-8"
     )
     with pytest.raises(ValueError):
         enum_source(tmp_path, tmp_path / "contracts/api/schemas")
+
+
+def test_enum_inventory_copy_works_with_windows_legacy_encoding(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    original = Path.write_text
+
+    def legacy_write(
+        path: Path,
+        data: str,
+        encoding: str | None = None,
+        errors: str | None = None,
+        newline: str | None = None,
+    ) -> int:
+        return original(path, data, encoding=encoding or "cp1252", errors=errors, newline=newline)
+
+    monkeypatch.setattr(Path, "write_text", legacy_write)
+    test_enum_status_source_must_match_package_inventory(tmp_path)
 
 
 def apply_operator(name: str, target: object, key: object, value: object) -> None:
