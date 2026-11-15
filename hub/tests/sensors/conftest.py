@@ -223,7 +223,7 @@ class CsvRow:
 
 def read_rr1_ppm() -> list[CsvRow]:
     """RR-1 ISS CO2 in ppm (column co2_iss), time as in the source file, read as UTC."""
-    with (NASA / "eda_rr1_telemetry.csv").open(newline="", encoding="utf-8") as handle:
+    with (NASA / "habitat-environment" / "eda_rr1_telemetry.csv").open(newline="", encoding="utf-8") as handle:
         return [
             CsvRow(datetime.fromisoformat(r["time"]).replace(tzinfo=UTC), Decimal(r["co2_iss"]))
             for r in csv.DictReader(handle)
@@ -231,7 +231,7 @@ def read_rr1_ppm() -> list[CsvRow]:
 
 
 def read_dostel1() -> list[CsvRow]:
-    with (NASA / "radlab_dostel_sample.csv").open(newline="", encoding="utf-8") as handle:
+    with (NASA / "radiation" / "radlab_dostel_sample.csv").open(newline="", encoding="utf-8") as handle:
         return [
             CsvRow(
                 datetime.fromisoformat(r["timestamp"]).replace(tzinfo=UTC), Decimal(r["absorbed_dose_rate"])
