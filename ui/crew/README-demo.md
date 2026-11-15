@@ -15,7 +15,7 @@ These placeholders already exist and render only their route name:
 | `/plan/:id`  | `plan`  | `features/plan` (ui-plan-help)      |
 | `/help`      | `help`  | `features/help` (ui-plan-help)      |
 
-To ship the real screen, replace `features/<name>/Placeholder.vue` (or point `routes.ts` at your own
+To ship the real screen, replace `features/<name>/<Name>Placeholder.vue` (e.g. `PulsePlaceholder.vue`) (or point `routes.ts` at your own
 component). Keep `meta: { private: true }`: the router sends a signed-out visitor to the sign-in station.
 
 ## Today card slot
@@ -50,3 +50,25 @@ Calls are session fenced: a result from an ended session epoch throws `StaleEpoc
 classes (`.card`, `.src` source word, `.eyebrow`, `.mono`). Every value carries its source word
 (Live, Sim, Replay): use `<SourceWord :origin="..." />` from `src/design/SourceWord.vue`.
 All visible copy comes from `config/ui-copy.json` through `src/design/copy.ts` (`copy("key.path")`).
+
+## The stage (body figure)
+
+Every private route renders beside the body stage (`src/shell/StageLayout.vue`) unless its route sets
+`meta: { stage: false }`. Your screen is the right-hand side: render a `<section class="cards flow f-...">`
+grid of `.card`s, as the prototype's views do. Drive the left side with `useStage()` from
+`src/shell/stage.ts`:
+
+```ts
+const stage = useStage();
+stage.headline = "...";          // the big line above the figure
+stage.subline = "...";           // the small line above it
+stage.focus = "heart";           // light a region and move in (null: whole body)
+stage.marks = [{ region: "heart", kind: "open" }]; // dot | hollow | open; clear on unmount
+```
+
+The figure stays mounted across stage routes, so it builds from points only once per session.
+
+## Screens owned by ui-shell
+
+`/` sign in (crew person id + credential, E02 session), `/today` (To do, Habitat with the ground link line,
+This kit, then the Today card slots) and `/kit` (shot A: counts, rows, figure marks from `/v1/kit-map`).
