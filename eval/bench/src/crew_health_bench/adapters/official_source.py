@@ -8,15 +8,20 @@ from crew_health_bench.domain.errors import BenchError
 
 
 def official_source(root: Path, *, max_file_bytes: int) -> dict[str, object]:
-    return load_document(root / "SOURCE.json", max_file_bytes=max_file_bytes,
-                         schema_path=root / "SOURCE.schema.json")
+    return load_document(
+        root / "SOURCE.json", max_file_bytes=max_file_bytes, schema_path=root / "SOURCE.schema.json"
+    )
 
 
 def integrity(plan: Mapping[str, object], source: Mapping[str, object], module_sha256: str) -> str:
     expected = object_map(source["harness"])
     if module_sha256 != expected["module_sha256"]:
         return "modified"
-    return "official" if all(plan[key] == source[key] for key in ("harness", "datasets", "grader")) else "modified"
+    return (
+        "official"
+        if all(plan[key] == source[key] for key in ("harness", "datasets", "grader"))
+        else "modified"
+    )
 
 
 def verify_modules(source: Mapping[str, object], installed: Path, *, max_file_bytes: int) -> None:

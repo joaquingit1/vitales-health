@@ -10,7 +10,9 @@ from crew_health_bench.domain.errors import BenchError
 
 
 class AgeOwnerGrant:
-    def __init__(self, *, recipients: Sequence[str], environment: Mapping[str, str], max_file_bytes: int) -> None:
+    def __init__(
+        self, *, recipients: Sequence[str], environment: Mapping[str, str], max_file_bytes: int
+    ) -> None:
         self._identity: x25519.Identity | None = None
         self.maximum = max_file_bytes
         path = environment.get("CHC_EVAL_IDENTITY")

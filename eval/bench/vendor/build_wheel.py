@@ -49,8 +49,9 @@ def metadata() -> dict[str, bytes]:
     data += "".join("Requires-Dist: " + name + "\n" for name in dependencies)
     return {
         prefix + "METADATA": data.encode("utf-8"),
-        prefix
-        + "WHEEL": b"Wheel-Version: 1.0\nGenerator: crew-health-bench\nRoot-Is-Purelib: true\nTag: py314-none-any\n",
+        prefix + "WHEEL": (
+            b"Wheel-Version: 1.0\nGenerator: crew-health-bench\nRoot-Is-Purelib: true\nTag: py314-none-any\n"
+        ),
         "simple_evals/__init__.py": b"",
         "simple_evals/sampler/__init__.py": b"",
         "simple_evals/py.typed": b"",

@@ -108,8 +108,11 @@ class RunLifecycle:
             for repeat in range(self.repeats):
                 if (case_id, repeat) in records:
                     continue
-                if budget is not None and sum(Generation.from_record(dict(row)).wall.value
-                                              for row in records.values()) >= budget.value:
+                if (
+                    budget is not None
+                    and sum(Generation.from_record(dict(row)).wall.value for row in records.values())
+                    >= budget.value
+                ):
                     break
                 self._verify()
                 try:
@@ -122,27 +125,41 @@ class RunLifecycle:
                     raise BenchError("case_invalid")
                 self.store.append(self.run_id, "generations", generation.record(self.run_id))
                 records[(case_id, repeat)] = generation.record(self.run_id)
-            if budget is not None and sum(Generation.from_record(dict(row)).wall.value
-                                          for row in records.values()) >= budget.value:
+            if (
+                budget is not None
+                and sum(Generation.from_record(dict(row)).wall.value for row in records.values())
+                >= budget.value
+            ):
                 break
         self._verify()
         digest = sha256(canonical_json(tuple(self._records("generations").values()))).hexdigest()
         self.store.write_atomic(Path(self.run_id) / "generations.sha256", digest.encode("ascii"))
-        self._transition("generated", generations_sha256=digest, process_epoch=self.clock.process_epoch(),
-                         completeness="full" if len(records) == len(self.cases) * self.repeats else "partial",
-                         n=len(records), N=len(self.cases) * self.repeats,
-                         budget=None if budget is None else {"value": float(budget.value), "unit": "s"})
+        self._transition(
+            "generated",
+            generations_sha256=digest,
+            process_epoch=self.clock.process_epoch(),
+            completeness="full" if len(records) == len(self.cases) * self.repeats else "partial",
+            n=len(records),
+            N=len(self.cases) * self.repeats,
+            budget=None if budget is None else {"value": float(budget.value), "unit": "s"},
+        )
 
-    def _generation_commit(self, generations: dict[tuple[str, int], Mapping[str, object]]) -> Mapping[str, object]:
-        commits = tuple(row for row in self.store.read_valid(self.run_id, "state")
-                        if row.get("state") == "generated")
-        if (len(commits) != 1 or commits[0].get("generations_sha256")
-                != sha256(canonical_json(tuple(generations.values()))).hexdigest()):
+    def _generation_commit(
+        self, generations: dict[tuple[str, int], Mapping[str, object]]
+    ) -> Mapping[str, object]:
+        commits = tuple(
+            row for row in self.store.read_valid(self.run_id, "state") if row.get("state") == "generated"
+        )
+        if (
+            len(commits) != 1
+            or commits[0].get("generations_sha256")
+            != sha256(canonical_json(tuple(generations.values()))).hexdigest()
+        ):
             raise BenchError("integrity", exit_code=6)
         commit = commits[0]
         total = len(self.cases) * self.repeats
         expected = tuple((case, repeat) for case in self.cases for repeat in range(self.repeats))
-        if tuple(generations) != expected[:len(generations)]:
+        if tuple(generations) != expected[: len(generations)]:
             raise BenchError("integrity", exit_code=6)
         if commit.get("completeness", "full") == "full":
             if len(generations) != total:
@@ -150,11 +167,16 @@ class RunLifecycle:
         elif commit.get("completeness") == "partial":
             budget = object_map(commit.get("budget"))
 
-            if (not 0 < len(generations) < total or tuple(generations) != expected[:len(generations)]
-                    or commit.get("n") != len(generations) or commit.get("N") != total
-                    or budget.get("unit") != "s" or number(budget.get("value")) <= 0
-                    or sum(Generation.from_record(dict(row)).wall.value for row in generations.values())
-                    < number(budget.get("value"))):
+            if (
+                not 0 < len(generations) < total
+                or tuple(generations) != expected[: len(generations)]
+                or commit.get("n") != len(generations)
+                or commit.get("N") != total
+                or budget.get("unit") != "s"
+                or number(budget.get("value")) <= 0
+                or sum(Generation.from_record(dict(row)).wall.value for row in generations.values())
+                < number(budget.get("value"))
+            ):
                 raise BenchError("integrity", exit_code=6)
         else:
             raise BenchError("integrity", exit_code=6)

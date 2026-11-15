@@ -144,8 +144,10 @@ def _report(aggregate: Mapping[str, object], policy: Mapping[str, object]) -> by
     lines.extend(f"{field}: {aggregate[field]}" for field in fields)
     if "official" in aggregate:
         official = object_map(aggregate["official"])
-        lines.extend(f"{text(templates.get(field))}: {official[field]}"
-                     for field in ("score", "metrics", "our_interval", "negative_criteria_met", "graded", "not_graded"))
+        lines.extend(
+            f"{text(templates.get(field))}: {official[field]}"
+            for field in ("score", "metrics", "our_interval", "negative_criteria_met", "graded", "not_graded")
+        )
     if aggregate["variant"] is not None:
         lines.append(text(policy.get("benchmark_disclaimer")))
     content = "\n\n".join(lines) + "\n"

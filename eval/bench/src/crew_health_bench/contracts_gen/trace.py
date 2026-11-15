@@ -2,173 +2,139 @@
 #   filename:  case-trace.schema.json
 
 from typing import Annotated
+
 from pydantic import BaseModel, ConfigDict, Field
-
-
 
 type Warning = Annotated[tuple[str, str, str], Field(max_length=3, min_length=3)]
 
 
-
-type Warnings = Annotated[list[Warning] | None, Field(title='Warnings')]
-
+type Warnings = Annotated[list[Warning] | None, Field(title="Warnings")]
 
 
-type HelpSessions = Annotated[list[str] | None, Field(title='Help Sessions')]
+type HelpSessions = Annotated[list[str] | None, Field(title="Help Sessions")]
 
 
-
-type RequestsBetween = Annotated[list[int] | None, Field(title='Requests Between')]
-
+type RequestsBetween = Annotated[list[int] | None, Field(title="Requests Between")]
 
 
 type Request = Annotated[tuple[str, str, str, bool], Field(max_length=4, min_length=4)]
 
 
-
-type Requests = Annotated[list[Request] | None, Field(title='Requests')]
-
+type Requests = Annotated[list[Request] | None, Field(title="Requests")]
 
 
-type CapabilityGaps = Annotated[list[str] | None, Field(title='Capability Gaps')]
+type CapabilityGaps = Annotated[list[str] | None, Field(title="Capability Gaps")]
 
 
-
-type CapabilityCodes = Annotated[list[str] | None, Field(title='Capability Codes')]
-
+type CapabilityCodes = Annotated[list[str] | None, Field(title="Capability Codes")]
 
 
-type ObservationIds = Annotated[list[str] | None, Field(title='Observation Ids')]
+type ObservationIds = Annotated[list[str] | None, Field(title="Observation Ids")]
 
 
-
-type ProvenanceIds = Annotated[list[str] | None, Field(title='Provenance Ids')]
-
+type ProvenanceIds = Annotated[list[str] | None, Field(title="Provenance Ids")]
 
 
 type Reference = Annotated[tuple[str, str], Field(max_length=2, min_length=2)]
 
 
-
-type References = Annotated[list[Reference] | None, Field(title='References')]
-
+type References = Annotated[list[Reference] | None, Field(title="References")]
 
 
-type AcceptedObservations = Annotated[list[str] | None, Field(title='Accepted Observations')]
+type AcceptedObservations = Annotated[list[str] | None, Field(title="Accepted Observations")]
 
 
-
-type Answers = Annotated[list[str] | None, Field(title='Answers')]
-
+type Answers = Annotated[list[str] | None, Field(title="Answers")]
 
 
 type ApprovedPassage = Annotated[tuple[str, str], Field(max_length=2, min_length=2)]
 
 
-
-type ApprovedPassages = Annotated[list[ApprovedPassage] | None, Field(title='Approved Passages')]
-
+type ApprovedPassages = Annotated[list[ApprovedPassage] | None, Field(title="Approved Passages")]
 
 
-type EvidenceReleaseId = Annotated[str, Field(title='Evidence Release Id')]
+type EvidenceReleaseId = Annotated[str, Field(title="Evidence Release Id")]
 
 
-
-type Texts = Annotated[list[str] | None, Field(title='Texts')]
-
+type Texts = Annotated[list[str] | None, Field(title="Texts")]
 
 
-type FinalAction = Annotated[str | None, Field(title='Final Action')]
+type FinalAction = Annotated[str | None, Field(title="Final Action")]
 
 
-
-type MissingEvidence = Annotated[list[str] | None, Field(title='Missing Evidence')]
-
+type MissingEvidence = Annotated[list[str] | None, Field(title="Missing Evidence")]
 
 
-type Hypotheses = Annotated[list[str] | None, Field(title='Hypotheses')]
-
+type Hypotheses = Annotated[list[str] | None, Field(title="Hypotheses")]
 
 
 type AcceptedItem = Annotated[tuple[str, str, str], Field(max_length=3, min_length=3)]
 
 
-
-type Accepted = Annotated[list[AcceptedItem] | None, Field(title='Accepted')]
-
+type Accepted = Annotated[list[AcceptedItem] | None, Field(title="Accepted")]
 
 
-type ActiveStepIds = Annotated[list[str] | None, Field(title='Active Step Ids')]
+type ActiveStepIds = Annotated[list[str] | None, Field(title="Active Step Ids")]
 
 
-
-type RejectedCallIds = Annotated[list[str] | None, Field(title='Rejected Call Ids')]
-
+type RejectedCallIds = Annotated[list[str] | None, Field(title="Rejected Call Ids")]
 
 
-type LoggedRejections = Annotated[list[str] | None, Field(title='Logged Rejections')]
+type LoggedRejections = Annotated[list[str] | None, Field(title="Logged Rejections")]
 
 
-
-type StepsAndActions = Annotated[list[list[str]] | None, Field(title='Steps And Actions')]
-
+type StepsAndActions = Annotated[list[list[str]] | None, Field(title="Steps And Actions")]
 
 
-type ToolCalls = Annotated[list[str] | None, Field(title='Tool Calls')]
+type ToolCalls = Annotated[list[str] | None, Field(title="Tool Calls")]
 
 
-
-type DeniedCallIds = Annotated[list[str] | None, Field(title='Denied Call Ids')]
-
+type DeniedCallIds = Annotated[list[str] | None, Field(title="Denied Call Ids")]
 
 
 type SideEffect = Annotated[tuple[str, str], Field(max_length=2, min_length=2)]
 
 
-
-type SideEffects = Annotated[list[SideEffect] | None, Field(title='Side Effects')]
-
+type SideEffects = Annotated[list[SideEffect] | None, Field(title="Side Effects")]
 
 
-type Retrieved = Annotated[list[str] | None, Field(title='Retrieved')]
-
+type Retrieved = Annotated[list[str] | None, Field(title="Retrieved")]
 
 
 type Passage = Annotated[tuple[str, str], Field(max_length=2, min_length=2)]
 
 
-
-type Passages = Annotated[list[Passage] | None, Field(title='Passages')]
+type Passages = Annotated[list[Passage] | None, Field(title="Passages")]
 
 
 class CaseTrace(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    warnings: Annotated[Warnings | None, Field(title='Warnings')] = None
-    help_sessions: Annotated[HelpSessions | None, Field(title='Help Sessions')] = None
-    requests_between: Annotated[RequestsBetween | None, Field(title='Requests Between')] = None
-    requests: Annotated[Requests | None, Field(title='Requests')] = None
-    capability_gaps: Annotated[CapabilityGaps | None, Field(title='Capability Gaps')] = None
-    capability_codes: Annotated[CapabilityCodes | None, Field(title='Capability Codes')] = None
-    observation_ids: Annotated[ObservationIds | None, Field(title='Observation Ids')] = None
-    provenance_ids: Annotated[ProvenanceIds | None, Field(title='Provenance Ids')] = None
-    references: Annotated[References | None, Field(title='References')] = None
-    accepted_observations: Annotated[AcceptedObservations | None, Field(title='Accepted Observations')] = None
-    answers: Annotated[Answers | None, Field(title='Answers')] = None
-    approved_passages: Annotated[ApprovedPassages | None, Field(title='Approved Passages')] = None
-    evidence_release_id: Annotated[EvidenceReleaseId | None, Field(title='Evidence Release Id')] = ''
-    texts: Annotated[Texts | None, Field(title='Texts')] = None
-    final_action: Annotated[FinalAction | None, Field(title='Final Action')] = None
-    missing_evidence: Annotated[MissingEvidence | None, Field(title='Missing Evidence')] = None
-    hypotheses: Annotated[Hypotheses | None, Field(title='Hypotheses')] = None
-    accepted: Annotated[Accepted | None, Field(title='Accepted')] = None
-    active_step_ids: Annotated[ActiveStepIds | None, Field(title='Active Step Ids')] = None
-    rejected_call_ids: Annotated[RejectedCallIds | None, Field(title='Rejected Call Ids')] = None
-    logged_rejections: Annotated[LoggedRejections | None, Field(title='Logged Rejections')] = None
-    steps_and_actions: Annotated[StepsAndActions | None, Field(title='Steps And Actions')] = None
-    tool_calls: Annotated[ToolCalls | None, Field(title='Tool Calls')] = None
-    denied_call_ids: Annotated[DeniedCallIds | None, Field(title='Denied Call Ids')] = None
-    side_effects: Annotated[SideEffects | None, Field(title='Side Effects')] = None
-    retrieved: Annotated[Retrieved | None, Field(title='Retrieved')] = None
-    passages: Annotated[Passages | None, Field(title='Passages')] = None
+    warnings: Annotated[Warnings | None, Field(title="Warnings")] = None
+    help_sessions: Annotated[HelpSessions | None, Field(title="Help Sessions")] = None
+    requests_between: Annotated[RequestsBetween | None, Field(title="Requests Between")] = None
+    requests: Annotated[Requests | None, Field(title="Requests")] = None
+    capability_gaps: Annotated[CapabilityGaps | None, Field(title="Capability Gaps")] = None
+    capability_codes: Annotated[CapabilityCodes | None, Field(title="Capability Codes")] = None
+    observation_ids: Annotated[ObservationIds | None, Field(title="Observation Ids")] = None
+    provenance_ids: Annotated[ProvenanceIds | None, Field(title="Provenance Ids")] = None
+    references: Annotated[References | None, Field(title="References")] = None
+    accepted_observations: Annotated[AcceptedObservations | None, Field(title="Accepted Observations")] = None
+    answers: Annotated[Answers | None, Field(title="Answers")] = None
+    approved_passages: Annotated[ApprovedPassages | None, Field(title="Approved Passages")] = None
+    evidence_release_id: Annotated[EvidenceReleaseId | None, Field(title="Evidence Release Id")] = ""
+    texts: Annotated[Texts | None, Field(title="Texts")] = None
+    final_action: Annotated[FinalAction | None, Field(title="Final Action")] = None
+    missing_evidence: Annotated[MissingEvidence | None, Field(title="Missing Evidence")] = None
+    hypotheses: Annotated[Hypotheses | None, Field(title="Hypotheses")] = None
+    accepted: Annotated[Accepted | None, Field(title="Accepted")] = None
+    active_step_ids: Annotated[ActiveStepIds | None, Field(title="Active Step Ids")] = None
+    rejected_call_ids: Annotated[RejectedCallIds | None, Field(title="Rejected Call Ids")] = None
+    logged_rejections: Annotated[LoggedRejections | None, Field(title="Logged Rejections")] = None
+    steps_and_actions: Annotated[StepsAndActions | None, Field(title="Steps And Actions")] = None
+    tool_calls: Annotated[ToolCalls | None, Field(title="Tool Calls")] = None
+    denied_call_ids: Annotated[DeniedCallIds | None, Field(title="Denied Call Ids")] = None
+    side_effects: Annotated[SideEffects | None, Field(title="Side Effects")] = None
+    retrieved: Annotated[Retrieved | None, Field(title="Retrieved")] = None
+    passages: Annotated[Passages | None, Field(title="Passages")] = None

@@ -3,18 +3,18 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from uuid import uuid7
-
-from crew_health.kernel.ids import KernelIdFactory
 from collections.abc import Sequence
 from dataclasses import asdict
 from pathlib import Path
+from uuid import uuid7
+
+from crew_health.kernel.ids import KernelIdFactory
 
 from crew_health_bench.adapters.documents import BenchSettings, load_document, read_json
-from crew_health_bench.adapters.store import FileArtifactStore
-from crew_health_bench.adapters.vault import AgeVault
 from crew_health_bench.adapters.leak_scanner import LeakScanner
 from crew_health_bench.adapters.partitions import verify_partitions
+from crew_health_bench.adapters.store import FileArtifactStore
+from crew_health_bench.adapters.vault import AgeVault
 from crew_health_bench.api import case_commands
 from crew_health_bench.domain.claims import ClaimsPolicy, lint_claims
 from crew_health_bench.domain.documents import object_map, text, text_list
@@ -29,7 +29,7 @@ class Arguments(argparse.Namespace):
     group: str
     command: str
     files: list[Path]
-    fingerprints: Path
+    fingerprints: list[Path]
     target: list[list[str]]
     cases: list[str]
     hidden_dir: Path | None
@@ -54,7 +54,7 @@ def _parser() -> argparse.ArgumentParser:
     claims = groups.add_parser("lint").add_subparsers(dest="command", required=True).add_parser("claims")
     claims.add_argument("files", type=Path, nargs="+")
     leak = groups.add_parser("leak").add_subparsers(dest="command", required=True).add_parser("scan")
-    leak.add_argument("--fingerprints", type=Path, required=True)
+    leak.add_argument("--fingerprints", type=Path, action="append", required=True)
     leak.add_argument("--target", nargs="+", action="append", required=True)
     vault = groups.add_parser("vault").add_subparsers(dest="command", required=True)
     vault.add_parser("seal").add_argument("files", type=Path, nargs="+")
@@ -72,15 +72,28 @@ def _parser() -> argparse.ArgumentParser:
     verify = partitions.add_parser("verify")
     verify.add_argument("--root", type=Path)
     healthbench = groups.add_parser("healthbench").add_subparsers(dest="command", required=True)
-    for name in ("fetch", "preregister", "plan", "generate", "grade", "report"):
+    for name in ("fetch", "fingerprints", "preregister", "plan", "generate", "grade", "report"):
         command = healthbench.add_parser(name)
-        command.set_defaults(files=[], corpus=None, variant=None, manifest=None, run_id=None,
-                             model_release=None, base_url=None, preregistration=None, salt=None,
-                             grader_url=None, published=None)
+        command.set_defaults(
+            files=[],
+            corpus=None,
+            variant=None,
+            manifest=None,
+            run_id=None,
+            model_release=None,
+            base_url=None,
+            preregistration=None,
+            salt=None,
+            grader_url=None,
+            published=None,
+        )
         command.add_argument("--root", type=Path, required=True)
         if name == "fetch":
             command.add_argument("--variant", required=True)
             command.add_argument("files", type=Path, nargs="*")
+            continue
+        if name == "fingerprints":
+            command.add_argument("--corpus", type=Path, required=True)
             continue
         command.add_argument("--corpus", type=Path, required=True)
         command.add_argument("--model-release", type=Path, required=True)
@@ -135,14 +148,13 @@ def _fingerprints(path: Path, limit: int) -> tuple[str, tuple[Fingerprint, ...]]
 
 
 def _scan(
-    path: Path,
+    paths: list[Path],
     targets: list[list[str]],
     *,
     config_dir: Path,
     limit: int,
     max_files: int,
 ) -> list[dict[str, object]]:
-    fp_salt, fingerprints = _fingerprints(path, limit)
     policy = load_document(config_dir / "partition-policy.json", max_file_bytes=limit)
     threshold = policy["leak_jaccard"]
     if not isinstance(threshold, (float, int)) or isinstance(threshold, bool):
@@ -152,9 +164,12 @@ def _scan(
         if len(target) < 2:
             raise BenchError("case_invalid")
         parsed.extend((target[0], Path(path)) for path in target[1:])
-    return LeakScanner(max_files=max_files,
-                       max_file_bytes=limit).scan(tuple(parsed), fingerprints, fp_salt=fp_salt,
-                                                  leak_jaccard=threshold)
+    scanner = LeakScanner(max_files=max_files, max_file_bytes=limit)
+    findings: list[dict[str, object]] = []
+    for path in paths:
+        fp_salt, fingerprints = _fingerprints(path, limit)
+        findings.extend(scanner.scan(tuple(parsed), fingerprints, fp_salt=fp_salt, leak_jaccard=threshold))
+    return findings
 
 
 def _vault(args: Arguments, config_dir: Path, settings: BenchSettings, limit: int) -> None:
@@ -182,19 +197,27 @@ def _vault(args: Arguments, config_dir: Path, settings: BenchSettings, limit: in
                 vault.verify(case_id)
 
 
-
 def _cases(args: Arguments, config_dir: Path, settings: BenchSettings, limit: int) -> None:
     ids = KernelIdFactory(new_uuid_hex=lambda: uuid7().hex)
     if args.group == "cases":
-        case_commands.validate(args.files, config_dir=config_dir, settings=settings, ids=ids,
-                               hidden_dir=args.hidden_dir)
+        case_commands.validate(
+            args.files, config_dir=config_dir, settings=settings, ids=ids, hidden_dir=args.hidden_dir
+        )
     elif args.command == "verify":
         verify_partitions(args.root or config_dir.parent, max_file_bytes=limit)
     else:
         if args.hidden_dir is None:
             raise BenchError("case_invalid")
-        case_commands.freeze(args.files, config_dir=config_dir, settings=settings, ids=ids,
-                             hidden_dir=args.hidden_dir, salt_path=args.salt, fp_salt=args.fp_salt)
+        case_commands.freeze(
+            args.files,
+            config_dir=config_dir,
+            settings=settings,
+            ids=ids,
+            hidden_dir=args.hidden_dir,
+            salt_path=args.salt,
+            fp_salt=args.fp_salt,
+        )
+
 
 def run(argv: Sequence[str]) -> int:
     args = Arguments()
@@ -211,13 +234,34 @@ def run(argv: Sequence[str]) -> int:
 
             if args.root is None:
                 raise BenchError("case_invalid")
-            handler = HealthBenchCommands(config_dir, settings, Options(
-                command=args.command, root=args.root, corpus=args.corpus or args.root, variant=args.variant,
-                files=tuple(args.files), manifest=args.manifest, run_id=args.run_id, model_release=args.model_release,
-                base_url=args.base_url, preregistration=args.preregistration, salt=args.salt,
-                grader_url=args.grader_url, published=args.published))
-            result = (handler.fetch() if args.command == "fetch" else handler.preregister()
-                      if args.command == "preregister" else handler.run())
+            handler = HealthBenchCommands(
+                config_dir,
+                settings,
+                Options(
+                    command=args.command,
+                    root=args.root,
+                    corpus=args.corpus or args.root,
+                    variant=args.variant,
+                    files=tuple(args.files),
+                    manifest=args.manifest,
+                    run_id=args.run_id,
+                    model_release=args.model_release,
+                    base_url=args.base_url,
+                    preregistration=args.preregistration,
+                    salt=args.salt,
+                    grader_url=args.grader_url,
+                    published=args.published,
+                ),
+            )
+            result = (
+                handler.fetch()
+                if args.command == "fetch"
+                else handler.fingerprints()
+                if args.command == "fingerprints"
+                else handler.preregister()
+                if args.command == "preregister"
+                else handler.run()
+            )
             print(json.dumps(result, sort_keys=True))
             return 0
         if args.group == "lint":
@@ -236,8 +280,13 @@ def run(argv: Sequence[str]) -> int:
             _vault(args, config_dir, settings, limit)
             findings = []
         else:
-            findings = _scan(args.fingerprints, args.target, config_dir=config_dir, limit=limit,
-                             max_files=settings.integer("bench.scan.max_files"))
+            findings = _scan(
+                args.fingerprints,
+                args.target,
+                config_dir=config_dir,
+                limit=limit,
+                max_files=settings.integer("bench.scan.max_files"),
+            )
         print(json.dumps({"findings": findings}, sort_keys=True))
         return 3 if findings else 0
     except BenchError as error:

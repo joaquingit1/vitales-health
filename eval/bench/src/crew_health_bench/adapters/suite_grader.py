@@ -15,8 +15,16 @@ from crew_health_bench.domain.trace import CaseTrace
 
 
 class SuiteGrader:
-    def __init__(self, *, root: Path, cases: Mapping[str, LoadedCase], documents: CaseDocuments,
-                 max_file_bytes: int, hidden_dir: Path | None = None, vault: AgeVault | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        root: Path,
+        cases: Mapping[str, LoadedCase],
+        documents: CaseDocuments,
+        max_file_bytes: int,
+        hidden_dir: Path | None = None,
+        vault: AgeVault | None = None,
+    ) -> None:
         if (hidden_dir is None) == (vault is None):
             raise BenchError("vault_locked", exit_code=5)
         self.root, self.cases, self.documents = root, cases, documents

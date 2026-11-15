@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import os
-from collections.abc import Mapping
 from dataclasses import dataclass
-from decimal import Decimal
 from hashlib import sha256
 from pathlib import Path
 from time import sleep
@@ -20,7 +18,12 @@ from crew_health_bench.adapters.documents import BenchSettings, load_document, r
 from crew_health_bench.adapters.files import bounded_files
 from crew_health_bench.adapters.grader_http import GraderHTTP, credential_missing
 from crew_health_bench.adapters.healthbench import HealthBenchCorpus, OfficialGrader, PreparedGrader
-from crew_health_bench.adapters.healthbench_corpus import VisibleCorpus, download_dataset, prepare_corpus
+from crew_health_bench.adapters.healthbench_corpus import (
+    VisibleCorpus,
+    download_dataset,
+    healthbench_fingerprints,
+    prepare_corpus,
+)
 from crew_health_bench.adapters.healthbench_grader import HealthBenchCaseGrader
 from crew_health_bench.adapters.healthbench_reporter import HealthBenchReporter
 from crew_health_bench.adapters.isolation import vault_path
@@ -77,8 +80,11 @@ class HealthBenchCommands:
 
     def _owner(self) -> AgeOwnerGrant:
         policy = load_document(self.config / "partition-policy.json", max_file_bytes=self.maximum)
-        return AgeOwnerGrant(recipients=text_list(object_map(policy["vault"])["recipients"]),
-                             environment=os.environ, max_file_bytes=self.maximum)
+        return AgeOwnerGrant(
+            recipients=text_list(object_map(policy["vault"])["recipients"]),
+            environment=os.environ,
+            max_file_bytes=self.maximum,
+        )
 
     def fetch(self) -> dict[str, object]:
         options = self.options
@@ -93,26 +99,82 @@ class HealthBenchCommands:
             if not source.is_file():
                 options.corpus.mkdir(parents=True, exist_ok=True)
                 with httpx.Client(trust_env=False) as client:
-                    download_dataset(client, row, source, timeout=self.settings.quantity("bench.fetch.timeout"),
-                                     connect_timeout=self.settings.quantity("bench.model.connect_timeout"),
-                                     chunk_bytes=self.maximum)
+                    download_dataset(
+                        client,
+                        row,
+                        source,
+                        timeout=self.settings.quantity("bench.fetch.timeout"),
+                        connect_timeout=self.settings.quantity("bench.model.connect_timeout"),
+                        chunk_bytes=self.maximum,
+                    )
         prepare_corpus(source, row, variant=variant, root=options.corpus, settings=self.settings)
         return {"variant": variant, "dataset_sha256": row["sha256"]}
 
-    def _generator(self, store: FileArtifactStore, run_id: str, variant: str,
-                   cases: tuple[str, ...], track: str) -> CaseGenerator:
+    def fingerprints(self) -> dict[str, object]:
+        """Write `eval/bench/fingerprints/healthbench.fp.json` from every prepared, hash-checked variant."""
+        policy = load_document(self.config / "partition-policy.json", max_file_bytes=self.maximum)
+        modulus = integer(policy["fingerprint_sample_modulus"])
+        fp_salt = text(policy["fp_salt"])
+        rows = self.plan["datasets"]
+        if not isinstance(rows, list):
+            raise BenchError("case_invalid")
+        corpora = []
+        for value in rows:
+            row = object_map(value)
+            corpora.append(
+                HealthBenchCorpus(
+                    self.options.corpus / (text(row["variant"]) + ".jsonl"),
+                    text(row["sha256"]),
+                    integer(row["bytes"]),
+                    integer(row["examples"]),
+                    self.settings,
+                )
+            )
+        data = healthbench_fingerprints(tuple(corpora), fp_salt=fp_salt, sample_modulus=modulus)
+        target = self.config.parent / "fingerprints"
+        with FileArtifactStore(target, max_line_bytes=len(data), max_records=1) as store:
+            store.write_atomic(Path("healthbench.fp.json"), data)
+        return {
+            "fingerprints": "eval/bench/fingerprints/healthbench.fp.json",
+            "sha256": sha256(data).hexdigest(),
+            "bytes": len(data),
+        }
+
+    def _generator(
+        self, store: FileArtifactStore, run_id: str, variant: str, cases: tuple[str, ...], track: str
+    ) -> CaseGenerator:
         corpus = VisibleCorpus(self.options.corpus, variant, dataset(self.plan, variant), self.settings)
         visible = {key: corpus.visible(key) for key in cases}
         source = _required(self.options.model_release)
         release = load_release(source, self.schema, max_file_bytes=self.maximum)
         if track == "system_assisted":
-            return BenchmarkGenerator(port=None, cases=visible,
-                evidence_release_id=text(object_map(release.projection["evaluated_with"])["evidence_release_id"]),
-                deadline=release.turn_timeout, store=store, clock=self.clock, ids=self.ids, run_id=run_id)
-        return IsolatedModelGenerator(config_dir=self.config, release_path=source, release=release,
-            schema=self.schema, base_url=_required(self.options.base_url), settings=self.settings,
-            environment=os.environ, grader_key_env=text(self.grader["api_key_env"]), clock=self.clock,
-            ids=self.ids, store=store, run_id=run_id, cases=visible)
+            return BenchmarkGenerator(
+                port=None,
+                cases=visible,
+                evidence_release_id=text(
+                    object_map(release.projection["evaluated_with"])["evidence_release_id"]
+                ),
+                deadline=release.turn_timeout,
+                store=store,
+                clock=self.clock,
+                ids=self.ids,
+                run_id=run_id,
+            )
+        return IsolatedModelGenerator(
+            config_dir=self.config,
+            release_path=source,
+            release=release,
+            schema=self.schema,
+            base_url=_required(self.options.base_url),
+            settings=self.settings,
+            environment=os.environ,
+            grader_key_env=text(self.grader["api_key_env"]),
+            clock=self.clock,
+            ids=self.ids,
+            store=store,
+            run_id=run_id,
+            cases=visible,
+        )
 
     def _generated_plans(self, store: FileArtifactStore) -> tuple[str, ...]:
         if not self.options.root.exists():
@@ -138,16 +200,23 @@ class HealthBenchCommands:
         warmup_n = integer(self.plan["warmup_n"])
         variants: dict[str, tuple[str, ...]] = {}
         timings: dict[str, tuple[Quantity, ...]] = {}
-        with FileArtifactStore(self.options.root, max_line_bytes=self.maximum, max_records=self.max_files) as store:
+        with FileArtifactStore(
+            self.options.root, max_line_bytes=self.maximum, max_records=self.max_files
+        ) as store:
             generated = self._generated_plans(store)
             if self.plan_sha256 in generated:
                 raise BenchError("already_generated")
             for row in rows:
                 variant = text(object_map(row)["variant"])
-                corpus = VisibleCorpus(self.options.corpus, variant, dataset(self.plan, variant), self.settings)
+                corpus = VisibleCorpus(
+                    self.options.corpus, variant, dataset(self.plan, variant), self.settings
+                )
                 variants[variant] = corpus.prompt_ids
-                order = eligible_order(corpus.prompt_ids, seed=text(sample["seed"]),
-                                       frame_exclusions=text_list(sample["frame_exclusions"]))
+                order = eligible_order(
+                    corpus.prompt_ids,
+                    seed=text(sample["seed"]),
+                    frame_exclusions=text_list(sample["frame_exclusions"]),
+                )
                 if warmup_n < 1 or len(order) <= warmup_n:
                     raise BenchError("warmup_failed")
                 warmup_id = self.ids.derived("benchrun", self.plan_sha256, variant, "warmup")
@@ -161,9 +230,16 @@ class HealthBenchCommands:
                     durations.append(generation.wall)
                 timings[variant] = tuple(durations)
             budget = object_map(self.plan["budget"])
-            registration = preregistration(self.plan_sha256, variants, timings, seed=text(sample["seed"]),
-                frame_exclusions=text_list(sample["frame_exclusions"]), warmup_n=warmup_n,
-                budget=Quantity(number(budget["value"]), Unit(text(budget["unit"]))), frozen_by="evaluation owner")
+            registration = preregistration(
+                self.plan_sha256,
+                variants,
+                timings,
+                seed=text(sample["seed"]),
+                frame_exclusions=text_list(sample["frame_exclusions"]),
+                warmup_n=warmup_n,
+                budget=Quantity(number(budget["value"]), Unit(text(budget["unit"]))),
+                frozen_by="evaluation owner",
+            )
             PreRegister(store, owner).freeze(registration, generated_plan_hashes=generated)
         return {"plan_sha256": self.plan_sha256}
 
@@ -180,16 +256,26 @@ class HealthBenchCommands:
 
     def _context(self) -> tuple[dict[str, object], HealthBenchInputs, tuple[str, ...], int]:
         options = self.options
-        source = (_required(options.manifest) if options.command == "plan"
-                  else vault_path(options.root, _required(options.run_id) + "/manifest.json"))
+        source = (
+            _required(options.manifest)
+            if options.command == "plan"
+            else vault_path(options.root, _required(options.run_id) + "/manifest.json")
+        )
         manifest = read_json(source, max_file_bytes=self.maximum)
         variant = text(manifest["variant"])
         registration, cases, count = self._registration(variant)
         if manifest["track"] not in ("model_only", "system_assisted"):
             raise BenchError("case_invalid")
-        inputs = HealthBenchInputs(manifest=source, config_dir=self.config,
-            release=_required(options.model_release), schema=self.schema, corpus_root=options.corpus,
-            variant=variant, preregistration=registration, settings=self.settings)
+        inputs = HealthBenchInputs(
+            manifest=source,
+            config_dir=self.config,
+            release=_required(options.model_release),
+            schema=self.schema,
+            corpus_root=options.corpus,
+            variant=variant,
+            preregistration=registration,
+            settings=self.settings,
+        )
         if options.command == "plan":
             manifest = inputs.measure()
             if (manifest["suite"], manifest["partition"]) != ("healthbench", "benchmark"):
@@ -202,8 +288,12 @@ class HealthBenchCommands:
     def _official(self, variant: str, client: GraderHTTP) -> OfficialGrader:
         source = self.options.corpus / (variant + ".jsonl")
         row = dataset(self.plan, variant)
-        corpus = HealthBenchCorpus(source, text(row["sha256"]), integer(row["bytes"]), integer(row["examples"]), self.settings)
-        release = load_release(_required(self.options.model_release), self.schema, max_file_bytes=self.maximum)
+        corpus = HealthBenchCorpus(
+            source, text(row["sha256"]), integer(row["bytes"]), integer(row["examples"]), self.settings
+        )
+        release = load_release(
+            _required(self.options.model_release), self.schema, max_file_bytes=self.maximum
+        )
         prepared = PreparedGrader(release.model_id, text(self.grader["model"]), client, self.settings)
         return OfficialGrader(corpus, prepared, self.config / "healthbench-plan.json")
 
@@ -212,45 +302,85 @@ class HealthBenchCommands:
             raise credential_missing(text(self.grader["api_key_env"]))
         manifest, inputs, cases, count = self._context()
         options = self.options
-        with FileArtifactStore(options.root, max_line_bytes=self.maximum, max_records=self.max_files) as store:
-            lifecycle = RunLifecycle(store=store, inputs=inputs, clock=self.clock, ids=self.ids, manifest=manifest, cases=cases)
+        with FileArtifactStore(
+            options.root, max_line_bytes=self.maximum, max_records=self.max_files
+        ) as store:
+            lifecycle = RunLifecycle(
+                store=store, inputs=inputs, clock=self.clock, ids=self.ids, manifest=manifest, cases=cases
+            )
             if options.run_id is not None and options.run_id != lifecycle.run_id:
                 raise BenchError("drift")
             if options.command == "plan":
                 lifecycle.plan()
             elif options.command == "generate":
                 budget = object_map(self.plan["budget"])
-                lifecycle.generate(self._generator(store, lifecycle.run_id, text(manifest["variant"]), cases,
-                                                    text(manifest["track"])),
-                                   budget=Quantity(number(budget["value"]), Unit(text(budget["unit"]))))
+                lifecycle.generate(
+                    self._generator(
+                        store, lifecycle.run_id, text(manifest["variant"]), cases, text(manifest["track"])
+                    ),
+                    budget=Quantity(number(budget["value"]), Unit(text(budget["unit"]))),
+                )
             else:
                 self._grade_or_report(lifecycle, store, cases, count)
             return {"run_id": lifecycle.run_id, "state": lifecycle.state()}
 
-    def _grade_or_report(self, lifecycle: RunLifecycle, store: FileArtifactStore,
-                         cases: tuple[str, ...], count: int) -> None:
+    def _grade_or_report(
+        self, lifecycle: RunLifecycle, store: FileArtifactStore, cases: tuple[str, ...], count: int
+    ) -> None:
         options = self.options
         with httpx.Client(trust_env=False) as transport:
-            client = GraderHTTP(client=transport, base_url=_required(options.grader_url), grader=self.grader,
-                environment=os.environ, settings=self.settings, sleep=lambda q: sleep(float(q.value)))
-            manifest = read_json(vault_path(options.root, lifecycle.run_id + "/manifest.json"), max_file_bytes=self.maximum)
+            client = GraderHTTP(
+                client=transport,
+                base_url=_required(options.grader_url),
+                grader=self.grader,
+                environment=os.environ,
+                settings=self.settings,
+                sleep=lambda q: sleep(float(q.value)),
+            )
+            manifest = read_json(
+                vault_path(options.root, lifecycle.run_id + "/manifest.json"), max_file_bytes=self.maximum
+            )
             official = self._official(text(manifest["variant"]), client)
             if options.command == "grade":
-                lifecycle.grade(HealthBenchCaseGrader(official=official, client=client, store=store,
-                    root=options.root, run_id=lifecycle.run_id, max_file_bytes=self.maximum))
+                lifecycle.grade(
+                    HealthBenchCaseGrader(
+                        official=official,
+                        client=client,
+                        store=store,
+                        root=options.root,
+                        run_id=lifecycle.run_id,
+                        max_file_bytes=self.maximum,
+                    )
+                )
                 return
             owner = self._owner()
             salt = owner.salt(_required(options.salt), repository=self.repository)
             policy = load_document(self.config / "claims-policy.json", max_file_bytes=self.maximum)
             corpus = official.corpus
-            canaries = tuple(sorted({text(corpus.case(key).canary) for key in corpus.prompt_ids
-                                     if corpus.case(key).canary is not None}))
+            canaries = tuple(
+                sorted(
+                    {
+                        text(corpus.case(key).canary)
+                        for key in corpus.prompt_ids
+                        if corpus.case(key).canary is not None
+                    }
+                )
+            )
             key = os.environ.get(text(self.grader["api_key_env"]))
             if key:
                 canaries += (key,)
-            reporter = HealthBenchReporter(official=official, store=store, cases=cases, N=count,
-                case_salt=salt, canaries=canaries, policy=policy, plan=self.plan,
-                validator=ArtifactSchemas(self.config.parent / "schemas", self.maximum))
-            with FileArtifactStore(_required(options.published), max_line_bytes=self.maximum,
-                                   max_records=self.max_files) as published:
+            reporter = HealthBenchReporter(
+                official=official,
+                store=store,
+                cases=cases,
+                N=count,
+                case_salt=salt,
+                canaries=canaries,
+                policy=policy,
+                plan=self.plan,
+                validator=ArtifactSchemas(self.config.parent / "schemas", self.maximum),
+            )
+            with FileArtifactStore(
+                _required(options.published), max_line_bytes=self.maximum, max_records=self.max_files
+            ) as published:
                 lifecycle.report(reporter, published)

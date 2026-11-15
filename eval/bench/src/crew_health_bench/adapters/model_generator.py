@@ -9,7 +9,6 @@ from pathlib import Path
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.ids import IdFactory
-from crew_health.kernel.units import Quantity, Unit
 
 from crew_health_bench.adapters.documents import BenchSettings, decode_json
 from crew_health_bench.adapters.isolation import generation_environment
@@ -23,29 +22,66 @@ from crew_health_bench.domain.timing import elapsed
 
 
 class IsolatedModelGenerator:
-    def __init__(self, *, config_dir: Path, release_path: Path, release: ModelReleaseRef, schema: Path,
-                 base_url: str, settings: BenchSettings, environment: Mapping[str, str], grader_key_env: str,
-                 clock: Clock, ids: IdFactory, store: AtomicArtifacts, run_id: str,
-                 cases: Mapping[str, HealthBenchVisible]) -> None:
-        self.config_dir, self.release_path, self.release, self.schema = config_dir, release_path, release, schema
+    def __init__(
+        self,
+        *,
+        config_dir: Path,
+        release_path: Path,
+        release: ModelReleaseRef,
+        schema: Path,
+        base_url: str,
+        settings: BenchSettings,
+        environment: Mapping[str, str],
+        grader_key_env: str,
+        clock: Clock,
+        ids: IdFactory,
+        store: AtomicArtifacts,
+        run_id: str,
+        cases: Mapping[str, HealthBenchVisible],
+    ) -> None:
+        self.config_dir, self.release_path, self.release, self.schema = (
+            config_dir,
+            release_path,
+            release,
+            schema,
+        )
         self.base_url, self.settings = base_url, settings
         self.environment = generation_environment(environment, grader_key_env=grader_key_env)
         self.clock, self.ids, self.store, self.run_id, self.cases = clock, ids, store, run_id, cases
 
     def _worker(self, case: HealthBenchVisible) -> dict[str, object]:
         timeout = min(self.release.turn_timeout.value, self.settings.quantity("bench.case.deadline").value)
-        body = canonical_json({"prompt": [{"role": role, "content": content} for role, content in case.messages],
-                               "timeout": {"value": float(timeout), "unit": "s"}})
+        body = canonical_json(
+            {
+                "prompt": [{"role": role, "content": content} for role, content in case.messages],
+                "timeout": {"value": float(timeout), "unit": "s"},
+            }
+        )
         maximum = self.settings.integer("bench.store.max_line_bytes")
         if len(body) > maximum:
             raise BenchError("case_invalid")
-        arguments = [sys.executable, "-m", "crew_health_bench.api.model_worker", "--config-dir", str(self.config_dir),
-                     "--model-release", str(self.release_path), "--schema", str(self.schema),
-                     "--base-url", self.base_url]
+        arguments = [
+            sys.executable,
+            "-m",
+            "crew_health_bench.api.model_worker",
+            "--config-dir",
+            str(self.config_dir),
+            "--model-release",
+            str(self.release_path),
+            "--schema",
+            str(self.schema),
+            "--base-url",
+            self.base_url,
+        ]
         try:
-            process = subprocess.run(arguments, input=body, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                     env=self.environment, timeout=float(self.settings.quantity("bench.case.deadline").value),
-                                     check=False)
+            process = subprocess.run(
+                arguments,
+                input=body,
+                capture_output=True,
+                env=self.environment,
+                timeout=float(self.settings.quantity("bench.case.deadline").value),
+                check=False,
+            )
         except subprocess.TimeoutExpired as error:
             raise BenchError("interrupted", exit_code=7) from error
         except OSError as error:
@@ -73,6 +109,16 @@ class IsolatedModelGenerator:
         reference = Path(self.run_id) / "outputs" / self.ids.new("benchoutput")
         raw = canonical_json(result)
         self.store.write_atomic(reference, raw)
-        return Generation(case_id, repeat, text(result["status"]), started, clock.now(), clock.process_epoch(),
-                          elapsed(mark, clock), sha256(raw).hexdigest(), reference.as_posix(), reference.as_posix(),
-                          integer(result["model_calls"]))
+        return Generation(
+            case_id,
+            repeat,
+            text(result["status"]),
+            started,
+            clock.now(),
+            clock.process_epoch(),
+            elapsed(mark, clock),
+            sha256(raw).hexdigest(),
+            reference.as_posix(),
+            reference.as_posix(),
+            integer(result["model_calls"]),
+        )

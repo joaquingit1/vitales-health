@@ -8,45 +8,44 @@ from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StringConstrai
 
 class File(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     name: Annotated[str, Field(min_length=1)]
-    sha256: Annotated[str, Field(pattern='^[0-9a-f]{64}$')]
+    sha256: Annotated[str, Field(pattern="^[0-9a-f]{64}$")]
 
 
 class Model(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     model_id: Annotated[str, Field(min_length=1)]
     hf_repo: Annotated[str, Field(min_length=1)]
     revision: Annotated[str, Field(min_length=1)]
     license: Annotated[str, Field(min_length=1)]
-    license_sha256: Annotated[str, Field(pattern='^[0-9a-f]{64}$')]
+    license_sha256: Annotated[str, Field(pattern="^[0-9a-f]{64}$")]
     files: list[File]
 
 
-
-type SourceFilesSha256Item = Annotated[str, Field(pattern='^[0-9a-f]{64}$')]
+type SourceFilesSha256Item = Annotated[str, Field(pattern="^[0-9a-f]{64}$")]
 
 
 class Lineage(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     source_files_sha256: list[SourceFilesSha256Item]
-    bf16_gguf_sha256: Annotated[str, Field(pattern='^[0-9a-f]{64}$')]
-    equivalence_report_sha256: Annotated[str, Field(pattern='^[0-9a-f]{64}$')]
-    reproducibility_report_sha256: Annotated[str, Field(pattern='^[0-9a-f]{64}$')]
+    bf16_gguf_sha256: Annotated[str, Field(pattern="^[0-9a-f]{64}$")]
+    equivalence_report_sha256: Annotated[str, Field(pattern="^[0-9a-f]{64}$")]
+    reproducibility_report_sha256: Annotated[str, Field(pattern="^[0-9a-f]{64}$")]
     llama_cpp_commit: Annotated[str, Field(min_length=1)]
 
 
 class Weights(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     file_name: Annotated[str, Field(min_length=1)]
-    weights_sha256: Annotated[str, Field(pattern='^[0-9a-f]{64}$')]
+    weights_sha256: Annotated[str, Field(pattern="^[0-9a-f]{64}$")]
     size_bytes: Annotated[int, Field(ge=1)]
     quantization: Annotated[str, Field(min_length=1)]
     lineage: Lineage
@@ -54,9 +53,9 @@ class Weights(BaseModel):
 
 class Runtime(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    engine: Literal['llama.cpp']
+    engine: Literal["llama.cpp"]
     build: Annotated[str, Field(min_length=1)]
     commit: Annotated[str, Field(min_length=1)]
     backend: Annotated[str, Field(min_length=1)]
@@ -72,7 +71,7 @@ class Runtime(BaseModel):
 
 class MaxTokensByPhase(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     intake: Annotated[int, Field(ge=1)]
     assessment: Annotated[int, Field(ge=1)]
@@ -85,7 +84,7 @@ class MaxTokensByPhase(BaseModel):
 
 class Decoding(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     temperature: Annotated[float, Field(ge=0.0)]
     top_p: Annotated[float, Field(ge=0.0, le=1.0)]
@@ -98,7 +97,7 @@ class Decoding(BaseModel):
 
 class EvaluatedWith(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     evidence_release_id: Annotated[str, Field(min_length=1)]
     config_release_id: Annotated[str, Field(min_length=1)]
@@ -107,7 +106,7 @@ class EvaluatedWith(BaseModel):
 
 class BudgetTokensByPhase(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     intake: Annotated[int, Field(ge=1)]
     assessment: Annotated[int, Field(ge=1)]
@@ -118,13 +117,12 @@ class BudgetTokensByPhase(BaseModel):
     verifier: Annotated[int, Field(ge=1)]
 
 
-
 type SectionOrderItem = Annotated[str, Field(min_length=1)]
 
 
 class ContextSettings(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     budget_tokens_by_phase: BudgetTokensByPhase
     section_order: list[SectionOrderItem]
@@ -133,7 +131,7 @@ class ContextSettings(BaseModel):
 
 class RetrievalSettings(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     k_lexical: Annotated[int, Field(ge=1)]
     k_dense: Annotated[int, Field(ge=1)]
@@ -147,21 +145,18 @@ class RetrievalSettings(BaseModel):
 
 class Embedding(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     model_id: Annotated[str, Field(min_length=1)]
     revision: Annotated[str, Field(min_length=1)]
-    sha256: Annotated[str, Field(pattern='^[0-9a-f]{64}$')]
+    sha256: Annotated[str, Field(pattern="^[0-9a-f]{64}$")]
     dims: Annotated[int, Field(ge=1)]
-
 
 
 type ProbeReportId = Annotated[str, Field(min_length=1)]
 
 
-
 type DevReportId = Annotated[str, Field(min_length=1)]
-
 
 
 type GateRunId = Annotated[str, Field(min_length=1)]
@@ -169,17 +164,17 @@ type GateRunId = Annotated[str, Field(min_length=1)]
 
 class Evaluation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     probe_report_ids: list[ProbeReportId]
     dev_report_ids: list[DevReportId]
     gate_run_ids: list[GateRunId]
-    gate_sha256: Annotated[str, Field(pattern='^[0-9a-f]{64}$')]
+    gate_sha256: Annotated[str, Field(pattern="^[0-9a-f]{64}$")]
 
 
 class Controller(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     max_turns_per_episode: Annotated[int, Field(ge=1)]
     max_retrievals_without_new_support: Annotated[int, Field(ge=1)]
@@ -188,10 +183,9 @@ class Controller(BaseModel):
 
 class Verifier(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     claim_support_pass: bool
-
 
 
 type BasisText = Annotated[str, Field(min_length=1)]
@@ -199,20 +193,20 @@ type BasisText = Annotated[str, Field(min_length=1)]
 
 class ModelRelease(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     release_id: Annotated[str, Field(min_length=1)]
     created_at: AwareDatetime
-    status: Literal['candidate', 'promoted', 'retired', 'rejected']
-    mode: Literal['live', 'stub']
+    status: Literal["candidate", "promoted", "retired", "rejected"]
+    mode: Literal["live", "stub"]
     model: Model
     weights: Weights
     runtime: Runtime
     decoding: Decoding
-    chat_template_sha256: Annotated[str, Field(pattern='^[0-9a-f]{64}$')]
-    tokenizer_sha256: Annotated[str, Field(pattern='^[0-9a-f]{64}$')]
-    thinking_mode: Literal['on']
-    tool_call_mode: Literal['native', 'envelope']
+    chat_template_sha256: Annotated[str, Field(pattern="^[0-9a-f]{64}$")]
+    tokenizer_sha256: Annotated[str, Field(pattern="^[0-9a-f]{64}$")]
+    thinking_mode: Literal["on"]
+    tool_call_mode: Literal["native", "envelope"]
     prompt_version: Annotated[str, Field(min_length=1)]
     tool_catalog_version: Annotated[str, Field(min_length=1)]
     evaluated_with: EvaluatedWith
@@ -221,6 +215,6 @@ class ModelRelease(BaseModel):
     embedding: Embedding | None = None
     evaluation: Evaluation | None = None
     previous_release_id: str | None = None
-    basis: dict[Annotated[str, StringConstraints(pattern=r'^.+$')], BasisText]
+    basis: dict[Annotated[str, StringConstraints(pattern=r"^.+$")], BasisText]
     controller: Controller | None = None
     verifier: Verifier | None = None

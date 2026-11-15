@@ -28,7 +28,9 @@ def workspace(tmp_path: Path) -> tuple[Path, Path, Path]:
 
 
 def test_case_partition_and_recursive_scan_commands(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     config, case_path, working = workspace(tmp_path)
     identity = x25519.Identity.generate()
@@ -42,27 +44,74 @@ def test_case_partition_and_recursive_scan_commands(
     assert run([*prefix, "cases", "validate", str(case_path), "--hidden-dir", str(working)]) == 0
     salt = working / "salt"
     salt.write_bytes(b"s" * 32)
-    assert run([*prefix, "partitions", "freeze", "--cases", str(case_path), "--hidden-dir", str(working),
-                "--salt", str(salt), "--fp-salt", "public"]) == 0
+    assert (
+        run(
+            [
+                *prefix,
+                "partitions",
+                "freeze",
+                "--cases",
+                str(case_path),
+                "--hidden-dir",
+                str(working),
+                "--salt",
+                str(salt),
+                "--fp-salt",
+                "public",
+            ]
+        )
+        == 0
+    )
     assert run([*prefix, "partitions", "verify"]) == 0
     targets = working / "prompts"
     targets.mkdir()
     canary = json.loads(case_path.read_bytes())["canary"]
     (targets / "prompt.txt").write_text(canary, encoding="utf-8")
-    assert run([*prefix, "leak", "scan", "--fingerprints", str(config.parent / "fingerprints/holdout.fp.json"),
-                "--target", "prompts", str(targets)]) == 3
+    assert (
+        run(
+            [
+                *prefix,
+                "leak",
+                "scan",
+                "--fingerprints",
+                str(config.parent / "fingerprints/holdout.fp.json"),
+                "--target",
+                "prompts",
+                str(targets),
+            ]
+        )
+        == 3
+    )
     output = capsys.readouterr()
     assert str(identity) not in output.out + output.err
     assert canary not in output.out + output.err
 
 
 def test_unassigned_owner_refuses_freezing_and_configuration_derived_labels(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     config, case_path, working = workspace(tmp_path)
     monkeypatch.delenv("CHC_EVAL_IDENTITY", raising=False)
     salt = working / "salt"
     salt.write_bytes(b"s" * 32)
-    assert run(["--config-dir", str(config), "partitions", "freeze", "--cases", str(case_path),
-                "--hidden-dir", str(working), "--salt", str(salt), "--fp-salt", "public"]) == 5
+    assert (
+        run(
+            [
+                "--config-dir",
+                str(config),
+                "partitions",
+                "freeze",
+                "--cases",
+                str(case_path),
+                "--hidden-dir",
+                str(working),
+                "--salt",
+                str(salt),
+                "--fp-salt",
+                "public",
+            ]
+        )
+        == 5
+    )
     assert not (config.parent / "partitions/FROZEN.sha256").exists()

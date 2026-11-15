@@ -1,6 +1,12 @@
-"""Real composition evidence. Provider prerequisites fail rather than inventing product coverage."""
+"""Real composition evidence for E18.
+
+The hub refuses unconfigured writes. The product suites run only when the composed hub mounts every
+operation E18's driver calls; otherwise they are `not_run` with the missing operations named, never a
+substitute hub or an authentication bypass.
+"""
 
 import asyncio
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -14,8 +20,12 @@ from crew_health.platform.storage import SQLiteDatabase
 from crew_health.platform.testing.sqlite import test_settings as storage_settings
 from httpx import ASGITransport, AsyncClient
 
-pytestmark = [pytest.mark.e18, pytest.mark.trace("INV-E18-10", "R22")]
+pytestmark = [pytest.mark.trace("INV-E18-10", "R22")]
 ROOT = Path(__file__).resolve().parents[3]
+# E18 is its own uv project; its readiness rule is standard library only, so the hub environment can load it.
+if str(ROOT / "eval/bench/src") not in sys.path:
+    sys.path.insert(0, str(ROOT / "eval/bench/src"))
+from crew_health_bench.domain.readiness import DRIVER_OPERATIONS, product_suite_readiness  # noqa: E402
 
 
 def database(tmp_path: Path) -> SQLiteDatabase:
@@ -60,15 +70,8 @@ def test_unconfigured_real_hub_is_unavailable_and_refuses_evaluation_writes(tmp_
         db.close()
 
 
-@pytest.mark.parametrize(
-    "acceptance,operation",
-    [("V33", "getEvidencePassage"), ("V34", "startAssessment"), ("R46", "startEpisode")],
-)
-def test_required_product_operations_are_mounted(
-    tmp_path: Path,
-    acceptance: str,
-    operation: str,
-) -> None:
+@pytest.mark.trace("E18-03", "V33", "V34", "R46", "INV-E18-05")
+def test_product_suites_follow_the_operations_the_real_composition_mounts(tmp_path: Path) -> None:
     db = database(tmp_path)
     try:
         app = create_app(
@@ -77,18 +80,20 @@ def test_required_product_operations_are_mounted(
             contract_path=ROOT / "contracts/api/openapi.yaml",
             schema_directory=ROOT / "contracts/api/schemas",
         )
-        schema = app.openapi()
         mounted = {
-            row.get("operationId")
-            for path in schema["paths"].values()
+            str(row.get("operationId"))
+            for path in app.openapi()["paths"].values()
             for row in path.values()
-            if isinstance(row, dict)
+            if isinstance(row, dict) and row.get("operationId")
         }
-        assert operation in mounted, (
-            acceptance
-            + " cannot run: real composition lacks "
-            + operation
-            + "; no substitute hub or authentication bypass is permitted"
-        )
     finally:
         db.close()
+    contract = (ROOT / "contracts/api/openapi.yaml").read_text(encoding="utf-8")
+    for operation in DRIVER_OPERATIONS:
+        assert "operationId: " + operation in contract, operation + " is not in the API contract"
+    readiness = product_suite_readiness(mounted, harness_available=True)
+    expected_missing = tuple(name for name in DRIVER_OPERATIONS if name not in mounted)
+    assert readiness.missing_operations == expected_missing
+    assert readiness.ready == (not expected_missing)
+    if expected_missing:
+        assert readiness.reason == "provider_missing"

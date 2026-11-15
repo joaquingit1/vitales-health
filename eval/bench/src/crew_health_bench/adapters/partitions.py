@@ -8,8 +8,12 @@ from crew_health_bench.domain.errors import BenchError
 
 
 def verify_partitions(root: Path, *, max_file_bytes: int) -> None:
-    names = ("fingerprints/holdout.fp.json", "partitions/canaries.json", "partitions/manifest.json",
-             "partitions/stratification.json")
+    names = (
+        "fingerprints/holdout.fp.json",
+        "partitions/canaries.json",
+        "partitions/manifest.json",
+        "partitions/stratification.json",
+    )
     try:
         marker = vault_path(root, "partitions/FROZEN.sha256")
         with marker.open("rb") as stream:

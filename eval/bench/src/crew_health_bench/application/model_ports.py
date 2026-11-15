@@ -3,7 +3,13 @@ from typing import Protocol
 
 from crew_health.kernel.units import Quantity
 
-from crew_health_bench.domain.model import BenchmarkAnswer, ChatMessage, Completion, DecodingSettings, EndpointIdentity
+from crew_health_bench.domain.model import (
+    BenchmarkAnswer,
+    ChatMessage,
+    Completion,
+    DecodingSettings,
+    EndpointIdentity,
+)
 
 
 class ModelEndpoint(Protocol):
@@ -14,5 +20,11 @@ class ModelEndpoint(Protocol):
 
 
 class BenchmarkAnswerPort(Protocol):
-    def answer(self, messages: Sequence[ChatMessage], *, evidence_release_id: str,
-               tool_profile: str, timeout: Quantity) -> BenchmarkAnswer: ...
+    def answer(
+        self,
+        messages: Sequence[ChatMessage],
+        *,
+        evidence_release_id: str,
+        tool_profile: str,
+        timeout: Quantity,
+    ) -> BenchmarkAnswer: ...

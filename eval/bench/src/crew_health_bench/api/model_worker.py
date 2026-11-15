@@ -36,8 +36,9 @@ def execute(args: Arguments, data: bytes, settings: BenchSettings) -> dict[str, 
         messages.append(ChatMessage(text(message["role"]), text(message["content"])))
     timeout = object_map(row["timeout"])
     limit = Quantity(number(timeout.get("value")), Unit(text(timeout.get("unit"))))
-    release = load_release(args.model_release, args.schema,
-                           max_file_bytes=settings.integer("bench.store.max_line_bytes"))
+    release = load_release(
+        args.model_release, args.schema, max_file_bytes=settings.integer("bench.store.max_line_bytes")
+    )
     if limit.unit.code != "s" or not 0 < limit.value <= release.turn_timeout.value:
         raise BenchError("case_invalid")
     with httpx.Client(trust_env=False) as client:
@@ -51,12 +52,22 @@ def execute(args: Arguments, data: bytes, settings: BenchSettings) -> dict[str, 
         except BenchError as error:
             if error.reason not in ("timeout", "model_unavailable", "model_response_invalid"):
                 raise
-            return {"status": "timeout" if error.reason == "timeout" else "failed_generation",
-                    "text": None, "model_calls": calls, "finish_reason": error.reason,
-                    "model_release": dict(release.projection)}
-    return {"status": "completed", "text": completion.text, "model_calls": 1,
-            "finish_reason": completion.finish_reason, "usage": dict(completion.usage),
-            "thinking_tokens": completion.thinking_tokens, "model_release": dict(release.projection)}
+            return {
+                "status": "timeout" if error.reason == "timeout" else "failed_generation",
+                "text": None,
+                "model_calls": calls,
+                "finish_reason": error.reason,
+                "model_release": dict(release.projection),
+            }
+    return {
+        "status": "completed",
+        "text": completion.text,
+        "model_calls": 1,
+        "finish_reason": completion.finish_reason,
+        "usage": dict(completion.usage),
+        "thinking_tokens": completion.thinking_tokens,
+        "model_release": dict(release.projection),
+    }
 
 
 def main() -> int:
@@ -72,7 +83,9 @@ def main() -> int:
         key_name = text(object_map(plan["grader"])["api_key_env"])
         if "CHC_EVAL_IDENTITY" in os.environ or key_name in os.environ:
             raise BenchError("holdout_key_required", exit_code=5)
-        settings = BenchSettings(load_document(args.config_dir / "bench-settings.json", max_file_bytes=1 << 16))
+        settings = BenchSettings(
+            load_document(args.config_dir / "bench-settings.json", max_file_bytes=1 << 16)
+        )
         maximum = settings.integer("bench.store.max_line_bytes")
         data = sys.stdin.buffer.read(maximum + 1)
         if len(data) > maximum:

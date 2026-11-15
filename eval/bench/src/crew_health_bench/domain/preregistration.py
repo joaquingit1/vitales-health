@@ -26,11 +26,20 @@ class PreRegistration:
     variants: Mapping[str, VariantSample]
 
     def record(self) -> dict[str, object]:
-        return {"plan_sha256": self.plan_sha256, "frozen_by": self.frozen_by,
-                "variants": {name: {"N": value.N, "n": value.n, "case_ids": value.case_ids,
-                                    "warmup_ids": value.warmup_ids,
-                                    "t_case": {"value": float(value.t_case.value), "unit": value.t_case.unit.code}}
-                             for name, value in sorted(self.variants.items())}}
+        return {
+            "plan_sha256": self.plan_sha256,
+            "frozen_by": self.frozen_by,
+            "variants": {
+                name: {
+                    "N": value.N,
+                    "n": value.n,
+                    "case_ids": value.case_ids,
+                    "warmup_ids": value.warmup_ids,
+                    "t_case": {"value": float(value.t_case.value), "unit": value.t_case.unit.code},
+                }
+                for name, value in sorted(self.variants.items())
+            },
+        }
 
 
 def _median(values: Sequence[Quantity], expected: int) -> Quantity:
@@ -45,8 +54,15 @@ def _median(values: Sequence[Quantity], expected: int) -> Quantity:
 
 
 def preregistration(
-    plan_sha256: str, variants: Mapping[str, Sequence[str]], timings: Mapping[str, Sequence[Quantity]], *,
-    seed: str, frame_exclusions: Sequence[str], warmup_n: int, budget: Quantity, frozen_by: str,
+    plan_sha256: str,
+    variants: Mapping[str, Sequence[str]],
+    timings: Mapping[str, Sequence[Quantity]],
+    *,
+    seed: str,
+    frame_exclusions: Sequence[str],
+    warmup_n: int,
+    budget: Quantity,
+    frozen_by: str,
 ) -> PreRegistration:
     if not variants or set(variants) != set(timings) or not frozen_by:
         raise BenchError("warmup_failed")

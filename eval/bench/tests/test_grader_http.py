@@ -4,7 +4,6 @@ from pathlib import Path
 import httpx
 import pytest
 from crew_health.kernel.units import Quantity
-
 from crew_health_bench.adapters.documents import BenchSettings, load_document
 from crew_health_bench.adapters.grader_http import GraderHTTP
 from crew_health_bench.domain.documents import object_map
@@ -25,9 +24,14 @@ def test_grader_429_and_503_have_bounded_retries_and_no_secret_in_failure() -> N
         return httpx.Response(429 if len(requests) == 1 else 503, json={"private": "never logged"})
 
     with httpx.Client(transport=httpx.MockTransport(service), trust_env=False) as client:
-        adapter = GraderHTTP(client=client, base_url="http://127.0.0.1", grader=grader,
-                             environment={"OPENAI_API_KEY": "secret-grader-key"}, settings=settings,
-                             sleep=sleeps.append)
+        adapter = GraderHTTP(
+            client=client,
+            base_url="http://127.0.0.1",
+            grader=grader,
+            environment={"OPENAI_API_KEY": "secret-grader-key"},
+            settings=settings,
+            sleep=sleeps.append,
+        )
         with pytest.raises(BenchError, match="grader_unavailable") as failure:
             adapter.complete((("user", "hidden rubric"),), settings.quantity("bench.grader.call_timeout"))
         assert len(requests) == 1 + settings.integer("bench.grader.max_retries")
@@ -45,13 +49,31 @@ def test_grader_429_and_503_have_bounded_retries_and_no_secret_in_failure() -> N
 def test_success_and_missing_credential_are_distinct() -> None:
     settings = BenchSettings(load_document(ROOT / "config/bench-settings.json", max_file_bytes=65536))
     grader = object_map(load_document(ROOT / "config/healthbench-plan.json", max_file_bytes=65536)["grader"])
-    with httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, json={
-            "choices": [{"message": {"content": '{"criteria_met":true}'}}]})), trust_env=False) as client:
-        adapter = GraderHTTP(client=client, base_url="http://127.0.0.1", grader=grader,
-                             environment={"OPENAI_API_KEY": "test"}, settings=settings, sleep=lambda _: None)
+    with httpx.Client(
+        transport=httpx.MockTransport(
+            lambda _: httpx.Response(
+                200, json={"choices": [{"message": {"content": '{"criteria_met":true}'}}]}
+            )
+        ),
+        trust_env=False,
+    ) as client:
+        adapter = GraderHTTP(
+            client=client,
+            base_url="http://127.0.0.1",
+            grader=grader,
+            environment={"OPENAI_API_KEY": "test"},
+            settings=settings,
+            sleep=lambda _: None,
+        )
         assert adapter.complete((("user", "protocol"),), settings.quantity("bench.grader.call_timeout"))
-        adapter = GraderHTTP(client=client, base_url="http://127.0.0.1", grader=grader,
-                             environment={}, settings=settings, sleep=lambda _: None)
+        adapter = GraderHTTP(
+            client=client,
+            base_url="http://127.0.0.1",
+            grader=grader,
+            environment={},
+            settings=settings,
+            sleep=lambda _: None,
+        )
         with pytest.raises(BenchError, match="grader_credential_missing") as refused:
             adapter.complete((("user", "protocol"),), settings.quantity("bench.grader.call_timeout"))
         assert adapter.calls == 0

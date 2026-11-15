@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import json
-from math import isfinite
 from decimal import Decimal
+from math import isfinite
 from pathlib import Path
 
 from crew_health.kernel.units import Quantity, Unit
@@ -40,8 +40,12 @@ def read_json(path: Path, *, max_file_bytes: int) -> dict[str, object]:
 
 def decode_json(data: bytes) -> dict[str, object]:
     try:
-        value: object = json.loads(data.decode("utf-8"), object_pairs_hook=_pairs, parse_constant=_nonfinite,
-                                   parse_float=_finite_float)
+        value: object = json.loads(
+            data.decode("utf-8"),
+            object_pairs_hook=_pairs,
+            parse_constant=_nonfinite,
+            parse_float=_finite_float,
+        )
         return object_map(value)
     except (ValueError, UnicodeError, RecursionError) as error:
         raise BenchError("case_invalid") from error
@@ -58,9 +62,7 @@ def _finite_float(value: str) -> float:
     return parsed
 
 
-def load_document(
-    path: Path, *, max_file_bytes: int, schema_path: Path | None = None
-) -> dict[str, object]:
+def load_document(path: Path, *, max_file_bytes: int, schema_path: Path | None = None) -> dict[str, object]:
     if schema_path is None:
         schema_path = path.parent / "schemas" / (path.stem + ".schema.json")
     document = read_json(path, max_file_bytes=max_file_bytes)

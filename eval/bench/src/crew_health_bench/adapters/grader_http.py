@@ -27,15 +27,30 @@ def credential_missing(api_key_env: str) -> BenchError:
 
 
 class GraderHTTP:
-    def __init__(self, *, client: httpx.Client, base_url: str, grader: Mapping[str, object],
-                 environment: Mapping[str, str], settings: BenchSettings, sleep: Callable[[Quantity], None]) -> None:
+    def __init__(
+        self,
+        *,
+        client: httpx.Client,
+        base_url: str,
+        grader: Mapping[str, object],
+        environment: Mapping[str, str],
+        settings: BenchSettings,
+        sleep: Callable[[Quantity], None],
+    ) -> None:
         url = urlsplit(base_url)
         try:
             local = url.hostname is not None and ip_address(url.hostname).is_loopback
         except ValueError:
             local = False
-        if (url.scheme not in ("http", "https") or not url.hostname or url.username or url.password
-                or url.query or url.fragment or (not local and url.scheme != "https")):
+        if (
+            url.scheme not in ("http", "https")
+            or not url.hostname
+            or url.username
+            or url.password
+            or url.query
+            or url.fragment
+            or (not local and url.scheme != "https")
+        ):
             raise BenchError("grader_unavailable")
         self.client, self.url = client, base_url.rstrip("/") + "/v1/chat/completions"
         self.key = environment.get(text(grader["api_key_env"]))
@@ -46,14 +61,25 @@ class GraderHTTP:
     def _once(self, messages: tuple[tuple[str, str], ...], timeout: Quantity) -> str:
         if not self.key:
             raise credential_missing(text(self.grader["api_key_env"]))
-        body = {"model": text(self.grader["model"]), "temperature": float(number(self.grader["temperature"])),
-                "max_tokens": integer(self.grader["max_tokens"]),
-                "messages": [{"role": "system", "content": text(self.grader["system_message"])},
-                             *({"role": role, "content": content} for role, content in messages)]}
+        body = {
+            "model": text(self.grader["model"]),
+            "temperature": float(number(self.grader["temperature"])),
+            "max_tokens": integer(self.grader["max_tokens"]),
+            "messages": [
+                {"role": "system", "content": text(self.grader["system_message"])},
+                *({"role": role, "content": content} for role, content in messages),
+            ],
+        }
         self.calls += 1
         maximum = self.settings.integer("bench.store.max_line_bytes")
-        with self.client.stream("POST", self.url, json=body, headers={"Authorization": "Bearer " + self.key},
-                                timeout=float(timeout.value), follow_redirects=False) as response:
+        with self.client.stream(
+            "POST",
+            self.url,
+            json=body,
+            headers={"Authorization": "Bearer " + self.key},
+            timeout=float(timeout.value),
+            follow_redirects=False,
+        ) as response:
             if response.status_code != 200:
                 raise GraderStatus(response.status_code)
             raw = bytearray()

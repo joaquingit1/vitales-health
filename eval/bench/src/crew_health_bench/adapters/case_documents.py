@@ -140,7 +140,6 @@ class CaseDocuments:
         )
         return hidden
 
-
     def hidden_for(self, case: LoadedCase, path: Path) -> tuple[HiddenPart, tuple[str, ...]]:
         from crew_health_bench.adapters.isolation import vault_path
 

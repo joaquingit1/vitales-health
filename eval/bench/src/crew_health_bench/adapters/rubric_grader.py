@@ -37,13 +37,15 @@ def _clinical(item: Rubric, trace: CaseTrace) -> checks.Outcome | None:
         case models.KitGateRejectedItem():
             return rubrics.KitGateRejected(item.code).evaluate(trace.requests, trace.capability_gaps)
         case models.AbstainsWhenItem():
-            return rubrics.AbstainsWhen(item.expected).evaluate(trace.final_action, trace.missing_evidence,
-                                                               trace.hypotheses)
+            return rubrics.AbstainsWhen(item.expected).evaluate(
+                trace.final_action, trace.missing_evidence, trace.hypotheses
+            )
         case models.AlternativesIncludeItem():
             return rubrics.AlternativesInclude(tuple(item.condition_ids)).evaluate()
         case models.PlanStepInItem():
-            return rubrics.PlanStepIn(item.plan_id).evaluate(trace.accepted, trace.active_step_ids,
-                                                            trace.rejected_call_ids, trace.logged_rejections)
+            return rubrics.PlanStepIn(item.plan_id).evaluate(
+                trace.accepted, trace.active_step_ids, trace.rejected_call_ids, trace.logged_rejections
+            )
         case models.NoDoseItem():
             return rubrics.NoDose(tuple(item.amount_patterns)).evaluate(trace.texts)
         case models.LinkInvariantItem():
@@ -58,10 +60,17 @@ def _grounding(item: Rubric, trace: CaseTrace, hidden: models.HiddenPart) -> che
         case models.NoFabricatedResultItem():
             return checks.NoFabricatedResult().evaluate(trace.observation_ids, trace.provenance_ids)
         case models.SupportResolvesItem():
-            return rubrics.SupportResolves().evaluate(trace.references, trace.accepted_observations,
-                trace.answers, trace.approved_passages, evidence_release_id=trace.evidence_release_id)
+            return rubrics.SupportResolves().evaluate(
+                trace.references,
+                trace.accepted_observations,
+                trace.answers,
+                trace.approved_passages,
+                evidence_release_id=trace.evidence_release_id,
+            )
         case models.NoCitationOfItem():
-            references = None if trace.references is None else tuple((ref, kind) for kind, ref in trace.references)
+            references = (
+                None if trace.references is None else tuple((ref, kind) for kind, ref in trace.references)
+            )
             return rubrics.NoCitationOf(item.kind).evaluate(references)
         case models.NoValueForCodeItem():
             patterns = hidden.forbidden_value_patterns.get(item.code)
@@ -80,7 +89,11 @@ def _safety(item: Rubric, trace: CaseTrace) -> checks.Outcome | None:
         case models.RequestedCapabilityInItem():
             return checks.RequestedCapabilityIn(tuple(item.codes)).evaluate(trace.capability_codes)
         case models.NoRequestForItem():
-            requests = None if trace.requests is None else tuple((code, state) for _, code, state, _ in trace.requests)
+            requests = (
+                None
+                if trace.requests is None
+                else tuple((code, state) for _, code, state, _ in trace.requests)
+            )
             return checks.NoRequestFor(item.code).evaluate(requests)
         case models.ToolCallsWithinItem():
             return checks.ToolCallsWithin(tuple(item.allowed), item.max_calls).evaluate(trace.tool_calls)
@@ -93,7 +106,9 @@ def _safety(item: Rubric, trace: CaseTrace) -> checks.Outcome | None:
     return None
 
 
-def evaluate_rubric(hidden: models.HiddenPart, trace: CaseTrace) -> tuple[tuple[str, str, tuple[str, ...]], ...]:
+def evaluate_rubric(
+    hidden: models.HiddenPart, trace: CaseTrace
+) -> tuple[tuple[str, str, tuple[str, ...]], ...]:
     outcomes: list[tuple[str, str, tuple[str, ...]]] = []
     for item in hidden.rubric:
         result = _clinical(item, trace)

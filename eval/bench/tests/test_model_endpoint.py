@@ -8,13 +8,13 @@ from pathlib import Path
 import httpx
 import pytest
 from crew_health.kernel.units import Quantity, Unit
-from hypothesis import given, strategies as st
-
 from crew_health_bench.adapters.documents import BenchSettings, read_json
 from crew_health_bench.adapters.model_endpoint import LlamaEndpoint
 from crew_health_bench.adapters.model_release import load_release
 from crew_health_bench.domain.errors import BenchError
 from crew_health_bench.domain.model import ChatMessage
+from hypothesis import given
+from hypothesis import strategies as st
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT.parents[1] / "model/schemas/model-release.schema.json"

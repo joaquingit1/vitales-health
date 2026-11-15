@@ -86,7 +86,12 @@ class FileArtifactStore:
                 lock.close()
 
     def _path(self, run_id: str, stream: str) -> Path:
-        if stream not in ("state", "generations", "grades", "preregistration", "official_grades") or not run_id or "/" in run_id or "\\" in run_id:
+        if (
+            stream not in ("state", "generations", "grades", "preregistration", "official_grades")
+            or not run_id
+            or "/" in run_id
+            or "\\" in run_id
+        ):
             raise BenchError("vault_path_escape", exit_code=5)
         if self._lock is None:
             raise BenchError("interrupted", exit_code=6)
@@ -187,7 +192,6 @@ class FileArtifactStore:
             self._sync_ancestors(destination.parent)
         except OSError as error:
             raise BenchError("target_unreadable", exit_code=6) from error
-
 
     def _sync_ancestors(self, directory: Path) -> None:
         current = directory

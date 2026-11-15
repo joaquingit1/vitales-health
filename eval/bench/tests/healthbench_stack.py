@@ -1,8 +1,8 @@
 """Loopback stand-ins for llama-server and the HealthBench grader, plus a disposable repository layout.
 
-They exist only to drive the real `chc-bench healthbench` commands end to end without a model, a grader credential
-or network access. Nothing they produce is a benchmark result: the grader stand-in answers from a hash of the rubric
-line, so any number it yields measures the plumbing, never a model.
+They exist only to drive the real `chc-bench healthbench` commands end to end without a model, a
+grader credential or network access. Nothing they produce is a benchmark result: the grader stand-in
+answers from a hash of the rubric line, so any number it yields measures the plumbing, never a model.
 """
 
 from __future__ import annotations
@@ -42,8 +42,13 @@ class _Handler(BaseHTTPRequestHandler):
         if self.path != "/props" or self.server.kind != "model":
             self._reply(404, {})
             return
-        self._reply(200, {"model_path": "/models/" + self.server.weights_sha256 + ".gguf",
-                          "default_generation_settings": {"n_ctx": self.server.context_tokens}})
+        self._reply(
+            200,
+            {
+                "model_path": "/models/" + self.server.weights_sha256 + ".gguf",
+                "default_generation_settings": {"n_ctx": self.server.context_tokens},
+            },
+        )
 
     def do_POST(self) -> None:
         length = int(self.headers.get("Content-Length", "0"))
@@ -61,9 +66,15 @@ class _Handler(BaseHTTPRequestHandler):
             time.sleep(self.server.delay)
             last = body["messages"][-1]["content"]
             content = "Stand-in completion " + sha256(last.encode("utf-8")).hexdigest()[:12]
-            self._reply(200, {"choices": [{"message": {"role": "assistant", "content": content},
-                                           "finish_reason": "stop"}],
-                              "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2}})
+            self._reply(
+                200,
+                {
+                    "choices": [
+                        {"message": {"role": "assistant", "content": content}, "finish_reason": "stop"}
+                    ],
+                    "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+                },
+            )
             return
         prompt = body["messages"][-1]["content"]
         met = sha256(prompt.encode("utf-8")).digest()[0] % 2 == 0
@@ -76,7 +87,12 @@ class _Server(ThreadingHTTPServer):
 
     def __init__(self, kind: str, *, weights_sha256: str, context_tokens: int, delay: float) -> None:
         super().__init__(("127.0.0.1", 0), _Handler)
-        self.kind, self.weights_sha256, self.context_tokens, self.delay = kind, weights_sha256, context_tokens, delay
+        self.kind, self.weights_sha256, self.context_tokens, self.delay = (
+            kind,
+            weights_sha256,
+            context_tokens,
+            delay,
+        )
         self.requests: list[tuple[str, str, dict[str, str | None]]] = []
         self.statuses: list[int] = []
 
@@ -86,7 +102,9 @@ class _Server(ThreadingHTTPServer):
 
 
 @contextmanager
-def serve(kind: str, *, weights_sha256: str = "", context_tokens: int = 0, delay: float = 0.0) -> Iterator[_Server]:
+def serve(
+    kind: str, *, weights_sha256: str = "", context_tokens: int = 0, delay: float = 0.0
+) -> Iterator[_Server]:
     server = _Server(kind, weights_sha256=weights_sha256, context_tokens=context_tokens, delay=delay)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -103,9 +121,23 @@ def synthetic_row(index: int) -> dict[str, object]:
         "prompt_id": "synthetic-" + str(index),
         "prompt": [{"role": "user", "content": "Synthetic protocol prompt number " + str(index) + "."}],
         "rubrics": [
-            {"criterion": "Synthetic positive criterion " + str(index), "points": 5, "tags": ["axis:protocol"]},
-            {"criterion": "Synthetic second criterion " + str(index), "points": 3, "tags": ["axis:protocol"]},
-            {"criterion": "Synthetic negative criterion " + str(index), "points": -2, "tags": ["axis:protocol"]},
+            {
+                "criterion": "Synthetic positive criterion " + str(index),
+                "points": 5,
+                "tags": ["axis:protocol"],
+            },
+            {
+                "criterion": "Synthetic second criterion "
+                + str(index)
+                + " tells the reader to rest, drink water and recheck",
+                "points": 3,
+                "tags": ["axis:protocol"],
+            },
+            {
+                "criterion": "Synthetic negative criterion " + str(index),
+                "points": -2,
+                "tags": ["axis:protocol"],
+            },
         ],
         "example_tags": ["theme:synthetic"],
         "ideal_completions_data": None,
@@ -114,7 +146,10 @@ def synthetic_row(index: int) -> dict[str, object]:
 
 
 class Workspace:
-    """A repository copy holding only what `chc-bench` reads: E18's config, schemas, vendor pin and E17's schema."""
+    """A repository copy holding only what `chc-bench` reads.
+
+    E18's config, schemas and vendor pin, plus E17's release schema.
+    """
 
     def __init__(self, root: Path) -> None:
         self.repository = root / "repository"
@@ -122,8 +157,10 @@ class Workspace:
         for name in ("config", "schemas", "vendor"):
             shutil.copytree(BENCH / name, bench / name)
         (self.repository / "model/schemas").mkdir(parents=True)
-        shutil.copyfile(REPOSITORY / "model/schemas/model-release.schema.json",
-                        self.repository / "model/schemas/model-release.schema.json")
+        shutil.copyfile(
+            REPOSITORY / "model/schemas/model-release.schema.json",
+            self.repository / "model/schemas/model-release.schema.json",
+        )
         self.config = bench / "config"
         self.private = root / "private"
         self.runs = self.private / "runs"
@@ -156,7 +193,9 @@ class Workspace:
         plan = json.loads((self.config / "healthbench-plan.json").read_bytes())
         for dataset in plan["datasets"]:
             variant = str(dataset["variant"])
-            raw = b"".join((json.dumps(synthetic_row(index)) + "\n").encode("utf-8") for index in range(count))
+            raw = b"".join(
+                (json.dumps(synthetic_row(index)) + "\n").encode("utf-8") for index in range(count)
+            )
             source = self.private / ("source-" + variant + ".jsonl")
             source.write_bytes(raw)
             sources[variant] = source
@@ -168,7 +207,10 @@ class Workspace:
         from crew_health.kernel.commands import canonical_json
 
         manifest = {
-            "suite": "healthbench", "track": "model_only", "partition": "benchmark", "variant": variant,
+            "suite": "healthbench",
+            "track": "model_only",
+            "partition": "benchmark",
+            "variant": variant,
             "case_set_sha256": sha256(canonical_json(case_ids)).hexdigest(),
             "prompt_sha256": "none:model_only_track_adds_no_prompt",
             "tool_catalog_sha256": "none:model_only_track_has_no_tools",
@@ -176,8 +218,10 @@ class Workspace:
             "evidence_sha256": "none:model_only_track_has_no_evidence",
             "registry_version": "none:model_only_track_has_no_registry",
             "config_release_id": "none:model_only_track_has_no_hub",
-            "seed": "18", "repeats": 1,
-            "hardware": {"profile": "harness self test"}, "software": {"chc-bench": "0.1.0"},
+            "seed": "18",
+            "repeats": 1,
+            "hardware": {"profile": "harness self test"},
+            "software": {"chc-bench": "0.1.0"},
         }
         path = self.private / ("plan-" + variant + ".json")
         path.write_text(json.dumps(manifest), encoding="utf-8")

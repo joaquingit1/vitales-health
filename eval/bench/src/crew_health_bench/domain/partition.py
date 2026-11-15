@@ -133,7 +133,10 @@ def partition(
 
 
 def assign_groups(
-    groups: Mapping[str, tuple[Case, ...]], policy: PartitionPolicy, *, salt: bytes,
+    groups: Mapping[str, tuple[Case, ...]],
+    policy: PartitionPolicy,
+    *,
+    salt: bytes,
     previous: Mapping[str, Partition],
 ) -> dict[str, Partition]:
     if len(salt) != 32:

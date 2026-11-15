@@ -89,14 +89,18 @@ def compare(
     )
 
 
-def bootstrap_interval(values: tuple[float, ...], *, seed: int, bootstrap_b: int,
-                       interval_level: float) -> tuple[float, float]:
-    if (not values or any(not isfinite(value) for value in values)
-            or bootstrap_b < 1 or not 0 < interval_level < 1):
+def bootstrap_interval(
+    values: tuple[float, ...], *, seed: int, bootstrap_b: int, interval_level: float
+) -> tuple[float, float]:
+    if (
+        not values
+        or any(not isfinite(value) for value in values)
+        or bootstrap_b < 1
+        or not 0 < interval_level < 1
+    ):
         raise BenchError("case_invalid")
     rng = Random(seed)
-    samples = sorted(max(0.0, min(1.0, mean(rng.choices(values, k=len(values)))))
-                     for _ in range(bootstrap_b))
+    samples = sorted(max(0.0, min(1.0, mean(rng.choices(values, k=len(values))))) for _ in range(bootstrap_b))
     lower = int((1 - interval_level) / 2 * bootstrap_b)
     upper = min(bootstrap_b - 1, int((1 + interval_level) / 2 * bootstrap_b))
     return samples[lower], samples[upper]

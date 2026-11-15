@@ -50,6 +50,16 @@
       "exclusiveMinimum": 0,
       "maximum": 1
     },
+    "fp_salt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "fingerprint_sample_modulus": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 256
+    },
     "holdout_fraction": {
       "type": "number",
       "exclusiveMinimum": 0,
@@ -310,6 +320,72 @@
             "to_be_set_by"
           ],
           "additionalProperties": false
+        },
+        "fp_salt": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "fingerprint_sample_modulus": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -319,7 +395,9 @@
         "leak_jaccard",
         "holdout_fraction",
         "min_groups_for_split",
-        "vault"
+        "vault",
+        "fp_salt",
+        "fingerprint_sample_modulus"
       ],
       "additionalProperties": false
     }
@@ -329,6 +407,8 @@
     "minhash",
     "near_duplicate_jaccard",
     "leak_jaccard",
+    "fp_salt",
+    "fingerprint_sample_modulus",
     "holdout_fraction",
     "min_groups_for_split",
     "vault",

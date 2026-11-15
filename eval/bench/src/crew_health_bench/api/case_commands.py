@@ -32,8 +32,14 @@ def load_cases(paths: Sequence[Path], *, documents: CaseDocuments, max_files: in
     return loaded
 
 
-def validate(paths: Sequence[Path], *, config_dir: Path, settings: BenchSettings, ids: IdFactory,
-             hidden_dir: Path | None) -> tuple[LoadedCase, ...]:
+def validate(
+    paths: Sequence[Path],
+    *,
+    config_dir: Path,
+    settings: BenchSettings,
+    ids: IdFactory,
+    hidden_dir: Path | None,
+) -> tuple[LoadedCase, ...]:
     maximum = settings.integer("bench.leak.max_file_bytes")
     documents = CaseDocuments(config_dir.parent / "schemas", max_file_bytes=maximum, ids=ids)
     cases = load_cases(paths, documents=documents, max_files=settings.integer("bench.scan.max_files"))
@@ -64,21 +70,40 @@ def _previous(root: Path, maximum: int) -> dict[str, Partition]:
     return result
 
 
-def freeze(paths: Sequence[Path], *, config_dir: Path, settings: BenchSettings, ids: IdFactory,
-           hidden_dir: Path, salt_path: Path, fp_salt: str) -> None:
+def freeze(
+    paths: Sequence[Path],
+    *,
+    config_dir: Path,
+    settings: BenchSettings,
+    ids: IdFactory,
+    hidden_dir: Path,
+    salt_path: Path,
+    fp_salt: str,
+) -> None:
     maximum = settings.integer("bench.leak.max_file_bytes")
     policy = load_document(config_dir / "partition-policy.json", max_file_bytes=maximum)
-    owner = AgeOwnerGrant(recipients=text_list(object_map(policy["vault"])["recipients"]),
-                          environment=os.environ, max_file_bytes=maximum)
+    owner = AgeOwnerGrant(
+        recipients=text_list(object_map(policy["vault"])["recipients"]),
+        environment=os.environ,
+        max_file_bytes=maximum,
+    )
     owner.require_owner()
     repository = config_dir.resolve().parents[2]
     salt = owner.salt(salt_path, repository=repository)
     documents = CaseDocuments(config_dir.parent / "schemas", max_file_bytes=maximum, ids=ids)
     cases = load_cases(paths, documents=documents, max_files=settings.integer("bench.scan.max_files"))
-    texts = {case.case.case_id: documents.hidden_for(case, hidden_dir / (case.case.case_id + ".hidden.json"))[1]
-             for case in cases}
+    texts = {
+        case.case.case_id: documents.hidden_for(case, hidden_dir / (case.case.case_id + ".hidden.json"))[1]
+        for case in cases
+    }
     root = config_dir.parent
     previous = _previous(root, maximum)
     with FileArtifactStore(root, max_line_bytes=maximum, max_records=len(cases)) as store:
-        FreezePartitions(store=store, owner=owner).freeze(tuple(row.case for row in cases), policy,
-                                                        salt=salt, fp_salt=fp_salt, texts=texts, previous=previous)
+        FreezePartitions(store=store, owner=owner).freeze(
+            tuple(row.case for row in cases),
+            policy,
+            salt=salt,
+            fp_salt=fp_salt,
+            texts=texts,
+            previous=previous,
+        )

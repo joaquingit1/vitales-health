@@ -28,8 +28,14 @@ class LeakScanner:
         except (OSError, UnicodeError) as error:
             raise BenchError("target_unreadable", exit_code=6) from error
 
-    def scan(self, targets: tuple[tuple[str, Path], ...], holdout: tuple[Fingerprint, ...], *,
-             fp_salt: str, leak_jaccard: float) -> list[dict[str, object]]:
+    def scan(
+        self,
+        targets: tuple[tuple[str, Path], ...],
+        holdout: tuple[Fingerprint, ...],
+        *,
+        fp_salt: str,
+        leak_jaccard: float,
+    ) -> list[dict[str, object]]:
         if not targets or len(targets) > self.max_files:
             raise BenchError("target_unreadable", exit_code=6)
         findings: list[dict[str, object]] = []
@@ -43,8 +49,9 @@ class LeakScanner:
             if visited > self.max_files:
                 raise BenchError("target_unreadable", exit_code=6)
             for path in files:
-                for finding in scan_text(self._text(path), holdout, fp_salt=fp_salt,
-                                         leak_jaccard=leak_jaccard, target=kind):
+                for finding in scan_text(
+                    self._text(path), holdout, fp_salt=fp_salt, leak_jaccard=leak_jaccard, target=kind
+                ):
                     row = {**asdict(finding), "path": str(path)}
                     total_bytes += len(canonical_json(row))
                     if total_bytes > self.maximum:

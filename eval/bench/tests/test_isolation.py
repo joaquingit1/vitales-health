@@ -71,8 +71,9 @@ def test_shared_e21_marker_contract_and_unknown_kind_refusal(tmp_path: Path) -> 
 
     data = json.loads((ROOT / "contracts/api/examples/context/station.json").read_bytes())["value"]
     context = Context.model_validate(data)
-    marker = EvaluationMarker.model_validate({"kind": "evaluation", "run_id": "run", "fixture_id": "test",
-                                              "created_at": "2026-01-01T00:00:00Z"})
+    marker = EvaluationMarker.model_validate(
+        {"kind": "evaluation", "run_id": "run", "fixture_id": "test", "created_at": "2026-01-01T00:00:00Z"}
+    )
     path = tmp_path / ".chc-eval-marker.json"
     path.write_text(marker.model_dump_json(), encoding="utf-8")
     require_evaluation_hub(context, tmp_path, run_id="run", max_file_bytes=1048576)

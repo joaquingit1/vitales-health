@@ -10,12 +10,28 @@ from crew_health_bench.adapters.official_source import integrity, official_sourc
 from crew_health_bench.domain.documents import object_map
 from crew_health_bench.domain.errors import BenchError
 
-BENCH_DOCUMENTS = ("bench-settings.json", "claims-policy.json", "healthbench-plan.json", "partition-policy.json", "suites.json")
+BENCH_DOCUMENTS = (
+    "bench-settings.json",
+    "claims-policy.json",
+    "healthbench-plan.json",
+    "partition-policy.json",
+    "suites.json",
+)
 
 
 class HealthBenchInputs:
-    def __init__(self, *, manifest: Path, config_dir: Path, release: Path, schema: Path,
-                 corpus_root: Path, variant: str, preregistration: Path, settings: BenchSettings) -> None:
+    def __init__(
+        self,
+        *,
+        manifest: Path,
+        config_dir: Path,
+        release: Path,
+        schema: Path,
+        corpus_root: Path,
+        variant: str,
+        preregistration: Path,
+        settings: BenchSettings,
+    ) -> None:
         self.manifest, self.config_dir, self.release, self.schema = manifest, config_dir, release, schema
         self.corpus_root, self.variant, self.preregistration = corpus_root, variant, preregistration
         self.settings = settings
@@ -29,13 +45,18 @@ class HealthBenchInputs:
         harness["module_sha256"] = _hash(Path(healthbench_eval.__file__), self.maximum)
         release = load_release(self.release, self.schema, max_file_bytes=self.maximum)
         source = official_source(self.config_dir.parent / "vendor", max_file_bytes=self.maximum)
-        manifest.update(model_release=dict(release.projection), decoding=release.projection["decoding"],
-                        harness=harness, grader=plan["grader"],
-                        integrity=integrity(plan, source, str(harness["module_sha256"])),
-                        dataset_sha256={self.variant: dataset(plan, self.variant)["sha256"], "visible": corpus.sha256},
-                        preregistration_sha256=_hash(self.preregistration, self.maximum),
-                        bench_documents_sha256={name: _hash(self.config_dir / name, self.maximum)
-                                                for name in BENCH_DOCUMENTS})
+        manifest.update(
+            model_release=dict(release.projection),
+            decoding=release.projection["decoding"],
+            harness=harness,
+            grader=plan["grader"],
+            integrity=integrity(plan, source, str(harness["module_sha256"])),
+            dataset_sha256={self.variant: dataset(plan, self.variant)["sha256"], "visible": corpus.sha256},
+            preregistration_sha256=_hash(self.preregistration, self.maximum),
+            bench_documents_sha256={
+                name: _hash(self.config_dir / name, self.maximum) for name in BENCH_DOCUMENTS
+            },
+        )
         return manifest
 
     def verify(self, run_id: str) -> None:
