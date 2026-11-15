@@ -309,9 +309,9 @@ def test_invalid_commands_are_atomic_and_unauthorized_identities_fail(s: Station
         with pytest.raises(ProblemError):
             s.service.version(aggregate, None)
         with pytest.raises(ProblemError):
-            s.service.human(GROUND, aggregate)
+            s.service.human(uow, GROUND, aggregate)
         with pytest.raises(ProblemError):
-            s.service.human(OTHER, aggregate)
+            s.service.human(uow, OTHER, aggregate)
         with pytest.raises(ProblemError):
             s.service.replay(uow, OTHER, aggregate, s.identity("cmd_wrong", {}, ep))
         with pytest.raises(ProblemError):
@@ -448,6 +448,9 @@ def test_loader_ep6_rejects_missing_words_without_touching_e03_config() -> None:
             | frozenset({"answer_after_resolution", "urgency_raised", "new_activity", "review_unresolved"})
         },
         "task_kind_words": {key: "token" for key in ("review", "review_item", "custom")},
+        "review_role_words": {
+            key: "token" for key in ("crew_medical_officer", "acting_medical_officer", "ground")
+        },
         "review_decision_words": {
             key: "token" for key in ("agree", "disagree", "needs_more", "not_assessed")
         },

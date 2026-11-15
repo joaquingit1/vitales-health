@@ -17,6 +17,7 @@ from crew_health.kernel.scheduler import HealthState
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.testing import MemoryHealth, MemorySettings
 from crew_health.kernel.uow import ReadSnapshotFactory, UnitOfWorkFactory
+from crew_health.roles.application.ports import ClinicalAuthorityQuery
 
 from .builders import NOW, PATIENT, station
 
@@ -32,6 +33,8 @@ def test_real_registration_resolves_exact_consumer_classes_and_dispatches(tmp_pa
         ReadSnapshotFactory: state.db,
         IdempotencyStore: state.service.ledger,
         EpisodeRulesSource: state.service.rules,
+        ClinicalAuthorityQuery: state.facts,
+        ports.RecordAuthorization: state.facts,
         ports.AnswerStore: state.facts,
         ports.UrgencyQueries: state.facts,
         ports.OriginNamespace: state.facts,
@@ -56,6 +59,8 @@ def test_real_registration_resolves_exact_consumer_classes_and_dispatches(tmp_pa
         ports.EpisodeRecordsSource,
     ):
         assert port in registry.providers
+    assert ClinicalAuthorityQuery in registry.providers
+    assert ports.RecordAuthorization in registry.providers
     resolver = registry.resolve()
     kernel = resolver.require(ports.EpisodeKernel)  # type: ignore[type-abstract]
     facts = resolver.require(ports.EpisodeFacts)  # type: ignore[type-abstract]

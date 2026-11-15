@@ -260,3 +260,70 @@ def test_maintenance_starts_worker_and_arms_durable_wake(tmp_path: Path) -> None
             ) == ((1,),)
     finally:
         maintenance.close()
+
+
+@pytest.mark.trace("T-E15-028", "V30")
+def test_storage_failure_is_not_optional_dependency_failure(tmp_path: Path) -> None:
+    from crew_health.kernel.errors import StorageUnavailable
+
+    class Corrupt(Assessments):
+        def citing(
+            self, uow: ReadSnapshot | UnitOfWork, episode_id: str, record_ids: Sequence[str]
+        ) -> Sequence[str]:
+            raise StorageUnavailable("corrupt")
+
+    s = station(tmp_path)
+    ep = s.create()
+    old = s.answer(ep)
+    s.answer(ep, supersedes=old)
+    s.service.providers.assessments = Corrupt()
+    worker = RunCorrectionEffects(s.service, s.db, s.db, MemoryHealth(maximum=8))
+    try:
+        with pytest.raises(StorageUnavailable):
+            worker.run()
+    finally:
+        worker.close()
+    with s.db.snapshot() as view:
+        assert view.connection.rows("SELECT attempts,state FROM episodes_effect", (), limit=1) == (
+            (0, "due"),
+        )
+
+
+@pytest.mark.trace("T-E15-028", "V30")
+def test_timed_out_call_never_queues_a_second_call(tmp_path: Path) -> None:
+    from threading import Event
+
+    gate, second = Event(), Event()
+
+    class Stalled(Assessments):
+        calls = 0
+
+        def citing(
+            self, uow: ReadSnapshot | UnitOfWork, episode_id: str, record_ids: Sequence[str]
+        ) -> Sequence[str]:
+            self.calls += 1
+            if self.calls == 1:
+                gate.wait(1)
+            else:
+                second.set()
+            return ()
+
+    s = station(tmp_path)
+    ep = s.create()
+    old = s.answer(ep)
+    new = s.answer(ep, supersedes=old)
+    s.answer(ep, supersedes=new)
+    s.service.providers.assessments = Stalled()
+    s.service.limits = replace(s.service.limits, effect_call_timeout_ms=20, effect_batch_size=2)
+    worker = RunCorrectionEffects(s.service, s.db, s.db, MemoryHealth(maximum=8))
+    try:
+        assert worker.run() == 1
+        gate.set()
+        assert not second.wait(0.1)
+        with s.db.snapshot() as view:
+            assert {
+                row[0] for row in view.connection.rows("SELECT attempts FROM episodes_effect", (), limit=2)
+            } == {0, 1}
+    finally:
+        gate.set()
+        worker.close()

@@ -18,7 +18,7 @@ from crew_health.episodes.application.repository import EpisodeRepository
 from crew_health.episodes.application.rules import EpisodeRulesSource
 from crew_health.episodes.domain.due_policy import due_time
 from crew_health.episodes.domain.errors import refused
-from crew_health.episodes.domain.followup import officer, task_action
+from crew_health.episodes.domain.followup import task_action
 from crew_health.episodes.domain.onset import Onset
 from crew_health.episodes.domain.resolution import check_resolution
 from crew_health.episodes.domain.state_machine import next_state
@@ -53,12 +53,16 @@ from crew_health.kernel.uow import (
     SessionContext,
     UnitOfWork,
 )
+from crew_health.roles.application.ports import AuthorityDecision, ClinicalAuthorityQuery
 
 type View = ReadSnapshot | UnitOfWork
 
 
 @dataclass(slots=True)
 class Providers:
+    authorization: ports.RecordAuthorization | None = None
+    clinical_authority: ClinicalAuthorityQuery | None = None
+    delivered: ports.DeliveredEpisodeReader | None = None
     answers: ports.AnswerStore | None = None
     gaps: ports.GapFacts | None = None
     observations: ports.ObservationFacts | None = None
@@ -148,19 +152,24 @@ class EpisodeService:
         reopen: bool = False,
         resolve: bool = False,
         occurred_at: datetime | None = None,
+        preserve_state: bool = False,
     ) -> Episode:
         answered: frozenset[str] = frozenset()
-        if ep.state == EpisodeState.DRAFT:
+        if ep.state == EpisodeState.DRAFT and not preserve_state:
             if self.providers.answers is None:
                 raise ProblemError(ErrorCode.INTERNAL_ERROR, "answer provider unavailable", retryable=True)
             answered = self.providers.answers.question_ids_answered(uow, ep.episode_id)
-        state = next_state(
-            ep,
-            self.repo.task_facts(uow, ep.episode_id),
-            self.repo.link_facts(uow, ep.episode_id),
-            answered=answered,
-            reopen=reopen,
-            resolve=resolve,
+        state = (
+            ep.state
+            if preserve_state
+            else next_state(
+                ep,
+                self.repo.task_facts(uow, ep.episode_id),
+                self.repo.link_facts(uow, ep.episode_id),
+                answered=answered,
+                reopen=reopen,
+                resolve=resolve,
+            )
         )
         if ep.state == EpisodeState.RESOLVED and reopen:
             reason = {
@@ -242,28 +251,86 @@ class EpisodeService:
         )
         return EpisodeRef(ep.episode_id, 1)
 
-    def authorize(self, view: View, session: SessionContext, ep: Episode) -> str:
-        consent = False
-        if session.kind == "ground" and self.providers.consent is not None:
-            consent = self.providers.consent.allows(
-                view, ep.patient_id, "ground", ("episode", "clinical_review")
+    def authorize(
+        self,
+        view: View,
+        session: SessionContext,
+        ep: Episode,
+        *,
+        fields: frozenset[str] = frozenset({"episode"}),
+        ground_advice: bool = False,
+    ) -> str:
+        if session.actor.kind == "assistant":
+            raise refused(ErrorCode.UNAUTHORIZED_SCOPE)
+        if (
+            session.kind == "crew"
+            and session.actor.kind == "person"
+            and session.person_id == session.actor.id
+        ):
+            if session.person_id == ep.patient_id:
+                return visibility(session, ep.patient_id)
+            if self.providers.authorization is None:
+                raise refused(ErrorCode.NOT_FOUND)
+            self.providers.authorization.require_read(
+                view, session, object_ref=ep.episode_id, patient_id=ep.patient_id, fields=fields
             )
-        result = visibility(session, ep.patient_id, ground_consent=consent)
-        if result == "none":
-            code = (
-                ErrorCode.CONSENT_REQUIRED
-                if session.kind == "ground"
-                else ErrorCode.NOT_FOUND
-                if session.kind == "crew"
-                else ErrorCode.UNAUTHORIZED_SCOPE
-            )
-            raise refused(code)
-        return result
+            return visibility(session, ep.patient_id, object_grant=True)
+        if (
+            ground_advice
+            and session.kind == "ground"
+            and session.actor.kind == "ground"
+            and "ground" in session.roles
+        ):
+            if (
+                self.providers.consent is not None
+                and self.providers.consent.allows(
+                    view, ep.patient_id, "ground", ("episode", "clinical_review")
+                )
+                and self.providers.authorization is not None
+            ):
+                self.providers.authorization.require_read(
+                    view,
+                    session,
+                    object_ref=ep.episode_id,
+                    patient_id=ep.patient_id,
+                    fields=frozenset({"record_review"}),
+                )
+                return "advice"
+            raise refused(ErrorCode.CONSENT_REQUIRED)
+        raise refused(ErrorCode.UNAUTHORIZED_SCOPE)
 
-    def human(self, session: SessionContext, ep: Episode, *, require_officer: bool = False) -> bool:
+    def authority(
+        self,
+        view: View,
+        session: SessionContext,
+        ep: Episode,
+        *,
+        action: Literal["record_review", "clinician_assessed"] = "record_review",
+    ) -> AuthorityDecision:
+        if (
+            session.kind != "crew"
+            or session.actor.kind != "person"
+            or session.actor.id != session.person_id
+            or session.person_id == ep.patient_id
+        ):
+            return AuthorityDecision("none", None, "not an independent human clinician")
+        if self.providers.clinical_authority is None:
+            return AuthorityDecision("none", None, "clinical authority unavailable")
+        return self.providers.clinical_authority.authority(
+            view,
+            person_id=session.actor.id,
+            subject_person_id=ep.patient_id,
+            action=action,
+            dose=None,
+            at=view.now,
+        )
+
+    def human(
+        self, view: View, session: SessionContext, ep: Episode, *, require_officer: bool = False
+    ) -> bool:
         if session.kind != "crew" or session.actor.kind != "person" or session.actor.id != session.person_id:
             raise refused(ErrorCode.ACTION_NOT_ALLOWED)
-        is_officer = officer(session.person_id, ep.patient_id, frozenset(str(r) for r in session.roles))
+        is_officer = self.authority(view, session, ep).kind != "none"
         if require_officer and not is_officer:
             raise refused(ErrorCode.ACTION_NOT_ALLOWED)
         if not is_officer and session.person_id != ep.patient_id:
@@ -271,12 +338,18 @@ class EpisodeService:
         return is_officer
 
     def replay(
-        self, uow: UnitOfWork, session: SessionContext, ep: Episode, identity: CommandIdentity
+        self,
+        uow: UnitOfWork,
+        session: SessionContext,
+        ep: Episode,
+        identity: CommandIdentity,
+        *,
+        ground_advice: bool = False,
     ) -> str | None:
         if identity.actor_ref != session.actor.id:
             raise refused(ErrorCode.UNAUTHORIZED_SCOPE)
         stored = self.ledger.lookup(uow, identity)
-        self.authorize(uow, session, ep)
+        self.authorize(uow, session, ep, ground_advice=ground_advice)
         return stored.resource_ref if stored is not None else None
 
     def receipt(self, uow: UnitOfWork, identity: CommandIdentity, resource: str, status: int) -> None:
@@ -309,7 +382,7 @@ class EpisodeService:
         ep = self.repo.require(uow, episode_id)
         if self.replay(uow, session, ep, identity) is not None:
             return ep
-        is_officer = self.human(session, ep)
+        is_officer = self.human(uow, session, ep)
         self.version(ep, expected)
         kind = text(action.get("action"))
         if ep.state == EpisodeState.RESOLVED and kind in ("request_review", "add_followup"):
@@ -321,7 +394,7 @@ class EpisodeService:
                 raise refused(ErrorCode.INVALID_TRANSITION)
             ep = self.changed(uow, ep, "reopened", cause=text(action.get("reason")), reopen=True)
         elif kind == "acknowledge":
-            self.human(session, ep, require_officer=True)
+            self.human(uow, session, ep, require_officer=True)
             self.record(
                 uow, "ack", self.ids.new("ack"), ep, {"by": actor_wire(uow.actor), "at": instant(uow.now)}
             )
@@ -465,7 +538,7 @@ class EpisodeService:
             refs,
             text(review_id) if review_id is not None else None,
             session.actor.id,
-            "crew_medical_officer" if is_officer else "patient",
+            self.authority(uow, session, ep, action="clinician_assessed").kind if is_officer else "patient",
         )
         check_resolution(ep, cmd, facts)
         ref = self.ids.new("res")
@@ -676,7 +749,7 @@ class EpisodeService:
         if uow.actor != session.actor:
             raise refused(ErrorCode.ACTION_NOT_ALLOWED)
         ep = self.repo.require(uow, episode_id)
-        old = self.replay(uow, session, ep, identity)
+        old = self.replay(uow, session, ep, identity, ground_advice=session.kind == "ground")
         if old is not None:
             row = uow.connection.rows("SELECT data FROM episodes_review WHERE review_id=?", (old,), limit=1)
             return decode(row[0][0])
@@ -684,7 +757,7 @@ class EpisodeService:
         if session.actor.kind == "assistant" or (ground and session.actor.kind != "ground"):
             raise refused(ErrorCode.ACTION_NOT_ALLOWED)
         if not ground:
-            self.human(session, ep, require_officer=True)
+            self.human(uow, session, ep, require_officer=True)
         self.version(ep, expected)
         assessment = body.get("assessment_id")
         if assessment is not None:
@@ -714,7 +787,8 @@ class EpisodeService:
         ):
             raise refused(ErrorCode.INVALID_VALUE, "supersedes_review_id")
         ref = self.ids.new("rev")
-        role = "ground" if ground else "crew_medical_officer"
+        decision = None if ground else self.authority(uow, session, ep)
+        role = "ground" if decision is None else decision.kind
         result = {
             "review_id": ref,
             "episode_id": episode_id,
@@ -725,6 +799,7 @@ class EpisodeService:
             "unresolved": unresolved,
             "signed_at": instant(uow.now),
             "authority": role,
+            "role_assignment_id": decision.role_assignment_id if decision is not None else None,
             "episode_revision_seen": ep.revision,
             "supersedes_review_id": supersedes,
         }
@@ -760,6 +835,7 @@ class EpisodeService:
             ep,
             "reviewed",
             cause=ref,
+            preserve_state=ground,
             reopen=not ground and bool(unresolved) and ep.state == EpisodeState.RESOLVED,
         )
         self.receipt(uow, identity, ref, 201)

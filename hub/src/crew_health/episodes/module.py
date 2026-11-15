@@ -50,6 +50,7 @@ from crew_health.kernel.uow import (
     UnitOfWork,
     UnitOfWorkFactory,
 )
+from crew_health.roles.application.ports import ClinicalAuthorityQuery
 
 
 class Resolver(Protocol):
@@ -151,6 +152,9 @@ def _bind(live: Live, api: EpisodeApi) -> Callable[[Resolver], None]:
             return
         limits = Limits(**{key: settings.integer("episodes." + key) for key, _, _, _ in _SETTINGS})
         providers = Providers(
+            authorization=resolver.optional(ports.RecordAuthorization),  # type: ignore[type-abstract]
+            clinical_authority=resolver.optional(ClinicalAuthorityQuery),  # type: ignore[type-abstract]
+            delivered=resolver.optional(ports.DeliveredEpisodeReader),  # type: ignore[type-abstract]
             answers=resolver.optional(ports.AnswerStore),  # type: ignore[type-abstract]
             gaps=resolver.optional(ports.GapFacts),  # type: ignore[type-abstract]
             observations=resolver.optional(ports.ObservationFacts),  # type: ignore[type-abstract]

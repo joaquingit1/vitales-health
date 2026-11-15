@@ -498,6 +498,55 @@
         ],
         "additionalProperties": false
       }
+    },
+    "history_cursors": {
+      "type": "object",
+      "properties": {
+        "ack": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "resolution": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reopen": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "onset": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "review": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "ack",
+        "resolution",
+        "reopen",
+        "onset",
+        "review"
+      ],
+      "additionalProperties": false
+    },
+    "observation_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id"
+      }
     }
   },
   "required": [
@@ -524,7 +573,9 @@
     "review_ids",
     "resolution",
     "reopenings",
-    "onset_history"
+    "onset_history",
+    "history_cursors",
+    "observation_ids"
   ],
   "additionalProperties": false
 }

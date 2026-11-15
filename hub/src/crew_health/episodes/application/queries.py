@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 from dataclasses import replace
 from datetime import datetime
+from hashlib import sha256
 from typing import Literal, cast
 
 from crew_health.episodes.application.codec import decode, instant, obj, text
@@ -47,9 +49,77 @@ class EpisodeQueries:
         )
         return self.for_session(view, session, episode_id)
 
-    def for_session(self, view: View, session: SessionContext, episode_id: str) -> dict[str, object]:
+    def delivered(
+        self, view: View, session: SessionContext, episode_id: str, *, field: str | None = None
+    ) -> dict[str, object]:
+        if session.kind != "ground" or session.actor.kind != "ground" or "ground" not in session.roles:
+            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, "ground recipient required")
+        provider = self.service.providers.delivered
+        projection = provider.read(view, session, episode_id=episode_id) if provider is not None else None
+        if projection is None:
+            raise ProblemError(ErrorCode.CONSENT_REQUIRED, "delivered approved snapshot required")
+        if (
+            projection.episode_id != episode_id
+            or projection.recipient_id != session.actor.id
+            or sha256(projection.body_json).hexdigest() != projection.content_sha256
+            or projection.delivered_at > view.now
+            or projection.original_at > projection.delivered_at
+        ):
+            raise ProblemError(ErrorCode.INTERNAL_ERROR, "invalid delivered projection", retryable=True)
+        body = obj(json.loads(projection.body_json))
+        if frozenset(body) != projection.selected_fields:
+            raise ProblemError(ErrorCode.INTERNAL_ERROR, "invalid selected fields", retryable=True)
+        if field is not None:
+            if field not in projection.selected_fields:
+                raise ProblemError(ErrorCode.CONSENT_REQUIRED, "field absent from delivered snapshot")
+            body = {field: body[field]}
+        return {
+            "projection_kind": "delivered_episode",
+            "handoff_id": projection.handoff_id,
+            "episode_id": episode_id,
+            "content_sha256": projection.content_sha256,
+            "original_at": instant(projection.original_at),
+            "delivered_at": instant(projection.delivered_at),
+            "selected_fields": sorted(body),
+            "fields": body,
+        }
+
+    def for_session(
+        self, view: View, session: SessionContext, episode_id: str, *, extended: bool = True
+    ) -> dict[str, object]:
+        if session.kind == "ground":
+            return self.delivered(view, session, episode_id)
         ep = self.repo.require(view, episode_id)
-        access = self.service.authorize(view, session, ep)
+        access = self.service.authorize(
+            view,
+            session,
+            ep,
+            fields=frozenset(
+                {
+                    "episode_id",
+                    "patient_id",
+                    "revision",
+                    "origin_mode",
+                    "concern_text",
+                    "onset",
+                    "state",
+                    "urgency_state",
+                    "measurement_request_ids",
+                    "capability_gaps",
+                    "assessment_ids",
+                    "help_session_ids",
+                    "followup_tasks",
+                    "created_at",
+                    "acknowledgments",
+                    "review_ids",
+                    "resolution",
+                    "reopenings",
+                    "onset_history",
+                    "config_release_id",
+                    "observation_ids",
+                }
+            ),
+        )
         p = self.service.providers
         if p.answers is None or p.urgency is None:
             raise ProblemError(ErrorCode.INTERNAL_ERROR, "episode linked facts unavailable", retryable=True)
@@ -61,6 +131,41 @@ class EpisodeQueries:
         for answer in answers:
             if answer.patient_id != ep.patient_id or answer.episode_id != episode_id:
                 raise ProblemError(ErrorCode.INTERNAL_ERROR, "answer scope mismatch", retryable=False)
+            if access != "full":
+                try:
+                    if p.authorization is None:
+                        raise ProblemError(ErrorCode.NOT_FOUND, "answer not shared")
+                    p.authorization.require_read(
+                        view,
+                        session,
+                        object_ref=answer.answer_id,
+                        patient_id=ep.patient_id,
+                        fields=frozenset(
+                            {
+                                "answer_id",
+                                "question_id",
+                                "questionnaire_version",
+                                "presence",
+                                "value",
+                                "unit",
+                                "body_region",
+                                "laterality",
+                                "actor",
+                                "answered_at",
+                                "origin_mode",
+                                "supersedes",
+                            }
+                        ),
+                    )
+                except ProblemError as exc:
+                    if exc.code not in (
+                        ErrorCode.NOT_FOUND,
+                        ErrorCode.UNAUTHORIZED_SCOPE,
+                        ErrorCode.CONSENT_REQUIRED,
+                    ):
+                        raise
+                    withheld += 1
+                    continue
             restricted = access != "full" and (
                 p.sensitivity is None
                 or p.sensitivity.is_restricted(answer.questionnaire_version, answer.question_id)
@@ -127,6 +232,7 @@ class EpisodeQueries:
             "withheld_answer_count": withheld,
             "config_release_id": ep.config_release_id,
             "unavailable_parts": [],
+            "observation_ids": groups.get("observation", []),
         }
         if groups.get("capability_gap"):
             if p.gaps is None:
@@ -137,27 +243,31 @@ class EpisodeQueries:
             if len(gaps) > self.service.limits.max_links_per_episode:
                 raise ProblemError(ErrorCode.INTERNAL_ERROR, "gap view bound", retryable=True)
             result["capability_gaps"] = [dict(gap) for gap in gaps]
-        result["acknowledgments"] = self.history(view, "ack", episode_id)
+        if not extended:
+            return result
+        pages = {
+            kind: self.history_page(
+                view, session, episode_id, kind, None, min(200, self.service.limits.max_links_per_episode)
+            )
+            for kind in ("ack", "resolution", "reopen", "onset", "review")
+        }
+        result["acknowledgments"] = pages["ack"]["items"]
         result["review_ids"] = [
-            text(r[0])
-            for r in view.connection.rows(
-                "SELECT review_id FROM episodes_review WHERE episode_id=? ORDER BY signed_at,review_id",
-                (episode_id,),
-                limit=self.service.limits.max_links_per_episode,
-            )
+            obj(item)["review_id"] for item in cast(list[object], pages["review"]["items"])
         ]
-        result["resolution"] = (
-            self.history(view, "resolution", episode_id)[-1] if ep.last_resolution_id else None
+        resolution = (
+            view.connection.rows(
+                "SELECT data FROM episodes_resolution WHERE resolution_id=?",
+                (ep.last_resolution_id,),
+                limit=1,
+            )
+            if ep.last_resolution_id
+            else ()
         )
-        result["reopenings"] = self.history(view, "reopen", episode_id)
-        result["onset_history"] = [
-            decode(r[0])
-            for r in view.connection.rows(
-                "SELECT data FROM episodes_onset WHERE episode_id=? ORDER BY seq",
-                (episode_id,),
-                limit=self.service.limits.max_links_per_episode,
-            )
-        ]
+        result["resolution"] = decode(resolution[0][0]) if resolution else None
+        result["reopenings"] = pages["reopen"]["items"]
+        result["onset_history"] = pages["onset"]["items"]
+        result["history_cursors"] = {kind: page["next_cursor"] for kind, page in pages.items()}
         return result
 
     def actions(self, view: View, session: SessionContext, ep: Episode, urgency_state: str) -> list[str]:
@@ -168,7 +278,7 @@ class EpisodeQueries:
             keys.extend(["request_review", "add_followup"])
         if session.person_id == ep.patient_id:
             keys.append("correct_onset")
-        if session.person_id != ep.patient_id and "crew_medical_officer" in session.roles:
+        if self.service.authority(view, session, ep).kind != "none":
             keys.extend(["acknowledge", "record_review"])
         if ep.state == EpisodeState.RESOLVED:
             keys.append("reopen")
@@ -202,11 +312,41 @@ class EpisodeQueries:
         return [
             decode(r[0])
             for r in view.connection.rows(
-                f"SELECT data FROM {table} WHERE episode_id=? ORDER BY rowid",
-                (episode_id,),
+                f"SELECT data FROM {table} WHERE episode_id=? ORDER BY rowid LIMIT ?",
+                (episode_id, self.service.limits.max_links_per_episode),
                 limit=self.service.limits.max_links_per_episode,
             )
         ]
+
+    def history_page(
+        self, view: View, session: SessionContext, episode_id: str, kind: str, cursor: str | None, limit: int
+    ) -> dict[str, object]:
+        if session.kind == "ground":
+            return self.delivered(view, session, episode_id, field="history")
+        ep = self.repo.require(view, episode_id)
+        self.service.authorize(view, session, ep, fields=frozenset({"history", kind}))
+        table = {
+            "ack": "episodes_ack",
+            "resolution": "episodes_resolution",
+            "reopen": "episodes_reopen",
+            "onset": "episodes_onset",
+            "review": "episodes_review",
+        }.get(kind)
+        if (
+            table is None
+            or not 1 <= limit <= min(200, self.service.limits.max_links_per_episode)
+            or (cursor is not None and (not cursor.isdigit() or len(cursor) > 16))
+        ):
+            raise ProblemError(ErrorCode.MALFORMED_REQUEST, "invalid history page")
+        rows = view.connection.rows(
+            f"SELECT rowid,data FROM {table} WHERE episode_id=? AND rowid>? ORDER BY rowid LIMIT ?",
+            (episode_id, int(cursor or "0"), limit + 1),
+            limit=limit + 1,
+        )
+        return {
+            "items": [decode(row[1]) for row in rows[:limit]],
+            "next_cursor": str(rows[limit - 1][0]) if len(rows) > limit else None,
+        }
 
     def tasks(
         self, view: View, episode_id: str, session: SessionContext | None = None
@@ -240,7 +380,7 @@ class EpisodeQueries:
                 and data["state"] == "open"
             ):
                 ep = self.repo.require(view, episode_id)
-                is_officer = session.person_id != ep.patient_id and "crew_medical_officer" in session.roles
+                is_officer = self.service.authority(view, session, ep).kind != "none"
                 owner = text(obj(data["owner"])["id"])
                 creator = text(obj(data["created_by"])["id"])
                 if data["kind"] != "review" and (session.person_id in (owner, ep.patient_id) or is_officer):
@@ -256,8 +396,10 @@ class EpisodeQueries:
     def timeline(
         self, view: View, session: SessionContext, episode_id: str, cursor: str | None, limit: int
     ) -> dict[str, object]:
+        if session.kind == "ground":
+            return self.delivered(view, session, episode_id, field="timeline")
         ep = self.repo.require(view, episode_id)
-        self.service.authorize(view, session, ep)
+        self.service.authorize(view, session, ep, fields=frozenset({"timeline"}))
         if not 1 <= limit <= 200 or (cursor is not None and (not cursor.isdigit() or len(cursor) > 16)):
             raise ProblemError(ErrorCode.MALFORMED_REQUEST, "invalid page")
         rows = view.connection.rows(
@@ -298,11 +440,10 @@ class EpisodeQueries:
     ) -> dict[str, object]:
         if session.kind != "crew" or session.actor.kind != "person":
             raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, "crew only")
-        is_officer = "crew_medical_officer" in session.roles
-        if not is_officer:
-            if patient_id is not None and patient_id != session.person_id:
-                raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, "patient scope")
-            patient_id = session.person_id
+        if session.person_id != session.actor.id:
+            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, "identity mismatch")
+        if patient_id != session.person_id and self.service.providers.authorization is None:
+            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, "object grants unavailable")
         if not 1 <= limit <= 200 or len(states) > 6 or any(s not in set(EpisodeState) for s in states):
             raise ProblemError(ErrorCode.MALFORMED_REQUEST, "invalid page")
         clauses = ["episode_id>?"]
@@ -332,6 +473,7 @@ class EpisodeQueries:
                 "title": r[6],
             }
             for r in rows[:limit]
+            if self.list_visible(view, session, text(r[0]))
         ]
         return {
             "items": items,
@@ -340,6 +482,35 @@ class EpisodeQueries:
                 "has_more": len(rows) > limit,
             },
         }
+
+    def list_visible(self, view: View, session: SessionContext, episode_id: str) -> bool:
+        ep = self.repo.require(view, episode_id)
+        try:
+            self.service.authorize(
+                view,
+                session,
+                ep,
+                fields=frozenset(
+                    {
+                        "episode_id",
+                        "patient_id",
+                        "state",
+                        "origin_mode",
+                        "created_at",
+                        "revision",
+                        "route_module_id",
+                    }
+                ),
+            )
+        except ProblemError as exc:
+            if exc.code not in (
+                ErrorCode.NOT_FOUND,
+                ErrorCode.UNAUTHORIZED_SCOPE,
+                ErrorCode.CONSENT_REQUIRED,
+            ):
+                raise
+            return False
+        return True
 
     def tool_facts(self, uow: UnitOfWork, episode_id: str, sections: frozenset[str]) -> EpisodeToolFacts:
         ep = self.repo.require(uow, episode_id)

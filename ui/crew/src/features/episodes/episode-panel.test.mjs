@@ -60,3 +60,34 @@ test('lost review response retries the same identity and refreshes coherent hist
     assert.equal(getCount, 2); assert.equal(timelineCount, 2);
   } finally { globalThis.document = oldDocument; }
 });
+
+test('stale view while editing never submits the completed form', async () => {
+  const { EpisodePanel } = await import('./episode-panel.ts');
+  const oldDocument = globalThis.document; globalThis.document = { createElement: tag => new NodeStub() };
+  let finish; let commands = 0;
+  const transport = { get: async () => fullEpisode, command: async () => { commands++; return fullEpisode; } };
+  const panel = new EpisodePanel(new NodeStub(), transport, fullWords, () => 'cmd_one', () => new Promise(resolve => { finish = resolve; }));
+  try {
+    await panel.open('epi_one');
+    const pending = panel.act('acknowledge');
+    panel.streamLost(); finish({}); await pending;
+    assert.equal(commands, 0);
+  } finally { globalThis.document = oldDocument; }
+});
+
+test('paged history appends once and a changed revision disables further actions', async () => {
+  const { EpisodePanel } = await import('./episode-panel.ts');
+  const oldDocument = globalThis.document; globalThis.document = { createElement: () => new NodeStub() };
+  let page = 0;
+  const transport = {get: async () => fullEpisode, command: async () => fullEpisode, timeline: async path => {
+    if (!path.includes('?')) return {revision:1,items:[{kind:'created',occurred_at:'t1',state:null,actor:null}],next_cursor:'1'};
+    page++; return {revision:page === 1 ? 1 : 2,items:[{kind:'answer',occurred_at:'t2',state:null,actor:null}],next_cursor:page===1?'2':null};
+  }};
+  const root=new NodeStub();
+  const panel=new EpisodePanel(root,transport,fullWords,()=> 'cmd_page',async()=>({}));
+  const text=node=>[node.textContent??'',...(node.children??[]).map(text)].join(' ');
+  try {
+    await panel.open('epi_one');await panel.more('timeline');assert.equal(page,1);assert.match(text(root),/t1/);assert.match(text(root),/t2/);
+    await panel.more('timeline');assert.match(text(root),/Stale/);
+  } finally {globalThis.document=oldDocument;}
+});

@@ -31,7 +31,7 @@ CREATE INDEX episodes_due ON episodes_task(state,due_at,task_id);
 CREATE TABLE episodes_task_event(task_id TEXT NOT NULL REFERENCES episodes_task,seq INTEGER NOT NULL,kind TEXT NOT NULL,at TEXT NOT NULL,actor_id TEXT NOT NULL,data BLOB NOT NULL,PRIMARY KEY(task_id,seq)) STRICT;
 CREATE TABLE episodes_task_source(task_id TEXT NOT NULL REFERENCES episodes_task,source_kind TEXT NOT NULL,ref_id TEXT NOT NULL,at TEXT NOT NULL,PRIMARY KEY(task_id,source_kind,ref_id)) STRICT;
 CREATE TABLE episodes_task_overdue(task_id TEXT PRIMARY KEY REFERENCES episodes_task,due_at TEXT NOT NULL,noticed_at TEXT NOT NULL) STRICT;
-CREATE TABLE episodes_review(review_id TEXT PRIMARY KEY,episode_id TEXT NOT NULL REFERENCES episodes_episode,reviewer_id TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('crew_medical_officer','ground')),signed_at TEXT NOT NULL,episode_revision_seen INTEGER NOT NULL,data BLOB NOT NULL) STRICT;
+CREATE TABLE episodes_review(review_id TEXT PRIMARY KEY,episode_id TEXT NOT NULL REFERENCES episodes_episode,reviewer_id TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('crew_medical_officer','acting_medical_officer','ground')),signed_at TEXT NOT NULL,episode_revision_seen INTEGER NOT NULL,data BLOB NOT NULL) STRICT;
 CREATE TABLE episodes_ack(ack_id TEXT PRIMARY KEY,episode_id TEXT NOT NULL REFERENCES episodes_episode,data BLOB NOT NULL) STRICT;
 CREATE TABLE episodes_resolution(resolution_id TEXT PRIMARY KEY,episode_id TEXT NOT NULL REFERENCES episodes_episode,episode_revision_seen INTEGER NOT NULL,data BLOB NOT NULL) STRICT;
 CREATE TABLE episodes_reopen(reopen_id TEXT PRIMARY KEY,episode_id TEXT NOT NULL REFERENCES episodes_episode,resolution_id TEXT NOT NULL UNIQUE,data BLOB NOT NULL) STRICT;

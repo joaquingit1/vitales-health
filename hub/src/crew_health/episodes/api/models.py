@@ -7,6 +7,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
+from crew_health.contracts_gen.schemas.clinical_review_schema import Decision, UnresolvedItem
+from crew_health.contracts_gen.schemas.common_schema import Actor, Id, Instant
 from crew_health.contracts_gen.schemas.requests_schema import ReviewCreate
 
 
@@ -92,6 +94,21 @@ type EpisodeAction = Annotated[
 
 class ReviewRequest(ReviewCreate):
     supersedes_review_id: str | None = Field(default=None, pattern="^[A-Za-z0-9_]+$")
+
+
+class ReviewResponse(StrictBody):
+    review_id: Id
+    episode_id: Id
+    reviewer: Actor
+    role: Literal["crew_medical_officer", "acting_medical_officer", "ground"]
+    assessment_id: Id | None
+    decisions: list[Decision]
+    unresolved: list[UnresolvedItem]
+    signed_at: Instant
+    authority: Literal["crew_medical_officer", "acting_medical_officer", "ground"]
+    role_assignment_id: Id | None
+    episode_revision_seen: int = Field(ge=1)
+    supersedes_review_id: Id | None
 
 
 def action_adapter() -> TypeAdapter[EpisodeAction]:

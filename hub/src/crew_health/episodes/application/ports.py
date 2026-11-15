@@ -6,6 +6,7 @@ All public DTOs remain independent of domain/adapters so consumers can import th
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol
 
@@ -23,6 +24,44 @@ from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWo
 
 type View = ReadSnapshot | UnitOfWork
 type EpisodeView = dict[str, object]
+
+
+class RecordAuthorization(Protocol):
+    """Exact E01 records read seam; its owner module currently imports its own domain."""
+
+    def require_read(
+        self,
+        view: ReadSnapshot | UnitOfWork,
+        session: SessionContext,
+        *,
+        object_ref: str,
+        patient_id: str,
+        fields: frozenset[str],
+    ) -> None: ...
+
+
+@dataclass(frozen=True, slots=True)
+class DeliveredEpisodeProjection:
+    handoff_id: str
+    content_sha256: str
+    episode_id: str
+    recipient_id: str
+    selected_fields: frozenset[str]
+    body_json: bytes
+    original_at: datetime
+    delivered_at: datetime
+
+
+class DeliveredEpisodeReader(Protocol):
+    """E16 implements this consumer-owned seam. Recheck the recipient's current field grant.
+
+    Only delivered, immutable, approved bytes may be returned. The body contains precisely
+    selected_fields. Live rows, queued bundles and unapproved catch-up data never qualify.
+    """
+
+    def read(
+        self, view: ReadSnapshot | UnitOfWork, session: SessionContext, *, episode_id: str
+    ) -> DeliveredEpisodeProjection | None: ...
 
 
 class EpisodeKernel(Protocol):

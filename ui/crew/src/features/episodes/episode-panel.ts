@@ -1,3 +1,4 @@
+import type { EpisodeEdit } from './episode-editor.js';
 /** Standalone episode surface. E03 supplies session transport, words and the mounting element. */
 export type Task = {
   task_id: string; revision: number; kind: string; action: string; state: string;
@@ -7,19 +8,19 @@ export type Task = {
 export type Episode = {
   episode_id: string; revision: number; state: string; urgency_state: string; origin_mode: string;
   concern_text: string; allowed_actions: string[]; followup_tasks: Task[];
-  withheld_answer_count: number;
+  withheld_answer_count: number; review_ids?: string[]; observation_ids?: string[];
 };
 export type Words = {
   states: Record<string, string>; origins: Record<string, string>; taskStates: Record<string, string>;
   actions: Record<string, string>; errors: Record<string, string>; overdue: string; duePending: string;
   stale: string; offline: string; withheld: string; timeline: string; concern: string;
-  timelineKinds?: Record<string,string>; reviewDecisions?: Record<string,string>; groundAdvice?: string;
+  timelineKinds?: Record<string,string>; reviewDecisions?: Record<string,string>; reviewRoles?: Record<string,string>; groundAdvice?: string;
 };
-export type Timeline = { revision: number; items: {kind: string; occurred_at: string; state: string | null; actor: {id: string} | null}[] };
+export type Timeline = { next_cursor?: string | null; revision: number; items: {kind: string; occurred_at: string; state: string | null; actor: {id: string} | null}[] };
 export type Review = {review_id: string; role: string; reviewer: {id: string; display_name?: string | null}; signed_at: string; decisions: {item: string; decision: string; rationale: string}[]; unresolved: string[]};
 export type Transport = {
   timeline?(path: string, signal: AbortSignal): Promise<Timeline>;
-  reviews?(path: string, signal: AbortSignal): Promise<{items: Review[]}>;
+  reviews?(path: string, signal: AbortSignal): Promise<{revision: number; items: Review[]; next_cursor?: string | null}>;
   review?(path: string, body: Record<string, unknown>, revision: number, key: string, signal: AbortSignal): Promise<Review>;
   get(path: string, signal: AbortSignal): Promise<Episode>;
   command(path: string, body: Record<string, unknown>, revision: number, key: string, signal: AbortSignal): Promise<Episode>;
@@ -33,12 +34,16 @@ export function taskStatus(task: Task, words: Words): string {
     .filter(Boolean).join(' ');
 }
 export class EpisodePanel {
+  private editorController: AbortController | null = null;
+  private editing = false;
   private generation = 0;
   private controller: AbortController | null = null;
   private value: Episode | null = null;
   private stale = true;
   private timeline: Timeline | null = null;
   private reviews: Review[] = [];
+  private reviewCursor: string | null = null;
+  private paging = false;
   private pending = false;
   private loading = false;
   private episodeId: string | null = null;
@@ -47,14 +52,15 @@ export class EpisodePanel {
   private transport: Transport;
   private words: Words;
   private key: () => string;
-  private edit: (action: string, episode: Episode,task?: Task) => Promise<Record<string, unknown> | null>;
+  private edit: EpisodeEdit;
   constructor(root: HTMLElement, transport: Transport, words: Words, key: () => string,
-    edit: (action: string, episode: Episode,task?: Task) => Promise<Record<string, unknown> | null>) {
+    edit: EpisodeEdit) {
     this.root = root; this.transport = transport; this.words = words; this.key = key; this.edit = edit;
   }
   clear(): void {
+    this.editorController?.abort(); this.editorController = null; this.editing = false;
     this.generation++; this.controller?.abort(); this.controller = null;
-    this.value = null; this.timeline = null; this.reviews = []; this.episodeId = null; this.retry = null; this.pending = false;
+    this.value = null; this.timeline = null; this.reviews = []; this.reviewCursor = null; this.paging = false; this.episodeId = null; this.retry = null; this.pending = false;
     this.loading = false; this.root.replaceChildren();
   }
   async open(episodeId: string): Promise<void> {
@@ -64,6 +70,7 @@ export class EpisodePanel {
     if (this.loading) { this.pending = true; return; }
     if (!this.episodeId) return;
     this.loading = true;
+    let reviewMismatch = false;
     const generation = this.generation;
     const controller = new AbortController(); this.controller = controller;
     try {
@@ -71,9 +78,9 @@ export class EpisodePanel {
       if (generation !== this.generation) return;
       this.value = value;
       if (this.transport.timeline) this.timeline = await this.transport.timeline(`/v1/episodes/${encodeURIComponent(this.episodeId)}/timeline`, controller.signal);
-      if (this.transport.reviews) this.reviews = (await this.transport.reviews(`/v1/episodes/${encodeURIComponent(this.episodeId)}/reviews`, controller.signal)).items;
+      if (this.transport.reviews) { const reviews = await this.transport.reviews(`/v1/episodes/${encodeURIComponent(this.episodeId)}/reviews`, controller.signal); this.reviews = reviews.items; this.reviewCursor = reviews.next_cursor ?? null; reviewMismatch = reviews.revision !== value.revision; }
       if (generation !== this.generation) return;
-      this.stale = this.timeline !== null && this.timeline.revision !== value.revision; this.render();
+      this.stale = reviewMismatch || (this.timeline !== null && this.timeline.revision !== value.revision); this.render();
     } catch {
       if (generation !== this.generation || controller.signal.aborted) return;
       this.stale = true; this.render();
@@ -84,14 +91,17 @@ export class EpisodePanel {
       }
     }
   }
-  streamLost(): void { this.stale = true; this.render(); }
+  streamLost(): void { this.editorController?.abort(); this.stale = true; this.render(); }
   async streamRestored(): Promise<void> { await this.refresh(); }
   async act(action: string,task?: Task): Promise<void> {
     const episode = this.value;
-    if (!episode || this.stale || !(task ? task.allowed_actions ?? [] : episode.allowed_actions).includes(action)) return;
+    if (!episode || this.editing || this.stale || !(task ? task.allowed_actions ?? [] : episode.allowed_actions).includes(action)) return;
     const generation = this.generation;
-    const body = await this.edit(action, episode,task);
-    if (!body || generation !== this.generation) return;
+    const editor = new AbortController(); this.editorController = editor; this.editing = true;
+    let body: Record<string,unknown> | null;
+    try { body = await this.edit(action, episode,task,editor.signal); }
+    finally { if (generation === this.generation) this.editing = false; }
+    if (!body || this.stale || editor.signal.aborted || generation !== this.generation) return;
     if (action === 'record_review' && !this.transport.review) return;
     this.retry = { body: action === 'record_review' ? body : { ...body, action, ...(task ? {task_id:task.task_id,task_revision:task.revision}: {}) },
       key: this.key(), revision: episode.revision, operation: action === 'record_review' ? 'review' : 'action' };
@@ -115,6 +125,26 @@ export class EpisodePanel {
       if (generation !== this.generation || controller.signal.aborted) return;
       this.stale = true; this.render();
     }
+  }
+  async more(kind: 'timeline' | 'reviews'): Promise<void> {
+    const cursor = kind === 'timeline' ? this.timeline?.next_cursor : this.reviewCursor;
+    if (this.paging || this.stale || !this.episodeId || !cursor) return;
+    this.paging = true; const generation=this.generation; const controller=new AbortController(); this.controller?.abort(); this.controller=controller;
+    try {
+      const path=`/v1/episodes/${encodeURIComponent(this.episodeId)}/${kind}?cursor=${encodeURIComponent(cursor)}`;
+      if (kind === 'timeline' && this.transport.timeline && this.timeline) {
+        const page = await this.transport.timeline(path,controller.signal);
+        if (generation !== this.generation || controller.signal.aborted) return;
+        if (page.revision !== this.value?.revision || page.next_cursor === cursor) { this.stale=true; return; }
+        this.timeline={...page,items:[...this.timeline.items,...page.items]};
+      } else if (kind === 'reviews' && this.transport.reviews) {
+        const page=await this.transport.reviews(path,controller.signal);
+        if (generation !== this.generation || controller.signal.aborted) return;
+        if (page.revision !== this.value?.revision || page.next_cursor === cursor) { this.stale=true; return; }
+        this.reviews=[...this.reviews,...page.items];this.reviewCursor=page.next_cursor ?? null;
+      }
+    } catch { if(generation === this.generation) this.stale=true; }
+    finally { if(generation === this.generation) {this.paging=false;this.render();} }
   }
   private node(tag: string, content: string): HTMLElement {
     const element = document.createElement(tag); element.textContent = content; return element;
@@ -152,11 +182,17 @@ export class EpisodePanel {
     }
     for (const review of this.reviews) {
       const section = document.createElement('section');
+      section.append(this.node('p', this.words.reviewRoles?.[review.role] ?? this.words.errors.unknown));
       if (review.role === 'ground') section.append(this.node('p',this.words.groundAdvice ?? this.words.errors.unknown));
       section.append(this.node('p', review.reviewer.display_name ?? review.reviewer.id), this.node('p', review.signed_at));
       for (const decision of review.decisions) section.append(this.node('p', decision.item), this.node('p',this.words.reviewDecisions?.[decision.decision] ?? this.words.errors.unknown), this.node('p', decision.rationale));
       for (const unresolved of review.unresolved) section.append(this.node('p', unresolved));
       this.root.append(section);
+    }
+    if (!this.stale) for (const kind of ['timeline','reviews'] as const) {
+      const cursor=kind==='timeline'?this.timeline?.next_cursor:this.reviewCursor;
+      const label=this.words.actions['more_'+kind];
+      if(cursor && label) {const button=this.node('button',label) as HTMLButtonElement;button.type='button';button.disabled=this.paging;button.addEventListener('click',()=>{void this.more(kind);});this.root.append(button);}
     }
     for (const action of visibleActions(episode, this.stale)) {
       const label = this.words.actions[action];
@@ -180,7 +216,7 @@ export function httpEpisodeTransport(headers: () => Record<string, string>): Tra
   return {
     get: (path, signal) => read<Episode>(path, { signal }),
     timeline: (path, signal) => read<Timeline>(path, { signal }),
-    reviews: (path, signal) => read<{items: Review[]}>(path, { signal }),
+    reviews: (path, signal) => read<{revision: number; items: Review[]; next_cursor?: string | null}>(path, { signal }),
     review: (path, body, revision, key, signal) => read<Review>(path, { method: 'POST', signal, headers: { 'Content-Type': 'application/json', 'If-Match': `"${revision}"`, 'Idempotency-Key': key }, body: JSON.stringify(body) }),
     command: (path, body, revision, key, signal) => read<Episode>(path, { method: 'POST', signal,
       headers: { 'Content-Type': 'application/json', 'If-Match': `"${revision}"`, 'Idempotency-Key': key },

@@ -20,6 +20,11 @@ class EpisodeWordsCheck:
         episode = data.get("episode_words", {})
         words = episode if isinstance(episode, dict) else {}
         specs = (
+            (
+                "/review_role_words",
+                data.get("review_role_words"),
+                frozenset({"crew_medical_officer", "acting_medical_officer", "ground"}),
+            ),
             ("/episode_words/state", words.get("state"), frozenset(s.value for s in EpisodeState)),
             (
                 "/resolution_reason_words",

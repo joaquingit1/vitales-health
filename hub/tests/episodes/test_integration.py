@@ -100,8 +100,8 @@ def test_privacy_ground_and_restricted_answers(s: Station) -> None:
         == 0
     )
     assert (
-        s.client.get("/v1/episodes?patient_id=person_a", headers={"Authorization": "other"}).status_code
-        == 403
+        s.client.get("/v1/episodes?patient_id=person_a", headers={"Authorization": "other"}).json()["items"]
+        == []
     )
     listed = s.client.get("/v1/episodes", headers={"Authorization": "officer"}).json()
     assert "private-concern-canary" not in json.dumps(listed)

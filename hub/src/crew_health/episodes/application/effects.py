@@ -6,6 +6,7 @@ from datetime import timedelta
 from crew_health.episodes.application.codec import array, decode, instant, integer, obj, text
 from crew_health.episodes.application.use_cases import EpisodeService
 from crew_health.episodes.domain.types import EpisodeState
+from crew_health.kernel.errors import StorageUnavailable
 from crew_health.kernel.scheduler import HealthState
 from crew_health.kernel.uow import Actor, ReadSnapshotFactory, UnitOfWorkFactory
 
@@ -37,7 +38,10 @@ class RunCorrectionEffects:
                 ("due", instant(view.now), s.limits.effect_batch_size),
                 limit=s.limits.effect_batch_size,
             )
+        processed = 0
         for row in rows:
+            processed += 1
+            timed_out = False
             refs: tuple[str, ...] = ()
             failed = False
             if s.providers.assessments is None:
@@ -56,9 +60,12 @@ class RunCorrectionEffects:
                 try:
                     refs = future.result(s.limits.effect_call_timeout_ms / 1000)
                 except TimeoutError:
+                    timed_out = True
                     failed = True
                     self.pending = True
                     future.add_done_callback(lambda _: setattr(self, "pending", False))
+                except StorageUnavailable:
+                    raise
                 except Exception:
                     failed = True
             if len(refs) > s.limits.max_links_per_episode:
@@ -122,4 +129,6 @@ class RunCorrectionEffects:
                 if exhausted:
                     s.audit(uow, ep, "effect_failed")
                     self.health.mark_degraded("episodes_effects", "DEPENDENCY_UNAVAILABLE", uow.now)
-        return len(rows)
+            if timed_out:
+                break
+        return processed

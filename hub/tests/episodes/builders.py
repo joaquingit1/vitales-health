@@ -6,6 +6,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Literal
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -21,12 +22,14 @@ from crew_health.episodes.application.use_cases import EpisodeService, Limits, P
 from crew_health.episodes.domain.onset import Onset
 from crew_health.episodes.module import setting_defaults
 from crew_health.kernel.commands import CommandIdentity, canonical_json, command_identity
+from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.testing import MemoryClock
 from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
 from crew_health.platform.adapters.ledger import CommandLedger
 from crew_health.platform.domain.audit import AuditPolicy
 from crew_health.platform.storage import SQLiteDatabase
 from crew_health.platform.testing.sqlite import database
+from crew_health.roles.application.ports import AuthorityDecision, DoseAuthorityContext
 
 ROOT = Path(__file__).resolve().parents[3]
 NOW = datetime(2026, 11, 13, 12, tzinfo=UTC)
@@ -55,6 +58,29 @@ class Facts:
     rows: list[Answer] = field(default_factory=list)
     urgency: str = "none"
     consent: bool = False
+    shared: bool = True
+    authority_kind: Literal["crew_medical_officer", "acting_medical_officer", "none"] = "crew_medical_officer"
+
+    def require_read(
+        self, view: View, session: SessionContext, *, object_ref: str, patient_id: str, fields: frozenset[str]
+    ) -> None:
+        if not self.shared or session.person_id not in ("officer_a", "ground"):
+            raise ProblemError(ErrorCode.NOT_FOUND, "not shared")
+
+    def authority(
+        self,
+        snapshot: View,
+        *,
+        person_id: str,
+        subject_person_id: str,
+        action: Literal["urgency_disposition", "dose_confirmation", "record_review", "clinician_assessed"],
+        dose: DoseAuthorityContext | None,
+        at: datetime,
+    ) -> AuthorityDecision:
+        kind = self.authority_kind if person_id == "officer_a" and person_id != subject_person_id else "none"
+        if action == "clinician_assessed" and kind == "acting_medical_officer":
+            kind = "none"
+        return AuthorityDecision(kind, "rol_authority" if kind != "none" else None, "test assignment")
 
     def for_episode(self, uow: View, episode_id: str) -> Sequence[Answer]:
         return tuple(a for a in self.rows if a.episode_id == episode_id)
@@ -230,7 +256,16 @@ def station(path: Path) -> Station:
         EpisodeRepository(max_links=limits.max_links_per_episode, max_tasks=limits.max_open_tasks),
         db.ids,
         rules,
-        Providers(answers=f, urgency=f, roster=f, consent=f, sensitivity=f, origin=f),
+        Providers(
+            authorization=f,
+            clinical_authority=f,
+            answers=f,
+            urgency=f,
+            roster=f,
+            consent=f,
+            sensitivity=f,
+            origin=f,
+        ),
         limits,
         CommandLedger(db.ids),
     )

@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from crew_health.contracts_gen.schemas.clinical_review_schema import ClinicalReview
 from crew_health.contracts_gen.schemas.episode_schema import Episode as ContractEpisode
 from crew_health.contracts_gen.schemas.error_schema import ErrorEnvelope
-from crew_health.episodes.api.models import ReviewRequest, action_adapter
+from crew_health.episodes.api.models import ReviewRequest, ReviewResponse, action_adapter
 from crew_health.episodes.application import ports
 from crew_health.episodes.application.codec import obj, text
 from crew_health.episodes.application.queries import EpisodeQueries
@@ -41,6 +41,8 @@ def _response(body: object, status: int = 200, headers: dict[str, str] | None = 
 
 
 def _base_episode(result: dict[str, object], *, extended: bool = False) -> dict[str, object]:
+    if result.get("projection_kind") == "delivered_episode":
+        return result
     base = {k: v for k, v in result.items() if k in ContractEpisode.model_fields}
     base["followup_tasks"] = (
         [
@@ -125,13 +127,29 @@ def build_router(api: EpisodeApi) -> APIRouter:
         with api.snapshots.snapshot() as view:
             if operation == "getEpisode":
                 result = _base_episode(
-                    api.queries.for_session(view, session, episode_id),
+                    api.queries.for_session(
+                        view,
+                        session,
+                        episode_id,
+                        extended="application/vnd.crew-health.episode+json"
+                        in request.headers.get("accept", ""),
+                    ),
                     extended="application/vnd.crew-health.episode+json" in request.headers.get("accept", ""),
                 )
                 headers = {
-                    "ETag": '"' + str(result["revision"]) + '"',
+                    **({"ETag": '"' + str(result["revision"]) + '"'} if "revision" in result else {}),
                     "Config-Release": view.release.release_id,
                 }
+            elif operation == "getEpisodeHistory":
+                result = api.queries.history_page(
+                    view,
+                    session,
+                    episode_id,
+                    request.query_params.get("kind", "ack"),
+                    request.query_params.get("cursor"),
+                    int(request.query_params.get("limit", "50")),
+                )
+                headers = {}
             elif operation == "getEpisodeTimeline":
                 result = api.queries.timeline(
                     view,
@@ -142,8 +160,10 @@ def build_router(api: EpisodeApi) -> APIRouter:
                 )
                 headers = {"Config-Release": view.release.release_id}
             else:
+                if session.kind == "ground":
+                    return _response(api.queries.delivered(view, session, episode_id, field="reviews"))
                 ep = api.queries.repo.require(view, episode_id)
-                api.queries.service.authorize(view, session, ep)
+                api.queries.service.authorize(view, session, ep, fields=frozenset({"reviews"}))
                 limit = int(request.query_params.get("limit", "50"))
                 cursor = request.query_params.get("cursor", "")
                 if not 1 <= limit <= 200:
@@ -156,6 +176,8 @@ def build_router(api: EpisodeApi) -> APIRouter:
                 from crew_health.episodes.application.codec import decode
 
                 result = {
+                    "episode_id": episode_id,
+                    "revision": ep.revision,
                     "items": [decode(r[1]) for r in rows[:limit]],
                     "next_cursor": rows[limit - 1][0] if len(rows) > limit else None,
                 }
@@ -165,6 +187,10 @@ def build_router(api: EpisodeApi) -> APIRouter:
     @router.get("/v1/episodes/{episode_id}", operation_id="getEpisode")
     def get_episode(request: Request, episode_id: str) -> Response:
         return wrap(request, lambda: query(request, episode_id, "getEpisode"))
+
+    @router.get("/v1/episodes/{episode_id}/history", operation_id="getEpisodeHistory")
+    def get_history(request: Request, episode_id: str) -> Response:
+        return wrap(request, lambda: query(request, episode_id, "getEpisodeHistory"))
 
     @router.get("/v1/episodes/{episode_id}/timeline", operation_id="getEpisodeTimeline")
     def get_timeline(request: Request, episode_id: str) -> Response:
@@ -239,9 +265,11 @@ def build_router(api: EpisodeApi) -> APIRouter:
                     headers = {"ETag": '"' + str(ep.revision) + '"', "Config-Release": uow.release.release_id}
                 else:
                     result = api.service.review(uow, session, episode_id, body, _version(request), identity)
-                    ClinicalReview.model_validate(
-                        {k: v for k, v in result.items() if k in ClinicalReview.model_fields}
-                    )
+                    ReviewResponse.model_validate(result)
+                    if result["role"] != "acting_medical_officer":
+                        ClinicalReview.model_validate(
+                            {k: v for k, v in result.items() if k in ClinicalReview.model_fields}
+                        )
                     headers = {
                         "Location": "/v1/episodes/" + episode_id + "/reviews/" + text(result["review_id"]),
                         "Config-Release": uow.release.release_id,
@@ -253,13 +281,20 @@ def build_router(api: EpisodeApi) -> APIRouter:
                     )
                 with api.snapshots.snapshot() as view:
                     result = _base_episode(
-                        api.queries.for_session(view, session, episode_id),
+                        api.queries.for_session(
+                            view,
+                            session,
+                            episode_id,
+                            extended="application/vnd.crew-health.episode+json"
+                            in request.headers.get("accept", ""),
+                        ),
                         extended="application/vnd.crew-health.episode+json"
                         in request.headers.get("accept", ""),
                     )
                     headers["ETag"] = '"' + str(result["revision"]) + '"'
             if (
                 operation == "recordReview"
+                and result.get("role") != "acting_medical_officer"
                 and "application/vnd.crew-health.episode+json" not in request.headers.get("accept", "")
             ):
                 result = {k: v for k, v in result.items() if k in ClinicalReview.model_fields}
