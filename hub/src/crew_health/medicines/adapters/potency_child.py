@@ -78,11 +78,11 @@ def main() -> int:
     threading.Thread(target=_watch, args=(limit, sample_ms, deadline_s), daemon=True).start()
     payload = json.loads(sys.stdin.read())
     try:
-        from pharmacy.config import load_bundle  # type: ignore[import-not-found]  # child env only
+        from pharmacy.config import load_bundle  # child env only
 
         if mode != "check":  # numpy loads here, after the nice level and the memory watch are set
-            from pharmacy import pipeline  # type: ignore[import-not-found]  # child env only
-            from pharmacy.types import to_json  # type: ignore[import-not-found]  # child env only
+            from pharmacy import pipeline  # child env only
+            from pharmacy.types import to_json  # child env only
 
         bundle = load_bundle(bundle_dir)
         if mode == "check":

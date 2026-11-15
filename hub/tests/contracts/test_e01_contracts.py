@@ -29,11 +29,12 @@ def source_tree(root: Path) -> tuple[str, str]:
         path = root / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(
-            "def allowed(value: bool) -> bool:\n    if value:\n        return True\n    return False\n"
+            "def allowed(value: bool) -> bool:\n    if value:\n        return True\n    return False\n",
+            encoding="utf-8",
         )
     empty = root / "hub/src/crew_health/config/domain/__init__.py"
     empty.parent.mkdir(parents=True, exist_ok=True)
-    empty.write_text("")
+    empty.write_text("", encoding="utf-8")
     return first, second
 
 
@@ -58,7 +59,7 @@ def report(paths: tuple[str, ...], *, covered: int = 2, branches: int = 2) -> di
 
 def write_report(root: Path, value: object) -> Path:
     path = root / "coverage.json"
-    path.write_text(json.dumps(value))
+    path.write_text(json.dumps(value), encoding="utf-8")
     return path
 
 
@@ -119,10 +120,10 @@ def test_artifact_inventory_reports_missing_and_tampered_unreferenced_file(
     import hashlib
 
     artifact = tmp_path / "unreferenced.json"
-    artifact.write_text("{}")
+    artifact.write_text("{}", encoding="utf-8")
     manifest = {"unreferenced.json": hashlib.sha256(artifact.read_bytes()).hexdigest()}
     assert checker.artifact_check(tmp_path, manifest).ok
-    artifact.write_text('{"unexpected":true}')
+    artifact.write_text('{"unexpected":true}', encoding="utf-8")
     assert not checker.artifact_check(tmp_path, manifest).ok
     artifact.unlink()
     assert not checker.artifact_check(tmp_path, manifest).ok
@@ -145,7 +146,7 @@ def test_missing_semantic_contributor_never_passes_simulation(checker: ModuleTyp
 def test_mutation_inventory_is_source_bound_and_survivors_fail(checker: ModuleType, tmp_path: Path) -> None:
     path = tmp_path / "hub/src/crew_health/records/domain/rules.py"
     path.parent.mkdir(parents=True)
-    path.write_text("def allows(value: int) -> bool:\n    return value > 0\n")
+    path.write_text("def allows(value: int) -> bool:\n    return value > 0\n", encoding="utf-8")
     mutants = checker.mutation_inventory(tmp_path)
     assert mutants
     assert all("records/domain/rules.py" in mutant["id"] for mutant in mutants)
@@ -155,7 +156,7 @@ def test_mutation_inventory_is_source_bound_and_survivors_fail(checker: ModuleTy
         "mutants": [{"id": mutant["id"], "status": "survived"} for mutant in mutants],
     }
     evidence = tmp_path / "mutants.json"
-    evidence.write_text(json.dumps(value))
+    evidence.write_text(json.dumps(value), encoding="utf-8")
     assert not checker.mutations_check(tmp_path, evidence).ok
 
 
@@ -165,23 +166,26 @@ def test_untraced_overlay_edit_rejected_before_effective_validation(
     assert checker.overlay_check(tmp_path).ok
     overlay = tmp_path / "contracts/decision-overlay"
     overlay.mkdir(parents=True)
-    (overlay / "part-a.json").write_text('{"edits":[{"untraced":true}]}')
+    (overlay / "part-a.json").write_text('{"edits":[{"untraced":true}]}', encoding="utf-8")
     assert not checker.overlay_check(tmp_path).ok
 
 
 def test_safety_evidence_and_complexity_cannot_be_waived(checker: ModuleType, tmp_path: Path) -> None:
     path = tmp_path / "hub/src/crew_health/clock/domain/time.py"
     path.parent.mkdir(parents=True)
-    path.write_text("def safe(value: bool) -> bool:\n    return value and (value or False)\n")
+    path.write_text(
+        "def safe(value: bool) -> bool:\n    return value and (value or False)\n", encoding="utf-8"
+    )
     inventory = checker.condition_inventory(tmp_path)
     assert inventory
     assert not checker.safety_check(tmp_path, None).ok
-    path.write_text("def recursive(value: bool) -> bool:\n    return recursive(value)\n")
+    path.write_text("def recursive(value: bool) -> bool:\n    return recursive(value)\n", encoding="utf-8")
     assert any("recursion" in error for error in checker.safety_check(tmp_path, None).errors)
     path.write_text(
         "def complex(value: int) -> int:\n"
         + "    if value:\n        value -= 1\n" * 16
-        + "    return value\n"
+        + "    return value\n",
+        encoding="utf-8",
     )
     assert any("complexity" in error for error in checker.safety_check(tmp_path, None).errors)
 
@@ -191,17 +195,17 @@ def test_gate_runner_runs_every_gate_reports_failures_and_rejects_empty_manifest
     import subprocess
 
     manifest = tmp_path / "commands"
-    manifest.write_text("")
+    manifest.write_text("", encoding="utf-8")
     command = ["sh", str(ROOT / "scripts/gates.sh"), str(manifest)]
     assert subprocess.run(command, cwd=ROOT, capture_output=True, timeout=5).returncode == 1
     # Every gate runs even after one fails, and the run still fails: no failure hides the gates after it.
     marker = tmp_path / "later-gate-ran"
-    manifest.write_text("false\ntouch " + shlex.quote(str(marker)) + "\n")
+    manifest.write_text("false\ntouch " + shlex.quote(str(marker)) + "\n", encoding="utf-8")
     failed = subprocess.run(command, cwd=ROOT, capture_output=True, timeout=5, text=True)
     assert failed.returncode == 1
     assert marker.exists()
     assert "Gate summary: 2 commands, 1 failed" in failed.stdout
-    manifest.write_text("# Explicit hermetic gate fixture\ntrue\ntrue\n")
+    manifest.write_text("# Explicit hermetic gate fixture\ntrue\ntrue\n", encoding="utf-8")
     assert subprocess.run(command, cwd=ROOT, capture_output=True, timeout=5).returncode == 0
 
 
@@ -209,16 +213,17 @@ def test_unreferenced_example_is_still_schema_validated(checker: ModuleType, tmp
     schemas = tmp_path / "contracts/api/schemas"
     schemas.mkdir(parents=True)
     (schemas / "simple.schema.json").write_text(
-        '{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","properties":{"value":{"type":"number"}},"required":["value"],"additionalProperties":false}'
+        '{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","properties":{"value":{"type":"number"}},"required":["value"],"additionalProperties":false}',
+        encoding="utf-8",
     )
     registry, _, errors = checker._schema_catalog(tmp_path)
     assert not errors
     example = tmp_path / "unreferenced.json"
-    example.write_text('{"x-schema":"simple.schema.json","value":{"value":1}}')
+    example.write_text('{"x-schema":"simple.schema.json","value":{"value":1}}', encoding="utf-8")
     assert checker._validate_example(example, registry) == ()
-    example.write_text('{"x-schema":"simple.schema.json","value":{"value":"wrong"}}')
+    example.write_text('{"x-schema":"simple.schema.json","value":{"value":"wrong"}}', encoding="utf-8")
     assert checker._validate_example(example, registry)
-    example.write_text('{"x-schema":"missing.schema.json","value":{}}')
+    example.write_text('{"x-schema":"missing.schema.json","value":{}}', encoding="utf-8")
     assert checker._validate_example(example, registry)
 
 
@@ -235,14 +240,14 @@ def test_installed_generated_outputs_reject_unlisted_leaf(checker: ModuleType, t
     directory = tmp_path / "packages/contracts-ts/src/generated"
     directory.mkdir(parents=True)
     leaf = directory / "api.ts"
-    leaf.write_text("export type Value = string;\n")
+    leaf.write_text("export type Value = string;\n", encoding="utf-8")
     manifest = {
         "base": {},
         "effective": {},
         "overlay": None,
         "outputs": {"api.ts": hashlib.sha256(leaf.read_bytes()).hexdigest()},
     }
-    (directory / "manifest.json").write_text(json.dumps(manifest))
+    (directory / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     assert checker.installed_outputs_check(tmp_path, "packages/contracts-ts/src/generated", {}).ok
-    (directory / "unlisted.ts").write_text("export type Hidden = number;\n")
+    (directory / "unlisted.ts").write_text("export type Hidden = number;\n", encoding="utf-8")
     assert not checker.installed_outputs_check(tmp_path, "packages/contracts-ts/src/generated", {}).ok

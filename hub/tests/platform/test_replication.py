@@ -61,7 +61,7 @@ def peers(tmp_path):
 
 def projection_schema():
     # Resolve the guarded allowed resource leaf without introducing another accepted field or type.
-    common = json.loads(Path("contracts/api/schemas/common.schema.json").read_text())
+    common = json.loads(Path("contracts/api/schemas/common.schema.json").read_text(encoding="utf-8"))
     identifier = common["$defs"]["id"]
     schema = {
         "type": "object",

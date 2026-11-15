@@ -8,6 +8,7 @@ The records harness supplies its explicit synthetic quality and identity profile
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 from datetime import datetime
@@ -196,7 +197,25 @@ def worker_environment() -> dict[str, str]:
 
 
 def worker_command(module: str) -> list[str]:
-    return ["uv", "run", "--project", "workers/forecast", "python", "-m", module]
+    runner = shutil.which("uv")
+    if runner is None:
+        raise RuntimeError("uv is required for the locked forecast worker")
+    # On Windows terminating uv's launcher does not terminate its Python child.
+    # Resolve the actual project interpreter before starting the process we own.
+    resolved = subprocess.run(
+        [runner, "run", "--project", "workers/forecast", "python", "-c", "import sys; print(sys.executable)"],
+        cwd=ROOT,
+        env=worker_environment(),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=180,
+        check=True,
+    )
+    interpreter = Path(resolved.stdout.strip())
+    if not interpreter.is_absolute() or not interpreter.is_file():
+        raise RuntimeError("forecast worker interpreter was not resolved")
+    return [str(interpreter), "-m", module]
 
 
 def stop_worker(process: subprocess.Popen[bytes]) -> None:

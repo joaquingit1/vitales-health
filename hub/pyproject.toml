@@ -46,6 +46,14 @@ mypy_path = "hub/src"
 module = ["ucumvert", "ucumvert.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+# The potency engine (AGENTS 10) runs only in the child interpreter of medicines/adapters/potency_child.py and is not
+# installed in the hub venv. Run from the repository root mypy would find pharmacy/ and check the engine team's
+# code under hub's settings; it is never followed, from any working directory.
+module = ["pharmacy", "pharmacy.*"]
+follow_imports = "skip"
+ignore_missing_imports = true
+
 [tool.coverage.run]
 branch = true
 source = ["crew_health"]
