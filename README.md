@@ -258,6 +258,7 @@ of them blockers; each recurring one became a rule in AGENTS.md section 6. Every
 - Joaquin Castellano ([joaquingit1](https://github.com/joaquingit1))
 - Federico Gutman ([fedegutman](https://github.com/fedegutman))
 - Pedro Santiago Gentil ([pgentil](https://github.com/pgentil))
+- Pablo Calderon Perez ([pabcal](https://github.com/pabcal))
 
 ## Disclaimer
 
