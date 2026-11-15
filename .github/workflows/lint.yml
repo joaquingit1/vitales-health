@@ -104,7 +104,7 @@ jobs:
       - name: Resolve every project for Windows, wheels only
         run: |
           shopt -s nullglob
-          for project in pyproject.toml hub/pyproject.toml adapters/*/pyproject.toml simulators/*/pyproject.toml workers/*/pyproject.toml; do
+          for project in pyproject.toml hub/pyproject.toml adapters/*/pyproject.toml simulators/*/pyproject.toml workers/*/pyproject.toml model/*/pyproject.toml; do
             echo "== $project"
             uv pip compile "$project" --all-extras --python-version 3.14 \
               --python-platform x86_64-pc-windows-msvc --only-binary :all: --quiet --output-file "$RUNNER_TEMP/requirements.txt"
