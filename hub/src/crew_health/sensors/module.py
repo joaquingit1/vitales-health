@@ -349,6 +349,9 @@ class _Providers:
     def type_name(self, uow, sensor_type_id):  # type: ignore[no-untyped-def]
         return self._real().type_name(uow, sensor_type_id)
 
+    def last_results(self, uow, channel_id):  # type: ignore[no-untyped-def]
+        return self._real().last_results(uow, channel_id)
+
     def accepted(self, channel_id, *, until, limit):  # type: ignore[no-untyped-def]
         return self._real().accepted(channel_id, until=until, limit=limit)
 

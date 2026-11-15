@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import sqlite3
 from collections.abc import Iterator
-from datetime import datetime, timedelta
+from datetime import timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -165,28 +165,39 @@ def test_a_replayed_rr1_co2_hour_is_assessed_evaluated_and_raises_through_get_wa
     assert (raised["level"], raised["state"], raised["origin_mode"]) == ("act", "raised", "REPLAY")
 
 
-@pytest.mark.parametrize(
-    ("fault", "check"),
-    [(800.0, "out_of_range"), (30.0, "rate_exceeded")],
-    ids=["out_of_range", "rate_spike"],
-)
-def test_an_implausible_high_reading_is_kept_flagged_and_never_raises(
-    with_rules: None, tmp_path: Path, fault: float, check: str
+def test_an_impossible_high_reading_is_kept_flagged_and_never_raises(
+    with_rules: None, tmp_path: Path
 ) -> None:
-    """Thirteen readings at 2 mmHg and one fault. Had the fault counted, the one-hour mean would be above 3."""
+    """Thirteen readings at 2 mmHg and one above the sourced range. Had it counted, the one-hour mean would be
+    above 3: an impossible value is rejected, kept as measured and never evaluated."""
     st = _station(tmp_path)
-    rows = _baseline(st, 2.0, 13)
-    _post(st, rows, "base")
+    _post(st, _baseline(st, 2.0, 13), "base")
     assert "co2_above_limit" not in _warnings(st)
     st.advance(seconds=CADENCE)
-    _post(st, [_sim(st, 14, fault, 60)], "fault")
+    _post(st, [_sim(st, 14, 800.0, 60)], "fault")
     reading_id, _, quality, trace = _stored(st, "ch_co2_sim")[-1]
-    assert (quality, trace) == ("rejected", check)
+    assert (quality, trace) == ("rejected", "out_of_range")
     shown = _served(st, reading_id)
-    assert shown["quality_status"] == "rejected" and shown["provenance"]["trace"] == check
-    assert shown["value"] == fault  # kept as measured, never discarded or clipped
+    assert shown["quality_status"] == "rejected" and shown["provenance"]["trace"] == "out_of_range"
+    assert shown["value"] == 800.0  # kept as measured, never discarded or clipped
     assert "co2_above_limit" not in _warnings(st)
     assert _evaluation(st)["status"] == "within_limit"
+
+
+def test_a_rate_spike_is_kept_as_suspect_and_may_raise(with_rules: None, tmp_path: Path) -> None:
+    """A jump faster than the sourced rate could be a real event (a scrubber failure), so it is never hidden: it is
+    stored uncertain with its reason, shown flagged, and its one-hour mean (above 3 mmHg) raises the act warning."""
+    st = _station(tmp_path)
+    _post(st, _baseline(st, 2.0, 13), "base")
+    st.advance(seconds=CADENCE)
+    _post(st, [_sim(st, 14, 30.0, 60)], "fault")
+    reading_id, _, quality, trace = _stored(st, "ch_co2_sim")[-1]
+    assert (quality, trace) == ("uncertain", "rate_exceeded")
+    shown = _served(st, reading_id)
+    assert shown["quality_status"] == "uncertain" and shown["provenance"]["trace"] == "rate_exceeded"
+    assert shown["value"] == 30.0
+    raised = _warnings(st)["co2_above_limit"]
+    assert (raised["level"], raised["state"]) == ("act", "raised")
 
 
 def test_a_saturated_floor_is_kept_flagged_and_never_clears_an_active_warning(
@@ -208,9 +219,7 @@ def test_a_saturated_floor_is_kept_flagged_and_never_clears_an_active_warning(
     assert (still["warning_id"], still["state"]) == (raised["warning_id"], "raised")
 
 
-def test_a_stuck_feed_is_flagged_from_the_sourced_count_and_stops_advancing_the_window(
-    with_rules: None, tmp_path: Path
-) -> None:
+def test_a_stuck_feed_is_flagged_suspect_from_the_sourced_count(with_rules: None, tmp_path: Path) -> None:
     """Ten moving readings, then the sensor holds 2.3 mmHg for 45 readings 300 s apart. The NASA RR-1/RR-5 files'
     longest natural run is 37 samples (recomputed from the CSVs in test_plausibility), so the 38th identical sample
     onward is flagged."""
@@ -219,13 +228,17 @@ def test_a_stuck_feed_is_flagged_from_the_sourced_count_and_stops_advancing_the_
     held = [_sim(st, 11 + i, 2.3, 60 + CADENCE * (44 - i)) for i in range(45)]
     _post(st, moving + held, "stuck")
     found = _stored(st, "ch_co2_sim")
-    assert [s for _, s, q, t in found if (q, t) == ("rejected", "stuck_value")] == list(range(48, 56))
+    assert [s for _, s, q, t in found if (q, t) == ("uncertain", "stuck_value")] == list(range(48, 56))
     assert all(t is None for _, s, _, t in found[1:47])  # moving, then a run still short of the count
     assert _served(st, found[-1][0])["provenance"]["trace"] == "stuck_value"
-    status = _status(st)  # flagged readings never reset freshness: the channel goes stale and says so
-    last_good = datetime.fromisoformat(held[36]["observed_at"])  # the 37th held reading last advanced E
-    assert status["reading_state"] == "stale" and status["evaluation"]["level"] is None
-    assert datetime.fromisoformat(status["stale_since"]) == last_good + timedelta(seconds=900)
+    status = _status(st)  # a suspect reading is a real measurement: it is shown, flagged, and may only raise
+    latest = status["latest_reading"]
+    assert (latest["value"], latest["quality_status"], latest["provenance"]["trace"]) == (
+        2.3,
+        "uncertain",
+        "stuck_value",
+    )
+    assert status["evaluation"]["status"] == "within_limit"
     assert "co2_above_limit" not in _warnings(st)
 
 

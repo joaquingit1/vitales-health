@@ -1,5 +1,10 @@
 """Plausibility gate (DE23-11, R-E23-2): range, saturation, stuck value and rate of change on every input.
 
+The gate is asymmetric and fails safe. A plausibility check exists to catch a broken sensor and must never hide a
+dangerous true reading. Range and saturation failures are physically impossible values: the reading is rejected.
+A rate or stuck failure may be a real event (a leak, a fire, a scrubber failure) or a fault we cannot tell apart, so
+the reading is `suspect`: it is kept, it may raise a warning, and it can never clear, lower or count toward a dwell.
+
 The four criteria come from the sensor catalog, each with its sources; nothing here holds a number. A sensor type
 without criteria cannot be assessed: the answer is "unavailable" and the reading is captured but never evaluated.
 A check that cannot be proved from the history at hand is also "unavailable": missing history never passes a
@@ -37,6 +42,8 @@ SATURATION_CHECK = "saturation"
 STUCK_CHECK = "stuck"
 RATE_CHECK = "rate"
 STATIC_FAILURES = frozenset({OUT_OF_RANGE, SATURATED})
+SUSPECT_REASONS = frozenset({RATE_EXCEEDED, STUCK_VALUE})
+SUSPECT_CHECKS = {RATE_EXCEEDED: RATE_CHECK, STUCK_VALUE: STUCK_CHECK}
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,6 +55,21 @@ class PlausibilityResult:
     @property
     def evaluable(self) -> bool:
         return self.status == "passed"
+
+    @property
+    def rejected(self) -> bool:
+        """Range or saturation failed: the value is impossible and is never evaluated."""
+        return self.status == "failed" and self.reason in STATIC_FAILURES
+
+    @property
+    def suspect(self) -> bool:
+        """Rate or stuck failed: evaluated for raising only, never for clearing."""
+        return self.status == "failed" and self.reason in SUSPECT_REASONS
+
+    @property
+    def raises(self) -> bool:
+        """Whether the evaluation may run at all (it may raise; `suspect` removes every clear)."""
+        return self.evaluable or self.suspect
 
 
 def _static_failure(criteria: PlausibilityCriteria, value: Decimal) -> PlausibilityResult | None:

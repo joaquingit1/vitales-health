@@ -36,6 +36,7 @@ from crew_health.sensors.application.store import (
 from crew_health.sensors.domain.channel import ChannelFacts, Freshness, Origin
 from crew_health.sensors.domain.errors import SensorDomainError
 from crew_health.sensors.domain.freshness import ClockState, TimeFacts
+from crew_health.sensors.domain.reading import QualityStatus, TimeState
 
 _FRESHNESS: dict[str, Freshness] = {
     "current": "current",
@@ -67,6 +68,9 @@ class StoredSensorError(SensorDomainError):
 
     def __init__(self, detail: str = "") -> None:
         super().__init__("INTEGRITY_VIOLATION", detail)
+
+
+_MAX_REV = 2**63 - 1  # SQLite's largest rowid: every revision is below it
 
 
 def stamp(value: datetime) -> str:
@@ -448,6 +452,53 @@ class SqliteSensorStore:
             limit=limit,
         )
         return tuple(_reading(r) for r in rows)
+
+    def newest_readings(
+        self,
+        view: View,
+        channel_id: str,
+        *,
+        until: datetime | None,
+        statuses: tuple[QualityStatus, ...],
+        time_states: tuple[TimeState, ...],
+        limit: int,
+        activated_at: datetime | None = None,
+    ) -> Sequence[ReadingRecord]:
+        """Newest first, read backwards in keyset pages of `storage.max_rows`, at most `limit` rows."""
+        if not statuses or not time_states or limit < 1:
+            return ()
+        clauses = [
+            "channel_id = ?",
+            f"quality_status IN ({', '.join('?' for _ in statuses)})",
+            f"time_state IN ({', '.join('?' for _ in time_states)})",
+            "(observed_at < ? OR (observed_at = ? AND rev < ?))",
+        ]
+        fixed: list[SqlValue] = [channel_id, *statuses, *time_states]
+        if (
+            activated_at is not None
+        ):  # DE23-13: REPLAY by receive time, the others by corrected observation time
+            clauses.append(
+                "((origin_mode = 'REPLAY' AND received_at >= ?) OR (origin_mode != 'REPLAY' AND corrected_at >= ?))"
+            )
+        sql = (
+            f"SELECT {_READING_COLUMNS} FROM sensors_reading WHERE {' AND '.join(clauses)} "
+            "ORDER BY observed_at DESC, rev DESC LIMIT ?"
+        )
+        ceiling = (stamp(until) + "~" if until is not None else "~", 0)  # "~" sorts after every stamp
+        found: list[ReadingRecord] = []
+        while len(found) < limit:
+            want = min(self._page, limit - len(found))
+            parameters: list[SqlValue] = [*fixed, ceiling[0], ceiling[0], ceiling[1] or _MAX_REV]
+            if activated_at is not None:
+                parameters += [stamp(activated_at), stamp(activated_at)]
+            parameters.append(want)
+            page = [_reading(r) for r in view.connection.rows(sql, tuple(parameters), limit=want)]
+            found.extend(page)
+            if len(page) < want:
+                break
+            last = page[-1]
+            ceiling = (stamp(last.observed_at), last.rev or 0)
+        return tuple(found)
 
     def instant_peers(
         self, view: View, channel_id: str, corrected_at: datetime, origin: Origin, dataset: str | None
