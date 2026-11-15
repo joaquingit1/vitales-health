@@ -17,7 +17,8 @@ from crew_health.kernel.config import CandidateRelease, ConfigDocumentView, Find
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.uow import ReadSnapshot, UnitOfWork
 from crew_health.supplies.application.ports import MissionStatePort
-from crew_health.supplies.application.repository import LedgerRepository
+from crew_health.supplies.application.repository import FIRST_PAIR, LedgerRepository
+from crew_health.supplies.application.settings import SuppliesLimits
 from crew_health.supplies.domain.applicability import applicable_needs
 from crew_health.supplies.domain.config_checks import release_findings
 from crew_health.supplies.domain.document import (
@@ -32,11 +33,12 @@ from crew_health.supplies.domain.document import (
     resolve_needs,
 )
 from crew_health.supplies.domain.errors import DocumentInvalid
-from crew_health.supplies.domain.guard import guard_findings
+from crew_health.supplies.domain.guard import UsedTotal, guard_findings
 from crew_health.supplies.domain.model import Need, SupplyDef, SupplyWords, Threshold
 
 CHECK_ID = "supplies.release"
 GUARD_ID = "supplies.stock_guard"
+TOO_LARGE = "ledger past supplies.verify_max_batches pages: cannot guard stock, last good release stays"
 
 
 @dataclass(frozen=True, slots=True)
@@ -189,9 +191,9 @@ class SuppliesActivationGuard:
         self,
         repository: Callable[[], LedgerRepository | None],
         mission: Callable[[], MissionStatePort | None],
-        limit: Callable[[], int],
+        limits: Callable[[], SuppliesLimits],
     ) -> None:
-        self._repository, self._mission, self._limit = repository, mission, limit
+        self._repository, self._mission, self._limits = repository, mission, limits
 
     @property
     def check_id(self) -> str:
@@ -213,13 +215,44 @@ class SuppliesActivationGuard:
         if issues:
             return tuple(_finding(i) for i in issues)
         mission = _current_mission(self._mission(), uow)
-        limit = self._limit()
-        totals = repository.totals(uow, mission_id=mission, limit=limit)
-        units = repository.registered_units(uow, limit=limit)
+        limits = self._limits()
+        totals = _all_totals(repository, uow, mission, limits)
+        units = _all_units(repository, uow, limits)
+        if totals is None or units is None:
+            return (Finding(GUARD_ID, ConfigName.KIT_MAP, "", TOO_LARGE),)
         return tuple(
             Finding(f"{GUARD_ID}.{i.check_id}", ConfigName.KIT_MAP, i.pointer, i.message)
             for i in guard_findings(kit, units, totals)
         )
+
+
+def _all_totals(
+    repository: LedgerRepository, uow: UnitOfWork, mission: str | None, limits: SuppliesLimits
+) -> tuple[UsedTotal, ...] | None:
+    """Every running total in keyset pages of storage.max_rows; None past supplies.verify_max_batches pages."""
+    out: list[UsedTotal] = []
+    after = FIRST_PAIR
+    for _ in range(limits.verify_max_batches):
+        page = repository.totals(uow, mission_id=mission, after=after, limit=limits.page_rows)
+        out.extend(total for _, total in page)
+        if len(page) < limits.page_rows:
+            return tuple(out)
+        after = page[-1][0]
+    return None
+
+
+def _all_units(
+    repository: LedgerRepository, uow: UnitOfWork, limits: SuppliesLimits
+) -> dict[str, str] | None:
+    out: dict[str, str] = {}
+    after = ""
+    for _ in range(limits.verify_max_batches):
+        page = repository.registered_units(uow, after_supply_id=after, limit=limits.page_rows)
+        out.update(page)
+        if len(page) < limits.page_rows:
+            return out
+        after = max(page)
+    return None
 
 
 def _current_mission(port: MissionStatePort | None, view: UnitOfWork | ReadSnapshot) -> str | None:

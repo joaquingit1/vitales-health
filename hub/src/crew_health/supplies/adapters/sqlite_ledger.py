@@ -1,6 +1,6 @@
 """SQLite repository of the supplies ledger (E32 5.1). Only this file touches the supplies_* tables; every read is
-bounded by the caller's limit and the storage session's own row bound (SYSTEM 5.7). A bounded read asks SQLite for
-one row past its limit, so the storage session fails loudly (PAYLOAD_TOO_LARGE) instead of truncating."""
+bounded by the caller's limit, which never exceeds the storage session's own row bound (SYSTEM 5.7): a read that may
+match more rows is a keyset page, and the caller pages on with a bounded number of pages."""
 
 from __future__ import annotations
 
@@ -10,13 +10,14 @@ from datetime import UTC, datetime
 from crew_health.kernel.storage import SqlValue
 from crew_health.kernel.units import Quantity, Unit
 from crew_health.kernel.uow import UnitOfWork
-from crew_health.supplies.application.repository import StoredRefusal, StoredUse, View
+from crew_health.supplies.application.repository import PairKey, StoredRefusal, StoredUse, View
 from crew_health.supplies.domain.errors import LedgerCorrupt
 from crew_health.supplies.domain.guard import UsedTotal
 from crew_health.supplies.domain.model import ORIGIN_MODES, Head, OriginMode, Partition
 from crew_health.supplies.domain.quantity import decimal_text, parse_decimal_text
 
 _PARTITION = "mission_id=? AND origin_mode=? AND environment_id=? AND custody_location_id=?"
+_PAIR = "u.mission_id, u.origin_mode, u.environment_id, u.custody_location_id, u.supply_id"
 
 
 def instant(value: datetime) -> str:
@@ -81,15 +82,19 @@ class SqliteLedger:
         seq, used, unit, use_id, observed = rows[0]
         return Head(_int(seq), _quantity(used, unit), _text(use_id), parse_instant(observed))
 
-    def heads(self, view: View, partition: Partition, *, limit: int) -> Mapping[str, Head]:
+    def heads(
+        self, view: View, partition: Partition, *, after_supply_id: str, limit: int
+    ) -> Mapping[str, Head]:
+        """One keyset page of the partition's heads, supply_id order, after `after_supply_id`."""
         rows = view.connection.rows(
             "SELECT u.supply_id, u.partition_seq, u.used_after_decimal, u.unit_ucum, u.supply_use_id, "
             "u.observed_at_utc FROM supplies_use u "
-            f"WHERE u.{_PARTITION.replace(' AND ', ' AND u.')} AND u.partition_seq = (SELECT MAX(v.partition_seq) "
+            f"WHERE u.{_PARTITION.replace(' AND ', ' AND u.')} AND u.supply_id > ? "
+            "AND u.partition_seq = (SELECT MAX(v.partition_seq) "
             "FROM supplies_use v WHERE v.mission_id=u.mission_id AND v.origin_mode=u.origin_mode AND "
             "v.environment_id=u.environment_id AND v.custody_location_id=u.custody_location_id AND "
             "v.supply_id=u.supply_id) ORDER BY u.supply_id LIMIT ?",
-            (*_key(partition), limit + 1),
+            (*_key(partition), after_supply_id, limit),
             limit=limit,
         )
         return {
@@ -159,10 +164,10 @@ class SqliteLedger:
             ),
         )
 
-    def registered_units(self, view: View, *, limit: int) -> Mapping[str, str]:
+    def registered_units(self, view: View, *, after_supply_id: str, limit: int) -> Mapping[str, str]:
         rows = view.connection.rows(
-            "SELECT supply_id, unit_ucum FROM supplies_stock ORDER BY supply_id LIMIT ?",
-            (limit + 1,),
+            "SELECT supply_id, unit_ucum FROM supplies_stock WHERE supply_id > ? ORDER BY supply_id LIMIT ?",
+            (after_supply_id, limit),
             limit=limit,
         )
         return {_text(s): _text(u) for s, u in rows}
@@ -178,23 +183,27 @@ class SqliteLedger:
         elif rows[0][0] != unit_code:
             raise LedgerCorrupt("registered unit differs")
 
-    def totals(self, view: View, *, mission_id: str | None, limit: int) -> Sequence[UsedTotal]:
-        """The latest running total of every (partition, supply) of the mission, or of every mission when None."""
-        where = "" if mission_id is None else "WHERE u.mission_id=? "
+    def totals(
+        self, view: View, *, mission_id: str | None, after: PairKey, limit: int
+    ) -> Sequence[tuple[PairKey, UsedTotal]]:
+        """One keyset page of the latest running total of every (partition, supply) of the mission, or of every
+        mission when None, in pair-key order after `after`."""
+        mission = "" if mission_id is None else "u.mission_id=? AND "
         rows = view.connection.rows(
-            "SELECT u.environment_id, u.origin_mode, u.supply_id, u.used_after_decimal, u.unit_ucum "
-            f"FROM supplies_use u {where}"
-            f"{'AND' if where else 'WHERE'} u.partition_seq = (SELECT MAX(v.partition_seq) FROM supplies_use v "
+            "SELECT u.mission_id, u.origin_mode, u.environment_id, u.custody_location_id, u.supply_id, "
+            f"u.used_after_decimal, u.unit_ucum FROM supplies_use u WHERE {mission}"
+            f"({_PAIR}) > (?,?,?,?,?) AND u.partition_seq = (SELECT MAX(v.partition_seq) FROM supplies_use v "
             "WHERE v.mission_id=u.mission_id AND v.origin_mode=u.origin_mode AND v.environment_id=u.environment_id "
             "AND v.custody_location_id=u.custody_location_id AND v.supply_id=u.supply_id) "
-            "ORDER BY u.environment_id, u.supply_id, u.origin_mode LIMIT ?",
-            (() if mission_id is None else (mission_id,)) + (limit + 1,),
+            f"ORDER BY {_PAIR} LIMIT ?",
+            (() if mission_id is None else (mission_id,)) + (*after, limit),
             limit=limit,
         )
-        return tuple(
-            UsedTotal(_text(env), _text(mode), _text(sid), _quantity(used, unit))
-            for env, mode, sid, used, unit in rows
-        )
+        out: list[tuple[PairKey, UsedTotal]] = []
+        for m, mode, env, custody, sid, used, unit in rows:
+            key = (_text(m), _text(mode), _text(env), _text(custody), _text(sid))
+            out.append((key, UsedTotal(key[2], key[1], key[4], _quantity(used, unit))))
+        return tuple(out)
 
     def append_refusal(self, uow: UnitOfWork, refusal: StoredRefusal) -> bool:
         """True when this command key's evidence was written now; False when it already existed."""
@@ -236,11 +245,11 @@ class SqliteLedger:
         )
         return tuple((_int(s), _quantity(q, u), _quantity(a, u)) for s, q, a, u in rows)
 
-    def partitions(self, view: View, *, limit: int) -> Sequence[tuple[Partition, str]]:
+    def partitions(self, view: View, *, after: PairKey, limit: int) -> Sequence[tuple[Partition, str]]:
+        """One keyset page of the distinct (partition, supply) pairs of every mission, after `after`."""
         rows = view.connection.rows(
-            "SELECT DISTINCT mission_id, origin_mode, environment_id, custody_location_id, supply_id "
-            "FROM supplies_use ORDER BY 1, 2, 3, 4, 5 LIMIT ?",
-            (limit + 1,),
+            f"SELECT DISTINCT {_PAIR} FROM supplies_use u WHERE ({_PAIR}) > (?,?,?,?,?) ORDER BY {_PAIR} LIMIT ?",
+            (*after, limit),
             limit=limit,
         )
         return tuple((Partition(_text(m), _mode(o), _text(e), _text(c)), _text(s)) for m, o, e, c, s in rows)

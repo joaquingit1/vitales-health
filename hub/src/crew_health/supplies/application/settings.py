@@ -64,6 +64,7 @@ class SuppliesLimits:
     verify_max_batches: int
     reference_timeout_ms: int
     reference_inflight: int
+    page_rows: int  # E01's storage.max_rows: no single ledger read asks for more rows than this
 
     @classmethod
     def read(cls, settings: HubSettings) -> SuppliesLimits:
@@ -81,4 +82,5 @@ class SuppliesLimits:
             verify_max_batches=value("verify_max_batches"),
             reference_timeout_ms=value("reference_timeout_ms"),
             reference_inflight=value("reference_inflight"),
+            page_rows=settings.integer("storage.max_rows"),
         )

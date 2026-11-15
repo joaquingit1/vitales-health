@@ -15,6 +15,7 @@ from crew_health.supplies.application.context import (
     cover_rows,
     current_mission,
     partition,
+    read_heads,
 )
 from crew_health.supplies.application.events import cover_fact
 from crew_health.supplies.application.ports import (
@@ -42,8 +43,7 @@ OVERLAY_BASIS = "team default"  # INV-S11: a row the what-if adds has the not-ab
 
 def _rows(deps: Deps, view: View, where: Partition) -> tuple[CoverRow, ...]:
     index = deps.indexes.get(view.release)
-    heads = deps.repository.heads(view, where, limit=deps.limits.max_supplies)
-    return cover_rows(deps, view, index, where, heads)
+    return cover_rows(deps, view, index, where, read_heads(deps, view, where))
 
 
 def cover_facts(

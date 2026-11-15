@@ -26,6 +26,7 @@ from .harness import (
     document,
     example,
     headers,
+    limits,
     release,
     use_body,
 )
@@ -108,7 +109,7 @@ def candidate(kit: object) -> CandidateRelease:
 
 
 def guard_findings(station: Station, kit: object) -> set[str]:
-    guard = SuppliesActivationGuard(lambda: SqliteLedger(), lambda: station.mission, lambda: 512)
+    guard = SuppliesActivationGuard(lambda: SqliteLedger(), lambda: station.mission, limits)
     with station.db.begin(actor=Actor("operator", "operator_1"), correlation_id="cor-guard") as uow:
         return {f.check_id for f in guard.check(uow, candidate(kit))}
 
@@ -163,7 +164,7 @@ def test_the_activation_guard_rejects_any_release_that_would_make_stock_negative
 @pytest.mark.trace("E32-T-17", "fail closed")
 def test_an_unwired_guard_refuses_rather_than_passes(tmp_path: Path) -> None:
     station = build_station(tmp_path)
-    guard = SuppliesActivationGuard(lambda: None, lambda: None, lambda: 512)
+    guard = SuppliesActivationGuard(lambda: None, lambda: None, limits)
     with station.db.begin(actor=Actor("operator", "operator_1"), correlation_id="cor-guard") as uow:
         assert guard.check(uow, candidate(example("kit-map.example.json")))
 

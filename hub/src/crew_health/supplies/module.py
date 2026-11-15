@@ -227,19 +227,25 @@ class SuppliesAboard:
 
 
 def verify_at_start(deps: Deps) -> None:
-    """E32 5.1: a broken chain is logged loudly and its partition shows unknown cover and refuses uses."""
+    """E32 5.1: a broken chain is logged loudly and its partition shows unknown cover and refuses uses. Bounded
+    keyset pages: a ledger larger than the bounds leaves the rest unverified (unknown), and never stops the hub."""
+    limits = deps.limits
     with deps.snapshots.snapshot() as view:
-        broken = verify_ledger(
+        found = verify_ledger(
             view,
             deps.repository,
-            max_partitions=deps.limits.max_supplies,
-            batch_rows=deps.limits.verify_batch_rows,
-            max_batches=deps.limits.verify_max_batches,
+            page_rows=limits.page_rows,
+            batch_rows=limits.verify_batch_rows,
+            max_batches=limits.verify_max_batches,
+            max_pages=limits.verify_max_batches,
         )
-    deps.corrupt.mark(broken)
-    for where, supply_id in sorted(broken, key=lambda k: (k[0].mission_id, k[0].environment_id, k[1])):
-        logging.getLogger(_LOGGER).error(
-            "supplies: ledger chain broken for %s in %s", supply_id, where.environment_id
+    deps.corrupt.mark(found.broken, found.unverified_after)
+    log = logging.getLogger(_LOGGER)
+    for where, supply_id in sorted(found.broken, key=lambda k: (k[0].mission_id, k[0].environment_id, k[1])):
+        log.error("supplies: ledger chain broken for %s in %s", supply_id, where.environment_id)
+    if found.unverified_after is not None:
+        log.error(
+            "supplies: ledger past supplies.verify_max_batches pages left unverified, its cover unknown"
         )
 
 
@@ -259,8 +265,8 @@ def register(registry: ModuleRegistry) -> None:
     def guard_mission() -> MissionStatePort | None:
         return None if runtime.deps is None else runtime.deps.mission
 
-    def guard_limit() -> int:
-        return runtime.need().limits.max_supplies
+    def guard_limits() -> SuppliesLimits:
+        return runtime.need().limits
 
     registry.id_prefix(record_type="supply_use", prefix="sup")
     registry.id_prefix(record_type="supply_use_refusal", prefix="supr")
@@ -277,7 +283,7 @@ def register(registry: ModuleRegistry) -> None:
         )
     )
     registry.loader_check(SuppliesReleaseCheck())
-    registry.activation_guard(SuppliesActivationGuard(guard_repository, guard_mission, guard_limit))
+    registry.activation_guard(SuppliesActivationGuard(guard_repository, guard_mission, guard_limits))
     registry.router(build_router(runtime, runtime.authenticate))
     registry.provide(StockReader, lambda _: ports)
     registry.provide(SupplyCoverPort, lambda _: ports)

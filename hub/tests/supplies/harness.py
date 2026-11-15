@@ -76,6 +76,11 @@ SUPPLIES_VALUES: Mapping[str, int] = {
 }
 
 
+def limits(values: Mapping[str, int] = SUPPLIES_VALUES) -> supplies_settings.SuppliesLimits:
+    """The supplies limits a station built with these values reads (storage.max_rows from E01's test settings)."""
+    return supplies_settings.SuppliesLimits.read(Settings(values))
+
+
 def example(relative: str) -> object:
     """An example document; the config examples wrap theirs in {"value": ...}, the kit map does not."""
     data = json.loads((EXAMPLES / relative).read_text(encoding="utf-8"))

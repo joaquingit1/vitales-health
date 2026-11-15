@@ -12,7 +12,13 @@ from crew_health.kernel.commands import AcceptedReceipt, CommandIdentity, Stored
 from crew_health.kernel.errors import FieldError, ProblemError
 from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import SessionContext, UnitOfWork
-from crew_health.supplies.application.context import Deps, cover_rows, current_mission, partition
+from crew_health.supplies.application.context import (
+    Deps,
+    cover_rows,
+    current_mission,
+    partition,
+    read_heads,
+)
 from crew_health.supplies.application.events import (
     cover_fact,
     partition_of,
@@ -65,8 +71,7 @@ def cover_view(deps: Deps, environment_id: str | None) -> bytes:
         env = environment_id or facts.active_environment_id
         where = partition(facts, env)
         index = deps.indexes.get(view.release)
-        heads = deps.repository.heads(view, where, limit=deps.limits.max_supplies)
-        rows = cover_rows(deps, view, index, where, heads)
+        rows = cover_rows(deps, view, index, where, read_heads(deps, view, where))
         body: dict[str, Json] = {
             "environment_id": env,
             "supplies": [supply_entry(row, env, index.words) for row in rows],
@@ -235,8 +240,7 @@ def _admit(
 def publish_cover(deps: Deps, uow: UnitOfWork, where: Partition, cause_ref: str, at: datetime) -> None:
     """The in-transaction SupplyCoverChanged of a use for E24 (SYSTEM 8.1): every supply row of the partition."""
     index = deps.indexes.get(uow.release)
-    heads = deps.repository.heads(uow, where, limit=deps.limits.max_supplies)
-    rows = cover_rows(deps, uow, index, where, heads)
+    rows = cover_rows(deps, uow, index, where, read_heads(deps, uow, where))
     uow.publish(
         SupplyCoverChanged(
             partition=partition_of(where),
