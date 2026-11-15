@@ -417,6 +417,14 @@ class MeasurementService:
             created_at=uow.now,
         )
         self._store.insert_gap(uow.connection, gap)
+        self._reference(
+            uow,
+            "capability_gap",
+            gap.gap_id,
+            {"request_id": request.request_id, "episode_id": gap.episode_id},
+            Audience(AUDIENCE_RULE, request.request_id, PROJECTION, POLICY_VERSION),
+            gap.release_id,
+        )
         self._audit(
             uow,
             "gap_opened",
@@ -835,8 +843,17 @@ class MeasurementService:
             created_at=uow.now,
         )
         self._store.insert_gap(uow.connection, gap)
+        # No request names this gap: its reference is under an audience no request matches, so it never leaves.
+        self._reference(
+            uow,
+            "capability_gap",
+            gap.gap_id,
+            {"episode_id": episode_id},
+            Audience(AUDIENCE_RULE, gap.gap_id, PROJECTION, POLICY_VERSION),
+            gap.release_id,
+        )
         self._audit(
-            uow, "gap_opened", {"gap_id": gap.gap_id, "episode_id": episode_id}, {"reason": gap.reason}
+            uow, "gap_proposed", {"gap_id": gap.gap_id, "episode_id": episode_id}, {"reason": gap.reason}
         )
         return gap.gap_id
 
@@ -974,7 +991,39 @@ class MeasurementService:
         refs = {"request_id": request.request_id}
         if attempt_id is not None:
             refs["attempt_id"] = attempt_id
+            self._reference(
+                uow,
+                "measurement_attempt",
+                attempt_id,
+                {"request_id": request.request_id},
+                audience,
+                request.release_id,
+            )
         self._audit(uow, "request_" + cause, refs, {"state": request.state})
+
+    def _reference(
+        self,
+        uow: UnitOfWork,
+        record_type: str,
+        record_id: str,
+        parents: dict[str, str],
+        audience: Audience,
+        release_id: str,
+    ) -> None:
+        """An audit reference's replication declaration (platform_reference, SYSTEM 5.8): the record's ID and its
+        parents' IDs only, under the audience of the record it belongs to."""
+        uow.replicate(
+            ReplicationChange(
+                export_projection=None,
+                record_type=record_type,
+                record_id=record_id,
+                operation="create",
+                payload_json=canonical_json({**parents, "record_id": record_id}),
+                causal_refs=(),
+                release_id=release_id,
+                audience=audience,
+            )
+        )
 
     def _audit(
         self, uow: UnitOfWork, event: str, refs: dict[str, str], meta: dict[str, str | int | bool]

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import socket
+import sqlite3
 import threading
 import time
 from collections.abc import Iterator
@@ -63,6 +64,17 @@ class Served:
         assert isinstance(reply, dict), reply
         return status, reply
 
+    def act(
+        self, path: str, token: str, action: str, current: dict[str, object]
+    ) -> tuple[int, dict[str, object]]:
+        revision = current["revision"]
+        assert isinstance(revision, int)
+        status, reply = self.hub.call(
+            "POST", path, token=token, body={"action": action}, release=self.release(), if_match=revision
+        )
+        assert isinstance(reply, dict), reply
+        return status, reply
+
     def cue(self, name: str) -> int:
         return demo.main(["cue", name, "--dir", str(self.directory), "--hub", self.hub.base_url])
 
@@ -71,7 +83,7 @@ class Served:
 def served(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Served]:
     directory = tmp_path_factory.mktemp("demo") / "hub"
     port = _free_port()
-    demo.reset(directory, root=ROOT)
+    demo.reset(directory, root=ROOT, camera_port=_free_port(), twin_port=_free_port())
     started: list[uvicorn.Server] = []
 
     def server(app: FastAPI, host: str, bound: int) -> None:
@@ -80,7 +92,7 @@ def served(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Served]:
         instance.run()
 
     thread = threading.Thread(
-        target=lambda: demo.serve(directory, host="127.0.0.1", port=port, server=server, camera=False),
+        target=lambda: demo.serve(directory, host="127.0.0.1", port=port, server=server),
         daemon=True,
     )
     thread.start()
@@ -145,6 +157,58 @@ def test_shot_b_the_ground_link_goes_down_with_next_contact_26_hours_ahead(serve
     assert 25.9 < hours < 26.1
     _, kit = served.get("/v1/kit-map", token)
     assert kit["environment_id"] == "lunar_surface"
+
+
+def test_shot_c_a_camera_pulse_request_reaches_the_twin_and_records_a_sim_reading(served: Served) -> None:
+    """Mara asks for her pulse by camera: the request is submitted, accepted and started; the hub assigns the
+    camera worker, the worker reads the camera twin's synthetic stream (never a real webcam) and records the
+    attempt over recordAttempt with the adapter token. The reading lands in Mara's record labeled SIM."""
+    token = served.sign_in("mara")
+    # Until the hub's probe has seen the worker describe itself, the camera-only capability reads adapter_down.
+    deadline = time.monotonic() + 240
+    while True:
+        items = served.get("/v1/capabilities", token)[1]["items"]
+        assert isinstance(items, list)
+        camera_only = next(item for item in items if item["methods"] == ["camera_estimate"])
+        if camera_only["status"] == "available" or time.monotonic() > deadline:
+            break
+        time.sleep(2)
+    assert camera_only["status"] == "available", camera_only
+    status, request = served.post(
+        "/v1/measurement-requests",
+        token,
+        {
+            "capability_code": "pulse",
+            "reason": "Pulse check after exertion",
+            "decision_affected": "Whether to rest",
+        },
+    )
+    assert status == 201, request
+    request_id = request["request_id"]
+    for action in ("submit", "accept", "start"):
+        status, request = served.act(f"/v1/measurement-requests/{request_id}/actions", token, action, request)
+        assert status == 200, request
+    deadline = time.monotonic() + 240
+    while request["state"] == "in_progress" and time.monotonic() < deadline:
+        time.sleep(2)
+        request = served.get(f"/v1/measurement-requests/{request_id}", token)[1]
+    assert request["state"] == "completed", request
+    attempts = request["attempts"]
+    assert isinstance(attempts, list) and len(attempts) == 1
+    attempt = attempts[0]
+    assert (attempt["outcome"], attempt["adapter_id"]) == ("success", "adp_camera")
+    observation_ids = request["result_observation_ids"]
+    assert isinstance(observation_ids, list) and observation_ids == attempt["observation_ids"]
+    # GET /v1/observations is RecordHttpServices (R-E02-31, not bound); the stored record is read directly.
+    with sqlite3.connect(f"file:{served.directory / 'hub.sqlite'}?mode=ro", uri=True) as db:
+        rows = db.execute(
+            "SELECT patient_id, origin_mode, code, payload FROM records_observation WHERE observation_id = ?",
+            (observation_ids[0],),
+        ).fetchall()
+    assert [(r[0], r[1], r[2]) for r in rows] == [("mara", "SIM", "pulse")]
+    payload = json.loads(rows[0][3])
+    assert (payload["device_id"], payload["acquisition_method"]) == ("camera_twin_1", "camera_estimate")
+    assert payload["quantity"]["unit"] == "/min"
 
 
 def test_shot_e_help_opens_with_the_model_stopped(served: Served) -> None:
