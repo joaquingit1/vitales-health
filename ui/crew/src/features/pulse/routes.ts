@@ -1,7 +1,7 @@
 import type { RouteRecordRaw } from "vue-router";
-import Placeholder from "./Placeholder.vue";
+import PulseView from "./PulseView.vue";
 
-/** Placeholder route owned by the pulse builder: replace Placeholder.vue (or this file) with the real screen. */
+/** Shot C: the pulse request, the camera attempt and the gap card (E05, E06, E27). */
 export const routes: RouteRecordRaw[] = [
-  { path: "/pulse", name: "pulse", component: Placeholder, meta: { private: true } },
+  { path: "/pulse", name: "pulse", component: PulseView, meta: { private: true } },
 ];
