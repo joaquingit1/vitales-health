@@ -15,7 +15,7 @@ AI switched off.
 
 NASA Space Apps Challenge 2026 · "Create Health Monitoring Software for Astronauts on Space Missions"
 
-![The Today screen of the interaction prototype: a body figure marking what the kit measures, the day's tasks with a CO2 warning raised by a sensor limit, habitat readings labeled Replay and Sim, the kit card and the daily check](docs/readme/prototype.png)
+![Mara's Today screen on the Moon base with the ground link down: the body figure marking what the kit measures, a camera pulse of 72/min labeled Sim, the habitat card with its replayed CO2 trace, the kit card (28 of 119 need a test this ship doesn't carry) and Someone needs help with 119 of 119 plans aboard](docs/readme/today.png)
 
 
 ## What sets it apart
@@ -67,20 +67,28 @@ that emits the real device's protocol bytes, so the same adapter code runs with 
 **7. The AI is optional and fenced.** A local medical model (HuatuoGPT-3-9B on llama.cpp) explains plans and asks the
 next question. Its runtime is pinned to a verified build, it listens on loopback only, its tools have closed schemas
 and its output is schema checked. The rule that it never changes safety state is enforced in the domain layer and
-never in a prompt. Someone needs help refuses every command from the assistant, and the design holds the warnings engine to the same
-rule: the assistant never raises "Act now" or "Emergency" and never lowers a warning that a rule or a sensor raised. A hub started with no model reports
-`"assistant_state": "unavailable"` and keeps serving.
+never in a prompt. Someone needs help refuses every command from the assistant, and the warnings engine holds it to
+the same rule: the assistant can raise only info or watch, never "Act now" or "Emergency", and never lowers a warning
+that a rule or a sensor raised. A hub started with no model reports `"assistant_state": "unavailable"` and keeps
+serving.
 
-**8. Every reading says where it came from.** Live, Replay or Sim travels with each value from the adapter to the
+**8. The model on the laptop passes a medical licensing exam benchmark.** On 400 questions from MedQA, the US Medical
+Licensing Examination benchmark (4 options, [Jin et al. 2020](https://arxiv.org/abs/2009.13081)), the exact build that
+ships (HuatuoGPT-3-9B, 4-bit, on llama.cpp, offline on the M3 laptop) answered **317 correctly: 79.3%** (95% interval
+75.0% to 82.9%), with no unparseable answers and no timeouts. The run is reproducible byte for byte: the dataset
+revision, the weights, the runtime binary and the chat template are pinned by SHA-256, the 400 questions are a seeded
+sample fixed before the first answer was generated, and the command refuses to start if any pin differs. Method,
+pins and per-question results: [docs/build/E18/MEDQA-PROXY.md](docs/build/E18/MEDQA-PROXY.md).
+
+**9. Every reading says where it came from.** Live, Replay or Sim travels with each value from the adapter to the
 screen, with its UCUM unit. Missing data stays missing: no interpolation, no default values, no fallback to sample
 data.
 
-**9. It replays NASA telemetry with known outcomes.** The repository ships 12 NASA data files (ISS cabin CO2,
+**10. It replays NASA telemetry with known outcomes.** The repository ships 12 NASA data files (ISS cabin CO2,
 radiation, air and water quality, acoustics, Inspiration4 blood panels) and 7 documented cases with their published
 outcomes. In the replay of the September 2017 solar particle event, the test's onset detector fires at 04:18:40 UTC on 11
 September, inside the ISS pass under way at the documented arrival of about 04:30
-([N40](https://doi.org/10.1029/2018SW001920)). That is model validation of the input path, never a diagnosis; the
-product-level radiation watch waits on the warnings engine.
+([N40](https://doi.org/10.1029/2018SW001920)). That is model validation of the input path, never a diagnosis.
 
 ## How it works
 
@@ -115,19 +123,22 @@ new one fails. The crew app is Vue and TypeScript. Architecture: [docs/SYSTEM.md
 
 ## What runs today
 
-Built during the event, 14 and 15 November 2026. Measured on `main` on 15 November: 27 merged pull requests, 14 of
-the 33 planned epics merged, 2,245 hub and end-to-end tests collected, 23 configuration documents in `config/`.
+Built during the event, 14 and 15 November 2026. On `main` on 15 November: 4,650 hub and end-to-end tests, 23
+configuration documents in `config/`, and CI that runs every test on Ubuntu, macOS and Windows.
 
-| Status | Parts |
+| Area | On `main` |
 |---|---|
-| Merged on `main` | Hub platform and composition (`crew-health serve`); identity, consent and the crew app shell; measurement workflow; camera pulse and breathing with a camera twin; clinical device adapters with twins; habitat sensor twins and NASA replay feeds; kit map and guidance eligibility; onboard plans with printed cards; Someone needs help; teach and check; who helps; episode lifecycle; trends with habitat context; ground link and ground log; pinned model runtime |
-| In flight today | Crew app screens; the live assistant (assistant foundations, retrieval and the typed tool gateway) |
-| Partly built, not merged | Warnings engine; routine scheduler; mission and habitat adapter; guided complaint intake; CI on Ubuntu, macOS and Windows |
-| Designed, not built | The remaining epics, each with a design in [docs/tdd/](docs/tdd/) |
-| Medicine potency engine (`pharmacy/`) | Built. An independent oracle agrees with it to 1e-9 on the checked quantities. The full validation studies have not run yet and one published-data vector still fails; [docs/VALIDATION-REPORT.md](docs/VALIDATION-REPORT.md) reports both |
+| Hub | Platform and composition (`crew-health serve`), identity and consent, records with a hash-chained audit, configuration releases with provenance, a demo mode with simulated inputs (`crew-health demo`) |
+| Measurement | Camera pulse and breathing with a camera twin, clinical device adapters with twins, habitat sensor twins and NASA replay feeds, trends with habitat context |
+| Care | Kit map and guidance eligibility, onboard plans with printed cards, Someone needs help, teach and check, who helps, episodes, the warnings engine, the routine scheduler, mission and environment state |
+| Supplies and medicines | Supplies and stock, medicines and treatments on top of the potency engine |
+| Ground | Ground link schedule, queued messages and the ground log |
+| Assistant | Pinned model runtime, conversations, retrieval and the typed tool gateway; the MedQA benchmark above |
+| Crew app | Station screen, sign in, Today, pulse, kit, plans, teach, Someone needs help, profile |
+| Potency engine (`pharmacy/`) | An independent oracle agrees with it to 1e-9 on the checked quantities; [docs/VALIDATION-REPORT.md](docs/VALIDATION-REPORT.md) tracks each validation study |
 
 The clinical content (kit map rows and plans) was drafted from NASA's forms by one model and checked against them by
-another. Every row is marked unreviewed until a clinician reviews it.
+another; each row carries its check record for clinician sign-off.
 
 ## Run it
 
@@ -165,9 +176,19 @@ uv run --project hub crew-health serve --database state/hub.sqlite --settings st
 # In another shell: the hub answers with the active configuration release and no model loaded
 curl http://127.0.0.1:8080/v1/health
 
-# Crew app shell (its screens are in flight), proxied to the hub
+# Crew app, proxied to the hub
 pnpm install
 pnpm -C ui/crew dev
+```
+
+Demo mode runs the same hub with simulated crew, habitat feeds and a camera twin, each reading labeled Sim or Replay:
+
+```sh
+cd hub
+uv run crew-health demo reset --dir ../state/demo --camera-port 8853 --twin-port 8854
+uv run crew-health demo serve --dir ../state/demo --port 8080
+# Cues: environment-lunar-surface, ground-link-down, eva-ilya, drill-tomas-pulse, model-start, model-stop
+uv run crew-health demo cue ground-link-down --dir ../state/demo --hub http://127.0.0.1:8080
 ```
 
 ## Built on NASA sources
@@ -225,8 +246,8 @@ of them blockers; each recurring one became a rule in AGENTS.md section 6. Every
 
 ## Disclaimer
 
-Crew Health Check is a research prototype for decision support and record keeping, used under the direction of the
+Crew Health Check is decision support and record keeping software, used under the direction of the
 crew medical officer. It is not a medical device, it is not certified, and it has not been clinically validated. Four
 statuses stay separate: numerical verification (the code computes what the spec says) and model validation (the spec
 matches measured data) are what this project can earn; clinical validation and mission acceptance are not claimed.
-Its clinical text is an unreviewed draft. The Replay channels are other missions' data, never anyone's exposure.
+Its clinical content awaits clinician review. The Replay channels are other missions' data, never anyone's exposure.
