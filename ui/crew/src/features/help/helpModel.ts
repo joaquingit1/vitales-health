@@ -106,9 +106,12 @@ export function assistantWords(state: string | null): AssistantWords {
   };
 }
 
-/** The model state to show: the open session's own view wins over the service status. */
+/**
+ * The model state to show: the open session's own view wins over the service status. A session's "off"
+ * only says the assistant has not joined this session yet, so the service status says whether it runs.
+ */
 export function modelState(session: HelpSession | null, status: AssistantStatus | null): string | null {
-  if (session !== null) {
+  if (session !== null && session.assistant.status !== "off") {
     return session.assistant.status;
   }
   return status === null ? null : status.state;

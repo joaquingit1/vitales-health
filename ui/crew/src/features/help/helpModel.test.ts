@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { assistantWords, cachedFirstScreen, splitQuestion } from "./helpModel";
+import { assistantWords, cachedFirstScreen, modelState, splitQuestion } from "./helpModel";
+import type { HelpSession } from "./helpModel";
 
 describe("Someone needs help", () => {
   it("has its first screen from the bundled configuration, with no hub call", () => {
@@ -28,5 +29,16 @@ describe("Someone needs help", () => {
 
   it("splits a question from its hint", () => {
     expect(splitQuestion("Is it? Look.")).toEqual(["Is it?", "Look."]);
+  });
+});
+
+describe("modelState", () => {
+  const session = (status: string) => ({ assistant: { status } }) as unknown as HelpSession;
+  it("reads a session the assistant has not joined from the service status", () => {
+    expect(modelState(session("off"), { state: "running" } as never)).toBe("running");
+    expect(modelState(session("off"), null)).toBeNull();
+  });
+  it("keeps the session's own state once the assistant has joined", () => {
+    expect(modelState(session("answering"), { state: "running" } as never)).toBe("answering");
   });
 });
