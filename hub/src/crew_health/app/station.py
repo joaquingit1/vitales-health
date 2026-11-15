@@ -255,7 +255,7 @@ class NoMissionFacts:
 
 @dataclass(frozen=True, slots=True)
 class ClosedSessions:
-    """No session service (E02) is on main, so no event stream session is ever alive."""
+    """A hub built without the E02 identity module: no event stream session is ever alive."""
 
     def alive(self, snapshot: ReadSnapshot, session: SessionContext) -> bool:
         return False
@@ -291,27 +291,36 @@ class StationMetadata:
 def production(resources: HubResources, *, origin: Origin) -> Callable[[ModuleRegistry], None]:
     """The `configure` hook of a served hub: the offline artifacts and HTTP metadata from the resources, closed
     event sessions and fail-closed stand-ins for every pending port no installed module provides."""
+    from crew_health.app import privacy
     from crew_health.app.assembly import ConfigHttpMetadata
+    from crew_health.identity.application.service import IdentityService
 
     artifacts = config_artifacts(resources)
     metadata = StationMetadata(basis_summaries(resources), origin)
     conditions = PackageConditions.load(resources)
 
+    def e02_metadata(identity: IdentityService) -> ConfigHttpMetadata:
+        return ConfigHttpMetadata(metadata.basis_summaries, metadata.origin_of, privacy.visibility(identity))
+
     def configure(registry: ModuleRegistry) -> None:
         provided = getattr(registry, "providers", {})
         registry.provide(ConfigArtifacts, partial(_constant, artifacts))  # type: ignore[arg-type]
-        registry.provide(
-            ConfigHttpMetadata,
-            partial(  # type: ignore[arg-type]
-                _constant,
-                ConfigHttpMetadata(
-                    metadata.basis_summaries,
-                    metadata.origin_of,
-                    cast(ResultVisibility, Unavailable(cast(type[object], ResultVisibility))),
+        # E02 sessions, consent and their consumer adapters first (app/privacy.py); stand-ins fill the rest.
+        privacy.compose(registry, contract=resources.contracts / "api/openapi.yaml", metadata=e02_metadata)
+        if ConfigHttpMetadata not in provided:
+            registry.provide(
+                ConfigHttpMetadata,
+                partial(  # type: ignore[arg-type]
+                    _constant,
+                    ConfigHttpMetadata(
+                        metadata.basis_summaries,
+                        metadata.origin_of,
+                        cast(ResultVisibility, Unavailable(cast(type[object], ResultVisibility))),
+                    ),
                 ),
-            ),
-        )
-        registry.provide(SessionAuthorizer, partial(_constant, ClosedSessions()))  # type: ignore[type-abstract,arg-type]
+            )
+        if SessionAuthorizer not in provided:
+            registry.provide(SessionAuthorizer, partial(_constant, ClosedSessions()))  # type: ignore[type-abstract,arg-type]
         registry.provide(ConditionRegistryPort, partial(_constant, conditions))  # type: ignore[type-abstract,arg-type]
         registry.provide(KitMission, partial(_constant, StationMission(origin)))  # type: ignore[type-abstract,arg-type]
         if MissionStatePort not in provided:
