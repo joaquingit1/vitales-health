@@ -16,6 +16,7 @@ dependencies = [
 
 [project.scripts]
 chc-bench = "crew_health_bench.api.cli:main"
+chc-medqa = "crew_health_bench.medqa.cli:main"
 
 [project.optional-dependencies]
 official = [

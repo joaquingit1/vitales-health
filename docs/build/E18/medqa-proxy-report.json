@@ -1,0 +1,57 @@
+{
+  "label": "Model validation of a general medical knowledge proxy (MedQA USMLE 4-option, exact match); not clinical validation. AGENTS section 7 clinical statuses are not affected by this result.",
+  "integrity": "pinned_model",
+  "benchmark": "MedQA USMLE 4-option test split, exact match",
+  "n": 400,
+  "correct": 317,
+  "wrong": 83,
+  "unparseable": 0,
+  "timeout_or_missing": 0,
+  "accuracy": 0.7925,
+  "wilson95": [
+    0.7501,
+    0.8294
+  ],
+  "model": {
+    "file_name": "huatuo-q4-first.gguf",
+    "weights_sha256": "0361c77aedf832c7a58ec32bda68de25e2d437841e734e8de0fd43c6f3a8d947",
+    "source": "FreedomIntelligence/HuatuoGPT-3-9B@6870b60e54d41cfef88ab36478d9d15d4b9bd7bc, Q4_K_M",
+    "chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+    "binary_sha256": "9dc31a8a15f81b8f252e68d1918419e0bbbf5008bd42d00dd8721a58834e384a",
+    "runtime_version": "version: 0.7.0 (build 11669, commit 620d2225c)"
+  },
+  "dataset": {
+    "repo": "GBaker/MedQA-USMLE-4-options",
+    "revision": "0fb93dd23a7339b6dcd27e241cb9b5eca62d4d18",
+    "file": "phrases_no_exclude_test.jsonl",
+    "sha256": "c3b905ccfa66152dc25afbcb2c10e86c0bdb208824f0658fcdb2c040f60a2beb",
+    "license": "cc-by-4.0",
+    "examples": 1273
+  },
+  "sample": {
+    "seed": 20261115,
+    "n": 400,
+    "sample_sha256": "76ce2890de9d135923ff4ee906aeea1855219b0109a07d87bafaf61867140466"
+  },
+  "generation": {
+    "temperature": 0.0,
+    "top_k": 1,
+    "seed": 0,
+    "max_tokens": 16,
+    "enable_thinking": false,
+    "item_timeout_s": 90.0,
+    "system": "You are taking a multiple-choice medical licensing exam. Reply with the single letter of the best option and nothing else.",
+    "answer_instruction": "Answer with one letter."
+  },
+  "runtime": {
+    "context_tokens": 8192,
+    "threads": 6,
+    "gpu_layers": 99,
+    "kv_cache_type": "f16",
+    "load_timeout_s": 180.0,
+    "health_poll_s": 1.0
+  },
+  "config_sha256": "5562d16a1e553f3d291c0a3c08d957f6221f82f9ea31d176f859f893877051d9",
+  "results_sha256": "7748663dfb2d69ecabf0a0c467e06d0beae2110da0a45be8309199c563137cce",
+  "wall_seconds": 1204.7
+}
