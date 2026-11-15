@@ -135,6 +135,19 @@ def test_every_saturation_value_is_rejected_and_range_edges_are_not_confused(con
 
 
 @EXAMPLES
+@given(st.integers(0, 77_257) | st.sampled_from((0, 1, 77_257)))
+def test_property_saturation_fails_exactly_the_reported_limits(hundredths: int) -> None:
+    config = shipped()
+    criteria, kind = criteria_of(config), sensor(config, "co2")
+    value = Decimal(hundredths) / 100
+    status, reason = verdict(kind, fact(T0 + timedelta(days=1), value, 99), varied(5, 60))
+    if value in criteria.saturation:
+        assert (status, reason) == ("failed", SATURATED)
+    else:
+        assert reason != SATURATED
+
+
+@EXAMPLES
 @given(st.integers(1, 100_000), st.integers(-3_000_000, 3_000_000))
 def test_property_rate_fails_exactly_above_the_maximum(seconds: int, micro: int) -> None:
     config = shipped()
