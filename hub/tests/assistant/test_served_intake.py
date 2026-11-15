@@ -147,44 +147,15 @@ def _runtime(client: TestClient, directory: Path, action: str, wait_for: str) ->
     raise AssertionError("assistant never reached " + wait_for)
 
 
-def seed_episode(app: Any, person: str, concern: str) -> str:
-    """E04's startEpisode route is not built on main, so the fixture opens Mara's concern through E15's own
-    EpisodeKernel.create, as the person, exactly as E04 would (fixture data, SIM origin)."""
-    from datetime import UTC, datetime
-
-    from crew_health.episodes.application.dto import NewEpisode, PersonRef
-    from crew_health.episodes.application.ports import EpisodeKernel
-    from crew_health.episodes.domain.onset import Onset
-    from crew_health.identity.application.service import IdentityService
-    from crew_health.kernel.uow import Actor, UnitOfWorkFactory
-
-    resolver = app.state.runtime.resolver
-    identity = resolver.require(IdentityService)
-    with identity.deps.snapshots.snapshot() as view:
-        mission, origin = identity.partition(view)
-    with resolver.require(UnitOfWorkFactory).begin(
-        actor=Actor("person", person), correlation_id="corr_seed"
-    ) as uow:
-        ref = resolver.require(EpisodeKernel).create(
-            uow,
-            NewEpisode(
-                patient_id=person,
-                mission_id=mission,
-                origin_mode=origin,
-                concern_text=concern,
-                onset=Onset(None, "unknown"),
-                created_by=PersonRef(person, person),
-                questionnaire_version="0" * 64,
-                red_flag_ids=(),
-                config_release_id=uow.release.release_id,
-                received_at=datetime.now(UTC),
-            ),
-        )
-    return str(ref.episode_id)
-
-
 def _episode_conversation(client: TestClient, mara: dict[str, str]) -> str:
-    episode_id = seed_episode(client.app, "mara", MESSAGE)
+    # Mara opens her concern through startEpisode (E04's route, served by the E15 stand-in).
+    started = client.post(
+        "/v1/episodes",
+        json={"concern_text": MESSAGE, "origin_mode": "SIM", "onset": {"at": None, "precision": "unknown"}},
+        headers=_key(mara),
+    )
+    assert started.status_code == 201, started.text
+    episode_id = str(started.json()["episode_id"])
     opened = client.post(
         "/v1/assistant/conversations",
         json={"context": {"kind": "episode", "ref_id": episode_id}},

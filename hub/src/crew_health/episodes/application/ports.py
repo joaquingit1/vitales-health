@@ -142,6 +142,12 @@ class OriginNamespace(Protocol):
     def origin(self, uow: View, patient_id: str, mission_id: str) -> str | None: ...
 
 
+class CurrentMission(Protocol):
+    """The active mission and its origin namespace (E02 roster partition), for the startEpisode stand-in."""
+
+    def current(self, uow: View) -> tuple[str, str] | None: ...
+
+
 class MissionClock(Protocol):
     def day_end(self, instant: datetime) -> datetime: ...
 

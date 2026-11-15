@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Literal
+from datetime import datetime
+from typing import Literal, cast
 
 from fastapi import APIRouter, Request, Response
 from pydantic import ValidationError
@@ -14,9 +15,12 @@ from crew_health.contracts_gen.schemas.error_schema import ErrorEnvelope
 from crew_health.episodes.api.models import ReviewRequest, ReviewResponse, action_adapter
 from crew_health.episodes.application import ports
 from crew_health.episodes.application.codec import obj, text
+from crew_health.episodes.application.dto import NewEpisode, PersonRef
 from crew_health.episodes.application.queries import EpisodeQueries
 from crew_health.episodes.application.use_cases import EpisodeService
+from crew_health.episodes.domain.onset import Onset
 from crew_health.kernel.commands import canonical_json, command_identity
+from crew_health.kernel.config import ConfigName
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.ids import IdFactory, require_id
 from crew_health.kernel.uow import ReadSnapshotFactory, SessionContext, UnitOfWorkFactory
@@ -31,6 +35,7 @@ class EpisodeApi:
     auth: ports.SessionAuthenticator | None = None
     fingerprint: ports.CommandFingerprint | None = None
     ids: IdFactory | None = None
+    mission: ports.CurrentMission | None = None
     max_body_bytes: int = 65536
 
 
@@ -299,6 +304,91 @@ def build_router(api: EpisodeApi) -> APIRouter:
             ):
                 result = {k: v for k, v in result.items() if k in ClinicalReview.model_fields}
             return _response(result, 200 if operation == "actOnEpisode" else 201, headers)
+
+        return wrap(request, run)
+
+    @router.post("/v1/episodes", operation_id="startEpisode")
+    async def start_episode(request: Request) -> Response:
+        """E04 StartConcern stand-in (E04 has no module yet; AGENTS rule 9): the crew member opens their own
+        concern through E15's create, as the person, in the active mission and its origin namespace. The
+        questionnaire pin is the release's questionnaires document version. Intake answers, the intake_concern
+        pin row and the ledger receipt stay E04's; the Idempotency-Key is required and used as correlation."""
+        raw = await request.body()
+
+        def run() -> Response:
+            session = _auth(api, request, "startEpisode")
+            if len(raw) > api.max_body_bytes:
+                raise ProblemError(ErrorCode.PAYLOAD_TOO_LARGE, "body bound")
+            if request.headers.get("content-type", "").split(";", 1)[0] != "application/json":
+                raise ProblemError(ErrorCode.UNSUPPORTED_MEDIA_TYPE, "JSON required")
+            if api.service is None or api.queries is None or api.uows is None or api.snapshots is None:
+                raise ProblemError(ErrorCode.INTERNAL_ERROR, "episode command not bound", retryable=True)
+            if api.mission is None:
+                raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, "mission unavailable")
+            if session.kind != "crew" or session.person_id is None:
+                raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, "crew member required")
+            body = obj(json.loads(raw, object_pairs_hook=_unique))
+            concern, origin = body.get("concern_text"), body.get("origin_mode")
+            onset = body.get("onset", {"at": None, "precision": "unknown"})
+            if (
+                set(body) - {"concern_text", "onset", "origin_mode"}
+                or not isinstance(concern, str)
+                or not concern.strip()
+                or origin not in ("LIVE", "SIM")
+                or not isinstance(onset, dict)
+                or set(onset) != {"at", "precision"}
+                or onset["precision"] not in ("exact", "hour", "day", "unknown")
+            ):
+                raise ProblemError(ErrorCode.MALFORMED_REQUEST, "invalid concern")
+            at = (
+                None
+                if onset["at"] is None
+                else datetime.fromisoformat(str(onset["at"]).replace("Z", "+00:00"))
+            )
+            key = require_id(request.headers.get("Idempotency-Key", ""))
+            person = session.person_id
+            with api.uows.begin(actor=session.actor, correlation_id=key) as uow:
+                current = api.mission.current(uow)
+                if current is None:
+                    raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, "mission unavailable")
+                ref = api.service.create(
+                    uow,
+                    NewEpisode(
+                        patient_id=person,
+                        mission_id=current[0],
+                        origin_mode=origin,
+                        concern_text=concern,
+                        onset=Onset(at, cast(Literal["exact", "hour", "day", "unknown"], onset["precision"])),
+                        created_by=PersonRef(person, person),
+                        questionnaire_version=uow.release.document(ConfigName.QUESTIONNAIRES).version,
+                        red_flag_ids=(),
+                        config_release_id=uow.release.release_id,
+                        received_at=uow.now,
+                    ),
+                )
+                release = uow.release.release_id
+                fact = api.queries.get(uow, ref.episode_id)
+            if fact is None:
+                raise ProblemError(ErrorCode.INTERNAL_ERROR, "episode not readable", retryable=True)
+            # The full Episode view needs E04 answers and E11 urgency, which this hub does not compose yet; the
+            # stand-in answers with the episode's own facts and its Location.
+            result: dict[str, object] = {
+                "episode_id": fact.episode_id,
+                "patient_id": fact.patient_id,
+                "mission_id": fact.mission_id,
+                "origin_mode": fact.origin_mode,
+                "state": fact.state,
+                "revision": fact.revision,
+                "concern_text": concern,
+                "created_at": fact.created_at.isoformat().replace("+00:00", "Z"),
+                "config_release_id": release,
+            }
+            headers = {
+                "Location": "/v1/episodes/" + ref.episode_id,
+                "ETag": '"' + str(fact.revision) + '"',
+                "Config-Release": release,
+            }
+            return _response(result, 201, headers)
 
         return wrap(request, run)
 

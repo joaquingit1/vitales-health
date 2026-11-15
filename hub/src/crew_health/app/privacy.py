@@ -29,6 +29,7 @@ from crew_health.consent.application.ports import ClockAdmission, ObservationFac
 from crew_health.consent.application.ports import ObservationPartitions as ConsentObservations
 from crew_health.consent.application.service import ConsentService
 from crew_health.contracts_gen.enums import ErrorCode
+from crew_health.episodes.application.ports import SessionAuthenticator as EpisodesAuthenticator
 from crew_health.events.application.delivery import SessionAuthorizer
 from crew_health.groundlink.api.router import RoleGate as GroundLinkGate
 from crew_health.help.api.router import RoleGate as HelpGate
@@ -345,6 +346,7 @@ def compose(
         (RolesAuthenticator, gate, on_security),
         (TeachAuthenticator, headers, on_security),
         (MeasurementAuthenticator, lambda r: MeasurementGate(headers(r)), on_security),
+        (EpisodesAuthenticator, lambda r: MeasurementGate(headers(r)), on_security),
         (HelpRoster, lambda r: HelpRosterAdapter(identity(r)), on_identity),
         (RolesRoster, lambda r: RolesRosterAdapter(identity(r)), on_identity),
         (KitmapRoster, lambda r: KitmapRosterAdapter(identity(r)), on_identity),
