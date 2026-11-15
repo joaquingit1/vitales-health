@@ -253,7 +253,36 @@
       ],
       "link": {
         "default_gap_kind": "planned_line_of_sight",
-        "sim_schedule": [],
+        "sim_schedule": [
+          {
+            "starts_at": "2026-11-20T00:00:00Z",
+            "ends_at": "2026-12-03T15:51:35Z",
+            "status": "down",
+            "gap_kind": "planned_line_of_sight",
+            "planned": true
+          },
+          {
+            "starts_at": "2026-12-17T07:43:11Z",
+            "ends_at": "2026-12-30T23:34:47Z",
+            "status": "down",
+            "gap_kind": "planned_line_of_sight",
+            "planned": true
+          },
+          {
+            "starts_at": "2027-01-13T15:26:23Z",
+            "ends_at": "2027-01-27T07:17:58Z",
+            "status": "down",
+            "gap_kind": "planned_line_of_sight",
+            "planned": true
+          },
+          {
+            "starts_at": "2027-02-09T23:09:34Z",
+            "ends_at": "2027-02-23T15:01:10Z",
+            "status": "down",
+            "gap_kind": "planned_line_of_sight",
+            "planned": true
+          }
+        ],
         "basis": "team default"
       },
       "return_option": {
@@ -281,7 +310,8 @@
         "simulated_one_way_delay_seconds": 1200,
         "basis": "sourced",
         "source_ids": [
-          "EV25"
+          "EV25",
+          "N09"
         ],
         "scheduled_status": "delayed"
       },
@@ -299,8 +329,16 @@
       ],
       "link": {
         "default_gap_kind": "conjunction",
-        "sim_schedule": [],
-        "basis": "team default"
+        "sim_schedule": [
+          {
+            "starts_at": "2025-12-29T00:00:00Z",
+            "ends_at": "2026-01-16T00:00:00Z",
+            "status": "down",
+            "gap_kind": "conjunction",
+            "planned": true
+          }
+        ],
+        "basis": "sourced"
       },
       "return_option": null
     }

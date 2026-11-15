@@ -328,6 +328,7 @@ def snapshot_to_dict(s: HelpLogSnapshot) -> J:
         "pins": [[p.name, p.version] for p in s.pins],
         "environment_id": s.environment_id,
         "queued_at": _t(s.queued_at),
+        "subject_person_id": s.subject_person_id,
     }
 
 
@@ -356,6 +357,7 @@ def snapshot_from_dict(m: Mapping[str, object]) -> HelpLogSnapshot:
         pins=tuple(ConfigPin(n, v) for n, v in cast(list[list[str]], m["pins"])),
         environment_id=_os(m["environment_id"]),
         queued_at=_dt(m["queued_at"]),
+        subject_person_id=_os(m.get("subject_person_id")),
     )
 
 

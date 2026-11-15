@@ -1,0 +1,1 @@
+"""Cuff adapter acceptance tests."""

@@ -1,5 +1,5 @@
 {
-  "version": "part-a-d12-1",
+  "version": "part-a-d12-2",
   "mappings": [
     {
       "indicator_code": "pulse",
@@ -111,6 +111,44 @@
         {
           "path": "docs/product/CONTRACTS.md",
           "line": 659,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "spo2",
+      "wire_unit": "%",
+      "ucum_unit": "%",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/SYSTEM.md",
+          "line": 1761,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "temperature",
+      "wire_unit": "Cel",
+      "ucum_unit": "Cel",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/SYSTEM.md",
+          "line": 1761,
           "decision": "D12"
         }
       ]

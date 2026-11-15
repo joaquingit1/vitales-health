@@ -31,16 +31,16 @@ Hard dependencies (✅ when built) are what an epic needs to pass its acceptance
 | E07 | Oximeter and clinical device adapters | 🔨 In progress | @joaquingit1 | E01, E02, E05 | none | [tasks](E07/tasks.json) | [brief](../product/tdd/E07.md) |
 | E08 | Wrist activity band and sleep pipeline | 🔨 In progress | @fedegutman | E01, E02, E05 | none | [tasks](E08/tasks.json) | [brief](../product/tdd/E08.md) |
 | E09 | Reports and specialist findings | 🔨 In progress | @fedegutman | E01, E02, E05 | none | [tasks](E09/tasks.json) | [brief](../product/tdd/E09.md) |
-| E10 | NASA registry and evidence database | ⬜ Open (queue #1) |  | E01 | E12, E19 | [tasks](E10/tasks.json) | [design](../tdd/E10.md) |
-| E11 | Urgent handling and pathway engine | ⬜ Open (queue #4) |  | E01, E02, E15-core, E27-guidance | E13 | [tasks](E11/tasks.json) | [design](../tdd/E11.md) |
+| E10 | NASA registry and evidence database | ⬜ Open (queue #1) | @joaquingit1 (Codex wave 2) | E01 | E12, E19 | [tasks](E10/tasks.json) | [design](../tdd/E10.md) |
+| E11 | Urgent handling and pathway engine | ⬜ Open (queue #4) | @joaquingit1 (Codex wave 2) | E01, E02, E15-core, E27-guidance | E13 | [tasks](E11/tasks.json) | [design](../tdd/E11.md) |
 | E12 | Retrieval and typed tool gateway | 🔨 In progress | @joaquingit1 (pipeline) | E01, E02, E10, E27-guidance | E13, E17 | [tasks](E12/tasks.json) | [design](../tdd/E12.md) |
-| E13 | Local reasoning and assessment | ⬜ Open (queue #5) |  | E01, E02, E11, E12, E27-guidance | none | [tasks](E13/tasks.json) | [design](../tdd/E13.md) |
+| E13 | Local reasoning and assessment | ⬜ Open (queue #5) | @joaquingit1 (Codex wave 2) | E01, E02, E11, E12, E27-guidance | none | [tasks](E13/tasks.json) | [design](../tdd/E13.md) |
 | E14 | Trends, environment and Chronos-2 | 🔨 In progress | @joaquingit1 | E01, E05 | none | [tasks](E14/tasks.json) | [brief](../product/tdd/E14.md) |
-| E15 | Episodes, follow-up and clinical review | ⬜ Open (queue #6) |  | E01, E02, E04, E15-core | E04, E11, E15, E16 | [tasks](E15/tasks.json) | [design](../tdd/E15.md) |
-| E16 | Ground console and delayed handoff | ⬜ Open (queue #8) |  | E01, E02, E15 | none | [tasks](E16/tasks.json) | [brief](../product/tdd/E16.md) |
-| E17 | Model integration and tool-use optimization | ⬜ Open (queue #3) |  | E01, E12 | none | [tasks](E17/tasks.json) | [design](../tdd/E17.md) |
+| E15 | Episodes, follow-up and clinical review | ⬜ Open (queue #6) | @joaquingit1 (Codex wave 2) | E01, E02, E04, E15-core | E04, E11, E15, E16 | [tasks](E15/tasks.json) | [design](../tdd/E15.md) |
+| E16 | Ground console and delayed handoff | ⬜ Open (queue #8) | @joaquingit1 (Codex wave 2) | E01, E02, E15 | none | [tasks](E16/tasks.json) | [brief](../product/tdd/E16.md) |
+| E17 | Model integration and tool-use optimization | ⬜ Open (queue #3) | @joaquingit1 (Codex wave 2) | E01, E12 | none | [tasks](E17/tasks.json) | [design](../tdd/E17.md) |
 | E18 | HealthBench and clinical evaluation | 🔨 In progress | @joaquingit1 (pipeline) | E01 | none | [tasks](E18/tasks.json) | [design](../tdd/E18.md) |
-| E19 | Research and content workbench | ⬜ Open (queue #2) |  | E01, E02, E10 | none | [tasks](E19/tasks.json) | [design](../tdd/E19.md) |
+| E19 | Research and content workbench | ⬜ Open (queue #2) | @joaquingit1 (Codex wave 2) | E01, E02, E10 | none | [tasks](E19/tasks.json) | [design](../tdd/E19.md) |
 | E20 | Accessibility, resilience and packaging | 🔨 In progress | @pgentil | E01 | none | [tasks](E20/tasks.json) | [design](../tdd/E20.md) |
 | E21 | Integration, evidence and demonstration | 🔎 In review | @joaquingit1 (pipeline) | E01, E02 | none | [tasks](E21/tasks.json) | [design](../tdd/E21.md) |
 | E22 | Participation streak, patches and crew goal | 🔨 In progress | @fedegutman | E01, E03, E23 | none | [tasks](E22/tasks.json) | [design](../tdd/E22.md) |
@@ -54,4 +54,4 @@ Hard dependencies (✅ when built) are what an epic needs to pass its acceptance
 | E30 | Teach and check | 🔨 In progress | @joaquingit1 | E01, E02, E05, E27-guidance | none | [tasks](E30/tasks.json) | [design](../tdd/E30.md) |
 | E31 | Who helps | 🔨 In progress | @joaquingit1 | E01, E02, E23 | none | [tasks](E31/tasks.json) | [design](../tdd/E31.md) |
 | E32 | Treat here: supplies and planning | 🔨 In progress | @joaquingit1 | E01, E02, E23, E27 | none | [tasks](E32/tasks.json) | [design](../tdd/E32.md) |
-| E33 | Stay or return | ⬜ Open (queue #7) |  | E01, E02, E23, E28 | none | [tasks](E33/tasks.json) | [design](../tdd/E33.md) |
+| E33 | Stay or return | ⬜ Open (queue #7) | @joaquingit1 (Codex wave 2) | E01, E02, E23, E28 | none | [tasks](E33/tasks.json) | [design](../tdd/E33.md) |

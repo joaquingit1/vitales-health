@@ -41,6 +41,7 @@ class CapabilityWords:
     operator_requirement: Operator
     expected_duration_seconds: int | None
     basis: str
+    components: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -158,6 +159,7 @@ class KitCapability:
     applicable_environments: tuple[str, ...]
     kit_status: Literal["available", "unavailable"]
     kit_reason: Literal["not_in_kit"] | None
+    components: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
