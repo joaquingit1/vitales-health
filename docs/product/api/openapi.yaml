@@ -41,6 +41,8 @@ tags:
     description: Who does what, skill freshness and drills (section 24).
   - name: Supplies
     description: Stock, uses and cover (section 25).
+  - name: Medicines
+    description: Medicine lots, dose proposals and administrations (section 30).
   - name: Stay or return
     description: Return readiness where a return is possible (section 27).
   - name: Help
@@ -11296,6 +11298,1196 @@ paths:
             application/json:
               schema:
                 $ref: schemas/error.schema.json
+  /v1/medicines/lots:
+    get:
+      operationId: listMedicineLots
+      tags:
+        - Medicines
+      summary: Medicine lots in one environment
+      description: "Lots of the active pharmacy bundle in zones of the environment, with quantity_now, exclusions and the latest completed assessment. No person data. Roles: crew_medical_officer, crew, operator."
+      x-roles:
+        - crew_medical_officer
+        - crew
+        - operator
+      parameters:
+        - $ref: "#/components/parameters/q_environment_id"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      responses:
+        "200":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: schemas/medicine-lots-view.schema.json
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/medicines/inspections:
+    post:
+      operationId: recordMedicineInspection
+      tags:
+        - Medicines
+      summary: Record a lot inspection
+      description: "An adverse finding excludes the lot at once (E32 3.5 step 4). Roles: crew_medical_officer, crew."
+      x-roles:
+        - crew_medical_officer
+        - crew
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "schemas/requests.schema.json#/$defs/MedicineInspectionCreate"
+      responses:
+        "201":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "409":
+          description: "Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION."
+          x-error-codes:
+            - DUPLICATE_COMMAND
+            - INVALID_TRANSITION
+            - STALE_VERSION
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "422":
+          description: "Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE."
+          x-error-codes:
+            - INVALID_VALUE
+            - SUPPLY_BELOW_ZERO
+            - CONTEXT_INAPPLICABLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/medicines/assays:
+    post:
+      operationId: recordMedicineAssay
+      tags:
+        - Medicines
+      summary: Record a lot assay
+      description: "Not available in this build: CONTEXT_INAPPLICABLE. Roles: crew_medical_officer."
+      x-roles:
+        - crew_medical_officer
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      responses:
+        "201":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                type: object
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "422":
+          description: "Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE."
+          x-error-codes:
+            - INVALID_VALUE
+            - SUPPLY_BELOW_ZERO
+            - CONTEXT_INAPPLICABLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/medicines/assessments:
+    post:
+      operationId: scheduleMedicineAssessment
+      tags:
+        - Medicines
+      summary: Schedule a potency assessment
+      description: "Coalesced per mission and mode; returns the job. Roles: crew_medical_officer, operator."
+      x-roles:
+        - crew_medical_officer
+        - operator
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      responses:
+        "202":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: schemas/job.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "422":
+          description: "Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE."
+          x-error-codes:
+            - INVALID_VALUE
+            - SUPPLY_BELOW_ZERO
+            - CONTEXT_INAPPLICABLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/people/{person_id}/medication-context:
+    post:
+      operationId: recordMedicationContext
+      tags:
+        - Medicines
+      summary: Record one part of a person's medication context
+      description: "Append-only statements; the latest per part is effective. A part never recorded is unknown and refuses dosing. Roles: crew_medical_officer."
+      x-roles:
+        - crew_medical_officer
+      parameters:
+        - $ref: "#/components/parameters/path_person_id"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "schemas/requests.schema.json#/$defs/MedicationContextCreate"
+      responses:
+        "201":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: schemas/medication-context.schema.json
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "409":
+          description: "Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION."
+          x-error-codes:
+            - DUPLICATE_COMMAND
+            - INVALID_TRANSITION
+            - STALE_VERSION
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "422":
+          description: "Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE."
+          x-error-codes:
+            - INVALID_VALUE
+            - SUPPLY_BELOW_ZERO
+            - CONTEXT_INAPPLICABLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+    get:
+      operationId: getMedicationContext
+      tags:
+        - Medicines
+      summary: Read a person's medication context
+      description: "The subject reads their own; another person's is NOT_FOUND. Roles: crew_medical_officer, crew."
+      x-roles:
+        - crew_medical_officer
+        - crew
+      parameters:
+        - $ref: "#/components/parameters/path_person_id"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      responses:
+        "200":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: schemas/medication-context.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/episodes/{episode_id}/working-diagnoses:
+    post:
+      operationId: recordWorkingDiagnosis
+      tags:
+        - Medicines
+      summary: Record a working diagnosis
+      description: "A person's act; it unlocks treatment options from the reviewed formulary. Roles: crew_medical_officer."
+      x-roles:
+        - crew_medical_officer
+      parameters:
+        - $ref: "#/components/parameters/path_episode_id"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "schemas/requests.schema.json#/$defs/WorkingDiagnosisCreate"
+      responses:
+        "201":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "409":
+          description: "Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION."
+          x-error-codes:
+            - DUPLICATE_COMMAND
+            - INVALID_TRANSITION
+            - STALE_VERSION
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "422":
+          description: "Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE."
+          x-error-codes:
+            - INVALID_VALUE
+            - SUPPLY_BELOW_ZERO
+            - CONTEXT_INAPPLICABLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/working-diagnoses/{working_diagnosis_id}/treatment-options:
+    get:
+      operationId: listTreatmentOptions
+      tags:
+        - Medicines
+      summary: Treatment options for a working diagnosis
+      description: "Indication lines of treatments.json with each product's usable lots and the rule's review state. Roles: crew_medical_officer."
+      x-roles:
+        - crew_medical_officer
+      parameters:
+        - $ref: "#/components/parameters/path_working_diagnosis_id"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      responses:
+        "200":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                type: object
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/dose-proposals:
+    post:
+      operationId: createDoseProposal
+      tags:
+        - Medicines
+      summary: Ask the dose engine for a proposal
+      description: "A refusal is a 201 with outcome refusal. Never runs the potency engine. Roles: crew_medical_officer."
+      x-roles:
+        - crew_medical_officer
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "schemas/requests.schema.json#/$defs/DoseProposalCreate"
+      responses:
+        "201":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: schemas/dose-proposal.schema.json
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "409":
+          description: "Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION."
+          x-error-codes:
+            - DUPLICATE_COMMAND
+            - INVALID_TRANSITION
+            - STALE_VERSION
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "422":
+          description: "Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE."
+          x-error-codes:
+            - INVALID_VALUE
+            - SUPPLY_BELOW_ZERO
+            - CONTEXT_INAPPLICABLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/dose-proposals/{proposal_id}:
+    get:
+      operationId: getDoseProposal
+      tags:
+        - Medicines
+      summary: Read a dose proposal
+      description: "The subject reads their own. Roles: crew_medical_officer, crew."
+      x-roles:
+        - crew_medical_officer
+        - crew
+      parameters:
+        - $ref: "#/components/parameters/path_proposal_id"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      responses:
+        "200":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: schemas/dose-proposal.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/dose-proposals/{proposal_id}/confirm:
+    post:
+      operationId: confirmDoseProposal
+      tags:
+        - Medicines
+      summary: Confirm a dose proposal
+      description: "One unit of work: rechecks every exclusion, limit, stock and context; the lot is decremented exactly once. Roles: crew_medical_officer, crew."
+      x-roles:
+        - crew_medical_officer
+        - crew
+      parameters:
+        - $ref: "#/components/parameters/path_proposal_id"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "schemas/requests.schema.json#/$defs/DoseConfirm"
+      responses:
+        "201":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: schemas/medication-administration.schema.json
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "409":
+          description: "Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION."
+          x-error-codes:
+            - DUPLICATE_COMMAND
+            - INVALID_TRANSITION
+            - STALE_VERSION
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "422":
+          description: "Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE."
+          x-error-codes:
+            - INVALID_VALUE
+            - SUPPLY_BELOW_ZERO
+            - CONTEXT_INAPPLICABLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "428":
+          description: "If-Match missing: VERSION_REQUIRED."
+          x-error-codes:
+            - VERSION_REQUIRED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/medication-administrations:
+    post:
+      operationId: recordManualAdministration
+      tags:
+        - Medicines
+      summary: Record an administration given outside the engine
+      description: "Flagged outside_engine; bounded by stock; counts toward every later limit; limit_findings lists what it exceeded. Roles: crew_medical_officer, crew."
+      x-roles:
+        - crew_medical_officer
+        - crew
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "schemas/requests.schema.json#/$defs/ManualAdministrationCreate"
+      responses:
+        "201":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: schemas/medication-administration.schema.json
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "409":
+          description: "Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION."
+          x-error-codes:
+            - DUPLICATE_COMMAND
+            - INVALID_TRANSITION
+            - STALE_VERSION
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "422":
+          description: "Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE."
+          x-error-codes:
+            - INVALID_VALUE
+            - SUPPLY_BELOW_ZERO
+            - CONTEXT_INAPPLICABLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+    get:
+      operationId: listMedicationAdministrations
+      tags:
+        - Medicines
+      summary: List a person's administrations
+      description: "Never to a station session. Roles: crew_medical_officer, crew."
+      x-roles:
+        - crew_medical_officer
+        - crew
+      parameters:
+        - $ref: "#/components/parameters/q_subject"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      responses:
+        "200":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/medication-administrations/{administration_id}/corrections:
+    post:
+      operationId: correctMedicationAdministration
+      tags:
+        - Medicines
+      summary: Mark an administration entered in error
+      description: "One correction per administration; never moves stock. Roles: crew_medical_officer, crew."
+      x-roles:
+        - crew_medical_officer
+        - crew
+      parameters:
+        - $ref: "#/components/parameters/path_administration_id"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "schemas/requests.schema.json#/$defs/AdministrationCorrectionCreate"
+      responses:
+        "201":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: schemas/medication-administration.schema.json
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "409":
+          description: "Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION."
+          x-error-codes:
+            - DUPLICATE_COMMAND
+            - INVALID_TRANSITION
+            - STALE_VERSION
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "422":
+          description: "Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE."
+          x-error-codes:
+            - INVALID_VALUE
+            - SUPPLY_BELOW_ZERO
+            - CONTEXT_INAPPLICABLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/medicines/lots/{lot_id}/movements:
+    post:
+      operationId: recordLotMovement
+      tags:
+        - Medicines
+      summary: Record a lot movement
+      description: "return, waste or count_correction; stock never goes below zero. Roles: crew_medical_officer, crew."
+      x-roles:
+        - crew_medical_officer
+        - crew
+      parameters:
+        - $ref: "#/components/parameters/path_lot_id"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "schemas/requests.schema.json#/$defs/LotMovementCreate"
+      responses:
+        "201":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "409":
+          description: "Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION."
+          x-error-codes:
+            - DUPLICATE_COMMAND
+            - INVALID_TRANSITION
+            - STALE_VERSION
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "422":
+          description: "Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE."
+          x-error-codes:
+            - INVALID_VALUE
+            - SUPPLY_BELOW_ZERO
+            - CONTEXT_INAPPLICABLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+  /v1/medication-administrations/{administration_id}/fhir:
+    get:
+      operationId: exportMedicationAdministration
+      tags:
+        - Medicines
+      summary: Export an administration as FHIR
+      description: "Unavailable until E29: CONTEXT_INAPPLICABLE. Roles: crew_medical_officer, crew."
+      x-roles:
+        - crew_medical_officer
+        - crew
+      parameters:
+        - $ref: "#/components/parameters/path_administration_id"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      responses:
+        "200":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                type: object
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "422":
+          description: "Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE."
+          x-error-codes:
+            - INVALID_VALUE
+            - SUPPLY_BELOW_ZERO
+            - CONTEXT_INAPPLICABLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
 components:
   securitySchemes:
     sessionToken:
@@ -11519,6 +12711,42 @@ components:
       description: The insight id.
       schema:
         $ref: "schemas/common.schema.json#/$defs/id"
+    path_person_id:
+      in: path
+      name: person_id
+      required: true
+      description: The person id.
+      schema:
+        $ref: "schemas/common.schema.json#/$defs/id"
+    path_working_diagnosis_id:
+      in: path
+      name: working_diagnosis_id
+      required: true
+      description: The working diagnosis id.
+      schema:
+        $ref: "schemas/common.schema.json#/$defs/id"
+    path_proposal_id:
+      in: path
+      name: proposal_id
+      required: true
+      description: The dose proposal id.
+      schema:
+        $ref: "schemas/common.schema.json#/$defs/id"
+    path_administration_id:
+      in: path
+      name: administration_id
+      required: true
+      description: The administration id.
+      schema:
+        $ref: "schemas/common.schema.json#/$defs/id"
+    path_lot_id:
+      in: path
+      name: lot_id
+      required: true
+      description: The medicine lot id.
+      schema:
+        type: string
+        minLength: 1
     q_cursor:
       in: query
       name: cursor

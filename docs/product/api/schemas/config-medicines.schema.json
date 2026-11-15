@@ -1,0 +1,341 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-medicines.schema.json",
+  "title": "medicines.json",
+  "description": "Clinical policy of the medicines engine (docs/tdd/E32.md 8.4, R-E32-12): zones per environment, sensor bindings, assessment timing, the potency policy and the LIVE compensation authorizations. Operational bounds are hub settings.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "example",
+    "notice",
+    "review_state",
+    "sources",
+    "environment_zones",
+    "channel_bindings",
+    "assessment_interval_seconds",
+    "max_assessment_age_seconds",
+    "proposal_ttl_seconds",
+    "timing_basis",
+    "timing_to_be_set_by",
+    "potency_policy",
+    "live_compensation_authorizations"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "example": {
+      "type": "boolean"
+    },
+    "notice": {
+      "type": "string",
+      "minLength": 1
+    },
+    "review_state": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ]
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      },
+      "minItems": 1
+    },
+    "environment_zones": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "minItems": 1,
+        "uniqueItems": true
+      }
+    },
+    "channel_bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sensor_id",
+          "channel_id",
+          "quantity",
+          "conversion",
+          "basis",
+          "source_ids"
+        ],
+        "properties": {
+          "sensor_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "channel_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quantity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "conversion": {
+            "type": "string",
+            "enum": [
+              "identity",
+              "celsius_to_kelvin",
+              "scale"
+            ]
+          },
+          "factor": {
+            "type": "number"
+          },
+          "basis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "assessment_interval_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "max_assessment_age_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "proposal_ttl_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "timing_basis": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timing_to_be_set_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "potency_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "require_measured_assay",
+        "exclude_narrow_therapeutic_index",
+        "exclude_high_alert",
+        "require_degradant_profile_reviewed",
+        "require_measured_storage_history",
+        "require_validated_engine",
+        "validated_engine_versions",
+        "basis",
+        "to_be_set_by",
+        "source_ids"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "compensate",
+            "information_only"
+          ]
+        },
+        "require_measured_assay": {
+          "type": "boolean"
+        },
+        "exclude_narrow_therapeutic_index": {
+          "type": "boolean"
+        },
+        "exclude_high_alert": {
+          "type": "boolean"
+        },
+        "require_degradant_profile_reviewed": {
+          "type": "boolean"
+        },
+        "require_measured_storage_history": {
+          "type": "boolean"
+        },
+        "require_validated_engine": {
+          "type": "boolean"
+        },
+        "validated_engine_versions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "live_compensation_authorizations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "product_id",
+          "authorized_by_role",
+          "authorized_at",
+          "basis",
+          "source_ids",
+          "note"
+        ],
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "authorized_by_role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "authorized_at": {
+            "$ref": "common.schema.json#/$defs/instant"
+          },
+          "basis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "locator",
+        "quote"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quote": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "title",
+        "publisher",
+        "nasa",
+        "url",
+        "retrieved_on"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "pattern": "^[A-Z]+[0-9]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "publisher": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nasa": {
+          "type": "boolean"
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "retrieved_on": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "amount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "ucum"
+      ],
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "ucum": {
+          "type": "string",
+          "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+        }
+      }
+    },
+    "amount_positive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "ucum"
+      ],
+      "properties": {
+        "value": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "ucum": {
+          "type": "string",
+          "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+        }
+      }
+    }
+  }
+}

@@ -2473,6 +2473,294 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/medicines/lots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Medicine lots in one environment
+         * @description Lots of the active pharmacy bundle in zones of the environment, with quantity_now, exclusions and the latest completed assessment. No person data. Roles: crew_medical_officer, crew, operator.
+         */
+        get: operations["listMedicineLots"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/medicines/inspections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a lot inspection
+         * @description An adverse finding excludes the lot at once (E32 3.5 step 4). Roles: crew_medical_officer, crew.
+         */
+        post: operations["recordMedicineInspection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/medicines/assays": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a lot assay
+         * @description Not available in this build: CONTEXT_INAPPLICABLE. Roles: crew_medical_officer.
+         */
+        post: operations["recordMedicineAssay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/medicines/assessments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Schedule a potency assessment
+         * @description Coalesced per mission and mode; returns the job. Roles: crew_medical_officer, operator.
+         */
+        post: operations["scheduleMedicineAssessment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/people/{person_id}/medication-context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a person's medication context
+         * @description The subject reads their own; another person's is NOT_FOUND. Roles: crew_medical_officer, crew.
+         */
+        get: operations["getMedicationContext"];
+        put?: never;
+        /**
+         * Record one part of a person's medication context
+         * @description Append-only statements; the latest per part is effective. A part never recorded is unknown and refuses dosing. Roles: crew_medical_officer.
+         */
+        post: operations["recordMedicationContext"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/episodes/{episode_id}/working-diagnoses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a working diagnosis
+         * @description A person's act; it unlocks treatment options from the reviewed formulary. Roles: crew_medical_officer.
+         */
+        post: operations["recordWorkingDiagnosis"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/working-diagnoses/{working_diagnosis_id}/treatment-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Treatment options for a working diagnosis
+         * @description Indication lines of treatments.json with each product's usable lots and the rule's review state. Roles: crew_medical_officer.
+         */
+        get: operations["listTreatmentOptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/dose-proposals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ask the dose engine for a proposal
+         * @description A refusal is a 201 with outcome refusal. Never runs the potency engine. Roles: crew_medical_officer.
+         */
+        post: operations["createDoseProposal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/dose-proposals/{proposal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a dose proposal
+         * @description The subject reads their own. Roles: crew_medical_officer, crew.
+         */
+        get: operations["getDoseProposal"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/dose-proposals/{proposal_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm a dose proposal
+         * @description One unit of work: rechecks every exclusion, limit, stock and context; the lot is decremented exactly once. Roles: crew_medical_officer, crew.
+         */
+        post: operations["confirmDoseProposal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/medication-administrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List a person's administrations
+         * @description Never to a station session. Roles: crew_medical_officer, crew.
+         */
+        get: operations["listMedicationAdministrations"];
+        put?: never;
+        /**
+         * Record an administration given outside the engine
+         * @description Flagged outside_engine; bounded by stock; counts toward every later limit; limit_findings lists what it exceeded. Roles: crew_medical_officer, crew.
+         */
+        post: operations["recordManualAdministration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/medication-administrations/{administration_id}/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark an administration entered in error
+         * @description One correction per administration; never moves stock. Roles: crew_medical_officer, crew.
+         */
+        post: operations["correctMedicationAdministration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/medicines/lots/{lot_id}/movements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a lot movement
+         * @description return, waste or count_correction; stock never goes below zero. Roles: crew_medical_officer, crew.
+         */
+        post: operations["recordLotMovement"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/medication-administrations/{administration_id}/fhir": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export an administration as FHIR
+         * @description Unavailable until E29: CONTEXT_INAPPLICABLE. Roles: crew_medical_officer, crew.
+         */
+        get: operations["exportMedicationAdministration"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -5559,6 +5847,277 @@ export interface components {
             next_cursor: string;
             has_more: boolean;
         };
+        /**
+         * medicine-lots-view
+         * @description Medicines aboard (docs/tdd/E32.md R-E32-10).
+         */
+        "medicine-lots-view.schema": {
+            environment_id: string;
+            assessment: {
+                run_id: string;
+                as_of: components["schemas"]["instant"];
+                status: string;
+                origin_mode: components["schemas"]["origin_mode"];
+            } | null;
+            lots: {
+                lot_id: string;
+                product_id: string;
+                name: string;
+                quantity_now: {
+                    value: number;
+                    ucum: string;
+                };
+                /** @enum {string} */
+                lot_status: "active" | "recalled" | "consumed";
+                excluded_by: string[];
+                state: ("in_specification" | "adjust" | "do_not_use") | null;
+                potency: {
+                    ingredient_id: string;
+                    low: number;
+                    median: number;
+                    high: number;
+                }[];
+                crossing_utc: components["schemas"]["instant"] | null;
+                labeled_expiry: components["schemas"]["instant"];
+            }[];
+        };
+        MedicineInspectionCreate: {
+            lot_id: string;
+            /** @enum {string} */
+            finding: "no_change" | "discoloration" | "damaged_packaging" | "contamination" | "other_adverse";
+            note?: string;
+            client_time: components["schemas"]["instant"];
+        };
+        /**
+         * medication-context
+         * @description Medicines aboard (docs/tdd/E32.md R-E32-10).
+         */
+        "medication-context.schema": {
+            subject_person_id: components["schemas"]["id"];
+            parts: {
+                allergies: {
+                    state: string;
+                    items: Record<string, never>[];
+                    recorded_by: components["schemas"]["id"];
+                    recorded_at: components["schemas"]["instant"];
+                    statement_id: components["schemas"]["id"];
+                } | null;
+                other_medicines: {
+                    state: string;
+                    items: Record<string, never>[];
+                    recorded_by: components["schemas"]["id"];
+                    recorded_at: components["schemas"]["instant"];
+                    statement_id: components["schemas"]["id"];
+                } | null;
+                renal: {
+                    state: string;
+                    items: Record<string, never>[];
+                    recorded_by: components["schemas"]["id"];
+                    recorded_at: components["schemas"]["instant"];
+                    statement_id: components["schemas"]["id"];
+                } | null;
+                hepatic: {
+                    state: string;
+                    items: Record<string, never>[];
+                    recorded_by: components["schemas"]["id"];
+                    recorded_at: components["schemas"]["instant"];
+                    statement_id: components["schemas"]["id"];
+                } | null;
+                conditions: {
+                    state: string;
+                    items: Record<string, never>[];
+                    recorded_by: components["schemas"]["id"];
+                    recorded_at: components["schemas"]["instant"];
+                    statement_id: components["schemas"]["id"];
+                } | null;
+            };
+            as_of: components["schemas"]["instant"];
+        };
+        MedicationContextCreate: {
+            /** @enum {string} */
+            part: "allergies" | "other_medicines" | "renal" | "hepatic" | "conditions";
+            /** @enum {string} */
+            state: "documented" | "none_known" | "none" | "unknown" | "normal" | "impaired";
+            items?: Record<string, never>[];
+            client_time: components["schemas"]["instant"];
+        };
+        WorkingDiagnosisCreate: {
+            condition_id: string;
+            subject_person_id: components["schemas"]["id"];
+            basis_text?: string;
+            certainty_text?: string;
+            supersedes?: components["schemas"]["id"] | null;
+            client_time: components["schemas"]["instant"];
+        };
+        DoseProposalCreate: {
+            working_diagnosis_id: components["schemas"]["id"];
+            product_id: string;
+            lot_id?: string;
+            /** @enum {string} */
+            path?: "labeled";
+            client_time: components["schemas"]["instant"];
+        };
+        /**
+         * dose-proposal
+         * @description Medicines aboard (docs/tdd/E32.md R-E32-10).
+         */
+        "dose-proposal.schema": {
+            proposal_id: components["schemas"]["id"];
+            revision: number;
+            /** @enum {string} */
+            outcome: "proposal" | "refusal";
+            /** @enum {string} */
+            state: "proposed" | "confirmed" | "expired" | "superseded" | "refusal";
+            subject_person_id: components["schemas"]["id"];
+            working_diagnosis_id: components["schemas"]["id"];
+            product_id: string;
+            lot_id: string | null;
+            amount: {
+                value: number;
+                ucum: string;
+            } | null;
+            amount_text: string | null;
+            ingredients: {
+                ingredient_id: string;
+                target: {
+                    value: number;
+                    ucum: string;
+                };
+                accounting: {
+                    value: number;
+                    ucum: string;
+                };
+                expected_median: {
+                    value: number;
+                    ucum: string;
+                } | null;
+                expected_low: {
+                    value: number;
+                    ucum: string;
+                } | null;
+                remaining_allowance: {
+                    value: number;
+                    ucum: string;
+                };
+            }[];
+            potency: {
+                /** @enum {string} */
+                path: "labeled" | "labeled_with_estimate" | "compensated";
+                live_authorization: {
+                    product_id: string;
+                    authorized_at: components["schemas"]["instant"];
+                } | null;
+                /** @enum {string} */
+                status: "estimated" | "stale" | "none";
+                assessment_run_id: string | null;
+                intervals: {
+                    ingredient_id: string;
+                    low: number;
+                    median: number;
+                    high: number;
+                }[];
+            };
+            refusal: {
+                code: string;
+                detail_text: string;
+                alternatives: {
+                    lot_ids: string[];
+                    product_ids: string[];
+                };
+            } | null;
+            alerts: {
+                alert_id: string;
+                kind: string;
+                /** @enum {string} */
+                level: "override_required" | "acknowledge" | "info";
+                text: string;
+                reason_codes: string[];
+                override_roles: string[];
+            }[];
+            trace: {
+                step: string;
+                source: string;
+                value_text: string;
+            }[];
+            review_state: ("draft" | "reviewed" | "approved") | null;
+            next_dose_earliest_at: components["schemas"]["instant"] | null;
+            created_at: components["schemas"]["instant"];
+            expires_at: components["schemas"]["instant"];
+            origin_mode: components["schemas"]["origin_mode"];
+            notice: string;
+        };
+        DoseConfirm: {
+            lot_id: string;
+            overrides: {
+                alert_id: string;
+                reason_code: string;
+                note?: string;
+            }[];
+            acknowledged_alert_ids: string[];
+            client_time: components["schemas"]["instant"];
+        };
+        /**
+         * medication-administration
+         * @description Medicines aboard (docs/tdd/E32.md R-E32-10).
+         */
+        "medication-administration.schema": {
+            administration_id: components["schemas"]["id"];
+            revision: number;
+            proposal_id: components["schemas"]["id"] | null;
+            outside_engine: boolean;
+            subject_person_id: components["schemas"]["id"];
+            product_id: string;
+            lot_id: string;
+            amount: {
+                value: number;
+                ucum: string;
+            };
+            ingredients: {
+                ingredient_id: string;
+                accounting: {
+                    value: number;
+                    ucum: string;
+                };
+            }[];
+            administered_at: components["schemas"]["instant"];
+            confirmed_by: components["schemas"]["id"];
+            overrides: {
+                alert_id: string;
+                kind: string;
+                reason_code: string;
+                by: components["schemas"]["id"];
+            }[];
+            limit_findings: string[];
+            /** @enum {string} */
+            status: "completed" | "entered_in_error";
+            next_dose_earliest_at: components["schemas"]["instant"] | null;
+            origin_mode: components["schemas"]["origin_mode"];
+        };
+        ManualAdministrationCreate: {
+            subject_person_id: components["schemas"]["id"];
+            product_id: string;
+            lot_id: string;
+            amount: {
+                value: number;
+                ucum: string;
+            };
+            administered_at: components["schemas"]["instant"];
+            reason_text: string;
+            client_time: components["schemas"]["instant"];
+        };
+        AdministrationCorrectionCreate: {
+            reason_text: string;
+            client_time: components["schemas"]["instant"];
+        };
+        LotMovementCreate: {
+            /** @enum {string} */
+            kind: "return" | "waste" | "count_correction";
+            quantity: {
+                value: number;
+                ucum: string;
+            };
+            client_time: components["schemas"]["instant"];
+        };
     };
     responses: never;
     parameters: {
@@ -5622,6 +6181,16 @@ export interface components {
         path_conversation_id: components["schemas"]["id"];
         /** @description The insight id. */
         path_insight_id: components["schemas"]["id"];
+        /** @description The person id. */
+        path_person_id: components["schemas"]["id"];
+        /** @description The working diagnosis id. */
+        path_working_diagnosis_id: components["schemas"]["id"];
+        /** @description The dose proposal id. */
+        path_proposal_id: components["schemas"]["id"];
+        /** @description The administration id. */
+        path_administration_id: components["schemas"]["id"];
+        /** @description The medicine lot id. */
+        path_lot_id: string;
         /** @description Opaque cursor from page.next_cursor. */
         q_cursor: string;
         /** @description Page size. Default 50, at most 200. */
@@ -16846,6 +17415,1287 @@ export interface operations {
             };
             /** @description Gone: CURSOR_EXPIRED. */
             410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    listMedicineLots: {
+        parameters: {
+            query?: {
+                /** @description Default: the active environment. */
+                environment_id?: components["parameters"]["q_environment_id"];
+            };
+            header?: {
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK. */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["medicine-lots-view.schema"];
+                };
+            };
+            /** @description Bad request: MALFORMED_REQUEST. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    recordMedicineInspection: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per command. The same key with the same body returns the first result; with a different body returns 409 DUPLICATE_COMMAND. Kept 24 hours. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MedicineInspectionCreate"];
+            };
+        };
+        responses: {
+            /** @description OK. */
+            201: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Bad request: MALFORMED_REQUEST. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not found: NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    recordMedicineAssay: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per command. The same key with the same body returns the first result; with a different body returns 409 DUPLICATE_COMMAND. Kept 24 hours. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK. */
+            201: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    scheduleMedicineAssessment: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per command. The same key with the same body returns the first result; with a different body returns 409 DUPLICATE_COMMAND. Kept 24 hours. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK. */
+            202: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["job.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    getMedicationContext: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path: {
+                /** @description The person id. */
+                person_id: components["parameters"]["path_person_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK. */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["medication-context.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not found: NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    recordMedicationContext: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per command. The same key with the same body returns the first result; with a different body returns 409 DUPLICATE_COMMAND. Kept 24 hours. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path: {
+                /** @description The person id. */
+                person_id: components["parameters"]["path_person_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MedicationContextCreate"];
+            };
+        };
+        responses: {
+            /** @description OK. */
+            201: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["medication-context.schema"];
+                };
+            };
+            /** @description Bad request: MALFORMED_REQUEST. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not found: NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    recordWorkingDiagnosis: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per command. The same key with the same body returns the first result; with a different body returns 409 DUPLICATE_COMMAND. Kept 24 hours. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path: {
+                /** @description The episode id. */
+                episode_id: components["parameters"]["path_episode_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkingDiagnosisCreate"];
+            };
+        };
+        responses: {
+            /** @description OK. */
+            201: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Bad request: MALFORMED_REQUEST. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not found: NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    listTreatmentOptions: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path: {
+                /** @description The working diagnosis id. */
+                working_diagnosis_id: components["parameters"]["path_working_diagnosis_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK. */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not found: NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    createDoseProposal: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per command. The same key with the same body returns the first result; with a different body returns 409 DUPLICATE_COMMAND. Kept 24 hours. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DoseProposalCreate"];
+            };
+        };
+        responses: {
+            /** @description OK. */
+            201: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["dose-proposal.schema"];
+                };
+            };
+            /** @description Bad request: MALFORMED_REQUEST. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not found: NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    getDoseProposal: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path: {
+                /** @description The dose proposal id. */
+                proposal_id: components["parameters"]["path_proposal_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK. */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["dose-proposal.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not found: NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    confirmDoseProposal: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The object's revision as an ETag, for example "3". Missing: 428 VERSION_REQUIRED. Older than current: 409 STALE_VERSION with current_state. */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description Unique per command. The same key with the same body returns the first result; with a different body returns 409 DUPLICATE_COMMAND. Kept 24 hours. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path: {
+                /** @description The dose proposal id. */
+                proposal_id: components["parameters"]["path_proposal_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DoseConfirm"];
+            };
+        };
+        responses: {
+            /** @description OK. */
+            201: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["medication-administration.schema"];
+                };
+            };
+            /** @description Bad request: MALFORMED_REQUEST. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not found: NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description If-Match missing: VERSION_REQUIRED. */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    listMedicationAdministrations: {
+        parameters: {
+            query?: {
+                /** @description A person_id. Default: the session person. Only crew_medical_officer and station may name someone else. */
+                subject?: components["parameters"]["q_subject"];
+            };
+            header?: {
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK. */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Bad request: MALFORMED_REQUEST. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    recordManualAdministration: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per command. The same key with the same body returns the first result; with a different body returns 409 DUPLICATE_COMMAND. Kept 24 hours. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManualAdministrationCreate"];
+            };
+        };
+        responses: {
+            /** @description OK. */
+            201: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["medication-administration.schema"];
+                };
+            };
+            /** @description Bad request: MALFORMED_REQUEST. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not found: NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    correctMedicationAdministration: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per command. The same key with the same body returns the first result; with a different body returns 409 DUPLICATE_COMMAND. Kept 24 hours. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path: {
+                /** @description The administration id. */
+                administration_id: components["parameters"]["path_administration_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdministrationCorrectionCreate"];
+            };
+        };
+        responses: {
+            /** @description OK. */
+            201: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["medication-administration.schema"];
+                };
+            };
+            /** @description Bad request: MALFORMED_REQUEST. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not found: NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    recordLotMovement: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per command. The same key with the same body returns the first result; with a different body returns 409 DUPLICATE_COMMAND. Kept 24 hours. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path: {
+                /** @description The medicine lot id. */
+                lot_id: components["parameters"]["path_lot_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LotMovementCreate"];
+            };
+        };
+        responses: {
+            /** @description OK. */
+            201: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Bad request: MALFORMED_REQUEST. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not found: NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Conflict: DUPLICATE_COMMAND, INVALID_TRANSITION, STALE_VERSION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Unexpected failure: INTERNAL_ERROR. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+        };
+    };
+    exportMedicationAdministration: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Echoed in the response and in any error envelope. Generated by the hub when absent. */
+                "X-Correlation-Id"?: components["parameters"]["CorrelationIdIn"];
+            };
+            path: {
+                /** @description The administration id. */
+                administration_id: components["parameters"]["path_administration_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK. */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["CorrelationId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Not signed in: UNAUTHENTICATED. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Not found: NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["error.schema"];
+                };
+            };
+            /** @description Refused: INVALID_VALUE, SUPPLY_BELOW_ZERO, CONTEXT_INAPPLICABLE. */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
