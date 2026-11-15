@@ -163,7 +163,11 @@ def test_health_lists_the_camera_adapter_from_its_worker_probe(served: Served) -
 
 
 def test_the_hub_serves_ready_with_the_presenter_and_tomas_signed_in(served: Served) -> None:
+    deadline = time.monotonic() + 60  # a pass that met the writer on a slow disk degrades until its next pass
     status, health = served.hub.call("GET", "/v1/health")
+    while isinstance(health, dict) and health["status"] != "ok" and time.monotonic() < deadline:
+        time.sleep(0.5)
+        status, health = served.hub.call("GET", "/v1/health")
     assert status == 200 and isinstance(health, dict) and health["status"] == "ok"
     mara, tomas = served.sign_in("mara"), served.sign_in("tomas")
     _, crew = served.get("/v1/crew", tomas)
@@ -340,6 +344,10 @@ def test_shot_d_roles_propose_tomas_on_the_icl10_run_and_his_guided_check_starts
     items: list[dict[str, object]] = []
     while not items and time.monotonic() < deadline:
         status, roles = served.get(path, mara)
+        # A read that met the writer on a slow disk (retryable "locked") polls again.
+        if status != 200 and roles.get("retryable") is True:
+            time.sleep(0.5)
+            continue
         assert status == 200, roles
         items = cast(list[dict[str, object]], roles["items"])
         if not items:
