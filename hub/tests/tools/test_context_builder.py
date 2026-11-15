@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import replace
 from datetime import timedelta
 from decimal import Decimal
+from typing import Any
 
 import pytest
 
@@ -95,7 +96,7 @@ def test_required_overflow_refuses_inference_and_counts_wrappers() -> None:
 
 @pytest.mark.trace("T-E12-021", "T-E12-040", "R20", "V10", "V26", "I1")
 @pytest.mark.parametrize("mutation", [{"person_id": "person_b"}, {"origin_mode": "SIM"}, {"kind": "journal"}])
-def test_projection_cannot_widen_scope(mutation: dict[str, object]) -> None:
+def test_projection_cannot_widen_scope(mutation: dict[str, Any]) -> None:
     settings = MemorySettings(setting_specs(), settings_values())
     with pytest.raises(ToolsInvalid):
         section = ContextSection("observations", (replace(observation(), **mutation),), True)
@@ -170,7 +171,7 @@ def test_optional_place_metadata_can_be_omitted_with_explicit_reason() -> None:
         {"kind": "answer", "presence": "declined"},
     ],
 )
-def test_unmeasured_and_declined_inputs_remain_metadata(mutation: dict[str, object]) -> None:
+def test_unmeasured_and_declined_inputs_remain_metadata(mutation: dict[str, Any]) -> None:
     item = replace(observation(), **mutation)
     builder = ContextBuilder(
         Projection((ContextSection("facts", (item,), True),)),
@@ -191,7 +192,7 @@ def test_unmeasured_and_declined_inputs_remain_metadata(mutation: dict[str, obje
 )
 def test_context_refuses_inconsistent_scope_and_projection_bounds(fault: str) -> None:
     item = observation()
-    sections = (ContextSection("facts", (item,), True),)
+    sections: tuple[ContextSection, ...] = (ContextSection("facts", (item,), True),)
     authorization = Authority()
     target = scope()
     phase = target.phase
@@ -318,17 +319,18 @@ def test_optional_routine_explicit_negative_cannot_be_dropped() -> None:
 @pytest.mark.parametrize("fault", ["original", "origin", "correction", "uncertainty", "segment"])
 def test_inconsistent_time_lineage_cannot_support_a_value(fault: str) -> None:
     item = observation()
-    assert item.observed is not None and item.normalized is not None
+    observed, normalized = item.observed, item.normalized
+    assert observed is not None and normalized is not None
     if fault == "original":
-        item = replace(item, normalized=replace(item.normalized, original_at=View.now - timedelta(seconds=1)))
+        item = replace(item, normalized=replace(normalized, original_at=View.now - timedelta(seconds=1)))
     elif fault == "origin":
-        item = replace(item, observed=replace(item.observed, origin_mode="REPLAY"))
+        item = replace(item, observed=replace(observed, origin_mode="REPLAY"))
     elif fault == "correction":
-        item = replace(item, normalized=replace(item.normalized, correction_id=None))
+        item = replace(item, normalized=replace(normalized, correction_id=None))
     elif fault == "uncertainty":
-        item = replace(item, normalized=replace(item.normalized, uncertainty_ms=-1))
+        item = replace(item, normalized=replace(normalized, uncertainty_ms=-1))
     else:
-        item = replace(item, observed=replace(item.observed, segment_id=""))
+        item = replace(item, observed=replace(observed, segment_id=""))
     result = item.for_context(person_id="person_a", origin_mode="LIVE", at=View.now)
     assert result.quantity is None
     assert result.freshness == "unknown"

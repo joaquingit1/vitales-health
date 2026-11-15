@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from crew_health.app.registry import DeclarationRegistry
 from crew_health.kernel.testing import MemorySettings
 from crew_health.measurement.application.ports import CapabilityView
 from crew_health.tools.adapters.handlers.capabilities import CapabilitiesHandler
@@ -36,7 +37,7 @@ def test_unknown_capability_is_not_invented() -> None:
 
 
 @pytest.mark.trace("T-E12-011", "T-E12-067", "I7")
-def test_registered_optional_provider_remains_unavailable(tools_declarations) -> None:
+def test_registered_optional_provider_remains_unavailable(tools_declarations: DeclarationRegistry) -> None:
     from crew_health.tools.adapters.registry import StaticToolRegistry
 
     resolver = tools_declarations.resolve()

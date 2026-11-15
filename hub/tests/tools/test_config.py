@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from crew_health.app.registry import DeclarationRegistry
 from crew_health.contracts_gen.enums import ConfigName
 from crew_health.kernel.config import CandidateRelease, ConfigDocumentView
 from crew_health.tools.adapters.jsonschema_validator import PolicyValidator
@@ -59,7 +60,7 @@ def test_loader_contributor_returns_safe_finding(policy: bytes) -> None:
 
 @pytest.mark.trace("T-E12-063", "I8")
 def test_registered_policy_check_is_mandatory_and_binds_startup_settings(
-    tools_declarations, policy: bytes
+    tools_declarations: DeclarationRegistry, policy: bytes
 ) -> None:
     check = tools_declarations.declarations["loader_checks"]["tools.assistant-policy"]
     assert isinstance(check, PolicyValidator)

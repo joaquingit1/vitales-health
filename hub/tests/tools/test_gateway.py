@@ -5,6 +5,7 @@ import json
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any, Literal, cast
 
 import pytest
 
@@ -127,7 +128,7 @@ class Authority:
 
 class Handler:
     name = "get_capabilities"
-    effect = "read"
+    effect: Literal["read", "compute", "proposal"] = "read"
 
     def __init__(self) -> None:
         self.calls = 0
@@ -161,6 +162,10 @@ def scope() -> ToolScope:
         1,
         deadline,
     )
+
+
+def clock_of(gate: Gateway) -> MemoryClock:
+    return cast(MemoryClock, gate._clock)
 
 
 def gateway() -> tuple[Gateway, Handler, Authority]:
@@ -223,7 +228,7 @@ def gateway() -> tuple[Gateway, Handler, Authority]:
     ],
 )
 def test_denial_precedes_handler_and_audits_safe_reason(
-    call: ToolCall, changed: dict[str, object], reason: str
+    call: ToolCall, changed: dict[str, Any], reason: str
 ) -> None:
     gate, handler, _ = gateway()
     view = View()
@@ -268,7 +273,7 @@ def test_audit_fault_propagates_and_revocation_refuses_execution() -> None:
 
 
 @pytest.mark.trace("T-E12-004", "T-E12-014", "I5")
-def test_real_sqlite_without_turn_audit_binding_fails_closed(tmp_path) -> None:
+def test_real_sqlite_without_turn_audit_binding_fails_closed(tmp_path: Path) -> None:
     from crew_health.kernel.errors import ProblemError
     from crew_health.platform.testing.sqlite import database
 
@@ -327,7 +332,7 @@ def test_turn_and_handler_faults_cannot_publish_accepted_result(
 
         def changed(*args: object) -> HandlerOutcome:
             if fault == "timeout":
-                gate._clock.monotonic += 1000000001
+                clock_of(gate).monotonic += 1000000001
             else:
                 authority.live = False
             return HandlerOk(b"{}", (), None, ())
@@ -396,7 +401,7 @@ def test_calls_accumulate_against_the_turn_and_a_later_call_sees_the_time_alread
     view = View()
     call = ToolCall("call_a", "get_capabilities", b'{"codes":[]}')
     assert gate.execute(view, scope(), call).status == "ok"
-    gate._clock.at = View.now + timedelta(seconds=2)
+    clock_of(gate).at = View.now + timedelta(seconds=2)
     assert gate.execute(view, scope(), call).status == "denied"
     assert handler.calls == 1
 
@@ -423,7 +428,7 @@ def test_a_full_turn_table_refuses_a_new_turn_until_an_open_turn_expires() -> No
     assert gate.execute(view, scope(), call).status == "ok"
     later = replace(scope(), turn_id="turn_b")
     assert gate.execute(view, later, call).status == "denied"
-    gate._clock.at = View.now + timedelta(seconds=2)
+    clock_of(gate).at = View.now + timedelta(seconds=2)
     moved = replace(
         later.deadline, anchor=replace(later.deadline.anchor, original_at=View.now + timedelta(seconds=2))
     )
@@ -438,7 +443,7 @@ def test_the_policy_pinned_in_the_callers_release_is_read_on_every_call() -> Non
 
     def policy(uow: object) -> object:
         seen.append(uow)
-        return None if len(seen) > 1 else pinned(uow)  # type: ignore[misc]
+        return None if len(seen) > 1 else pinned(uow)  # type: ignore[arg-type, misc]
 
     gate._policy = policy  # type: ignore[assignment]
     call = ToolCall("call_a", "get_capabilities", b'{"codes":[]}')

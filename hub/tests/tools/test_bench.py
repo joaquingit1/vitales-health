@@ -63,8 +63,9 @@ E18_BENCH = pytest.mark.skipif(
 
 
 def _owner_manifest_case(tmp_path: Path, kind: str) -> None:
-    from crew_health_bench.domain.errors import BenchError
-    from crew_health_bench.freeze import FreezeLibrary
+    # eval/bench (E18) is not installed on main yet, so mypy cannot resolve its package; drop these ignores when it lands.
+    from crew_health_bench.domain.errors import BenchError  # type: ignore[import-not-found]
+    from crew_health_bench.freeze import FreezeLibrary  # type: ignore[import-not-found]
 
     from crew_health.kernel.errors import StorageUnavailable
     from crew_health.kernel.testing import MemoryClock

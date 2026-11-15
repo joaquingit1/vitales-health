@@ -13,7 +13,6 @@ from crew_health.contracts_gen.enums import ConfigName
 from crew_health.contracts_gen.schemas.capability_schema import Capability
 from crew_health.contracts_gen.schemas.config_assistant_policy_schema import AssistantPolicyJson
 from crew_health.contracts_gen.schemas.model_action_schema import ModelAction
-from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.config import CandidateRelease, Finding
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import require_id

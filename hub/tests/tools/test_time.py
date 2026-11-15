@@ -6,7 +6,7 @@ from datetime import timedelta
 import pytest
 
 from crew_health.tools.domain.tool_result import ToolCall
-from tests.tools.test_gateway import View, gateway, scope
+from tests.tools.test_gateway import View, clock_of, gateway, scope
 
 
 @pytest.mark.trace("T-E12-005", "T-E12-023", "V27", "I6")
@@ -43,9 +43,9 @@ def test_accumulated_elapsed_time_is_not_renewed_per_call() -> None:
     gate, handler, _ = gateway()
     view = View()
     call = ToolCall("call_a", "get_capabilities", b'{"codes":[]}')
-    gate._clock.at = View.now + timedelta(milliseconds=600)
+    clock_of(gate).at = View.now + timedelta(milliseconds=600)
     assert gate.execute(view, scope(), call).status == "ok"
-    gate._clock.at = View.now + timedelta(milliseconds=1100)
+    clock_of(gate).at = View.now + timedelta(milliseconds=1100)
     assert gate.execute(view, scope(), call).status == "denied"
     assert handler.calls == 1
 
@@ -63,9 +63,9 @@ def test_unknown_time_and_process_epoch_prevent_execution(fault: str) -> None:
             ),
         )
     elif fault == "restart":
-        gate._clock.epoch = "epoch_b"
+        clock_of(gate).epoch = "epoch_b"
     else:
-        gate._clock.at = View.now - timedelta(seconds=1)
+        clock_of(gate).at = View.now - timedelta(seconds=1)
     assert (
         gate.execute(View(), target, ToolCall("call_a", "get_capabilities", b'{"codes":[]}')).status
         == "denied"
@@ -80,6 +80,7 @@ def test_shared_correction_preserves_relative_elapsed_deadline(offset_ms: int) -
 
     gate, handler, _ = gateway()
     view = View()
+    assert gate._corrections is not None
     gate._corrections.apply(
         view,
         ClockCorrection(
@@ -95,9 +96,9 @@ def test_shared_correction_preserves_relative_elapsed_deadline(offset_ms: int) -
             "operator",
         ),
     )
-    gate._clock.at = View.now + timedelta(milliseconds=400)
+    clock_of(gate).at = View.now + timedelta(milliseconds=400)
     assert gate.execute(view, scope(), ToolCall("call_a", "get_capabilities", b'{"codes":[]}')).status == "ok"
-    gate._clock.at = View.now + timedelta(milliseconds=1200)
+    clock_of(gate).at = View.now + timedelta(milliseconds=1200)
     assert (
         gate.execute(view, scope(), ToolCall("call_a", "get_capabilities", b'{"codes":[]}')).status
         == "denied"

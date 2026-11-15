@@ -26,7 +26,7 @@ from crew_health.records.application.ports import AttemptObservationDraft as Obs
 from crew_health.records.application.ports import ObservationCommands as ObservationCommands
 
 # The consumer-facing value vocabularies, identical to measurement.domain.model's aliases. Consumers import this file
-# only (SYSTEM 6.4), so it cannot reach the domain package; hub/tests/measurement pins the two definitions equal.
+# only (SYSTEM 6.4), so it cannot reach the domain package; hub/tests/tools/test_owner_aliases.py pins them equal.
 type OriginMode = Literal["LIVE", "REPLAY", "SIM"]
 type OperatorRequirement = Literal["self", "crewmate", "crew_medical_officer"]
 type GapReason = Literal["no_capability", "device_absent", "operator_absent", "context_inapplicable"]

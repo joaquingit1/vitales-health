@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any, Literal
+
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
@@ -23,7 +25,9 @@ def test_role_does_not_allow_inference_on_another_person(role: Role) -> None:
 
 @pytest.mark.trace("T-E12-003", "I1")
 @pytest.mark.parametrize("kind", ["station", "ground", "operator", "editor", "adapter"])
-def test_noncrew_session_cannot_infer_chart(kind: str) -> None:
+def test_noncrew_session_cannot_infer_chart(
+    kind: Literal["station", "ground", "operator", "editor", "adapter"],
+) -> None:
     session = SessionContext("session", kind, Actor("person", "owner"), "owner", frozenset())
     with pytest.raises(ToolsInvalid):
         require_own_subject(session, "owner")
@@ -58,7 +62,7 @@ def test_module_error_uses_generated_sanitized_error_envelope() -> None:
 @pytest.mark.parametrize(
     "changes", [{"origin_mode": "unknown"}, {"source_revision": 0}, {"generation": 0}, {"phase": "unknown"}]
 )
-def test_scope_rejects_invalid_controller_values(changes: dict[str, object]) -> None:
+def test_scope_rejects_invalid_controller_values(changes: dict[str, Any]) -> None:
     from dataclasses import replace
 
     from tests.tools.test_gateway import scope

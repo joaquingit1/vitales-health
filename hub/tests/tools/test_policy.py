@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Literal
 
 import pytest
 
@@ -17,7 +18,7 @@ BOUNDS = JsonBounds(max_bytes=8192, max_depth=16, max_array_items=50, max_string
 
 @dataclass
 class Rules:
-    state: str = "checked"
+    state: Literal["checked", "unavailable"] = "checked"
     amount: bool = False
     medicine: bool = False
     pin: str = "release"

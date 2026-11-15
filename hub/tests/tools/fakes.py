@@ -7,7 +7,7 @@ from crew_health.platform.testing.sqlite import test_settings as platform_settin
 def identity() -> MemoryVault:
     return MemoryVault(
         ids=MemoryIds(identifiers=()),
-        settings=platform_settings(),
+        settings=platform_settings(),  # type: ignore[arg-type]
         secrets={"person_a": b"test_owner_secret"},
         authorize=lambda session, reference: False,
     )

@@ -8,7 +8,7 @@ from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.scheduler import ElapsedDeadline
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.uow import UnitOfWork
-from crew_health.measurement.application.ports import CapabilityQueries
+from crew_health.measurement.application.ports import CapabilityQueries, CapabilityView
 from crew_health.tools.application.ports import HandlerOk, HandlerOutcome, HandlerRejected, HandlerUnavailable
 from crew_health.tools.domain.scope import ToolScope
 
@@ -42,4 +42,11 @@ class CapabilitiesHandler:
         if any(code not in by_code for code in codes):
             return HandlerRejected("handler_rejected")
         selected = tuple(by_code[code] for code in sorted(set(codes))) if codes else capabilities
-        return HandlerOk(canonical_json({"items": [asdict(item) for item in selected]}), (), None, ())
+        return HandlerOk(canonical_json({"items": [_wire(item) for item in selected]}), (), None, ())
+
+
+def _wire(item: CapabilityView) -> dict[str, object]:
+    """contracts.Capability: E05's internal `components` (a panel's indicator codes) is not on the wire object."""
+    fields = asdict(item)
+    del fields["components"]
+    return fields

@@ -10,11 +10,13 @@ from __future__ import annotations
 import hashlib
 from dataclasses import replace
 from decimal import Decimal
+from typing import Literal
 
 import pytest
 
 from crew_health.guidance.application.ports import GuidanceDecision, Requirements
 from crew_health.kernel.testing import MemorySettings
+from crew_health.knowledge.application.dto import AllowedUse
 from crew_health.knowledge.application.ports import dto  # type: ignore[attr-defined]
 from crew_health.tools.application.retrieval_service import PublicQueryBoundary, RetrievalService
 from crew_health.tools.domain.errors import ToolsInvalid
@@ -25,7 +27,7 @@ from tests.tools.test_context_builder import Tokens
 from tests.tools.test_gateway import View, scope
 
 PIN = "evr_a"
-USE = "risk_context"
+USE: AllowedUse = "risk_context"
 NONE = Requirements(frozenset(), {}, frozenset(), "any_crew", None)
 
 
@@ -65,7 +67,7 @@ class Evidence:
             (row for (_, pid), row in self.rows.items() if pid == passage_id), key=lambda row: row.release_id
         )
 
-    def read_approved(self, release_id: str, passage_id: str, use: str) -> dto.ApprovedRead:
+    def read_approved(self, release_id: str, passage_id: str, use: AllowedUse) -> dto.ApprovedRead:
         if self.unavailable:
             return dto.ReleaseUnavailable(release_id, "storage")
         row = self.rows.get((release_id, passage_id))
@@ -114,7 +116,7 @@ class Evidence:
 
 
 class Eligibility:
-    outcome = "show"
+    outcome: Literal["show", "show_with_substitute", "not_here", "not_supported"] = "show"
 
     def evaluate(self, snapshot: object, request: object) -> GuidanceDecision:
         return GuidanceDecision(
@@ -126,7 +128,7 @@ class Eligibility:
             (),
             "live",
             "not_clinically_reviewed",
-            None,  # type: ignore[arg-type]
+            None,
         )
 
 

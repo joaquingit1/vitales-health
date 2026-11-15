@@ -1,39 +1,28 @@
-"""E12 on the real composed hub: E01's create_app over a temporary SQLite directory with E02's identity and consent,
-E27's guidance and E12's tools module installed, built on E02's station (hub/tests/privacy/e02_station.py).
+"""E12 on the real composed hub: E01's create_app with every installed module (hub/tests/app/test_composition.py's
+station over the station resources of hub/tests/app/conftest.py), signed in through E02's identity service.
 
 The gateway, its audit, scope authority, catalog compilation, policy pinning and clock seam are production code
-resolved by port class from the running app. What is not on main is supplied through the composer as test doubles
-of the owners' canonical ports, never as hub service replacements:
+resolved by port class from the running app. Seams whose owner is not on main are supplied through the composer as
+test doubles of the owners' canonical ports, never as hub service replacements:
 - E10's EvidenceQueryPort (wave 2 canonical ports, 728c2b7) and E10's ContentFacts answer for one pinned release;
-- E17's ModelReleaseReader and TokenCounter serve the package's closed tool catalog (docs/product/tool-catalog.json)
-  with each tool exposed in its own stage;
-- E23's EnvironmentFacts and E31's SkillFacts answer for the SIM roster.
-Every double's data is built here from the package examples; no clinical content is invented.
+- E17's real ModelReleaseReader reads a release installed in the test's data directory (E17's own candidate manifest);
+  E17 provides no TokenCounter port yet (docs/requests/E17.md), so a double counts one token per byte;
+- E23's EnvironmentFacts answers for content naming no environment.
+Every double's data is built here from the package; no clinical content is invented.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
-import shutil
-import sys
-from collections.abc import Collection, Mapping, Sequence
-from dataclasses import dataclass, field
+from collections.abc import Callable, Collection, Mapping, Sequence
+from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
 
-from crew_health.app.assembly import BuildCatalog
-from crew_health.app.registry import ModuleRegistry
-from crew_health.app.station import HubResources, bootstrap_release, config_artifacts
-from crew_health.config.adapters.repository import ConfigRepository, SQLiteConfigReader
-from crew_health.config.adapters.verification import ConfigArtifacts
-from crew_health.config.application.activation import ReleaseActivationService
-from crew_health.config.application.loader import ConfigLoader, LoaderChecks, required_contributors
-from crew_health.config.domain.templates import TemplateCheck
-from crew_health.contracts_gen.enums import ErrorCode, Role
-from crew_health.events.adapters.repository import EventRepository, EventValidator
-from crew_health.events.application.delivery import SessionAuthorizer
-from crew_health.events.module import EventAccess
+from crew_health.app.registry import ModuleRegistry, Resolver
+from crew_health.consent.application.ports import AuthoredRecords, RecordSubject
+from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.guidance.application.ports import (
     ContentFacts,
     ContentFactSet,
@@ -41,56 +30,38 @@ from crew_health.guidance.application.ports import (
     EnvironmentFacts,
     Fact,
     Known,
-    OperatorFact,
-    SkillFacts,
 )
-from crew_health.identity.application.ports import IdentityPorts
+from crew_health.identity.application.admin import IdentityAdmin
+from crew_health.identity.application.service import IdentityService
+from crew_health.identity.domain.roster import ProvisionedPrincipal, RosterBootstrap, RosterMember
+from crew_health.identity.domain.session import SignInRequest
 from crew_health.kernel.clock import TimeInput
 from crew_health.kernel.commands import canonical_json
-from crew_health.kernel.config import ReleaseCheck
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.scheduler import ElapsedDeadline
-from crew_health.kernel.testing import MemoryClock, MemoryReleaseCheck
-from crew_health.kernel.uow import ReadSnapshot, SessionContext
-from crew_health.knowledge.application.ports import (
+from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
+from crew_health.knowledge.application.dto import AllowedUse
+from crew_health.knowledge.application.ports import (  # type: ignore[attr-defined]
     EvidenceQueryPort,
-    dto,  # type: ignore[attr-defined]
+    dto,
 )
-from crew_health.model.application.ports import (
-    ContextSettings,
-    ControllerSettings,
-    EmbeddingPin,
-    ModelRelease,
-    ModelReleaseReader,
-    ModelReleaseRef,
-    RetrievalSettings,
-    RuntimeSettings,
-    ToolCatalog,
-)
+from crew_health.model.adapters.manifest_store import ManifestStore
+from crew_health.model.application.ports import ModelInstallation
 from crew_health.model.application.ports import TokenCounter as ModelTokenCounter
-from crew_health.platform.settings import ValidatedSettings
-from crew_health.platform.storage import SQLiteDatabase
-from crew_health.platform.testing.sqlite import database
+from crew_health.records.application.seams import RecordsStore
 from crew_health.tools.domain.phase import Phase
 from crew_health.tools.domain.scope import ToolScope
+from tests.app.test_composition import Station, station
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "privacy"))
-
-import e02_station  # noqa: E402
-from e02_station import (  # noqa: E402
-    MODULES,
-    PRODUCT,
-    ROOT,
-    SOURCE,
-    START,
-    E02Station,
-    mission_id,
-)
-
-E12_MODULES = (*MODULES, "guidance", "tools")
-MODEL_RELEASE = "model_sim_stub"
+MODEL_RELEASE = "model_candidate"  # the release id of hub/tests/model/conftest.py's manifest
 EVIDENCE_RELEASE = "evr_sim_a"
-USE = "risk_context"
+USE: AllowedUse = "risk_context"
+OPERATOR = Actor("operator", "operator_sim")
+MISSION = "mission_e12_sim"
+CREW = (
+    RosterMember("person_sim", "Ana", 0, 1, None, 1),
+    RosterMember("person_other", "Ben", 1, 1, None, None),
+)
 
 
 def member(
@@ -142,7 +113,7 @@ class Evidence:
         rows = (row for (_, pid), row in self.rows.items() if pid == passage_id)
         return sorted(rows, key=lambda row: row.release_id)
 
-    def read_approved(self, release_id: str, passage_id: str, use: str) -> dto.ApprovedRead:
+    def read_approved(self, release_id: str, passage_id: str, use: AllowedUse) -> dto.ApprovedRead:
         self.reads.append(passage_id)
         if self.unavailable:
             return dto.ReleaseUnavailable(release_id, "storage")
@@ -203,7 +174,7 @@ class Content:
         rows = [row for (_, pid), row in self.evidence.rows.items() if pid == content.id]
         row = rows[0] if len(rows) == 1 else None
         valid = row is not None and row.passage.text_sha256 == content.content_sha256
-        status = None if row is None else dict(row.use_status).get(purpose)
+        status = None if row is None else dict[str, str](row.use_status).get(purpose)
         return ContentFactSet(
             Known(valid),
             Known(status == "approved"),
@@ -226,81 +197,29 @@ class Places:
         return Known(not environments)
 
 
-class Crew:
-    """E31's SkillFacts for the SIM roster: everyone awake and on site, no skill records."""
-
-    def operators(
-        self, snapshot: ReadSnapshot, subject_person_id: str | None, patient_location_id: str | None
-    ) -> Fact[tuple[OperatorFact, ...]]:
-        return Known(
-            tuple(
-                OperatorFact(
-                    item.person_id, item.roster_index, True, True, False, item.medical_officer_rank, {}
-                )
-                for item in e02_station.sim_members()
-            )
-        )
-
-
-def product_catalog() -> ToolCatalog:
-    """The package's closed tool catalog, each tool exposed in its own stage (E17's grouping is not on main)."""
-    document = json.loads((PRODUCT / "tool-catalog.json").read_text(encoding="utf-8"))
-    tools = tuple(document["tools"])
-    exposure: dict[str, tuple[str, ...]] = {}
-    for tool in tools:
-        exposure[tool["stage"]] = (*exposure.get(tool["stage"], ()), tool["name"])
-    return ToolCatalog(tools, exposure)
-
-
-@dataclass
-class Models:
-    """E17's ModelReleaseReader for one stub release. Retrieval values sit inside E12's hub bounds; they are a
-    double's inputs, not tuned settings."""
-
-    active_release: str | None = MODEL_RELEASE
-    retrieval: Mapping[str, object] = field(
-        default_factory=lambda: {
-            "k_lexical": 3,
-            "k_dense": 0,
-            "final_min": 1,
-            "final_max": 3,
-            "budget_tokens": 4096,
-            "max_per_parent": 2,
-            "k_rrf": 60,
-            "rerank": False,
+def install_model(store: ManifestStore, *, refused_catalog: bool = False) -> ModelInstallation:
+    """E17's real installation: the candidate release of hub/tests/model/conftest.py made active in its data
+    directory, with the repository's v1 catalog. With refused_catalog, the release's catalog also lists a tool
+    whose arguments carry a patient_id, which E17's own catalog check (ManifestStore.tool_catalog) refuses."""
+    if refused_catalog:
+        folder = store.root / "tool-catalog/v1"
+        document = json.loads((folder / "tools.json").read_text(encoding="utf-8"))
+        schema = {
+            "type": "object",
+            "properties": {"patient_id": {"type": "string"}},
+            "additionalProperties": False,
         }
-    )
-
-    def active(self) -> ModelRelease | None:
-        if self.active_release is None:
-            return None
-        return ModelRelease(canonical_json({"release_id": self.active_release, "mode": "stub"}))
-
-    def get(self, release_id: str) -> ModelRelease:
-        return self.load(release_id)
-
-    def load(self, release_id: str) -> ModelReleaseRef:
-        if release_id != self.active_release:
-            raise ProblemError(ErrorCode.NOT_FOUND, ErrorCode.NOT_FOUND.value)
-        return ModelReleaseRef(canonical_json({"release_id": release_id, "mode": "stub"}))
-
-    def tool_catalog(self, model_release_id: str) -> ToolCatalog:
-        return product_catalog()
-
-    def context_settings(self, model_release_id: str) -> ContextSettings:
-        return ContextSettings({})
-
-    def runtime_settings(self, model_release_id: str) -> RuntimeSettings:
-        return RuntimeSettings({})
-
-    def controller_settings(self, model_release_id: str) -> ControllerSettings:
-        return ControllerSettings({})
-
-    def embedding_pin(self) -> EmbeddingPin:
-        raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, ErrorCode.CAPABILITY_UNAVAILABLE.value)
-
-    def retrieval_settings(self, model_release_id: str) -> RetrievalSettings:
-        return RetrievalSettings(dict(self.retrieval))  # type: ignore[arg-type]
+        document["tools"].append(
+            {"name": "read_chart", "stage": "intake", "effect": "read", "input_schema": schema}
+        )
+        raw = json.dumps(document, indent=2).encode("utf-8")
+        (folder / "tools.json").write_bytes(raw)
+        digest = {"tools.json": hashlib.sha256(raw).hexdigest()}
+        (folder / "MANIFEST.sha256").write_text(json.dumps(digest), encoding="utf-8")
+    pointer = store.data_dir / "models/active.json"
+    pointer.parent.mkdir(parents=True, exist_ok=True)
+    pointer.write_text(json.dumps({"release_id": MODEL_RELEASE}), encoding="utf-8")
+    return ModelInstallation(str(store.root), str(store.data_dir), "eval", "/opt/model/llama-server", 18081)
 
 
 class Tokens:
@@ -313,144 +232,104 @@ class Tokens:
         return len(canonical_json(body))
 
 
-def e12_settings(**overrides: int) -> ValidatedSettings:
-    from crew_health.guidance.module import setting_specs as guidance_specs
-    from crew_health.tools.settings import setting_specs as tools_specs
+@dataclass(frozen=True, slots=True)
+class StoreAuthors:
+    """consent's AuthoredRecords over E01's RecordsStore: the observation's subject and the person who entered it."""
 
-    base = e02_station.station_settings()
-    extra = (*guidance_specs(), *tools_specs())
-    specs = (*base._specs.values(), *extra)
-    values = {**base._values, **{spec.key: int(spec.maximum or 0) for spec in extra}}
-    values.update(overrides)
-    return ValidatedSettings(specs, values)
+    store: RecordsStore
 
-
-def e12_build(directory: Path) -> BuildCatalog:
-    target = directory / "packaged/crew_health"
-    for module in E12_MODULES:
-        path = target / module
-        path.mkdir(parents=True, exist_ok=True)
-        for name in ("__init__.py", "module.py"):
-            shutil.copyfile(SOURCE / module / name, path / name)
-    from crew_health.clock.module import register as clock
-    from crew_health.config.module import register as config
-    from crew_health.consent.module import register as consent
-    from crew_health.events.module import register as events
-    from crew_health.guidance.module import register as guidance
-    from crew_health.identity.module import register as identity
-    from crew_health.platform.module import register as platform
-    from crew_health.records.module import register as records
-    from crew_health.tools.module import register as tools
-
-    registrations = [clock, config, consent, events, guidance, identity, platform, records, tools]
-    inventory = {
-        fn.__module__: hashlib.sha256(
-            (target / fn.__module__.split(".")[1] / "module.py").read_bytes()
-        ).hexdigest()
-        for fn in registrations
-    }
-    return BuildCatalog(target, inventory, tuple(registrations))
-
-
-class _OwnChecksFirst:
-    """E02's station composer predates E01 #41, where the config module registers every package check itself and
-    the assembly provides EventAccess; the composer's stand-ins for those and its unverified ConfigArtifacts are
-    skipped so E01's own run (artifacts from E01's production `config_artifacts`), and the session authorizer E01
-    asks for is E02's live-session reader."""
-
-    def __init__(self, registry: ModuleRegistry) -> None:
-        self._registry = registry
-
-    def loader_check(self, check: ReleaseCheck) -> None:
-        declared = getattr(self._registry, "declarations", {}).get("loader_checks", {})
-        if check.check_id not in declared:
-            self._registry.loader_check(check)
-
-    def provide(
-        self, port: type[object], factory: object, *, requires: tuple[type[object], ...] = ()
-    ) -> None:
-        if port not in (EventAccess, ConfigArtifacts):
-            self._registry.provide(port, factory, requires=requires)  # type: ignore[arg-type]
-
-    def __getattr__(self, name: str) -> object:
-        return getattr(self._registry, name)
+    def observation(self, view: ReadSnapshot | UnitOfWork, observation_id: str) -> RecordSubject | None:
+        return self.store.observation(view, observation_id)
 
 
 @dataclass
-class E12Station(E02Station):
-    evidence: Evidence = field(default_factory=lambda: Evidence(member("psg_sim_a")))
-    models: Models | None = field(default_factory=Models)
-    tokens: Tokens | None = field(default_factory=Tokens)
+class E12Hub:
+    station: Station
+    base: Callable[[ModuleRegistry], None]
+    evidence: Evidence
+    installation: ModelInstallation | None
+    tokens: Tokens | None
 
     def configure(self, registry: ModuleRegistry) -> None:
-        super().configure(_OwnChecksFirst(registry))
-        artifacts = config_artifacts(HubResources(ROOT))
-        registry.provide(ConfigArtifacts, lambda resolver: artifacts)
-        registry.provide(
-            SessionAuthorizer,  # type: ignore[type-abstract]
-            lambda resolver: resolver.require(IdentityPorts).sessions,
-            requires=(IdentityPorts,),
-        )
-        evidence, models, tokens = self.evidence, self.models, self.tokens
-        registry.provide(EvidenceQueryPort, lambda resolver: evidence)  # type: ignore[type-abstract]
-        registry.provide(ContentFacts, lambda resolver: Content(evidence))  # type: ignore[type-abstract]
-        registry.provide(EnvironmentFacts, lambda resolver: Places())  # type: ignore[type-abstract]
-        registry.provide(SkillFacts, lambda resolver: Crew())  # type: ignore[type-abstract]
-        if models is not None:
-            registry.provide(ModelReleaseReader, lambda resolver: models)  # type: ignore[type-abstract]
+        self.base(registry)
+        evidence, installation, tokens = self.evidence, self.installation, self.tokens
+        if AuthoredRecords not in registry.providers:  # type: ignore[attr-defined]
+            # consent's AuthoredRecords is the composer's to bind (consent/application/ports.py); main's composer
+            # does not bind it yet, so this one does, over E01's own RecordsStore.
+            registry.provide(
+                AuthoredRecords,  # type: ignore[type-abstract]
+                lambda resolver: StoreAuthors(resolver.require(RecordsStore)),  # type: ignore[type-abstract]
+                requires=(RecordsStore,),
+            )
+        registry.provide(EvidenceQueryPort, _constant(evidence))  # type: ignore[type-abstract]
+        registry.provide(ContentFacts, _constant(Content(evidence)))  # type: ignore[type-abstract]
+        registry.provide(EnvironmentFacts, _constant(Places()))  # type: ignore[type-abstract]
+        if installation is not None:
+            registry.provide(ModelInstallation, _constant(installation))
         if tokens is not None:
-            registry.provide(ModelTokenCounter, lambda resolver: tokens)  # type: ignore[type-abstract]
+            registry.provide(ModelTokenCounter, _constant(tokens))  # type: ignore[type-abstract]
 
 
-def install_release(db: SQLiteDatabase) -> None:
-    """E01's first-start release from the repository configuration (app.station.bootstrap_release), activated
-    through the configuration service with E01's verified artifacts; E02's station release predates E01 #41's
-    package checks, which its example plans do not pass."""
-    e02_station.migrate_core(db, ("config", "clock", "events", "records"))
-    db.event_sink = EventRepository(
-        settings=db.settings, ids=db.ids, validator=EventValidator(schema_directory=e02_station.SCHEMAS)
-    ).append
-    resources = HubResources(ROOT)
-    artifacts = config_artifacts(resources)
-    checks = LoaderChecks(maximum=1024)
-    for check in (
-        artifacts.schemas,
-        artifacts.sources,
-        artifacts.indicators,
-        TemplateCheck(),
-        *artifacts.package,
-    ):
-        checks.register(check)
-    for identifier in sorted(required_contributors() - set(checks.checks)):
-        checks.register(MemoryReleaseCheck(identifier, lambda candidate: ()))
-    service = ReleaseActivationService(
-        ConfigRepository(),
-        ConfigLoader(checks, max_document_bytes=db.settings.integer("commands.max_bytes")),
-        db.ids,
-        origin=lambda view: "SIM",
+def _constant[T](value: T) -> Callable[[Resolver], T]:
+    def provide(resolver: Resolver) -> T:
+        return value
+
+    return provide
+
+
+def e12_hub(
+    tmp_path: Path,
+    resources: Path,
+    *,
+    evidence: Evidence | None = None,
+    installation: ModelInstallation | None = None,
+    tokens: Tokens | None = None,
+) -> E12Hub:
+    """The composed hub; without an installation E17's real reader has no active release."""
+    base = station(tmp_path, resources)
+    hub = E12Hub(
+        base, base.configure, evidence or Evidence(member("psg_sim_a")), installation, tokens or Tokens()
     )
-    candidate, _ = bootstrap_release(resources, db.ids)
-    editor = SessionContext("session_profile", "editor", e02_station.OPERATOR, None, frozenset({Role.EDITOR}))
-    with db.begin(actor=e02_station.OPERATOR, correlation_id="sim_profile_install") as uow:
-        service.propose(uow, editor, candidate)
-        service.activate(
-            uow, editor, release_id=candidate.release_id, expected_etag=f'"{candidate.release_id}:1:0"'
-        )
-    db.set_release_reader(lambda view: SQLiteConfigReader(view, ConfigRepository()).active())
+    base.configure = hub.configure
+    return hub
 
 
-def e12_station(directory: Path, **overrides: object) -> E12Station:
-    clock = MemoryClock(START, 1_000_000_000, "epoch_first")
-    db = database(directory / "state", clock=clock)
-    db.settings = e12_settings()
-    install_release(db)
-    e02_station.install_e02(db)
-    clocks = e02_station._sim_clock(db)
-    return E12Station(directory, db, clock, e12_build(directory), clocks, None, **overrides)  # type: ignore[arg-type]
+def credential(person_id: str) -> str:
+    return "sim passphrase for " + person_id
+
+
+def sign_in(resolver: object, person_id: str) -> SessionContext:
+    """E02's own operator path: the roster document, a credential, then the crew member's sign-in."""
+    admin: IdentityAdmin = resolver.require(IdentityAdmin)  # type: ignore[attr-defined]
+    identity: IdentityService = resolver.require(IdentityService)  # type: ignore[attr-defined]
+    roster = RosterBootstrap(MISSION, "SIM", CREW, (ProvisionedPrincipal("stn_sim", "station", "Station"),))
+    try:
+        admin.apply_roster(roster, expected_revision=0, operator=OPERATOR, correlation_id="sim_roster")
+    except ProblemError as error:
+        if error.code != ErrorCode.STALE_VERSION:
+            raise
+    admin.set_credential(
+        person_id,
+        credential(person_id),
+        current_credential=None,
+        operator=OPERATOR,
+        client="console",
+        correlation_id="sim_credential_" + person_id,
+    )
+    view = identity.sign_in(
+        SignInRequest("crew", person_id),
+        credential(person_id),
+        client="console",
+        listener="local",
+        correlation_id="sim_sign_in_" + person_id,
+    )
+    assert view.token is not None
+    return identity.authenticate(view.token, listener="local")
 
 
 def tool_scope(
     session: SessionContext,
+    anchor: TimeInput,
     *,
     phase: Phase = Phase.ASSESSMENT,
     turn: str = "turn_sim_a",
@@ -458,12 +337,11 @@ def tool_scope(
     seconds: int = 60,
     model: str = MODEL_RELEASE,
 ) -> ToolScope:
-    """The controller's turn scope for the signed-in crew member, anchored on the SIM station clock."""
-    anchor = TimeInput(START, "sim_source", "sim_segment", 1, "hub_corrected", "SIM")
+    """The controller's turn scope for the signed-in crew member, anchored on a capture of the hub clock."""
     return ToolScope(
         session,
         session.person_id,
-        mission_id(),
+        MISSION,
         "SIM",
         None,
         None,

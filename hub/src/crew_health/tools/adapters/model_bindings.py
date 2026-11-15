@@ -9,7 +9,9 @@ from __future__ import annotations
 from collections.abc import Mapping
 from decimal import Decimal
 
-from crew_health.model.application.ports import ModelReleaseReader
+import jsonschema
+
+from crew_health.model.application.ports import ModelRelease, ModelReleaseReader
 from crew_health.model.application.ports import TokenCounter as ModelTokenCounter
 from crew_health.tools.adapters.jsonschema_validator import CatalogValidator, CompiledCatalog
 from crew_health.tools.domain.errors import ToolsInvalid
@@ -44,11 +46,35 @@ def retrieval_settings(values: Mapping[str, object]) -> RetrievalSettings:
     )
 
 
+# E17 refuses unusable release artifacts with ModelRefused (a ValueError kept in its domain package, which E12 may
+# not import) or with jsonschema's SchemaError from its catalog check. Either means the release cannot back a tool.
+_REFUSALS = (ValueError, jsonschema.exceptions.SchemaError)
+
+
+def active_release(reader: ModelReleaseReader) -> ModelRelease | None:
+    """The active model release, or None when E17 refuses its artifacts: the hub serves without the model."""
+    try:
+        return reader.active()
+    except _REFUSALS:
+        return None
+
+
 def compile_catalog(
     reader: ModelReleaseReader, validator: CatalogValidator, model_release_id: str
 ) -> CompiledCatalog:
-    catalog = reader.tool_catalog(model_release_id)
+    try:
+        catalog = reader.tool_catalog(model_release_id)
+    except _REFUSALS as error:
+        raise ToolsInvalid("CONFIG_INVALID") from error
     return validator.compile_release(catalog.tools, catalog.exposure, model_release_id=model_release_id)
+
+
+def release_retrieval(reader: ModelReleaseReader, model_release_id: str) -> RetrievalSettings:
+    try:
+        values = reader.retrieval_settings(model_release_id).values
+    except _REFUSALS as error:
+        raise ToolsInvalid("CONFIG_INVALID") from error
+    return retrieval_settings(values)
 
 
 class ModelTokens:

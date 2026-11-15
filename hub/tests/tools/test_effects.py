@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -28,7 +29,7 @@ def settings() -> MemorySettings:
 
 class Measurements:
     def __init__(self) -> None:
-        self.proposals: list[object] = []
+        self.proposals: list[Any] = []
 
     def propose(
         self, uow: object, *, requester: object, subject_person_id: str, proposal: object
@@ -75,7 +76,7 @@ def test_unavailable_request_retains_owner_gap_and_does_not_start_acquisition(tm
 @pytest.mark.parametrize(
     "change", [{"turn_id": "turn_old"}, {"generation": 2}, {"source_revision": 2}, {"arguments": b"{}"}]
 )
-def test_rejected_or_stale_effect_has_no_owner_call(change: dict[str, object]) -> None:
+def test_rejected_or_stale_effect_has_no_owner_call(change: dict[str, Any]) -> None:
     owner = Measurements()
     with pytest.raises(ToolsInvalid):
         Effects(owner, Authority(), settings=settings(), validator=Validator()).apply(

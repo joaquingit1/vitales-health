@@ -38,7 +38,12 @@ from crew_health.tools.adapters.handlers.capabilities import CapabilitiesHandler
 from crew_health.tools.adapters.handlers.evidence import ReadPassageHandler, SearchEvidenceHandler
 from crew_health.tools.adapters.handlers.proposals import ProposeMeasurementHandler
 from crew_health.tools.adapters.jsonschema_validator import CatalogValidator, CompiledCatalog, PolicyValidator
-from crew_health.tools.adapters.model_bindings import ModelTokens, compile_catalog, retrieval_settings
+from crew_health.tools.adapters.model_bindings import (
+    ModelTokens,
+    active_release,
+    compile_catalog,
+    release_retrieval,
+)
 from crew_health.tools.adapters.registry import StaticToolRegistry, tool_names
 from crew_health.tools.application.effects import Effects
 from crew_health.tools.application.gateway import Gateway
@@ -158,7 +163,7 @@ class _Effects:
 def _model(live: _Live, resolver: Resolver, settings: HubSettings) -> None:
     """The active model release's catalog and retrieval binding, compiled once at startup (AGENTS 3 rule 3)."""
     reader = resolver.optional(ModelReleaseReader)
-    active = None if reader is None else reader.active()
+    active = None if reader is None else active_release(reader)
     if reader is None or active is None:
         return
     try:
@@ -174,7 +179,7 @@ def _model(live: _Live, resolver: Resolver, settings: HubSettings) -> None:
     if tokens is None or evidence is None or eligibility is None:
         return
     try:
-        tuning = retrieval_settings(reader.retrieval_settings(active.release_id).values)
+        tuning = release_retrieval(reader, active.release_id)
     except ToolsInvalid as error:
         if error.code.value != "CONFIG_INVALID":
             raise

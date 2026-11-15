@@ -13,6 +13,8 @@ from typing import Literal
 
 from crew_health.guidance.application.ports import Requirements
 from crew_health.kernel.commands import canonical_json
+from crew_health.kernel.errors import ProblemError
+from crew_health.kernel.ids import require_id
 from crew_health.kernel.scheduler import ElapsedDeadline
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.uow import UnitOfWork
@@ -48,6 +50,16 @@ def _outcome(result: RetrievalResult) -> HandlerOutcome:
     return HandlerOk(canonical_json(body), provenance, None, result.limitations)
 
 
+def _identifier(value: str) -> bool:
+    """A model-supplied passage id that is not an identifier (a path, a traversal, a URL) is a malformed call,
+    refused before the evidence owner is asked."""
+    try:
+        require_id(value)
+    except ProblemError:
+        return False
+    return True
+
+
 def _guarded(run: Callable[[], RetrievalResult]) -> HandlerOutcome:
     try:
         return _outcome(run())
@@ -73,7 +85,7 @@ class ReadPassageHandler:
         passage_id, include_parent = arguments.get("passage_id"), arguments.get("include_parent")
         if set(arguments) != {"passage_id", "include_parent"} or not isinstance(passage_id, str):
             return HandlerRejected("malformed_schema")
-        if type(include_parent) is not bool:
+        if type(include_parent) is not bool or not _identifier(passage_id):
             return HandlerRejected("malformed_schema")
         service = self._services(scope)
         if service is None:

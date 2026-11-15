@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal
+
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
@@ -9,7 +11,9 @@ from crew_health.tools.domain.support import support_uses
 
 @pytest.mark.trace("T-E12-020", "T-E12-021", "I3")
 @pytest.mark.parametrize("presence", ["present", "absent", "unknown", "declined"])
-def test_answer_support_preserves_all_presence_states(presence: str) -> None:
+def test_answer_support_preserves_all_presence_states(
+    presence: Literal["present", "absent", "unknown", "declined"],
+) -> None:
     from dataclasses import replace
 
     from tests.tools.test_context_builder import observation
