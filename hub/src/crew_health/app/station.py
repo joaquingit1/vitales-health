@@ -298,6 +298,7 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
     """The demo profile's mission facts under every consumer's MissionStatePort class (app/demo_mission.py)."""
     from dataclasses import replace
 
+    from crew_health.app.registry import DeclarationRegistry
     from crew_health.camera.application.ports import MissionStatePort as CameraMission
     from crew_health.clock.application.clock import ClockIdentity
     from crew_health.groundlink.application.ports import MissionStatePort as GroundMission
@@ -316,9 +317,14 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
         RecordsMission,
         KitMission,
         MissionStatePort,
+        OverlayPort,
     ):
-        registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))
-    registry.provide(cast(type[object], OverlayPort), bound, requires=(ClockIdentity,))
+        # E22/E23's mission module declares some of these consumer ports too. The demo profile keeps its own
+        # mission facts there (its cues write the environment and the surface walk overlays), so it replaces them.
+        if isinstance(registry, DeclarationRegistry) and cast(type[object], port) in registry.providers:
+            registry.replace(cast(type[object], port), bound, requires=(ClockIdentity,))
+        else:
+            registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))
 
 
 def _camera_f1(registry: ModuleRegistry, provided: Mapping[object, object], reports: object | None) -> None:

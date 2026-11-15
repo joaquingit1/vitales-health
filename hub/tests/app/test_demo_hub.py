@@ -83,7 +83,13 @@ class Served:
 def served(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Served]:
     directory = tmp_path_factory.mktemp("demo") / "hub"
     port = _free_port()
-    demo.reset(directory, root=ROOT, camera_port=_free_port(), twin_port=_free_port())
+    demo.reset(
+        directory,
+        root=ROOT,
+        camera_port=_free_port(),
+        twin_port=_free_port(),
+        habitat_ports=[_free_port(), _free_port()],
+    )
     started: list[uvicorn.Server] = []
 
     def server(app: FastAPI, host: str, bound: int) -> None:

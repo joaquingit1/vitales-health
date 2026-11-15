@@ -103,6 +103,18 @@ class DeclarationRegistry:
         self._add("ports", port, requires)
         self.providers[port] = (factory, requires)
 
+    def replace[P](
+        self, port: type[P], factory: Callable[[Resolver], P], *, requires: tuple[type[object], ...] = ()
+    ) -> None:
+        """A served profile's composition (app/station.py) swaps the provider a module declared for `port`. Only an
+        already declared port can be replaced, and only while declarations are open."""
+        if self.frozen or self.resolving:
+            raise ValueError("registry declarations are closed")
+        if port not in self.providers:
+            raise ValueError("only a declared port can be replaced")
+        self.declarations["ports"][port] = requires
+        self.providers[port] = (factory, requires)
+
     def bind(self, name: str, fn: Callable[[Resolver], None]) -> None:
         self._add("bindings", name, fn)
         self.bindings[name] = fn

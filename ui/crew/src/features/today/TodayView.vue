@@ -13,6 +13,7 @@ import { linkLine, linkOrigin, type GroundLink } from "./groundLink";
 import { placeOf } from "./place";
 import { ASSISTANT_TITLE } from "../help/labels";
 import { assistantWords } from "../help/helpModel";
+import HabitatCard from "./cards/HabitatCard.vue";
 
 const api = useCrewApi();
 const stage = useStage();
@@ -156,6 +157,7 @@ onBeforeUnmount(() => {
       >
         {{ copy("designed_states.unknown") }}
       </p>
+      <HabitatCard />
     </article>
 
     <RouterLink
