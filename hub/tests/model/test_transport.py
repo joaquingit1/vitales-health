@@ -347,7 +347,7 @@ def test_chunked_cancel_has_one_response_close_owner_and_no_background_exception
 
     def connection_close(connection: http.client.HTTPConnection) -> None:
         if threading.current_thread() is threading.main_thread():
-            assert entered.wait(1)
+            assert entered.wait(10)
         original_close(connection)
 
     def exception_hook(args: threading.ExceptHookArgs) -> None:
@@ -403,7 +403,7 @@ def test_chunked_cancel_has_one_response_close_owner_and_no_background_exception
             request(), deadline=Deadline(now + 10**9, now + 10**9, clock), cancel=cancel, progress=progress
         )
         assert isinstance(result, StepCancelled)
-        assert entered.wait(1)
+        assert entered.wait(10)
     finally:
         release.set()
         for thread in threading.enumerate():

@@ -83,6 +83,10 @@ jobs:
           uv run --project simulators/camera --locked camera-twin-fetch
           uv run --project workers/camera --locked --extra capture crew-health-camera-models
           uv sync --project eval/bench --locked
+      # MediaPipe's Linux wheel loads libGLESv2 and libEGL, which the Ubuntu runner image does not ship.
+      - name: Install MediaPipe's GL libraries
+        if: startsWith(matrix.group, 'core-') && runner.os == 'Linux'
+        run: sudo apt-get update -q && sudo apt-get install -y -q libgles2 libegl1
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: collection-plan
