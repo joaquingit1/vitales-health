@@ -24,7 +24,15 @@ def make(tmp: Path, **kw: Any) -> Station:
             "channels": [
                 channel("ch_co2", "co2", "co2", "SIM", "mmHg"),
                 channel("ch_ppm", "co2", "co2", "SIM", "ppm"),
-                channel("ch_lost", "co2", "co2", "SIM", "mmHg", adapter_id="adp_other"),
+                channel(
+                    "ch_lost",
+                    "co2",
+                    "co2",
+                    "SIM",
+                    "mmHg",
+                    adapter_id="adp_other",
+                    health_url="https://10.0.0.7:8443/health",
+                ),
             ]
         },
         **kw,

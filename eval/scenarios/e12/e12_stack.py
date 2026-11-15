@@ -123,7 +123,7 @@ class Stack:
 def stack(retrieval: RetrievalService | None = None, *, identity: bool = True) -> Stack:
     hub = settings()
     sessions, records, capabilities = Sessions(), Records(), Capabilities()
-    ports = IdentityPorts(Roster(), None, sessions, None, None)  # type: ignore[arg-type]
+    ports = IdentityPorts(Roster(), None, sessions, None, None, None)  # type: ignore[arg-type]
     authority = SessionAuthority(
         lambda: ports if identity else None, lambda: records, max_members=16, max_strings=256
     )
