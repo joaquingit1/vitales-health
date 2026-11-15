@@ -222,7 +222,7 @@ onMounted(() => {
       v-if="plan"
       class="fine"
     >
-      {{ plan.tag_text.includes(plan.notice) ? plan.tag_text : `${plan.tag_text} · ${plan.notice}` }}
+      {{ plan.tag_text.toLowerCase().includes(plan.notice.toLowerCase()) ? plan.tag_text : `${plan.tag_text} · ${plan.notice}` }}
     </p>
   </article>
 </template>
