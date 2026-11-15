@@ -41,6 +41,7 @@ from crew_health.mission.adapters.consumers import (
     RolesLocation,
     RolesMission,
     RolesOverlays,
+    RoutineMission,
 )
 from crew_health.mission.adapters.live_state import LiveMissionState
 from crew_health.mission.adapters.migration import apply_migration, replicated_tables_of
@@ -78,6 +79,7 @@ from crew_health.roles.application.ports import DayLabelPort as RolesDayLabelPor
 from crew_health.roles.application.ports import LocationPort as RolesLocationPort
 from crew_health.roles.application.ports import MissionStatePort as RolesMissionStatePort
 from crew_health.roles.application.ports import OverlayPort as RolesOverlayPort
+from crew_health.routine.application.ports import MissionStatePort as RoutineMissionStatePort
 from crew_health.sensors.application.ports import ProvenanceStreamsPort
 
 _PREFIXES: tuple[tuple[str, str], ...] = (
@@ -278,6 +280,7 @@ def register(registry: ModuleRegistry) -> None:
         (RolesLocationPort, RolesLocation),
         (RolesDayLabelPort, RolesDayLabel),
         (GuidanceEnvironmentFacts, GuidanceEnvironment),
+        (RoutineMissionStatePort, RoutineMission),
     ):
         _consumer(registry, port, build)
     profiles, filters = _Late(CHECK_7 + SUFFIX), _Late(CHECK_12 + ".effect" + SUFFIX)

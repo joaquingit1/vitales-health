@@ -29,7 +29,7 @@ from httpx import ASGITransport, AsyncClient
 from crew_health.app.assembly import BuildCatalog
 from crew_health.app.installed_modules import REGISTRATIONS
 from crew_health.app.privacy import RoutineRosterAdapter
-from crew_health.app.registry import ModuleRegistry
+from crew_health.app.registry import DeclarationRegistry, ModuleRegistry
 from crew_health.clock.application.history import MissionClockService
 from crew_health.kernel.met import MissionClock, MissionClockVersion
 from crew_health.kernel.scheduler import HealthState
@@ -153,7 +153,12 @@ def _with_routine(hub: StationLike) -> StationLike:
     def configure(registry: ModuleRegistry) -> None:
         base(registry)
         for port, value in STAND_INS.items():
-            registry.provide(port, partial(_constant, value))
+            # The mission module declares routine's MissionStatePort itself (mission/adapters/consumers.py
+            # RoutineMission); the stand-in replaces it, as a served profile's composition does.
+            if isinstance(registry, DeclarationRegistry) and port in registry.providers:
+                registry.replace(port, partial(_constant, value))
+            else:
+                registry.provide(port, partial(_constant, value))
 
     with_routine: StationLike = COMPOSITION.Station(hub.db, hub.sessions, configure, hub.resources)
     return with_routine
@@ -220,8 +225,8 @@ def test_create_app_serves_routine_with_the_real_clock_records_and_scheduler(
 def test_misses_count_through_the_supervisor_with_every_optional_provider_absent(
     tmp_path: Path, station_resources: Path
 ) -> None:
-    """AGENTS 1 rule 3: the same store, restarted with none of routine's optional providers (roster, mission,
-    location, visibility, records, warnings). The day boundary passes, the hub's own supervisor dispatches the
+    """AGENTS 1 rule 3: the same store, restarted with none of routine's optional providers that the plain
+    composition lacks (roster, location, visibility, records, warnings). The day boundary passes, the hub's own supervisor dispatches the
     stored deadlines and every all-day miss counts; each absent seam is a degraded health component."""
     hub, started, plain = _started(tmp_path, station_resources)
     with hub.db.snapshot() as view:
@@ -241,7 +246,8 @@ def test_misses_count_through_the_supervisor_with_every_optional_provider_absent
     assert runtime.serving, runtime.fault_code
     routine = runtime.resolver.require(RoutineQueries)
     assert isinstance(routine, routine_module.RoutineRuntime)
-    assert set(routine.missing) == {"roster", "mission", "location", "visibility", "warnings"}
+    # The mission module now answers routine's MissionStatePort itself, so mission is no longer an absent seam.
+    assert set(routine.missing) == {"roster", "location", "visibility", "warnings"}
     assert set(routine.missing) <= set(SEAMS)
     hub.db.clock.at = boundary.astimezone(UTC)  # MemoryClock, the station clock
     assert runtime.supervisor is not None

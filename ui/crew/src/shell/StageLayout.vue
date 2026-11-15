@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { components } from "@crew-health/contracts";
-import { computed, inject, onMounted, ref } from "vue";
-import { RouterLink } from "vue-router";
+import { computed, inject, onMounted, ref, watch } from "vue";
+import { RouterLink, useRoute } from "vue-router";
 import BodyFigure from "../design/BodyFigure.vue";
 import { copy } from "../design/copy";
+import SourceWord from "../design/SourceWord.vue";
 import { SESSION_LOCK } from "../features/identity/sessionLock";
 import { KIT_STATES, STATE_MK, figureMarks, loadKitMap, type KitMapView } from "../features/kit/kitMap";
+import { pulseReadings, type Observation } from "../features/today/cards/pulseReadings";
 import { CREW_API } from "./api/client";
 import ContextBar from "./context/ContextBar.vue";
 import { useSession } from "./session";
@@ -29,13 +31,43 @@ const who = computed(() => {
   return current?.person?.display_name ?? current?.actor.display_name ?? "";
 });
 const kit = ref<KitMapView | null>(null);
-const readings = ref<{ code: string; label: string; region: string | null }[]>([]);
+const readings = ref<{ code: string; label: string; region: string | null; latest: Observation | null }[]>([]);
+const route = useRoute();
 /* a screen that sets its own marks (the kit view, a measurement) keeps them; otherwise the kit map's marks */
 const marks = computed(() => (stage.marks.length > 0 ? stage.marks : kit.value === null ? [] : figureMarks(kit.value)));
 const headline = computed(() =>
   stage.headline === "" ? "" : (stage.headline[0] ?? "").toUpperCase() + stage.headline.slice(1),
 );
 const read = <T,>(path: string): Promise<T> => (api === null ? Promise.reject(new Error("no hub client")) : api.get<T>(path));
+
+/* The newest recorded observation per code. The hub has no observation list yet, so the source is the pulse
+   requests this session started (the same reads as the Today pulse card); a code with none stays "No reading". */
+async function loadReadings(): Promise<void> {
+  if (api === null || session.state.value.session === null) {
+    return;
+  }
+  try {
+    const [caps, recorded] = await Promise.all([
+      api.get<{ items: Capability[] }>("/v1/capabilities"),
+      pulseReadings(api).catch(() => [] as Observation[]),
+    ]);
+    const newest = new Map<string, Observation>();
+    for (const observation of recorded) {
+      newest.set(observation.code, observation);
+    }
+    readings.value = caps.items
+      .filter((item) => item.status === "available" && item.body_region !== null)
+      .slice(0, 4)
+      .map((item) => ({
+        code: item.code,
+        label: item.label,
+        region: item.body_region,
+        latest: newest.get(item.code) ?? null,
+      }));
+  } catch {
+    readings.value = [];
+  }
+}
 
 onMounted(() => {
   if (api === null || session.state.value.session === null) {
@@ -45,17 +77,11 @@ onMounted(() => {
     (value) => (kit.value = value),
     () => (kit.value = null),
   );
-  api
-    .get<{ items: Capability[] }>("/v1/capabilities")
-    .then((value) => {
-      readings.value = value.items
-        .filter((item) => item.status === "available" && item.body_region !== null)
-        .slice(0, 4)
-        .map((item) => ({ code: item.code, label: item.label, region: item.body_region }));
-    })
-    .catch(() => {
-      readings.value = [];
-    });
+  void loadReadings();
+});
+/* the panel stays mounted across screens: read again when a screen records a reading or another screen opens */
+watch([() => stage.recorded, () => route.name], () => {
+  void loadReadings();
 });
 
 function signOut(): void {
@@ -138,7 +164,16 @@ function signOut(): void {
           :to="reading.region === null ? { name: 'kit' } : { name: 'kit', query: { region: reading.region } }"
         >
           <span>{{ reading.label }}</span>
-          <b class="word">{{ copy("designed_states.no_reading") }}</b>
+          <b
+            v-if="reading.latest"
+            class="reading-value"
+            data-testid="stage-reading-value"
+          >{{ reading.latest.original_value }} {{ reading.latest.original_unit }}
+            <SourceWord :origin="reading.latest.origin_mode" /></b>
+          <b
+            v-else
+            class="word"
+          >{{ copy("designed_states.no_reading") }}</b>
         </RouterLink>
       </div>
     </aside>
@@ -165,4 +200,6 @@ function signOut(): void {
 .legend-row:hover { background: rgba(28, 30, 28, 0.05); }
 .legend-row b { margin-left: auto; font-weight: 500; font-variant-numeric: tabular-nums; }
 .legend-row b.word { font-weight: 400; color: var(--ink-3); }
+.legend-row b.reading-value { display: inline-flex; align-items: center; gap: 8px; }
+.legend-row b.reading-value .src { font-weight: 400; color: var(--ink-3); }
 </style>
