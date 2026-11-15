@@ -1,0 +1,481 @@
+{
+  "version": "role-rules-1",
+  "example": false,
+  "notice": "Unreviewed draft: needs clinician review",
+  "roles": [
+    {
+      "role_id": "lead_helper",
+      "label": "Helps",
+      "on_site": true
+    },
+    {
+      "role_id": "second_helper",
+      "label": "Second helper",
+      "on_site": true
+    },
+    {
+      "role_id": "kit_fetcher",
+      "label": "Brings the kit",
+      "on_site": true
+    },
+    {
+      "role_id": "medical_officer",
+      "label": "Medical officer",
+      "on_site": true
+    },
+    {
+      "role_id": "communicator",
+      "label": "Keeps the log",
+      "on_site": false
+    }
+  ],
+  "eligibility": [
+    {
+      "rule_id": "never_subject",
+      "kind": "exclude",
+      "text": "The person who needs help never gets a role."
+    },
+    {
+      "rule_id": "not_on_eva_for_on_site",
+      "kind": "exclude",
+      "text": "Nobody outside on a walk gets a role at the patient's side."
+    },
+    {
+      "rule_id": "one_role_each",
+      "kind": "exclude",
+      "text": "One role for each person while someone else is free."
+    },
+    {
+      "rule_id": "awake_first",
+      "kind": "prefer",
+      "text": "People who are awake are proposed first."
+    }
+  ],
+  "medical_officer_cascade": [
+    {
+      "kind": "officer_rank",
+      "rank": 1,
+      "reason_code": "first_officer"
+    },
+    {
+      "kind": "officer_rank",
+      "rank": 2,
+      "reason_code": "second_officer"
+    },
+    {
+      "kind": "freshest_skill_holder",
+      "rank": null,
+      "reason_code": "freshest_skill"
+    }
+  ],
+  "flow_roles": [
+    {
+      "flow_id": "not_breathing",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": "cpr",
+          "task_text": "Compressions",
+          "required": true
+        },
+        {
+          "role_id": "second_helper",
+          "skill_id": "cpr",
+          "task_text": "Takes over compressions",
+          "required": false
+        },
+        {
+          "role_id": "kit_fetcher",
+          "skill_id": null,
+          "task_text": "Bring the AED and the restraint board",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        },
+        {
+          "role_id": "communicator",
+          "skill_id": null,
+          "task_text": "Presses Tell the ground",
+          "required": false
+        }
+      ]
+    },
+    {
+      "flow_id": "unresponsive_breathing",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Keep the airway open and stay with them",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "choking",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Back blows and abdominal thrusts",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "severe_bleeding",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Press hard on the wound",
+          "required": true
+        },
+        {
+          "role_id": "kit_fetcher",
+          "skill_id": null,
+          "task_text": "Bring the tourniquet from the kit",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "chest_pain",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Help them rest and stay with them",
+          "required": true
+        },
+        {
+          "role_id": "kit_fetcher",
+          "skill_id": null,
+          "task_text": "Bring the AED close",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "breathing_difficulty",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Help them sit up and stay with them",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "fainting",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Check breathing and stay with them",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "seizure",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Protect the head and note the time",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "head_injury",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Keep the head and neck still and in line",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "eye_injury",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Rinse the eye",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "burns",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Cool the burn",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "toxic_exposure",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Move them to clean air, masks on",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "pressure_loss",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Watch for low oxygen signs",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "dcs_after_eva",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Bring them back to full cabin pressure",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "solar_particle_event",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Build the shelter",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "severe_allergic_reaction",
+      "roles": [
+        {
+          "role_id": "kit_fetcher",
+          "skill_id": null,
+          "task_text": "Get the adrenaline auto-injector from the kit",
+          "required": true
+        },
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Sit them up or lay them down, and stay with them",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "low_blood_sugar",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Give something sugary if they can swallow",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "severe_abdominal_pain",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Help them rest and stay with them",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "mental_health_crisis",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Stay with them",
+          "required": true
+        },
+        {
+          "role_id": "second_helper",
+          "skill_id": null,
+          "task_text": "Second crewmate: never alone with a volatile person",
+          "required": false
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "flow_id": "something_else",
+      "roles": [
+        {
+          "role_id": "lead_helper",
+          "skill_id": null,
+          "task_text": "Stay with them and take the basic readings",
+          "required": true
+        },
+        {
+          "role_id": "medical_officer",
+          "skill_id": null,
+          "task_text": null,
+          "required": true
+        }
+      ]
+    }
+  ],
+  "default_roles": [
+    {
+      "role_id": "lead_helper",
+      "skill_id": null,
+      "task_text": null,
+      "required": true
+    },
+    {
+      "role_id": "medical_officer",
+      "skill_id": null,
+      "task_text": null,
+      "required": true
+    }
+  ],
+  "plan_step_role": "lead_helper",
+  "reason_phrases": {
+    "first_officer": "Medical officer",
+    "officer_is_subject": "{officer_name} is the patient",
+    "officer_on_eva": "{officer_name}, medical officer, is on a {eva_word} until {time}",
+    "officer_asleep": "{officer_name}, medical officer, is asleep",
+    "second_officer": "Second medical officer",
+    "freshest_skill": "{skill_short} practiced {day_label}",
+    "free_to_help": "Free to help",
+    "changed_by_helper": "Changed by {person_name}"
+  },
+  "basis": "team default"
+}
