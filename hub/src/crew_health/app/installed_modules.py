@@ -5,20 +5,22 @@ from crew_health.camera.module import register as register_0
 from crew_health.catchup.module import register as register_1
 from crew_health.clock.module import register as register_2
 from crew_health.config.module import register as register_3
-from crew_health.episodes.module import register as register_4
-from crew_health.events.module import register as register_5
-from crew_health.groundlink.module import register as register_6
-from crew_health.guidance.module import register as register_7
-from crew_health.help.module import register as register_8
-from crew_health.kitmap.module import register as register_9
-from crew_health.measurement.module import register as register_10
-from crew_health.model.module import register as register_11
-from crew_health.plans.module import register as register_12
-from crew_health.platform.module import register as register_13
-from crew_health.records.module import register as register_14
-from crew_health.roles.module import register as register_15
-from crew_health.teach.module import register as register_16
-from crew_health.trends.module import register as register_17
+from crew_health.consent.module import register as register_4
+from crew_health.episodes.module import register as register_5
+from crew_health.events.module import register as register_6
+from crew_health.groundlink.module import register as register_7
+from crew_health.guidance.module import register as register_8
+from crew_health.help.module import register as register_9
+from crew_health.identity.module import register as register_10
+from crew_health.kitmap.module import register as register_11
+from crew_health.measurement.module import register as register_12
+from crew_health.model.module import register as register_13
+from crew_health.plans.module import register as register_14
+from crew_health.platform.module import register as register_15
+from crew_health.records.module import register as register_16
+from crew_health.roles.module import register as register_17
+from crew_health.teach.module import register as register_18
+from crew_health.trends.module import register as register_19
 
 REGISTRATIONS = (
     register_0,
@@ -39,4 +41,6 @@ REGISTRATIONS = (
     register_15,
     register_16,
     register_17,
+    register_18,
+    register_19,
 )
