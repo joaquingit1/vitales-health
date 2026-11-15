@@ -47,6 +47,8 @@ import-contracts = "crew_health.app.import_contracts"
 
 [tool.setuptools.package-data]
 "crew_health.contracts_gen" = ["manifest.json"]
+"crew_health.identity" = ["schemas/*.json", "adapters/migrations/*.sql"]
+"crew_health.consent" = ["adapters/migrations/*.sql"]
 
 [tool.uv.sources]
 pharmacy = { path = "..", editable = true }

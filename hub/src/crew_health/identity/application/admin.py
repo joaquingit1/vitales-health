@@ -6,6 +6,7 @@ generation is rechecked inside it, so an interrupted or raced change can never m
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from crew_health.identity.application.service import IdentityService, SessionView
@@ -20,6 +21,7 @@ from crew_health.identity.application.support import (
 from crew_health.identity.domain.roster import RosterBootstrap, invalid, validate_bootstrap
 from crew_health.identity.domain.session import actor_for, roles_for
 from crew_health.kernel.errors import ErrorCode, ProblemError
+from crew_health.kernel.ids import require_id
 from crew_health.kernel.uow import Actor
 
 
@@ -32,6 +34,34 @@ class RosterResult:
 class IdentityAdmin:
     def __init__(self, deps: IdentityDeps, sessions: IdentityService) -> None:
         self.deps, self.sessions = deps, sessions
+
+    def console_operator(
+        self,
+        read_secret: Callable[[], str],
+        *,
+        client: str,
+        correlation_id: str,
+        bootstrap: str | None = None,
+    ) -> Actor:
+        """The operator at the hub console, attributed to the single provisioned operator principal.
+
+        Until that principal has a credential, physical access to the console is the only proof: the first
+        roster names it (`bootstrap`) and its first provisioning is attributed to it. Afterwards every console
+        command proves the operator credential under the sign-in limits; the secret is read only then.
+        """
+        deps = self.deps
+        with deps.snapshots.snapshot() as view:
+            principal = deps.store.principal_for_kind(view.connection, "operator")
+            first = deps.store.roster_state(view.connection) is None
+        if principal is None:
+            if first and bootstrap is not None:
+                return actor_for("operator", require_id(bootstrap))
+            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
+        if not principal.enabled:
+            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
+        if principal.verifier is not None:
+            self.sessions.prove(principal, read_secret(), client=client, correlation_id=correlation_id)
+        return actor_for("operator", principal.principal_id)
 
     def apply_roster(
         self, document: RosterBootstrap, *, expected_revision: int, operator: Actor, correlation_id: str
@@ -73,11 +103,11 @@ class IdentityAdmin:
         new_credential: str,
         *,
         current_credential: str | None,
-        operator: Actor,
+        operator: Actor | None,
         client: str,
         correlation_id: str,
     ) -> int:
-        """First provisioning by an operator, or a change proven by the current credential.
+        """First provisioning by an operator, or a change proven by the owner's current credential.
 
         Operator reset of an existing credential stays disabled (E02 5, R-E02-16): it would need the
         shared protocol that locks prior private unwrap in the same transaction.
@@ -89,14 +119,15 @@ class IdentityAdmin:
         if principal is None or not principal.enabled or principal.kind == "adapter":
             raise ProblemError(ErrorCode.NOT_FOUND, ErrorCode.NOT_FOUND.value)
         if principal.verifier is None:
-            if operator.kind != "operator" or current_credential is not None:
+            if operator is None or operator.kind != "operator" or current_credential is not None:
                 raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
+            actor = operator
         elif current_credential is None:
             raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
         else:
             self.sessions.prove(principal, current_credential, client=client, correlation_id=correlation_id)
+            actor = actor_for(principal.kind, principal_id)
         verifier = deps.hasher.hash(secret)
-        actor = operator if principal.verifier is None else actor_for(principal.kind, principal_id)
         with deps.uows.begin(actor=actor, correlation_id=correlation_id) as uow:
             latest = deps.store.principal(uow.connection, principal_id)
             if (

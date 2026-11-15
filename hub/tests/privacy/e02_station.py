@@ -40,6 +40,7 @@ from crew_health.consent.application.settings import defaults as consent_default
 from crew_health.consent.application.settings import specs as consent_specs
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode, Role
 from crew_health.events.adapters.repository import EventRepository, EventValidator
+from crew_health.events.application.delivery import EventDelivery
 from crew_health.events.module import EventAccess
 from crew_health.identity.adapters.repository import migration_sql as identity_migration
 from crew_health.identity.api.router import IdentitySecurity
@@ -541,6 +542,7 @@ class Running:
     admin: IdentityAdmin
     consent: ConsentService
     clocks: PersistentClocks
+    events: EventDelivery
 
 
 def serve(hub: E02Station, *, seed: bool = True) -> Running:
@@ -555,6 +557,7 @@ def serve(hub: E02Station, *, seed: bool = True) -> Running:
         resolver.require(IdentityAdmin),
         resolver.require(ConsentService),
         resolver.require(PersistentClocks),
+        resolver.require(EventDelivery),
     )
     if seed:
         seed_roster(running)
