@@ -7,8 +7,23 @@ from collections.abc import Callable, Mapping
 from dataclasses import replace
 
 from jsonschema import Draft202012Validator
+from pydantic import BaseModel
 
 from crew_health.contracts_gen.enums import ErrorCode
+from crew_health.contracts_gen.schemas.answer_schema import Answer
+from crew_health.contracts_gen.schemas.crew_broadcast_schema import CrewBroadcast
+from crew_health.contracts_gen.schemas.crew_goal_view_schema import CrewGoalView
+from crew_health.contracts_gen.schemas.daily_check_schema import DailyCheck
+from crew_health.contracts_gen.schemas.episode_schema import Episode
+from crew_health.contracts_gen.schemas.ground_message_schema import GroundMessage
+from crew_health.contracts_gen.schemas.guided_check_schema import GuidedCheck
+from crew_health.contracts_gen.schemas.handoff_schema import Handoff
+from crew_health.contracts_gen.schemas.mission_context_schema import MissionContext
+from crew_health.contracts_gen.schemas.observation_schema import Observation
+from crew_health.contracts_gen.schemas.plan_run_schema import PlanRun
+from crew_health.contracts_gen.schemas.routine_occurrence_schema import RoutineOccurrence
+from crew_health.contracts_gen.schemas.sensor_reading_schema import SensorReading
+from crew_health.contracts_gen.schemas.warning_schema import Warning
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.replication import (
@@ -25,12 +40,39 @@ from crew_health.platform.application.uow import codec
 from crew_health.platform.domain.errors import fail
 from crew_health.platform.domain.replication import (
     catalog_key,
+    catalog_leaf_schemas,
     control_bytes,
     delivery_hash,
+    effective_leaf_schemas,
     parse_control,
+    projection_hash,
     schema_leaf_fields,
     validate_body,
 )
+
+
+def _catalog_schema(key: ProjectionKey) -> Mapping[str, object]:
+    # These generated models come from the guarded effective contract. Unresolved internal
+    # ownership, action, task and release schemas remain unavailable until bound by their owners.
+    models: dict[tuple[str, str], type[BaseModel]] = {
+        ("help", "broadcast"): CrewBroadcast,
+        ("mission", "context"): MissionContext,
+        ("sensors", "reading"): SensorReading,
+        ("rules", "operational"): Warning,
+        ("routine", "operational"): RoutineOccurrence,
+        ("records", "observation"): Observation,
+        ("records", "answer"): Answer,
+        ("checks", "daily-check"): DailyCheck,
+        ("episodes", "episode"): Episode,
+        ("plans", "plan-run"): PlanRun,
+        ("teach", "guided-check"): GuidedCheck,
+        ("handoff", "approved"): Handoff,
+        ("help", "approved"): GroundMessage,
+        ("catchup", "approved"): GroundMessage,
+        ("participation", "goal"): CrewGoalView,
+    }
+    model = models.get((key.owner, key.name))
+    return model.model_json_schema() if model is not None else {}
 
 
 class ControlCodec:
@@ -57,6 +99,7 @@ class ReplicaService:
         verify: Callable[[RevocationControl], bool],
         erase: Callable[[UnitOfWork, str], None],
         dependency: Callable[[UnitOfWork, str], bool],
+        authorize_revocation: Callable[[UnitOfWork, Recipient], bool] | None = None,
     ) -> None:
         self.settings, self.ids, self.node_id, self.incarnation = settings, ids, node_id, incarnation
         self.authorize, self.secret, self.sign, self.verify_control, self.erase, self.dependency = (
@@ -67,31 +110,57 @@ class ReplicaService:
             erase,
             dependency,
         )
+        self.authorize_revocation = authorize_revocation
         self.registrations = {r.key: r for r in registrations}
         self.allowed_fields = dict(allowed_fields)
+        self.catalog_fields: dict[ProjectionKey, frozenset[str]] = {}
+        self.catalog_validators: dict[ProjectionKey, dict[str, Draft202012Validator]] = {}
         self.validators: dict[ProjectionKey, Draft202012Validator] = {}
         self.deliveries, self.changes = codec(Delivery), codec(ReplicationChange)
         self.controls = ControlCodec()
         if len(self.registrations) != len(registrations):
             raise fail(ErrorCode.CONFIG_INVALID)
         for registration in registrations:
-            if (
-                not catalog_key(registration.key)
-                or hashlib.sha256(registration.schema_json).hexdigest() != registration.schema_sha256
-            ):
-                raise fail(ErrorCode.CONFIG_INVALID)
-            schema: object = json.loads(registration.schema_json)
-            if not isinstance(schema, dict):
-                raise fail(ErrorCode.CONFIG_INVALID)
-            fields = schema_leaf_fields(schema, maximum=settings.integer("sync.max_projection_fields"))
-            if not fields <= self.allowed_fields.get(registration.key, frozenset()):
-                raise fail(ErrorCode.CONFIG_INVALID)
-            Draft202012Validator.check_schema(schema)
-            self.validators[registration.key] = Draft202012Validator(schema)
+            self._register(registration)
+
+    def _register(self, registration: ProjectionRegistration) -> None:
+        settings = self.settings
+        if (
+            not catalog_key(registration.key)
+            or hashlib.sha256(registration.schema_json).hexdigest() != registration.schema_sha256
+        ):
+            raise fail(ErrorCode.CONFIG_INVALID)
+        schema: object = json.loads(registration.schema_json)
+        if not isinstance(schema, dict):
+            raise fail(ErrorCode.CONFIG_INVALID)
+        fields = schema_leaf_fields(schema, maximum=settings.integer("sync.max_projection_fields"))
+        catalog = catalog_leaf_schemas(
+            registration.key,
+            _catalog_schema(registration.key),
+            maximum=settings.integer("sync.max_projection_fields"),
+        )
+        proposed = self.allowed_fields.get(registration.key, frozenset())
+        if not proposed <= catalog.keys() or not fields <= proposed:
+            raise fail(ErrorCode.CONFIG_INVALID)
+        registered = effective_leaf_schemas(schema, maximum=settings.integer("sync.max_projection_fields"))
+        if any(registered.get(pointer) != catalog[pointer] for pointer in fields):
+            raise fail(ErrorCode.CONFIG_INVALID)
+        self.catalog_fields[registration.key] = frozenset(catalog)
+        self.catalog_validators[registration.key] = {
+            pointer: Draft202012Validator(catalog[pointer]) for pointer in fields
+        }
+        self.allowed_fields[registration.key] = proposed.intersection(catalog)
+        Draft202012Validator.check_schema(schema)
+        self.validators[registration.key] = Draft202012Validator(schema)
 
     def _stream(self, recipient: Recipient) -> str:
         return self.ids.derived(
-            "stream", recipient.recipient_id, recipient.purpose, str(recipient.policy_epoch)
+            "stream",
+            self.node_id,
+            self.incarnation,
+            recipient.recipient_id,
+            recipient.purpose,
+            str(recipient.policy_epoch),
         )
 
     def _admit(
@@ -109,11 +178,18 @@ class ReplicaService:
             raise fail(ErrorCode.CONFIG_INVALID)
         validate_body(
             body,
-            allowed_fields=self.allowed_fields[body.key],
+            allowed_fields=self.allowed_fields[body.key].intersection(self.catalog_fields[body.key]),
             maximum=self.settings.integer("sync.max_projection_fields"),
         )
-        if not self.validators[body.key].is_valid(json.loads(body.data_json)):
+        value = json.loads(body.data_json)
+        if not self.validators[body.key].is_valid(value):
             raise fail(ErrorCode.INVALID_VALUE)
+        for pointer in body.selected_fields:
+            leaf = value
+            for part in pointer.removeprefix("/").split("/"):
+                leaf = leaf[part.replace("~1", "/").replace("~0", "~")]
+            if not self.catalog_validators[body.key][pointer].is_valid(leaf):
+                raise fail(ErrorCode.INVALID_VALUE)
 
     def _live(
         self, view: ReadSnapshot | UnitOfWork, recipient: Recipient, stream_id: str
@@ -228,11 +304,22 @@ class ReplicaService:
         ) or delivery.envelope_sha256 != delivery_hash(delivery):
             raise fail(ErrorCode.UNAUTHORIZED_SCOPE)
         self._body(delivery.body)
+        expected = self.ids.derived(
+            "stream",
+            delivery.source_node_id,
+            delivery.source_incarnation,
+            recipient.recipient_id,
+            recipient.purpose,
+            str(recipient.policy_epoch),
+        )
+        if delivery.stream_id != expected:
+            raise fail(ErrorCode.UNAUTHORIZED_SCOPE)
         uow.connection.execute(
             "INSERT OR IGNORE INTO platform_replica_stream VALUES (?,?,?,?,0,0,0,0)",
             (delivery.stream_id, recipient.recipient_id, recipient.purpose, recipient.policy_epoch),
         )
         self._live(uow, recipient, delivery.stream_id)
+        self._source(uow, delivery)
         rows = uow.connection.rows(
             "SELECT seq,envelope_sha256 FROM platform_replica_applied WHERE stream_id=? ORDER BY seq DESC LIMIT 1",
             (delivery.stream_id,),
@@ -255,12 +342,43 @@ class ReplicaService:
                 dependency.record_ref is None or not self.dependency(uow, dependency.record_ref)
             ):
                 raise fail(ErrorCode.INVALID_TRANSITION)
-        self.registrations[delivery.body.key].applier.apply(uow, delivery, recipient)
+        self._apply_projection(uow, recipient, delivery)
         uow.connection.execute(
             "INSERT INTO platform_replica_applied VALUES (?,?,?)",
             (delivery.stream_id, delivery.delivery_seq, delivery.envelope_sha256),
         )
         return delivery.delivery_seq
+
+    def _apply_projection(self, uow: UnitOfWork, recipient: Recipient, delivery: Delivery) -> None:
+        digest = projection_hash(delivery.body)
+        origin = (
+            recipient.recipient_id,
+            recipient.purpose,
+            recipient.policy_epoch,
+            delivery.origin_token,
+            digest,
+        )
+        seen = uow.connection.rows(
+            "SELECT 1 FROM platform_replica_origin WHERE recipient_id=? AND purpose=? AND policy_epoch=? AND origin_token=? AND projection_sha256=?",
+            origin,
+            limit=1,
+        )
+        if not seen:
+            self.registrations[delivery.body.key].applier.apply(uow, delivery, recipient)
+            uow.connection.execute("INSERT INTO platform_replica_origin VALUES (?,?,?,?,?)", origin)
+
+    def _source(self, uow: UnitOfWork, delivery: Delivery) -> None:
+        uow.connection.execute(
+            "INSERT OR IGNORE INTO platform_replica_source VALUES (?,?,?)",
+            (delivery.stream_id, delivery.source_node_id, delivery.source_incarnation),
+        )
+        source = uow.connection.rows(
+            "SELECT source_node_id,source_incarnation FROM platform_replica_source WHERE stream_id=?",
+            (delivery.stream_id,),
+            limit=1,
+        )
+        if source != ((delivery.source_node_id, delivery.source_incarnation),):
+            raise fail(ErrorCode.UNAUTHORIZED_SCOPE)
 
     def acknowledge(
         self, uow: UnitOfWork, recipient: Recipient, *, stream_id: str, through: int, envelope_sha256: str
@@ -278,8 +396,30 @@ class ReplicaService:
             "UPDATE platform_replica_stream SET ack_seq=? WHERE stream_id=?", (through, stream_id)
         )
 
+    def _admit_control(self, uow: UnitOfWork, recipient: Recipient, stream_id: str) -> None:
+        # A locally admitted stream is the durable enrollment binding. A subject needs
+        # an explicit authority resolver; station/help membership is never authority.
+        enrolled = uow.connection.rows(
+            "SELECT recipient_id,purpose,policy_epoch FROM platform_replica_stream WHERE stream_id=?",
+            (stream_id,),
+            limit=1,
+        )
+        authorized = (
+            self.authorize_revocation(uow, recipient)
+            if self.authorize_revocation is not None
+            else uow.actor.kind == "operator"
+        )
+        if (
+            recipient.policy_epoch < 1
+            or uow.actor.kind not in ("person", "operator")
+            or stream_id != self._stream(recipient)
+            or not authorized
+            or enrolled != ((recipient.recipient_id, recipient.purpose, recipient.policy_epoch),)
+        ):
+            raise fail(ErrorCode.UNAUTHORIZED_SCOPE)
+
     def revoke(self, uow: UnitOfWork, recipient: Recipient, *, stream_id: str) -> RevocationControl:
-        self._admit(uow, recipient)
+        self._admit_control(uow, recipient, stream_id)
         controls = uow.connection.rows(
             "SELECT control FROM platform_revocation WHERE recipient_id=? AND stream_id=? AND old_epoch=?",
             (recipient.recipient_id, stream_id, recipient.policy_epoch),

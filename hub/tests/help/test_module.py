@@ -65,6 +65,8 @@ def test_registration_binds_with_only_kernel_ports_and_serves_help(tmp_path: Pat
         ports.HelpTurnGuardPort,
     ):
         assert provided in registry.providers
+    # Other tests compose help inside create_app and leave their own daemon workers running; count only ours.
+    existing = set(threading.enumerate())
     resolver = registry.resolve()
     reader = resolver.require(ports.HelpSessionReader)  # type: ignore[type-abstract]
     app = FastAPI()
@@ -77,7 +79,7 @@ def test_registration_binds_with_only_kernel_ports_and_serves_help(tmp_path: Pat
     sid = str(json_of(response)["help_session_id"])
     assert reader.snapshot(sid) is not None
     assert not declared.get("startup")  # a feature module cannot type E01's StartupPhase: no hook
-    workers = [t for t in threading.enumerate() if t.name == "help-worker"]
+    workers = [t for t in threading.enumerate() if t.name == "help-worker" and t not in existing]
     assert len(workers) == 1 and workers[0].daemon
     reader._runtime.service.worker.stop()  # type: ignore[attr-defined]  # the bound runtime behind the port
     workers[0].join(timeout=5)

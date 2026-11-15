@@ -9,7 +9,7 @@ from crew_health.kernel.config import ReleaseHandle
 from crew_health.kernel.ids import IdFactory, require_id
 from crew_health.kernel.units import Quantity, UnitRegistry, WireUnitConverter
 from crew_health.kernel.uow import SessionContext, UnitOfWork
-from crew_health.records.application.ports import (
+from crew_health.records.application.seams import (
     AnswerWorkflow,
     EpisodeBinding,
     ObservationEvaluation,
@@ -86,13 +86,11 @@ class RecordsCommands:
             limit=policy.stuck_count,
             accepted_only=False,
             before=normalized.corrected_at or value.observed_at,
+            source=(value.acquisition_method, value.device_id),
+            corrected_only=True,  # in SQL before the LIMIT, so uncorrected rows never shorten the window
         )
         previous = tuple(
-            (r.normalized.corrected_at, r.quantity)
-            for r in history
-            if r.normalized.corrected_at is not None
-            and r.acquisition_method == value.acquisition_method
-            and r.device_id == value.device_id
+            (r.normalized.corrected_at, r.quantity) for r in history if r.normalized.corrected_at is not None
         )
         quality = assess_quality(
             policy, conversion.canonical, normalized.corrected_at or value.observed_at, previous

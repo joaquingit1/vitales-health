@@ -118,18 +118,47 @@ def test_repeated_python_generation_is_byte_identical(tmp_path: Path) -> None:
     manifest = json.loads((first / "manifest.json").read_bytes())
     overlay = verify_overlay(ROOT, verify_base(ROOT))
     assert overlay is not None
-    # D19 base-only interim ended when the D12 overlay landed: effective is base plus traced additions.
+    # D12 supersedes the base enum and index bounds through traced pointer edits.
     assert manifest["base"] == verify_base(ROOT)
     assert manifest["overlay"] == overlay.record()
     assert manifest["effective"] == overlay.effective(manifest["base"])
     assert set(manifest["effective"]) - set(manifest["base"]) == {
         "api/schemas/config-unit-mapping.schema.json"
     }
-    assert {key: value for key, value in manifest["effective"].items() if key in manifest["base"]} == (
-        manifest["base"]
-    )
+    assert {key for key in manifest["base"] if manifest["effective"][key] != manifest["base"][key]} == {
+        "api/schemas/common.schema.json",
+        "api/schemas/config-index.schema.json",
+    }
     assert "schemas/config_unit_mapping_schema.py" in manifest["outputs"]
     assert set(manifest["outputs"]) == {str(p) for p in left if str(p) != "manifest.json"}
+
+
+def test_generated_python_imports_are_sorted(tmp_path: Path) -> None:
+    import sys
+
+    from crew_health.contracts_gen.build import build
+
+    output = tmp_path / "generated"
+    build(ROOT, output=output)
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ruff",
+            "check",
+            "--select",
+            "I",
+            "--config",
+            str(ROOT / "hub/pyproject.toml"),
+            str(output),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_unallocated_overlay_and_unlisted_output_fail(tmp_path: Path) -> None:
@@ -159,7 +188,8 @@ def test_generated_enums_and_closed_error_model() -> None:
     from crew_health.contracts_gen.schemas.error_schema import ErrorEnvelope
 
     source = json.loads((ROOT / "contracts/api/schemas/common.schema.json").read_bytes())["$defs"]
-    assert set(ConfigName) == set(source["config_name"]["enum"])
+    # D12 adds the accepted effective member while the guarded base enum stays at 18.
+    assert set(ConfigName) == set(source["config_name"]["enum"]) | {"unit-mapping"}
     assert set(Role) == set(source["role"]["enum"])
     assert set(EvidenceKind) == set(source["evidence_ref"]["properties"]["kind"]["enum"])
     assert len(ErrorCode) == len(ERROR_STATUS)
@@ -184,10 +214,10 @@ def test_overlay_cannot_enter_without_the_shared_binding(tmp_path: Path) -> None
 
     (tmp_path / "contracts").mkdir()
     for name in ["api", "reference"]:
-        (tmp_path / "contracts" / name).symlink_to(ROOT / "contracts" / name, target_is_directory=True)
+        shutil.copytree(ROOT / "contracts" / name, tmp_path / "contracts" / name)
     shutil.copy(ROOT / "contracts/SHA256SUMS", tmp_path / "contracts/SHA256SUMS")
     (tmp_path / "docs").mkdir()
-    (tmp_path / "docs/product").symlink_to(ROOT / "docs/product", target_is_directory=True)
+    shutil.copytree(ROOT / "docs/product", tmp_path / "docs/product")
     (tmp_path / "contracts/decision-overlay").mkdir()
     with pytest.raises(ValueError, match="manifest binding"):
         build(tmp_path)
@@ -199,6 +229,7 @@ def _overlay_root(tmp_path: Path) -> Path:
     (root / "docs/requests").mkdir(parents=True)
     shutil.copy(ROOT / "contracts/SHA256SUMS", root / "contracts/SHA256SUMS")
     shutil.copytree(ROOT / "contracts/decision-overlay", root / "contracts/decision-overlay")
+    shutil.copytree(ROOT / "contracts/api/schemas", root / "contracts/api/schemas")
     shutil.copy(
         ROOT / "docs/requests/COORDINATOR-DECISIONS.md", root / "docs/requests/COORDINATOR-DECISIONS.md"
     )
@@ -330,7 +361,7 @@ def test_enum_status_source_must_match_package_inventory(tmp_path: Path) -> None
     from crew_health.contracts_gen.build import enum_source
 
     (tmp_path / "contracts").mkdir()
-    (tmp_path / "contracts/api").symlink_to(ROOT / "contracts/api", target_is_directory=True)
+    shutil.copytree(ROOT / "contracts/api", tmp_path / "contracts/api")
     (tmp_path / "docs/product").mkdir(parents=True)
     shutil.copy(ROOT / "docs/product/package-manifest.json", tmp_path / "docs/product/package-manifest.json")
     source = (ROOT / "docs/product/CONTRACTS.md").read_text()

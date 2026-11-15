@@ -9,9 +9,15 @@ from crew_health.kernel.errors import ProblemError, StorageUnavailable
 from crew_health.kernel.private import PrivateIntent, PrivatePublicationRejected, SealedPrivateRef
 from crew_health.kernel.testing import MemoryPrivateStore, MemoryVault
 from crew_health.kernel.uow import Actor, SessionContext, UnitOfWork
+from crew_health.platform.adapters.intents import IntentRepository
 from crew_health.platform.adapters.ledger import CommandLedger
 from crew_health.platform.adapters.private import PrivateReferences
-from crew_health.platform.application.private import PrivateCoordinator, private_identity_bytes
+from crew_health.platform.application.health import ComponentHealthState
+from crew_health.platform.application.private import (
+    PENDING_DELETIONS,
+    PrivateCoordinator,
+    private_identity_bytes,
+)
 from crew_health.platform.testing.sqlite import database
 
 pytestmark = [pytest.mark.E01, pytest.mark.trace("T-E01-04", "T-E01-14", "R25")]
@@ -45,17 +51,21 @@ def station(tmp_path: Path):
         authorize=lambda session, ref: session.person_id == ref.owner_person_id,
     )
     store = FaultStore(vault=vault, settings=db.settings)
+    ledger = CommandLedger(db.ids)
     coordinator = PrivateCoordinator(
         transactions=db,
         snapshots=db,
         store=store,
         vault=vault,
         writers={"journal": Writer()},
-        ledger=CommandLedger(db.ids),
+        ledger=ledger,
+        intents=IntentRepository(ledger),
         references=PrivateReferences(),
         ids=db.ids,
         settings=db.settings,
         authorize=lambda s, owner: s.person_id == owner,
+        health=ComponentHealthState(maximum=db.settings.integer("registry.max_hooks")),
+        clock=db.clock,
     )
     session = SessionContext(
         "session_1", "crew", Actor("person", "person_1"), "person_1", frozenset({Role.CREW})
@@ -371,3 +381,346 @@ def test_deleted_source_version_cannot_publish_an_unreferenced_extraction(tmp_pa
         assert view.connection.rows(
             "SELECT count(*) FROM platform_private_reference WHERE entry_id=?", (draft.entry_id,), limit=1
         ) == ((0,),)
+
+
+@pytest.mark.trace("T-E01-04", "R25")
+@pytest.mark.parametrize("field", ["operation", "target", "body_fingerprint", "parameters_sha256"])
+def test_conflicting_deletion_key_never_calls_vault(tmp_path, monkeypatch, field):
+    db, coordinator, vault, _, session, intent = station(tmp_path)
+    coordinator.write(session, intent)
+    changes = {field: "different"}
+    identity = replace(intent.identity, **changes)
+    calls = []
+    original = vault.revoke
+
+    def revoke(**kwargs):
+        calls.append(kwargs)
+        return original(**kwargs)
+
+    monkeypatch.setattr(vault, "revoke", revoke)
+    with pytest.raises(ProblemError) as caught:
+        coordinator.delete(
+            session, identity=identity, owner_person_id="person_1", entry_ids=(intent.entry_id,)
+        )
+    assert caught.value.code.value == "DUPLICATE_COMMAND"
+    assert calls == []
+    assert not vault.is_revoked(entry_id=intent.entry_id)
+    with db.snapshot() as view:
+        assert view.connection.rows("SELECT deleted FROM platform_private_reference", (), limit=1) == ((0,),)
+        assert not view.connection.rows("SELECT completed FROM platform_private_deletion", (), limit=1)
+
+
+@pytest.mark.trace("T-E01-04", "R25")
+def test_deletion_reserves_shared_intent_before_vault_and_replays_without_revoke(tmp_path, monkeypatch):
+    db, coordinator, vault, _, session, intent = station(tmp_path)
+    coordinator.write(session, intent)
+    deletion = replace(intent.identity, key="command_delete", operation="deleteJournal")
+    original = vault.revoke
+
+    def revoke(**kwargs):
+        with db.snapshot() as view:
+            assert CommandLedger(db.ids).pending(view, deletion) is not None
+        return original(**kwargs)
+
+    monkeypatch.setattr(vault, "revoke", revoke)
+    first = coordinator.delete(
+        session, identity=deletion, owner_person_id="person_1", entry_ids=(intent.entry_id,)
+    )
+    monkeypatch.setattr(vault, "revoke", lambda **kwargs: pytest.fail("completed deletion repeated revoke"))
+    assert (
+        coordinator.delete(
+            session, identity=deletion, owner_person_id="person_1", entry_ids=(intent.entry_id,)
+        )
+        == first
+    )
+    with db.snapshot() as view:
+        assert CommandLedger(db.ids).pending(view, deletion) is None
+
+
+@pytest.mark.trace("T-E01-04", "R25")
+def test_recovery_finishes_revoked_deletion_once_after_tombstone_failure(tmp_path, monkeypatch):
+    db, coordinator, vault, _, session, intent = station(tmp_path)
+    coordinator.write(session, intent)
+    deletion = replace(intent.identity, key="command_delete", operation="deleteJournal")
+    writer = coordinator.writers["journal"]
+    original = writer.tombstone
+
+    def fail_tombstone(*args, **kwargs):
+        original(*args, **kwargs)
+        raise StorageUnavailable("io_error")
+
+    monkeypatch.setattr(writer, "tombstone", fail_tombstone)
+    with pytest.raises(StorageUnavailable):
+        coordinator.delete(
+            session, identity=deletion, owner_person_id="person_1", entry_ids=(intent.entry_id,)
+        )
+    assert vault.is_revoked(entry_id=intent.entry_id)
+    monkeypatch.setattr(writer, "tombstone", original)
+    assert coordinator.recover(limit=1) == 1
+    assert coordinator.recover(limit=1) == 0
+    with coordinator.backup_barrier():
+        pass
+    with db.snapshot() as view:
+        assert view.connection.rows("SELECT completed FROM platform_private_deletion", (), limit=1) == ((1,),)
+        assert view.connection.rows("SELECT deleted FROM platform_private_reference", (), limit=1) == ((1,),)
+        assert view.connection.rows("SELECT count(*) FROM platform_command_ledger", (), limit=1) == ((2,),)
+        assert view.connection.rows("SELECT count(*) FROM platform_audit", (), limit=1) == ((2,),)
+        assert view.connection.rows("SELECT count(*) FROM repl_log", (), limit=1) == ((3,),)
+        assert not view.connection.rows("SELECT id FROM test_private_owner", (), limit=1)
+
+
+@pytest.mark.trace("T-E01-04", "R25")
+def test_backup_resolves_pending_seal_of_deleted_entry_without_new_key(tmp_path):
+    _, coordinator, vault, store, session, intent = station(tmp_path)
+    store.fail_ack = True
+    with pytest.raises(StorageUnavailable):
+        coordinator.write(session, intent)
+    store.fail_ack = False
+    coordinator.delete(
+        session,
+        identity=replace(intent.identity, key="command_delete", operation="deleteJournal"),
+        owner_person_id="person_1",
+        entry_ids=(intent.entry_id,),
+    )
+    keys = dict(vault.keys)
+    with coordinator.backup_barrier():
+        assert store.pending(after_entry_id=None, limit=1) == ()
+    assert vault.keys == keys
+    assert vault.is_revoked(entry_id=intent.entry_id)
+
+
+@pytest.mark.trace("T-E01-04", "R25")
+def test_backup_drains_more_than_one_pending_seal_page(tmp_path):
+    _, coordinator, vault, store, _, intent = station(tmp_path)
+    count = coordinator.settings.integer("private.recovery_batch") + 1
+    for index in range(count):
+        staged = replace(
+            intent,
+            entry_id=f"entry_{index}",
+            version_id=f"version_{index}",
+            identity=replace(intent.identity, key=f"command_{index}"),
+        )
+        store.seal(staged)
+    with coordinator.backup_barrier():
+        assert store.pending(after_entry_id=None, limit=1) == ()
+    assert len(vault.revoked) == count
+
+
+@pytest.mark.trace("T-E01-04", "R25")
+def test_pending_other_command_key_cannot_revoke_private_entry(tmp_path, monkeypatch):
+    from crew_health.platform.adapters.intents import IntentRepository
+
+    db, coordinator, vault, _, session, intent = station(tmp_path)
+    coordinator.write(session, intent)
+    key = "command_pending"
+    with db.begin(actor=session.actor, correlation_id=key) as uow:
+        IntentRepository(CommandLedger(db.ids)).reserve(
+            uow, replace(intent.identity, key=key), resume_handler="other", input_ref=intent.entry_id
+        )
+    monkeypatch.setattr(vault, "revoke", lambda **kwargs: pytest.fail("conflict reached vault"))
+    with pytest.raises(ProblemError) as caught:
+        coordinator.delete(
+            session,
+            identity=replace(intent.identity, key=key, operation="deleteJournal"),
+            owner_person_id="person_1",
+            entry_ids=(intent.entry_id,),
+        )
+    assert caught.value.code.value == "DUPLICATE_COMMAND"
+    assert not vault.is_revoked(entry_id=intent.entry_id)
+
+
+@pytest.mark.trace("T-E01-04", "R25")
+@pytest.mark.parametrize("changed", ["owner", "entry"])
+def test_deletion_retry_with_changed_owner_or_entry_conflicts_before_vault(tmp_path, monkeypatch, changed):
+    db, coordinator, vault, _, session, intent = station(tmp_path)
+    coordinator.write(session, intent)
+    deletion = replace(intent.identity, key="command_delete", operation="deleteJournal")
+    coordinator.delete(session, identity=deletion, owner_person_id="person_1", entry_ids=(intent.entry_id,))
+    coordinator.authorize = lambda session, owner: True
+    monkeypatch.setattr(vault, "revoke", lambda **kwargs: pytest.fail("conflict reached vault"))
+    with pytest.raises(ProblemError) as caught:
+        coordinator.delete(
+            session,
+            identity=deletion,
+            owner_person_id="person_2" if changed == "owner" else "person_1",
+            entry_ids=("entry_other",) if changed == "entry" else (intent.entry_id,),
+        )
+    assert caught.value.code.value == "DUPLICATE_COMMAND"
+    with db.snapshot() as view:
+        assert view.connection.rows("SELECT count(*) FROM platform_command_ledger", (), limit=1) == ((2,),)
+
+
+@pytest.mark.trace("T-E01-04", "R25")
+def test_recovery_resumes_deletion_after_vault_call_was_interrupted(tmp_path, monkeypatch):
+    db, coordinator, vault, _, session, intent = station(tmp_path)
+    coordinator.write(session, intent)
+    original = vault.revoke
+
+    def interrupted(**kwargs):
+        raise StorageUnavailable("io_error")
+
+    monkeypatch.setattr(vault, "revoke", interrupted)
+    identity = replace(intent.identity, key="command_delete", operation="deleteJournal")
+    with pytest.raises(StorageUnavailable):
+        coordinator.delete(
+            session, identity=identity, owner_person_id="person_1", entry_ids=(intent.entry_id,)
+        )
+    assert not vault.is_revoked(entry_id=intent.entry_id)
+    monkeypatch.setattr(vault, "revoke", original)
+    assert coordinator.recover(limit=1) == 1
+    assert vault.is_revoked(entry_id=intent.entry_id)
+    with db.snapshot() as view:
+        assert view.connection.rows("SELECT completed FROM platform_command_intent", (), limit=1) == ((1,),)
+
+
+@pytest.mark.trace("T-E01-04", "R25")
+def test_backup_waits_for_replica_revocation_then_recovers_same_intent(tmp_path, monkeypatch):
+    db, coordinator, vault, _, session, intent = station(tmp_path)
+    coordinator.write(session, intent)
+    original = vault.revoke
+
+    def pending(**kwargs):
+        return replace(original(**kwargs), complete=False, outstanding_replica_ids=("replica",))
+
+    monkeypatch.setattr(vault, "revoke", pending)
+    identity = replace(intent.identity, key="command_delete", operation="deleteJournal")
+    result = coordinator.delete(
+        session, identity=identity, owner_person_id="person_1", entry_ids=(intent.entry_id,)
+    )
+    assert not result.revocation.complete and result.hub_reference_seq is None
+    with pytest.raises(ProblemError), coordinator.backup_barrier():
+        pytest.fail("pending replica entered backup")
+    with db.snapshot() as view:
+        assert view.connection.rows("SELECT completed FROM platform_private_deletion", (), limit=1) == ((0,),)
+        assert view.connection.rows("SELECT count(*) FROM platform_command_ledger", (), limit=1) == ((1,),)
+    monkeypatch.setattr(vault, "revoke", original)
+    with coordinator.backup_barrier():
+        pass
+    assert coordinator.delete(
+        session, identity=identity, owner_person_id="person_1", entry_ids=(intent.entry_id,)
+    ).revocation == original(
+        owner_person_id="person_1", entry_ids=(intent.entry_id,), command_key=identity.key
+    )
+
+
+@pytest.mark.trace("T-E01-04", "R25")
+def test_recovery_drains_multiple_pages_of_interrupted_deletions(tmp_path, monkeypatch):
+    db, coordinator, vault, _, session, intent = station(tmp_path)
+    writer = coordinator.writers["journal"]
+    original = writer.tombstone
+
+    def interrupted(*args, **kwargs):
+        raise StorageUnavailable("io_error")
+
+    monkeypatch.setattr(writer, "tombstone", interrupted)
+    count = coordinator.settings.integer("private.recovery_batch") + 1
+    for index in range(count):
+        entry = replace(
+            intent,
+            entry_id=f"entry_{index}",
+            version_id=f"version_{index}",
+            identity=replace(intent.identity, key=f"command_write_{index}"),
+        )
+        entry = replace(
+            entry,
+            identity=replace(
+                entry.identity,
+                body_fingerprint=vault.fingerprint(
+                    owner_person_id=entry.owner_person_id,
+                    canonical_identity_and_body=private_identity_bytes(entry),
+                ),
+            ),
+        )
+        coordinator.write(session, entry)
+        with pytest.raises(StorageUnavailable):
+            coordinator.delete(
+                session,
+                identity=replace(entry.identity, key=f"command_delete_{index}", operation="deleteJournal"),
+                owner_person_id=entry.owner_person_id,
+                entry_ids=(entry.entry_id,),
+            )
+    monkeypatch.setattr(writer, "tombstone", original)
+    with coordinator.backup_barrier():
+        pass
+    with db.snapshot() as view:
+        assert view.connection.rows(
+            "SELECT count(*) FROM platform_private_deletion WHERE completed=1", (), limit=1
+        ) == ((count,),)
+        assert view.connection.rows(
+            "SELECT count(*) FROM platform_private_reference WHERE deleted=0", (), limit=1
+        ) == ((0,),)
+
+
+@pytest.mark.trace("T-E01-04", "R25")
+def test_concurrent_deletion_retries_have_one_receipt_and_tombstone(tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+
+    db, coordinator, _, _, session, intent = station(tmp_path)
+    coordinator.write(session, intent)
+    identity = replace(intent.identity, key="command_delete", operation="deleteJournal")
+
+    def delete():
+        return coordinator.delete(
+            session, identity=identity, owner_person_id="person_1", entry_ids=(intent.entry_id,)
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first, second = pool.submit(delete), pool.submit(delete)
+        assert first.result(timeout=5) == second.result(timeout=5)
+    with db.snapshot() as view:
+        assert view.connection.rows("SELECT count(*) FROM platform_command_ledger", (), limit=1) == ((2,),)
+        assert view.connection.rows("SELECT count(*) FROM platform_audit", (), limit=1) == ((2,),)
+
+
+@pytest.mark.trace("T-E01-04", "R25")
+def test_offline_replica_degrades_recovery_and_seal_repair_still_runs(tmp_path, monkeypatch):
+    """SYSTEM 7.4 "Offline replicas leave deletion pending, visibly" and AGENTS 2 "Contain failures": startup
+    recovery (the assembly STORAGE phase) with one vault replica offline keeps the deletion pending, reports it on
+    health and still repairs an unrelated pending seal; once the replica is back, recovery completes and clears it."""
+    db, coordinator, vault, store, session, intent = station(tmp_path)
+    coordinator.write(session, intent)
+    original = vault.revoke
+
+    def offline(**kwargs):
+        return replace(original(**kwargs), complete=False, outstanding_replica_ids=("replica",))
+
+    monkeypatch.setattr(vault, "revoke", offline)
+    identity = replace(intent.identity, key="command_delete", operation="deleteJournal")
+    result = coordinator.delete(
+        session, identity=identity, owner_person_id="person_1", entry_ids=(intent.entry_id,)
+    )
+    assert not result.revocation.complete
+    second = replace(
+        intent, entry_id="entry_2", version_id="version_2", identity=replace(intent.identity, key="command_2")
+    )
+    fingerprint = vault.fingerprint(
+        owner_person_id="person_1", canonical_identity_and_body=private_identity_bytes(second)
+    )
+    second = replace(second, identity=replace(second.identity, body_fingerprint=fingerprint))
+    store.fail_ack = True
+    with pytest.raises(StorageUnavailable):
+        coordinator.write(session, second)
+    store.fail_ack = False
+    assert store.pending(after_entry_id=None, limit=10)
+
+    assert coordinator.recover(limit=db.settings.integer("private.recovery_batch")) == 1
+    assert not store.pending(after_entry_id=None, limit=10)
+    health = coordinator.health.snapshot()
+    assert health.status == "degraded"
+    assert [(c.component, c.code) for c in health.components] == [
+        (PENDING_DELETIONS, "CAPABILITY_UNAVAILABLE")
+    ]
+    with db.snapshot() as view:
+        assert view.connection.rows("SELECT completed FROM platform_private_deletion", (), limit=1) == ((0,),)
+        assert view.connection.rows(
+            "SELECT deleted FROM platform_private_reference WHERE entry_id=?", (intent.entry_id,), limit=1
+        ) == ((0,),)
+    assert vault.is_revoked(entry_id=intent.entry_id)
+    with pytest.raises(ProblemError), coordinator.backup_barrier():
+        pytest.fail("pending replica entered backup")
+
+    monkeypatch.setattr(vault, "revoke", original)
+    assert coordinator.recover(limit=db.settings.integer("private.recovery_batch")) == 1
+    assert coordinator.health.snapshot().status == "ok"
+    with db.snapshot() as view:
+        assert view.connection.rows("SELECT completed FROM platform_private_deletion", (), limit=1) == ((1,),)

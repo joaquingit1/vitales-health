@@ -49,6 +49,11 @@ def peers(tmp_path):
     )
     for peer in (source, destination):
         peer.migrate(
+            Path("hub/src/crew_health/platform/adapters/migrations/0003_platform.sql").read_text(
+                encoding="utf-8"
+            )
+        )
+        peer.migrate(
             "CREATE TABLE test_replica(stream_id TEXT NOT NULL,seq INTEGER NOT NULL,object_ref TEXT NOT NULL,payload BLOB NOT NULL,PRIMARY KEY(stream_id,seq)) STRICT;"
         )
     return source, destination
@@ -77,7 +82,18 @@ def projected(observation_id, *, episode_id=None, dependencies=()):
     )
 
 
-def exchange(db, *, bodies=None, grant=None, fields=None, dependencies=None, apply_failure=None):
+def exchange(
+    db,
+    *,
+    bodies=None,
+    grant=None,
+    fields=None,
+    dependencies=None,
+    apply_failure=None,
+    schema=None,
+    allowlist=None,
+    authorize_revocation=None,
+):
     bodies = {} if bodies is None else bodies
     grant = [True] if grant is None else grant
     dependencies = set() if dependencies is None else dependencies
@@ -101,7 +117,7 @@ def exchange(db, *, bodies=None, grant=None, fields=None, dependencies=None, app
             if apply_failure is not None and apply_failure[0]:
                 raise OSError("injected apply failure after effect")
 
-    schema = projection_schema()
+    schema = projection_schema() if schema is None else schema
     key = ProjectionKey("records", "observation", 1)
     registration = ProjectionRegistration(
         key, schema, hashlib.sha256(schema).hexdigest(), Provider(), Applier()
@@ -120,7 +136,9 @@ def exchange(db, *, bodies=None, grant=None, fields=None, dependencies=None, app
 
     service = ReplicaService(
         registrations=(registration,),
-        allowed_fields={key: frozenset({"/episode_id", "/observation_id"})},
+        allowed_fields={
+            key: frozenset({"/episode_id", "/observation_id"}) if allowlist is None else allowlist
+        },
         settings=db.settings,
         ids=db.ids,
         node_id=db.origin_node_id,
@@ -139,6 +157,7 @@ def exchange(db, *, bodies=None, grant=None, fields=None, dependencies=None, app
             "DELETE FROM test_replica WHERE stream_id=?", (stream,)
         ),
         dependency=lambda uow, ref: ref in dependencies,
+        authorize_revocation=authorize_revocation,
     )
     return service
 

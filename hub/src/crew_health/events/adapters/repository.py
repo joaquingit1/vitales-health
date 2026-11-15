@@ -10,6 +10,7 @@ from pydantic import TypeAdapter, ValidationError
 from referencing import Registry, Resource
 from referencing.jsonschema import SchemaRegistry
 
+from crew_health.contracts_gen.build import effective_schemas
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.contracts_gen.schemas.event_schema import Event
 from crew_health.events.domain.errors import failure
@@ -70,7 +71,11 @@ class EventValidator:
         paths = sorted(schema_directory.glob("*.schema.json"))
         if not paths or len(paths) > 1024:
             raise failure(ErrorCode.CONFIG_INVALID)
-        schemas = {path.name: document(path.read_bytes()) for path in paths}
+        try:
+            raw = effective_schemas(schema_directory, tuple(paths))
+        except ValueError, OSError:
+            raise failure(ErrorCode.CONFIG_INVALID) from None
+        schemas = {name: document(value) for name, value in raw.items()}
         if "event.schema.json" not in schemas:
             raise failure(ErrorCode.CONFIG_INVALID)
         registry: SchemaRegistry = Registry()
@@ -201,10 +206,10 @@ class EventRepository:
             raise StorageUnavailable("corrupt") from error
 
     @staticmethod
-    def cursor(connection: StorageSession, subscriber: str) -> int:
+    def cursor(connection: StorageSession, subscriber: str) -> int | None:
         rows = connection.rows("SELECT seq FROM events_cursor WHERE subscriber=?", (subscriber,), limit=1)
         if not rows:
-            return 0
+            return None
         if type(rows[0][0]) is not int:
             raise StorageUnavailable("corrupt")
         return rows[0][0]

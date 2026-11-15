@@ -10,18 +10,18 @@ from . import common_schema
 
 class Instrument(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     name: str = Field(..., min_length=1)
     needs_text: str | None = Field(
         None,
-        description='How the instrument is named after needs, for example an ECG. Defaults to name.',
+        description="How the instrument is named after needs, for example an ECG. Defaults to name.",
         min_length=1,
     )
     capability_codes: list[common_schema.ConfigId] = Field(
         ...,
-        description='Capability codes this instrument provides; the same codes as the Capability object and GET /v1/capabilities.',
+        description="Capability codes this instrument provides; the same codes as the Capability object and GET /v1/capabilities.",
         min_length=1,
     )
     method: common_schema.AcquisitionMethod | None = None
@@ -33,67 +33,65 @@ class ExpectedDurationSeconds(RootModel[int]):
 
 class Capability(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     code: common_schema.ConfigId
     label: str = Field(..., min_length=1)
     body_region: common_schema.BodyRegionOrNull | None
-    operator_requirement: Literal['self', 'crewmate', 'crew_medical_officer'] = Field(
-        ..., description='Who on board takes the measurement. Never the ground.'
+    operator_requirement: Literal["self", "crewmate", "crew_medical_officer"] = Field(
+        ..., description="Who on board takes the measurement. Never the ground."
     )
     expected_duration_seconds: ExpectedDurationSeconds | None
     basis: common_schema.Basis
     components: list[common_schema.ConfigId] | None = Field(
         None,
-        description='A panel capability: the indicator codes one attempt records together, all or none (SYSTEM 7.3: 85354-9 blood pressure panel with 8480-6 and 8462-4). Absent for a single-value capability, whose observation code is the capability code.',
+        description="A panel capability: the indicator codes one attempt records together, all or none (SYSTEM 7.3: 85354-9 blood pressure panel with 8480-6 and 8462-4). Absent for a single-value capability, whose observation code is the capability code.",
         min_length=2,
     )
 
 
 class Kits(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     station_leo: list[common_schema.ConfigId] = Field(
-        ..., description='Instrument IDs aboard in this environment.'
+        ..., description="Instrument IDs aboard in this environment."
     )
     transit: list[common_schema.ConfigId] = Field(
-        ..., description='Instrument IDs aboard in this environment.'
+        ..., description="Instrument IDs aboard in this environment."
     )
     lunar_surface: list[common_schema.ConfigId] = Field(
-        ..., description='Instrument IDs aboard in this environment.'
+        ..., description="Instrument IDs aboard in this environment."
     )
     mars_surface: list[common_schema.ConfigId] = Field(
-        ..., description='Instrument IDs aboard in this environment.'
+        ..., description="Instrument IDs aboard in this environment."
     )
 
 
 class Supply(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     name: str = Field(..., min_length=1)
     unit: str = Field(
         ...,
-        description='The unit stock and uses are counted in, for example rinse or dressing.',
+        description="The unit stock and uses are counted in, for example rinse or dressing.",
         min_length=1,
     )
     consumable: bool = Field(
         ...,
-        description='False for equipment a use does not consume, such as an eye wash set.',
+        description="False for equipment a use does not consume, such as an eye wash set.",
     )
 
 
 class Quantity(RootModel[float]):
-    root: float = Field(
-        ..., description="Packed quantity in the supply's unit. null: not set.", ge=0.0
-    )
+    root: float = Field(..., description="Packed quantity in the supply's unit. null: not set.", ge=0.0)
 
 
 class StationLeoItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     quantity: Quantity | None
@@ -103,7 +101,7 @@ class StationLeoItem(BaseModel):
 
 class TransitItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     quantity: Quantity | None
@@ -113,7 +111,7 @@ class TransitItem(BaseModel):
 
 class LunarSurfaceItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     quantity: Quantity | None
@@ -123,7 +121,7 @@ class LunarSurfaceItem(BaseModel):
 
 class MarsSurfaceItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     quantity: Quantity | None
@@ -133,35 +131,35 @@ class MarsSurfaceItem(BaseModel):
 
 class Stock(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     station_leo: list[StationLeoItem] = Field(
         ...,
-        description='Supplies packed in this environment. A supply missing here is not aboard.',
+        description="Supplies packed in this environment. A supply missing here is not aboard.",
     )
     transit: list[TransitItem] = Field(
         ...,
-        description='Supplies packed in this environment. A supply missing here is not aboard.',
+        description="Supplies packed in this environment. A supply missing here is not aboard.",
     )
     lunar_surface: list[LunarSurfaceItem] = Field(
         ...,
-        description='Supplies packed in this environment. A supply missing here is not aboard.',
+        description="Supplies packed in this environment. A supply missing here is not aboard.",
     )
     mars_surface: list[MarsSurfaceItem] = Field(
         ...,
-        description='Supplies packed in this environment. A supply missing here is not aboard.',
+        description="Supplies packed in this environment. A supply missing here is not aboard.",
     )
 
 
 class ConfirmingTest(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     test_id: common_schema.ConfigId | None = None
     name: str = Field(..., min_length=1)
     instruments: list[common_schema.ConfigId] = Field(
         ...,
-        description='Instrument IDs the test needs, all of them. An empty list means the test needs no instrument: history, interview or an examination by a trained person.',
+        description="Instrument IDs the test needs, all of them. An empty list means the test needs no instrument: history, interview or an examination by a trained person.",
     )
 
 
@@ -172,8 +170,8 @@ class ReportOnlyFinding(RootModel[str]):
 class PlanId(RootModel[str]):
     root: str = Field(
         ...,
-        description='The onboard-plans.json plan for this condition (CONTRACTS section 22). null: no plan written yet, which release validation reports (EI3).',
-        pattern='^plan_[a-z0-9_]{1,59}$',
+        description="The onboard-plans.json plan for this condition (CONTRACTS section 22). null: no plan written yet, which release validation reports (EI3).",
+        pattern="^plan_[a-z0-9_]{1,59}$",
     )
 
 
@@ -187,38 +185,38 @@ class CheckedBy(RootModel[str]):
 
 class Condition(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     condition_id: str = Field(
         ...,
-        description='ICL row ID as in condition-assessments-119.csv.',
-        pattern='^ICL[1-9][0-9]{0,2}$',
+        description="ICL row ID as in condition-assessments-119.csv.",
+        pattern="^ICL[1-9][0-9]{0,2}$",
     )
     name: str = Field(..., min_length=1)
     body_regions: common_schema.BodyRegions
     confirming_tests: list[ConfirmingTest] = Field(
         ...,
-        description='Alternatives: any one test confirms the condition.',
+        description="Alternatives: any one test confirms the condition.",
         min_length=1,
     )
     cliff_url: AnyUrl
     report_only_findings: list[ReportOnlyFinding] | None = Field(
         None,
-        description='Display only: what the person can report. Never used to compute the state.',
+        description="Display only: what the person can report. Never used to compute the state.",
     )
     plan_id: PlanId | None
     ground_needs: common_schema.GroundNeeds | None
     treatment_scope: common_schema.FormQuote | None
     rtdc: common_schema.Rtdc | None
     source_ids: common_schema.SourceIds | None = None
-    review_state: Literal['unreviewed', 'reviewed', 'rejected']
+    review_state: Literal["unreviewed", "reviewed", "rejected"]
     written_by: WrittenBy | None
     checked_by: CheckedBy | None
 
 
 class KitMapJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     version: str = Field(
         ...,
@@ -227,7 +225,7 @@ class KitMapJson(BaseModel):
     )
     example: bool = Field(
         ...,
-        description='True for an illustrative document. The hub refuses to activate an example document when the mission mode is LIVE.',
+        description="True for an illustrative document. The hub refuses to activate an example document when the mission mode is LIVE.",
     )
     notice: str | None = Field(
         None,
@@ -237,22 +235,20 @@ class KitMapJson(BaseModel):
     instruments: list[Instrument] = Field(..., min_length=1)
     capabilities: list[Capability] = Field(
         ...,
-        description='One entry per capability code any instrument provides: the words, region and operator GET /v1/capabilities serves.',
+        description="One entry per capability code any instrument provides: the words, region and operator GET /v1/capabilities serves.",
         min_length=1,
     )
     kits: Kits
     candidates: list[common_schema.ConfigId] = Field(
-        ..., description='Instrument IDs the planning view offers to add in a what-if.'
+        ..., description="Instrument IDs the planning view offers to add in a what-if."
     )
     candidate_supplies: list[common_schema.ConfigId] | None = Field(
-        None, description='Supply IDs the planning view offers to add in a what-if.'
+        None, description="Supply IDs the planning view offers to add in a what-if."
     )
     candidate_skills: list[common_schema.ConfigId] | None = Field(
         None,
-        description='skills-catalog skill IDs the planning view offers to train in a what-if.',
+        description="skills-catalog skill IDs the planning view offers to train in a what-if.",
     )
-    supplies: list[Supply] = Field(
-        ..., description='Supplies plan steps may need (CONTRACTS section 25).'
-    )
+    supplies: list[Supply] = Field(..., description="Supplies plan steps may need (CONTRACTS section 25).")
     stock: Stock
     conditions: list[Condition] = Field(..., min_length=1)

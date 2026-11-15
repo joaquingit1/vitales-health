@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+# isort: split
 from crew_health.platform.testing.sqlite import database
 
 pytestmark = [pytest.mark.E01, pytest.mark.trace("T-E01-03", "T-E01-17", "R25")]
@@ -23,7 +24,10 @@ from crew_health.platform.testing.sqlite import database
 
 db = database(Path(sys.argv[1]), initialize=False)
 db.register_audit_policy(AuditPolicy("test.capture",{},frozenset({"fact"}),{"fact":frozenset({"test_record"})}))
-identity = command_identity(key="command_recovery",actor_ref="operator_1",operation="recordObservation",target="/v1/observations",parameters_json=b"{}",body_fingerprint="0"*64,fingerprint_kind="sha256")
+identity = command_identity(
+    key="command_recovery", actor_ref="operator_1", operation="recordObservation",
+    target="/v1/observations", parameters_json=b"{}", body_fingerprint="0"*64, fingerprint_kind="sha256",
+)
 ledger = CommandLedger(db.ids)
 with db.begin(actor=Actor("operator","operator_1"),command=identity,correlation_id="correlation_1") as uow:
     previous = ledger.lookup(uow,identity)
@@ -43,7 +47,9 @@ print(receipt.receipt_id)
 """
 
 
-@pytest.mark.parametrize("phase,exit_code,committed", [("before_commit", 91, 0), ("after_commit", 92, 1)])
+@pytest.mark.parametrize(
+    ("phase", "exit_code", "committed"), [("before_commit", 91, 0), ("after_commit", 92, 1)]
+)
 def test_process_exit_never_loses_acknowledged_command_or_duplicates_retry(
     tmp_path: Path, phase: str, exit_code: int, committed: int
 ) -> None:

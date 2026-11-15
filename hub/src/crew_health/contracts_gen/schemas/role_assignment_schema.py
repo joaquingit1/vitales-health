@@ -24,24 +24,24 @@ class TaskText(RootModel[str]):
 
 class ContextReason(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     reason_code: Literal[
-        'first_officer',
-        'officer_is_subject',
-        'officer_on_eva',
-        'officer_asleep',
-        'second_officer',
-        'freshest_skill',
-        'free_to_help',
-        'changed_by_helper',
+        "first_officer",
+        "officer_is_subject",
+        "officer_on_eva",
+        "officer_asleep",
+        "second_officer",
+        "freshest_skill",
+        "free_to_help",
+        "changed_by_helper",
     ]
     text: str = Field(..., min_length=1)
 
 
 class RoleAssignment3(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     role_assignment_id: common_schema.Id
     revision: int = Field(..., ge=1)
@@ -53,23 +53,21 @@ class RoleAssignment3(BaseModel):
     skill_id: common_schema.ConfigId | None
     task_text: TaskText | None
     reason_code: Literal[
-        'first_officer',
-        'officer_is_subject',
-        'officer_on_eva',
-        'officer_asleep',
-        'second_officer',
-        'freshest_skill',
-        'free_to_help',
-        'changed_by_helper',
+        "first_officer",
+        "officer_is_subject",
+        "officer_on_eva",
+        "officer_asleep",
+        "second_officer",
+        "freshest_skill",
+        "free_to_help",
+        "changed_by_helper",
     ]
-    reason_text: str = Field(
-        ..., description='role-rules reason_phrases, rendered.', min_length=1
-    )
+    reason_text: str = Field(..., description="role-rules reason_phrases, rendered.", min_length=1)
     context_reasons: list[ContextReason] = Field(
         ...,
-        description='Why others were passed over, for example the officers on a walk.',
+        description="Why others were passed over, for example the officers on a walk.",
     )
-    state: Literal['proposed', 'accepted', 'changed']
+    state: Literal["proposed", "accepted", "changed"]
     proposed_at: common_schema.Instant
     accepted_at: common_schema.Instant | None
     changed_by: common_schema.Actor | None
@@ -78,9 +76,9 @@ class RoleAssignment3(BaseModel):
     allowed_actions: common_schema.AllowedActions
 
 
-class RoleAssignment4(RoleAssignment1, RoleAssignment3):
+class RoleAssignment4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     role_assignment_id: common_schema.Id
     revision: int = Field(..., ge=1)
@@ -92,23 +90,21 @@ class RoleAssignment4(RoleAssignment1, RoleAssignment3):
     skill_id: common_schema.ConfigId | None
     task_text: TaskText | None
     reason_code: Literal[
-        'first_officer',
-        'officer_is_subject',
-        'officer_on_eva',
-        'officer_asleep',
-        'second_officer',
-        'freshest_skill',
-        'free_to_help',
-        'changed_by_helper',
+        "first_officer",
+        "officer_is_subject",
+        "officer_on_eva",
+        "officer_asleep",
+        "second_officer",
+        "freshest_skill",
+        "free_to_help",
+        "changed_by_helper",
     ]
-    reason_text: str = Field(
-        ..., description='role-rules reason_phrases, rendered.', min_length=1
-    )
+    reason_text: str = Field(..., description="role-rules reason_phrases, rendered.", min_length=1)
     context_reasons: list[ContextReason] = Field(
         ...,
-        description='Why others were passed over, for example the officers on a walk.',
+        description="Why others were passed over, for example the officers on a walk.",
     )
-    state: Literal['proposed', 'accepted', 'changed']
+    state: Literal["proposed", "accepted", "changed"]
     proposed_at: common_schema.Instant
     accepted_at: common_schema.Instant | None
     changed_by: common_schema.Actor | None
@@ -117,9 +113,9 @@ class RoleAssignment4(RoleAssignment1, RoleAssignment3):
     allowed_actions: common_schema.AllowedActions
 
 
-class RoleAssignment5(RoleAssignment2, RoleAssignment3):
+class RoleAssignment5(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     role_assignment_id: common_schema.Id
     revision: int = Field(..., ge=1)
@@ -131,23 +127,21 @@ class RoleAssignment5(RoleAssignment2, RoleAssignment3):
     skill_id: common_schema.ConfigId | None
     task_text: TaskText | None
     reason_code: Literal[
-        'first_officer',
-        'officer_is_subject',
-        'officer_on_eva',
-        'officer_asleep',
-        'second_officer',
-        'freshest_skill',
-        'free_to_help',
-        'changed_by_helper',
+        "first_officer",
+        "officer_is_subject",
+        "officer_on_eva",
+        "officer_asleep",
+        "second_officer",
+        "freshest_skill",
+        "free_to_help",
+        "changed_by_helper",
     ]
-    reason_text: str = Field(
-        ..., description='role-rules reason_phrases, rendered.', min_length=1
-    )
+    reason_text: str = Field(..., description="role-rules reason_phrases, rendered.", min_length=1)
     context_reasons: list[ContextReason] = Field(
         ...,
-        description='Why others were passed over, for example the officers on a walk.',
+        description="Why others were passed over, for example the officers on a walk.",
     )
-    state: Literal['proposed', 'accepted', 'changed']
+    state: Literal["proposed", "accepted", "changed"]
     proposed_at: common_schema.Instant
     accepted_at: common_schema.Instant | None
     changed_by: common_schema.Actor | None
@@ -159,6 +153,6 @@ class RoleAssignment5(RoleAssignment2, RoleAssignment3):
 class RoleAssignment(RootModel[RoleAssignment4 | RoleAssignment5]):
     root: RoleAssignment4 | RoleAssignment5 = Field(
         ...,
-        description='Who does what in a help session or a plan run, proposed by the role engine from role-rules.json, the roster, overlays and SkillRecords (CONTRACTS section 24). Never the subject; nobody in an eva overlay for an on-site role; always a reason; a helper can change it (EI9).',
-        title='RoleAssignment',
+        description="Who does what in a help session or a plan run, proposed by the role engine from role-rules.json, the roster, overlays and SkillRecords (CONTRACTS section 24). Never the subject; nobody in an eva overlay for an on-site role; always a reason; a helper can change it (EI9).",
+        title="RoleAssignment",
     )

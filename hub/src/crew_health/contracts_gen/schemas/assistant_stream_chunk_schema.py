@@ -10,18 +10,18 @@ from . import assistant_message_schema, common_schema, error_schema
 
 class AssistantStreamChunk1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    type: Literal['turn.started']
+    type: Literal["turn.started"]
     turn_id: common_schema.Id
     message_id: common_schema.Id
 
 
 class AssistantStreamChunk2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    type: Literal['token']
+    type: Literal["token"]
     turn_id: common_schema.Id
     message_id: common_schema.Id
     delta: str
@@ -29,27 +29,27 @@ class AssistantStreamChunk2(BaseModel):
 
 class AssistantStreamChunk3(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    type: Literal['tool']
+    type: Literal["tool"]
     turn_id: common_schema.Id
     tool: common_schema.ConfigId
-    status: Literal['started', 'succeeded', 'failed']
+    status: Literal["started", "succeeded", "failed"]
 
 
 class AssistantStreamChunk4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    type: Literal['message.completed']
+    type: Literal["message.completed"]
     message: assistant_message_schema.AssistantMessage
 
 
 class AssistantStreamChunk5(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    type: Literal['turn.failed']
+    type: Literal["turn.failed"]
     turn_id: common_schema.Id
     error: error_schema.ErrorEnvelope
 
@@ -71,6 +71,6 @@ class AssistantStreamChunk(
         | AssistantStreamChunk5
     ) = Field(
         ...,
-        description='One SSE data payload on GET /v1/assistant/conversations/{id}/stream.',
-        title='AssistantStreamChunk',
+        description="One SSE data payload on GET /v1/assistant/conversations/{id}/stream.",
+        title="AssistantStreamChunk",
     )

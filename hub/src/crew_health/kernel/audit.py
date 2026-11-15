@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, Protocol
 from crew_health.kernel.clock import require_utc
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.config import _FrozenMapping
+from crew_health.kernel.errors import ErrorCode, ProblemError
+from crew_health.kernel.ids import require_id
 
 if TYPE_CHECKING:
     from crew_health.kernel.uow import Actor
@@ -28,6 +30,40 @@ class AuditEntry:
     def __post_init__(self) -> None:
         object.__setattr__(self, "refs", _FrozenMapping(self.refs))
         object.__setattr__(self, "safe_metadata", _FrozenMapping(self.safe_metadata))
+
+
+@dataclass(frozen=True)
+class AuditPolicy:
+    """What one audit event type may carry (SYSTEM 5.8): its safe metadata values and the record kinds each
+    reference field may name. A module declares its policies through ModuleRegistry.audit_policy."""
+
+    event_type: str
+    metadata: Mapping[str, frozenset[str | int | bool]]
+    reference_fields: frozenset[str]
+    reference_types: Mapping[str, frozenset[str]]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "metadata", _FrozenMapping(self.metadata))
+        object.__setattr__(self, "reference_types", _FrozenMapping(self.reference_types))
+        if not self.event_type or set(self.reference_types) != set(self.reference_fields):
+            raise ProblemError(ErrorCode.CONFIG_INVALID, ErrorCode.CONFIG_INVALID.value)
+
+    def validate(self, entry: AuditEntry) -> None:
+        invalid = ProblemError(ErrorCode.INVALID_VALUE, ErrorCode.INVALID_VALUE.value)
+        if entry.event_type != self.event_type or entry.event_version != 1:
+            raise invalid
+        require_id(entry.event_id)
+        require_id(entry.actor.id)
+        require_id(entry.correlation_id)
+        if entry.causation_id is not None:
+            require_id(entry.causation_id)
+        if set(entry.refs) != self.reference_fields or not set(entry.safe_metadata) <= self.metadata.keys():
+            raise invalid
+        for value in entry.refs.values():
+            require_id(value)
+        for key, metadata_value in entry.safe_metadata.items():
+            if metadata_value not in self.metadata[key]:
+                raise invalid
 
 
 @dataclass(frozen=True, slots=True)

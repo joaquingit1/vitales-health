@@ -1,13 +1,91 @@
 {
-  "version": "part-a-d12-1",
+  "version": "part-a-d12-2",
   "edits": [
     {
       "id": "d12-unit-mapping-schema",
       "decision": "D12",
-      "a3": ["CONTRACTS.md:86", "CONTRACTS.md:659"],
+      "a3": [
+        "CONTRACTS.md:86",
+        "CONTRACTS.md:659"
+      ],
       "op": "add_file",
       "target": "api/schemas/config-unit-mapping.schema.json",
       "source": "config-unit-mapping.schema.json"
+    },
+    {
+      "id": "d12-config-name",
+      "decision": "D12",
+      "a3": [
+        "api/schemas/common.schema.json:482"
+      ],
+      "op": "replace",
+      "target": "api/schemas/common.schema.json",
+      "pointer": "/$defs/config_name/enum",
+      "expected": [
+        "environment-hazards",
+        "routine-schedule",
+        "responder-flows",
+        "sensor-catalog",
+        "sensor-limits",
+        "warning-rules",
+        "routine-rules",
+        "environment-profiles",
+        "questionnaires",
+        "indicator-catalog",
+        "help-presentation",
+        "assistant-policy",
+        "ui-copy",
+        "participation-rules",
+        "kit-map",
+        "onboard-plans",
+        "skills-catalog",
+        "role-rules"
+      ],
+      "value": [
+        "environment-hazards",
+        "routine-schedule",
+        "responder-flows",
+        "sensor-catalog",
+        "sensor-limits",
+        "warning-rules",
+        "routine-rules",
+        "environment-profiles",
+        "questionnaires",
+        "indicator-catalog",
+        "help-presentation",
+        "assistant-policy",
+        "ui-copy",
+        "participation-rules",
+        "kit-map",
+        "onboard-plans",
+        "skills-catalog",
+        "role-rules",
+        "unit-mapping"
+      ]
+    },
+    {
+      "id": "d12-config-index-minItems",
+      "decision": "D12",
+      "a3": [
+        "api/schemas/config-index.schema.json:53"
+      ],
+      "op": "replace",
+      "target": "api/schemas/config-index.schema.json",
+      "pointer": "/properties/documents/minItems",
+      "expected": 18,
+      "value": 19
+    },
+    {
+      "id": "d12-config-index-maxItems",
+      "decision": "D12",
+      "a3": [
+        "api/schemas/config-index.schema.json:54"
+      ],
+      "op": "replace",
+      "target": "api/schemas/config-index.schema.json",
+      "pointer": "/properties/documents/maxItems",
+      "expected": 18,
+      "value": 19
     }
   ]
 }

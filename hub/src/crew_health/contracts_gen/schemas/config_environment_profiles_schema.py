@@ -10,11 +10,11 @@ from . import common_schema
 
 class ChangeConfirmation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     confirmations_required: int = Field(
         ...,
-        description='Crew confirmations a proposed environment needs before it becomes active.',
+        description="Crew confirmations a proposed environment needs before it becomes active.",
         ge=1,
     )
     basis: common_schema.Basis
@@ -22,7 +22,7 @@ class ChangeConfirmation(BaseModel):
 
 class MissionEventType(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     label: str = Field(..., min_length=1)
@@ -33,7 +33,7 @@ class MissionEventType(BaseModel):
 
 class StateFact(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     label: str = Field(..., min_length=1)
@@ -44,13 +44,13 @@ class StateFact(BaseModel):
 
 class EffectFilter(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     hazard_id: common_schema.ConfigId
     effect_index: int = Field(..., ge=0)
     effect_starts_with: str = Field(
         ...,
-        description='First words of the effect, copied so the loader detects drift.',
+        description="First words of the effect, copied so the loader detects drift.",
         min_length=1,
     )
     only_in: list[common_schema.EnvironmentId] = Field(..., min_length=1)
@@ -59,26 +59,26 @@ class EffectFilter(BaseModel):
 
 class DayLabel(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    counter: Literal['mission_day', 'environment_day']
+    counter: Literal["mission_day", "environment_day"]
     template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     short_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     inline_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     day_length_seconds: int = Field(..., ge=1)
     basis: common_schema.Basis
@@ -86,47 +86,47 @@ class DayLabel(BaseModel):
 
 class CommsQueue(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     simulated_one_way_delay_seconds: int = Field(
         ...,
-        description='Delay the simulated comms queue applies to ground messages and handoffs in this environment. The delay words on screen come from earth_delay in environment-hazards.json, never from here.',
+        description="Delay the simulated comms queue applies to ground messages and handoffs in this environment. The delay words on screen come from earth_delay in environment-hazards.json, never from here.",
         ge=0,
     )
     basis: common_schema.Basis
     source_ids: common_schema.SourceIds
-    scheduled_status: Literal['up', 'delayed'] = Field(
+    scheduled_status: Literal["up", "delayed"] = Field(
         ...,
-        description='GroundLink.status while the link follows this profile (source schedule). A team choice: delayed when a spoken exchange is impractical.',
+        description="GroundLink.status while the link follows this profile (source schedule). A team choice: delayed when a spoken exchange is impractical.",
     )
 
 
 class SimScheduleItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     starts_at: common_schema.Instant
     ends_at: common_schema.Instant
-    status: Literal['up', 'delayed', 'down']
+    status: Literal["up", "delayed", "down"]
     gap_kind: common_schema.GapKind | None
     planned: bool
 
 
 class Link(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     default_gap_kind: common_schema.GapKind
     sim_schedule: list[SimScheduleItem] = Field(
         ...,
-        description='Simulated contact windows for GroundLink source schedule. Empty: the link follows comms_queue.scheduled_status.',
+        description="Simulated contact windows for GroundLink source schedule. Empty: the link follows comms_queue.scheduled_status.",
     )
     basis: common_schema.Basis
 
 
 class ReturnOption(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     trip_text: str = Field(..., min_length=1)
     source_ids: common_schema.SourceIds
@@ -135,18 +135,16 @@ class ReturnOption(BaseModel):
 
 class Profile(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     environment_id: common_schema.EnvironmentId
     label: str = Field(..., min_length=1)
-    place: str = Field(
-        ..., description='The place in words, for example space station.', min_length=1
-    )
+    place: str = Field(..., description="The place in words, for example space station.", min_length=1)
     day_label: DayLabel
     eva_word: str = Field(..., min_length=1)
     comms_queue: CommsQueue
     sensor_type_ids: list[common_schema.ConfigId] = Field(
-        ..., description='Sensor types shown in this environment, in display order.'
+        ..., description="Sensor types shown in this environment, in display order."
     )
     overlays: list[common_schema.Overlay]
     link: Link
@@ -155,7 +153,7 @@ class Profile(BaseModel):
 
 class EnvironmentProfilesJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     notice: str = Field(
         ...,
@@ -166,7 +164,7 @@ class EnvironmentProfilesJson(BaseModel):
     mission_event_types: list[MissionEventType] = Field(..., min_length=1)
     state_facts: list[StateFact] = Field(
         ...,
-        description='Boolean facts about the place that rules read, set and cleared only by mission events.',
+        description="Boolean facts about the place that rules read, set and cleared only by mission events.",
     )
     effect_filters: list[EffectFilter]
     profiles: list[Profile] = Field(..., max_length=4, min_length=4)

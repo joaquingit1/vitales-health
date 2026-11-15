@@ -63,7 +63,7 @@ class ConfigKitMapReleaseSource:
         self._environments = environments
         self._conditions = conditions
         self._cache_size = cache_size
-        self._cache: OrderedDict[_Key, KitMapRelease] = OrderedDict()
+        self._cache: OrderedDict[_Key, KitMapRelease[KitMapDoc]] = OrderedDict()
 
     def known_conditions(self) -> frozenset[str]:
         """The 119 inventory for check 11c (CONTRACTS 11), from E10. Unavailable is a finding, never a pass."""
@@ -77,7 +77,7 @@ class ConfigKitMapReleaseSource:
 
     def parse(
         self, release: ReleaseHandle | CandidateRelease, *, known: frozenset[str] | None = None
-    ) -> KitMapRelease:
+    ) -> KitMapRelease[KitMapDoc]:
         """Raises DocumentInvalid with every finding. `known` is the 11c inventory; None only for a release that
         already passed 11c at activation (the request path re-parsing an evicted or restarted cache)."""
         kit_map = _document(release, ConfigName.KIT_MAP)
@@ -106,7 +106,7 @@ class ConfigKitMapReleaseSource:
             has_onboard_plans=_document(release, ConfigName.ONBOARD_PLANS) is not None,
         )
 
-    def remember(self, parsed: KitMapRelease, key: _Key) -> None:
+    def remember(self, parsed: KitMapRelease[KitMapDoc], key: _Key) -> None:
         self._cache[key] = parsed
         self._cache.move_to_end(key)
         while len(self._cache) > self._cache_size:
@@ -125,7 +125,7 @@ class ConfigKitMapReleaseSource:
             plans,
         )
 
-    def for_release(self, release: ReleaseHandle) -> KitMapRelease:
+    def for_release(self, release: ReleaseHandle) -> KitMapRelease[KitMapDoc]:
         key = self.key(release)
         cached = self._cache.get(key)
         if cached is not None:

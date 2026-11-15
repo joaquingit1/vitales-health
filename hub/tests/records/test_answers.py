@@ -72,9 +72,12 @@ def test_choices_require_matching_presence():
         validate_answer(question, presence="present", value="nothing_new", units=units())
 
 
+SCALE_QUESTION = load_questions(release())["mood"]
+
+
 @given(st.decimals(allow_nan=False, allow_infinity=False, min_value=-100, max_value=100))
 def test_scale_checked_independently(value):
-    question = load_questions(release())["mood"]
+    question = SCALE_QUESTION
     if value == value.to_integral_value() and 0 <= value <= 10:
         assert (
             validate_answer(

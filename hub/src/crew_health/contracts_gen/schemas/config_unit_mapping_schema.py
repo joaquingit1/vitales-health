@@ -8,38 +8,38 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class Rounding(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     decimal_places: Literal[4]
-    mode: Literal['half_even']
+    mode: Literal["half_even"]
 
 
 class SourceRef(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     path: str = Field(..., min_length=1)
     line: int = Field(..., ge=1)
-    decision: Literal['D12']
+    decision: Literal["D12"]
 
 
 class Mapping(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    indicator_code: str = Field(..., pattern='^[a-z][a-z0-9_]{0,63}$')
+    indicator_code: str = Field(..., pattern="^[a-z][a-z0-9_]{0,63}$")
     wire_unit: str = Field(..., min_length=1)
     ucum_unit: str = Field(..., min_length=1)
-    conversion: Literal['identity', 'scale', 'ppm_to_mmhg']
-    factor: str | None = Field(..., pattern='^[0-9]+(\\.[0-9]+)?$')
+    conversion: Literal["identity", "scale", "ppm_to_mmhg"]
+    factor: str | None = Field(..., pattern="^[0-9]+(\\.[0-9]+)?$")
     rounding: Rounding
-    basis: Literal['sourced']
+    basis: Literal["sourced"]
     source_refs: list[SourceRef] = Field(..., min_length=1)
 
 
 class UnitMappingJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     version: str = Field(..., min_length=1)
     mappings: list[Mapping] = Field(..., min_length=1)

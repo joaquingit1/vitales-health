@@ -1,16 +1,49 @@
 from __future__ import annotations
 
+import json
+import re
 from datetime import timedelta
 
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.contracts_gen.schemas.config_release_schema import ConfigRelease
-from crew_health.kernel.commands import AcceptedReceipt, CommandIdentity, PendingCommand, StoredResult
+from crew_health.kernel.commands import (
+    AcceptedReceipt,
+    CommandIdentity,
+    PendingCommand,
+    StoredResult,
+    canonical_json,
+)
 from crew_health.kernel.ids import IdFactory, require_id
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.uow import ReadSnapshot, SessionContext, UnitOfWork
 from crew_health.platform.adapters import codec
 from crew_health.platform.domain.commands import identity_bytes
 from crew_health.platform.domain.errors import fail
+
+_RESULT_CODE = re.compile(r"[A-Za-z][A-Za-z0-9_]{0,63}")
+
+
+def revision_reference(result: StoredResult) -> bool:
+    """A replay pointer, not a response body: canonical `{"revision": n}` naming the revision of
+    `resource_ref` the original response showed (SYSTEM 5.8: the owner rebuilds that revision from its own
+    history). It carries no request or private text, so it is kept durably with the ledger row."""
+    if (
+        result.safe_body is None
+        or result.resource_ref is None
+        or not _RESULT_CODE.fullmatch(result.result_code)
+    ):
+        return False
+    try:
+        value = json.loads(result.safe_body)
+    except ValueError:
+        return False
+    return (
+        isinstance(value, dict)
+        and set(value) == {"revision"}
+        and type(value["revision"]) is int
+        and value["revision"] >= 1
+        and canonical_json(value) == result.safe_body
+    )
 
 
 class CommandLedger:
@@ -31,13 +64,14 @@ class CommandLedger:
             raise fail(ErrorCode.DUPLICATE_COMMAND)
         if not isinstance(row[1], bytes) or not isinstance(row[2], int) or not isinstance(row[4], str):
             raise fail(ErrorCode.INTERNAL_ERROR)
-        resource = row[3]
-        cached = uow.connection.rows(
-            "SELECT safe_body FROM platform_idempotency WHERE actor_ref=? AND command_key=? AND expires_at>=?",
-            (identity.actor_ref, identity.key, uow.now.isoformat()),
-            limit=1,
-        )
-        body = cached[0][0] if cached else None
+        resource, body = row[3], row[5]
+        if body is None:
+            cached = uow.connection.rows(
+                "SELECT safe_body FROM platform_idempotency WHERE actor_ref=? AND command_key=? AND expires_at>=?",
+                (identity.actor_ref, identity.key, uow.now.isoformat()),
+                limit=1,
+            )
+            body = cached[0][0] if cached else None
         if (
             resource is not None
             and not isinstance(resource, str)
@@ -55,9 +89,10 @@ class CommandLedger:
             return
         if result.resource_ref is not None:
             require_id(result.resource_ref)
-        if result.safe_body is not None:
+        durable = result.safe_body if revision_reference(result) else None
+        if result.safe_body is not None and durable is None:
             self._public_result(identity, result)
-        elif result.result_code not in {"accepted", "deleted", "cancelled"} | {
+        elif durable is None and result.result_code not in {"accepted", "deleted", "cancelled"} | {
             code.value for code in ErrorCode
         }:
             raise fail(ErrorCode.INVALID_VALUE)
@@ -69,7 +104,7 @@ class CommandLedger:
         ):
             raise fail(ErrorCode.DUPLICATE_COMMAND)
         # Safe bodies require an explicitly authorized P0/P1 projection upstream.
-        if identity.fingerprint_kind == "hmac_sha256" and result.safe_body is not None:
+        if identity.fingerprint_kind == "hmac_sha256" and result.safe_body is not None and durable is None:
             raise fail(ErrorCode.INVALID_VALUE)
         uow.connection.execute(
             "INSERT INTO platform_command_ledger VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -81,11 +116,11 @@ class CommandLedger:
                 result.status,
                 result.resource_ref,
                 result.result_code,
-                None,
+                durable,
             ),
         )
-
-        self._cache(uow, identity, result)
+        if durable is None:
+            self._cache(uow, identity, result)
 
     def _public_result(self, identity: CommandIdentity, result: StoredResult) -> None:
         if (
