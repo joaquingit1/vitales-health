@@ -9,7 +9,6 @@ import pytest
 from help_support import T0
 from hypothesis import given, settings
 from hypothesis import strategies as st
-from test_domain import DOCS, ILYA, LIMITS, MARA, opened
 
 from crew_health.help.domain.docs import normalize_text
 from crew_health.help.domain.errors import HelpError, HelpSessionClosed
@@ -21,6 +20,8 @@ from crew_health.help.domain.turn_guard import (
     check,
 )
 from crew_health.help.domain.turns import runtime_status, turn_completed, turn_failed, turn_started
+
+from .test_domain import DOCS, ILYA, LIMITS, MARA, opened
 
 FLOW_IDS = sorted(f.id for f in DOCS.flows.flows)
 TRIAGE_IDS = sorted(n.id for n in DOCS.flows.triage)

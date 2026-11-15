@@ -6,7 +6,7 @@ from datetime import timedelta
 import pytest
 
 from crew_health.tools.domain.tool_result import ToolCall
-from tests.tools.test_gateway import View, clock_of, gateway, scope
+from tests.tools.test_gateway import View, clock_of, gateway, scope  # type: ignore[import-not-found]
 
 
 @pytest.mark.trace("T-E12-005", "T-E12-023", "V27", "I6")

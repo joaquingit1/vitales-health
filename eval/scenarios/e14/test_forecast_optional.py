@@ -6,10 +6,12 @@ Only the unbuilt E15 episode port uses EpisodeReader as a fake.
 import socket
 import subprocess
 import time
+from http.client import HTTPConnection
 from pathlib import Path
 
 import httpx
 import pytest
+
 from crew_health.trends.application.ports import BaselineSummary, ForecastTicket, Unavailable
 
 from .support import (
@@ -53,7 +55,9 @@ def worker_settings(base_url: str, token: Path) -> dict[str, object]:
     }
 
 
-def test_real_worker_weights_absent_then_stopped_worker_retries(tmp_path: Path) -> None:
+def test_real_worker_weights_absent_then_stopped_worker_retries(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     token = tmp_path / "worker.token"
     token.write_text("e14-scenario-local-token", encoding="utf-8")
     port = free_port()
@@ -84,13 +88,34 @@ def test_real_worker_weights_absent_then_stopped_worker_retries(tmp_path: Path) 
             assert hub.latest() == Unavailable("forecast_worker", "weights_absent")
             assert hub.read() == before
             stop_worker(process)
+            assert process.poll() is not None
+            with socket.socket() as probe:
+                probe.settimeout(0.2)
+                assert probe.connect_ex(("127.0.0.1", port)) != 0, "Stopped worker still owns the port"
             again = hub.refresh()
             assert isinstance(again, ForecastTicket)
             assert not again.reconnected
             assert again.generation == first.generation + 1
             assert again.task_id != first.task_id
+            observed: list[str] = []
+            original_connect = HTTPConnection.connect
+
+            def observe(connection: HTTPConnection) -> None:
+                assert (connection.host, connection.port) == ("127.0.0.1", port)
+                try:
+                    original_connect(connection)
+                except TimeoutError:
+                    observed.append("worker_timeout")
+                    raise
+                except OSError:
+                    observed.append("worker_unreachable")
+                    raise
+
+            # Observe and rethrow the SAME real request's error; no second timing-dependent reason probe.
+            monkeypatch.setattr(HTTPConnection, "connect", observe)
             hub.finish()
-            assert hub.latest() == Unavailable("forecast_worker", "worker_unreachable")
+            assert len(observed) == 1
+            assert hub.latest() == Unavailable("forecast_worker", observed[0])
             assert hub.read() == before
         finally:
             stop_worker(process)

@@ -88,8 +88,8 @@ def test_prose_requires_exact_owner_authored_content_and_pin() -> None:
     from crew_health.tools.application.policy_service import OutputPolicy
     from crew_health.tools.application.ports import TextField, TurnData
     from crew_health.tools.settings import setting_specs
-    from tests.tools.test_bounds import settings_values
-    from tests.tools.test_gateway import scope
+    from tests.tools.test_bounds import settings_values  # type: ignore[import-not-found]
+    from tests.tools.test_gateway import scope  # type: ignore[import-not-found]
 
     field = TextField("text", "source content", "step_a")
     turn = TurnData(MemoryRelease("cfg_a", {}), 1, (field,))

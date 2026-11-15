@@ -23,7 +23,7 @@ test('transport carries the opt-in contract and preserves a command identity acr
   };
   try {
     const transport = httpEpisodeTransport(() => ({ Authorization: 'explicit-local-test' }));
-    const signal = new AbortController().signal;
+    const signal = new globalThis.AbortController().signal;
     await transport.get('/v1/episodes/epi_one', signal);
     for (let i = 0; i < 2; i++) await transport.command('/v1/episodes/epi_one/actions', { action: 'acknowledge' }, 7, 'cmd_one', signal);
     assert.equal(calls[0].options.headers.Accept, 'application/vnd.crew-health.episode+json');
@@ -63,7 +63,7 @@ test('lost review response retries the same identity and refreshes coherent hist
 
 test('stale view while editing never submits the completed form', async () => {
   const { EpisodePanel } = await import('./episode-panel.ts');
-  const oldDocument = globalThis.document; globalThis.document = { createElement: tag => new NodeStub() };
+  const oldDocument = globalThis.document; globalThis.document = { createElement: () => new NodeStub() };
   let finish; let commands = 0;
   const transport = { get: async () => fullEpisode, command: async () => { commands++; return fullEpisode; } };
   const panel = new EpisodePanel(new NodeStub(), transport, fullWords, () => 'cmd_one', () => new Promise(resolve => { finish = resolve; }));
@@ -90,4 +90,9 @@ test('paged history appends once and a changed revision disables further actions
     await panel.open('epi_one');await panel.more('timeline');assert.equal(page,1);assert.match(text(root),/t1/);assert.match(text(root),/t2/);
     await panel.more('timeline');assert.match(text(root),/Stale/);
   } finally {globalThis.document=oldDocument;}
+});
+
+test('missing required unknown words refuse the episode surface instead of rendering a blank fallback', async () => {
+  const { EpisodePanel } = await import('./episode-panel.ts');
+  assert.throws(() => new EpisodePanel(new NodeStub(), {get: async () => fullEpisode, command: async () => fullEpisode}, {...fullWords,errors:{}}, () => 'command_words', async () => ({})), /episode words unavailable/);
 });

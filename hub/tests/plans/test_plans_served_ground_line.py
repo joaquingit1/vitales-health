@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from httpx import Response
 
-from crew_health.app import cli, demo
+from crew_health.app import cli, demo, station
 from crew_health.app.plans_seams import PlansGroundLink, PlansInTime
 from crew_health.plans.application.ground_log import GroundLinkReader, InTimeWords
 
@@ -41,7 +41,7 @@ def test_served_icl10_plan_ground_line_follows_the_ground_link(tmp_path: Path) -
             settings=directory / "hub-settings.json",
             host="127.0.0.1",
             port=0,
-            resources=demo.HubResources(directory / "resources"),
+            resources=station.HubResources(directory / "resources"),
             origin="SIM",
             confirmation=cli.TimeConfirmation(0, fixture.uncertainty_ms, fixture.operator_id),
             demo=fixture.presenter(),

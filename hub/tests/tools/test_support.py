@@ -16,7 +16,7 @@ def test_answer_support_preserves_all_presence_states(
 ) -> None:
     from dataclasses import replace
 
-    from tests.tools.test_context_builder import observation
+    from tests.tools.test_context_builder import observation  # type: ignore[import-not-found]
 
     item = replace(observation(), kind="answer", presence=presence, quantity=None)
     expected = (
@@ -32,7 +32,7 @@ def test_absent_quantity_and_place_facts_never_gain_personal_support() -> None:
     from dataclasses import replace
 
     from tests.tools.test_context_builder import observation
-    from tests.tools.test_gateway import View
+    from tests.tools.test_gateway import View  # type: ignore[import-not-found]
 
     item = replace(observation(), quantity=None, observed_at=None, corrected_at=None)
     assert not item.permitted_uses(mission_origin="LIVE")

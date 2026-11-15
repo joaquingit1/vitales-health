@@ -21,7 +21,6 @@ from datetime import timedelta
 from pathlib import Path
 
 from crew_health.app.registry import ModuleRegistry, Resolver
-from crew_health.consent.application.ports import ObservationPartitions, RecordSubject
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.guidance.application.ports import (
     ContentFacts,
@@ -40,7 +39,7 @@ from crew_health.kernel.clock import TimeInput
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.scheduler import ElapsedDeadline
-from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
+from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext
 from crew_health.knowledge.application.dto import AllowedUse
 from crew_health.knowledge.application.ports import (  # type: ignore[attr-defined]
     EvidenceQueryPort,
@@ -49,10 +48,9 @@ from crew_health.knowledge.application.ports import (  # type: ignore[attr-defin
 from crew_health.model.adapters.manifest_store import ManifestStore
 from crew_health.model.application.ports import ModelInstallation
 from crew_health.model.application.ports import TokenCounter as ModelTokenCounter
-from crew_health.records.application.seams import RecordsStore
 from crew_health.tools.domain.phase import Phase
 from crew_health.tools.domain.scope import ToolScope
-from tests.app.test_composition import Station, station
+from tests.app.test_composition import Station, station  # type: ignore[import-not-found]
 
 MODEL_RELEASE = "model_candidate"  # the release id of hub/tests/model/conftest.py's manifest
 EVIDENCE_RELEASE = "evr_sim_a"
@@ -233,16 +231,6 @@ class Tokens:
         return len(canonical_json(body))
 
 
-@dataclass(frozen=True, slots=True)
-class StoreAuthors:
-    """consent's ObservationPartitions over E01's RecordsStore: the observation's subject and the person who entered it."""
-
-    store: RecordsStore
-
-    def observation(self, view: ReadSnapshot | UnitOfWork, observation_id: str) -> RecordSubject | None:
-        return self.store.observation(view, observation_id)
-
-
 @dataclass
 class E12Hub:
     station: Station
@@ -254,14 +242,6 @@ class E12Hub:
     def configure(self, registry: ModuleRegistry) -> None:
         self.base(registry)
         evidence, installation, tokens = self.evidence, self.installation, self.tokens
-        if ObservationPartitions not in registry.providers:  # type: ignore[attr-defined]
-            # consent's ObservationPartitions is the composer's to bind (consent/application/ports.py); main's composer
-            # does not bind it yet, so this one does, over E01's own RecordsStore.
-            registry.provide(
-                ObservationPartitions,  # type: ignore[type-abstract]
-                lambda resolver: StoreAuthors(resolver.require(RecordsStore)),  # type: ignore[type-abstract]
-                requires=(RecordsStore,),
-            )
         registry.provide(EvidenceQueryPort, _constant(evidence))  # type: ignore[type-abstract]
         registry.provide(ContentFacts, _constant(Content(evidence)))  # type: ignore[type-abstract]
         registry.provide(EnvironmentFacts, _constant(Places()))  # type: ignore[type-abstract]

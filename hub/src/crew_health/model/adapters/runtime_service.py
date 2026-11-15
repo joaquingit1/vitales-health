@@ -4,6 +4,7 @@ import os
 import secrets
 import time
 
+from crew_health.model.adapters.key_permissions import create_runtime_key_file
 from crew_health.model.adapters.launch import LaunchBuilder
 from crew_health.model.adapters.manifest_store import ManifestStore
 from crew_health.model.adapters.runtime_probe import RuntimeIdentity
@@ -80,14 +81,18 @@ class RuntimeService:
         path = self.store.data_dir / "models/runtime.key"
         path.parent.mkdir(parents=True, exist_ok=True)
         temporary = path.with_name("runtime.key." + secrets.token_hex(8))
-        fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        fd: int | None = None
         try:
+            fd = create_runtime_key_file(temporary)
             with os.fdopen(fd, "w", encoding="utf-8") as stream:
+                fd = None
                 stream.write(self.key + "\n")
                 stream.flush()
                 os.fsync(stream.fileno())
             os.replace(temporary, path)
         finally:
+            if fd is not None:
+                os.close(fd)
             if temporary.exists():
                 temporary.unlink()
 

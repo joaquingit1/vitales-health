@@ -42,7 +42,7 @@ from crew_health.tools.domain.phase import Phase
 from crew_health.tools.domain.scope import ToolScope
 from crew_health.tools.domain.tool_result import ToolCall
 from crew_health.tools.settings import setting_specs
-from tests.tools.test_bounds import settings_values
+from tests.tools.test_bounds import settings_values  # type: ignore[import-not-found]
 
 
 class View(MemoryUow):

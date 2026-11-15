@@ -44,9 +44,9 @@ class _Tokens:
 
 def _manifest() -> dict[str, Any]:
     sys.path.insert(0, str(ROOT / "hub/tests"))
-    from model.conftest import manifest
+    from model.conftest import manifest  # type: ignore[import-not-found]
 
-    return cast(dict[str, Any], manifest.__wrapped__())  # type: ignore[attr-defined]
+    return cast(dict[str, Any], manifest.__wrapped__())
 
 
 def _install(directory: Path, script: Mapping[str, object]) -> tuple[ModelInstallation, StubInstallation]:
@@ -73,7 +73,7 @@ def _script(steps: list[dict[str, object]]) -> dict[str, object]:
     }
 
 
-KIT_CHECK = {
+KIT_CHECK: dict[str, object] = {
     "final": None,
     "tool_calls": [{"id": "m1", "name": "get_capabilities", "arguments": {"codes": ["pulse", "ecg_rhythm"]}}],
 }
@@ -271,7 +271,7 @@ def test_a_value_no_tool_returned_is_refused_and_nothing_is_requested(tmp_path: 
 def test_a_tool_outside_the_phase_ends_the_turn_rejected(tmp_path: Path) -> None:
     directory = tmp_path / "hub"
     demo.reset(directory)
-    lower = {
+    lower: dict[str, object] = {
         "final": None,
         "tool_calls": [{"id": "m1", "name": "propose_review", "arguments": {"note": "lower it"}}],
     }

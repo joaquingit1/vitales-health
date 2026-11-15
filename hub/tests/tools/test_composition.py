@@ -22,8 +22,8 @@ from crew_health.tools.application.ports import (
     ToolGateway,
 )
 from crew_health.tools.domain.tool_result import ToolCall
-from tests.app.test_composition import SOURCE, correct_hub_clock
-from tests.tools.e12_station import CREW, E12Hub, e12_hub, install_model, sign_in, tool_scope
+from tests.app.test_composition import SOURCE, correct_hub_clock  # type: ignore[import-not-found]
+from tests.tools.e12_station import CREW, E12Hub, e12_hub, install_model, sign_in, tool_scope  # type: ignore[import-not-found]
 
 
 def e02_blocker() -> str | None:
@@ -80,7 +80,7 @@ def audits(hub: E12Hub) -> list[tuple[str, str]]:
 
 def release(hub: E12Hub) -> str:
     with hub.station.db.snapshot() as view:
-        return view.release.release_id
+        return str(view.release.release_id)
 
 
 @pytest.mark.trace("T-E12-001", "T-E12-004", "T-E12-011", "T-E12-067", "E12-01", "I1", "I7")

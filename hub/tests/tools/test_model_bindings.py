@@ -18,7 +18,7 @@ from crew_health.model.settings import specifications
 from crew_health.tools.adapters.jsonschema_validator import CatalogValidator
 from crew_health.tools.adapters.model_bindings import active_release, compile_catalog, release_retrieval
 from crew_health.tools.domain.errors import ToolsInvalid
-from tests.tools.e12_station import MODEL_RELEASE, install_model
+from tests.tools.e12_station import MODEL_RELEASE, install_model  # type: ignore[import-not-found]
 
 E17_VALUES = {
     "model.max_bytes": 1048576,
