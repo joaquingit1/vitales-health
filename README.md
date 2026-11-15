@@ -1,6 +1,17 @@
+<p align="center">
+  <img src="assets/crew-health-hero.png" alt="Crew Health Check, NASA Space Apps Challenge 2026" width="100%" />
+</p>
+
 # Crew Health Check
 
 **Measures what it can. Shows what it can't. Teaches the crew the rest.**
+
+<p align="center">
+  <img src="assets/badge-space-apps.svg" alt="Space Apps 2026" />
+  <img src="assets/badge-offline.svg" alt="Offline first" />
+  <img src="assets/badge-ai.svg" alt="Local AI optional" />
+  <img src="assets/badge-prototype.svg" alt="Research prototype" />
+</p>
 
 On Mars, a message to mission control takes 4 to 24 minutes each way
 ([N09](https://www.nasa.gov/missions/tech-demonstration/space-communications-7-things-you-need-to-know)), and NASA's
@@ -91,6 +102,10 @@ September, inside the ISS pass under way at the documented arrival of about 04:3
 ([N40](https://doi.org/10.1029/2018SW001920)). That is model validation of the input path, never a diagnosis.
 
 ## How it works
+
+<p align="center">
+  <img src="assets/system-architecture.svg" alt="System architecture: device inputs, deterministic local hub, crew interface, and optional services" width="100%" />
+</p>
 
 ```mermaid
 flowchart LR
