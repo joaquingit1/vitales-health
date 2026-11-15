@@ -29,7 +29,7 @@ Hard dependencies (✅ when built) are what an epic needs to pass its acceptance
 | E05 | Capabilities and measurement workflow | 🔨 In progress | @joaquingit1 | E01, E02 | E06, E07, E08, E09, E14, E30 | [tasks](E05/tasks.json) | [design](../tdd/E05.md) |
 | E06 | Personal and station cameras | 🔨 In progress | @joaquingit1 | E01, E02, E05 | none | [tasks](E06/tasks.json) | [brief](../product/tdd/E06.md) |
 | E07 | Oximeter and clinical device adapters | 🔨 In progress | @joaquingit1 | E01, E02, E05 | none | [tasks](E07/tasks.json) | [brief](../product/tdd/E07.md) |
-| E08 | Wrist activity band and sleep pipeline | ⬜ Open (queue #1) |  | E01, E02, E05 | none | [tasks](E08/tasks.json) | [brief](../product/tdd/E08.md) |
+| E08 | Wrist activity band and sleep pipeline | ⬜ Open (queue #1) | @fedegutman | E01, E02, E05 | none | [tasks](E08/tasks.json) | [brief](../product/tdd/E08.md) |
 | E09 | Reports and specialist findings | ⬜ Open (queue #2) |  | E01, E02, E05 | none | [tasks](E09/tasks.json) | [brief](../product/tdd/E09.md) |
 | E10 | NASA registry and evidence database | 🔨 In progress | @joaquingit1 (pipeline) | E01 | E12, E19 | [tasks](E10/tasks.json) | [design](../tdd/E10.md) |
 | E11 | Urgent handling and pathway engine | ⬜ Open (queue #5) |  | E01, E02, E15-core, E27-guidance | E13 | [tasks](E11/tasks.json) | [design](../tdd/E11.md) |
