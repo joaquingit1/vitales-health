@@ -728,11 +728,19 @@ class MedicineInspectionCreate(BaseModel):
     lot_id: str = Field(..., min_length=1)
     finding: Literal[
         'no_change',
-        'discoloration',
-        'damaged_packaging',
-        'contamination',
-        'other_adverse',
-    ]
+        'color_change',
+        'cracking',
+        'crystals',
+        'cloudiness',
+        'precipitate',
+        'particles',
+        'swollen_package',
+        'phase_separation',
+        'other',
+    ] = Field(
+        ...,
+        description="The pharmacy engine's inspection vocabulary (contracts/pharmacy/inputs.schema.json InspectionRecord); any finding other than no_change excludes the lot at once.",
+    )
     note: str | None = Field(None, max_length=2000)
     client_time: common_schema.Instant
 
@@ -836,4 +844,27 @@ class LotMovementCreate(BaseModel):
     )
     kind: Literal['return', 'waste', 'count_correction']
     quantity: Quantity
+    client_time: common_schema.Instant
+
+
+class MedicineAssayCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    lot_id: str = Field(
+        ..., max_length=128, min_length=1, pattern='^[A-Za-z0-9][A-Za-z0-9_.:-]*$'
+    )
+    ingredient_id: str = Field(
+        ..., max_length=128, min_length=1, pattern='^[A-Za-z0-9][A-Za-z0-9_.:-]*$'
+    )
+    measured_at: common_schema.Instant
+    measurand: Literal['total', 'active']
+    value_percent: float = Field(
+        ..., description='Percent of label claim.', gt=0.0, le=1000.0
+    )
+    sd_percent: float = Field(..., ge=0.0, le=1000.0)
+    site: Literal['onboard', 'ground']
+    method: str = Field(..., max_length=200, min_length=1)
+    laboratory: str = Field(..., max_length=200, min_length=1)
+    note: str | None = Field(None, max_length=2000)
     client_time: common_schema.Instant

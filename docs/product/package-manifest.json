@@ -1420,8 +1420,8 @@
     },
     {
       "path": "api/openapi.yaml",
-      "bytes": 425202,
-      "sha256": "7095e1acf9b914073a9f5142df432dff36c9166569b212c692d3add798831c28"
+      "bytes": 425502,
+      "sha256": "95d0f5996bff0acdbc57230c662c96792a7203968540abe1eb8900a3ba694cda"
     },
     {
       "path": "api/schemas/activity-overlay.schema.json",
@@ -1665,8 +1665,8 @@
     },
     {
       "path": "api/schemas/event.schema.json",
-      "bytes": 21529,
-      "sha256": "af755f398111bcd95e4fdd30b7e7bd188f4e1316414449089237206130ef9316"
+      "bytes": 26269,
+      "sha256": "ac2a7c197dfc466ca4d1afec00dcb27b13a232f75c71f0e407c1d7ee2f6a574f"
     },
     {
       "path": "api/schemas/evidence-passage.schema.json",
@@ -1845,8 +1845,8 @@
     },
     {
       "path": "api/schemas/requests.schema.json",
-      "bytes": 55117,
-      "sha256": "a0f9dbcc84c746d08b077b91d1a3a36377034c2688cc4ec869228227be3e0020"
+      "bytes": 57319,
+      "sha256": "dd416cd460f20bd6b92c67e46eb0a461ff3be56a6c390e378c2ca801d8b7afc7"
     },
     {
       "path": "api/schemas/research-source.schema.json",

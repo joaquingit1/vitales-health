@@ -11451,12 +11451,18 @@ paths:
       tags:
         - Medicines
       summary: Record a lot assay
-      description: "Not available in this build: CONTEXT_INAPPLICABLE. Roles: crew_medical_officer."
+      description: "Appends one assay to the partition and schedules a coalesced potency assessment when the hub has a task queue. Roles: crew_medical_officer."
       x-roles:
         - crew_medical_officer
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
         - $ref: "#/components/parameters/CorrelationIdIn"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "schemas/requests.schema.json#/$defs/MedicineAssayCreate"
       responses:
         "201":
           description: OK.
@@ -11508,7 +11514,7 @@ paths:
       tags:
         - Medicines
       summary: Schedule a potency assessment
-      description: "Coalesced per mission and mode; returns the job. Roles: crew_medical_officer, operator."
+      description: "Coalesced per mission and mode; returns the job. CAPABILITY_UNAVAILABLE when the hub has no task queue. Roles: crew_medical_officer, operator."
       x-roles:
         - crew_medical_officer
         - operator

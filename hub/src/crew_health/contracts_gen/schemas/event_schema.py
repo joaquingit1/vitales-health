@@ -60,6 +60,10 @@ class Event(BaseModel):
         'skill.practiced',
         'supply.used',
         'drill.changed',
+        'medicine.assessment_changed',
+        'medicine.proposal_changed',
+        'medication.administered',
+        'medication.administration_corrected',
     ]
     occurred_at: common_schema.Instant
     emitted_at: common_schema.Instant

@@ -2524,7 +2524,7 @@ export interface paths {
         put?: never;
         /**
          * Record a lot assay
-         * @description Not available in this build: CONTEXT_INAPPLICABLE. Roles: crew_medical_officer.
+         * @description Appends one assay to the partition and schedules a coalesced potency assessment when the hub has a task queue. Roles: crew_medical_officer.
          */
         post: operations["recordMedicineAssay"];
         delete?: never;
@@ -2544,7 +2544,7 @@ export interface paths {
         put?: never;
         /**
          * Schedule a potency assessment
-         * @description Coalesced per mission and mode; returns the job. Roles: crew_medical_officer, operator.
+         * @description Coalesced per mission and mode; returns the job. CAPABILITY_UNAVAILABLE when the hub has no task queue. Roles: crew_medical_officer, operator.
          */
         post: operations["scheduleMedicineAssessment"];
         delete?: never;
@@ -5825,7 +5825,7 @@ export interface components {
             seq: number;
             event_id: components["schemas"]["id"];
             /** @enum {unknown} */
-            type: "config.release_activated" | "environment.change_proposed" | "environment.activated" | "environment.change_rejected" | "overlay.changed" | "mission.event_recorded" | "ground_link.changed" | "sensor.status_changed" | "sensor.quiet" | "sensor.resumed" | "warning.raised" | "warning.updated" | "warning.cleared" | "routine.occurrence_changed" | "routine.override_changed" | "help.session_changed" | "help.broadcast_changed" | "ground_message.changed" | "assistant.status_changed" | "insight.changed" | "job.progress" | "measurement_request.changed" | "handoff.changed" | "participation.streak_changed" | "participation.crew_goal_changed" | "plan_run.changed" | "plan_run.step_done" | "plan_run.escalated" | "guided_check.beat" | "guided_check.checked" | "coaching.sample" | "role.proposed" | "role.changed" | "skill.practiced" | "supply.used" | "drill.changed";
+            type: "config.release_activated" | "environment.change_proposed" | "environment.activated" | "environment.change_rejected" | "overlay.changed" | "mission.event_recorded" | "ground_link.changed" | "sensor.status_changed" | "sensor.quiet" | "sensor.resumed" | "warning.raised" | "warning.updated" | "warning.cleared" | "routine.occurrence_changed" | "routine.override_changed" | "help.session_changed" | "help.broadcast_changed" | "ground_message.changed" | "assistant.status_changed" | "insight.changed" | "job.progress" | "measurement_request.changed" | "handoff.changed" | "participation.streak_changed" | "participation.crew_goal_changed" | "plan_run.changed" | "plan_run.step_done" | "plan_run.escalated" | "guided_check.beat" | "guided_check.checked" | "coaching.sample" | "role.proposed" | "role.changed" | "skill.practiced" | "supply.used" | "drill.changed" | "medicine.assessment_changed" | "medicine.proposal_changed" | "medication.administered" | "medication.administration_corrected";
             occurred_at: components["schemas"]["instant"];
             emitted_at: components["schemas"]["instant"];
             scope: {
@@ -5837,7 +5837,7 @@ export interface components {
             config_release_id: components["schemas"]["id"];
             correlation_id: components["schemas"]["id"] | null;
             data: Record<string, never>;
-        } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown);
+        } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown);
         /**
          * EventPage
          * @description Events after a cursor as JSON, for clients and tests that do not use SSE.
@@ -5883,8 +5883,28 @@ export interface components {
         };
         MedicineInspectionCreate: {
             lot_id: string;
+            /**
+             * @description The pharmacy engine's inspection vocabulary (contracts/pharmacy/inputs.schema.json InspectionRecord); any finding other than no_change excludes the lot at once.
+             * @enum {string}
+             */
+            finding: "no_change" | "color_change" | "cracking" | "crystals" | "cloudiness" | "precipitate" | "particles" | "swollen_package" | "phase_separation" | "other";
+            note?: string;
+            client_time: components["schemas"]["instant"];
+        };
+        /** @description One measured assay of an ingredient of a lot (pharmacy AssayRecord); scheduling an assessment follows (E32 4.4). */
+        MedicineAssayCreate: {
+            lot_id: string;
+            ingredient_id: string;
+            measured_at: components["schemas"]["instant"];
             /** @enum {string} */
-            finding: "no_change" | "discoloration" | "damaged_packaging" | "contamination" | "other_adverse";
+            measurand: "total" | "active";
+            /** @description Percent of label claim. */
+            value_percent: number;
+            sd_percent: number;
+            /** @enum {string} */
+            site: "onboard" | "ground";
+            method: string;
+            laboratory: string;
             note?: string;
             client_time: components["schemas"]["instant"];
         };
@@ -17601,7 +17621,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MedicineAssayCreate"];
+            };
+        };
         responses: {
             /** @description OK. */
             201: {

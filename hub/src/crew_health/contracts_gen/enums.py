@@ -93,6 +93,10 @@ class EventType(StrEnum):
     SKILL_PRACTICED = 'skill.practiced'
     SUPPLY_USED = 'supply.used'
     DRILL_CHANGED = 'drill.changed'
+    MEDICINE_ASSESSMENT_CHANGED = 'medicine.assessment_changed'
+    MEDICINE_PROPOSAL_CHANGED = 'medicine.proposal_changed'
+    MEDICATION_ADMINISTERED = 'medication.administered'
+    MEDICATION_ADMINISTRATION_CORRECTED = 'medication.administration_corrected'
 
 class ConfigName(StrEnum):
     ENVIRONMENT_HAZARDS = 'environment-hazards'

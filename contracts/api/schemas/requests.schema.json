@@ -2033,11 +2033,17 @@
           "type": "string",
           "enum": [
             "no_change",
-            "discoloration",
-            "damaged_packaging",
-            "contamination",
-            "other_adverse"
-          ]
+            "color_change",
+            "cracking",
+            "crystals",
+            "cloudiness",
+            "precipitate",
+            "particles",
+            "swollen_package",
+            "phase_separation",
+            "other"
+          ],
+          "description": "The pharmacy engine's inspection vocabulary (contracts/pharmacy/inputs.schema.json InspectionRecord); any finding other than no_change excludes the lot at once."
         },
         "note": {
           "type": "string",
@@ -2318,6 +2324,82 @@
               "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
             }
           }
+        },
+        "client_time": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      }
+    },
+    "MedicineAssayCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One measured assay of an ingredient of a lot (pharmacy AssayRecord); scheduling an assessment follows (E32 4.4).",
+      "required": [
+        "lot_id",
+        "ingredient_id",
+        "measured_at",
+        "measurand",
+        "value_percent",
+        "sd_percent",
+        "site",
+        "method",
+        "laboratory",
+        "client_time"
+      ],
+      "properties": {
+        "lot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "ingredient_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "measured_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        "measurand": {
+          "type": "string",
+          "enum": [
+            "total",
+            "active"
+          ]
+        },
+        "value_percent": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000,
+          "description": "Percent of label claim."
+        },
+        "sd_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "site": {
+          "type": "string",
+          "enum": [
+            "onboard",
+            "ground"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "laboratory": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 2000
         },
         "client_time": {
           "$ref": "common.schema.json#/$defs/instant"
