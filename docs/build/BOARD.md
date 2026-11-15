@@ -43,7 +43,7 @@ Hard dependencies (✅ when built) are what an epic needs to pass its acceptance
 | E19 | Research and content workbench | ⬜ Open (queue #2) |  | E01, E02, E10 | none | [tasks](E19/tasks.json) | [design](../tdd/E19.md) |
 | E20 | Accessibility, resilience and packaging | 🔨 In progress | @pgentil | E01 | none | [tasks](E20/tasks.json) | [design](../tdd/E20.md) |
 | E21 | Integration, evidence and demonstration | 🔨 In progress | @joaquingit1 (pipeline) | E01, E02 | none | [tasks](E21/tasks.json) | [design](../tdd/E21.md) |
-| E22 | Participation streak, patches and crew goal | ⬜ Open (queue #6) |  | E01, E03, E23 | none | [tasks](E22/tasks.json) | [design](../tdd/E22.md) |
+| E22 | Participation streak, patches and crew goal | ⬜ Open (queue #6) | @fedegutman | E01, E03, E23 | none | [tasks](E22/tasks.json) | [design](../tdd/E22.md) |
 | E23 | Environment profile and habitat sensors | 🔨 In progress | @fedegutman | E01, E02 | E04, E15-core, E22, E24, E25, E26, E27, E28, E29, E31, E32, E33 | [tasks](E23/tasks.json) | [design](../tdd/E23.md) |
 | E24 | Warnings engine | 🔨 In progress | @fedegutman | E01, E23 | none | [tasks](E24/tasks.json) | [design](../tdd/E24.md) |
 | E25 | Routine scheduler and task guidance | 🔨 In progress | @joaquingit1 | E01, E23 | none | [tasks](E25/tasks.json) | [design](../tdd/E25.md) |
