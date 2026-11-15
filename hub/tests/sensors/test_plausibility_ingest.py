@@ -90,7 +90,7 @@ def sim(st: Station, seq: int, value: float, seconds_ago: int) -> dict[str, Any]
     return reading("ch_co2_sim", seq, value, "mmHg", START - timedelta(seconds=seconds_ago))
 
 
-def test_the_rr1_co2_replay_is_assessed_and_the_held_stretch_is_rejected_not_discarded(
+def test_the_rr1_co2_replay_is_assessed_and_the_held_stretch_is_kept_suspect_not_discarded(
     station: Station,
 ) -> None:
     data = read_rr1_ppm()
@@ -109,8 +109,9 @@ def test_the_rr1_co2_replay_is_assessed_and_the_held_stretch_is_rejected_not_dis
     assert len(found) == count  # nothing discarded
     assert found[0][2] == "insufficient_history"  # the first reading has no earlier one: never a pass
     assert all(q == "accepted" and t in (None, "insufficient_history") for _, q, t in found[: start + 37])
-    rejected = [(s, t) for s, q, t in found if q == "rejected"]
-    assert rejected == [
+    assert not [s for s, q, _ in found if q == "rejected"]  # a stuck stretch is suspect, never rejected
+    suspect = [(s, t) for s, q, t in found if q == "uncertain"]
+    assert suspect == [
         (i + 1, "stuck_value") for i in range(start + 37, count)
     ]  # 38th identical sample onward
     assert sum(1 for _, q, t in found if q == "accepted" and t is None) > 100  # readings now evaluate
@@ -134,7 +135,7 @@ def test_range_and_saturation_faults_are_stored_rejected_with_their_check(
     assert last[1] == ("rejected" if check else "accepted") and last[2] == check
 
 
-def test_a_rate_jump_is_stored_rejected_and_the_channel_recovers_on_the_next_reading(
+def test_a_rate_jump_is_stored_suspect_and_the_channel_recovers_on_the_next_reading(
     station: Station,
 ) -> None:
     rows = [
@@ -145,13 +146,13 @@ def test_a_rate_jump_is_stored_rejected_and_the_channel_recovers_on_the_next_rea
     ]
     post(station, rows)
     found = stored(station, "ch_co2_sim")
-    assert [(q, t) for _, q, t in found][2:] == [("rejected", "rate_exceeded"), ("accepted", None)]
+    assert [(q, t) for _, q, t in found][2:] == [("uncertain", "rate_exceeded"), ("accepted", None)]
     assert (
         len(found) == 4
-    )  # the jump is kept: it may be a real event, and the level it reached is the new reference
+    )  # the jump is kept and may raise: it may be a real event, and the level it reached is the new reference
 
 
-def test_a_stuck_sensor_is_rejected_once_its_run_reaches_the_sourced_count_and_span(station: Station) -> None:
+def test_a_stuck_sensor_is_suspect_once_its_run_reaches_the_sourced_count_and_span(station: Station) -> None:
     rows = [
         reading("ch_co2_sim", i + 1, 2.5, "mmHg", START - timedelta(hours=5, seconds=-300 * i))
         for i in range(45)
@@ -160,7 +161,7 @@ def test_a_stuck_sensor_is_rejected_once_its_run_reaches_the_sourced_count_and_s
         post(station, rows[offset : offset + 15], key=f"key_{offset:05d}", batch=f"bat_{offset}")
     found = stored(station, "ch_co2_sim")
     flagged = [s for s, q, t in found if t == "stuck_value"]
-    assert flagged == list(range(38, 46)) and all(q == "rejected" for s, q, t in found if s in flagged)
+    assert flagged == list(range(38, 46)) and all(q == "uncertain" for s, q, t in found if s in flagged)
     assert all(t == "insufficient_history" or t is None for s, _, t in found if s < 38)
 
 

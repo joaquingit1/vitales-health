@@ -4,13 +4,17 @@ ProvenanceStreamsPort. Reads only; each is bound to the caller's view, and a cal
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import replace
 from datetime import datetime
 
 from crew_health.kernel.units import Quantity, Unit
 from crew_health.kernel.uow import ReadSnapshot, ReadSnapshotFactory, UnitOfWork
+from crew_health.sensors.application.evaluate import SensorEvaluator
+from crew_health.sensors.application.exports import sensor_evaluated
 from crew_health.sensors.application.ports import (
     Freshness,
     HabitatStream,
+    SensorEvaluated,
     SeriesPoint,
     SeriesSlice,
 )
@@ -37,6 +41,25 @@ class SensorProviders:
         if kind is None:
             raise InvalidValue("unknown sensor type")
         return kind.name
+
+    def last_results(self, uow: UnitOfWork, channel_id: str) -> SensorEvaluated | None:
+        """The channel's newest evaluation, computed from its stored readings under the release now active, so a
+        consumer can re-evaluate after a configuration activation without a new reading. None when the channel
+        has no evaluated reading in the active environment. Freshness is the decision at this unit of work's now."""
+        rt = self._rt
+        channel = rt.store.channel(uow, channel_id)
+        if channel is None:
+            raise InvalidValue("unknown channel")
+        environment = rt.store.environment(uow)
+        current = SensorEvaluator(rt).current(uow, channel)
+        if environment is None or current is None:
+            return None
+        evaluation, kind = current
+        now = decide_now(uow, channel, environment).state
+        fresh = replace(channel, freshness=now if now != "never_reported" else channel.freshness)
+        return sensor_evaluated(
+            rt, uow, rt.config_of(uow.release), kind, fresh, evaluation, uow.release.release_id
+        )
 
     def accepted(self, channel_id: str, *, until: datetime, limit: int) -> SeriesSlice:
         rt = self._rt

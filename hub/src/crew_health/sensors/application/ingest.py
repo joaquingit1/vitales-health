@@ -48,8 +48,8 @@ from crew_health.sensors.application.store import (
 from crew_health.sensors.domain.conversion import convert_wire_reading
 from crew_health.sensors.domain.errors import InvalidUnit, InvalidValue
 from crew_health.sensors.domain.freshness import TimeFacts
-from crew_health.sensors.domain.plausibility import assess
-from crew_health.sensors.domain.reading import ReadingFact, advance_window_end
+from crew_health.sensors.domain.plausibility import PlausibilityResult, assess
+from crew_health.sensors.domain.reading import QualityStatus, ReadingFact, advance_window_end
 
 _ENVELOPE = {"batch_id", "readings"}
 
@@ -158,6 +158,15 @@ def _receive(rt: Runtime, uow: UnitOfWork) -> TimeFacts:
     )
     n = rt.corrections.normalize(uow, stamp)
     return TimeFacts(n.state, n.corrected_at, n.uncertainty_ms)
+
+
+def _quality(sent: QualityStatus, verdict: PlausibilityResult) -> QualityStatus:
+    """The stored quality. An impossible value (range, saturation) is rejected. A rate or stuck failure is stored
+    `uncertain` with its reason in the provenance trace: the reading may raise a warning but never clears one.
+    The hub never upgrades what the adapter sent."""
+    if sent == "rejected" or verdict.rejected:
+        return "rejected"
+    return "uncertain" if verdict.suspect else sent
 
 
 class _Batch:
@@ -289,7 +298,7 @@ class _Batch:
             None if model.window_start is None else model.window_start.root,
             uow.now,
             channel.facts.origin_mode,
-            "rejected" if verdict.status == "failed" else model.quality_status.root,
+            _quality(model.quality_status.root, verdict),
             normalized.state,
             normalized.corrected_at,
             normalized.uncertainty_ms,

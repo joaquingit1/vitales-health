@@ -16,6 +16,7 @@ from crew_health.kernel.clock import TimeInput
 from crew_health.kernel.scheduler import AbsoluteDeadline, ElapsedDeadline, ScheduledJob
 from crew_health.kernel.uow import UnitOfWork
 from crew_health.sensors.application.events import emit
+from crew_health.sensors.application.exports import freshness_changed
 from crew_health.sensors.application.queries import channel_model, decide_now, status_model
 from crew_health.sensors.application.runtime import FRESHNESS_HANDLER, STATUS_HANDLER, Runtime
 from crew_health.sensors.application.store import ChannelState, StatusRow
@@ -109,6 +110,9 @@ def announce(
             model,
             environment_id,
         )
+    changed = freshness_changed(rt, uow, rt.config_of(uow.release), after)
+    if changed is not None:
+        uow.publish(changed)  # E24's sensor_quiet raise and dwell reset (R-E24-14)
     if environment_id is not None and status:
         note_status_change(rt, uow, after.facts.sensor_type_id, environment_id)
 
