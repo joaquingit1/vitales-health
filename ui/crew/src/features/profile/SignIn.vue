@@ -422,7 +422,7 @@ const linkLineText = computed(() => {
 
 <style scoped>
 .home { min-height: 100vh; display: flex; flex-direction: column; }
-.home-grid { flex: 1; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto; align-content: start; gap: 14px; padding: 18px 20px 20px; }
+.home-grid { flex: 1; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto; align-content: center; gap: 14px; padding: 18px 20px 20px; }
 .card { cursor: default; }
 .card:hover { transform: none; }
 .pair { grid-column: 1 / span 2; align-self: start; gap: 12px; }
@@ -445,15 +445,9 @@ const linkLineText = computed(() => {
 .pair .pin-row { padding: 0; }
 .habitat-glance { grid-column: 2; grid-row: 1; gap: 8px; }
 .assistant-glance { grid-column: 3; grid-row: 1; gap: 8px; }
-.kit-glance { grid-column: 2; grid-row: 2; gap: 4px; align-self: start; }
-.plans-glance { grid-column: 3; grid-row: 2; gap: 4px; align-self: start; }
-.roster { align-self: start; }
+.kit-glance { grid-column: 2; grid-row: 2; gap: 4px; }
+.plans-glance { grid-column: 3; grid-row: 2; gap: 4px; }
 .help-entry { min-height: 150px; }
-.cover-bar { display: flex; width: 100%; height: 14px; gap: 3px; margin: 22px 0 18px; }
-.cover-bar i { display: block; flex-basis: 0; min-width: 4px; border-radius: 7px; }
-.cover-bar .meas { background: var(--lime); }
-.cover-bar .rep { background: var(--ink); }
-.cover-bar .gap { background: repeating-linear-gradient(135deg, var(--ink) 0 2px, transparent 2px 5px); box-shadow: inset 0 0 0 1px var(--ink); }
 .cover-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .cover-counts b { display: block; font-size: 36px; line-height: 40px; font-weight: 300; font-variant-numeric: tabular-nums; }
 .cover-counts span { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-2); }

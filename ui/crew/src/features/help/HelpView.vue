@@ -313,5 +313,5 @@ onMounted(() => {
 <style scoped>
 .hp-asst .swatches i.off { background: rgba(255, 255, 255, 0.4); }
 .nsteps button.li { width: 100%; text-align: left; background: none; border-left: 0; border-right: 0; border-bottom: 0; cursor: pointer; }
-.help-notice { margin-top: auto; padding-top: 14px; }
+.help-notice { margin-top: 0; padding-top: 14px; }
 </style>

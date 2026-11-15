@@ -224,14 +224,28 @@ onBeforeUnmount(() => {
         <p class="kit-note">
           {{ CHROME.kitNote }}
         </p>
-        <div class="kit-legend">
-          <span
+        <div
+          class="cover-bar"
+          aria-hidden="true"
+        >
+          <i
             v-for="state in KIT_STATES"
             :key="state"
-          ><i
-            class="mk"
             :class="STATE_MK[state]"
-          />{{ kit.counts[state] }} {{ copy(`kit_map_state_words.${state}`).toLowerCase() }}</span>
+            :style="{ flexGrow: kit.counts[state] }"
+          />
+        </div>
+        <div class="kit-legend">
+          <div
+            v-for="state in KIT_STATES"
+            :key="state"
+          >
+            <b>{{ kit.counts[state] }}</b>
+            <span><i
+              class="mk"
+              :class="STATE_MK[state]"
+            />{{ copy(`kit_map_state_words.${state}`) }}</span>
+          </div>
         </div>
       </template>
       <p
@@ -312,7 +326,10 @@ onBeforeUnmount(() => {
 <style scoped>
 .today-grid {
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.62fr) minmax(0, 0.62fr);
+  /* the to do line keeps its own height; below it two rows of the same height, the lower one split between
+     Someone needs help and the assistant, so both halves of the screen end on the same lines */
+  grid-template-rows: max-content minmax(0, 1fr) minmax(0, 0.5fr) minmax(0, 0.5fr);
+  overflow-y: auto;
   grid-template-areas:
     "todo todo todo todo todo todo"
     "pulse pulse pulse habitat habitat habitat"
@@ -367,6 +384,10 @@ onBeforeUnmount(() => {
 .todo-title { font-size: 15px; font-weight: 500; }
 .todo-state { font-size: 14px; color: var(--ink-3); }
 .inner-slot { flex: 1 1 100%; padding: 14px 16px; }
+/* the three counts under the coverage bar, one column each, as on the station screen */
+.kit-card .kit-legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 0; padding-top: 0; font-size: 14px; line-height: 18px; color: var(--ink-2); }
+.kit-card .kit-legend b { display: block; margin-bottom: 4px; font-size: 32px; line-height: 36px; font-weight: 300; color: var(--ink); font-variant-numeric: tabular-nums; }
+.kit-card .cover-bar { margin: 18px 0 14px; }
 .inner-slot:empty { display: none; }
 .slot-card:empty {
   display: none;
