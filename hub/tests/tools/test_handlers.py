@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import pytest
-from tests.tools.test_bounds import settings_values
-from tests.tools.test_gateway import View, scope
 
 from crew_health.kernel.testing import MemorySettings
 from crew_health.measurement.application.ports import CapabilityView
 from crew_health.tools.adapters.handlers.capabilities import CapabilitiesHandler
 from crew_health.tools.application.ports import HandlerOk, HandlerRejected, HandlerUnavailable
 from crew_health.tools.settings import setting_specs
+from tests.tools.test_bounds import settings_values
+from tests.tools.test_gateway import View, scope
 
 
 @pytest.mark.trace("T-E12-005", "T-E12-011", "R45")

@@ -7,7 +7,6 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
-from tests.tools.test_bounds import settings_values
 
 from crew_health.clock.settings import specifications as clock_specs
 from crew_health.contracts_gen.enums import ConfigName
@@ -42,6 +41,7 @@ from crew_health.tools.domain.phase import Phase
 from crew_health.tools.domain.scope import ToolScope
 from crew_health.tools.domain.tool_result import ToolCall
 from crew_health.tools.settings import setting_specs
+from tests.tools.test_bounds import settings_values
 
 
 class View(MemoryUow):
@@ -176,24 +176,28 @@ def gateway() -> tuple[Gateway, Handler, Authority]:
         b'{"tools":[{"name":"get_capabilities","stage":"intake","effect":"read","input_schema":{"type":"object","properties":{"codes":{"type":"array","items":{"type":"string","maxLength":32},"maxItems":3}},"required":["codes"],"additionalProperties":false}}]}',
         model_release_id="model_a",
     )
+    parsed = PolicyValidator(JsonBounds(262144, 16, 50, 2000)).parse(
+        View().release.document(ConfigName.ASSISTANT_POLICY).raw
+    )
+    clock = MemoryClock(View.now, 0, "epoch_a")
     return (
         Gateway(
             registry,
-            catalog,
+            lambda model_release_id: catalog,
             settings,
             authority,
-            MemoryClock(View.now, 0, "epoch_a"),
+            clock,
             MemoryIds(identifiers=tuple(str(i) for i in range(50))),
-            policy=PolicyValidator(JsonBounds(262144, 16, 50, 2000)).parse(
-                View().release.document(ConfigName.ASSISTANT_POLICY).raw
-            ),
+            policy=lambda uow: parsed,
             corrections=MemoryClocks(
                 settings=View().factory.settings,
                 clock=MemoryClock(View.now, 0, "epoch_a"),
                 node_id="node_a",
                 incarnation="inc_a",
             ),
-            capture=lambda at: TimeInput(at, "clock_a", "segment_a", 1, "hub_corrected", "LIVE"),
+            capture=lambda uow, anchor: TimeInput(
+                clock.now(), anchor.source_clock_id, anchor.segment_id, 1, "hub_corrected", "LIVE"
+            ),
         ),
         handler,
         authority,
@@ -366,4 +370,92 @@ def test_missing_mandatory_binding_is_unavailable_before_dispatch(binding: str) 
     result = gate.execute(View(), scope(), ToolCall("call_a", "get_capabilities", b'{"codes":[]}'))
     assert result.status == "unavailable"
     assert result.error_code == "CAPABILITY_UNAVAILABLE"
+    assert handler.calls == 0
+
+
+@pytest.mark.trace("T-E12-005", "T-E12-014", "I2")
+def test_an_anchor_older_than_the_turn_allowance_never_runs_the_handler() -> None:
+    """Review r1 finding 4: the reviewer moved the one-second anchor back one day and the handler still ran."""
+    gate, handler, _ = gateway()
+    target = scope()
+    old = replace(
+        target.deadline, anchor=replace(target.deadline.anchor, original_at=View.now - timedelta(days=1))
+    )
+    view = View()
+    result = gate.execute(
+        view, replace(target, deadline=old), ToolCall("call_a", "get_capabilities", b'{"codes":[]}')
+    )
+    assert result.status == "denied"
+    assert handler.calls == 0
+    assert "tool_timeout" in str(view.audits)
+
+
+@pytest.mark.trace("T-E12-005", "I2")
+def test_calls_accumulate_against_the_turn_and_a_later_call_sees_the_time_already_spent() -> None:
+    gate, handler, _ = gateway()
+    view = View()
+    call = ToolCall("call_a", "get_capabilities", b'{"codes":[]}')
+    assert gate.execute(view, scope(), call).status == "ok"
+    gate._clock.at = View.now + timedelta(seconds=2)
+    assert gate.execute(view, scope(), call).status == "denied"
+    assert handler.calls == 1
+
+
+@pytest.mark.trace("T-E12-004", "T-E12-005", "I2")
+def test_turns_of_different_conversations_keep_separate_budgets_and_never_stale_each_other() -> None:
+    gate, handler, _ = gateway()
+    view = View()
+    call = ToolCall("call_a", "get_capabilities", b'{"codes":[]}')
+    for _ in range(8):
+        assert gate.execute(view, scope(), call).status == "ok"
+    other = replace(scope(), turn_id="turn_b", conversation_id="conv_b")
+    assert gate.execute(view, other, call).status == "ok"
+    assert gate.execute(view, scope(), call).status == "denied"
+    assert handler.calls == 9
+
+
+@pytest.mark.trace("T-E12-005", "I2")
+def test_a_full_turn_table_refuses_a_new_turn_until_an_open_turn_expires() -> None:
+    gate, _, _ = gateway()
+    gate._max_turns = 1
+    view = View()
+    call = ToolCall("call_a", "get_capabilities", b'{"codes":[]}')
+    assert gate.execute(view, scope(), call).status == "ok"
+    later = replace(scope(), turn_id="turn_b")
+    assert gate.execute(view, later, call).status == "denied"
+    gate._clock.at = View.now + timedelta(seconds=2)
+    moved = replace(
+        later.deadline, anchor=replace(later.deadline.anchor, original_at=View.now + timedelta(seconds=2))
+    )
+    assert gate.execute(view, replace(later, deadline=moved), call).status == "ok"
+
+
+@pytest.mark.trace("T-E12-005", "I2")
+def test_the_policy_pinned_in_the_callers_release_is_read_on_every_call() -> None:
+    gate, handler, _ = gateway()
+    seen: list[object] = []
+    pinned = gate._policy
+
+    def policy(uow: object) -> object:
+        seen.append(uow)
+        return None if len(seen) > 1 else pinned(uow)  # type: ignore[misc]
+
+    gate._policy = policy  # type: ignore[assignment]
+    call = ToolCall("call_a", "get_capabilities", b'{"codes":[]}')
+    first, second = View(), View()
+    assert gate.execute(first, scope(), call).status == "ok"
+    assert gate.execute(second, scope(), call).status == "unavailable"
+    assert seen == [first, second]
+    assert handler.calls == 1
+
+
+@pytest.mark.trace("T-E12-011", "I7")
+def test_a_scope_pinned_to_another_model_release_finds_no_catalog() -> None:
+    gate, handler, _ = gateway()
+    result = gate.execute(
+        View(),
+        replace(scope(), model_release_id="model_b"),
+        ToolCall("call_a", "get_capabilities", b'{"codes":[]}'),
+    )
+    assert result.status == "unavailable"
     assert handler.calls == 0

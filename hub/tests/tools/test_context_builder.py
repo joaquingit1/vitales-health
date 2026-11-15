@@ -5,9 +5,6 @@ from datetime import timedelta
 from decimal import Decimal
 
 import pytest
-from tests.tools.fakes import identity
-from tests.tools.test_bounds import settings_values
-from tests.tools.test_gateway import Authority, View, scope
 
 from crew_health.kernel.clock import NormalizedTime, TimeInput
 from crew_health.kernel.testing import MemorySettings
@@ -17,6 +14,9 @@ from crew_health.tools.domain.context import ContextBudget, ContextSection
 from crew_health.tools.domain.errors import ToolsInvalid
 from crew_health.tools.domain.support import SupportItem
 from crew_health.tools.settings import setting_specs
+from tests.tools.fakes import identity
+from tests.tools.test_bounds import settings_values
+from tests.tools.test_gateway import Authority, View, scope
 
 
 def observation() -> SupportItem:
@@ -243,7 +243,7 @@ def test_context_rejects_byte_overflow_bad_tokenizer_and_late_revocation(fault: 
             return -1 if fault == "bad_tokens" and b'"ref_id"' in prompt else len(prompt)
 
     if fault == "bytes":
-        settings_data["tools.context.max_bytes"] = Quantity(Decimal(1), Unit("By"))
+        settings_data["tools.context.max_bytes"] = 1
     builder = ContextBuilder(
         ReadingProjection((ContextSection("place_facts", (item,), False),)),
         Counting(),

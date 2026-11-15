@@ -11,7 +11,6 @@ from pathlib import Path
 import pytest
 
 from crew_health.kernel.testing import MemorySettings
-from crew_health.kernel.units import Quantity
 from crew_health.tools.adapters.cli_bench import (
     DevManifestReader,
     RetrievalLabel,
@@ -56,6 +55,13 @@ def test_metric_work_is_bounded(k: int) -> None:
         binary_metrics(("a",), frozenset({"a"}), k=k, k_max=50)
 
 
+# E18 owns eval/bench (FreezeLibrary, PR #36, not on main yet). Without it there is no owner verifier to run
+# against, so these two cases are reported as blocked on E18 instead of passing against a local copy.
+E18_BENCH = pytest.mark.skipif(
+    not Path("eval/bench/pyproject.toml").is_file(), reason="blocked on E18: eval/bench is not on main yet"
+)
+
+
 def _owner_manifest_case(tmp_path: Path, kind: str) -> None:
     from crew_health_bench.domain.errors import BenchError
     from crew_health_bench.freeze import FreezeLibrary
@@ -75,14 +81,14 @@ def _owner_manifest_case(tmp_path: Path, kind: str) -> None:
     values: dict[str, object] = {}
     for spec in setting_specs():
         assert spec.maximum is not None
-        values[spec.key] = int(spec.maximum) if spec.unit is None else Quantity(spec.maximum, spec.unit)
+        values[spec.key] = int(spec.maximum)
     settings = MemorySettings(setting_specs(), values)
     owner = FreezeLibrary(
         repository_root=tmp_path,
         clock=MemoryClock(datetime(2026, 1, 1, tzinfo=UTC), 0, "bench_epoch"),
         frozen_by="independent_eval",
         max_files=settings.integer("tools.bench.max_queries"),
-        max_file_bytes=int(settings.quantity("tools.max_schema_bytes").value),
+        max_file_bytes=settings.integer("tools.max_schema_bytes"),
     )
     manifest = owner.freeze_tree(root, include=("allowed.case.json",), exclude=())
     reader = DevManifestReader(tmp_path, settings, verify_tree=owner.verify_tree)
@@ -132,12 +138,14 @@ def _run_owner_case(tmp_path: Path, kind: str) -> None:
     assert result.returncode == 0, result.stdout + result.stderr
 
 
+@E18_BENCH
 @pytest.mark.trace("T-E12-042", "R23", "V33")
 @pytest.mark.parametrize("kind", ["traversal", "absolute", "symlink", "adjacent", "hash", "profile"])
 def test_dev_reader_denies_every_path_outside_verified_manifest(tmp_path: Path, kind: str) -> None:
     _run_owner_case(tmp_path, kind)
 
 
+@E18_BENCH
 @pytest.mark.trace("T-E12-042", "T-E12-080", "R23")
 def test_dev_reader_reads_only_allowlisted_unchanged_file(tmp_path: Path) -> None:
     _run_owner_case(tmp_path, "valid")

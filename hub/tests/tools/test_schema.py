@@ -24,11 +24,10 @@ from crew_health.tools.domain.errors import ToolsInvalid
 def test_catalog_refuses_unfinished_open_remote_or_scope_schemas(nested: dict[str, object]) -> None:
     import json
 
-    from tests.tools.test_bounds import settings_values
-
     from crew_health.kernel.testing import MemorySettings
     from crew_health.tools.adapters.jsonschema_validator import CatalogValidator
     from crew_health.tools.settings import setting_specs
+    from tests.tools.test_bounds import settings_values
 
     raw = json.dumps(
         {
@@ -54,11 +53,10 @@ def test_catalog_refuses_unfinished_open_remote_or_scope_schemas(nested: dict[st
 
 @pytest.mark.trace("T-E12-001", "T-E12-065", "I1", "I8")
 def test_catalog_never_ignores_an_unbound_exposure_declaration() -> None:
-    from tests.tools.test_bounds import settings_values
-
     from crew_health.kernel.testing import MemorySettings
     from crew_health.tools.adapters.jsonschema_validator import CatalogValidator
     from crew_health.tools.settings import setting_specs
+    from tests.tools.test_bounds import settings_values
 
     raw = b'{"tools":[],"exposure_sets":{"intake":[]}}'
     with pytest.raises(ToolsInvalid):

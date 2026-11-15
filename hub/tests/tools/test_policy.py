@@ -83,13 +83,12 @@ def test_shared_text_storage_failure_is_never_a_policy_success() -> None:
 
 @pytest.mark.trace("T-E12-050", "T-E12-060", "T-E12-062", "R56", "V63", "V84", "I3")
 def test_prose_requires_exact_owner_authored_content_and_pin() -> None:
-    from tests.tools.test_bounds import settings_values
-    from tests.tools.test_gateway import scope
-
     from crew_health.kernel.testing import MemorySettings
     from crew_health.tools.application.policy_service import OutputPolicy
     from crew_health.tools.application.ports import TextField, TurnData
     from crew_health.tools.settings import setting_specs
+    from tests.tools.test_bounds import settings_values
+    from tests.tools.test_gateway import scope
 
     field = TextField("text", "source content", "step_a")
     turn = TurnData(MemoryRelease("cfg_a", {}), 1, (field,))
@@ -107,13 +106,12 @@ def test_prose_requires_exact_owner_authored_content_and_pin() -> None:
 
 @pytest.mark.trace("T-E12-060", "I7")
 def test_unbound_text_checks_remain_unavailable() -> None:
-    from tests.tools.test_bounds import settings_values
-    from tests.tools.test_gateway import scope
-
     from crew_health.kernel.testing import MemorySettings
     from crew_health.tools.application.policy_service import OutputPolicy
     from crew_health.tools.application.ports import TextField, TurnData
     from crew_health.tools.settings import setting_specs
+    from tests.tools.test_bounds import settings_values
+    from tests.tools.test_gateway import scope
 
     field = TextField("text", "source content", "step_a")
     policy = OutputPolicy(None, MemorySettings(setting_specs(), settings_values()))

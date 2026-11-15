@@ -83,8 +83,8 @@ class DevManifestReader[T: ManifestMetadata]:
         self._repository = repository_root
         self._verify = verify_tree
         self._max_queries = settings.integer("tools.bench.max_queries")
-        self._max_bytes = int(settings.quantity("tools.max_schema_bytes").value)
-        self._total_bytes = int(settings.quantity("tools.rss_bytes").value)
+        self._max_bytes = settings.integer("tools.max_schema_bytes")
+        self._total_bytes = settings.integer("tools.rss_bytes")
 
     def load(self, manifest: T, *, profile: str) -> tuple[DevFile, ...]:
         if profile != "eval" or manifest.root != "eval/bench/cases/dev":

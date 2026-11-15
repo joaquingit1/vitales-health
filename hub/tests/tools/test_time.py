@@ -4,9 +4,9 @@ from dataclasses import replace
 from datetime import timedelta
 
 import pytest
-from tests.tools.test_gateway import View, gateway, scope
 
 from crew_health.tools.domain.tool_result import ToolCall
+from tests.tools.test_gateway import View, gateway, scope
 
 
 @pytest.mark.trace("T-E12-005", "T-E12-023", "V27", "I6")

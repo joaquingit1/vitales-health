@@ -97,7 +97,7 @@ class ContextBuilder:
         if self._tokens is None:
             raise ToolsInvalid("CAPABILITY_UNAVAILABLE")
         prompt = self._prompt.serialize(scope, phase, raw)
-        max_bytes = int(self._settings.quantity("tools.context.max_bytes").value)
+        max_bytes = self._settings.integer("tools.context.max_bytes")
         if len(prompt) > max_bytes:
             raise ToolsInvalid("PAYLOAD_TOO_LARGE")
         count = self._tokens.count(prompt, model_release_id=scope.model_release_id)

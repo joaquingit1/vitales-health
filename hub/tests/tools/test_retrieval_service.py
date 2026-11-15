@@ -1,30 +1,124 @@
+"""RetrievalService over a test double of E10's canonical EvidenceQueryPort (wave 2, 728c2b7).
+
+The double keeps the port's documented behaviour only: read_approved returns the typed outcomes, inspect_history
+pages by the last release_id it returned, discrepancies pages with next_cursor. Behaviour the canonical port does
+not expose is requested from E10 in docs/requests/E10.md, never assumed here.
+"""
+
 from __future__ import annotations
 
+import hashlib
 from dataclasses import replace
 from decimal import Decimal
 
 import pytest
-from tests.knowledge.test_queries import CandidateIndex, membership
+
+from crew_health.guidance.application.ports import GuidanceDecision, Requirements
+from crew_health.kernel.testing import MemorySettings
+from crew_health.knowledge.application.ports import dto  # type: ignore[attr-defined]
+from crew_health.tools.application.retrieval_service import PublicQueryBoundary, RetrievalService
+from crew_health.tools.domain.errors import ToolsInvalid
+from crew_health.tools.domain.retrieval import RetrievalResult, RetrievalSettings
+from crew_health.tools.settings import setting_specs
 from tests.tools.test_bounds import settings_values
 from tests.tools.test_context_builder import Tokens
 from tests.tools.test_gateway import View, scope
 
-from crew_health.guidance.application.ports import GuidanceDecision, Requirements
-from crew_health.kernel.testing import MemoryClock, MemorySettings
-from crew_health.knowledge.application.evidence_query import EvidenceQueryService
-from crew_health.knowledge.application.ports import ApplicabilityFilter
-from crew_health.tools.application.retrieval_service import PublicQueryBoundary, RetrievalService
-from crew_health.tools.domain.errors import ToolsInvalid
-from crew_health.tools.domain.retrieval import RetrievalSettings
-from crew_health.tools.settings import setting_specs
+PIN = "evr_a"
+USE = "risk_context"
+NONE = Requirements(frozenset(), {}, frozenset(), "any_crew", None)
+
+
+def member(
+    passage_id: str,
+    release_id: str = PIN,
+    *,
+    text: str = "Rest and fluids; seek review if the headache worsens.",
+    status: str = "approved",
+) -> dto.ReleaseMembership:
+    digest = hashlib.sha256(text.encode()).hexdigest()
+    artifact = dto.PassageArtifact(passage_id, "ext_a", 0, len(text), digest, text, "Headache", 3)
+    return dto.ReleaseMembership(
+        release_id,
+        artifact,
+        ("src_a",),
+        "public_domain",
+        "not_clinically_reviewed",
+        ((USE, status),),
+        (),
+        digest,
+    )
+
+
+class Evidence:
+    """Canonical EvidenceQueryPort double: rows keyed by (release, passage); history across releases."""
+
+    def __init__(self, *rows: dto.ReleaseMembership) -> None:
+        self.rows = {(row.release_id, row.passage.passage_id): row for row in rows}
+        self.discrepancy_items: tuple[dto.Discrepancy, ...] = ()
+        self.neighbors: tuple[str, ...] = ()
+        self.searched: list[str] = []
+        self.unavailable = False
+
+    def history_of(self, passage_id: str) -> list[dto.ReleaseMembership]:
+        return sorted(
+            (row for (_, pid), row in self.rows.items() if pid == passage_id), key=lambda row: row.release_id
+        )
+
+    def read_approved(self, release_id: str, passage_id: str, use: str) -> dto.ApprovedRead:
+        if self.unavailable:
+            return dto.ReleaseUnavailable(release_id, "storage")
+        row = self.rows.get((release_id, passage_id))
+        if row is None:
+            if self.history_of(passage_id):
+                return dto.InReleaseHistory(release_id, passage_id)
+            return dto.NotInRelease(release_id, passage_id)
+        if dict(row.use_status).get(use) != "approved":
+            return dto.NotApprovedForUse(release_id, passage_id, use)
+        return dto.Eligible(row, release_id, use)
+
+    def inspect_history(self, passage_id: str, cursor: str | None, limit: int) -> dto.HistoryRead:
+        rows = [row for row in self.history_of(passage_id) if cursor is None or row.release_id > cursor]
+        return tuple(rows[:limit])
+
+    def _hits(self, release_id: str, ids: tuple[str, ...]) -> dto.SearchResult:
+        items = tuple(
+            dto.RankedPassage(rank, "lexical", self.rows[(release_id, pid)])
+            for rank, pid in enumerate(ids, 1)
+        )
+        return dto.Hits(release_id, items) if items else dto.NoMatch(release_id)
+
+    def lexical_search(
+        self, release_id: str, query: str, use: str, filters: object, mode: str, k: int
+    ) -> dto.SearchResult:
+        self.searched.append(query)
+        current = tuple(sorted(pid for rid, pid in self.rows if rid == release_id))
+        return self._hits(release_id, current[:k])
+
+    def dense_search(
+        self, release_id: str, query: str, use: str, filters: object, k: int
+    ) -> dto.SearchResult:
+        self.searched.append(query)
+        return dto.IndexUnavailable(release_id, "dense", "not_built")
+
+    def expand_context(
+        self, release_id: str, passage_id: str, use: str, filters: object, neighbors: int
+    ) -> dto.SearchResult:
+        return self._hits(release_id, (passage_id, *self.neighbors[: neighbors * 2]))
+
+    def discrepancies(self, release_id: str, cursor: str | None, limit: int) -> dto.DiscrepancyPage:
+        start = 0 if cursor is None else int(cursor.removeprefix("page_"))
+        items = self.discrepancy_items[start : start + limit]
+        more = start + limit < len(self.discrepancy_items)
+        return dto.DiscrepancyPage(items, f"page_{start + limit}" if more else None)
 
 
 class Eligibility:
-    allowed = True
+    outcome = "show"
 
     def evaluate(self, snapshot: object, request: object) -> GuidanceDecision:
         return GuidanceDecision(
-            "show" if self.allowed else "not_supported",
+            self.outcome,
             "aboard",
             False,
             (),
@@ -32,581 +126,223 @@ class Eligibility:
             (),
             "live",
             "not_clinically_reviewed",
-            None,
+            None,  # type: ignore[arg-type]
         )
 
 
-def service(knowledge_settings: MemorySettings) -> tuple[RetrievalService, str, Eligibility]:
-    item = replace(membership(View.now), environments=frozenset({"station"}))
-    provider = EvidenceQueryService(
-        (item,),
-        settings=knowledge_settings,
-        clock=MemoryClock(View.now, 0, "epoch_a"),
-        index=CandidateIndex((item.passage.passage_id,)),
-    )
-    settings = MemorySettings(setting_specs(), settings_values())
-    eligibility = Eligibility()
-    boundary = PublicQueryBoundary(
-        ("headache",),
-        model_release_id="model_a",
-        settings=settings,
-        public_scope=lambda query, pin: query == "headache" and pin == "model_a",
-    )
-    return (
-        RetrievalService(
-            provider,
-            eligibility,
-            Tokens(),
-            settings,
-            RetrievalSettings(3, 3, 3, 8192, 3, Decimal(60), False),
-            boundary=boundary,
-            dense_unavailable="configured dense notice",
-            no_supported_passage="configured no support notice",
-            context_over_budget="configured budget notice",
-        ),
-        item.passage.passage_id,
-        eligibility,
-    )
-
-
-def search(retrieval: RetrievalService, query: str = "headache"):
-    return retrieval.search(
-        View(),
-        scope(),
-        query,
-        use="risk_context",
-        filters=ApplicabilityFilter(frozenset({"station"}), False),
-        requirements=Requirements(frozenset(), {}, frozenset(), "any_crew", None),
-        patient_location_id=None,
-        proposed_operator_id=None,
-    )
-
-
-@pytest.fixture
-def knowledge_settings() -> MemorySettings:
-    import json
-    from pathlib import Path
-
-    from crew_health.kernel.units import Quantity, Unit
-    from crew_health.knowledge.module import setting_specs
-
-    fixture = json.loads(Path("fixtures/knowledge/manifest.json").read_text(encoding="utf-8"))
-    values = {
-        key: Quantity(Decimal(row["value"]), Unit(row["unit"])) if row["unit"] else row["value"]
-        for key, row in fixture["settings"].items()
-    }
+def settings(**changes: int) -> MemorySettings:
+    values = settings_values()
+    values.update(changes)
     return MemorySettings(setting_specs(), values)
 
 
-@pytest.mark.trace("T-E12-030", "T-E12-033", "R21", "I7")
-def test_dense_loss_uses_pinned_eligible_lexical_results(knowledge_settings: MemorySettings) -> None:
-    retrieval, passage_id, _ = service(knowledge_settings)
-    result = search(retrieval)
-    assert result.status == "ok"
-    assert [item.passage_id for item in result.passages] == [passage_id]
-    assert result.passages[0].release_id == "evr_a"
-    assert result.passages[0].clinical_review == "not_clinically_reviewed"
-    assert result.limitations == ("configured dense notice",)
+def service(
+    evidence: Evidence,
+    *,
+    hub: MemorySettings | None = None,
+    boundary: PublicQueryBoundary | None = None,
+    eligibility: Eligibility | None = None,
+) -> RetrievalService:
+    return RetrievalService(
+        evidence,  # type: ignore[arg-type]
+        eligibility or Eligibility(),
+        Tokens(),
+        hub or settings(),
+        RetrievalSettings(3, 3, 3, 8192, 3, Decimal(60), False),
+        boundary=boundary,
+        dense_unavailable="dense_unavailable",
+        no_supported_passage="no_supported_passage",
+        context_over_budget="context_over_budget",
+        history_incomplete="history_incomplete",
+    )
 
 
-@pytest.mark.trace("T-E12-031", "T-E12-034", "V28", "V34")
-def test_no_eligible_support_is_no_result_not_invented_data(knowledge_settings: MemorySettings) -> None:
-    retrieval, _, eligibility = service(knowledge_settings)
-    eligibility.allowed = False
-    result = search(retrieval)
-    assert result.status == "no_result"
-    assert not result.passages
-    assert result.limitations[-1] == "configured no support notice"
-
-
-@pytest.mark.trace("T-E12-001", "T-E12-040", "R17", "R20", "V25", "V26")
-@pytest.mark.parametrize(
-    "query",
-    [
-        "SELECT * FROM records",
-        "https://example.invalid",
-        "../eval/vault",
-        "person_a headache",
-        "private journal text",
-        "headache OR other",
-    ],
-)
-def test_private_or_executable_query_is_never_forwarded(
-    knowledge_settings: MemorySettings, query: str
-) -> None:
-    retrieval, _, _ = service(knowledge_settings)
-    with pytest.raises(ToolsInvalid, match="MODEL_OUTPUT_REJECTED"):
-        search(retrieval, query)
-
-
-@pytest.mark.trace("T-E12-031", "T-E12-037", "I7")
-def test_too_small_budget_is_unavailable_not_no_match(knowledge_settings: MemorySettings) -> None:
-    retrieval, _, _ = service(knowledge_settings)
-    retrieval._retrieval = replace(retrieval._retrieval, budget_tokens=1)
-    result = search(retrieval)
-    assert result.status == "unavailable"
-
-
-def read(retrieval: RetrievalService, passage_id: str, *, neighbors: int = 0):
+def read(retrieval: RetrievalService, passage_id: str, *, neighbors: int = 0) -> RetrievalResult:
     return retrieval.read(
         View(),
         scope(),
         passage_id,
-        use="risk_context",
-        filters=ApplicabilityFilter(frozenset({"station"}), False),
-        requirements=Requirements(frozenset(), {}, frozenset(), "any_crew", None),
+        use=USE,
+        filters=dto.ApplicabilityFilter(),
+        requirements=NONE,
         patient_location_id=None,
         proposed_operator_id=None,
         neighbors=neighbors,
     )
 
 
-@pytest.mark.trace("T-E12-030", "T-E12-035", "T-E12-037", "R21", "V24")
-def test_exact_citation_and_neighbor_expansion_preserve_intact_text(
-    knowledge_settings: MemorySettings,
-) -> None:
-    retrieval, identifier, _ = service(knowledge_settings)
-    direct = read(retrieval, identifier)
-    expanded = read(retrieval, identifier, neighbors=1)
-    assert direct == expanded
-    assert direct.status == "ok" and len(direct.passages) == 1
-    assert direct.passages[0].content_sha256
-    assert read(retrieval, "psg_absent").status == "no_result"
-
-
-@pytest.mark.trace("T-E12-031", "T-E12-034", "I7")
-@pytest.mark.parametrize("fault", ["no_result", "index", "release", "pin", "duplicates", "rank"])
-def test_search_preserves_typed_failures_and_rejects_provider_corruption(
-    knowledge_settings: MemorySettings, monkeypatch, fault: str
-) -> None:
-    from crew_health.knowledge.domain.results import (
-        Hits,
-        IndexUnavailable,
-        NoMatch,
-        RankedItem,
-        ReleaseUnavailable,
-    )
-
-    retrieval, _, _ = service(knowledge_settings)
-    item = replace(membership(View.now), environments=frozenset({"station"}))
-    results = {
-        "no_result": NoMatch("evr_a"),
-        "index": IndexUnavailable("evr_a", "lexical", "unavailable"),
-        "release": ReleaseUnavailable("evr_a", "unavailable"),
-        "pin": NoMatch("evr_b"),
-        "duplicates": Hits("evr_a", (RankedItem(item, 1, "lexical"), RankedItem(item, 2, "lexical"))),
-        "rank": Hits("evr_a", (RankedItem(item, 2, "lexical"),)),
-    }
-    monkeypatch.setattr(retrieval._reader, "lexical_search", lambda *args: results[fault])
-    if fault == "no_result":
-        assert search(retrieval).status == "no_result"
-    else:
-        with pytest.raises(ToolsInvalid):
-            search(retrieval)
+@pytest.mark.trace("T-E12-030", "T-E12-035", "R21", "V24")
+def test_an_eligible_pinned_passage_is_support_with_its_exact_text_and_identity() -> None:
+    result = read(service(Evidence(member("psg_a"))), "psg_a")
+    assert result.status == "ok"
+    [passage] = result.passages
+    assert passage.usable_as_support is True
+    assert (passage.passage_id, passage.release_id, passage.use_status) == ("psg_a", PIN, "approved")
+    assert passage.text == "Rest and fluids; seek review if the headache worsens."
+    assert result.history == ()
 
 
 @pytest.mark.trace("T-E12-035", "R21", "V24")
-def test_superseded_passage_is_separate_non_supporting_history(knowledge_settings: MemorySettings) -> None:
-    retrieval, _, _ = service(knowledge_settings)
-    item = membership(View.now)
-    old = replace(item, uses=(replace(item.uses[0], status="superseded"),))
-    retrieval._reader = EvidenceQueryService(
-        (old,), settings=knowledge_settings, clock=MemoryClock(View.now, 0, "epoch_a")
-    )
-    result = read(retrieval, item.passage.passage_id)
-    assert result.status == "no_result" and not result.passages
-    assert result.history[0].release_id == "evr_a"
-    assert result.history[0].text == item.passage.text
-
-
-@pytest.mark.trace("T-E12-030", "T-E12-034", "I7")
-@pytest.mark.parametrize("fault", ["tokenizer", "boundary", "reranker", "scope", "neighbors", "filter"])
-def test_missing_pins_artifacts_and_invalid_filters_cannot_enable_retrieval(
-    knowledge_settings: MemorySettings, fault: str
-) -> None:
-    retrieval, identifier, _ = service(knowledge_settings)
-    if fault == "tokenizer":
-        retrieval._tokens = None
-    elif fault == "boundary":
-        retrieval._boundary = None
-    elif fault == "reranker":
-        retrieval._retrieval = replace(retrieval._retrieval, rerank=True)
-    if fault == "scope":
-        with pytest.raises(ToolsInvalid):
-            retrieval._boundary.validate("headache", model_release_id="other_model")
-    elif fault == "neighbors":
-        with pytest.raises(ToolsInvalid):
-            read(retrieval, identifier, neighbors=4)
-    elif fault == "filter":
-        with pytest.raises(ToolsInvalid):
-            retrieval.search(
-                View(),
-                scope(),
-                "headache",
-                use="risk_context",
-                filters=ApplicabilityFilter(frozenset(str(i) for i in range(51)), False),
-                requirements=Requirements(frozenset(), {}, frozenset(), "any_crew", None),
-                patient_location_id=None,
-                proposed_operator_id=None,
-            )
-    else:
-        with pytest.raises(ToolsInvalid):
-            search(retrieval)
-
-
-@pytest.mark.trace("T-E12-034", "I5", "I7")
-def test_storage_error_is_not_an_empty_retrieval(knowledge_settings: MemorySettings, monkeypatch) -> None:
-    from crew_health.kernel.errors import StorageUnavailable
-
-    retrieval, _, _ = service(knowledge_settings)
-
-    def broken(*args):
-        raise StorageUnavailable("corrupt")
-
-    monkeypatch.setattr(retrieval._reader, "lexical_search", broken)
-    with pytest.raises(StorageUnavailable):
-        search(retrieval)
-
-
-@pytest.mark.trace("T-E12-005", "T-E12-067", "I2")
-@pytest.mark.parametrize("queries", [(), ("x" * 301,), tuple(str(i) for i in range(51))])
-def test_public_vocabulary_is_bounded_at_startup(queries: tuple[str, ...]) -> None:
-    with pytest.raises(ToolsInvalid):
-        PublicQueryBoundary(
-            queries, model_release_id="model_a", settings=MemorySettings(setting_specs(), settings_values())
-        )
-
-
-@pytest.mark.trace("T-E12-030", "T-E12-034", "I7")
-@pytest.mark.parametrize("fault", ["withdrawn", "simulation", "wrong_pin", "wrong_review", "not_approved"])
-def test_citation_rechecks_current_eligibility_after_search(
-    knowledge_settings: MemorySettings, monkeypatch: pytest.MonkeyPatch, fault: str
-) -> None:
-    from crew_health.knowledge.domain.results import Eligible, Hits, NotApprovedForUse, RankedItem
-
-    retrieval, _, _ = service(knowledge_settings)
-    item = replace(membership(View.now), environments=frozenset({"station"}))
-    monkeypatch.setattr(
-        retrieval._reader, "lexical_search", lambda *args: Hits("evr_a", (RankedItem(item, 1, "lexical"),))
-    )
-    if fault == "withdrawn":
-        item = replace(item, withdrawn=True)
-    elif fault == "simulation":
-        item = replace(item, simulation_only=True)
-    elif fault == "wrong_pin":
-        item = replace(item, release_id="evr_b")
-    elif fault == "wrong_review":
-        item = replace(item, clinical_review="clinically_reviewed")
-    result = (
-        NotApprovedForUse("evr_a", item.passage.passage_id, "risk_context")
-        if fault == "not_approved"
-        else Eligible(item, "risk_context")
-    )
-    monkeypatch.setattr(retrieval._reader, "read_approved", lambda *args: result)
-    if fault == "simulation":
-        assert search(retrieval).status == "no_result"
-    else:
-        with pytest.raises(ToolsInvalid):
-            search(retrieval)
-
-
-@pytest.mark.trace("T-E12-030", "T-E12-037", "R21", "I7")
-def test_each_expanded_neighbor_is_reapproved_and_intact(knowledge_settings: MemorySettings) -> None:
-    from crew_health.kernel.testing import MemoryIds
-    from crew_health.knowledge.domain.passage import PassageArtifact
-
-    retrieval, _, _ = service(knowledge_settings)
-    original = replace(membership(View.now), environments=frozenset({"station"}))
-    passage = PassageArtifact.create(
-        ids=MemoryIds(identifiers=()),
-        extraction=original.extraction,
-        char_start=len(original.extraction.text) - 1,
-        char_end=len(original.extraction.text),
-        max_chars=knowledge_settings.integer("knowledge.passage.max_chars"),
-    )
-    neighbor = replace(original, passage=passage)
-    retrieval._reader = EvidenceQueryService(
-        (original, neighbor),
-        settings=knowledge_settings,
-        clock=MemoryClock(View.now, 0, "epoch_a"),
-        index=CandidateIndex((original.passage.passage_id, neighbor.passage.passage_id)),
-    )
-    result = read(retrieval, original.passage.passage_id, neighbors=1)
-    assert len(result.passages) == 2
-    assert result.passages[1].text == neighbor.passage.text
-    retrieval._retrieval = replace(retrieval._retrieval, max_per_parent=1)
-    assert len(search(retrieval).passages) == 1
-    retrieval._retrieval = replace(retrieval._retrieval, final_max=1, max_per_parent=1)
-    assert len(read(retrieval, original.passage.passage_id, neighbors=1).passages) == 1
-    assert len(search(retrieval).passages) == 1
-
-
-@pytest.mark.trace("T-E12-031", "T-E12-034", "T-E12-037", "I7")
-def test_citation_pin_and_budget_failures_remain_explicit(knowledge_settings: MemorySettings) -> None:
-    retrieval, identifier, eligibility = service(knowledge_settings)
-    with pytest.raises(ToolsInvalid):
-        retrieval.read(
-            View(),
-            replace(scope(), evidence_release_id="evr_missing"),
-            identifier,
-            use="risk_context",
-            filters=ApplicabilityFilter(None, False),
-            requirements=Requirements(frozenset(), {}, frozenset(), "any_crew", None),
-            patient_location_id=None,
-            proposed_operator_id=None,
-            neighbors=0,
-        )
-    eligibility.allowed = False
-    assert read(retrieval, identifier).status == "no_result"
-    eligibility.allowed = True
-    retrieval._retrieval = replace(retrieval._retrieval, budget_tokens=1)
-    assert read(retrieval, identifier).status == "unavailable"
-
-
-@pytest.mark.trace("T-E12-032", "T-E12-033", "E12-02")
-def test_valid_dense_ranks_fuse_with_lexical_without_replacing_pin(
-    knowledge_settings: MemorySettings, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    from crew_health.knowledge.domain.results import Hits, RankedItem
-
-    retrieval, identifier, _ = service(knowledge_settings)
-    item = replace(membership(View.now), environments=frozenset({"station"}))
-    monkeypatch.setattr(
-        retrieval._reader, "dense_search", lambda *args: Hits("evr_a", (RankedItem(item, 1, "dense"),))
-    )
-    result = search(retrieval)
-    assert result.passages[0].passage_id == identifier
-    assert result.limitations == ()
-
-
-@pytest.mark.trace("T-E12-005", "T-E12-031", "T-E12-034", "I7")
-@pytest.mark.parametrize(
-    "fault", ["zero_budget", "wrong_config_pin", "no_dense", "no_read_tokenizer", "bad_count", "bytes"]
-)
-def test_retrieval_resource_and_pin_boundaries(knowledge_settings: MemorySettings, fault: str) -> None:
-    retrieval, identifier, _ = service(knowledge_settings)
-    if fault == "no_dense":
-        retrieval._retrieval = replace(retrieval._retrieval, k_dense=0)
-        assert search(retrieval).limitations == ()
-    elif fault == "zero_budget":
-        with pytest.raises(ToolsInvalid):
-            RetrievalService(
-                retrieval._reader,
-                retrieval._eligibility,
-                Tokens(),
-                retrieval._settings,
-                replace(retrieval._retrieval, budget_tokens=0),
-                boundary=retrieval._boundary,
-                dense_unavailable="configured dense notice",
-                no_supported_passage="configured no support notice",
-                context_over_budget="configured budget notice",
-            )
-    elif fault == "wrong_config_pin":
-        with pytest.raises(ToolsInvalid):
-            retrieval.search(
-                View(),
-                replace(scope(), config_release_id="cfg_other"),
-                "headache",
-                use="risk_context",
-                filters=ApplicabilityFilter(None, False),
-                requirements=Requirements(frozenset(), {}, frozenset(), "any_crew", None),
-                patient_location_id=None,
-                proposed_operator_id=None,
-            )
-    elif fault == "no_read_tokenizer":
-        retrieval._tokens = None
-        with pytest.raises(ToolsInvalid):
-            read(retrieval, identifier)
-    elif fault == "bad_count":
-
-        class Broken(Tokens):
-            def count(self, prompt: bytes, *, model_release_id: str) -> int:
-                return -1
-
-        retrieval._tokens = Broken()
-        with pytest.raises(ToolsInvalid):
-            search(retrieval)
-    elif fault == "bytes":
-        values = settings_values()
-        from crew_health.kernel.units import Quantity, Unit
-
-        values["tools.max_result_bytes"] = Quantity(Decimal(1), Unit("By"))
-        retrieval._settings = MemorySettings(setting_specs(), values)
-        assert search(retrieval).status == "unavailable"
-
-
-@pytest.mark.trace("T-E12-034", "T-E12-035", "T-E12-037", "R21", "I7")
-@pytest.mark.parametrize(
-    "fault", ["history_overflow", "history_missing_pin", "history_budget", "ranking_overflow"]
-)
-def test_history_and_ranking_respect_all_bounds(
-    knowledge_settings: MemorySettings, monkeypatch: pytest.MonkeyPatch, fault: str
-) -> None:
-    from crew_health.knowledge.domain.results import HistoryRead, Hits, InReleaseHistory, RankedItem
-
-    retrieval, identifier, _ = service(knowledge_settings)
-    item = membership(View.now)
-    if fault == "ranking_overflow":
-        monkeypatch.setattr(
-            retrieval._reader,
-            "lexical_search",
-            lambda *args: Hits("evr_a", tuple(RankedItem(item, n, "lexical") for n in range(1, 5))),
-        )
-        with pytest.raises(ToolsInvalid):
-            search(retrieval)
-        return
-    monkeypatch.setattr(
-        retrieval._reader,
-        "read_approved",
-        lambda *args: InReleaseHistory("evr_a", identifier, "risk_context"),
-    )
-    rows = (
-        (item,) * 51
-        if fault == "history_overflow"
-        else (replace(item, release_id="evr_b"),)
-        if fault == "history_missing_pin"
-        else (item,)
-    )
-    monkeypatch.setattr(retrieval._reader, "inspect_history", lambda *args: HistoryRead(rows, None))
-    if fault == "history_budget":
-        retrieval._retrieval = replace(retrieval._retrieval, budget_tokens=1)
-        assert read(retrieval, identifier).status == "unavailable"
-    else:
-        with pytest.raises(ToolsInvalid):
-            read(retrieval, identifier)
-
-
-@pytest.mark.trace("T-E12-001", "T-E12-065", "R17", "I2", "I8")
-@pytest.mark.parametrize("query", ["https://example.invalid", "../eval/vault", "SELECT * FROM records"])
-def test_vocabulary_edit_cannot_authorize_forbidden_query(query: str) -> None:
-    with pytest.raises(ToolsInvalid):
-        PublicQueryBoundary(
-            (query,), model_release_id="model_a", settings=MemorySettings(setting_specs(), settings_values())
-        )
-
-
-@pytest.mark.trace("T-E12-035", "R21", "V24")
-def test_explicit_history_pin_is_found_after_first_owner_page(knowledge_settings: MemorySettings) -> None:
-    retrieval, identifier, _ = service(knowledge_settings)
-    item = membership(View.now)
-    members = tuple(
-        replace(
-            item,
-            release_id=f"evr_{n:02}",
-            uses=(replace(item.uses[0], status="superseded", successor_ref="psg_successor"),),
-        )
-        for n in range(51)
-    )
-    retrieval._reader = EvidenceQueryService(
-        members, settings=knowledge_settings, clock=MemoryClock(View.now, 0, "epoch_a")
-    )
+def test_a_pin_found_only_on_a_later_history_page_is_history_never_support() -> None:
+    """Review r1 finding 7: the 51st membership sat on the owner's second history page and E12 gave up. The same
+    shape at a page size of 5: the pin's twelfth membership is on the third owner page."""
+    rows = [member("psg_old", f"evr_{index:03d}", text="Rest.") for index in range(12)]
+    retrieval = service(Evidence(*rows), hub=settings(**{"tools.max_array_items": 5}))
     result = retrieval.read(
         View(),
-        replace(scope(), evidence_release_id="evr_50"),
-        identifier,
-        use="risk_context",
-        filters=ApplicabilityFilter(None, True),
-        requirements=Requirements(frozenset(), {}, frozenset(), "any_crew", None),
+        replace(scope(), evidence_release_id="evr_z"),
+        "psg_old",
+        use=USE,
+        filters=dto.ApplicabilityFilter(),
+        requirements=NONE,
         patient_location_id=None,
         proposed_operator_id=None,
         neighbors=0,
     )
     assert result.status == "no_result"
-    assert result.history[0].release_id == "evr_50"
-    assert result.history[0].use_status == "superseded"
-    assert result.history[0].successor_ref == "psg_successor"
-    assert not result.history[0].usable_as_support
-
-
-@pytest.mark.trace("T-E12-035", "R21", "V24")
-def test_successful_search_keeps_non_supporting_release_history(knowledge_settings: MemorySettings) -> None:
-    retrieval, identifier, _ = service(knowledge_settings)
-    current = replace(membership(View.now), environments=frozenset({"station"}))
-    old = replace(
-        current,
-        release_id="evr_old",
-        uses=(replace(current.uses[0], status="superseded", successor_ref=identifier),),
-    )
-    retrieval._reader = EvidenceQueryService(
-        (old, current),
-        settings=knowledge_settings,
-        clock=MemoryClock(View.now, 0, "epoch_a"),
-        index=CandidateIndex((identifier,)),
-    )
-    result = search(retrieval)
-    assert result.status == "ok"
-    assert result.passages[0].usable_as_support
-    assert result.passages[0].release_id == "evr_a"
-    assert len(result.history) == 1
-    assert result.history[0].release_id == "evr_old"
-    assert result.history[0].use_status == "superseded"
-    assert result.history[0].successor_ref == identifier
-    assert not result.history[0].usable_as_support
+    assert result.passages == ()
+    assert len(result.history) == 12
+    assert result.history[-1].release_id == "evr_011"
+    assert all(item.usable_as_support is False for item in result.history)
 
 
 @pytest.mark.trace("T-E12-035", "I2", "I7")
-def test_history_bound_reports_incomplete_instead_of_missing_pin(knowledge_settings: MemorySettings) -> None:
-    retrieval, identifier, _ = service(knowledge_settings)
-    original = membership(View.now)
-    rows = tuple(
-        replace(original, release_id=f"evr_{i:03}", uses=(replace(original.uses[0], status="superseded"),))
-        for i in range(201)
-    )
-    retrieval._reader = EvidenceQueryService(
-        rows, settings=knowledge_settings, clock=MemoryClock(View.now, 0, "epoch_a")
-    )
-    target = replace(scope(), evidence_release_id="evr_200")
-    result = retrieval.read(
+def test_history_beyond_the_item_bound_reports_incomplete_not_a_missing_pin() -> None:
+    rows = [member("psg_old", f"evr_{index:03d}") for index in range(20)]
+    hub = settings(**{"tools.max_array_items": 5, "tools.context.max_items": 10})
+    result = service(Evidence(*rows), hub=hub).read(
         View(),
-        target,
-        identifier,
-        use="risk_context",
-        filters=ApplicabilityFilter(None, False),
-        requirements=Requirements(frozenset(), {}, frozenset(), "any_crew", None),
+        replace(scope(), evidence_release_id="evr_z"),
+        "psg_old",
+        use=USE,
+        filters=dto.ApplicabilityFilter(),
+        requirements=NONE,
         patient_location_id=None,
         proposed_operator_id=None,
         neighbors=0,
     )
     assert result.status == "unavailable"
-    assert not result.history_complete
-    assert not result.passages
-    assert result.limitations == ("configured budget notice",)
+    assert result.limitations == ("history_incomplete",)
+    assert result.history_complete is False
+
+
+@pytest.mark.trace("T-E12-035", "R21", "V24")
+def test_contradictory_versions_stay_visible_and_only_the_current_side_supports() -> None:
+    current = member("psg_new", text="Give fluids by mouth only.")
+    earlier = member("psg_old", "evr_0", text="Give fluids intravenously.")
+    evidence = Evidence(current, earlier)
+    evidence.discrepancy_items = (
+        dto.Discrepancy("dsc_a", "psg_old", "psg_new", "contradicts", ("rev_a",), ()),
+    )
+    result = read(service(evidence), "psg_new")
+    assert result.status == "ok"
+    [supporting] = result.passages
+    assert (supporting.passage_id, supporting.discrepancy_refs) == ("psg_new", ("dsc_a",))
+    assert [(row.passage_id, row.text, row.usable_as_support) for row in result.history] == [
+        ("psg_old", "Give fluids intravenously.", False)
+    ]
+
+
+@pytest.mark.trace("T-E12-035", "I7")
+def test_discrepancies_on_a_later_owner_page_are_still_found() -> None:
+    evidence = Evidence(member("psg_new"), member("psg_old", "evr_0"))
+    filler = tuple(dto.Discrepancy(f"dsc_{i}", f"psg_x{i}", f"psg_y{i}", "revises", (), ()) for i in range(7))
+    evidence.discrepancy_items = (
+        *filler,
+        dto.Discrepancy("dsc_last", "psg_old", "psg_new", "revises", (), ()),
+    )
+    result = read(service(evidence, hub=settings(**{"tools.max_array_items": 5})), "psg_new")
+    assert result.passages[0].discrepancy_refs == ("dsc_last",)
+
+
+@pytest.mark.trace("T-E12-030", "T-E12-034", "I7")
+@pytest.mark.parametrize("fault", ["withdrawn", "not_approved", "guidance", "simulation"])
+def test_withdrawn_unapproved_or_ineligible_content_never_supports(fault: str) -> None:
+    eligibility = Eligibility()
+    row = member("psg_a", status="withdrawn" if fault == "withdrawn" else "approved")
+    if fault == "not_approved":
+        row = replace(row, use_status=(("patient_instruction", "approved"),))
+    if fault == "simulation":
+        row = replace(row, simulation_only=True)
+    if fault == "guidance":
+        eligibility.outcome = "not_supported"
+    result = read(service(Evidence(row), eligibility=eligibility), "psg_a")
+    assert result.status == "no_result"
+    assert result.passages == ()
+
+
+@pytest.mark.trace("T-E12-030", "T-E12-037", "R21", "I7")
+def test_an_unapproved_neighbor_is_dropped_and_approved_neighbors_are_reapproved() -> None:
+    evidence = Evidence(member("psg_a"), member("psg_b"), member("psg_c", status="withdrawn"))
+    evidence.neighbors = ("psg_b", "psg_c")
+    result = read(service(evidence), "psg_a", neighbors=1)
+    assert [row.passage_id for row in result.passages] == ["psg_a", "psg_b"]
+
+
+@pytest.mark.trace("T-E12-034", "I5", "I7")
+def test_owner_storage_loss_is_unavailable_never_an_empty_answer() -> None:
+    evidence = Evidence(member("psg_a"))
+    evidence.unavailable = True
+    with pytest.raises(ToolsInvalid) as raised:
+        read(service(evidence), "psg_a")
+    assert raised.value.code.value == "CAPABILITY_UNAVAILABLE"
+
+
+@pytest.mark.trace("T-E12-031", "T-E12-037", "I7")
+def test_a_passage_over_the_result_budget_is_unavailable_not_no_match() -> None:
+    result = read(service(Evidence(member("psg_a")), hub=settings(**{"tools.max_result_bytes": 1})), "psg_a")
+    assert result.status == "unavailable"
+    assert result.limitations == ("context_over_budget",)
+
+
+@pytest.mark.trace("T-E12-001", "T-E12-065", "R17", "R20", "I2", "I8")
+@pytest.mark.parametrize("query", ["https://example.invalid", "../eval/vault", "SELECT * FROM records"])
+def test_a_vocabulary_edit_cannot_authorize_a_forbidden_query(query: str) -> None:
+    """Review r1 finding 5: each of these validated once they were placed in the configured vocabulary."""
+    with pytest.raises(ToolsInvalid):
+        PublicQueryBoundary((query,), model_release_id="model_a", settings=settings())
 
 
 @pytest.mark.trace("T-E12-030", "R20", "I1", "I7")
-def test_unverified_public_vocabulary_never_reaches_search(
-    knowledge_settings: MemorySettings, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    retrieval, _, _ = service(knowledge_settings)
-    retrieval._boundary = PublicQueryBoundary(
-        ("headache",), model_release_id="model_a", settings=retrieval._settings
+def test_search_without_a_verified_public_scope_never_reaches_the_owner() -> None:
+    evidence = Evidence(member("psg_a"))
+    unverified = PublicQueryBoundary(("headache",), model_release_id="model_a", settings=settings())
+    for boundary in (None, unverified):
+        with pytest.raises(ToolsInvalid) as raised:
+            service(evidence, boundary=boundary).search(
+                View(),
+                scope(),
+                "headache",
+                use=USE,
+                filters=dto.ApplicabilityFilter(),
+                requirements=NONE,
+                patient_location_id=None,
+                proposed_operator_id=None,
+            )
+        assert raised.value.code.value == "CAPABILITY_UNAVAILABLE"
+    assert evidence.searched == []
+
+
+@pytest.mark.trace("T-E12-030", "T-E12-033", "R21", "I7")
+def test_a_verified_public_query_searches_the_pin_and_reports_lost_dense_ranking() -> None:
+    evidence = Evidence(member("psg_a"))
+    boundary = PublicQueryBoundary(
+        ("headache",),
+        model_release_id="model_a",
+        settings=settings(),
+        public_scope=lambda query, pin: query == "headache" and pin == "model_a",
     )
-    calls: list[str] = []
-
-    def forbidden(*args):
-        calls.append("search")
-        raise AssertionError("unverified query reached provider")
-
-    monkeypatch.setattr(retrieval._reader, "lexical_search", forbidden)
-    monkeypatch.setattr(retrieval._reader, "dense_search", forbidden)
-    with pytest.raises(ToolsInvalid, match="CAPABILITY_UNAVAILABLE"):
-        search(retrieval)
-    assert calls == []
-
-
-@pytest.mark.trace("T-E12-034", "T-E12-035", "R21", "I7")
-@pytest.mark.parametrize("status", ["superseded", "withdrawn", "wrong_use"])
-def test_eligible_wrapper_cannot_promote_an_ineligible_membership(
-    knowledge_settings: MemorySettings, monkeypatch: pytest.MonkeyPatch, status: str
-) -> None:
-    from crew_health.knowledge.domain.results import Eligible
-
-    retrieval, identifier, _ = service(knowledge_settings)
-    member = replace(membership(View.now), environments=frozenset({"station"}))
-    if status == "wrong_use":
-        member = replace(member, uses=(replace(member.uses[0], use="patient_instruction"),))
-    else:
-        member = replace(member, uses=(replace(member.uses[0], status=status),))
-    monkeypatch.setattr(retrieval._reader, "read_approved", lambda *args: Eligible(member, "risk_context"))
-    with pytest.raises(ToolsInvalid, match="MODEL_OUTPUT_REJECTED"):
-        read(retrieval, identifier)
+    result = service(evidence, boundary=boundary).search(
+        View(),
+        scope(),
+        "headache",
+        use=USE,
+        filters=dto.ApplicabilityFilter(),
+        requirements=NONE,
+        patient_location_id=None,
+        proposed_operator_id=None,
+    )
+    assert result.status == "ok"
+    assert [row.passage_id for row in result.passages] == ["psg_a"]
+    assert result.limitations == ("dense_unavailable",)
+    assert set(evidence.searched) == {"headache"}

@@ -22,19 +22,22 @@ class RetrievalSettings:
 
 @dataclass(frozen=True, slots=True)
 class RetrievedPassage:
+    """One pinned passage as E10 returned it. Only an eligible current member can be support; history and the
+    earlier side of a discrepancy stay visible with usable_as_support False (E12 4.2 steps 3 and 6)."""
+
     passage_id: str
     release_id: str
     use: str
     content_sha256: str
     text: str
-    page_start: int
-    page_end: int
+    section: str
+    page: int | None
     clinical_review: Literal["clinically_reviewed", "not_clinically_reviewed"]
-    use_status: Literal["approved", "superseded", "withdrawn"] | None = None
-    successor_ref: str | None = None
-    source_ids: tuple[str, ...] = ()
-    document_version_id: str | None = None
-    usable_as_support: bool = False
+    use_status: str | None
+    source_ids: tuple[str, ...]
+    extraction_id: str
+    usable_as_support: bool
+    discrepancy_refs: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

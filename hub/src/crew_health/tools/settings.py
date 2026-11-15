@@ -29,6 +29,7 @@ def _counts() -> tuple[tuple[str, int], ...]:
         ("tools.context.max_tokens", 32768),
         ("tools.retrieval.max_tokens", 8192),
         ("tools.max_concurrent_calls", 1),
+        ("tools.max_open_turns", 64),
         ("tools.bench.max_queries", 500),
     )
 
@@ -57,7 +58,7 @@ def setting_specs() -> tuple[SettingSpec, ...]:
         *integers,
         *zeros,
         *(
-            SettingSpec(key, "quantity", Unit(unit), Decimal(1), Decimal(cap), None, basis)
+            SettingSpec(key, "integer", Unit(unit), Decimal(1), Decimal(cap), None, basis)
             for key, unit, cap in quantities
         ),
     )
@@ -65,16 +66,10 @@ def setting_specs() -> tuple[SettingSpec, ...]:
 
 def validate_settings(settings: HubSettings) -> None:
     for spec in setting_specs():
-        if spec.unit is None:
-            value = settings.integer(spec.key)
-            if type(value) is not int:
-                raise ToolsInvalid("CONFIG_INVALID")
-            amount = Decimal(value)
-        else:
-            quantity = settings.quantity(spec.key)
-            if quantity.unit != spec.unit:
-                raise ToolsInvalid("CONFIG_INVALID")
-            amount = quantity.value
+        value = settings.integer(spec.key)
+        if type(value) is not int:
+            raise ToolsInvalid("CONFIG_INVALID")
+        amount = Decimal(value)
         if (
             not amount.is_finite()
             or amount != amount.to_integral_value()
@@ -88,7 +83,7 @@ def validate_settings(settings: HubSettings) -> None:
 def argument_bounds(settings: HubSettings) -> JsonBounds:
     validate_settings(settings)
     return JsonBounds(
-        max_bytes=int(settings.quantity("tools.max_argument_bytes").value),
+        max_bytes=settings.integer("tools.max_argument_bytes"),
         max_depth=settings.integer("tools.max_json_depth"),
         max_array_items=settings.integer("tools.max_array_items"),
         max_string_chars=settings.integer("tools.max_string_chars"),
