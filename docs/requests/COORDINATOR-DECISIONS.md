@@ -3,7 +3,8 @@
 Binding for every builder, designer and reviewer. Where a decision below names a value, field or rule, use it exactly;
 where it leaves a choice to the implementer, the implementer documents the choice in the spec and in the report. A
 decided point is not raised again in a design or a review. Part A applies to every epic; Part B is the medicine potency
-engine.
+engine. The coordinator is Joaquin Castellano: every decision here is Joaquin Castellano's, and the agents that draft
+and land them are tools.
 
 # Part A. System and product decisions
 
@@ -38,8 +39,8 @@ engine.
 | D22 | `docs/product/condition-assessments-119.json` has ICL36A and ICL36B, which the condition ID pattern `^ICL[1-9][0-9]{0,2}$` of the kit map, onboard plan and related schemas rejects. | They are valid IDs: two variants of row 36. The pattern becomes `^ICL[1-9][0-9]{0,2}[A-Z]?$` in every package schema that has it; the coordinator lands that contract change once E01 is built. Until then, code accepts the suffix and lists the contract change as a request. |
 | D23 | `docs/product/NASA-SOURCES.md` row N02 links two documents (the OSDR Environmental Data Application guide and the RR-1 dashboard). | A source row may list several documents. All of them belong to the one source ID; that is not a conflict, and none is dropped. |
 | D24 | tblite (GFN2-xTB for the potency engine's BDE layer) publishes no Windows build, so neither the engine nor the hub, which depends on it, installed on Windows; the engine also put the installed tblite version into every xtb cache key and run pin. | tblite is a dependency except on Windows. Where it is not installed, cache keys and `Pins.tblite_version` use `xtb_cache_tblite_version` of `config/pharmacy/engine-settings.json`, the version that computed the committed cache: committed entries are read and a miss raises `XtbError`. New entries are computed on Linux or macOS. |
-| D25 | SYSTEM 5.12 declares `Resolver.require[P](port: type[P])` and the ports are Protocols; mypy's `type-abstract` check rejects a Protocol class for `type[P]`, so the first E01 coder silenced it with 31 `# type: ignore[type-abstract]`. | `hub/pyproject.toml` disables mypy's `type-abstract` error code for the hub and the 31 ignores are removed. The SYSTEM 5.12 signature stays, and every other mypy check stays strict. |
-| D26 | The generation manifest `hub/src/crew_health/contracts_gen/manifest.json` pins the hash of every installed `module.py`, so the import-contract gate fails whenever an epic adds or edits one. | The epic that adds or edits a `module.py` reruns `uv run --project hub python -m crew_health.contracts_gen.build` and keeps the regenerated manifest, a shared dependency any coder may change. While the contracts are unchanged the command rewrites no other file. |
+| D25 | SYSTEM 5.12 declares `Resolver.require[P](port: type[P])` and the ports are Protocols; mypy's `type-abstract` check rejects a Protocol class for `type[P]`, so E01 T1 silenced it with 31 `# type: ignore[type-abstract]`. | `hub/pyproject.toml` disables mypy's `type-abstract` error code for the hub and the 31 ignores are removed. The SYSTEM 5.12 signature stays, and every other mypy check stays strict. |
+| D26 | The generation manifest `hub/src/crew_health/contracts_gen/manifest.json` pins the hash of every installed `module.py`, so the import-contract gate fails whenever an epic adds or edits one. | The epic that adds or edits a `module.py` reruns `uv run --project hub python -m crew_health.contracts_gen.build` and keeps the regenerated manifest, a shared dependency any epic may change. While the contracts are unchanged the command rewrites no other file. |
 
 ## A2. Product decisions
 
