@@ -1,0 +1,46 @@
+{
+  "version": "records-observation-policy-1",
+  "provenance": {
+    "owner": "E01 records",
+    "status": "interim for docs/requests/E01.md R-E01-1 until the release carries a sourced observation policy",
+    "rule": "A code or acquisition method without a row has no policy and is kept not assessed, never accepted (docs/tdd/E01.md section 3). Canonical and accepted wire units come from the pinned release's unit mapping (D12), not from this document."
+  },
+  "policies": [
+    {
+      "code": "pulse",
+      "ucum_unit": "/min",
+      "source_ref": "workers/camera/src/crew_health_camera/policy/camera-quality.json#pulse",
+      "methods": ["camera_estimate"],
+      "minimum": {
+        "value": "42",
+        "basis": "camera-quality.json pulse.band_hz.min 0.7 Hz (POS pass band, Wang 2017): the camera refuses a rate outside its band, never clips it; a method range, not a clinical threshold",
+        "to_be_set_by": "clinical review (R-E01-1) and the coordinator's camera policy (PLAN C3)"
+      },
+      "maximum": {
+        "value": "180",
+        "basis": "camera-quality.json pulse.band_hz.max 3.0 Hz (180 /min for a seated adult); a method range, not a clinical threshold",
+        "to_be_set_by": "clinical review (R-E01-1) and the coordinator's camera policy (PLAN C3)"
+      },
+      "saturation_minimum": {
+        "value": "42",
+        "basis": "the band edge: a camera rate at the edge of its analysis band is the value a clipped estimate would take",
+        "to_be_set_by": "clinical review (R-E01-1)"
+      },
+      "saturation_maximum": {
+        "value": "180",
+        "basis": "the band edge: a camera rate at the edge of its analysis band is the value a clipped estimate would take",
+        "to_be_set_by": "clinical review (R-E01-1)"
+      },
+      "stuck_count": {
+        "value": 3,
+        "basis": "team default: three identical camera readings in a row from one device",
+        "to_be_set_by": "clinical review (R-E01-1)"
+      },
+      "max_change_per_second": {
+        "value": "6.9",
+        "basis": "team default: the whole band (138 /min) within one camera analysis window (camera-quality.json pulse.window_s 20 s)",
+        "to_be_set_by": "clinical review (R-E01-1)"
+      }
+    }
+  ]
+}

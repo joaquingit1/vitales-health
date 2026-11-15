@@ -19,7 +19,7 @@ from typing import cast
 
 from fastapi import Request
 
-from crew_health.app.assembly import ConfigHttpMetadata, HttpSecurity
+from crew_health.app.assembly import ConfigHttpMetadata, HttpSecurity, RecordHttpServices
 from crew_health.app.middleware import Operation, OperationCatalog
 from crew_health.app.registry import ModuleRegistry, Resolver
 from crew_health.catchup.api.router import RoleGate as CatchupGate
@@ -27,6 +27,7 @@ from crew_health.catchup.application.ports import ConsentQueries as CatchupConse
 from crew_health.clock.application.clock import PersistentClocks
 from crew_health.consent.application.ports import ClockAdmission, ObservationFacts, TimeAdmission
 from crew_health.consent.application.ports import ObservationPartitions as ConsentObservations
+from crew_health.consent.application.records import ConsentRecordAuthorization
 from crew_health.consent.application.service import ConsentService
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.events.application.delivery import SessionAuthorizer
@@ -38,13 +39,20 @@ from crew_health.identity.application.ports import RosterEntry
 from crew_health.identity.application.service import IdentityService
 from crew_health.kernel.commands import CommandIdentity, ResultVisibility, StoredResult
 from crew_health.kernel.errors import ProblemError
+from crew_health.kernel.ids import IdFactory
+from crew_health.kernel.settings import HubSettings
+from crew_health.kernel.units import UnitRegistry, WireUnitConverter
 from crew_health.kernel.uow import ReadSnapshot, SessionContext, UnitOfWork
 from crew_health.kitmap.api.router import RequireRoles as KitmapRoles
 from crew_health.kitmap.application.ports import RosterPort as KitmapRoster
 from crew_health.measurement.application.ports import ConsentQueries as MeasurementConsent
 from crew_health.measurement.application.ports import SessionAuthenticator as MeasurementAuthenticator
 from crew_health.plans.api.router import RequestAuthenticator as PlansAuthenticator
-from crew_health.records.application.seams import RecordsStore
+from crew_health.records.adapters.policies import ReleaseObservationPolicies
+from crew_health.records.application.commands import RecordsCommands
+from crew_health.records.application.queries import RecordsQueries
+from crew_health.records.application.seams import ObservationPolicies, RecordsStore
+from crew_health.records.domain.observations import ObservationInput, RecordContext
 from crew_health.roles.api.router import RequestAuthenticator as RolesAuthenticator
 from crew_health.roles.application.ports import RosterMember as RolesMember
 from crew_health.roles.application.ports import RosterPort as RolesRoster
@@ -264,17 +272,28 @@ class RoutingAdapter:
 
 @dataclass(frozen=True, slots=True)
 class ConsentAdapter:
-    """catchup and measurement ConsentQueries: E02's answer in the caller's own snapshot, for objects of the hub
-    roster's mission and origin."""
+    """catchup and measurement ConsentQueries: E02's answer for objects of the hub roster's mission and origin.
+
+    A grant must hold in the caller's own snapshot and, when that is a read snapshot, again in the latest committed
+    state (docs/requests/E02.md R-E02-34): a revocation, sign out or roster removal committed after the caller's
+    snapshot opened refuses the read, as ConsentRecordAuthorization.require_read does for records. A unit of work
+    already holds the writer, so its view is the latest state."""
 
     consent: ConsentService
 
     def allows(
         self, view: ReadSnapshot, *, subject_person_id: str, recipient: str, scope: tuple[str, str]
     ) -> bool:
-        return self.consent.allows(
+        if not self.consent.allows(
             view, subject_person_id=subject_person_id, recipient=recipient, scope=scope
-        )
+        ):
+            return False
+        if callable(getattr(view, "replicate", None)):
+            return True
+        with self.consent.deps.snapshots.snapshot() as latest:
+            return self.consent.allows(
+                latest, subject_person_id=subject_person_id, recipient=recipient, scope=scope
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -296,6 +315,38 @@ class ClockAdmissionAdapter:
     def admission(self, view: View) -> ClockAdmission | None:
         state = self.clocks.repository.state(view.connection)
         return None if state is None else ClockAdmission(state.last_committed_at, state.frozen)
+
+
+# Records -----------------------------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class UnboundCapture:
+    """records' SubjectBinding for an HTTP recordObservation. Binding a body to a mission partition and to the
+    clock segment it was observed on needs the producer evidence of R-E01-17, which no HTTP body carries, so a
+    capture through this route refuses. Producers (measurement, teach) append through records' own producer."""
+
+    def bind(self, uow: UnitOfWork, session: SessionContext, value: ObservationInput) -> RecordContext:
+        raise _unavailable()
+
+
+def record_services(resolver: Resolver) -> RecordHttpServices:
+    """E01's observation routes over E02's real record authorization (consent and identity, read fence
+    included), records' release-bound policies and store, and replay only to the issuing live session."""
+    store = resolver.require(RecordsStore)  # type: ignore[type-abstract]
+    authorization = resolver.require(ConsentRecordAuthorization)
+    commands = RecordsCommands(
+        repository=store,
+        ids=resolver.require(IdFactory),  # type: ignore[type-abstract]
+        units=resolver.require(UnitRegistry),  # type: ignore[type-abstract]
+        converter=resolver.require(WireUnitConverter),  # type: ignore[type-abstract]
+        authorization=authorization,
+        binding=UnboundCapture(),
+        policies=resolver.require(ObservationPolicies),  # type: ignore[type-abstract]
+        clocks=resolver.require(PersistentClocks),
+    )
+    queries = RecordsQueries(store, authorization, resolver.require(HubSettings))  # type: ignore[type-abstract]
+    return RecordHttpServices(commands, queries, ReplayVisibility(resolver.require(IdentityService)))
 
 
 # Registration ------------------------------------------------------------------------------------------------
@@ -356,6 +407,26 @@ def compose(
             ConsentObservations,
             lambda r: ObservationsAdapter(r.require(RecordsStore)),  # type: ignore[type-abstract]
             (cast(type[object], RecordsStore),),
+        ),
+        (
+            ObservationPolicies,
+            lambda r: ReleaseObservationPolicies.packaged(r.require(UnitRegistry)),  # type: ignore[type-abstract]
+            (cast(type[object], UnitRegistry),),
+        ),
+        (
+            RecordHttpServices,
+            record_services,
+            (
+                ConsentRecordAuthorization,
+                IdentityService,
+                PersistentClocks,
+                cast(type[object], RecordsStore),
+                cast(type[object], ObservationPolicies),
+                cast(type[object], WireUnitConverter),
+                cast(type[object], UnitRegistry),
+                cast(type[object], IdFactory),
+                cast(type[object], HubSettings),
+            ),
         ),
         (
             TimeAdmission,

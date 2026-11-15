@@ -38,10 +38,11 @@ from crew_health.kernel.units import ConvertedQuantity, Quantity, Unit, UnitRegi
 from crew_health.kernel.uow import UnitOfWork
 from crew_health.records.application.ports import AnswerDraft, AttemptObservationDraft, ObservationDraft
 from crew_health.records.application.seams import MissionStatePort, ObservationPolicies, RecordsStore
-from crew_health.records.domain.errors import RecordError
+from crew_health.records.domain.errors import PolicyMissing, RecordError
 from crew_health.records.domain.lineage import check_observation_lineage
 from crew_health.records.domain.observations import (
     AcquisitionMethod,
+    ObservationPolicy,
     ObservationRecord,
     OriginMode,
     QualityAssessment,
@@ -337,16 +338,27 @@ class ObservationProducer:
         unknown, so the history checks have no corrected history to run on and an accepted value is held
         uncertain, never stored accepted."""
         base, version = capture.declared, capture.declared_version
-        if self.policies is not None:
-            policy = self.policies.for_code(release, capture.code)
+        policy = self._policy(release, capture)
+        if policy is not None:
             policy.validate()
-            if policy.code != capture.code or capture.method not in policy.methods:
+            if policy.code != capture.code:
                 raise RecordError(ErrorCode.CONTEXT_INAPPLICABLE)
             if policy.canonical_unit != quantity.unit:
                 raise RecordError(ErrorCode.INVALID_UNIT)
             base, version = assess_quality(policy, quantity, capture.observed_at, ()), policy.version
         status = "uncertain" if base.status == "accepted" else base.status
         return QualityAssessment(status, base.reasons + ("time_unknown",)), version
+
+    def _policy(self, release: ReleaseHandle, capture: _Capture) -> ObservationPolicy | None:
+        """The policy for this code and method, or None where none covers them: the producer's declaration
+        (not assessed for an attempt) then stands, which is never acceptance."""
+        if self.policies is None:
+            return None
+        try:
+            policy = self.policies.for_code(release, capture.code)
+        except PolicyMissing:
+            return None
+        return policy if capture.method in policy.methods else None
 
 
 def _require_capture(capture: _Capture) -> None:
