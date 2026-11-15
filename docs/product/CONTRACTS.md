@@ -681,7 +681,7 @@ For an aggregation with `window_seconds` W, the window is the half-open interval
 
 Coverage: with an expected interval I, coverage = min(1, n x I / W) for n readings in the window. With no expected interval, coverage = (last − first `observed_at` in the window) / W, and 0 with fewer than two readings. `latest` has no coverage. A limit is evaluated only when coverage is at least its `min_coverage`.
 
-Worked example (examples/sensors/reading-co2-replay.json): the replay file nasa-data/eda_rr1_telemetry.csv has CO2 every 5 minutes. On 7 Oct 2014 the window (14:36, 15:36] holds the 12 samples from 14:41 to 15:36. Their mean is 4,605.67 ppm, which is 3.5003 mmHg at the assumed 760 mmHg, with coverage 12 x 300 / 3,600 = 1. The DosTel1 file has no expected interval; the two-hour window ending 01:04:40 on 2 Apr 2022 holds 80 samples with mean 6.0819 µGy/h, shown as 6.1.
+Worked example (examples/sensors/reading-co2-replay.json): the replay file nasa-data/habitat-environment/eda_rr1_telemetry.csv has CO2 every 5 minutes. On 7 Oct 2014 the window (14:36, 15:36] holds the 12 samples from 14:41 to 15:36. Their mean is 4,605.67 ppm, which is 3.5003 mmHg at the assumed 760 mmHg, with coverage 12 x 300 / 3,600 = 1. The DosTel1 file has no expected interval; the two-hour window ending 01:04:40 on 2 Apr 2022 holds 80 samples with mean 6.0819 µGy/h, shown as 6.1.
 
 ### Evaluation
 
@@ -1119,7 +1119,7 @@ These values come from the example documents and examples in api/examples. An im
 
 | Input | Expected |
 |---|---|
-| CO2 replay, nasa-data/eda_rr1_telemetry.csv, window (14:36, 15:36] on 7 Oct 2014, assumed 760 mmHg | 12 samples, mean 4,605.67 ppm = 3.5003 mmHg, coverage 1.0; limit `co2_1h_act` (above 3 mmHg, act) crossed; card text 3.5; warning `act` raised by `sensor_limit` |
+| CO2 replay, nasa-data/habitat-environment/eda_rr1_telemetry.csv, window (14:36, 15:36] on 7 Oct 2014, assumed 760 mmHg | 12 samples, mean 4,605.67 ppm = 3.5003 mmHg, coverage 1.0; limit `co2_1h_act` (above 3 mmHg, act) crossed; card text 3.5; warning `act` raised by `sensor_limit` |
 | DosTel1 replay, two hours ending 01:04:40 on 2 Apr 2022 | 80 samples, mean 6.0819 µGy/h, card text 6.1, status `threshold_pending` |
 | Today headline per environment | Station "Short sleep, CO2 above the limit"; transit "Solar storm: go to the shelter"; Moon base "Dust after the surface walk"; Mars base "Sol 3: getting used to gravity" |
 | Day labels | Station "flight day 19 of 30", MET `018/09:10:16`; transit "mission day 96"; Moon base "surface day 4"; Mars base "sol 3 on Mars" |

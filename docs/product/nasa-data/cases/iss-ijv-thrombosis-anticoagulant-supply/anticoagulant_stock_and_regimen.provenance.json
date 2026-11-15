@@ -1,0 +1,34 @@
+{
+  "file": "anticoagulant_stock_and_regimen.csv",
+  "catalog_id": "N42, N41",
+  "bytes": 1537,
+  "sha256": "b5b99e7f864534a4830650ba78f389c1f44954b828241051f245e62e97b1689e",
+  "source_url": "https://www.nejm.org/doi/full/10.1056/NEJMc1905875",
+  "documentation": "https://pubmed.ncbi.nlm.nih.gov/31893522/",
+  "retrieved_at_utc": "2026-11-15T01:55:00Z",
+  "mission_instrument": "ISS, one astronaut in the NASA jugular venous flow study, 2019 publication; medical pharmacy stock and treatment regimen",
+  "rows": 7,
+  "units": {
+    "day_after_diagnosis": "d after diagnosis (as printed)",
+    "value": "per row, see unit_ucum",
+    "unit_ucum": "UCUM code; {vial} is an annotation for a count"
+  },
+  "preprocessing": "Transcribed by hand from the letter text, one fact per row with its verbatim clause. Body weight is not published and is not filled in.",
+  "license_terms": "Facts from a copyrighted NEJM letter, quoted briefly with attribution",
+  "provenance": "REPLAY. Stock and regimen printed in a peer-reviewed case report; not a pharmacy inventory export.",
+  "is_not": "Not a complete pharmacy record; wastage, syringe counts and the delivery date of the supply vehicle are not published.",
+  "consumers": [
+    {
+      "epic": "E32",
+      "use": "Supply forecast: days of anticoagulant left against the next resupply, with body weight required as an input"
+    },
+    {
+      "epic": "E28",
+      "use": "Onboard plan when the stock cannot cover the regimen until resupply"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenario"
+    }
+  ]
+}

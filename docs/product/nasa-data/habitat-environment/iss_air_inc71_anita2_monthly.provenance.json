@@ -1,0 +1,63 @@
+{
+  "file": "iss_air_inc71_anita2_monthly.csv",
+  "title": "ISS cabin air, ANITA-2 monthly average concentrations, March to September 2024",
+  "catalog_id": "N31",
+  "source_url": "https://www.nasa.gov/wp-content/uploads/2025/12/increment-71-report-including-ng-21-ingress-final.pdf",
+  "documentation": [
+    "JSC Toxicology and Environmental Chemistry Group, Memorandum TOX-SW-2025-02, 'Toxicological Assessment of ISS Air and Water Quality: March 26, 2024 to September 23, 2024 (Increment 71) Including NG-21 Ingress and Boeing-CFT Ascent', dated October 21, 2025, 13 PDF pages; source PDF sha256 96356e314a1d88d29a5e6bb55d690f225aadb1709ce00827cac03a8b1c2ef245, 1,114,979 bytes",
+    "Table 2, PDF page 4; column positions checked against the rendered page image"
+  ],
+  "retrieved_at_utc": "2026-11-15T01:53:07+00:00",
+  "bytes": 4466,
+  "sha256": "f7de2b014b35fab397ef460b8bde03bbe8c16633aa3ba90dcec052b2ee556bf8",
+  "mission": "ISS Increment 71",
+  "instrument": "ANITA-2 (Analyzing Interferometer for Ambient Air, FTIR, ESA), Columbus module, up to 48 analytes every 6 to 10 minutes; NASA selected it as the primary ISS trace contaminant monitor in early 2025 (report p. 3)",
+  "rows": 136,
+  "cadence": "Monthly averages; 'increment_average' rows hold the last column",
+  "columns": {
+    "compound": {
+      "unit": null,
+      "description": "As printed (PFP is octafluoropropane, DMCPS, TMS, HMCTS and OCTMS are siloxanes and silanols as abbreviated in the report)"
+    },
+    "month": {
+      "unit": null,
+      "description": "YYYY-MM or increment_average"
+    },
+    "printed": {
+      "unit": null,
+      "description": "Cell text"
+    },
+    "value": {
+      "unit": "mg/m3",
+      "description": "Monthly average, mg/m3 per the table title; see notes for CO2"
+    },
+    "qualifier": {
+      "unit": null,
+      "description": "not_detected (blank cell: 'Blank cells indicate that the compound was not detected during that month'); no_average_printed for a blank average cell"
+    },
+    "source_line": {
+      "unit": null,
+      "description": "Line in the pdftotext -layout output"
+    }
+  },
+  "preprocessing": "Transcribed from the PDF text layer (pdftotext from poppler, -layout) by transcribe_tox_inc71.py in this folder; no OCR and no reading of figures. Every printed cell is kept verbatim in 'printed'; 'value' is the number with thousands separators removed, empty when the cell is not a number; 'qualifier' names the non-numeric cases. The script stops if a table row does not have one cell per sample column. Blank cells are kept as rows with an empty value and a qualifier.",
+  "license": "US Government work. NASA material is generally not subject to copyright in the United States (NASA media usage guidelines, https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA as the source; no NASA logo or insignia is used (NASA-SOURCES.md section 4).",
+  "provenance": "REPLAY",
+  "provenance_note": "REPLAY of published NASA monthly averages.",
+  "is_not": [
+    "Monthly means, not the 6 to 10 minute instrument series (that series is not public)."
+  ],
+  "consumers": [
+    {
+      "epic": "E23",
+      "component": "simulators/habitat CO, ammonia and VOC feeds",
+      "use": "Monthly anchor levels for the SIM generators (CO 1.52 to 2.32 mg/m3; ammonia 0.03 mg/m3 in two months, otherwise not detected)."
+    },
+    {
+      "epic": "E24",
+      "component": "CO and ammonia limits",
+      "use": "Nominal values far below the SMACs (CO 15 ppm, ammonia 3 ppm in environment-hazards.json): replay must stay at info."
+    }
+  ],
+  "notes": "The CO2 row reads 2.1 to 2.5 under a table titled mg/m3. Those values match the ppCO2 range in mmHg that the report plots in Figure 2, so the CO2 unit is not asserted here; do not use that row as mg/m3."
+}

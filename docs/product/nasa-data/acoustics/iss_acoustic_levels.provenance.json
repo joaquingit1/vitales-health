@@ -1,0 +1,92 @@
+{
+  "file": "iss_acoustic_levels.csv",
+  "title": "ISS module and sleep station sound levels (2022 to 2024 surveys) and crew-worn noise dosimetry (2020, Increments 51 to 64)",
+  "catalog_id": "N32, N33",
+  "source_url": "https://ntrs.nasa.gov/api/citations/20240006442/downloads/ICES-2024-354%20ISS%20Acoustics.pdf",
+  "documentation": [
+    "N32: C. S. Allen, 'International Space Station Acoustics: A Status Report', ICES-2024-354, NASA JSC, 8 pages, https://ntrs.nasa.gov/citations/20240006442; PDF sha256 440e96f27819d0ceeb9e6f94dd25ce72ccaec60b757106d52c79b6696973831c, 497,968 bytes",
+    "N33: J. G. Limardo, C. S. Allen, R. W. Danielson, A. J. Boone, 'Status: International Space Station (ISS) Crewmembers' Noise Exposures', Inter-Noise 2021 paper 2219, https://ntrs.nasa.gov/citations/20210016305; PDF https://ntrs.nasa.gov/api/citations/20210016305/downloads/Inter-Noise2021_Paper2219_FINAL%20Manuscript.pdf, sha256 a7430dd0286ecb3dfa20b3af5d9f5e691ee71f1f346af7f8829617f4573e5878, 2,951,484 bytes"
+  ],
+  "retrieved_at_utc": "2026-11-15T02:01:35+00:00",
+  "bytes": 7540,
+  "sha256": "6133f3ae071b0b49169ec27188e601b13206d8a5c54f28da5fbd39bc948d8bc2",
+  "mission": "International Space Station",
+  "instrument": "Sound level meter surveys (spatial averages per module, sleep station interiors) and crew-worn acoustic dosimeters",
+  "rows": 33,
+  "cadence": "One row per stated measurement",
+  "columns": {
+    "document": {
+      "unit": null,
+      "description": "ICES-2024-354 (N32) or INTERNOISE-2021-2219 (N33)"
+    },
+    "segment": {
+      "unit": null,
+      "description": "US or RS (Russian Segment) where stated"
+    },
+    "location": {
+      "unit": null,
+      "description": "Module, sleep station or crew group"
+    },
+    "location_kind": {
+      "unit": null,
+      "description": "work area, stowage, sleep station, crew-worn dosimeter"
+    },
+    "measured": {
+      "unit": null,
+      "description": "Date of the measurement (YYYY-MM-DD or YYYY-MM), empty when the paper does not give one"
+    },
+    "date_basis": {
+      "unit": null,
+      "description": "Where the date comes from (text or a figure caption)"
+    },
+    "metric": {
+      "unit": null,
+      "description": "Spatial average, interior, LEQ16 (16-hour work period equivalent level), LEQ8 (8-hour sleep period)"
+    },
+    "nc_rating": {
+      "unit": "1",
+      "description": "Noise Criterion rating"
+    },
+    "sil_db": {
+      "unit": "dB",
+      "description": "Speech interference level SIL(4)"
+    },
+    "sound_level_dba": {
+      "unit": "dB",
+      "description": "A-weighted sound level (UCUM has no A-weighting; the weighting is A)"
+    },
+    "quote": {
+      "unit": null,
+      "description": "The sentence the numbers come from, verbatim apart from words the PDF hyphenates across line ends"
+    },
+    "pdf_page": {
+      "unit": null,
+      "description": "PDF page of the quote"
+    }
+  },
+  "preprocessing": "Hand-picked statements written as rows by build_iss_acoustic_levels.py in this folder; the script checks every quote against the PDF text layer (pdftotext from poppler, raw mode) and stops if one is missing. Only numbers stated in the text are used; no value was read from a figure.",
+  "license": "US Government work. NASA material is generally not subject to copyright in the United States (NASA media usage guidelines, https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA as the source; no NASA logo or insignia is used (NASA-SOURCES.md section 4).",
+  "provenance": "REPLAY",
+  "provenance_note": "REPLAY of published NASA survey values with their measurement dates.",
+  "is_not": [
+    "Summary values, not a sound level time series.",
+    "Area surveys are not a person's noise dose; only the LEQ16 and LEQ8 rows come from crew-worn dosimeters, and the paper's group rows are averages over many sessions."
+  ],
+  "consumers": [
+    {
+      "epic": "E23",
+      "component": "simulators/habitat noise feed",
+      "use": "Per-area nominal levels for the SIM noise generator: work modules 46.2 to 67.4 dBA, sleep stations 43.8 to 59.2 dBA."
+    },
+    {
+      "epic": "E24",
+      "component": "noise warning rules",
+      "use": "Golden inputs with NASA's own reading: sleep stations above 50 dBA (the sleep level in Flight Rule B13-152, as quoted) but below 62 dBA (hearing rest); the April 2020 LEQ16 of 73.0 dBA, above the 72 dBA limit, after which 'this crewmember was required to don HPD' (N33 p. 4)."
+    },
+    {
+      "epic": "E21",
+      "component": "eval/scenarios",
+      "use": "Noise exposure scenario with a documented crew action (hearing protection)."
+    }
+  ]
+}

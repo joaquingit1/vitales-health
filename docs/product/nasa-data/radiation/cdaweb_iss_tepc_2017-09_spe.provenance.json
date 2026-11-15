@@ -1,0 +1,85 @@
+{
+  "file": "cdaweb_iss_tepc_2017-09_spe.csv",
+  "title": "ISS TEPC dose and dose equivalent, 1 minute, 3 to 16 September 2017",
+  "catalog_id": "N30",
+  "source_url": "https://cdaweb.gsfc.nasa.gov/hapi/data?id=ISS_DOSANL_TEPC&time.min=2017-09-03T00:00:00Z&time.max=2017-09-17T00:00:00Z&format=csv",
+  "documentation": [
+    "https://cdaweb.gsfc.nasa.gov/hapi/info?id=ISS_DOSANL_TEPC (parameters, units, fill value)",
+    "https://cdaweb.gsfc.nasa.gov/misc/NotesI.html#ISS_DOSANL_TEPC ('Experiment Data, ISS TEPC (from ASCII DOS.TXT file), Edward Semones (NASA Space Radiation Analysis Group/Johnson Space Center)')",
+    "https://doi.org/10.48322/0ba1-1764 (dataset DOI)",
+    "https://data.nasa.gov/dataset/iss-tissue-equivalent-proportional-counter-tepc-dose-analyzer-10-s-data-61b24 (NASA Open Data Portal record; license https://www.usa.gov/government-works)"
+  ],
+  "retrieved_at_utc": "2026-11-15T01:58:32+00:00",
+  "bytes": 1347767,
+  "sha256": "881a5c45fe8f2b76fc381fd0bcc86ee8195d41d03b8231a5516c9712c0e0b7ad",
+  "mission": "International Space Station",
+  "instrument": "ISS Tissue Equivalent Proportional Counter (TEPC), NASA Space Radiation Analysis Group, CDAWeb dataset ISS_DOSANL_TEPC (coverage 2010-04-29 to 2018-04-11). The data.nasa.gov record describes the JAXA PS-TEPC; the CDAWeb notes name the NASA SRAG TEPC, which this file follows. Module location is not given in the dataset.",
+  "rows": 20035,
+  "time_span": {
+    "first": "2017-09-03T00:00:52.000Z",
+    "last": "2017-09-16T23:59:34.000Z"
+  },
+  "cadence": "About 1 minute (TIME_INTERVAL column: 1.000 or 1.333 min).",
+  "timestamp_timezone": "UTC (HAPI isotime with Z suffix)",
+  "columns": {
+    "column 1 (Time)": {
+      "unit": null,
+      "description": "UTC, ISO 8601 with Z"
+    },
+    "column 2 (DOSE)": {
+      "unit": "uGy/min",
+      "description": "Average dose rate"
+    },
+    "column 3 (DOSE_EQ60)": {
+      "unit": "uSv/min",
+      "description": "Average dose equivalent rate (ICRP 60)"
+    },
+    "column 4 (TIME_INTERVAL)": {
+      "unit": "min",
+      "description": "Minutes over which the data was collected"
+    },
+    "column 5 (LONGITUDE)": {
+      "unit": "deg",
+      "description": "Geographic longitude of the ISS"
+    },
+    "column 6 (LATITUDE)": {
+      "unit": "deg",
+      "description": "Geographic latitude of the ISS"
+    },
+    "column 7 (ALTITUDE)": {
+      "unit": "km",
+      "description": "Altitude of the ISS"
+    }
+  },
+  "preprocessing": "None; the HAPI CSV response saved as supplied. HAPI CSV has no header row: the column names and units above come from the HAPI info response. Fill value is -1.0E31; this window has none.",
+  "license": "US Government work (https://www.usa.gov/government-works, per the NASA Open Data Portal record). US Government work. NASA material is generally not subject to copyright in the United States (NASA media usage guidelines, https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA as the source; no NASA logo or insignia is used (NASA-SOURCES.md section 4).",
+  "provenance": "REPLAY",
+  "provenance_note": "REPLAY of recorded NASA CDAWeb data, shown with its 2017 UTC timestamps.",
+  "is_not": [
+    "An area instrument's dose and dose equivalent at one location, not a crew member's personal dose or effective dose (NASA career limits use effective dose).",
+    "Rates per minute, not per hour: convert with the unit, never by assumption."
+  ],
+  "consumers": [
+    {
+      "epic": "E23",
+      "component": "simulators/habitat radiation feed",
+      "use": "Second, independent instrument for the same event, with dose equivalent in uSv and explicit UTC; lets the feed carry both uGy and uSv with their UCUM units. Gives the upper end of the peak hourly factor for the station_solar_particle_event scenario (about 19x at the TEPC versus about 7x at DosTel2)."
+    },
+    {
+      "epic": "E24",
+      "component": "radiation warning rules and mission dose tally",
+      "use": "Golden input for the running dose tally: each rate times its TIME_INTERVAL, summed over a UTC day, gives about 410 uGy (about 900 uSv) on quiet days and about 830 uGy (about 1,710 uSv) on 11 September (README)."
+    },
+    {
+      "epic": "E14",
+      "component": "trends",
+      "use": "A real daily series (dose per day) with one outlier day for testing the deterministic trend and the forecast evaluation on non-personal data; never a personal indicator."
+    },
+    {
+      "epic": "E21",
+      "component": "eval/scenarios",
+      "use": "Data for the cases/spe-2017-09-iss-columbus known-outcome case."
+    }
+  ],
+  "notes": "Hourly profile computed the same way (readings outside latitude -55 to 5 and longitude -95 to 20, DOSE times 60 for uGy/h, divided by the median hourly mean of 3 to 9 September, 5.64 uGy/h): peak hours on 11 September at 09:00 UTC (106.8 uGy/h, 18.9x), 07:00 (17.6x), 10:00 (14.8x) and 05:00 (12.9x); 7.3x to 7.6x at 08:00, 11:00 and 12:00. The TEPC (location not given) reads a higher peak factor than DosTel2 in Columbus, so a simulator should cite the instrument it takes the factor from."
+}

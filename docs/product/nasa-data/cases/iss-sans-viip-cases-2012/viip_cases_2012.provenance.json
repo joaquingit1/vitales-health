@@ -1,0 +1,36 @@
+{
+  "file": "viip_cases_2012.csv",
+  "catalog_id": "N37",
+  "bytes": 2733,
+  "sha256": "7d7e8e915870c8566830164e0e6b11288c18e78c974278b8b28b6e6d50ba08dd",
+  "source_url": "https://humanresearchroadmap.nasa.gov/evidence/reports/VIIP.pdf",
+  "documentation": "https://humanresearchroadmap.nasa.gov/evidence/reports/VIIP.pdf",
+  "retrieved_at_utc": "2026-11-15T01:54:00Z",
+  "mission_instrument": "ISS long-duration missions before 2012; seven astronauts whose case data NASA approved for release",
+  "rows": 7,
+  "units": {
+    "inflight_onset_value": "as printed, in inflight_onset_unit",
+    "inflight_onset_unit": "UCUM: mo (month), wk (week)",
+    "lp_opening_pressure_cm_h2o": "cm[H2O]",
+    "lp_day_after_return": "d after return to Earth (day count as printed)",
+    "source_pdf_page": "page of the PDF"
+  },
+  "preprocessing": "Transcribed by hand from the case narratives in section IV.A. Table 1 of the report is an image and was not used. Onset values keep the printed unit and are not converted to days. Postflight findings are short summaries; the verbatim column quotes the onset sentence.",
+  "license_terms": "NASA publication approved for public release (12 July 2012), public domain in the United States",
+  "provenance": "REPLAY. Case descriptions printed in a NASA evidence report; not measurements recorded by a device.",
+  "is_not": "Not OCT, IOP or imaging data. Not a random sample: these are the cases NASA had approved for release.",
+  "consumers": [
+    {
+      "epic": "E25",
+      "use": "Routine vision check: the in-flight report of a vision change is the trigger"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenarios, including two cases with no in-flight symptom"
+    },
+    {
+      "epic": "E28",
+      "use": "Onboard plan for a vision change (spare reading glasses were delivered in case 4 and 5)"
+    }
+  ]
+}

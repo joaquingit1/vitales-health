@@ -1,0 +1,35 @@
+{
+  "file": "apollo15_cardiac_events.csv",
+  "catalog_id": "N36",
+  "bytes": 2848,
+  "sha256": "f3e7c481e8f26231aaeb7a40b6d121de822a40e184954c0fa9d6c6c7b7c3d7a6",
+  "source_url": "https://ntrs.nasa.gov/api/citations/19760005580/downloads/19760005580.pdf",
+  "documentation": "https://ntrs.nasa.gov/citations/19760005580",
+  "retrieved_at_utc": "2026-11-15T01:53:00Z",
+  "mission_instrument": "Apollo 15 (July and August 1971), onboard ECG biotelemetry as described in Biomedical Results of Apollo, Section II Chapter 1",
+  "rows": 8,
+  "units": {
+    "ground_elapsed_time": "hours:minutes from launch, as printed (GET)",
+    "heart_rate_per_min": "/min (beats per minute as printed)",
+    "source_pdf_page": "page of the NTRS PDF",
+    "printed_page": "page number printed in SP-368"
+  },
+  "preprocessing": "Events transcribed by hand from the chapter text with verbatim sentences (OCR word spacing restored). 'about 179:05' is 179:07 minus the printed one and one-half minutes. No value read from the ECG tracing figure.",
+  "license_terms": "NASA publication, public domain in the United States",
+  "provenance": "REPLAY. Event descriptions and approximate heart rates printed in a NASA book; not ECG samples.",
+  "is_not": "Not an ECG waveform or a heart rate series. Not the in-flight potassium level: potassium was measured only postflight.",
+  "consumers": [
+    {
+      "epic": "E07",
+      "use": "Pulse and ECG device twins: a pulse number alone cannot show bigeminy; the rhythm family needs an ECG"
+    },
+    {
+      "epic": "E32",
+      "use": "Kit change after the event: antiarrhythmics added for Apollo 16"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenario: unexplained extreme fatigue during heavy work, rhythm unknown to the crewman"
+    }
+  ]
+}

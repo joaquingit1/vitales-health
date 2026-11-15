@@ -1,0 +1,104 @@
+{
+  "case_id": "spe-2017-09-mars-surface",
+  "case_type": "quantitative",
+  "title": "Solar particle event of September 2017 measured on the surface of Mars by the Curiosity rover's RAD",
+  "environment_id": "mars_surface",
+  "activity_overlay": "eva (the documented guidance concerns a surface walk)",
+  "input_data": [
+    {
+      "path": "radlab_msl_rad_surface_20170905_20170919.csv",
+      "use": "absorbed_dose_rate in uGy/h"
+    }
+  ],
+  "documented_outcome": [
+    {
+      "quote": "It produced radiation levels on the surface more than double any previously measured by the Curiosity rover's Radiation Assessment Detector, or RAD, since that mission's landing in 2012. The high readings lasted more than two days.",
+      "source": "jpl2017254",
+      "location": "Paragraphs 4 and 5"
+    },
+    {
+      "quote": "If you were outdoors on a Mars walk and learned that an event like this was imminent, you would definitely want to take shelter, just as you would if you were on a space walk outside the International Space Station,",
+      "source": "jpl2017254",
+      "location": "Quote attributed to RAD Principal Investigator Don Hassler"
+    },
+    {
+      "quote": "In comparison to the ISS, MSL-RAD on the surface of Mars observed a dose rate of 0.4 µGy/min at the time of the second “main” peak of the event 07:30 UTC on 11 September 2017, while the onset of the event was already seen on 10 September at around 19:50 UTC. The total dose from the event observed with the MSL-RADB sub-detector was 347 µGy in Si",
+      "source": "berger2018",
+      "location": "Section 3.3, PDF page 10 of the accepted manuscript"
+    }
+  ],
+  "onset_relative_to_data": "File starts 2017-09-05T00:16:28. Berger et al. give onset at about 2017-09-10 19:50 UTC (about 139.6 hours into the file) and a peak of 0.4 uGy/min (24 uGy/h) at 07:30 UTC on 11 September. The NASA release says the high readings lasted more than two days.",
+  "expected_product_output": {
+    "hazard_id": "radiation",
+    "levels": [
+      "watch while the dose rate climbs above the surface background",
+      "act for anyone outside: 'Radiation alert or solar particle event warning: shelter now and end any walk outside'"
+    ],
+    "basis_for_act": "The documented expert statement above that a walker should take shelter. It is a statement about what a crew should do, not a record of a crew action: no crew was on Mars.",
+    "thresholds": "Both rules in environment-hazards.json still say the threshold is 'to be set by clinical review'. This case supplies the documented event that a configured threshold must catch; it does not supply the threshold.",
+    "must_not": [
+      "emergency (needs symptoms)"
+    ],
+    "trend": "E14: peak at least twice the pre-event level, elevated for about a day or more"
+  },
+  "replay_checks_derived_by_curator": {
+    "note": "Computed from the data file by the case curator, not NASA numbers.",
+    "pre_event_rows_before_2017-09-10T12:00": {
+      "rows": 435,
+      "mean_uGy_per_h": 7.83,
+      "max_uGy_per_h": 11.2617035
+    },
+    "max_in_file": {
+      "timestamp": "2017-09-11T15:23:41",
+      "uGy_per_h": 23.182808
+    },
+    "rows_above_twice_pre_event_mean": {
+      "count": 126,
+      "first": "2017-09-11T08:20:07",
+      "last": "2017-09-12T06:52:41"
+    },
+    "timing_caveat": "In this file the rise starts after 2017-09-11T02:57 and peaks at 15:23, later than Berger's onset (10 September 19:50 UTC) and peak (07:30 UTC). The API does not state the time convention, so tests should assert magnitude (peak at least twice the pre-event mean, within 2017-09-10 to 2017-09-13) and not exact clock times."
+  },
+  "consumers": [
+    {
+      "epic": "E23/E24",
+      "use": "Radiation watch and act on a Mars surface profile"
+    },
+    {
+      "epic": "E14",
+      "use": "Doubling over baseline"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenario: solar event during a surface walk; expected shelter now"
+    }
+  ],
+  "is_not": "Not a crew exposure; no humans were present. One detector on a rover under the Martian atmosphere.",
+  "sources": {
+    "jpl2017254": {
+      "title": "Large Solar Storm Sparks Global Aurora and Doubles Radiation Levels on the Martian Surface",
+      "publisher": "NASA Jet Propulsion Laboratory news release 2017-254, 29 September 2017",
+      "url": "https://www.jpl.nasa.gov/news/large-solar-storm-sparks-global-aurora-and-doubles-radiation-levels-on-the-martian-surface",
+      "url_read_note": "Text read through a page-content API because direct download returned HTTP 403.",
+      "is_nasa": "NASA",
+      "catalog_id": "N39"
+    },
+    "berger2018": {
+      "title": "The Solar Particle Event on 10 September 2017 as observed onboard the International Space Station (ISS)",
+      "authors": "T. Berger, D. Matthiae, S. Burmeister, R. Rios, K. Lee, E. Semones, D. M. Hassler, N. Stoffle, C. Zeitlin (K. Lee and E. Semones: NASA Johnson Space Center)",
+      "journal": "Space Weather 16(9):1173-1189, 2018, doi:10.1029/2018SW001920",
+      "url_read": "https://elib.dlr.de/120788/1/ME-SBA-2018-Berger-Matthi%C3%A4_et%20al-DOSIS-3D_Space%20Weather.pdf",
+      "url_read_note": "Accepted manuscript on the DLR repository (32 PDF pages); page numbers below are PDF pages of this copy. The publisher copy (https://doi.org/10.1029/2018SW001920) refused automated download (HTTP 403).",
+      "ntrs_record": "https://ntrs.nasa.gov/citations/52387849917688",
+      "sha256_of_copy_read": "c5178797e2360ea5892c5097c3ca86f5e78d426549547b1d4a76208da9298d18",
+      "is_nasa": "NASA co-authored journal article with an NTRS record (no NTRS download); not a NASA publication",
+      "catalog_id": "N40"
+    },
+    "radlab": {
+      "title": "NASA OSDR RadLab data API",
+      "documentation": "https://visualization.osdr.nasa.gov/radlab/gui/data-api/",
+      "is_nasa": "NASA",
+      "catalog_id": "N20"
+    }
+  }
+}

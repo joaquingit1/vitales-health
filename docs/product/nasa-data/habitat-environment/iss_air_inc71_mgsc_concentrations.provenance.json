@@ -1,0 +1,97 @@
+{
+  "file": "iss_air_inc71_mgsc_concentrations.csv",
+  "title": "ISS cabin air grab samples, Increment 71 (May to September 2024): compound concentrations",
+  "catalog_id": "N31",
+  "source_url": "https://www.nasa.gov/wp-content/uploads/2025/12/increment-71-report-including-ng-21-ingress-final.pdf",
+  "documentation": [
+    "JSC Toxicology and Environmental Chemistry Group, Memorandum TOX-SW-2025-02, 'Toxicological Assessment of ISS Air and Water Quality: March 26, 2024 to September 23, 2024 (Increment 71) Including NG-21 Ingress and Boeing-CFT Ascent', dated October 21, 2025, 13 PDF pages; source PDF sha256 96356e314a1d88d29a5e6bb55d690f225aadb1709ce00827cac03a8b1c2ef245, 1,114,979 bytes",
+    "Table S-1, PDF page 9",
+    "Table 1 (summary T-values and alcohols), PDF page 2"
+  ],
+  "retrieved_at_utc": "2026-11-15T01:53:07+00:00",
+  "bytes": 63320,
+  "sha256": "beb536509795c3582e8dce795f56c5b6a538b6ddfd7ffc209cc17ece4adaffa8",
+  "mission": "ISS Increment 71; returned on Crew-8 and Boeing-CFT",
+  "instrument": "Mini grab sample containers (mGSCs) analyzed on the ground by the JSC Environmental Chemistry Laboratory (GC-MS TO-15 modified, GC-FID, TGA)",
+  "rows": 410,
+  "cadence": "Ten samples on six dates: eight routine samples on 2024-05-08, 2024-06-17, 2024-07-22 and 2024-09-11 (two locations each), one Boeing Starliner cabin ascent sample (2024-06-06) and one NG-21 Cygnus ingress sample (2024-08-06)",
+  "timestamp_timezone": "Dates and times as printed; the table's last row gives the GMT day of year for each sample, kept in gmt_day_of_year.",
+  "columns": {
+    "sample_id": {
+      "unit": null,
+      "description": "Analysis/Sample ID"
+    },
+    "return_mission": {
+      "unit": null,
+      "description": "Return flight"
+    },
+    "location": {
+      "unit": null,
+      "description": "Sample location (Lab, Columbus, SM, JPM, Cabin of Starliner, Cygnus)"
+    },
+    "description": {
+      "unit": null,
+      "description": "Sample description as printed"
+    },
+    "sample_date": {
+      "unit": null,
+      "description": "ISO date"
+    },
+    "sample_time": {
+      "unit": null,
+      "description": "As printed"
+    },
+    "gmt_day_of_year": {
+      "unit": null,
+      "description": "As printed in the GMT row"
+    },
+    "method_group": {
+      "unit": null,
+      "description": "Analysis group heading"
+    },
+    "compound": {
+      "unit": null,
+      "description": "Compound as printed"
+    },
+    "printed": {
+      "unit": null,
+      "description": "Cell text verbatim"
+    },
+    "value": {
+      "unit": "mg/m3",
+      "description": "Concentration, milligrams per cubic meter"
+    },
+    "reporting_limit": {
+      "unit": "mg/m3",
+      "description": "For '<x' cells: the laboratory reporting limit x"
+    },
+    "qualifier": {
+      "unit": null,
+      "description": "below_reporting_limit, not_found (no unknown peak above threshold), reported_by_gc_fid, not_reported"
+    },
+    "source_line": {
+      "unit": null,
+      "description": "Line in the pdftotext -layout output, for audit"
+    }
+  },
+  "preprocessing": "Transcribed from the PDF text layer (pdftotext from poppler, -layout) by transcribe_tox_inc71.py in this folder; no OCR and no reading of figures. Every printed cell is kept verbatim in 'printed'; 'value' is the number with thousands separators removed, empty when the cell is not a number; 'qualifier' names the non-numeric cases. The script stops if a table row does not have one cell per sample column.",
+  "license": "US Government work. NASA material is generally not subject to copyright in the United States (NASA media usage guidelines, https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA as the source; no NASA logo or insignia is used (NASA-SOURCES.md section 4).",
+  "provenance": "REPLAY",
+  "provenance_note": "REPLAY of published NASA laboratory results; sample dates kept.",
+  "is_not": [
+    "Grab samples, one point in time each, not a continuous sensor feed.",
+    "Carbon dioxide here is a grab-sample value in mg/m3, not the one-hour average the CO2 limit uses."
+  ],
+  "consumers": [
+    {
+      "epic": "E24",
+      "component": "VOC toxicity index (T-value) rule",
+      "use": "Golden case checked against the source: the concentrations here divided by the 180-day SMACs (JSC 20584, catalog EV03) must give the T-values NASA printed in iss_air_inc71_mgsc_t_values.csv (0.2 to 0.7 routine, 0.8 for the NG-21 ingress with 180-day SMACs)."
+    },
+    {
+      "epic": "E23",
+      "component": "simulators/habitat CO, VOC and ammonia feeds",
+      "use": "Real nominal levels for the SIM generators of the CO (1.3 to 2.2 mg/m3) and VOC channels, cited instead of invented."
+    }
+  ]
+}

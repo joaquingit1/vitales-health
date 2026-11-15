@@ -1,0 +1,37 @@
+{
+  "file": "apollo13_mission_report_values.csv",
+  "catalog_id": "N35, N36",
+  "bytes": 3058,
+  "sha256": "560eb8a4be4edc2aca2243f5fb1fd66fef409d23d93c7b6a3fcea5b650e56ce7",
+  "source_url": "https://ntrs.nasa.gov/api/citations/19710003598/downloads/19710003598.pdf",
+  "documentation": "https://ntrs.nasa.gov/citations/19710003598",
+  "retrieved_at_utc": "2026-11-15T01:52:00Z",
+  "mission_instrument": "Apollo 13 (April 1970), lunar module environmental control system and crew medical observations as reported in the Apollo 13 Mission Report",
+  "rows": 12,
+  "units": {
+    "ground_elapsed_time_h": "h (ground elapsed time from launch, as printed)",
+    "value_low": "per row, see unit_ucum",
+    "value_high": "per row, see unit_ucum",
+    "unit_ucum": "UCUM code",
+    "source_pdf_page": "page of the NTRS PDF",
+    "printed_page": "page number printed on the report page"
+  },
+  "preprocessing": "Values transcribed by hand from the report text, each with its verbatim sentence and page. No value was read from a figure. OCR misreadings are corrected in the quote and the OCR form is shown in brackets. For ranges given per crewman, value_low and value_high are the smallest and largest printed values.",
+  "license_terms": "NASA publication, public domain in the United States",
+  "provenance": "REPLAY. Values printed in a NASA mission report; not raw telemetry and not a time series.",
+  "is_not": "Not a CO2 time series: the report gives a peak, a duration and ranges. Not paired with a measured cabin pressure, so no ppm conversion applies.",
+  "consumers": [
+    {
+      "epic": "E23/E24",
+      "use": "CO2 act level and the extra-scrubbing action; thermal comfort zone"
+    },
+    {
+      "epic": "E32",
+      "use": "Scrubber consumables exhausted and an improvised substitute (LiOH cartridges of the other vehicle)"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenario with a documented outcome"
+    }
+  ]
+}

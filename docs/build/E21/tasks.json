@@ -126,8 +126,8 @@
         "docs/product/api/schemas/error.schema.json",
         "docs/product/api/schemas/event.schema.json",
         "docs/product/api/schemas/event-page.schema.json",
-        "docs/product/nasa-data/eda_rr1_telemetry.csv",
-        "docs/product/nasa-data/radlab_dostel_sample.csv",
+        "docs/product/nasa-data/habitat-environment/eda_rr1_telemetry.csv",
+        "docs/product/nasa-data/radiation/radlab_dostel_sample.csv",
         "docs/product/DEMO-PLAN.md",
         "docs/tdd/E06.md",
         "docs/tdd/E29.md",
@@ -327,8 +327,8 @@
         "docs/tdd/E22.md",
         "docs/tdd/E23.md",
         "docs/tdd/E31.md",
-        "docs/product/nasa-data/eda_rr1_telemetry.csv",
-        "docs/product/nasa-data/radlab_dostel_sample.csv",
+        "docs/product/nasa-data/habitat-environment/eda_rr1_telemetry.csv",
+        "docs/product/nasa-data/radiation/radlab_dostel_sample.csv",
         "docs/product/DEMO-PLAN.md"
       ],
       "depends_on": [
