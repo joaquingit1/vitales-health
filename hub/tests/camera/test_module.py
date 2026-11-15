@@ -212,7 +212,9 @@ def test_an_enabled_camera_without_a_readable_token_stays_unknown(tmp_path: Path
     }
     registry, live, store = _bound(tmp_path, None, enabled=True, texts=texts)
     assert live.loop is not None
-    live.loop.stop()
+    # The binding started the loop thread, which shares the store's one SQLite writer: join it before ticking here,
+    # or a pass still running on that thread collides with this one ("cannot start a transaction within a transaction").
+    assert live.loop.stop_within(5.0)
     assert live.loop.tick() == 0
     with store.uows.snapshot() as view:
         assert _port(registry, AdapterReadinessPort).ready_methods(view) is None
