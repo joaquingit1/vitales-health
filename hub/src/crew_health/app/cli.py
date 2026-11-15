@@ -18,6 +18,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from crew_health.app.assembly import BuildCatalog, Runtime, create_app
+from crew_health.app.camera_reports import HubReports
 from crew_health.app.demo_mission import DemoMission
 from crew_health.app.installed_modules import REGISTRATIONS
 from crew_health.app.privacy import DemoOperatorRecord
@@ -184,6 +185,8 @@ def serve(
     mission: DemoMission | None = None,
     model: ModelInstallation | None = None,
     stub: StubInstallation | None = None,
+    ready: Callable[[Runtime], Callable[[], None]] | None = None,
+    reports: HubReports | None = None,
 ) -> int:
     db = open_database(database, _read_settings(settings))
     try:
@@ -193,7 +196,7 @@ def serve(
             contract_path=resources.contracts / "api/openapi.yaml",
             schema_directory=resources.contracts / "api/schemas",
             configure=production(
-                resources, origin=origin, demo=demo, mission=mission, model=model, stub=stub
+                resources, origin=origin, demo=demo, mission=mission, reports=reports, model=model, stub=stub
             ),
             bootstrap=partial(bootstrap_release, resources),
         )
@@ -201,9 +204,15 @@ def serve(
         try:
             if confirmation is not None and runtime.serving:
                 confirm_time(runtime, confirmation)
-            if runtime.supervisor is not None:
-                runtime.supervisor.start()
-            server(app, host, port)
+            # A demo profile starts its companion processes once the hub serves; they stop with it.
+            stop = ready(runtime) if ready is not None and runtime.serving else None
+            try:
+                if runtime.supervisor is not None:
+                    runtime.supervisor.start()
+                server(app, host, port)
+            finally:
+                if stop is not None:
+                    stop()
         finally:
             stuck = runtime.shutdown()
         if stuck:
