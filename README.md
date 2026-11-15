@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/badge-space-apps.svg" alt="Space Apps 2026" />
+  <img src="assets/badge-space-apps.svg" alt="NASA Space Apps Challenge 2026" />
   <img src="assets/badge-offline.svg" alt="Offline first" />
   <img src="assets/badge-ai.svg" alt="Local AI optional" />
   <img src="assets/badge-prototype.svg" alt="Research prototype" />
