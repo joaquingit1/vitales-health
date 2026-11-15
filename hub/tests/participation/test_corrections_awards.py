@@ -15,7 +15,7 @@ from crew_health.participation.domain.derivation import (
 from crew_health.participation.domain.errors import InvalidBasis, InvalidCorrection
 from crew_health.participation.domain.identity import award_id
 from crew_health.participation.domain.projection import build_completion, decide
-from crew_health.participation.domain.rules import parse_rules
+from crew_health.participation.domain.rules import ParticipationRules, parse_rules
 from crew_health.participation.domain.types import CompletionRecord
 
 from .harness import at_day, basis, clock, config_document, facts_for, rules
@@ -137,8 +137,12 @@ def test_a_replacement_still_fails_the_origin_rule_so_the_void_stays_in_force() 
 
 
 def ledger_after(
-    days: list[int], ledger: list[AwardEvent], *, void: bool = False, rule_set=None
-) -> list[AwardEvent]:  # type: ignore[no-untyped-def]
+    days: list[int],
+    ledger: list[AwardEvent],
+    *,
+    void: bool = False,
+    rule_set: ParticipationRules | None = None,
+) -> list[AwardEvent]:
     r = rule_set or rules()
     facts = facts_for(days)
     first, today = 1, max(days, default=1)

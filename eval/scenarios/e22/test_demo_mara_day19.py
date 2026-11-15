@@ -10,8 +10,7 @@ import json
 from pathlib import Path
 
 import pytest
-from e02_http import bearer, run, sign_in
-from e22_served import basis, start
+from e22_served import basis, bearer, run, sign_in, start
 from httpx import AsyncClient
 
 ROOT = Path(__file__).resolve().parents[3]

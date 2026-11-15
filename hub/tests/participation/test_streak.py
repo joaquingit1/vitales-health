@@ -13,14 +13,13 @@ from hypothesis import strategies as st
 
 from crew_health.participation.domain.derivation import (
     MAX_VIEW_DAYS,
-    CompletionFact,
     derive_streak,
     event_cursor,
     reached_attributions,
     resolve_first_day,
 )
 from crew_health.participation.domain.errors import InvalidBasis, ViewBoundExceeded
-from crew_health.participation.domain.types import StreakView
+from crew_health.participation.domain.types import CompletionFact, StreakView
 
 from .harness import PROP, example_value, fact, facts_for, rules, validator
 

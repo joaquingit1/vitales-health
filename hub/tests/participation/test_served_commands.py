@@ -9,15 +9,14 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from e02_http import bearer, problem, sign_in
-from e22_served import Hub, basis, run, session_of, start
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
 from crew_health.kernel.errors import ProblemError
-from crew_health.kernel.uow import SessionContext
+
+from .e22_served import Hub, basis, bearer, problem, run, session_of, sign_in, start
 
 pytestmark = [pytest.mark.E22, pytest.mark.trace("D10", "R31", "R32", "INV-E22-13")]
 ROOT = Path(__file__).resolve().parents[3]
@@ -151,7 +150,8 @@ def test_config_edit_changes_content_and_a_corrupt_document_keeps_the_last_good(
         # Valid edit: the first threshold becomes 5. Content changes with no code change.
         edited = copy.deepcopy(RULES)
         edited["patch_thresholds"] = [5, 14, 30]
-        edited["patch_designs"][0]["threshold"] = 5  # type: ignore[index]
+        designs = cast(list[dict[str, object]], edited["patch_designs"])
+        designs[0]["threshold"] = 5
         proposed = await client.post(
             "/v1/config/releases",
             json=propose(edited),
@@ -164,8 +164,6 @@ def test_config_edit_changes_content_and_a_corrupt_document_keeps_the_last_good(
         )
         assert activated.status_code == 200, activated.text
         # The earned 7 stays (an award is never taken back by a rules edit); 5 is newly owed and earned.
-        assert sorted(p["threshold"] for p in await patches()) == [5, 7]
+        assert sorted(int(str(p["threshold"])) for p in await patches()) == [5, 7]
 
     run(hub.running, journey)
-    _ = session_of, Hub
-    assert SessionContext

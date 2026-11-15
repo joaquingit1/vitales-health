@@ -6,6 +6,7 @@ from __future__ import annotations
 import random
 from dataclasses import fields, replace
 from datetime import UTC, datetime
+from typing import Any, cast
 
 import pytest
 from hypothesis import given
@@ -65,7 +66,8 @@ def test_four_people_over_seven_days_have_28_due_and_the_example_shape() -> None
 
 @pytest.mark.trace("T-E22-056", "T-E22-057", "INV-E22-06", "R32", "V45")
 def test_view_fields_equal_the_schema_and_hold_no_person_or_per_day_value() -> None:
-    schema_fields = set(validator("crew-goal-view.schema.json").schema["properties"])
+    schema = cast(dict[str, Any], validator("crew-goal-view.schema.json").schema)
+    schema_fields = set(schema["properties"])
     assert {f.name for f in fields(CrewGoalView)} == schema_fields
     forbidden = ("patient", "person", "member", "name", "day_count", "per_")
     assert not [n for n in schema_fields if any(w in n for w in forbidden)]
