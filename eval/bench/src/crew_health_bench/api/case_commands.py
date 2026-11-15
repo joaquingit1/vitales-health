@@ -9,7 +9,6 @@ from crew_health.kernel.ids import IdFactory
 from crew_health_bench.adapters.case_documents import CaseDocuments, LoadedCase
 from crew_health_bench.adapters.documents import BenchSettings, load_document, read_json
 from crew_health_bench.adapters.files import bounded_files
-from crew_health_bench.adapters.hub_system import scan_bound
 from crew_health_bench.adapters.owner import AgeOwnerGrant
 from crew_health_bench.adapters.partitions import verify_partitions
 from crew_health_bench.adapters.store import FileArtifactStore
@@ -35,10 +34,9 @@ def load_cases(paths: Sequence[Path], *, documents: CaseDocuments, max_files: in
 
 def validate(paths: Sequence[Path], *, config_dir: Path, settings: BenchSettings, ids: IdFactory,
              hidden_dir: Path | None) -> tuple[LoadedCase, ...]:
-    repository = config_dir.resolve().parents[2]
     maximum = settings.integer("bench.leak.max_file_bytes")
     documents = CaseDocuments(config_dir.parent / "schemas", max_file_bytes=maximum, ids=ids)
-    cases = load_cases(paths, documents=documents, max_files=scan_bound(repository, max_file_bytes=maximum))
+    cases = load_cases(paths, documents=documents, max_files=settings.integer("bench.scan.max_files"))
     if hidden_dir is not None:
         for case in cases:
             documents.hidden_for(case, hidden_dir / (case.case.case_id + ".hidden.json"))
@@ -76,7 +74,7 @@ def freeze(paths: Sequence[Path], *, config_dir: Path, settings: BenchSettings, 
     repository = config_dir.resolve().parents[2]
     salt = owner.salt(salt_path, repository=repository)
     documents = CaseDocuments(config_dir.parent / "schemas", max_file_bytes=maximum, ids=ids)
-    cases = load_cases(paths, documents=documents, max_files=scan_bound(repository, max_file_bytes=maximum))
+    cases = load_cases(paths, documents=documents, max_files=settings.integer("bench.scan.max_files"))
     texts = {case.case.case_id: documents.hidden_for(case, hidden_dir / (case.case.case_id + ".hidden.json"))[1]
              for case in cases}
     root = config_dir.parent

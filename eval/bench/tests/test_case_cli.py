@@ -10,7 +10,6 @@ from pyrage import x25519
 
 pytestmark = [pytest.mark.e18, pytest.mark.trace("R23", "T-E18-07", "T-E18-17", "T-E18-31")]
 ROOT = Path(__file__).parents[1]
-REPOSITORY = ROOT.parents[1]
 
 
 def workspace(tmp_path: Path) -> tuple[Path, Path, Path]:
@@ -18,11 +17,6 @@ def workspace(tmp_path: Path) -> tuple[Path, Path, Path]:
     bench = repository / "eval/bench"
     shutil.copytree(ROOT / "config", bench / "config")
     shutil.copytree(ROOT / "schemas", bench / "schemas")
-    runner = repository / "eval/runner"
-    (runner / "config").mkdir(parents=True)
-    (runner / "schemas").mkdir()
-    for relative in ("config/runner-settings.json", "schemas/runner-settings.schema.json"):
-        shutil.copyfile(REPOSITORY / "eval/runner" / relative, runner / relative)
     working = tmp_path / "working"
     working.mkdir()
     case = json.loads((ROOT / "fixtures/case-document.json").read_bytes())

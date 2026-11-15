@@ -52,6 +52,8 @@ def test_success_and_missing_credential_are_distinct() -> None:
         assert adapter.complete((("user", "protocol"),), settings.quantity("bench.grader.call_timeout"))
         adapter = GraderHTTP(client=client, base_url="http://127.0.0.1", grader=grader,
                              environment={}, settings=settings, sleep=lambda _: None)
-        with pytest.raises(BenchError):
+        with pytest.raises(BenchError, match="grader_credential_missing") as refused:
             adapter.complete((("user", "protocol"),), settings.quantity("bench.grader.call_timeout"))
         assert adapter.calls == 0
+        assert refused.value.exit_code == 6
+        assert "OPENAI_API_KEY" in refused.value.detail and "Q-E18-1" in refused.value.detail

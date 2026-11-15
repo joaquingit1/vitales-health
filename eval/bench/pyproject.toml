@@ -18,16 +18,12 @@ dependencies = [
 chc-bench = "crew_health_bench.api.cli:main"
 
 [project.optional-dependencies]
-harness = [
-    "crew-health-harness",
-]
 official = [
     "simple-evals",
 ]
 
 [tool.uv.sources]
 crew-health = { path = "../../hub", editable = true }
-crew-health-harness = { path = "../runner", editable = true }
 simple-evals = { path = "vendor/simple_evals-0.0.0+652c89d0-py314-none-any.whl" }
 
 [dependency-groups]

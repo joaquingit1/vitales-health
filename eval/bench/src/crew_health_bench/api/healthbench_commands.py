@@ -18,12 +18,11 @@ from crew_health.kernel.units import Quantity, Unit
 from crew_health_bench.adapters.artifacts import ArtifactSchemas
 from crew_health_bench.adapters.documents import BenchSettings, load_document, read_json
 from crew_health_bench.adapters.files import bounded_files
-from crew_health_bench.adapters.grader_http import GraderHTTP
+from crew_health_bench.adapters.grader_http import GraderHTTP, credential_missing
 from crew_health_bench.adapters.healthbench import HealthBenchCorpus, OfficialGrader, PreparedGrader
-from crew_health_bench.adapters.healthbench_corpus import VisibleCorpus, prepare_corpus
+from crew_health_bench.adapters.healthbench_corpus import VisibleCorpus, download_dataset, prepare_corpus
 from crew_health_bench.adapters.healthbench_grader import HealthBenchCaseGrader
 from crew_health_bench.adapters.healthbench_reporter import HealthBenchReporter
-from crew_health_bench.adapters.hub_system import scan_bound
 from crew_health_bench.adapters.isolation import vault_path
 from crew_health_bench.adapters.model_generator import IsolatedModelGenerator
 from crew_health_bench.adapters.model_release import load_release
@@ -73,7 +72,7 @@ class HealthBenchCommands:
         self.schema = self.repository / "model/schemas/model-release.schema.json"
         self.ids = KernelIdFactory(new_uuid_hex=lambda: uuid7().hex)
         self.clock = ProcessClock(self.ids.new("epoch"))
-        self.max_files = scan_bound(self.repository, max_file_bytes=self.maximum)
+        self.max_files = settings.integer("bench.scan.max_files")
         self.grader = object_map(self.plan["grader"])
 
     def _owner(self) -> AgeOwnerGrant:
@@ -84,11 +83,21 @@ class HealthBenchCommands:
     def fetch(self) -> dict[str, object]:
         options = self.options
         variant = _required(options.variant)
-        if len(options.files) != 1:
+        row = dataset(self.plan, variant)
+        if len(options.files) > 1:
             raise BenchError("case_invalid")
-        prepare_corpus(options.files[0], dataset(self.plan, variant), variant=variant,
-                       root=options.corpus, settings=self.settings)
-        return {"variant": variant, "dataset_sha256": dataset(self.plan, variant)["sha256"]}
+        if options.files:
+            source = options.files[0]
+        else:
+            source = vault_path(options.corpus, text(row["url"]).rsplit("/", 1)[1])
+            if not source.is_file():
+                options.corpus.mkdir(parents=True, exist_ok=True)
+                with httpx.Client(trust_env=False) as client:
+                    download_dataset(client, row, source, timeout=self.settings.quantity("bench.fetch.timeout"),
+                                     connect_timeout=self.settings.quantity("bench.model.connect_timeout"),
+                                     chunk_bytes=self.maximum)
+        prepare_corpus(source, row, variant=variant, root=options.corpus, settings=self.settings)
+        return {"variant": variant, "dataset_sha256": row["sha256"]}
 
     def _generator(self, store: FileArtifactStore, run_id: str, variant: str,
                    cases: tuple[str, ...], track: str) -> CaseGenerator:
@@ -199,6 +208,8 @@ class HealthBenchCommands:
         return OfficialGrader(corpus, prepared, self.config / "healthbench-plan.json")
 
     def run(self) -> dict[str, object]:
+        if self.options.command == "grade" and not os.environ.get(text(self.grader["api_key_env"])):
+            raise credential_missing(text(self.grader["api_key_env"]))
         manifest, inputs, cases, count = self._context()
         options = self.options
         with FileArtifactStore(options.root, max_line_bytes=self.maximum, max_records=self.max_files) as store:

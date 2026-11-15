@@ -13,7 +13,6 @@ from pathlib import Path
 from crew_health_bench.adapters.documents import BenchSettings, load_document, read_json
 from crew_health_bench.adapters.store import FileArtifactStore
 from crew_health_bench.adapters.vault import AgeVault
-from crew_health_bench.adapters.hub_system import scan_bound
 from crew_health_bench.adapters.leak_scanner import LeakScanner
 from crew_health_bench.adapters.partitions import verify_partitions
 from crew_health_bench.api import case_commands
@@ -81,7 +80,7 @@ def _parser() -> argparse.ArgumentParser:
         command.add_argument("--root", type=Path, required=True)
         if name == "fetch":
             command.add_argument("--variant", required=True)
-            command.add_argument("files", type=Path, nargs="+")
+            command.add_argument("files", type=Path, nargs="*")
             continue
         command.add_argument("--corpus", type=Path, required=True)
         command.add_argument("--model-release", type=Path, required=True)
@@ -141,6 +140,7 @@ def _scan(
     *,
     config_dir: Path,
     limit: int,
+    max_files: int,
 ) -> list[dict[str, object]]:
     fp_salt, fingerprints = _fingerprints(path, limit)
     policy = load_document(config_dir / "partition-policy.json", max_file_bytes=limit)
@@ -152,7 +152,7 @@ def _scan(
         if len(target) < 2:
             raise BenchError("case_invalid")
         parsed.extend((target[0], Path(path)) for path in target[1:])
-    return LeakScanner(max_files=scan_bound(config_dir.resolve().parents[2], max_file_bytes=limit),
+    return LeakScanner(max_files=max_files,
                        max_file_bytes=limit).scan(tuple(parsed), fingerprints, fp_salt=fp_salt,
                                                   leak_jaccard=threshold)
 
@@ -236,21 +236,19 @@ def run(argv: Sequence[str]) -> int:
             _vault(args, config_dir, settings, limit)
             findings = []
         else:
-            findings = _scan(args.fingerprints, args.target, config_dir=config_dir, limit=limit)
+            findings = _scan(args.fingerprints, args.target, config_dir=config_dir, limit=limit,
+                             max_files=settings.integer("bench.scan.max_files"))
         print(json.dumps({"findings": findings}, sort_keys=True))
         return 3 if findings else 0
     except BenchError as error:
-        print(
-            json.dumps(
-                {
-                    "type": "urn:crew-health:bench:" + error.reason,
-                    "title": error.reason,
-                    "instance": error.instance,
-                },
-                sort_keys=True,
-            ),
-            file=sys.stderr,
-        )
+        problem = {
+            "type": "urn:crew-health:bench:" + error.reason,
+            "title": error.reason,
+            "instance": error.instance,
+        }
+        if error.detail:
+            problem["detail"] = error.detail
+        print(json.dumps(problem, sort_keys=True), file=sys.stderr)
         return error.exit_code
 
 

@@ -486,6 +486,60 @@
         "to_be_set_by"
       ],
       "additionalProperties": false
+    },
+    "bench.scan.max_files": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20000
+        },
+        "unit": {
+          "const": null
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.fetch.timeout": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        },
+        "unit": {
+          "const": "s"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -506,7 +560,9 @@
     "bench.case.max_events",
     "bench.store.max_line_bytes",
     "bench.leak.max_file_bytes",
-    "bench.monitor.sample_interval"
+    "bench.monitor.sample_interval",
+    "bench.scan.max_files",
+    "bench.fetch.timeout"
   ],
   "additionalProperties": false,
   "$schema": "https://json-schema.org/draft/2020-12/schema"

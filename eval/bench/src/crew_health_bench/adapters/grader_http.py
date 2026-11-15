@@ -13,6 +13,19 @@ from crew_health_bench.domain.documents import integer, number, object_map, text
 from crew_health_bench.domain.errors import BenchError
 
 
+def credential_missing(api_key_env: str) -> BenchError:
+    return BenchError(
+        "grader_credential_missing",
+        exit_code=6,
+        detail=(
+            "HealthBench grading needs the evaluation owner's grader credential (Q-E18-1). Set "
+            + api_key_env
+            + " in the grader process to a key with a spending limit. Nothing was graded or recorded; "
+            "the generations stay ungraded and no score exists."
+        ),
+    )
+
+
 class GraderHTTP:
     def __init__(self, *, client: httpx.Client, base_url: str, grader: Mapping[str, object],
                  environment: Mapping[str, str], settings: BenchSettings, sleep: Callable[[Quantity], None]) -> None:
@@ -32,7 +45,7 @@ class GraderHTTP:
 
     def _once(self, messages: tuple[tuple[str, str], ...], timeout: Quantity) -> str:
         if not self.key:
-            raise BenchError("grader_unavailable")
+            raise credential_missing(text(self.grader["api_key_env"]))
         body = {"model": text(self.grader["model"]), "temperature": float(number(self.grader["temperature"])),
                 "max_tokens": integer(self.grader["max_tokens"]),
                 "messages": [{"role": "system", "content": text(self.grader["system_message"])},
@@ -65,7 +78,7 @@ class GraderHTTP:
         initial = settings.quantity("bench.grader.backoff_initial")
         cap = settings.quantity("bench.grader.backoff_cap")
         if not self.key:
-            raise BenchError("grader_unavailable")
+            raise credential_missing(text(self.grader["api_key_env"]))
         for attempt in range(1 + retries):
             try:
                 return self._once(messages, timeout)

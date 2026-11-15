@@ -1,6 +1,9 @@
 from hashlib import sha256
 from pathlib import Path
 
+import httpx
+from crew_health.kernel.units import Quantity
+
 from crew_health.kernel.commands import canonical_json
 
 from crew_health_bench.adapters.documents import BenchSettings, decode_json, read_json
@@ -31,6 +34,38 @@ def prepare_corpus(source: Path, dataset: dict[str, object], *, variant: str, ro
         store.write_atomic(Path(variant + ".jsonl"), original)
         store.write_atomic(Path(variant + ".visible.jsonl"), visible)
         store.write_atomic(Path(variant + ".receipt.json"), canonical_json(receipt))
+
+
+def download_dataset(client: httpx.Client, dataset: dict[str, object], destination: Path, *,
+                     timeout: Quantity, connect_timeout: Quantity, chunk_bytes: int) -> Path:
+    """Stream one pinned dataset file to `destination`, refusing any byte past the pinned size or a wrong hash."""
+    size, digest = integer(dataset["bytes"]), text(dataset["sha256"])
+    if timeout.unit.code != "s" or connect_timeout.unit.code != "s" or chunk_bytes < 1:
+        raise BenchError("case_invalid")
+    partial = destination.with_name(destination.name + ".part")
+    checksum, written = sha256(), 0
+    bounded = httpx.Timeout(float(timeout.value), connect=float(connect_timeout.value))
+    try:
+        with client.stream("GET", text(dataset["url"]), timeout=bounded, follow_redirects=False) as response:
+            if response.status_code != 200:
+                raise BenchError("network_unavailable", instance=text(dataset["url"]), exit_code=6)
+            with partial.open("wb") as sink:
+                for chunk in response.iter_bytes(chunk_size=chunk_bytes):
+                    written += len(chunk)
+                    if written > size:
+                        raise BenchError("dataset_hash_mismatch", instance=text(dataset["url"]))
+                    checksum.update(chunk)
+                    sink.write(chunk)
+        if written != size or checksum.hexdigest() != digest:
+            raise BenchError("dataset_hash_mismatch", instance=text(dataset["url"]))
+        partial.replace(destination)
+        return destination
+    except httpx.HTTPError as error:
+        raise BenchError("network_unavailable", instance=text(dataset["url"]), exit_code=6) from error
+    except OSError as error:
+        raise BenchError("target_unreadable", instance=str(destination), exit_code=6) from error
+    finally:
+        partial.unlink(missing_ok=True)
 
 
 class VisibleCorpus:

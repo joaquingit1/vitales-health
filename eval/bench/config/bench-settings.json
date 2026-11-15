@@ -106,5 +106,17 @@
     "unit": "s",
     "basis": "team default",
     "to_be_set_by": "evaluation owner"
+  },
+  "bench.scan.max_files": {
+    "value": 20000,
+    "unit": null,
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.fetch.timeout": {
+    "value": 900,
+    "unit": "s",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
   }
 }

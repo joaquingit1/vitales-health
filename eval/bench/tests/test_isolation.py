@@ -64,14 +64,15 @@ def test_windows_paths_cannot_escape_even_on_posix(tmp_path: Path, relative: str
 
 @pytest.mark.trace("T-E18-12", "invariant")
 def test_shared_e21_marker_contract_and_unknown_kind_refusal(tmp_path: Path) -> None:
-    from datetime import UTC, datetime
+    # E21 owns the marker (eval/runner, PR 38, not on main). This structural copy keeps E21's field set.
+    from crew_health_bench.adapters.isolation import EvaluationMarker
 
-    from crew_health_harness.adapters.launcher import EvaluationMarker
+    assert set(EvaluationMarker.model_fields) == {"kind", "run_id", "fixture_id", "created_at"}
 
     data = json.loads((ROOT / "contracts/api/examples/context/station.json").read_bytes())["value"]
     context = Context.model_validate(data)
-    marker = EvaluationMarker(kind="evaluation", run_id="run", fixture_id="test",
-                              created_at=datetime(2026, 1, 1, tzinfo=UTC))
+    marker = EvaluationMarker.model_validate({"kind": "evaluation", "run_id": "run", "fixture_id": "test",
+                                              "created_at": "2026-01-01T00:00:00Z"})
     path = tmp_path / ".chc-eval-marker.json"
     path.write_text(marker.model_dump_json(), encoding="utf-8")
     require_evaluation_hub(context, tmp_path, run_id="run", max_file_bytes=1048576)
