@@ -3,9 +3,11 @@ from crew_health.kernel.commands import CommandIntents, CommandReceipts, Idempot
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.scheduler import HealthState, Scheduler
 from crew_health.kernel.settings import HubSettings
+from crew_health.kernel.units import UnitRegistry
 from crew_health.kernel.uow import DomainEventBus, ReadSnapshotFactory, UnitOfWorkFactory
 from crew_health.platform.adapters.intents import IntentRepository
 from crew_health.platform.adapters.ledger import CommandLedger
+from crew_health.platform.adapters.units import UcumUnitRegistry
 from crew_health.platform.application.health import ComponentHealthState
 from crew_health.platform.settings import specifications
 from crew_health.platform.storage import SQLiteDatabase
@@ -37,7 +39,13 @@ def register(registry: ModuleRegistry) -> None:
         lambda resolver: resolver.require(CommandLedger),
         requires=(CommandLedger,),
     )
-    registry.provide(HealthState, lambda resolver: ComponentHealthState())  # type: ignore[type-abstract]
+    registry.provide(
+        HealthState,  # type: ignore[type-abstract]
+        lambda resolver: ComponentHealthState(
+            maximum=resolver.require(HubSettings).integer("registry.max_hooks")  # type: ignore[type-abstract]
+        ),
+        requires=(HubSettings,),
+    )
     registry.provide(
         CommandIntents,  # type: ignore[type-abstract]
         lambda resolver: IntentRepository(resolver.require(CommandLedger)),
@@ -52,6 +60,13 @@ def register(registry: ModuleRegistry) -> None:
         DomainEventBus,  # type: ignore[type-abstract]
         lambda resolver: resolver.require(SQLiteDatabase).bus,
         requires=(SQLiteDatabase,),
+    )
+    registry.provide(
+        UnitRegistry,  # type: ignore[type-abstract]
+        lambda resolver: UcumUnitRegistry(
+            max_cached=resolver.require(HubSettings).integer("units.max_cached")  # type: ignore[type-abstract]
+        ),
+        requires=(HubSettings,),
     )
     for spec in specifications():
         registry.setting(spec)

@@ -65,8 +65,8 @@
     },
     {
       "path": "NASA-SOURCES.md",
-      "bytes": 119739,
-      "sha256": "80f94c9abe1e3400974f453e936b76451ef5816954696a1ede55238fa6c93f21"
+      "bytes": 123387,
+      "sha256": "d092389d58cf36cf254a8c2ef43ff8ca99853052a62b8fd43a5e30c3ee43f417"
     },
     {
       "path": "PACKAGE-CHECKS.html",
@@ -434,6 +434,11 @@
       "sha256": "eed5020c75e230bb8d9b3c7313f80e45ffc0456f6a880042f17205dadd6177d6"
     },
     {
+      "path": "api/examples/config/unit-mapping.example.json",
+      "bytes": 3836,
+      "sha256": "ed2862c4957dbb96007a32a7b726efe57b69752b1372de9188397331e1d0fb88"
+    },
+    {
       "path": "api/examples/config/warning-rules.example.json",
       "bytes": 27305,
       "sha256": "7ece2da1a2584e287b0a87732047ae7929a12470ebafcefd02c6ec42423fb88b"
@@ -445,8 +450,8 @@
     },
     {
       "path": "api/examples/configuration/index.json",
-      "bytes": 7169,
-      "sha256": "b4b7787efb52488504027f0925887849b6b4dfef4f418423cbf77379660ecc8d"
+      "bytes": 7554,
+      "sha256": "e513571418b110caae968e9ff8265e8ee574acc6a74451a20ac9a4a16765593b"
     },
     {
       "path": "api/examples/configuration/release-active.json",
@@ -820,8 +825,8 @@
     },
     {
       "path": "api/examples/kit-map.example.json",
-      "bytes": 14726,
-      "sha256": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b"
+      "bytes": 14803,
+      "sha256": "3f98f1855025d41ad54b162dd98eea66acab250b4fd9c1acf29ebf7c20ed0850"
     },
     {
       "path": "api/examples/kit-map/view-mars.json",
@@ -1520,8 +1525,8 @@
     },
     {
       "path": "api/schemas/config-kit-map.schema.json",
-      "bytes": 16427,
-      "sha256": "d9dcdc2d269e3682f5294cbd7b4fdd39ddf7df6c94132051e91453311a77e379"
+      "bytes": 16916,
+      "sha256": "3961e6fd22467e40e1075df84584e9a6d09cf3a4589071a063aefab8ca446f8c"
     },
     {
       "path": "api/schemas/config-onboard-plans.schema.json",

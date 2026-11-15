@@ -9,7 +9,7 @@ from . import common_schema
 
 
 class PlanView1(BaseModel):
-    condition_id: str | None = Field(None, pattern='^ICL[1-9][0-9]{0,2}$')
+    condition_id: str | None = Field(None, pattern="^ICL[1-9][0-9]{0,2}$")
     flow_id: None = Field(None)
 
 
@@ -19,7 +19,7 @@ class PlanView2(BaseModel):
 
 
 class ConditionId(RootModel[str]):
-    root: str = Field(..., pattern='^ICL[1-9][0-9]{0,2}$')
+    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
 
 
 class TextFirstTime(RootModel[str]):
@@ -29,14 +29,14 @@ class TextFirstTime(RootModel[str]):
 class AvailabilityText(RootModel[str]):
     root: str = Field(
         ...,
-        description='ui-copy plan_lines not_aboard, substituted or needs_skill_holder, rendered. null when aboard.',
+        description="ui-copy plan_lines not_aboard, substituted or needs_skill_holder, rendered. null when aboard.",
         min_length=1,
     )
 
 
 class Missing(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     instruments: list[common_schema.ConfigId]
     supplies: list[common_schema.ConfigId]
@@ -45,11 +45,11 @@ class Missing(BaseModel):
 
 class WhoCanItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person_id: common_schema.Id
     display_name: str = Field(..., min_length=1)
-    reason_code: Literal['any_crew', 'skill_holder', 'medical_officer']
+    reason_code: Literal["any_crew", "skill_holder", "medical_officer"]
 
 
 class CannotReplaceText(RootModel[str]):
@@ -62,7 +62,7 @@ class IntervalSeconds(RootModel[int]):
 
 class Recheck(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     cadence: common_schema.CadenceWord | None
     interval_seconds: IntervalSeconds | None
@@ -70,16 +70,16 @@ class Recheck(BaseModel):
     to_be_set_by: common_schema.ToBeSetBy | None
     text: str = Field(
         ...,
-        description='Rendered from ui-copy plan_lines recheck_at or recheck_pending.',
+        description="Rendered from ui-copy plan_lines recheck_at or recheck_pending.",
         min_length=1,
     )
 
 
 class Medicine(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    named_as: Literal['as in the onboard procedure']
+    named_as: Literal["as in the onboard procedure"]
 
 
 class UsesLeft(RootModel[int]):
@@ -88,7 +88,7 @@ class UsesLeft(RootModel[int]):
 
 class SupplyCoverAfterItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     uses_left: UsesLeft | None
@@ -96,32 +96,30 @@ class SupplyCoverAfterItem(BaseModel):
 
 class Step(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step_id: common_schema.ConfigId
     text: str = Field(
         ...,
-        description='Verbatim from onboard-plans.json. Never from the model (EI6).',
+        description="Verbatim from onboard-plans.json. Never from the model (EI6).",
         min_length=1,
     )
     text_first_time: TextFirstTime | None
     who: common_schema.Who
-    availability: Literal[
-        'aboard', 'not_aboard', 'substituted', 'needs_skill_holder'
-    ] = Field(
+    availability: Literal["aboard", "not_aboard", "substituted", "needs_skill_holder"] = Field(
         ...,
-        description='aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one.',
+        description="aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one.",
     )
     availability_text: AvailabilityText | None
     missing: Missing = Field(
         ...,
-        description='What the step needs that is not here. Empty lists when availability is aboard.',
+        description="What the step needs that is not here. Empty lists when availability is aboard.",
     )
     substitute_step_id: common_schema.ConfigId | None
     substitute_only: bool
     who_can: list[WhoCanItem] = Field(
         ...,
-        description='Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data.',
+        description="Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data.",
     )
     body_region: common_schema.BodyRegionOrNull | None
     landmark_id: common_schema.ConfigId | None
@@ -134,27 +132,25 @@ class Step(BaseModel):
     replaces_ground_task: common_schema.FormQuote | None
     supply_cover_after: list[SupplyCoverAfterItem] = Field(
         ...,
-        description='For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set.',
+        description="For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set.",
     )
     source_ids: common_schema.SourceIds
     basis: common_schema.Basis
-    review_state: Literal['unreviewed', 'reviewed']
+    review_state: Literal["unreviewed", "reviewed"]
 
 
 class Stages(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    stage_id: Literal[
-        'check_another_way', 'do_now', 'watch', 'if_worse', 'medical_officer'
-    ]
-    label: str = Field(..., description='ui-copy plan_stage_words.', min_length=1)
+    stage_id: Literal["check_another_way", "do_now", "watch", "if_worse", "medical_officer"]
+    label: str = Field(..., description="ui-copy plan_stage_words.", min_length=1)
     steps: list[Step] = Field(..., min_length=1)
 
 
 class Criterion(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str = Field(..., min_length=1)
     source_ids: common_schema.SourceIds
@@ -164,14 +160,14 @@ class Criterion(BaseModel):
 class CriteriaText(RootModel[str]):
     root: str = Field(
         ...,
-        description='ui-copy plan_lines return_criteria_pending when any criterion waits for flight rules.',
+        description="ui-copy plan_lines return_criteria_pending when any criterion waits for flight rules.",
         min_length=1,
     )
 
 
 class Recheck4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     cadence: common_schema.CadenceWord | None
     interval_seconds: IntervalSeconds | None
@@ -179,14 +175,14 @@ class Recheck4(BaseModel):
     to_be_set_by: common_schema.ToBeSetBy | None
     text: str = Field(
         ...,
-        description='Rendered from ui-copy plan_lines recheck_at or recheck_pending.',
+        description="Rendered from ui-copy plan_lines recheck_at or recheck_pending.",
         min_length=1,
     )
 
 
 class SupplyCoverAfterItem1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     uses_left: UsesLeft | None
@@ -194,32 +190,30 @@ class SupplyCoverAfterItem1(BaseModel):
 
 class PrepareItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step_id: common_schema.ConfigId
     text: str = Field(
         ...,
-        description='Verbatim from onboard-plans.json. Never from the model (EI6).',
+        description="Verbatim from onboard-plans.json. Never from the model (EI6).",
         min_length=1,
     )
     text_first_time: TextFirstTime | None
     who: common_schema.Who
-    availability: Literal[
-        'aboard', 'not_aboard', 'substituted', 'needs_skill_holder'
-    ] = Field(
+    availability: Literal["aboard", "not_aboard", "substituted", "needs_skill_holder"] = Field(
         ...,
-        description='aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one.',
+        description="aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one.",
     )
     availability_text: AvailabilityText | None
     missing: Missing = Field(
         ...,
-        description='What the step needs that is not here. Empty lists when availability is aboard.',
+        description="What the step needs that is not here. Empty lists when availability is aboard.",
     )
     substitute_step_id: common_schema.ConfigId | None
     substitute_only: bool
     who_can: list[WhoCanItem] = Field(
         ...,
-        description='Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data.',
+        description="Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data.",
     )
     body_region: common_schema.BodyRegionOrNull | None
     landmark_id: common_schema.ConfigId | None
@@ -232,40 +226,36 @@ class PrepareItem(BaseModel):
     replaces_ground_task: common_schema.FormQuote | None
     supply_cover_after: list[SupplyCoverAfterItem1] = Field(
         ...,
-        description='For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set.',
+        description="For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set.",
     )
     source_ids: common_schema.SourceIds
     basis: common_schema.Basis
-    review_state: Literal['unreviewed', 'reviewed']
+    review_state: Literal["unreviewed", "reviewed"]
 
 
 class Stages4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    stage_id: Literal['return']
+    stage_id: Literal["return"]
     label: str = Field(..., min_length=1)
     criteria: list[Criterion] = Field(..., min_length=1)
     criteria_text: CriteriaText | None
     prepare: list[PrepareItem]
-    decided_by: list[Literal['commander', 'crew_medical_officer']] = Field(
-        ..., min_length=1
-    )
+    decided_by: list[Literal["commander", "crew_medical_officer"]] = Field(..., min_length=1)
     who_decides_text: str = Field(
         ...,
-        description='ui-copy plan_lines who_decides. The app lists; it does not decide.',
+        description="ui-copy plan_lines who_decides. The app lists; it does not decide.",
         min_length=1,
     )
-    trip_text: str = Field(
-        ..., description="From the active environment's return_option.", min_length=1
-    )
+    trip_text: str = Field(..., description="From the active environment's return_option.", min_length=1)
     trip_source_ids: common_schema.SourceIds
     rtdc: common_schema.Rtdc | None
 
 
 class Item(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str = Field(..., min_length=1)
     source_ids: common_schema.SourceIds
@@ -273,18 +263,16 @@ class Item(BaseModel):
 
 class Stages5(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    stage_id: Literal['ground_log']
+    stage_id: Literal["ground_log"]
     label: str = Field(..., min_length=1)
     blocking: Literal[False]
-    row_text: str = Field(
-        ..., description='ui-copy plan_lines ground_log_row.', min_length=1
-    )
+    row_text: str = Field(..., description="ui-copy plan_lines ground_log_row.", min_length=1)
     items: list[Item]
     link_text: str = Field(
         ...,
-        description='ui-copy plan_lines ground_log_up or ground_log_down, rendered from the GroundLink. The only part of a PlanView that changes with the link (EI2).',
+        description="ui-copy plan_lines ground_log_up or ground_log_down, rendered from the GroundLink. The only part of a PlanView that changes with the link (EI2).",
         min_length=1,
     )
     leaves_at: common_schema.Instant | None
@@ -300,22 +288,22 @@ class NoReturnText(RootModel[str]):
 
 class PlanView3(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     plan_id: str = Field(
         ...,
-        description='An onboard-plans.json plan ID.',
-        pattern='^plan_[a-z0-9_]{1,59}$',
+        description="An onboard-plans.json plan ID.",
+        pattern="^plan_[a-z0-9_]{1,59}$",
     )
     title: str = Field(..., min_length=1)
     condition_id: ConditionId | None
     flow_id: common_schema.ConfigId | None
-    written_for: Literal['condition', 'family', 'flow']
+    written_for: Literal["condition", "family", "flow"]
     mode: common_schema.PlanMode
-    mode_text: str = Field(..., description='ui-copy plan_mode_words.', min_length=1)
+    mode_text: str = Field(..., description="ui-copy plan_mode_words.", min_length=1)
     tag_text: str = Field(
         ...,
-        description='ui-copy plan_lines plan_tag with the review state, for example Onboard plan ICL10 · unreviewed draft.',
+        description="ui-copy plan_lines plan_tag with the review state, for example Onboard plan ICL10 · unreviewed draft.",
         min_length=1,
     )
     environment_id: common_schema.EnvironmentId
@@ -323,18 +311,18 @@ class PlanView3(BaseModel):
     plan_version: common_schema.Sha256
     notice: str = Field(
         ...,
-        description='The document notice, for example Unreviewed draft: needs clinician review.',
+        description="The document notice, for example Unreviewed draft: needs clinician review.",
         min_length=1,
     )
-    review_state: Literal['unreviewed', 'reviewed']
+    review_state: Literal["unreviewed", "reviewed"]
     stages: list[Stages | Stages4 | Stages5] = Field(
         ...,
-        description='In the fixed order of plan_stage; stages without steps for this environment are left out; ground_log is always last.',
+        description="In the fixed order of plan_stage; stages without steps for this environment are left out; ground_log is always last.",
         min_length=1,
     )
     plan_aboard: bool = Field(
         ...,
-        description='True when an any_crew step in check_another_way, do_now or watch is aboard or substituted here, and the plan has a watch or check_another_way step (EI3).',
+        description="True when an any_crew step in check_another_way, do_now or watch is aboard or substituted here, and the plan has a watch or check_another_way step (EI3).",
     )
     waits_for_medical_officer: bool = Field(
         ...,
@@ -350,7 +338,7 @@ class ConditionId5(RootModel[None]):
 
 class Recheck5(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     cadence: common_schema.CadenceWord | None
     interval_seconds: IntervalSeconds | None
@@ -358,14 +346,14 @@ class Recheck5(BaseModel):
     to_be_set_by: common_schema.ToBeSetBy | None
     text: str = Field(
         ...,
-        description='Rendered from ui-copy plan_lines recheck_at or recheck_pending.',
+        description="Rendered from ui-copy plan_lines recheck_at or recheck_pending.",
         min_length=1,
     )
 
 
 class SupplyCoverAfterItem2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     uses_left: UsesLeft | None
@@ -373,32 +361,30 @@ class SupplyCoverAfterItem2(BaseModel):
 
 class Step4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step_id: common_schema.ConfigId
     text: str = Field(
         ...,
-        description='Verbatim from onboard-plans.json. Never from the model (EI6).',
+        description="Verbatim from onboard-plans.json. Never from the model (EI6).",
         min_length=1,
     )
     text_first_time: TextFirstTime | None
     who: common_schema.Who
-    availability: Literal[
-        'aboard', 'not_aboard', 'substituted', 'needs_skill_holder'
-    ] = Field(
+    availability: Literal["aboard", "not_aboard", "substituted", "needs_skill_holder"] = Field(
         ...,
-        description='aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one.',
+        description="aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one.",
     )
     availability_text: AvailabilityText | None
     missing: Missing = Field(
         ...,
-        description='What the step needs that is not here. Empty lists when availability is aboard.',
+        description="What the step needs that is not here. Empty lists when availability is aboard.",
     )
     substitute_step_id: common_schema.ConfigId | None
     substitute_only: bool
     who_can: list[WhoCanItem] = Field(
         ...,
-        description='Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data.',
+        description="Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data.",
     )
     body_region: common_schema.BodyRegionOrNull | None
     landmark_id: common_schema.ConfigId | None
@@ -411,27 +397,25 @@ class Step4(BaseModel):
     replaces_ground_task: common_schema.FormQuote | None
     supply_cover_after: list[SupplyCoverAfterItem2] = Field(
         ...,
-        description='For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set.',
+        description="For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set.",
     )
     source_ids: common_schema.SourceIds
     basis: common_schema.Basis
-    review_state: Literal['unreviewed', 'reviewed']
+    review_state: Literal["unreviewed", "reviewed"]
 
 
 class Stages6(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    stage_id: Literal[
-        'check_another_way', 'do_now', 'watch', 'if_worse', 'medical_officer'
-    ]
-    label: str = Field(..., description='ui-copy plan_stage_words.', min_length=1)
+    stage_id: Literal["check_another_way", "do_now", "watch", "if_worse", "medical_officer"]
+    label: str = Field(..., description="ui-copy plan_stage_words.", min_length=1)
     steps: list[Step4] = Field(..., min_length=1)
 
 
 class Recheck6(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     cadence: common_schema.CadenceWord | None
     interval_seconds: IntervalSeconds | None
@@ -439,14 +423,14 @@ class Recheck6(BaseModel):
     to_be_set_by: common_schema.ToBeSetBy | None
     text: str = Field(
         ...,
-        description='Rendered from ui-copy plan_lines recheck_at or recheck_pending.',
+        description="Rendered from ui-copy plan_lines recheck_at or recheck_pending.",
         min_length=1,
     )
 
 
 class SupplyCoverAfterItem3(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     uses_left: UsesLeft | None
@@ -454,32 +438,30 @@ class SupplyCoverAfterItem3(BaseModel):
 
 class PrepareItem2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step_id: common_schema.ConfigId
     text: str = Field(
         ...,
-        description='Verbatim from onboard-plans.json. Never from the model (EI6).',
+        description="Verbatim from onboard-plans.json. Never from the model (EI6).",
         min_length=1,
     )
     text_first_time: TextFirstTime | None
     who: common_schema.Who
-    availability: Literal[
-        'aboard', 'not_aboard', 'substituted', 'needs_skill_holder'
-    ] = Field(
+    availability: Literal["aboard", "not_aboard", "substituted", "needs_skill_holder"] = Field(
         ...,
-        description='aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one.',
+        description="aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one.",
     )
     availability_text: AvailabilityText | None
     missing: Missing = Field(
         ...,
-        description='What the step needs that is not here. Empty lists when availability is aboard.',
+        description="What the step needs that is not here. Empty lists when availability is aboard.",
     )
     substitute_step_id: common_schema.ConfigId | None
     substitute_only: bool
     who_can: list[WhoCanItem] = Field(
         ...,
-        description='Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data.',
+        description="Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data.",
     )
     body_region: common_schema.BodyRegionOrNull | None
     landmark_id: common_schema.ConfigId | None
@@ -492,74 +474,68 @@ class PrepareItem2(BaseModel):
     replaces_ground_task: common_schema.FormQuote | None
     supply_cover_after: list[SupplyCoverAfterItem3] = Field(
         ...,
-        description='For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set.',
+        description="For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set.",
     )
     source_ids: common_schema.SourceIds
     basis: common_schema.Basis
-    review_state: Literal['unreviewed', 'reviewed']
+    review_state: Literal["unreviewed", "reviewed"]
 
 
 class Stages7(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    stage_id: Literal['return']
+    stage_id: Literal["return"]
     label: str = Field(..., min_length=1)
     criteria: list[Criterion] = Field(..., min_length=1)
     criteria_text: CriteriaText | None
     prepare: list[PrepareItem2]
-    decided_by: list[Literal['commander', 'crew_medical_officer']] = Field(
-        ..., min_length=1
-    )
+    decided_by: list[Literal["commander", "crew_medical_officer"]] = Field(..., min_length=1)
     who_decides_text: str = Field(
         ...,
-        description='ui-copy plan_lines who_decides. The app lists; it does not decide.',
+        description="ui-copy plan_lines who_decides. The app lists; it does not decide.",
         min_length=1,
     )
-    trip_text: str = Field(
-        ..., description="From the active environment's return_option.", min_length=1
-    )
+    trip_text: str = Field(..., description="From the active environment's return_option.", min_length=1)
     trip_source_ids: common_schema.SourceIds
     rtdc: common_schema.Rtdc | None
 
 
 class Stages8(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    stage_id: Literal['ground_log']
+    stage_id: Literal["ground_log"]
     label: str = Field(..., min_length=1)
     blocking: Literal[False]
-    row_text: str = Field(
-        ..., description='ui-copy plan_lines ground_log_row.', min_length=1
-    )
+    row_text: str = Field(..., description="ui-copy plan_lines ground_log_row.", min_length=1)
     items: list[Item]
     link_text: str = Field(
         ...,
-        description='ui-copy plan_lines ground_log_up or ground_log_down, rendered from the GroundLink. The only part of a PlanView that changes with the link (EI2).',
+        description="ui-copy plan_lines ground_log_up or ground_log_down, rendered from the GroundLink. The only part of a PlanView that changes with the link (EI2).",
         min_length=1,
     )
     leaves_at: common_schema.Instant | None
 
 
-class PlanView4(PlanView1, PlanView3):
+class PlanView4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     plan_id: str = Field(
         ...,
-        description='An onboard-plans.json plan ID.',
-        pattern='^plan_[a-z0-9_]{1,59}$',
+        description="An onboard-plans.json plan ID.",
+        pattern="^plan_[a-z0-9_]{1,59}$",
     )
     title: str = Field(..., min_length=1)
     condition_id: ConditionId | ConditionId5
     flow_id: common_schema.ConfigId | None
-    written_for: Literal['condition', 'family', 'flow']
+    written_for: Literal["condition", "family", "flow"]
     mode: common_schema.PlanMode
-    mode_text: str = Field(..., description='ui-copy plan_mode_words.', min_length=1)
+    mode_text: str = Field(..., description="ui-copy plan_mode_words.", min_length=1)
     tag_text: str = Field(
         ...,
-        description='ui-copy plan_lines plan_tag with the review state, for example Onboard plan ICL10 · unreviewed draft.',
+        description="ui-copy plan_lines plan_tag with the review state, for example Onboard plan ICL10 · unreviewed draft.",
         min_length=1,
     )
     environment_id: common_schema.EnvironmentId
@@ -567,18 +543,18 @@ class PlanView4(PlanView1, PlanView3):
     plan_version: common_schema.Sha256
     notice: str = Field(
         ...,
-        description='The document notice, for example Unreviewed draft: needs clinician review.',
+        description="The document notice, for example Unreviewed draft: needs clinician review.",
         min_length=1,
     )
-    review_state: Literal['unreviewed', 'reviewed']
+    review_state: Literal["unreviewed", "reviewed"]
     stages: list[Stages6 | Stages7 | Stages8] = Field(
         ...,
-        description='In the fixed order of plan_stage; stages without steps for this environment are left out; ground_log is always last.',
+        description="In the fixed order of plan_stage; stages without steps for this environment are left out; ground_log is always last.",
         min_length=1,
     )
     plan_aboard: bool = Field(
         ...,
-        description='True when an any_crew step in check_another_way, do_now or watch is aboard or substituted here, and the plan has a watch or check_another_way step (EI3).',
+        description="True when an any_crew step in check_another_way, do_now or watch is aboard or substituted here, and the plan has a watch or check_another_way step (EI3).",
     )
     waits_for_medical_officer: bool = Field(
         ...,
@@ -589,12 +565,12 @@ class PlanView4(PlanView1, PlanView3):
 
 
 class ConditionId6(RootModel[str]):
-    root: str = Field(..., pattern='^ICL[1-9][0-9]{0,2}$')
+    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
 
 
 class Recheck7(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     cadence: common_schema.CadenceWord | None
     interval_seconds: IntervalSeconds | None
@@ -602,14 +578,14 @@ class Recheck7(BaseModel):
     to_be_set_by: common_schema.ToBeSetBy | None
     text: str = Field(
         ...,
-        description='Rendered from ui-copy plan_lines recheck_at or recheck_pending.',
+        description="Rendered from ui-copy plan_lines recheck_at or recheck_pending.",
         min_length=1,
     )
 
 
 class SupplyCoverAfterItem4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     uses_left: UsesLeft | None
@@ -617,32 +593,30 @@ class SupplyCoverAfterItem4(BaseModel):
 
 class Step5(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step_id: common_schema.ConfigId
     text: str = Field(
         ...,
-        description='Verbatim from onboard-plans.json. Never from the model (EI6).',
+        description="Verbatim from onboard-plans.json. Never from the model (EI6).",
         min_length=1,
     )
     text_first_time: TextFirstTime | None
     who: common_schema.Who
-    availability: Literal[
-        'aboard', 'not_aboard', 'substituted', 'needs_skill_holder'
-    ] = Field(
+    availability: Literal["aboard", "not_aboard", "substituted", "needs_skill_holder"] = Field(
         ...,
-        description='aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one.',
+        description="aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one.",
     )
     availability_text: AvailabilityText | None
     missing: Missing = Field(
         ...,
-        description='What the step needs that is not here. Empty lists when availability is aboard.',
+        description="What the step needs that is not here. Empty lists when availability is aboard.",
     )
     substitute_step_id: common_schema.ConfigId | None
     substitute_only: bool
     who_can: list[WhoCanItem] = Field(
         ...,
-        description='Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data.',
+        description="Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data.",
     )
     body_region: common_schema.BodyRegionOrNull | None
     landmark_id: common_schema.ConfigId | None
@@ -655,27 +629,25 @@ class Step5(BaseModel):
     replaces_ground_task: common_schema.FormQuote | None
     supply_cover_after: list[SupplyCoverAfterItem4] = Field(
         ...,
-        description='For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set.',
+        description="For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set.",
     )
     source_ids: common_schema.SourceIds
     basis: common_schema.Basis
-    review_state: Literal['unreviewed', 'reviewed']
+    review_state: Literal["unreviewed", "reviewed"]
 
 
 class Stages9(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    stage_id: Literal[
-        'check_another_way', 'do_now', 'watch', 'if_worse', 'medical_officer'
-    ]
-    label: str = Field(..., description='ui-copy plan_stage_words.', min_length=1)
+    stage_id: Literal["check_another_way", "do_now", "watch", "if_worse", "medical_officer"]
+    label: str = Field(..., description="ui-copy plan_stage_words.", min_length=1)
     steps: list[Step5] = Field(..., min_length=1)
 
 
 class Recheck8(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     cadence: common_schema.CadenceWord | None
     interval_seconds: IntervalSeconds | None
@@ -683,14 +655,14 @@ class Recheck8(BaseModel):
     to_be_set_by: common_schema.ToBeSetBy | None
     text: str = Field(
         ...,
-        description='Rendered from ui-copy plan_lines recheck_at or recheck_pending.',
+        description="Rendered from ui-copy plan_lines recheck_at or recheck_pending.",
         min_length=1,
     )
 
 
 class SupplyCoverAfterItem5(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     uses_left: UsesLeft | None
@@ -698,32 +670,30 @@ class SupplyCoverAfterItem5(BaseModel):
 
 class PrepareItem3(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step_id: common_schema.ConfigId
     text: str = Field(
         ...,
-        description='Verbatim from onboard-plans.json. Never from the model (EI6).',
+        description="Verbatim from onboard-plans.json. Never from the model (EI6).",
         min_length=1,
     )
     text_first_time: TextFirstTime | None
     who: common_schema.Who
-    availability: Literal[
-        'aboard', 'not_aboard', 'substituted', 'needs_skill_holder'
-    ] = Field(
+    availability: Literal["aboard", "not_aboard", "substituted", "needs_skill_holder"] = Field(
         ...,
-        description='aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one.',
+        description="aboard: every instrument, supply and skill the step needs is here and held by an available crewmate. not_aboard: something it needs is missing and it has no runnable substitute. substituted: something it needs is missing and substitute_step_id runs instead. needs_skill_holder: everything is aboard but no available crewmate holds the skill, so it waits for one.",
     )
     availability_text: AvailabilityText | None
     missing: Missing = Field(
         ...,
-        description='What the step needs that is not here. Empty lists when availability is aboard.',
+        description="What the step needs that is not here. Empty lists when availability is aboard.",
     )
     substitute_step_id: common_schema.ConfigId | None
     substitute_only: bool
     who_can: list[WhoCanItem] = Field(
         ...,
-        description='Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data.',
+        description="Crewmates who may do the step now, in roster order: awake and not outside on a walk; for a skill step, holding the skill and not the subject; for a medical officer step, the available officers by rank, not the subject. any_crew steps include the subject, who can do them alone. Operational, never health data.",
     )
     body_region: common_schema.BodyRegionOrNull | None
     landmark_id: common_schema.ConfigId | None
@@ -736,74 +706,68 @@ class PrepareItem3(BaseModel):
     replaces_ground_task: common_schema.FormQuote | None
     supply_cover_after: list[SupplyCoverAfterItem5] = Field(
         ...,
-        description='For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set.',
+        description="For each consumable the step uses: the cover in uses after one more run of the step. null when the stock or the per-use amount is not set.",
     )
     source_ids: common_schema.SourceIds
     basis: common_schema.Basis
-    review_state: Literal['unreviewed', 'reviewed']
+    review_state: Literal["unreviewed", "reviewed"]
 
 
 class Stages10(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    stage_id: Literal['return']
+    stage_id: Literal["return"]
     label: str = Field(..., min_length=1)
     criteria: list[Criterion] = Field(..., min_length=1)
     criteria_text: CriteriaText | None
     prepare: list[PrepareItem3]
-    decided_by: list[Literal['commander', 'crew_medical_officer']] = Field(
-        ..., min_length=1
-    )
+    decided_by: list[Literal["commander", "crew_medical_officer"]] = Field(..., min_length=1)
     who_decides_text: str = Field(
         ...,
-        description='ui-copy plan_lines who_decides. The app lists; it does not decide.',
+        description="ui-copy plan_lines who_decides. The app lists; it does not decide.",
         min_length=1,
     )
-    trip_text: str = Field(
-        ..., description="From the active environment's return_option.", min_length=1
-    )
+    trip_text: str = Field(..., description="From the active environment's return_option.", min_length=1)
     trip_source_ids: common_schema.SourceIds
     rtdc: common_schema.Rtdc | None
 
 
 class Stages11(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    stage_id: Literal['ground_log']
+    stage_id: Literal["ground_log"]
     label: str = Field(..., min_length=1)
     blocking: Literal[False]
-    row_text: str = Field(
-        ..., description='ui-copy plan_lines ground_log_row.', min_length=1
-    )
+    row_text: str = Field(..., description="ui-copy plan_lines ground_log_row.", min_length=1)
     items: list[Item]
     link_text: str = Field(
         ...,
-        description='ui-copy plan_lines ground_log_up or ground_log_down, rendered from the GroundLink. The only part of a PlanView that changes with the link (EI2).',
+        description="ui-copy plan_lines ground_log_up or ground_log_down, rendered from the GroundLink. The only part of a PlanView that changes with the link (EI2).",
         min_length=1,
     )
     leaves_at: common_schema.Instant | None
 
 
-class PlanView5(PlanView2, PlanView3):
+class PlanView5(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     plan_id: str = Field(
         ...,
-        description='An onboard-plans.json plan ID.',
-        pattern='^plan_[a-z0-9_]{1,59}$',
+        description="An onboard-plans.json plan ID.",
+        pattern="^plan_[a-z0-9_]{1,59}$",
     )
     title: str = Field(..., min_length=1)
     condition_id: ConditionId6 | None
     flow_id: common_schema.ConfigId | None
-    written_for: Literal['condition', 'family', 'flow']
+    written_for: Literal["condition", "family", "flow"]
     mode: common_schema.PlanMode
-    mode_text: str = Field(..., description='ui-copy plan_mode_words.', min_length=1)
+    mode_text: str = Field(..., description="ui-copy plan_mode_words.", min_length=1)
     tag_text: str = Field(
         ...,
-        description='ui-copy plan_lines plan_tag with the review state, for example Onboard plan ICL10 · unreviewed draft.',
+        description="ui-copy plan_lines plan_tag with the review state, for example Onboard plan ICL10 · unreviewed draft.",
         min_length=1,
     )
     environment_id: common_schema.EnvironmentId
@@ -811,18 +775,18 @@ class PlanView5(PlanView2, PlanView3):
     plan_version: common_schema.Sha256
     notice: str = Field(
         ...,
-        description='The document notice, for example Unreviewed draft: needs clinician review.',
+        description="The document notice, for example Unreviewed draft: needs clinician review.",
         min_length=1,
     )
-    review_state: Literal['unreviewed', 'reviewed']
+    review_state: Literal["unreviewed", "reviewed"]
     stages: list[Stages9 | Stages10 | Stages11] = Field(
         ...,
-        description='In the fixed order of plan_stage; stages without steps for this environment are left out; ground_log is always last.',
+        description="In the fixed order of plan_stage; stages without steps for this environment are left out; ground_log is always last.",
         min_length=1,
     )
     plan_aboard: bool = Field(
         ...,
-        description='True when an any_crew step in check_another_way, do_now or watch is aboard or substituted here, and the plan has a watch or check_another_way step (EI3).',
+        description="True when an any_crew step in check_another_way, do_now or watch is aboard or substituted here, and the plan has a watch or check_another_way step (EI3).",
     )
     waits_for_medical_officer: bool = Field(
         ...,
@@ -836,5 +800,5 @@ class PlanView(RootModel[PlanView4 | PlanView5]):
     root: PlanView4 | PlanView5 = Field(
         ...,
         description="One plan for one environment, computed on read from onboard-plans.json, kit-map.json (kit, supplies, stock), skills-catalog.json, the roster, overlays and SkillRecords (CONTRACTS section 22). Never stored. Identical with the link up, delayed or down except the ground_log stage's link_text and leaves_at (EI2).",
-        title='PlanView',
+        title="PlanView",
     )

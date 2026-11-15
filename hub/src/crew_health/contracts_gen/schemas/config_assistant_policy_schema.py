@@ -10,7 +10,7 @@ from . import common_schema
 
 class InsightTopic(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     title_hint: str = Field(..., min_length=1)
@@ -22,7 +22,7 @@ class InsightTopic(BaseModel):
 
 class ForbiddenOutputItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     rule: str = Field(..., min_length=1)
@@ -30,14 +30,14 @@ class ForbiddenOutputItem(BaseModel):
 
 class AssistantPolicyJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     notice: str = Field(
         ...,
         description="Shown on every page that renders this document's clinical content, for example: Unreviewed draft: needs clinician review before live guidance.",
         min_length=1,
     )
-    allowed_warning_levels: list[Literal['info', 'watch']] = Field(..., min_length=1)
+    allowed_warning_levels: list[Literal["info", "watch"]] = Field(..., min_length=1)
     max_iterations: int = Field(..., ge=1)
     max_schema_repairs: int = Field(..., ge=0, le=1)
     turn_timeout_seconds: int = Field(..., ge=1)

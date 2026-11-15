@@ -39,7 +39,7 @@ from crew_health.kernel.testing import (
     MemoryUowFactory,
     MemoryView,
 )
-from crew_health.kernel.units import UnitRegistry
+from crew_health.kernel.units import Unit, UnitRegistry
 from crew_health.kernel.uow import (
     Actor,
     ReadSnapshot,
@@ -48,6 +48,7 @@ from crew_health.kernel.uow import (
     UnitOfWork,
     UnitOfWorkFactory,
 )
+from crew_health.kitmap.application.ports import CapabilityWords, KitCheckFacts
 from crew_health.measurement import module
 from crew_health.measurement.application.ports import (
     AdapterAssignment,
@@ -71,7 +72,7 @@ from crew_health.measurement.application.ports import (
     SessionAuthenticator,
     View,
 )
-from crew_health.measurement.domain.model import KitCheck, OperatorRequirement
+from crew_health.measurement.domain.model import OperatorRequirement
 
 REPO = Path(__file__).resolve().parents[3]
 EXAMPLES = REPO / "contracts" / "api" / "examples"
@@ -255,6 +256,7 @@ class KitMapFake:
                     ),
                     kit_status="available" if ids else "unavailable",
                     kit_reason=None if ids else "not_in_kit",
+                    components=tuple(capability.get("components", ())),
                 )
             )
         return tuple(result)
@@ -279,7 +281,7 @@ class KitMapFake:
         else:
             needs = ", ".join(str(p.get("needs_text", p["name"])) for p in missing)
             text = templates["cannot"].format(instruments=needs)
-        kit = KitCheck(
+        kit = KitCheckFacts(
             can=bool(packed),
             instrument_ids=tuple(str(p["id"]) for p in packed),
             missing_instrument_ids=() if packed else tuple(str(p["id"]) for p in missing),
@@ -290,7 +292,8 @@ class KitMapFake:
             environment_id=environment_id,
         )
         rows = tuple(GateRow(c, by_id[c].get("plan_id")) for c in condition_ids)
-        return GateOutcome(kit, (), rows)
+        words = next(c for c in document["capabilities"] if c["code"] == capability_code)
+        return GateOutcome(kit, CapabilityWords(**words), rows)
 
 
 @dataclass
@@ -332,6 +335,12 @@ class ObservationsFake:
     def append_for_attempt(self, uow: UnitOfWork, draft: ObservationDraft) -> str:
         self.drafts.append(draft)
         return require_id(f"obs_{len(self.drafts):04d}")
+
+    def canonical_unit(self, code: str) -> Unit:
+        raise NotImplementedError("teach observations are not part of the measurement scenario")
+
+    def append_observation(self, uow: UnitOfWork, draft: object, *, idempotency_key: str) -> str:
+        raise NotImplementedError("teach observations are not part of the measurement scenario")
 
 
 @dataclass

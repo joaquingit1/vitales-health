@@ -11,7 +11,7 @@ import hashlib
 import json
 import sqlite3
 import threading
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -29,6 +29,7 @@ from crew_health.app.registry import DeclarationRegistry
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode, EventType, Role
 from crew_health.contracts_gen.schemas.error_schema import ErrorEnvelope
 from crew_health.contracts_gen.schemas.guided_check_schema import GuidedCheck as GuidedCheckModel
+from crew_health.help.application.ports import HelpFlowRef, HelpSessionSnapshot
 from crew_health.kernel.audit import AuditEntry
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import (
@@ -39,11 +40,11 @@ from crew_health.kernel.commands import (
     StoredResult,
 )
 from crew_health.kernel.config import (
+    ConfigBinding,
     ConfigDocumentView,
     ConfigReader,
     ConfigReleaseReader,
     ReleaseHandle,
-    TemplateRenderer,
 )
 from crew_health.kernel.errors import ProblemError, StorageUnavailable
 from crew_health.kernel.ids import IdFactory, require_id
@@ -53,6 +54,7 @@ from crew_health.kernel.storage import SqlValue, StatementResult
 from crew_health.kernel.testing import (
     MemoryClock,
     MemoryConfig,
+    MemoryConfigBinding,
     MemoryRelease,
     MemorySettings,
     MemoryTemplateRenderer,
@@ -387,6 +389,9 @@ class Observations:
         )
         return observation_id
 
+    def append_for_attempt(self, uow: UnitOfWork, draft: object) -> str:
+        raise NotImplementedError("measurement attempts are not part of the teach scenario")
+
 
 class Answers:
     def append_answer(self, uow: UnitOfWork, draft: AnswerDraft, *, idempotency_key: str) -> str:
@@ -463,8 +468,14 @@ class Help:
     def __init__(self) -> None:
         self.readers: dict[str, set[str]] = {}
 
-    def context(self, session: SessionContext, help_session_id: str) -> HelpContext | None:
+    def context(self, session: SessionContext, help_session_id: str) -> HelpContext:
+        return HelpContext(self.readable_by(session, help_session_id), None, None)
+
+    def snapshot(self, help_session_id: str) -> HelpSessionSnapshot | None:
         return None
+
+    def qualifying_sessions(self) -> Sequence[HelpFlowRef]:
+        return ()
 
     def readable_by(self, session: SessionContext, help_session_id: str) -> bool:
         return session.person_id in self.readers.get(help_session_id, set())
@@ -612,7 +623,10 @@ class Stack:
         r.provide(HubSettings, lambda _: MemorySettings(SPECS, SETTINGS))
         r.provide(ConfigReleaseReader, lambda _: self.config)
         r.provide(ConfigReader, lambda _: self.config)
-        r.provide(TemplateRenderer, lambda _: MemoryTemplateRenderer("unknown", RENDER_FIELDS))
+        r.provide(
+            ConfigBinding,
+            lambda _: MemoryConfigBinding(MemoryTemplateRenderer("unknown", RENDER_FIELDS), self.config),
+        )
         r.provide(IdempotencyStore, lambda _: Idempotency())
         r.provide(CommandReceipts, lambda _: Receipts())
         r.provide(UnitRegistry, lambda _: Units())
@@ -1127,7 +1141,7 @@ def test_coaching_recorder_stores_and_emits_only_fresh_samples(stack: Stack) -> 
     ports = TeachPorts(
         uow=r.require(UnitOfWorkFactory), snapshots=r.require(ReadSnapshotFactory), clock=r.require(Clock),
         ids=r.require(IdFactory), settings=settings, releases=r.require(ConfigReleaseReader),
-        content=ContentLoader(r.require(ConfigReader), max_cached=2), renderer=r.require(TemplateRenderer),
+        content=ContentLoader(r.require(ConfigReader), max_cached=2), config=r.require(ConfigBinding),
         idempotency=r.require(IdempotencyStore), receipts=r.require(CommandReceipts), units=r.require(UnitRegistry),
         repository=SqliteGuidedChecks(), observations=r.require(ObservationCommands),
         answers=r.require(AnswerCommands), eligibility=r.require(GuidanceEligibility),

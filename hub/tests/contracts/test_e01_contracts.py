@@ -186,7 +186,7 @@ def test_safety_evidence_and_complexity_cannot_be_waived(checker: ModuleType, tm
     assert any("complexity" in error for error in checker.safety_check(tmp_path, None).errors)
 
 
-def test_gate_runner_stops_at_first_failure_and_rejects_empty_manifest(tmp_path: Path) -> None:
+def test_gate_runner_runs_every_gate_reports_failures_and_rejects_empty_manifest(tmp_path: Path) -> None:
     import shlex
     import subprocess
 
@@ -194,10 +194,13 @@ def test_gate_runner_stops_at_first_failure_and_rejects_empty_manifest(tmp_path:
     manifest.write_text("")
     command = ["sh", str(ROOT / "scripts/gates.sh"), str(manifest)]
     assert subprocess.run(command, cwd=ROOT, capture_output=True, timeout=5).returncode == 1
-    marker = tmp_path / "never-created"
+    # Every gate runs even after one fails, and the run still fails: no failure hides the gates after it.
+    marker = tmp_path / "later-gate-ran"
     manifest.write_text("false\ntouch " + shlex.quote(str(marker)) + "\n")
-    assert subprocess.run(command, cwd=ROOT, capture_output=True, timeout=5).returncode == 1
-    assert not marker.exists()
+    failed = subprocess.run(command, cwd=ROOT, capture_output=True, timeout=5, text=True)
+    assert failed.returncode == 1
+    assert marker.exists()
+    assert "Gate summary: 2 commands, 1 failed" in failed.stdout
     manifest.write_text("# Explicit hermetic gate fixture\ntrue\ntrue\n")
     assert subprocess.run(command, cwd=ROOT, capture_output=True, timeout=5).returncode == 0
 
@@ -217,6 +220,13 @@ def test_unreferenced_example_is_still_schema_validated(checker: ModuleType, tmp
     assert checker._validate_example(example, registry)
     example.write_text('{"x-schema":"missing.schema.json","value":{}}')
     assert checker._validate_example(example, registry)
+
+
+def test_repository_examples_are_checked_against_the_effective_d12_schemas(checker: ModuleType) -> None:
+    registry, schemas, errors = checker._schema_catalog(ROOT)
+    assert not errors and "config-unit-mapping.schema.json" in schemas
+    for example in ("config/unit-mapping.example.json", "configuration/index.json"):
+        assert checker._validate_example(ROOT / "contracts/api/examples" / example, registry) == ()
 
 
 def test_installed_generated_outputs_reject_unlisted_leaf(checker: ModuleType, tmp_path: Path) -> None:

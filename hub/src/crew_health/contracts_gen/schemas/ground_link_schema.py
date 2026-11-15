@@ -11,30 +11,30 @@ from . import common_schema
 class OneWayDelayS(RootModel[float]):
     root: float = Field(
         ...,
-        description='The one-way delay a message takes when the link is available. Kept while the link is down. Null when unknown.',
+        description="The one-way delay a message takes when the link is available. Kept while the link is down. Null when unknown.",
         ge=0.0,
     )
 
 
 class GroundLink(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    status: Literal['up', 'delayed', 'down'] = Field(
+    status: Literal["up", "delayed", "down"] = Field(
         ...,
-        description='up: available for a near real time exchange. delayed: available, each message takes one_way_delay_s one way. down: no link; messages wait in the queue until it is up or delayed again.',
+        description="up: available for a near real time exchange. delayed: available, each message takes one_way_delay_s one way. down: no link; messages wait in the queue until it is up or delayed again.",
     )
     one_way_delay_s: OneWayDelayS | None
     next_contact_at: common_schema.Instant | None
     last_contact_at: common_schema.Instant | None
-    source: Literal['schedule', 'measured', 'demo_switch'] = Field(
+    source: Literal["schedule", "measured", "demo_switch"] = Field(
         ...,
         description="schedule: from the active environment profile's comms_queue. measured: reported by a comms adapter (no adapter is defined in this package). demo_switch: set with POST /v1/demo/ground-link.",
     )
     environment_id: common_schema.EnvironmentId
     delay_text: str = Field(
         ...,
-        description='earth_delay of the active environment in environment-hazards.json with parenthesised source IDs removed, for example Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay.',
+        description="earth_delay of the active environment in environment-hazards.json with parenthesised source IDs removed, for example Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay.",
         min_length=1,
     )
     delay_source_ids: common_schema.SourceIds

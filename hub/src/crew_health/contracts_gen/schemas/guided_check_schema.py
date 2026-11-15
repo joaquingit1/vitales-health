@@ -10,7 +10,7 @@ from . import common_schema
 
 class StepsDoneItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step_no: int = Field(..., ge=1)
     at: common_schema.Instant
@@ -27,14 +27,14 @@ class CountPerMinute(RootModel[float]):
 class NoReadingReason(RootModel[str]):
     root: str = Field(
         ...,
-        description='Why the cameras gave no reading, for example too much movement.',
+        description="Why the cameras gave no reading, for example too much movement.",
         min_length=1,
     )
 
 
 class CameraReference(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     observation_id: common_schema.Id | None
     value: float | None
@@ -45,7 +45,7 @@ class CameraReference(BaseModel):
 
 class Tolerance(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., ge=0.0)
     unit: str = Field(..., min_length=1)
@@ -63,7 +63,7 @@ class ResultText(RootModel[str]):
 
 class WhatItShows(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     does: str = Field(..., min_length=1)
     does_not: str = Field(..., min_length=1)
@@ -72,7 +72,7 @@ class WhatItShows(BaseModel):
 
 class GuidedCheck(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     guided_check_id: common_schema.Id
     revision: int = Field(..., ge=1)
@@ -84,8 +84,8 @@ class GuidedCheck(BaseModel):
     drill_id: common_schema.Id | None
     episode_id: common_schema.Id | None
     role_assignment_id: common_schema.Id | None
-    state: Literal['teaching', 'counting', 'checked', 'retry', 'cancelled']
-    teach_step_no: int = Field(..., description='The teach step on screen.', ge=1)
+    state: Literal["teaching", "counting", "checked", "retry", "cancelled"]
+    teach_step_no: int = Field(..., description="The teach step on screen.", ge=1)
     steps_done: list[StepsDoneItem]
     count_seconds: CountSeconds | None
     count_started_at: common_schema.Instant | None
@@ -96,10 +96,10 @@ class GuidedCheck(BaseModel):
     )
     beat_count: int = Field(..., ge=0)
     count_per_minute: CountPerMinute | None
-    helper_answer: Literal['regular', 'irregular', 'not_sure'] | None
+    helper_answer: Literal["regular", "irregular", "not_sure"] | None
     answer_id: common_schema.Id | None
     camera_reference: CameraReference | None
-    result: Literal['agree', 'disagree', 'no_reference'] | None
+    result: Literal["agree", "disagree", "no_reference"] | None
     difference: float | None
     tolerance: Tolerance | None
     result_text: ResultText | None

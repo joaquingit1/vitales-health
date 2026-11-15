@@ -20,6 +20,7 @@ from crew_health.kernel.uow import (
     AudienceProjectionKey,
     EventScope,
     OutboxEvent,
+    ReadSnapshotFactory,
     UnitOfWork,
     UnitOfWorkFactory,
 )
@@ -49,6 +50,7 @@ type Origin = Literal["LIVE", "SIM"]
 @dataclass(frozen=True, slots=True)
 class Deps:
     uow: UnitOfWorkFactory
+    snapshots: ReadSnapshotFactory
     repository: Callable[[StorageSession], RolesRepository]
     clock: Clock
     ids: IdFactory

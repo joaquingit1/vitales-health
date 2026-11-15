@@ -14,7 +14,7 @@ class ExpectedDurationSeconds(RootModel[int]):
 
 class Capability(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     code: common_schema.ConfigId
     label: str = Field(..., min_length=1)
@@ -22,25 +22,25 @@ class Capability(BaseModel):
     device_ids: list[common_schema.Id]
     instrument_ids: list[common_schema.ConfigId] = Field(
         ...,
-        description='kit-map.json instruments aboard in the active environment that provide this capability.',
+        description="kit-map.json instruments aboard in the active environment that provide this capability.",
     )
     missing_instrument_ids: list[common_schema.ConfigId] = Field(
         ...,
-        description='Instruments in kit-map.json that would provide it but are not aboard.',
+        description="Instruments in kit-map.json that would provide it but are not aboard.",
     )
-    operator_requirement: Literal['self', 'crewmate', 'crew_medical_officer'] = Field(
+    operator_requirement: Literal["self", "crewmate", "crew_medical_officer"] = Field(
         ...,
-        description='Who on board takes the measurement. No capability needs the ground.',
+        description="Who on board takes the measurement. No capability needs the ground.",
     )
     applicable_environments: list[common_schema.EnvironmentId]
-    status: Literal['available', 'unavailable', 'not_applicable']
+    status: Literal["available", "unavailable", "not_applicable"]
     unavailable_reason: (
         Literal[
-            'not_in_kit',
-            'device_absent',
-            'operator_absent',
-            'context_inapplicable',
-            'adapter_down',
+            "not_in_kit",
+            "device_absent",
+            "operator_absent",
+            "context_inapplicable",
+            "adapter_down",
         ]
         | None
     )

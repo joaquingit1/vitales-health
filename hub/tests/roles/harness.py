@@ -20,6 +20,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode, Role
+from crew_health.help.application.ports import HelpContext, HelpFlowRef
 from crew_health.kernel.audit import AuditEntry
 from crew_health.kernel.commands import AcceptedReceipt, CommandIdentity, StoredResult
 from crew_health.kernel.config import ConfigDocumentView, ReleaseHandle
@@ -44,7 +45,6 @@ from crew_health.roles.application.config import ConfigCache
 from crew_health.roles.application.ports import (
     HelpSessionSnapshot,
     MissionFacts,
-    NodeRef,
     OverlayFact,
     PlanRunSnapshot,
     RosterMember,
@@ -179,6 +179,13 @@ class SqliteUow:
         raise NotImplementedError
 
 
+@dataclass(frozen=True, slots=True)
+class SqliteView:
+    connection: SqliteSession
+    release: ReleaseHandle
+    now: datetime
+
+
 class UowFactory:
     """One connection per unit of work, BEGIN IMMEDIATE, commit or roll back; events and audits kept on commit."""
 
@@ -189,6 +196,7 @@ class UowFactory:
         self.events: list[OutboxEvent] = []
         self.audits: list[AuditEntry] = []
         self.lock = threading.Lock()
+        self.write_transactions = 0
         with sqlite3.connect(path) as connection:
             connection.executescript(migration_sql())
             connection.execute(
@@ -203,6 +211,8 @@ class UowFactory:
         connection = sqlite3.connect(self.path, timeout=5, isolation_level=None, check_same_thread=False)
         connection.execute("PRAGMA foreign_keys = ON")
         connection.execute("BEGIN IMMEDIATE")
+        with self.lock:
+            self.write_transactions += 1
         uow = SqliteUow(self, connection, actor, correlation_id)
         try:
             yield uow
@@ -215,6 +225,18 @@ class UowFactory:
         with self.lock:
             self.events.extend(uow.events)
             self.audits.extend(uow.audits)
+
+    @contextmanager
+    def snapshot(self) -> Iterator[SqliteView]:
+        """A read only view: a deferred transaction over a query_only connection, always rolled back."""
+        connection = sqlite3.connect(self.path, timeout=5, isolation_level=None, check_same_thread=False)
+        connection.execute("PRAGMA query_only = ON")
+        connection.execute("BEGIN")
+        try:
+            yield SqliteView(SqliteSession(connection), self.release, self.clock.now())
+        finally:
+            connection.execute("ROLLBACK")
+            connection.close()
 
     def event_types(self) -> list[str]:
         return [e.type.value for e in self.events]
@@ -384,6 +406,12 @@ class HelpReader:
     def __init__(self, facts: Facts) -> None:
         self.facts = facts
 
+    def context(self, session: SessionContext, help_session_id: str) -> HelpContext:
+        return HelpContext(self.readable_by(session, help_session_id), None, None)
+
+    def qualifying_sessions(self) -> Sequence[HelpFlowRef]:
+        return ()
+
     def snapshot(self, help_session_id: str) -> HelpSessionSnapshot | None:
         self.facts.check("help")
         return self.facts.help.get(help_session_id)
@@ -434,27 +462,24 @@ def help_session(
     opener: str = "mara",
     state: str = "open",
 ) -> HelpSessionSnapshot:
-    node = NodeRef("flow", flow) if flow is not None else NodeRef("triage", "start")
     return HelpSessionSnapshot(
-        session_id,
-        "open" if state == "open" else "closed",
-        1,
-        subject,
-        Actor("person", opener),
-        (),
-        node,
-        None,
-        NOW - timedelta(minutes=1),
-        None,
-        None,
+        help_session_id=session_id,
+        revision=1,
+        open=state == "open",
+        subject_person_id=subject,
+        opener_person_id=opener,
+        helper_ids=frozenset(),
+        flow_id=flow,
+        ui_copy_version="ui-copy-1",
+        closed_at=None,
     )
 
 
 def help_payload(snap: HelpSessionSnapshot) -> dict[str, object]:
     return {
-        "help_session_id": snap.id,
+        "help_session_id": snap.help_session_id,
         "revision": snap.revision,
-        "state": snap.state,
+        "state": "open" if snap.open else "closed",
         "subject": {"kind": "crewmate", "person_id": snap.subject_person_id, "display_name": None},
     }
 
@@ -501,6 +526,7 @@ class Harness:
         settings = RolesSettings.parse(RolesSettings.defaults())
         self.deps = Deps(
             uow=self.uow,
+            snapshots=self.uow,
             repository=SqliteRolesRepository,
             clock=self.clock,
             ids=self.ids,
@@ -541,7 +567,7 @@ class Harness:
             )
 
     def open_help(self, snap: HelpSessionSnapshot) -> None:
-        self.facts.help[snap.id] = snap
+        self.facts.help[snap.help_session_id] = snap
         with self.uow.begin(actor=Actor("engine", "help"), correlation_id="cor_t") as uow:
             self.proposals.on_help_session_changed(uow, help_payload(snap))
         self.proposals.run_due()

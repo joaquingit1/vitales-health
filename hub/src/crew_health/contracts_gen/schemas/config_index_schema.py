@@ -8,15 +8,15 @@ from . import common_schema
 
 class Document(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     name: common_schema.ConfigName
     version: common_schema.Sha256
-    schema_: str = Field(..., alias='schema', min_length=1)
+    schema_: str = Field(..., alias="schema", min_length=1)
     href: str = Field(..., min_length=1)
     basis_summary: str = Field(
         ...,
-        description='Who edits it and whether it holds sourced values, team defaults or both.',
+        description="Who edits it and whether it holds sourced values, team defaults or both.",
         min_length=1,
     )
     bytes: int = Field(..., ge=1)
@@ -24,9 +24,9 @@ class Document(BaseModel):
 
 class ConfigIndex(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     release_id: common_schema.Id
     activated_at: common_schema.Instant
-    documents: list[Document] = Field(..., max_length=18, min_length=18)
+    documents: list[Document] = Field(..., max_length=19, min_length=19)
     model_release_id: common_schema.Id | None

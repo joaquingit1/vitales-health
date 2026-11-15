@@ -1,0 +1,384 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "adapter-settings.schema.json",
+  "title": "E07 adapter operational settings",
+  "description": "Operational bounds of an E07 device adapter process (E07 spec 2.2; SYSTEM 5.11 setting entries with value, unit, basis and owner). Bounds, not clinical thresholds. Every key is required: a worker with a missing bound does not start (PLAN P-E07-3).",
+  "type": "object",
+  "properties": {
+    "adapter.connect_timeout_ms": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60000
+        },
+        "unit": {
+          "const": "ms"
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "adapter.frame_timeout_ms": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60000
+        },
+        "unit": {
+          "const": "ms"
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "adapter.acquisition_window_ms": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 600000
+        },
+        "unit": {
+          "const": "ms"
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "adapter.max_frames": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4096
+        },
+        "unit": {
+          "const": null
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "adapter.max_frame_bytes": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 512
+        },
+        "unit": {
+          "const": "By"
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "adapter.send_timeout_ms": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60000
+        },
+        "unit": {
+          "const": "ms"
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "adapter.journal_max_entries": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "unit": {
+          "const": null
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "adapter.journal_max_bytes": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 67108864
+        },
+        "unit": {
+          "const": "By"
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "adapter.retry_max": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "unit": {
+          "const": null
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "adapter.retry_backoff_ms": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60000
+        },
+        "unit": {
+          "const": "ms"
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "adapter.health_quiet_ms": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 600000
+        },
+        "unit": {
+          "const": "ms"
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "adapter.profile_max_bytes": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        },
+        "unit": {
+          "const": "By"
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "adapter.acquisition_window_ms",
+    "adapter.connect_timeout_ms",
+    "adapter.frame_timeout_ms",
+    "adapter.health_quiet_ms",
+    "adapter.journal_max_bytes",
+    "adapter.journal_max_entries",
+    "adapter.max_frame_bytes",
+    "adapter.max_frames",
+    "adapter.profile_max_bytes",
+    "adapter.retry_backoff_ms",
+    "adapter.retry_max",
+    "adapter.send_timeout_ms"
+  ],
+  "additionalProperties": false
+}

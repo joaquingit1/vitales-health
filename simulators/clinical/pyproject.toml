@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crew-health-sim-clinical"
+version = "0.1.0"
+requires-python = ">=3.14,<3.15"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest", "pytest-cov", "hypothesis", "mypy", "ruff", "import-linter"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+crew_health_sim_clinical = ["data/*.json", "py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers --strict-config --import-mode=importlib"
+xfail_strict = true
+markers = ["trace(*ids): requirements and invariants", "hardware: optional physical hardware"]
+cache_dir = ".pytest_cache"
+
+[tool.ruff]
+target-version = "py314"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["crew_health_sim_clinical"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+mypy_path = "simulators/clinical/src"
+
+[tool.coverage.run]
+branch = true
+source = ["crew_health_sim_clinical"]
+data_file = "simulators/clinical/.coverage"
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true
+
+[tool.importlinter]
+root_packages = ["crew_health_sim_clinical"]
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Independent device bytes with no adapter or hub dependencies"
+type = "forbidden"
+source_modules = ["crew_health_sim_clinical"]
+forbidden_modules = ["crew_health", "crew_health_device", "crew_health_adapter_oximeter", "crew_health_adapter_cuff", "crew_health_adapter_thermometer", "httpx", "fastapi", "bleak"]

@@ -1,0 +1,21 @@
+{
+  "version": "onboard-plans-icl119-draft-1",
+  "example": false,
+  "notice": "Not clinically reviewed. Each plan was drafted by one model from the cited sources and checked against them by another; a plan without a recorded check says so in checked_by. No clinician has signed off.",
+  "sources": [
+    {
+      "source_id": "SK01",
+      "title": "British Heart Foundation, Checking your pulse",
+      "url": "https://www.bhf.org.uk/informationsupport/tests/checking-your-pulse",
+      "date": "Published 18 October 2024",
+      "quote": "If your pulse feels irregular, you should check for a full 60 seconds."
+    },
+    {
+      "source_id": "SK02",
+      "title": "British Heart Foundation, Your heart rate",
+      "url": "https://www.bhf.org.uk/informationsupport/how-a-healthy-heart-works/your-heart-rate",
+      "date": "Opened 14 November 2026",
+      "quote": "You may be able to tell if you have a normal or irregular heart rate by checking your pulse"
+    }
+  ]
+}

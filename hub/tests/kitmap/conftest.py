@@ -27,16 +27,17 @@ from crew_health.contracts_gen.enums import ConfigName, ErrorCode, Role
 from crew_health.kernel.config import (
     ActivationGuard,
     CandidateRelease,
+    ConfigBinding,
     ConfigDocumentView,
     Finding,
     ReleaseCheck,
-    TemplateRenderer,
 )
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.storage import SqlValue, StatementResult
 from crew_health.kernel.testing import (
+    MemoryConfigBinding,
     MemoryIds,
     MemoryRelease,
     MemorySettings,
@@ -288,7 +289,7 @@ def make_hub(tmp_path: Path) -> Iterator[Callable[..., Hub]]:
         )
         ids = MemoryIds(identifiers=[f"{n:04d}" for n in range(512)])
         declarations.provide(HubSettings, lambda r: settings)  # type: ignore[type-abstract]
-        declarations.provide(TemplateRenderer, lambda r: renderer)  # type: ignore[type-abstract]
+        declarations.provide(ConfigBinding, lambda r: MemoryConfigBinding(renderer))  # type: ignore[type-abstract]
         declarations.provide(IdFactory, lambda r: ids)  # type: ignore[type-abstract]
         declarations.provide(ReadSnapshotFactory, lambda r: _Snapshots(lambda: holder[0]))  # type: ignore[type-abstract]
         if with_mission:

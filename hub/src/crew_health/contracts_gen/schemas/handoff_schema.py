@@ -10,7 +10,7 @@ from . import common_schema
 
 class FieldModel(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     field: common_schema.ConfigId
     label: str = Field(..., min_length=1)
@@ -19,7 +19,7 @@ class FieldModel(BaseModel):
 
 class Attachment(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     report_id: common_schema.Id
 
@@ -30,19 +30,19 @@ class Recipient(RootModel[str]):
 
 class Delivery(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     attempt_id: common_schema.Id
-    transport: Literal['simulated_comms_queue', 'local_export']
+    transport: Literal["simulated_comms_queue", "local_export"]
     scheduled_at: common_schema.Instant
-    state: Literal['queued', 'in_transit', 'delivered', 'failed']
+    state: Literal["queued", "in_transit", "delivered", "failed"]
     delivered_at: common_schema.Instant | None
     receipt_at: common_schema.Instant | None
 
 
 class Reply(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str = Field(..., min_length=1)
     by: common_schema.Actor
@@ -51,7 +51,7 @@ class Reply(BaseModel):
 
 class TimelineItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     state: str = Field(..., min_length=1)
     label: str = Field(..., min_length=1)
@@ -60,22 +60,22 @@ class TimelineItem(BaseModel):
 
 class Handoff(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     handoff_id: common_schema.Id
     revision: int = Field(..., ge=1)
     episode_id: common_schema.Id
     state: Literal[
-        'draft',
-        'previewed',
-        'approved',
-        'queued',
-        'in_transit',
-        'delivered',
-        'receipt_recorded',
-        'delivery_failed',
-        'cancelled',
-        'expired',
+        "draft",
+        "previewed",
+        "approved",
+        "queued",
+        "in_transit",
+        "delivered",
+        "receipt_recorded",
+        "delivery_failed",
+        "cancelled",
+        "expired",
     ]
     fields: list[FieldModel]
     attachments: list[Attachment]

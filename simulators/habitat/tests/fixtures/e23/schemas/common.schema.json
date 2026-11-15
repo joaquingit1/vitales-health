@@ -1,0 +1,798 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "common.schema.json",
+  "title": "Common definitions",
+  "description": "Shared definitions referenced by every other schema. It validates nothing on its own.",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "description": "An opaque object ID issued by the hub. Never a display name.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "config_id": {
+      "type": "string",
+      "description": "A stable snake_case ID defined in a configuration document (hazard, item, flow, question, definition).",
+      "pattern": "^[a-z][a-z0-9_]{0,63}$"
+    },
+    "dotted_id": {
+      "type": "string",
+      "description": "A stable ID made of configuration IDs joined by dots, for example daily_check.co2_above_limit.",
+      "pattern": "^[a-z][a-z0-9_]{0,63}(\\.[a-z0-9_]{1,64}){0,3}$"
+    },
+    "instant": {
+      "type": "string",
+      "description": "UTC instant, RFC 3339 with Z.",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "offset": {
+      "anyOf": [
+        {
+          "type": "string",
+          "description": "Original UTC offset where known, for example +00:00.",
+          "pattern": "^[+-]\\d{2}:\\d{2}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "local_time": {
+      "type": "string",
+      "description": "Mission time of day, HH:MM, on the mission clock.",
+      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+    },
+    "mission_day": {
+      "type": "integer",
+      "description": "Mission day number on the mission clock. Day 1 starts at the mission epoch. Pre-flight days are zero or negative."
+    },
+    "met": {
+      "type": "string",
+      "description": "Mission elapsed time DDD/HH:MM:SS.",
+      "pattern": "^\\d{3}/\\d{2}:\\d{2}:\\d{2}$"
+    },
+    "environment_id": {
+      "enum": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "description": "One of the four mission environments."
+    },
+    "hazard_environment_key": {
+      "enum": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface",
+        "eva"
+      ],
+      "description": "Environment keys used inside environment-hazards.json and responder-flows.json, which add eva for notes about being outside."
+    },
+    "overlay": {
+      "enum": [
+        "eva",
+        "post_eva",
+        "exercise",
+        "sleep"
+      ],
+      "description": "An activity overlay on top of the environment."
+    },
+    "level": {
+      "enum": [
+        "info",
+        "watch",
+        "act",
+        "emergency"
+      ],
+      "description": "Warning level. Display words come from ui-copy."
+    },
+    "raised_by": {
+      "enum": [
+        "rule",
+        "sensor_limit",
+        "assistant"
+      ],
+      "description": "What raised a warning. A person's emergency is a help session, not a warning."
+    },
+    "cadence_word": {
+      "enum": [
+        "continuous",
+        "daily",
+        "every_n_days",
+        "weekly",
+        "monthly",
+        "per_eva",
+        "after_event",
+        "mission_phase",
+        "as_needed"
+      ]
+    },
+    "cadence": {
+      "type": "object",
+      "properties": {
+        "word": {
+          "$ref": "common.schema.json#/$defs/cadence_word"
+        },
+        "n": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "event": {
+          "type": "string",
+          "description": "The event in words, for after_event.",
+          "minLength": 1
+        },
+        "phase": {
+          "type": "string",
+          "description": "The mission phase in words, for mission_phase.",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "word",
+        "n"
+      ],
+      "additionalProperties": false,
+      "description": "A cadence exactly as routine-schedule.json writes it.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "word": {
+                "const": "every_n_days"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "n": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "body_region": {
+      "enum": [
+        "head",
+        "eyes",
+        "ear",
+        "neck",
+        "shoulder",
+        "heart",
+        "lungs",
+        "abdomen",
+        "flank",
+        "back",
+        "wrist",
+        "hand",
+        "legs",
+        "knee",
+        "ankle"
+      ],
+      "description": "Fixed body region set body-regions-1 (CONTRACTS section 7)."
+    },
+    "body_region_or_null": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/body_region"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "null means not about one place."
+    },
+    "body_regions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/body_region"
+      },
+      "description": "Body regions; an empty list means not about one place.",
+      "uniqueItems": true
+    },
+    "laterality": {
+      "enum": [
+        "left",
+        "right",
+        "both",
+        "unknown"
+      ]
+    },
+    "origin_mode": {
+      "enum": [
+        "LIVE",
+        "REPLAY",
+        "SIM"
+      ],
+      "description": "LIVE, REPLAY or SIM (CONTRACTS section 1)."
+    },
+    "acquisition_method": {
+      "enum": [
+        "self_report",
+        "manual_instrument",
+        "device",
+        "camera_estimate",
+        "crewmate_palpation",
+        "imported_report",
+        "clinician_entry",
+        "derived"
+      ],
+      "description": "crewmate_palpation: a crewmate felt and counted it in a guided check (CONTRACTS section 23); operator_id is the crewmate."
+    },
+    "quality_status": {
+      "enum": [
+        "accepted",
+        "rejected",
+        "uncertain",
+        "not_assessed"
+      ]
+    },
+    "presence": {
+      "enum": [
+        "present",
+        "absent",
+        "unknown",
+        "declined"
+      ],
+      "description": "Answer presence state."
+    },
+    "source_id": {
+      "type": "string",
+      "description": "A source ID from a configuration document's sources list or the package source registry.",
+      "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+    },
+    "source_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/source_id"
+      },
+      "uniqueItems": true
+    },
+    "basis": {
+      "enum": [
+        "sourced",
+        "team default"
+      ],
+      "description": "sourced: the value is in a cited source. team default: chosen by the team, to be set by clinical review or the flight surgeon."
+    },
+    "to_be_set_by": {
+      "anyOf": [
+        {
+          "enum": [
+            "clinical review",
+            "the flight surgeon",
+            "flight rules"
+          ],
+          "description": "Who sets a value the team has not yet set: clinical review, the flight surgeon or flight rules. null means the value is final for this release."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "gap_kind": {
+      "enum": [
+        "planned_line_of_sight",
+        "relay_outage",
+        "conjunction",
+        "equipment",
+        "unknown"
+      ],
+      "description": "Why the ground link is down or delayed."
+    },
+    "plan_mode": {
+      "enum": [
+        "resolve",
+        "talk_through",
+        "stabilize",
+        "prepare_return"
+      ],
+      "description": "How a plan handles the problem: resolve here, talk a crewmate through it, stabilize and watch, or prepare to return (only where the environment has a return option)."
+    },
+    "plan_stage": {
+      "enum": [
+        "check_another_way",
+        "do_now",
+        "watch",
+        "if_worse",
+        "medical_officer",
+        "return",
+        "ground_log"
+      ],
+      "description": "Plan stages, always in this order; ground_log is required and last."
+    },
+    "who": {
+      "type": "string",
+      "description": "Who may do a plan step: any_crew, crew_medical_officer, or skill:<skill_id> for a crewmate holding that skill from skills-catalog.json.",
+      "pattern": "^(any_crew|crew_medical_officer|skill:[a-z][a-z0-9_]{0,63})$"
+    },
+    "pct_range": {
+      "type": "object",
+      "properties": {
+        "min_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "max_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "min_pct",
+        "max_pct"
+      ],
+      "additionalProperties": false,
+      "description": "A percentage range copied from a NASA Clinical Findings Form."
+    },
+    "rtdc": {
+      "type": "object",
+      "properties": {
+        "treated_best": {
+          "$ref": "common.schema.json#/$defs/pct_range"
+        },
+        "treated_worst": {
+          "$ref": "common.schema.json#/$defs/pct_range"
+        },
+        "untreated_best": {
+          "$ref": "common.schema.json#/$defs/pct_range"
+        },
+        "untreated_worst": {
+          "$ref": "common.schema.json#/$defs/pct_range"
+        },
+        "source_id": {
+          "$ref": "common.schema.json#/$defs/source_id"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Page of the saved form that holds Table 4."
+        }
+      },
+      "required": [
+        "treated_best",
+        "treated_worst",
+        "untreated_best",
+        "untreated_worst",
+        "source_id",
+        "page"
+      ],
+      "additionalProperties": false,
+      "description": "Removal to definitive care: NASA's modeled probability that the entire crew aborts the mission and returns to Earth, from Table 4 of the condition's Clinical Findings Form. Copied from the saved form only, never typed from anywhere else; context, never a decision rule."
+    },
+    "catch_up": {
+      "type": "object",
+      "properties": {
+        "what_happened": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "what_was_done": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "being_watched": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "advice_welcome": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "what_happened",
+        "what_was_done",
+        "being_watched",
+        "advice_welcome"
+      ],
+      "additionalProperties": false,
+      "description": "The log as a late reader needs it (CONTRACTS section 26): what happened, what was done, what is being watched and what advice is welcome. Rendered by the hub from the plan run or help session log and ui-copy; never typed by the model."
+    },
+    "ground_needs": {
+      "type": "object",
+      "properties": {
+        "diagnosis": {
+          "type": "boolean"
+        },
+        "treatment": {
+          "type": "boolean"
+        },
+        "follow_up": {
+          "type": "boolean"
+        },
+        "quote": {
+          "type": "string",
+          "description": "The form's Communications and Support Needs words.",
+          "minLength": 1
+        },
+        "source_id": {
+          "$ref": "common.schema.json#/$defs/source_id"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "diagnosis",
+        "treatment",
+        "follow_up",
+        "quote",
+        "source_id",
+        "page"
+      ],
+      "additionalProperties": false,
+      "description": "What a condition's Clinical Findings Form assumed the ground would do. Only when the form is saved in the package; otherwise null, never typed from anywhere else."
+    },
+    "form_quote": {
+      "type": "object",
+      "properties": {
+        "quote": {
+          "type": "string",
+          "description": "Words copied from the saved form.",
+          "minLength": 1
+        },
+        "source_id": {
+          "$ref": "common.schema.json#/$defs/source_id"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "quote",
+        "source_id",
+        "page"
+      ],
+      "additionalProperties": false
+    },
+    "config_name": {
+      "enum": [
+        "environment-hazards",
+        "routine-schedule",
+        "responder-flows",
+        "sensor-catalog",
+        "sensor-limits",
+        "warning-rules",
+        "routine-rules",
+        "environment-profiles",
+        "questionnaires",
+        "indicator-catalog",
+        "help-presentation",
+        "assistant-policy",
+        "ui-copy",
+        "participation-rules",
+        "kit-map",
+        "onboard-plans",
+        "skills-catalog",
+        "role-rules"
+      ],
+      "description": "Configuration document name; the file is <name>.json."
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "config_pin": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "common.schema.json#/$defs/config_name"
+        },
+        "version": {
+          "$ref": "common.schema.json#/$defs/sha256"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "additionalProperties": false,
+      "description": "One document version pinned by a release."
+    },
+    "role": {
+      "enum": [
+        "crew",
+        "crew_medical_officer",
+        "ground",
+        "operator",
+        "station",
+        "adapter",
+        "editor"
+      ],
+      "description": "Session roles. station is a shared habitat screen with no person signed in."
+    },
+    "actor": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "person",
+            "station",
+            "ground",
+            "operator",
+            "adapter",
+            "engine",
+            "assistant"
+          ]
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "id"
+      ],
+      "additionalProperties": false,
+      "description": "Who did something. engine means a deterministic hub module (sensor monitor, rule engine, routine scheduler, help module)."
+    },
+    "person_ref": {
+      "type": "object",
+      "properties": {
+        "person_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "person_id",
+        "display_name"
+      ],
+      "additionalProperties": false
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "free_text": {
+      "type": "string",
+      "description": "Free text written by a person.",
+      "minLength": 1
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "origin_mode": {
+          "$ref": "common.schema.json#/$defs/origin_mode"
+        },
+        "source_label": {
+          "type": "string",
+          "description": "Short words shown next to a value, for example Replay, ISS 2014 or Sim.",
+          "minLength": 1
+        },
+        "trace": {
+          "anyOf": [
+            {
+              "type": "string",
+              "description": "The full provenance sentence, for example the dataset, date and any conversion.",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dataset": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_ids": {
+          "$ref": "common.schema.json#/$defs/source_ids"
+        }
+      },
+      "required": [
+        "origin_mode",
+        "source_label"
+      ],
+      "additionalProperties": false,
+      "description": "Where a value came from."
+    },
+    "evidence_ref": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "reading",
+            "observation",
+            "answer",
+            "daily_check",
+            "mission_event",
+            "state_fact",
+            "insight",
+            "warning",
+            "routine_occurrence",
+            "help_session",
+            "plan_run",
+            "guided_check",
+            "supply_use"
+          ]
+        },
+        "ref_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "summary": {
+          "type": "string",
+          "description": "Plain words the client may show.",
+          "minLength": 1
+        },
+        "observed_at": {
+          "$ref": "common.schema.json#/$defs/instant"
+        }
+      },
+      "required": [
+        "kind",
+        "ref_id"
+      ],
+      "additionalProperties": false,
+      "description": "A pointer to the record that supports something."
+    },
+    "citation": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The citation line, rendered by the hub from source titles.",
+          "minLength": 1
+        },
+        "source_ids": {
+          "$ref": "common.schema.json#/$defs/source_ids"
+        },
+        "basis": {
+          "$ref": "common.schema.json#/$defs/basis"
+        }
+      },
+      "required": [
+        "text",
+        "source_ids"
+      ],
+      "additionalProperties": false
+    },
+    "page": {
+      "type": "object",
+      "properties": {
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "next_cursor"
+      ],
+      "additionalProperties": false,
+      "description": "Paging information for list responses."
+    },
+    "allowed_actions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z_]+$"
+      },
+      "description": "Actions this session may take on the object now. Computed by the hub; the client never infers them.",
+      "uniqueItems": true
+    },
+    "day_ref": {
+      "type": "object",
+      "properties": {
+        "mission_day": {
+          "$ref": "common.schema.json#/$defs/mission_day"
+        },
+        "environment_day": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Day count since the active environment profile became active, using that profile's day length."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string",
+          "description": "Rendered from the environment profile's day template, for example day 21 or sol 7.",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "mission_day",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "number_display": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unit": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string",
+          "description": "The rendered value with the decimals from the catalog, or the no-reading word.",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "text"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

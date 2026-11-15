@@ -10,7 +10,7 @@ from . import common_schema
 
 class Headline(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     max_fragments: int = Field(..., ge=1)
     separator: str
@@ -23,34 +23,34 @@ class HazardLevelIndex(RootModel[int]):
 
 class Condition(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['sensor_limit']
+    kind: Literal["sensor_limit"]
     limit_id: common_schema.ConfigId
 
 
 class Condition2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['sensor_quiet']
+    kind: Literal["sensor_quiet"]
     sensor_type_ids: list[common_schema.ConfigId] = Field(
-        ..., description='Empty list: every sensor type of the active environment.'
+        ..., description="Empty list: every sensor type of the active environment."
     )
 
 
 class Condition3(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['mission_event']
+    kind: Literal["mission_event"]
     event_types: list[common_schema.ConfigId] = Field(..., min_length=1)
     clear_event_types: list[common_schema.ConfigId]
 
 
 class WithinDaysAfterEvent(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     event_type: common_schema.ConfigId
     days: int = Field(..., ge=1)
@@ -59,9 +59,9 @@ class WithinDaysAfterEvent(BaseModel):
 
 class Condition4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['answer']
+    kind: Literal["answer"]
     question_id: common_schema.ConfigId
     presence: list[common_schema.Presence] = Field(..., min_length=1)
     within_days_after_event: WithinDaysAfterEvent | None = None
@@ -69,34 +69,34 @@ class Condition4(BaseModel):
 
 class Condition5(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['state_fact']
+    kind: Literal["state_fact"]
     fact: common_schema.ConfigId
     equals: bool | str | float
 
 
 class Condition6(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['assistant_insight']
+    kind: Literal["assistant_insight"]
     topic_ids: list[common_schema.ConfigId] = Field(..., min_length=1)
 
 
 class AfterNextContactSeconds(RootModel[int]):
     root: int = Field(
         ...,
-        description='Seconds past GroundLink.next_contact_at with the link still down before the warning is raised. null: not set, and the rule raises nothing.',
+        description="Seconds past GroundLink.next_contact_at with the link still down before the warning is raised. null: not set, and the rule raises nothing.",
         ge=0,
     )
 
 
 class Condition7(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['ground_silence']
+    kind: Literal["ground_silence"]
     after_next_contact_seconds: AfterNextContactSeconds | None
     basis: common_schema.Basis
     to_be_set_by: common_schema.ToBeSetBy | None
@@ -105,16 +105,16 @@ class Condition7(BaseModel):
 class BelowUses(RootModel[int]):
     root: int = Field(
         ...,
-        description='Raised for a supply whose computed cover, in uses, is below this. null: not set, and the rule raises nothing.',
+        description="Raised for a supply whose computed cover, in uses, is below this. null: not set, and the rule raises nothing.",
         ge=0,
     )
 
 
 class Condition8(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['supply_cover_low']
+    kind: Literal["supply_cover_low"]
     below_uses: BelowUses | None
     basis: common_schema.Basis
     to_be_set_by: common_schema.ToBeSetBy | None
@@ -126,12 +126,12 @@ class ExpiresAfterSeconds(RootModel[int]):
 
 class Clear(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    by_engine: Literal['condition_false', 'clear_event', 'never']
+    by_engine: Literal["condition_false", "clear_event", "never"]
     person_may_resolve: bool = Field(
         ...,
-        description='Rule warnings only: a person may mark it resolved with a reason.',
+        description="Rule warnings only: a person may mark it resolved with a reason.",
     )
     expires_after_seconds: ExpiresAfterSeconds | None
     basis: common_schema.Basis
@@ -139,9 +139,9 @@ class Clear(BaseModel):
 
 class Steps(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    from_: Literal['hazard_what_to_do'] = Field(..., alias='from')
+    from_: Literal["hazard_what_to_do"] = Field(..., alias="from")
 
 
 class Item(RootModel[str]):
@@ -150,29 +150,29 @@ class Item(RootModel[str]):
 
 class Steps1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    from_: Literal['listed'] = Field(..., alias='from')
+    from_: Literal["listed"] = Field(..., alias="from")
     items: list[Item] = Field(..., min_length=1)
     basis: common_schema.Basis
 
 
 class Steps2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    from_: Literal['assistant'] = Field(..., alias='from')
+    from_: Literal["assistant"] = Field(..., alias="from")
 
 
 class Headline1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fragment: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     rank: int = Field(..., ge=0)
     solo: bool
@@ -180,19 +180,19 @@ class Headline1(BaseModel):
 
 class Content(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     title: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     what: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     why: str = Field(..., min_length=1)
     steps: Steps | Steps1 | Steps2
@@ -200,16 +200,16 @@ class Content(BaseModel):
     headline: Headline1
     citation_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     source_ids: common_schema.SourceIds
 
 
 class Definition(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     raised_by: common_schema.RaisedBy
@@ -218,19 +218,12 @@ class Definition(BaseModel):
     hazard_level_index: HazardLevelIndex | None
     sensor_type_id: common_schema.ConfigId | None
     environments: list[common_schema.EnvironmentId] = Field(..., min_length=1)
-    scope: Literal['habitat', 'person', 'crew'] = Field(
+    scope: Literal["habitat", "person", "crew"] = Field(
         ...,
-        description='habitat: one warning for the place, shown to everyone there. person: one per person. crew: one for the whole crew.',
+        description="habitat: one warning for the place, shown to everyone there. person: one per person. crew: one for the whole crew.",
     )
     condition: (
-        Condition
-        | Condition2
-        | Condition3
-        | Condition4
-        | Condition5
-        | Condition6
-        | Condition7
-        | Condition8
+        Condition | Condition2 | Condition3 | Condition4 | Condition5 | Condition6 | Condition7 | Condition8
     )
     clear: Clear
     content: Content
@@ -238,7 +231,7 @@ class Definition(BaseModel):
 
 class WarningRulesJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     notice: str = Field(
         ...,

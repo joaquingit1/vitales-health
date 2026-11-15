@@ -10,9 +10,9 @@ from . import common_schema
 
 class Item(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['ground_message', 'handoff']
+    kind: Literal["ground_message", "handoff"]
     ref_id: common_schema.Id
     delivered_at: common_schema.Instant
     receipt_at: common_schema.Instant | None
@@ -23,7 +23,7 @@ class Item(BaseModel):
 
 class GroundInbox(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     as_of: common_schema.Instant
     items: list[Item]

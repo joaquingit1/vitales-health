@@ -622,3 +622,74 @@ def test_settings_document_cannot_weaken_registered_bound_or_hide_duplicate_key(
     ):
         with pytest.raises(ProblemError):
             ValidatedSettings.from_json(invalid, specs=(spec,), max_bytes=1000)
+
+
+def test_append_only_update_is_nonretryable_constraint_and_rolls_back(tmp_path: Path) -> None:
+    from crew_health.contracts_gen.enums import ErrorCode
+    from crew_health.kernel.audit import AuditEntry
+    from crew_health.platform.domain.errors import StorageConstraintViolated
+
+    db = database(tmp_path)
+    db.migrate("CREATE TABLE test_fact (id TEXT PRIMARY KEY) STRICT;")
+    actor = Actor("person", "person_1")
+    with db.begin(actor=actor, correlation_id="audit_1") as uow:
+        uow.connection.execute(
+            "INSERT INTO platform_reference VALUES (?,?)", ("private_reference", "entry_1")
+        )
+        uow.audit(
+            AuditEntry("audit_1", "private.accepted", 1, actor, {"entry": "entry_1"}, "audit_1", None, {})
+        )
+    with db.snapshot() as view:
+        original = view.connection.rows("SELECT * FROM platform_audit", (), limit=1)
+    with (
+        pytest.raises(StorageConstraintViolated) as error,
+        db.begin(actor=actor, correlation_id="forbidden_update") as uow,
+    ):
+        uow.connection.execute("INSERT INTO test_fact VALUES (?)", ("rolled_back",))
+        uow.connection.execute("UPDATE platform_audit SET event_id=?", ("changed",))
+    assert error.value.cause == "constraint"
+    assert error.value.retryable is False
+    assert error.value.code == ErrorCode.INTERNAL_ERROR
+    with db.snapshot() as view:
+        assert view.connection.rows("SELECT * FROM platform_audit", (), limit=1) == original
+        assert view.connection.rows("SELECT * FROM test_fact", (), limit=1) == ()
+
+
+def test_revision_reference_is_kept_durably_and_only_that_shape_bypasses_the_body_policy(tmp_path):
+    """E05 records `{"revision": n}` so a replay rebuilds the response from its own history (SYSTEM 5.8). The
+    ledger keeps that reference with the row, past the 24 h body cache, for sha256 and hmac identities alike;
+    any other body still needs the explicit public projection."""
+    from dataclasses import replace
+    from datetime import timedelta
+
+    from crew_health.kernel.commands import StoredResult
+
+    db, session, identity, ledger, executor, visibility = command_station(tmp_path)
+    private = replace(identity, key="command_2", fingerprint_kind="hmac_sha256")
+    with db.begin(actor=session.actor, correlation_id="record") as uow:
+        for current in (identity, private):
+            ledger.record(
+                uow,
+                current,
+                StoredResult(ledger.accepted(uow, current), 200, "msr_1", "created", b'{"revision":5}'),
+            )
+    db.clock.at += timedelta(days=2)
+    with db.begin(actor=session.actor, correlation_id="replay") as uow:
+        for current in (identity, private):
+            stored = ledger.lookup(uow, current)
+            assert stored is not None and stored.safe_body == b'{"revision":5}'
+    for index, (resource, code, body) in enumerate(
+        (
+            ("msr_1", "created", b'{"revision":0}'),
+            ("msr_1", "created", b'{"revision": 5}'),
+            ("msr_1", "created", b'{"revision":5,"note":"private text"}'),
+            (None, "created", b'{"revision":5}'),
+            ("msr_1", "created; drop", b'{"revision":5}'),
+            ("msr_1", "created", b'{"text":"private"}'),
+        )
+    ):
+        current = replace(private, key=f"command_bad_{index}")
+        with pytest.raises(ProblemError), db.begin(actor=session.actor, correlation_id="bad") as uow:
+            ledger.record(
+                uow, current, StoredResult(ledger.accepted(uow, current), 200, resource, code, body)
+            )

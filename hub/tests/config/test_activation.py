@@ -27,7 +27,9 @@ EDITOR = SessionContext("session_1", "editor", ACTOR, None, frozenset({Role.EDIT
 def release(identifier: str, *, label: str | None = None) -> CandidateRelease:
     documents = {}
     for name in ConfigName:
-        if name.value in {"environment-hazards", "routine-schedule", "responder-flows"}:
+        if name == ConfigName.UNIT_MAPPING:
+            raw = (ROOT / "config/unit-mapping.json").read_bytes()
+        elif name.value in {"environment-hazards", "routine-schedule", "responder-flows"}:
             raw = (ROOT / f"docs/product/{name.value}.json").read_bytes()
         else:
             suffix = (
@@ -141,14 +143,19 @@ def test_complete_example_release_runs_owned_template_and_schema_checks() -> Non
 
 
 def install_events(db: SQLiteDatabase) -> None:
+    from tempfile import TemporaryDirectory
+
+    from crew_health.contracts_gen.build import effective_tree, verify_base, verify_overlay
     from crew_health.events.adapters.repository import EventRepository, EventValidator
 
     db.migrate((ROOT / "hub/src/crew_health/events/adapters/migrations/0001_events.sql").read_text())
-    events = EventRepository(
-        settings=db.settings,
-        ids=db.ids,
-        validator=EventValidator(schema_directory=ROOT / "contracts/api/schemas"),
-    )
+    base = verify_base(ROOT)
+    overlay = verify_overlay(ROOT, base)
+    assert overlay is not None
+    with TemporaryDirectory() as temporary:
+        api = effective_tree(ROOT, overlay, overlay.effective(base), Path(temporary))
+        validator = EventValidator(schema_directory=api / "schemas")
+    events = EventRepository(settings=db.settings, ids=db.ids, validator=validator)
     db.event_sink = events.append
 
 
@@ -236,6 +243,7 @@ def test_http_config_surface_uses_durable_command_executor(tmp_path: Path) -> No
     commands = ConfigHttpCommands(execute=executor, service=service, repository=repository, ids=db.ids)
     metadata = json.loads((ROOT / "docs/product/api/examples/configuration/index.json").read_bytes())["value"]
     summaries = {ConfigName(item["name"]): item["basis_summary"] for item in metadata["documents"]}
+    summaries[ConfigName.UNIT_MAPPING] = "D12 sourced UCUM mapping"
     app = FastAPI()
     app.include_router(
         create_router(
@@ -350,3 +358,26 @@ def test_live_example_guard_requires_kit_and_rejects_only_example_flag() -> None
         {ConfigName.KIT_MAP: ConfigDocumentView(ConfigName.KIT_MAP, hashlib.sha256(raw).hexdigest(), raw)},
     )
     ReleaseActivationService._live_example(minimal, "LIVE")
+
+
+def test_release_requires_and_pins_unit_mapping_under_check_one(tmp_path: Path) -> None:
+    from crew_health.config.adapters.verification import SchemaCheck
+
+    complete = release("release_complete")
+    missing = CandidateRelease(
+        "release_missing",
+        {name: view for name, view in complete.documents.items() if name != ConfigName.UNIT_MAPPING},
+    )
+    schemas = SchemaCheck.from_directory(ROOT / "contracts/api/schemas")
+    checks = LoaderChecks(maximum=64)
+    checks.register(schemas)
+    loader = ConfigLoader(checks, max_document_bytes=8388608)
+    findings = loader.validate(missing, origin="SIM").errors
+    assert any(f.check_id == "1" and f.document == ConfigName.UNIT_MAPPING for f in findings)
+    assert not any(f.check_id == "1" for f in loader.validate(complete, origin="SIM").errors)
+    db, repository, service, _ = station(tmp_path)
+    with db.begin(actor=ACTOR, correlation_id="pin_mapping") as uow:
+        service.propose(uow, EDITOR, complete)
+    with db.snapshot() as view:
+        pin = repository.release(view, complete.release_id)
+        assert pin.document(ConfigName.UNIT_MAPPING) == complete.documents[ConfigName.UNIT_MAPPING]

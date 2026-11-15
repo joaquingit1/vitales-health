@@ -7,17 +7,26 @@ import."""
 from __future__ import annotations
 
 from collections.abc import Callable
+from dataclasses import fields
 from typing import Protocol
 
 from fastapi import APIRouter
 
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import CommandReceipts, IdempotencyStore
-from crew_health.kernel.config import ConfigReader, ConfigReleaseReader, ReleaseCheck, TemplateRenderer
+from crew_health.kernel.config import ConfigBinding, ConfigReader, ConfigReleaseReader, ReleaseCheck
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.settings import HubSettings, SettingSpec
 from crew_health.kernel.units import UnitRegistry
-from crew_health.kernel.uow import AudienceRule, ReadSnapshotFactory, UnitOfWorkFactory
+from crew_health.kernel.uow import (
+    AudienceRule,
+    DomainEvent,
+    ReadSnapshot,
+    ReadSnapshotFactory,
+    UnitOfWork,
+    UnitOfWorkFactory,
+)
+from crew_health.plans.application import ports as plans_ports
 from crew_health.teach.adapters.catalog_checks import SkillsCatalogCheck
 from crew_health.teach.adapters.sqlite_repository import SqliteCoachingSamples, SqliteGuidedChecks
 from crew_health.teach.api.router import TeachApi, assemble, build_router
@@ -28,7 +37,10 @@ from crew_health.teach.application.ports import (
     AnswerCommands,
     CameraReferencePort,
     GuidanceEligibility,
+    GuidedCheckCompleted,
+    GuidedCheckFacts,
     GuidedCheckQueries,
+    GuidedStepRef,
     HelpSessionReader,
     ObservationCommands,
     PersonDirectory,
@@ -57,10 +69,49 @@ class ModuleRegistry(Protocol):
         self, port: type[P], factory: Callable[[Resolver], P], *, requires: tuple[type[object], ...] = ()
     ) -> None: ...
     def bind(self, name: str, fn: Callable[[Resolver], None]) -> None: ...
+    def subscribe[E: DomainEvent](
+        self, event_type: type[E], handler: Callable[[UnitOfWork, E], None], *, name: str
+    ) -> None: ...
     def audience_rule(self, name: str, rule: AudienceRule) -> None: ...
     def loader_check(self, check: ReleaseCheck) -> None: ...
     def id_prefix(self, *, record_type: str, prefix: str) -> None: ...
     def setting(self, spec: SettingSpec) -> None: ...
+
+
+class PlansComposition:
+    """Composition adapter built here for E28 (AGENTS 1 rule 9): plans cannot import these ports, because they
+    import teach's domain, so plans declares kernel-only copies and this adapter maps both ways. Without plans
+    registered, teach sees no PlanRunReader exactly as before, and completions go nowhere else."""
+
+    def __init__(self, queries: GuidedCheckQueries) -> None:
+        self.queries = queries
+        self.steps: plans_ports.PlanRunReader | None = None
+        self.sink: plans_ports.GuidedCompletionSink | None = None
+
+    def guided_step(self, plan_run_id: str, skill_id: str) -> GuidedStepRef | None:
+        ref = None if self.steps is None else self.steps.guided_step(plan_run_id, skill_id)
+        return None if ref is None else GuidedStepRef(**{f.name: getattr(ref, f.name) for f in fields(ref)})
+
+    def get(
+        self, view: ReadSnapshot | UnitOfWork, guided_check_id: str
+    ) -> plans_ports.GuidedCheckFacts | None:
+        facts: GuidedCheckFacts | None = self.queries.get(view, guided_check_id)
+        if facts is None:
+            return None
+        return plans_ports.GuidedCheckFacts(**{f.name: getattr(facts, f.name) for f in fields(facts)})
+
+    def completed(self, uow: UnitOfWork, event: GuidedCheckCompleted) -> None:
+        if self.sink is not None:
+            self.sink.on_guided_check_completed(
+                uow,
+                plans_ports.GuidedCheckCompleted(
+                    event.guided_check_id,
+                    event.plan_run_id,
+                    event.step_id,
+                    event.outcome,
+                    event.observation_ids,
+                ),
+            )
 
 
 def register(registry: ModuleRegistry) -> None:
@@ -76,9 +127,14 @@ def register(registry: ModuleRegistry) -> None:
     registry.id_prefix(record_type="guided_check", prefix="gck")
     registry.id_prefix(record_type="coaching_sample", prefix="cs")
     registry.provide(GuidedCheckQueries, lambda _: GuidedCheckReader(checks))
+    plans = PlansComposition(GuidedCheckReader(checks))
+    registry.provide(plans_ports.GuidedCheckQueries, lambda _: plans)
+    registry.subscribe(GuidedCheckCompleted, plans.completed, name="teach.plans_guided_completion")
 
     def bind(resolver: Resolver) -> None:
         settings = TeachSettings.read(resolver.require(HubSettings))
+        plans.steps = resolver.optional(plans_ports.PlanRunReader)
+        plans.sink = resolver.optional(plans_ports.GuidedCompletionSink)
         ports = TeachPorts(
             uow=resolver.require(UnitOfWorkFactory),
             snapshots=resolver.require(ReadSnapshotFactory),
@@ -87,7 +143,7 @@ def register(registry: ModuleRegistry) -> None:
             settings=settings,
             releases=resolver.require(ConfigReleaseReader),
             content=ContentLoader(resolver.require(ConfigReader), max_cached=settings.content_cache_max),
-            renderer=resolver.require(TemplateRenderer),
+            config=resolver.require(ConfigBinding),
             idempotency=resolver.require(IdempotencyStore),
             receipts=resolver.require(CommandReceipts),
             units=resolver.require(UnitRegistry),
@@ -97,7 +153,7 @@ def register(registry: ModuleRegistry) -> None:
             eligibility=resolver.require(GuidanceEligibility),
             people=resolver.require(PersonDirectory),
             routing=resolver.require(RecordRouting),
-            plans=resolver.optional(PlanRunReader),
+            plans=plans if plans.steps is not None else resolver.optional(PlanRunReader),
             camera=resolver.optional(CameraReferencePort),
             roles=resolver.optional(RoleAssignmentReader),
         )
