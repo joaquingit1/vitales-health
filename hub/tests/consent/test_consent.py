@@ -9,6 +9,7 @@ import pytest
 from e02_station import OPERATOR, START, Light, credential, light, mission_id, sim_bootstrap, sim_members
 
 from crew_health.consent.application.records import RECORD_PURPOSE, ConsentRecordAuthorization
+from crew_health.consent.application.service import ConsentLimits
 from crew_health.consent.domain.grants import GrantRequest
 from crew_health.identity.domain.session import roles_for
 from crew_health.kernel.clock import TimeInput
@@ -246,3 +247,52 @@ def test_record_writes_are_self_capture_or_an_officer_entering_for_a_member(serv
     )
     with services.database.begin(actor=station.actor, correlation_id="c") as uow, pytest.raises(ProblemError):
         authorization.require_write(uow, station, context("mara", "mara"))
+
+
+@pytest.mark.trace("T-E02-001", "T-E02-003", "T-E02-020")
+def test_an_unknown_or_blank_subject_recipient_or_scope_releases_nothing(services: Light) -> None:
+    services.consent.grant(person(services, "mara"), request("ilya"), correlation_id="c")
+    asked: tuple[tuple[str, str, tuple[str, str]], ...] = (
+        ("nobody", "ilya", SCOPE),
+        ("mara", "nobody", SCOPE),
+        ("", "ilya", SCOPE),
+        ("mara", "", SCOPE),
+        ("mara", "ilya", ("", "obs_1")),
+        ("mara", "ilya", (RECORD_PURPOSE, "")),
+        ("mara", "ilya", (RECORD_PURPOSE, "obs_2")),
+    )
+    with services.database.snapshot() as view:
+        for subject, recipient, scope in asked:
+            given = services.consent.fields(
+                view,
+                subject_person_id=subject,
+                recipient=recipient,
+                scope=scope,
+                action="read",
+                requested=OBSERVATION,
+            )
+            assert given == frozenset(), (subject, recipient, scope)
+    assert released(services) == OBSERVATION
+
+
+@pytest.mark.trace("T-E02-007", "T-E02-001")
+def test_a_subject_removed_after_proving_their_credential_cannot_grant(services: Light) -> None:
+    tomas = person(services, "tomas")
+    members = tuple(member for member in sim_members() if member.person_id != "tomas")
+    services.admin.apply_roster(
+        sim_bootstrap(members=members), expected_revision=1, operator=OPERATOR, correlation_id="c"
+    )
+    with pytest.raises(ProblemError) as error:
+        services.consent.grant(tomas, request("ilya"), correlation_id="c")
+    assert error.value.code == ErrorCode.UNAUTHORIZED_SCOPE
+    assert services.consent.own_grants(tomas) == ()
+
+
+@pytest.mark.trace("T-E02-020")
+def test_consent_limits_outside_their_bounds_are_a_configuration_error() -> None:
+    for active, fields in ((0, 1), (257, 1), (1, 0), (1, 257)):
+        with pytest.raises(ProblemError) as error:
+            ConsentLimits(active, fields)
+        assert error.value.code == ErrorCode.CONFIG_INVALID
+    assert ConsentLimits(1, 1) == ConsentLimits(1, 1)
+    assert ConsentLimits(256, 256).fields_max == 256

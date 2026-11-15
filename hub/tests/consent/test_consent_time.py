@@ -15,6 +15,7 @@ from e02_station import OPERATOR, START, E02Station, Running, credential, missio
 from crew_health.consent.application.records import RECORD_PURPOSE
 from crew_health.consent.domain.grants import Grant, GrantRequest
 from crew_health.kernel.clock import ClockCorrection
+from crew_health.kernel.scheduler import AbsoluteDeadline, ScheduledJob
 from crew_health.kernel.uow import Actor, SessionContext
 
 MINUTE_NS = 60 * 1_000_000_000
@@ -156,3 +157,39 @@ def test_an_absolute_expiry_is_not_moved_by_a_correction(hub: E02Station) -> Non
     assert stored[finite.grant_id].request.valid_until == START + timedelta(minutes=30)
     assert stored[created.grant_id].state == "active"
     assert stored[finite.grant_id].state == "fenced"
+
+
+@pytest.mark.trace("T-E02-010", "T-E02-013")
+def test_an_expiry_callback_that_is_malformed_stale_duplicate_or_early_changes_nothing(
+    hub: E02Station,
+) -> None:
+    running = serve(hub)
+    finite = grant(running, "ilya", minutes=10)
+    open_ended = grant(running, "sofia", minutes=None)
+    payloads: tuple[dict[str, str], ...] = (
+        {},
+        {"grant_id": finite.grant_id},
+        {"grant_id": finite.grant_id, "revision": "one"},
+        {"grant_id": "cns_absent", "revision": "1"},
+        {"grant_id": finite.grant_id, "revision": "2"},
+        {"grant_id": open_ended.grant_id, "revision": "1"},
+        {"grant_id": finite.grant_id, "revision": "1"},
+    )
+    for payload in payloads:
+        job = ScheduledJob("consent.expiry.probe", "consent.expire", AbsoluteDeadline(START), payload, None)
+        with hub.database.begin(actor=SCHEDULER, correlation_id="sim_scheduler") as uow:
+            running.consent.expire(uow, job)
+    assert states(running) == {"ilya": "active", "sofia": "active"}
+    hub.clock.at += timedelta(minutes=10)
+    hub.clock.monotonic += 10 * MINUTE_NS
+    on_time = ScheduledJob(
+        "consent.expiry.probe",
+        "consent.expire",
+        AbsoluteDeadline(START),
+        {"grant_id": finite.grant_id, "revision": "1"},
+        None,
+    )
+    for _ in range(2):
+        with hub.database.begin(actor=SCHEDULER, correlation_id="sim_scheduler") as uow:
+            running.consent.expire(uow, on_time)
+    assert states(running) == {"ilya": "expired", "sofia": "active"}

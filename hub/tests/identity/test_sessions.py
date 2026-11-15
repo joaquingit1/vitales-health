@@ -7,6 +7,7 @@ profile cases run the fully composed hub so its startup phases and module bindin
 from __future__ import annotations
 
 import unicodedata
+from collections.abc import Callable
 from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
@@ -28,6 +29,8 @@ from e02_station import (
 )
 
 from crew_health.identity.application.ports import HubProfile
+from crew_health.identity.application.service import IdentityService
+from crew_health.identity.application.store import CredentialHasher
 from crew_health.identity.domain.roster import ProvisionedPrincipal
 from crew_health.identity.domain.session import SignInKind, SignInRequest
 from crew_health.kernel.errors import ErrorCode, ProblemError
@@ -449,3 +452,58 @@ def test_ground_signs_in_only_on_a_ground_or_demo_profile(tmp_path: Path) -> Non
     assert context(demo, sign_in(demo, None, credential("ground_team"), kind="ground")).roles == frozenset(
         {Role.GROUND}
     )
+
+
+class ChangedMidway:
+    """A verifier during which the owner changes the credential once: a sign-in racing a change."""
+
+    def __init__(self, inner: CredentialHasher, change: Callable[[], None]) -> None:
+        self.inner = inner
+        self.change = change
+        self.fired = False
+
+    def hash(self, secret: str) -> str:
+        return self.inner.hash(secret)
+
+    def verify(self, verifier: str | None, secret: str) -> bool:
+        if not self.fired:
+            self.fired = True
+            self.change()
+        return self.inner.verify(verifier, secret)
+
+
+@pytest.mark.trace("T-E02-015", "T-E02-009")
+def test_a_credential_changed_during_verification_cannot_issue_the_old_generation(running: Light) -> None:
+    def change() -> None:
+        running.admin.set_credential(
+            "mara",
+            "mara changed mid flight",
+            current_credential=credential("mara"),
+            operator=None,
+            client="console",
+            correlation_id="c",
+        )
+
+    deps = running.identity.deps
+    racing = IdentityService(replace(deps, hasher=ChangedMidway(deps.hasher, change)))
+    with pytest.raises(ProblemError) as error:
+        racing.sign_in(
+            SignInRequest("crew", "mara"),
+            credential("mara"),
+            client=CLIENT,
+            listener=LISTENER,
+            correlation_id="c",
+        )
+    assert error.value.code == ErrorCode.IDENTITY_MISMATCH
+    assert refused(running, "mara", credential("mara")).code == ErrorCode.IDENTITY_MISMATCH
+    assert not dead(running, sign_in(running, "mara", "mara changed mid flight"))
+
+
+@pytest.mark.trace("T-E02-009", "T-E02-001")
+def test_a_crew_sign_in_naming_a_principal_of_another_kind_is_refused_like_a_wrong_secret(
+    running: Light,
+) -> None:
+    station_id = sim_station_principal().principal_id
+    failure = refused(running, station_id, credential(station_id))
+    assert (failure.code, failure.field_errors) == (ErrorCode.IDENTITY_MISMATCH, ())
+    assert not dead(running, sign_in(running, None, credential(station_id), kind="station"))

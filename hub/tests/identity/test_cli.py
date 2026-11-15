@@ -198,3 +198,21 @@ def test_a_unicode_display_name_is_kept_exactly_or_the_whole_document_is_refused
         return
     assert shown
     assert parsed.members[0].display_name == name
+
+
+@pytest.mark.trace("T-E02-009", "T-E02-015")
+def test_a_console_without_an_operator_on_the_roster_refuses_every_command(tmp_path: Path) -> None:
+    run = Run(light(tmp_path))
+    later = write(tmp_path / "later.json", document(sim_bootstrap()))
+    assert run("roster", "apply", str(later), "--expected-revision", "1", stdin="anything\n") == 1
+    assert run.failure() == "UNAUTHORIZED_SCOPE"
+    assert run("credential", "set", "mara", stdin="anything\n" + credential("mara") + "\n") == 1
+    assert run.failure() == "UNAUTHORIZED_SCOPE"
+
+
+@pytest.mark.trace("T-E02-015", "T-E02-009")
+def test_a_credential_that_was_never_set_cannot_be_changed_into_existence(fresh: tuple[Run, Path]) -> None:
+    run, _ = fresh
+    assert run("credential", "change", OPERATOR_ID, stdin="guess\nchosen by nobody\n") == 1
+    assert run.failure() == "UNAUTHORIZED_SCOPE"
+    assert run("credential", "set", OPERATOR_ID, stdin="operator secret\n") == 0
