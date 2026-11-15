@@ -1425,8 +1425,8 @@
     },
     {
       "path": "api/openapi.yaml",
-      "bytes": 425502,
-      "sha256": "95d0f5996bff0acdbc57230c662c96792a7203968540abe1eb8900a3ba694cda"
+      "bytes": 427821,
+      "sha256": "ebdedb19a828fb347d82e30435d6db8e23283d3060f803c336f306fc24ad184a"
     },
     {
       "path": "api/schemas/activity-overlay.schema.json",

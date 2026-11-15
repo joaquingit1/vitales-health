@@ -14,8 +14,12 @@ Neither draft carries the capture clock segment or a trusted quality proof (R-E0
 recorded unknown (SYSTEM 5.2: a capture with no proven segment mapping is unknown) and the value is never stored
 accepted: a declared or policy-assessed accepted value becomes uncertain with reason time_unknown.
 
-Appending a record for another module through `AnswerCommands` still needs the consolidated answer interface of
-R-E01-17; until it lands every answer append fails closed with CAPABILITY_UNAVAILABLE (AGENTS 1.9)."""
+The same producer appends a guided check's answer (E30 `AnswerCommands`): the helper's own answer to a skill step,
+keyed by the check's idempotency key, in the caller's unit of work. Its question lives in the skills catalog the
+draft pins, not in the questionnaires, so the questionnaire validation of `RecordsCommands` does not apply; the
+caller has already checked the answer against that step's choices. The answer time is the hub's receive time of the
+helper's tap, recorded with the same unmapped clock provenance as an observation. Daily checks keep using
+`RecordsCommands.append_answer` with its full workflow."""
 
 from __future__ import annotations
 
@@ -35,11 +39,12 @@ from crew_health.kernel.config import ConfigReleaseReader, ReleaseHandle
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import IdFactory, require_id
 from crew_health.kernel.units import ConvertedQuantity, Quantity, Unit, UnitRegistry, WireQuantity
-from crew_health.kernel.uow import UnitOfWork
+from crew_health.kernel.uow import Actor, UnitOfWork
 from crew_health.records.application.ports import AnswerDraft, AttemptObservationDraft, ObservationDraft
 from crew_health.records.application.seams import MissionStatePort, ObservationPolicies, RecordsStore
+from crew_health.records.domain.answers import AnswerRecord, Presence
 from crew_health.records.domain.errors import PolicyMissing, RecordError
-from crew_health.records.domain.lineage import check_observation_lineage
+from crew_health.records.domain.lineage import check_answer_lineage, check_observation_lineage
 from crew_health.records.domain.observations import (
     AcquisitionMethod,
     ObservationPolicy,
@@ -256,7 +261,7 @@ class ObservationProducer:
             if capture.stored(existing) != capture.content():
                 raise RecordError(ErrorCode.DUPLICATE_COMMAND)
             return existing.observation_id
-        mission_id = self._mission(uow)
+        mission_id = self.mission_of(uow)
         canonical = release_canonical_unit(uow.release, capture.code, self.units)
         conversion = self._convert(capture.quantity, canonical)
         quality, rule_version = self._quality(uow.release, capture, conversion.canonical)
@@ -306,7 +311,7 @@ class ObservationProducer:
         )
         return record.observation_id
 
-    def _mission(self, uow: UnitOfWork) -> str:
+    def mission_of(self, uow: UnitOfWork) -> str:
         facts = None if self.mission is None else self.mission.current(uow)
         if facts is None:
             raise _unavailable()
@@ -372,6 +377,79 @@ def _require_capture(capture: _Capture) -> None:
         raise RecordError(ErrorCode.INVALID_VALUE)
 
 
-class PendingAnswerCommands:
+_PRESENCES: frozenset[str] = frozenset(get_args(Presence.__value__))
+
+
+class AnswerProducer:
+    """`AnswerCommands` for in-process producers (E30 teach). The caller is trusted to have authorized the helper
+    and validated the answer against its step; records owns the partition, idempotency, lineage, audit and storage."""
+
+    def __init__(self, observations: ObservationProducer) -> None:
+        self.observations = observations
+
     def append_answer(self, uow: UnitOfWork, draft: AnswerDraft, *, idempotency_key: str) -> str:
-        raise _unavailable()
+        require_id(idempotency_key)
+        for identifier in (draft.record_id, draft.actor_person_id, draft.question_id):
+            require_id(identifier)
+        for optional in (draft.episode_id, draft.supersedes):
+            if optional is not None:
+                require_id(optional)
+        require_utc(draft.answered_at)
+        if draft.origin_mode not in _ORIGINS or draft.presence not in _PRESENCES or not draft.value:
+            raise RecordError(ErrorCode.INVALID_VALUE)
+        if uow.actor != Actor("person", draft.actor_person_id):
+            raise RecordError(ErrorCode.IDENTITY_MISMATCH)
+        answer_id = self.observations.ids.derived("ans", "answer", idempotency_key)
+        existing = self.observations.repository.answer(uow, answer_id)
+        content = (
+            draft.record_id, draft.question_id, draft.questionnaire_version, draft.presence, draft.value,
+            draft.body_region, draft.actor_person_id, draft.answered_at, draft.origin_mode, draft.supersedes,
+            draft.episode_id,
+        )  # fmt: skip
+        if existing is not None:
+            stored = (
+                existing.patient_id, existing.question_id, existing.questionnaire_version, existing.presence,
+                existing.value, existing.body_region, existing.actor.id, existing.answered_at,
+                existing.origin_mode, existing.supersedes, existing.episode_id,
+            )  # fmt: skip
+            if stored != content:
+                raise RecordError(ErrorCode.DUPLICATE_COMMAND)
+            return existing.answer_id
+        record = AnswerRecord(
+            answer_id,
+            draft.question_id,
+            draft.questionnaire_version,
+            cast(Presence, draft.presence),
+            draft.value,
+            draft.body_region,
+            None,
+            Actor("person", draft.actor_person_id),
+            draft.answered_at,
+            draft.origin_mode,
+            draft.supersedes,
+            draft.record_id,
+            self.observations.mission_of(uow),
+            draft.episode_id,
+            uow.release.release_id,
+            TimeInput(draft.answered_at, UNMAPPED_CLOCK, UNMAPPED_CLOCK, 0, "source_raw", draft.origin_mode),
+            uow.now,
+            None,
+        )
+        previous = (
+            None if record.supersedes is None else self.observations.repository.answer(uow, record.supersedes)
+        )
+        check_answer_lineage(record, previous)
+        self.observations.repository.add_answer(uow, record)
+        uow.audit(
+            AuditEntry(
+                self.observations.ids.new("audit"),
+                "answer.recorded",
+                1,
+                uow.actor,
+                {"record": answer_id},
+                uow.correlation_id,
+                None,
+                {},
+            )
+        )
+        return answer_id

@@ -36,6 +36,8 @@ const now = ref(0);
 let countStart = 0;
 let ticker = 0;
 let tapped = 0;
+const ROLE_POLLS = 8;
+const ROLE_POLL_MS = 750;
 
 const doneNos = computed(() => new Set((check.value?.steps_done ?? []).map((s) => s.step_no)));
 const counted = computed(() => (check.value?.beat_count ?? 0) > 0 || check.value?.state === "counting");
@@ -88,8 +90,18 @@ async function load(): Promise<void> {
     await open(runId.value);
     return;
   }
-  run.value = await api.get<PlanRun>(`/v1/plan-runs/${runId.value}`);
-  const roles = await api.get<{ items: RoleAssignment[] }>(`/v1/plan-runs/${runId.value}/roles`);
+  try {
+    run.value = await api.get<PlanRun>(`/v1/plan-runs/${runId.value}`);
+  } catch (failure) {
+    /* the run is its subject's to read (E28); its helper reaches the check the subject started on this laptop */
+    const handed = readHandoff();
+    if (!handed) throw failure;
+    const handedCheck = await api.get<GuidedCheck>(`/v1/guided-checks/${handed}`);
+    if (handedCheck.plan_run_id !== runId.value) throw failure;
+    await open(handed);
+    return;
+  }
+  const roles = await proposedRoles(runId.value);
   helper.value = roles.items.find((r) => r.skill_id !== null && r.state !== "changed") ?? roles.items[0] ?? null;
   const plan = await api.get<{ stages: { stage_id: string; label?: string; steps: { cannot_replace_text: string | null }[] }[] }>(
     `/v1/plans/${run.value.plan_id}`,
@@ -101,9 +113,23 @@ async function load(): Promise<void> {
   if (existing) await open(existing);
 }
 
+/** The steps are the helper's to read (E30 section 10); the subject sees the check and who takes the steps. */
+/** E31 proposes the run's roles from the run's start event, a moment after the run exists: a bounded wait for them. */
+async function proposedRoles(id: string): Promise<{ items: RoleAssignment[] }> {
+  let roles = await api.get<{ items: RoleAssignment[] }>(`/v1/plan-runs/${id}/roles`);
+  for (let i = 0; i < ROLE_POLLS && roles.items.length === 0; i += 1) {
+    await new Promise((resolve) => window.setTimeout(resolve, ROLE_POLL_MS));
+    roles = await api.get<{ items: RoleAssignment[] }>(`/v1/plan-runs/${id}/roles`);
+  }
+  return roles;
+}
+
 async function open(id: string): Promise<void> {
-  check.value = await api.get<GuidedCheck>(`/v1/guided-checks/${id}`);
-  steps.value = await api.get<TeachSteps>(`/v1/guided-checks/${id}/steps`);
+  const found = await api.get<GuidedCheck>(`/v1/guided-checks/${id}`);
+  check.value = found;
+  steps.value = session.current?.person?.person_id === found.helper.person_id
+    ? await api.get<TeachSteps>(`/v1/guided-checks/${id}/steps`)
+    : null;
 }
 
 async function guard(work: () => Promise<void>): Promise<void> {
@@ -141,8 +167,8 @@ const teach = (): Promise<void> =>
       plan_run_id: r.plan_run_id,
       ...(assignment.state === "accepted" ? { role_assignment_id: assignment.role_assignment_id } : {}),
     });
-    await open(started.guided_check_id);
     rememberHandoff(started.guided_check_id);
+    await open(started.guided_check_id);
     await router.replace({ name: "teach", params: { id: started.guided_check_id } });
   });
 
@@ -152,6 +178,13 @@ function rememberHandoff(id: string): void {
     window.sessionStorage.setItem(HANDOFF_KEY, id);
   } catch {
     /* without storage the helper opens the check from the subject's link */
+  }
+}
+function readHandoff(): string | null {
+  try {
+    return window.sessionStorage.getItem(HANDOFF_KEY);
+  } catch {
+    return null;
   }
 }
 const isHelper = computed(() => !!check.value && session.current?.person?.person_id === check.value.helper.person_id);

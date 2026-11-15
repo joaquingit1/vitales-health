@@ -25,9 +25,9 @@ PINNED: tuple[ConfigName, ...] = (
     ConfigName.INDICATOR_CATALOG,
     ConfigName.RESPONDER_FLOWS,
 )
-STEP_FIELD = "skills-catalog.teach_steps.text"
-TITLE_FIELD = "skills-catalog.card_title"
-PHRASE_FIELD = "skills-catalog.checks.phrases"
+STEP_FIELD = "skills-catalog/teach_steps/text"
+TITLE_FIELD = "skills-catalog/card_title"
+PHRASE_FIELD = "skills-catalog/checks/phrases"
 RENDER_FIELDS: Mapping[str, frozenset[str]] = {
     STEP_FIELD: frozenset({"subject_name", "helper_name"}),
     TITLE_FIELD: frozenset({"subject_name", "helper_name"}),
