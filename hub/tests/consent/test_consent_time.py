@@ -14,11 +14,14 @@ from e02_station import OPERATOR, START, E02Station, Running, credential, missio
 
 from crew_health.consent.application.records import RECORD_PURPOSE
 from crew_health.consent.domain.grants import Grant, GrantRequest
+from crew_health.identity.domain.session import SignInRequest
 from crew_health.kernel.clock import ClockCorrection
+from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.scheduler import AbsoluteDeadline, ScheduledJob
 from crew_health.kernel.uow import Actor, SessionContext
 
 MINUTE_NS = 60 * 1_000_000_000
+LISTENER = "127.0.0.1:8000"
 SCHEDULER = Actor("engine", "engine_scheduler")
 
 
@@ -44,7 +47,7 @@ def grant(running: Running, recipient: str, *, minutes: int | None) -> Grant:
 
 
 def states(running: Running) -> dict[str, str]:
-    return {g.request.recipient: g.state for g in running.consent.own_grants(owner(running))}
+    return {g.request.recipient: g.state for g in running.consent.own_grants(owner(running)).grants}
 
 
 def audited(hub: E02Station, event_type: str) -> int:
@@ -111,7 +114,7 @@ def test_a_restart_fences_earlier_finite_grants_and_reauthentication_cannot_revi
     after = serve(restarted, seed=False)
     assert states(after) == {"ilya": "fenced", "sofia": "active"}
     renewed = grant(after, "ilya", minutes=60)
-    by_id = {g.grant_id: g.state for g in after.consent.own_grants(owner(after))}
+    by_id = {g.grant_id: g.state for g in after.consent.own_grants(owner(after)).grants}
     assert by_id[renewed.grant_id] == "active"
     assert sorted(by_id.values()) == ["active", "active", "fenced"]
 
@@ -153,7 +156,7 @@ def test_an_absolute_expiry_is_not_moved_by_a_correction(hub: E02Station) -> Non
                 "operator",
             ),
         )
-    stored = {g.grant_id: g for g in running.consent.own_grants(owner(running))}
+    stored = {g.grant_id: g for g in running.consent.own_grants(owner(running)).grants}
     assert stored[finite.grant_id].request.valid_until == START + timedelta(minutes=30)
     assert stored[created.grant_id].state == "active"
     assert stored[finite.grant_id].state == "fenced"
@@ -193,3 +196,32 @@ def test_an_expiry_callback_that_is_malformed_stale_duplicate_or_early_changes_n
         with hub.database.begin(actor=SCHEDULER, correlation_id="sim_scheduler") as uow:
             running.consent.expire(uow, on_time)
     assert states(running) == {"ilya": "expired", "sofia": "active"}
+
+
+@pytest.mark.trace("T-E02-021", "T-E02-010", "T-E02-009")
+def test_settings_changed_at_restart_neither_extend_a_session_nor_revive_a_grant(hub: E02Station) -> None:
+    def sign_in(running: Running) -> tuple[str, timedelta]:
+        view = running.identity.sign_in(
+            SignInRequest("crew", "mara"),
+            credential("mara"),
+            client="10.0.0.2",
+            listener=LISTENER,
+            correlation_id="c",
+        )
+        assert view.token is not None
+        return view.token, view.record.expires_at - view.record.created_at
+
+    running = serve(hub)
+    token, life = sign_in(running)
+    assert life == timedelta(minutes=5)
+    grant(running, "ilya", minutes=60)
+    ended = grant(running, "sofia", minutes=None)
+    running.consent.revoke(owner(running), ended.grant_id, expected_revision=1, correlation_id="c")
+    longer = {"security.idle_lock_minutes": 30, "consent.active_per_subject_max": 256}
+    restarted = hub.restart(epoch="epoch_second", settings=longer)
+    after = serve(restarted, seed=False)
+    with pytest.raises(ProblemError) as error:
+        after.identity.authenticate(token, listener=LISTENER)
+    assert error.value.code == ErrorCode.UNAUTHENTICATED
+    assert states(after) == {"ilya": "fenced", "sofia": "revoked"}
+    assert sign_in(after)[1] == timedelta(minutes=30)

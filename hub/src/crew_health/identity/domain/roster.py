@@ -13,6 +13,10 @@ from crew_health.kernel.ids import require_id
 type Namespace = Literal["LIVE", "REPLAY", "SIM"]
 NAMESPACES: tuple[Namespace, ...] = ("LIVE", "REPLAY", "SIM")
 _DISPLAY_NAME_MAX_BYTES = 256
+MEMBERS_CEILING = 256
+"""Upper bound of the identity.roster_max setting and the schema's members maxItems."""
+PRINCIPALS_MAX = 64
+"""The schema's principals maxItems: non-person principals one roster document may name."""
 
 
 def invalid(field: str) -> ProblemError:
@@ -60,7 +64,7 @@ class RosterBootstrap:
 def validate_bootstrap(value: RosterBootstrap, *, roster_max: int, day_span_max: int) -> RosterBootstrap:
     """Whole-document checks before any write; one failure rejects the document and keeps prior state."""
     require_id(value.mission_id)
-    if not 1 <= len(value.members) <= roster_max:
+    if not 1 <= len(value.members) <= min(roster_max, MEMBERS_CEILING):
         raise invalid("members")
     _members(value.members, day_span_max=day_span_max)
     _principals(value.principals, frozenset(member.person_id for member in value.members))
@@ -91,6 +95,8 @@ def _members(members: Sequence[RosterMember], *, day_span_max: int) -> None:
 
 
 def _principals(principals: Sequence[ProvisionedPrincipal], person_ids: frozenset[str]) -> None:
+    if len(principals) > PRINCIPALS_MAX:
+        raise invalid("principals")
     ids: set[str] = set(person_ids)
     kinds: set[str] = set()
     for position, principal in enumerate(principals):

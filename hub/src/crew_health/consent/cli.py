@@ -3,7 +3,9 @@
 Consent has no HTTP operation yet (R-E02-1); this is the authenticated owner path. The owner proves the
 credential on standard input (one line, never an argument) under the sign-in limits, and only the subject's
 own grants are ever listed or changed. Results are JSON lines naming who receives what, for which object and
-purpose, until when. Exit status: 0 done, 1 refused by the hub, 2 unusable input.
+purpose, until when. A list shows every active grant and the newest ended ones, then one
+`{"older_ended_grants": true}` line when earlier ended grants were left out. Exit status: 0 done, 1 refused
+by the hub, 2 unusable input.
 """
 
 from __future__ import annotations
@@ -143,8 +145,11 @@ def _run(
         )
         _emit(console, grant_line(revoked))
     else:
-        for grant in consent.own_grants(owner):
+        listed = consent.own_grants(owner)
+        for grant in listed.grants:
             _emit(console, grant_line(grant))
+        if listed.older:
+            _emit(console, {"older_ended_grants": True})
 
 
 def main(

@@ -83,9 +83,7 @@ class IdentityAdmin:
                 state.mission_id != document.mission_id or state.namespace != document.namespace
             ):
                 raise invalid("mission_id")
-            removed = deps.store.apply_roster(
-                connection, document, removed_at=uow.now, limit=deps.settings.roster_max * 2 + 16
-            )
+            removed = deps.store.apply_roster(connection, document, removed_at=uow.now)
             for principal_id in removed:
                 self.sessions.end_principal_sessions(uow, principal_id, "member_removed")
             deps.store.save_roster_state(

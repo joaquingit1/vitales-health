@@ -502,8 +502,13 @@ class E02Station:
             configure=self.configure,
         )
 
-    def restart(self, *, epoch: str, monotonic: int = 0) -> E02Station:
-        """A new hub process on the same data directory: new epoch, monotonic counter restarted."""
+    def restart(
+        self, *, epoch: str, monotonic: int = 0, settings: dict[str, int] | None = None
+    ) -> E02Station:
+        """A new hub process on the same data directory: new epoch, monotonic counter restarted.
+
+        `settings` starts it with changed operational settings, as an operator's edit takes effect.
+        """
         with self.database.snapshot() as view:
             pin = view.release
         previous = self.database
@@ -514,7 +519,7 @@ class E02Station:
             clock=clock,
             ids=previous.ids,
             release=pin,
-            settings=previous.settings,
+            settings=previous.settings if settings is None else station_settings(**settings),
             origin_node_id=previous.origin_node_id,
             origin_incarnation=previous.origin_incarnation,
             initialize=False,

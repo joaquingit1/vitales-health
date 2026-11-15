@@ -67,14 +67,37 @@ AUDIT_DECLARATIONS: tuple[ConsentAuditDeclaration, ...] = (
 )
 
 
+ACTIVE_CEILING = 256
+"""Upper bound of consent.active_per_subject_max: no subject ever holds more active grants than this."""
+FIELDS_CEILING = 256
+
+
 @dataclass(frozen=True, slots=True)
 class ConsentLimits:
     active_per_subject_max: int
     fields_max: int
 
     def __post_init__(self) -> None:
-        if not 1 <= self.active_per_subject_max <= 256 or not 1 <= self.fields_max <= 256:
+        if (
+            not 1 <= self.active_per_subject_max <= ACTIVE_CEILING
+            or not 1 <= self.fields_max <= FIELDS_CEILING
+        ):
             raise ProblemError(ErrorCode.CONFIG_INVALID, ErrorCode.CONFIG_INVALID.value)
+
+
+@dataclass(frozen=True, slots=True)
+class OwnGrants:
+    """Every active grant of the owner, then the newest ended ones; `older` says earlier ended grants exist."""
+
+    grants: tuple[Grant, ...]
+    older: bool
+
+
+def _complete(grants: tuple[Grant, ...]) -> tuple[Grant, ...]:
+    """Active grants are read whole: more than the ceiling is corrupt state, never a truncated answer."""
+    if len(grants) > ACTIVE_CEILING:
+        raise ProblemError(ErrorCode.INTERNAL_ERROR, ErrorCode.INTERNAL_ERROR.value)
+    return grants
 
 
 @dataclass(frozen=True, slots=True)
@@ -127,13 +150,15 @@ class ConsentService:
             return ()
         if not self.deps.directory.known_recipient(view, recipient):
             return ()
-        return self.deps.store.matching(
-            view.connection,
-            subject_person_id=subject_person_id,
-            recipient=recipient,
-            purpose=purpose,
-            object_ref=object_ref,
-            limit=self.deps.limits.active_per_subject_max,
+        return _complete(
+            self.deps.store.matching(
+                view.connection,
+                subject_person_id=subject_person_id,
+                recipient=recipient,
+                purpose=purpose,
+                object_ref=object_ref,
+                limit=ACTIVE_CEILING + 1,
+            )
         )
 
     def _reading(self, view: View) -> Reading:
@@ -207,12 +232,15 @@ class ConsentService:
             )
         return revoked
 
-    def own_grants(self, session: SessionContext) -> tuple[Grant, ...]:
+    def own_grants(self, session: SessionContext) -> OwnGrants:
+        """All of the owner's active grants and one page of the newest ended ones, newest first."""
         subject = owner(session)
+        page = self.deps.limits.active_per_subject_max
+        store = self.deps.store
         with self.deps.snapshots.snapshot() as view:
-            return self.deps.store.for_subject(
-                view.connection, subject, limit=self.deps.limits.active_per_subject_max * 4
-            )
+            active = store.for_subject(view.connection, subject, active=True, limit=ACTIVE_CEILING + 1)
+            ended = store.for_subject(view.connection, subject, active=False, limit=page + 1)
+        return OwnGrants(_complete(active) + ended[:page], len(ended) > page)
 
     # Time ----------------------------------------------------------------------------------------------
 

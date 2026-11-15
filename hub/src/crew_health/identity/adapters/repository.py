@@ -9,7 +9,13 @@ from importlib.resources import files
 from crew_health.identity.application.ports import RosterEntry
 from crew_health.identity.application.store import Principal, RosterState
 from crew_health.identity.domain.limits import Bucket, BucketScope
-from crew_health.identity.domain.roster import NAMESPACES, Namespace, RosterBootstrap
+from crew_health.identity.domain.roster import (
+    MEMBERS_CEILING,
+    NAMESPACES,
+    PRINCIPALS_MAX,
+    Namespace,
+    RosterBootstrap,
+)
 from crew_health.identity.domain.session import (
     END_REASONS,
     PRINCIPAL_KINDS,
@@ -166,19 +172,23 @@ class SqliteIdentityStore:
         )
 
     def apply_roster(
-        self, connection: StorageSession, document: RosterBootstrap, *, removed_at: datetime, limit: int
+        self, connection: StorageSession, document: RosterBootstrap, *, removed_at: datetime
     ) -> tuple[str, ...]:
-        existing = connection.rows(
-            "SELECT person_id, removed_at FROM identity_person ORDER BY person_id LIMIT ?",
-            (limit,),
-            limit=limit,
+        """Every current member is read, never a truncated page: more than the ceiling is corrupt state."""
+        current = set(
+            self._ids(
+                connection, "SELECT person_id FROM identity_person WHERE removed_at IS NULL", MEMBERS_CEILING
+            )
         )
-        current = {_text(row[0]) for row in existing if row[1] is None}
-        removed_ids = {_text(row[0]) for row in existing if row[1] is not None}
-        wanted = {member.person_id for member in document.members}
-        if wanted & removed_ids:
+        wanted = sorted({member.person_id for member in document.members})
+        marks = ", ".join("?" for _ in wanted)
+        if connection.rows(
+            f"SELECT person_id FROM identity_person WHERE removed_at IS NOT NULL AND person_id IN ({marks}) LIMIT 1",
+            tuple(wanted),
+            limit=1,
+        ):
             raise ProblemError(ErrorCode.INVALID_TRANSITION, ErrorCode.INVALID_TRANSITION.value)
-        removed = sorted(current - wanted)
+        removed = sorted(current - set(wanted))
         stamp = instant(removed_at)
         for person_id in removed:
             connection.execute(
@@ -196,7 +206,14 @@ class SqliteIdentityStore:
             )
         for member in sorted(document.members, key=lambda value: value.roster_index):
             self._upsert_member(connection, document, member.person_id)
-        return (*removed, *self._apply_principals(connection, document, limit=limit))
+        return (*removed, *self._apply_principals(connection, document))
+
+    @staticmethod
+    def _ids(connection: StorageSession, sql: str, ceiling: int) -> tuple[str, ...]:
+        rows = connection.rows(sql + " ORDER BY 1 LIMIT ?", (ceiling + 1,), limit=ceiling + 1)
+        if len(rows) > ceiling:
+            raise _corrupt()
+        return tuple(_text(row[0]) for row in rows)
 
     def _upsert_member(self, connection: StorageSession, document: RosterBootstrap, person_id: str) -> None:
         member = next(value for value in document.members if value.person_id == person_id)
@@ -222,15 +239,15 @@ class SqliteIdentityStore:
             (member.person_id, member.person_id, document.mission_id, member.display_name),
         )
 
-    def _apply_principals(
-        self, connection: StorageSession, document: RosterBootstrap, *, limit: int
-    ) -> tuple[str, ...]:
+    def _apply_principals(self, connection: StorageSession, document: RosterBootstrap) -> tuple[str, ...]:
         rows = connection.rows(
             "SELECT principal_id, kind FROM identity_credential WHERE kind <> 'crew' AND enabled = 1 "
             "ORDER BY principal_id LIMIT ?",
-            (limit,),
-            limit=limit,
+            (PRINCIPALS_MAX + 1,),
+            limit=PRINCIPALS_MAX + 1,
         )
+        if len(rows) > PRINCIPALS_MAX:
+            raise _corrupt()
         wanted = {value.principal_id: value for value in document.principals}
         retired = sorted(
             _text(row[0])

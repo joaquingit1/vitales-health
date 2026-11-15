@@ -170,12 +170,12 @@ class SqliteConsentStore:
         return _integer(rows[0][0])
 
     def for_subject(
-        self, connection: StorageSession, subject_person_id: str, *, limit: int
+        self, connection: StorageSession, subject_person_id: str, *, active: bool, limit: int
     ) -> tuple[Grant, ...]:
         rows = connection.rows(
-            f"SELECT {_COLUMNS} FROM consent_grant WHERE subject_person_id = ? "
+            f"SELECT {_COLUMNS} FROM consent_grant WHERE subject_person_id = ? AND (state = 'active') = ? "
             "ORDER BY issued_at DESC, grant_id LIMIT ?",
-            (subject_person_id, limit),
+            (subject_person_id, int(active), limit),
             limit=limit,
         )
         return tuple(_grant(row) for row in rows)

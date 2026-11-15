@@ -2,14 +2,26 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
 
 import pytest
-from e02_station import OPERATOR, START, Light, credential, light, mission_id, sim_bootstrap, sim_members
+from e02_station import (
+    OPERATOR,
+    START,
+    Light,
+    credential,
+    light,
+    mission_id,
+    sim_bootstrap,
+    sim_members,
+    station_settings,
+)
 
 from crew_health.consent.application.records import RECORD_PURPOSE, ConsentRecordAuthorization
-from crew_health.consent.application.service import ConsentLimits
+from crew_health.consent.application.service import ConsentLimits, ConsentService, OwnGrants
+from crew_health.consent.application.settings import limits
 from crew_health.consent.domain.grants import GrantRequest
 from crew_health.identity.domain.session import roles_for
 from crew_health.kernel.clock import TimeInput
@@ -139,7 +151,7 @@ def test_revocation_is_immediate_final_and_versioned(services: Light) -> None:
     with pytest.raises(ProblemError) as final:
         services.consent.revoke(mara, created.grant_id, expected_revision=2, correlation_id="c")
     assert final.value.code == ErrorCode.INVALID_TRANSITION
-    assert [g.state for g in services.consent.own_grants(mara)] == ["revoked"]
+    assert [g.state for g in services.consent.own_grants(mara).grants] == ["revoked"]
 
 
 @pytest.mark.trace("T-E02-003", "T-E02-010")
@@ -285,7 +297,7 @@ def test_a_subject_removed_after_proving_their_credential_cannot_grant(services:
     with pytest.raises(ProblemError) as error:
         services.consent.grant(tomas, request("ilya"), correlation_id="c")
     assert error.value.code == ErrorCode.UNAUTHORIZED_SCOPE
-    assert services.consent.own_grants(tomas) == ()
+    assert services.consent.own_grants(tomas) == OwnGrants((), older=False)
 
 
 @pytest.mark.trace("T-E02-020")
@@ -296,3 +308,33 @@ def test_consent_limits_outside_their_bounds_are_a_configuration_error() -> None
         assert error.value.code == ErrorCode.CONFIG_INVALID
     assert ConsentLimits(1, 1) == ConsentLimits(1, 1)
     assert ConsentLimits(256, 256).fields_max == 256
+
+
+@pytest.mark.trace("T-E02-020", "T-E02-007")
+def test_the_owner_list_holds_every_active_grant_and_says_when_older_ended_ones_are_left_out(
+    tmp_path: Path,
+) -> None:
+    services = light(tmp_path, settings={"consent.active_per_subject_max": 3})
+    mara = person(services, "mara")
+    ended = [services.consent.grant(mara, request(), correlation_id="c") for _ in range(3)]
+    for grant in ended:
+        services.consent.revoke(mara, grant.grant_id, expected_revision=1, correlation_id="c")
+    active = {services.consent.grant(mara, request(), correlation_id="c").grant_id for _ in range(3)}
+    listed = services.consent.own_grants(mara)
+    assert [g.state for g in listed.grants] == ["active"] * 3 + ["revoked"] * 3
+    assert {g.grant_id for g in listed.grants[:3]} == active
+    assert {g.grant_id for g in listed.grants[3:]} == {g.grant_id for g in ended}
+    assert not listed.older
+    narrower = ConsentService(replace(services.consent.deps, limits=ConsentLimits(1, 64)))
+    shown = narrower.own_grants(mara)
+    assert [g.state for g in shown.grants] == ["active"] * 3 + ["revoked"]
+    assert {g.grant_id for g in shown.grants[:3]} == active
+    assert shown.older
+
+
+@pytest.mark.trace("T-E02-020")
+def test_consent_refuses_to_start_when_storage_cannot_return_every_active_grant() -> None:
+    with pytest.raises(ProblemError) as error:
+        limits(station_settings(**{"storage.max_rows": 256}))
+    assert error.value.code == ErrorCode.CONFIG_INVALID
+    assert limits(station_settings(**{"storage.max_rows": 257})).active_per_subject_max == 64

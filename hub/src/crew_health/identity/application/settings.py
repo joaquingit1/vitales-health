@@ -11,7 +11,9 @@ from datetime import timedelta
 from decimal import Decimal
 
 from crew_health.identity.domain.limits import AttemptPolicy
+from crew_health.identity.domain.roster import MEMBERS_CEILING
 from crew_health.identity.domain.session import SessionLimits
+from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.settings import HubSettings, SettingSpec
 from crew_health.kernel.units import Unit
 
@@ -36,7 +38,7 @@ IDENTITY_SETTINGS: tuple[tuple[str, str | None, int, int, int], ...] = (
     ("identity.sessions_per_principal", None, 1, 8, 4),
     ("identity.station_lifetime_s", "s", 60, 86400, 86400),
     ("identity.adapter_lifetime_s", "s", 60, 86400, 3600),
-    ("identity.roster_max", None, 1, 256, 64),
+    ("identity.roster_max", None, 1, MEMBERS_CEILING, 64),
     ("identity.roster_day_span_max", None, 1, 3660, 366),
     ("identity.page_max", None, 1, 200, 200),
     ("identity.sweep_batch", None, 1, 256, 64),
@@ -84,7 +86,13 @@ class IdentitySettings:
 
     @classmethod
     def from_hub(cls, settings: HubSettings) -> IdentitySettings:
+        """Refuses to start when storage.max_rows cannot hold one complete read of the current roster.
+
+        That read is the largest identity makes; every other one is bounded below it by its own setting.
+        """
         value = settings.integer
+        if value("storage.max_rows") <= MEMBERS_CEILING:
+            raise ProblemError(ErrorCode.CONFIG_INVALID, ErrorCode.CONFIG_INVALID.value)
         return cls(
             limits=SessionLimits(
                 idle_lock=timedelta(minutes=value("security.idle_lock_minutes")),

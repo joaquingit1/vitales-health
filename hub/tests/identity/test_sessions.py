@@ -26,12 +26,14 @@ from e02_station import (
     sim_members,
     sim_station_principal,
     station,
+    station_settings,
 )
 
 from crew_health.identity.application.ports import HubProfile
 from crew_health.identity.application.service import IdentityService
+from crew_health.identity.application.settings import IdentitySettings
 from crew_health.identity.application.store import CredentialHasher
-from crew_health.identity.domain.roster import ProvisionedPrincipal
+from crew_health.identity.domain.roster import ProvisionedPrincipal, RosterMember
 from crew_health.identity.domain.session import SignInKind, SignInRequest
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.testing import MemoryClock
@@ -507,3 +509,43 @@ def test_a_crew_sign_in_naming_a_principal_of_another_kind_is_refused_like_a_wro
     failure = refused(running, station_id, credential(station_id))
     assert (failure.code, failure.field_errors) == (ErrorCode.IDENTITY_MISMATCH, ())
     assert not dead(running, sign_in(running, None, credential(station_id), kind="station"))
+
+
+@pytest.mark.trace("T-E02-020", "T-E02-009")
+def test_a_long_roster_history_never_hides_a_current_member_from_removal(tmp_path: Path) -> None:
+    running = light(tmp_path, seed=False, settings={"identity.roster_max": 1})
+    first = sim_members()[0]
+
+    def member(index: int) -> tuple[RosterMember, ...]:
+        return (
+            replace(
+                first, person_id=f"p{index:02d}", display_name=f"Person {index}", medical_officer_rank=None
+            ),
+        )
+
+    revision = 0
+    for index in range(1, 25):
+        result = running.admin.apply_roster(
+            sim_bootstrap(members=member(index)),
+            expected_revision=revision,
+            operator=OPERATOR,
+            correlation_id="c",
+        )
+        assert result.removed == (() if index == 1 else (f"p{index - 1:02d}",))
+        revision = result.revision
+    with pytest.raises(ProblemError) as readded:
+        running.admin.apply_roster(
+            sim_bootstrap(members=member(1)),
+            expected_revision=revision,
+            operator=OPERATOR,
+            correlation_id="c",
+        )
+    assert readded.value.code == ErrorCode.INVALID_TRANSITION
+
+
+@pytest.mark.trace("T-E02-020")
+def test_identity_refuses_to_start_when_storage_cannot_return_a_whole_roster() -> None:
+    with pytest.raises(ProblemError) as error:
+        IdentitySettings.from_hub(station_settings(**{"storage.max_rows": 256}))
+    assert error.value.code == ErrorCode.CONFIG_INVALID
+    assert IdentitySettings.from_hub(station_settings(**{"storage.max_rows": 257})).roster_max == 64
