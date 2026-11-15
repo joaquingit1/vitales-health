@@ -260,6 +260,48 @@ class TaskService:
         self._effects(uow, completed, "task.succeeded")
         return True
 
+    def fail_with_result(
+        self, uow: UnitOfWork, lease: TaskLease, result: TaskResult, *, code: ErrorCode
+    ) -> bool:
+        row = self._live(uow, lease)
+        if row is None or result.task_id != lease.task.task_id or result.generation != lease.generation:
+            return False
+        if not self.authorize_completion(uow, row.task):
+            self._cancel(uow, row)
+            return False
+        require_id(result.result_ref)
+        if not re.fullmatch(r"[a-f0-9]{64}", result.result_fingerprint):
+            raise fail(ErrorCode.INVALID_VALUE)
+        if self.repository.result_size(result) > self.settings.integer("tasks.max_result_bytes"):
+            raise fail(ErrorCode.PAYLOAD_TOO_LARGE)
+        self._registration(row.task).handler.apply(uow, lease, result)
+        failed = replace(
+            row,
+            generation=row.generation + 1,
+            worker_id=None,
+            deadline=None,
+            status=replace(
+                row.status,
+                state="failed",
+                result_ref=result.result_ref,
+                error_code=code,
+                updated_at=uow.now,
+            ),
+        )
+        self.repository.update(uow, row, failed)
+        self._effects(uow, failed, "task.failed")
+        return True
+
+    def fail_pending(self, uow: UnitOfWork, task_id: str, *, code: ErrorCode) -> bool:
+        row = self.repository.get(uow, require_id(task_id))
+        if row is None or row.status.state != "queued":
+            return False
+        if not self.authorize_completion(uow, row.task):
+            self._cancel(uow, row)
+            return False
+        self._retry(uow, row, code=code, retryable=False)
+        return True
+
     def fail(self, uow: UnitOfWork, lease: TaskLease, *, code: ErrorCode, retryable: bool) -> bool:
         row = self._live(uow, lease)
         if row is None:
