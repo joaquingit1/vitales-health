@@ -19,6 +19,7 @@ from crew_health.kernel.uow import Actor
 from crew_health.kitmap.application import ports as kitmap_ports
 from crew_health.supplies.application.ports import (
     CoverPlanningPort,
+    StepUseConflict,
     StockBelowZero,
     StockLevel,
     StockUnitMismatch,
@@ -121,3 +122,36 @@ def test_drawn_never_yields_a_negative_quantity(now: Decimal | None, aboard: boo
     assert after.quantity_now is not None and after.quantity_now.value >= 0
     assert now is not None and after.quantity_now == q(now - amount)
     assert after.aboard is (after.quantity_now.value > 0)
+
+
+@pytest.mark.trace("M2", "AGENTS 6", "R28-20")
+def test_the_same_step_occurrence_with_another_per_use_is_a_conflict(tmp_path: Path) -> None:
+    station = build_station(tmp_path)
+    ledger = station.resolver.require(SupplyLedgerPort)  # type: ignore[type-abstract]
+
+    def run(*needs: tuple[str, int, str]) -> tuple[str, ...]:
+        uses = [SupplyNeed("plan_eye_injury", "eye_rinse", s, q(n, Unit("{" + w + "}"))) for s, n, w in needs]
+        with station.db.begin(actor=Actor("person", "p"), correlation_id="cor-step") as uow:
+            return tuple(
+                ledger.record_step_uses(
+                    uow,
+                    environment_id="lunar_surface",
+                    plan_run_id="run_1",
+                    step_id="eye_rinse",
+                    occurrence=1,
+                    pinned_release_id="release_1",
+                    uses=uses,
+                    actor=Actor("person", "p"),
+                    at=AT,
+                )
+            )
+
+    first = run(("eye_rinse_water", 1, "rinse"))
+    assert run(("eye_rinse_water", 1, "rinse")) == first
+    with pytest.raises(StepUseConflict) as raised:
+        run(("eye_rinse_water", 3, "rinse"))
+    assert raised.value.code == "DUPLICATE_COMMAND" and raised.value.status == 409
+    assert raised.value.command_key == "step:run_1:eye_rinse:1:eye_rinse_water"
+    with pytest.raises(StepUseConflict):  # a supply the first call did not debit is another body too
+        run(("eye_rinse_water", 1, "rinse"), ("towels", 1, "towel"))
+    assert station.rows("SELECT quantity_decimal FROM supplies_use") == [("1",)]

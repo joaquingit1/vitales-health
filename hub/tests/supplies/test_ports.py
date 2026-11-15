@@ -27,6 +27,7 @@ from crew_health.supplies import module as supplies_module
 from crew_health.supplies.application import ports
 from crew_health.supplies.application.ports import (
     CoverPlanningPort,
+    StepUseConflict,
     StockBelowZero,
     StockReader,
     SupplyCoverChanged,
@@ -167,11 +168,12 @@ def test_step_uses_are_all_or_nothing_and_reentrant_by_occurrence(station: Stati
     with pytest.raises(StockBelowZero):
         run(1, short)
     assert station.rows("SELECT count(*) FROM supplies_use") == [(0,)] and not seen
-    first = run(1, [_need("eye_rinse", "eye_rinse_water", 1), _need("eye_rinse", "eye_wash_set", 1, "set")])
+    uses = [_need("eye_rinse", "eye_rinse_water", 1), _need("eye_rinse", "eye_wash_set", 1, "set")]
+    first = run(1, uses)
     assert len(first) == 1  # the eye wash set is kept, not used up
-    assert (
-        run(1, [_need("eye_rinse", "eye_rinse_water", 1)]) == first
-    )  # the same occurrence writes nothing new
+    assert run(1, uses) == first  # the identical occurrence writes nothing new
+    with pytest.raises(StepUseConflict):  # the same occurrence with another amount is not a replay
+        run(1, [_need("eye_rinse", "eye_rinse_water", 3)])
     assert len(run(2, [_need("eye_rinse", "eye_rinse_water", 1)])) == 1
     assert station.rows("SELECT command_key FROM supplies_use ORDER BY partition_seq") == [
         ("step:run_1:eye_rinse:1:eye_rinse_water",),

@@ -8,23 +8,39 @@ from collections.abc import Mapping, Sequence
 from datetime import datetime
 
 from crew_health.contracts_gen.enums import ErrorCode
+from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import Actor, UnitOfWork
 from crew_health.supplies.application.context import Deps, current_mission, partition
 from crew_health.supplies.application.events import publish_use, use_body
-from crew_health.supplies.application.ports import SupplyNeed
+from crew_health.supplies.application.ports import StepUseConflict, SupplyNeed
 from crew_health.supplies.application.release_index import ReleaseIndex
 from crew_health.supplies.application.repository import StoredUse
 from crew_health.supplies.application.use_cases import publish_cover
 from crew_health.supplies.domain.errors import FieldIssue, UnitMismatch, UseInvalid
 from crew_health.supplies.domain.ledger import StepUse, admit_step
 from crew_health.supplies.domain.model import Admitted, Head, Partition, SupplyDef
-from crew_health.supplies.domain.quantity import add, boundary_unit
+from crew_health.supplies.domain.quantity import add, boundary_unit, decimal_text
 
 
 def occurrence_key(plan_run_id: str, step_id: str, occurrence: int, supply_id: str) -> str:
     return f"step:{plan_run_id}:{step_id}:{occurrence}:{supply_id}"
+
+
+def body_sha256(where: Partition, supply_id: str, amount: Quantity) -> str:
+    """The identity of one step use beyond its occurrence key: partition, supply, exact amount and unit. A replay
+    under the same key with any other value is a conflict (AGENTS 6: the key covers the body)."""
+    body = {
+        "mission_id": where.mission_id,
+        "origin_mode": where.origin_mode,
+        "environment_id": where.environment_id,
+        "custody_location_id": where.custody_location_id,
+        "supply_id": supply_id,
+        "quantity": decimal_text(amount.value),
+        "unit": amount.unit.code,
+    }
+    return hashlib.sha256(canonical_json(body)).hexdigest()
 
 
 def _pinned(deps: Deps, uow: UnitOfWork, pinned_release_id: str) -> ReleaseIndex:
@@ -75,7 +91,8 @@ def record_step_uses(
     actor: Actor,
     at: datetime,
 ) -> Sequence[str]:
-    """Raises SupplyBelowZero or UnitMismatch and writes nothing; E28 rolls its whole step back (INV-S10)."""
+    """Raises SupplyBelowZero or UnitMismatch and writes nothing; E28 rolls its whole step back (INV-S10). The same
+    occurrence with the same body returns the first IDs; with another body it raises StepUseConflict."""
     facts = current_mission(deps, uow)
     where = partition(facts, environment_id)
     active = deps.indexes.get(uow.release)
@@ -83,13 +100,16 @@ def record_step_uses(
     done: dict[str, str] = {}
     pending: list[StepUse] = []
     for use in amounts:
-        found = deps.repository.by_command_key(
-            uow, occurrence_key(plan_run_id, step_id, occurrence, use.supply.supply_id)
-        )
+        key = occurrence_key(plan_run_id, step_id, occurrence, use.supply.supply_id)
+        found = deps.repository.by_command_key(uow, key)
         if found is None:
             pending.append(use)
+        elif found.request_sha256 != body_sha256(where, use.supply.supply_id, use.quantity):
+            raise StepUseConflict(key)
         else:
             done[use.supply.supply_id] = found.supply_use_id
+    if done and pending:  # the first call wrote all of its uses at once, so this is another body
+        raise StepUseConflict(occurrence_key(plan_run_id, step_id, occurrence, pending[0].supply.supply_id))
     if not pending:
         return tuple(done[s] for s in sorted(done))
     for use in pending:
@@ -142,5 +162,5 @@ def _stored(
         by_id=actor.id,
         release_id=uow.release.release_id,
         command_key=key,
-        request_sha256=hashlib.sha256(key.encode()).hexdigest(),
+        request_sha256=body_sha256(where, result.supply_id, result.quantity),
     )

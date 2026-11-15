@@ -68,6 +68,20 @@ class SupplyInputInvalid(SupplyPortError):
         super().__init__(message, field_errors=field_errors)
 
 
+class StepUseConflict(SupplyPortError):
+    """The occurrence key of a step use was recorded with another body (amount, unit, partition or set of
+    supplies): the replay is refused, never answered with the first IDs (AGENTS 6, PLAN.md row 62)."""
+
+    code = ErrorCode.DUPLICATE_COMMAND
+
+    def __init__(self, command_key: str) -> None:
+        field = FieldError(
+            "/uses", ErrorCode.DUPLICATE_COMMAND.value, "this occurrence was recorded with another body"
+        )
+        super().__init__("step use replayed with another body", field_errors=(field,))
+        self.command_key = command_key
+
+
 class SupplyUnavailable(SupplyPortError):
     """Supplies cannot answer: no current mission (retryable), or its ledger or release cannot be read."""
 
