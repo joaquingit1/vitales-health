@@ -18,9 +18,10 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
-import e23_station as base
 import pytest
-from e24_station import build, restart
+
+from . import rules_station as base
+from .e24_station import build, restart
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("INV-E24-08", "INV-E24-17", "H8", "H13", "D3")]
 

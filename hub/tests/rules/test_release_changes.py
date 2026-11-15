@@ -10,32 +10,33 @@ from dataclasses import fields
 from datetime import timedelta
 
 import pytest
-import rules_harness as h
 
 from crew_health.rules.domain.decisions import Clear, Refuse
-from crew_health.rules.domain.definitions import parse_rules_document
+from crew_health.rules.domain.definitions import RulesDocument, parse_rules_document
 from crew_health.rules.domain.fingerprint import ReleaseDocuments
 from crew_health.rules.domain.inputs import ActivationInput, GroundLinkInput
 from crew_health.rules.domain.vocabulary import ClearReason, EnvironmentId, Level, WarningState
 from crew_health.rules.domain.warning import PersonActor, acknowledge
 
+from . import rules_harness as h
+
 pytestmark = [pytest.mark.E24, pytest.mark.trace("INV-E24-15", "INV-E24-04", "D1")]
 
-CROSSED = {"crossed": True, "clear_holds": False}
-HOLDING = {"crossed": False, "clear_holds": True}
+CROSSED: h.Crossing = {"crossed": True, "clear_holds": False}
+HOLDING: h.Crossing = {"crossed": False, "clear_holds": True}
 
 
-def edited_rules(definition_id: str, **changes: object) -> object:
+def edited_rules(definition_id: str, **changes: object) -> RulesDocument:
     raw = copy.deepcopy(h.deployment_rules())
-    for d in raw["definitions"]:
+    for d in h.definitions_of(raw):
         if d["id"] == definition_id:
             d.update(changes)
     return parse_rules_document(raw)
 
 
-def content_edited() -> object:
+def content_edited() -> RulesDocument:
     raw = copy.deepcopy(h.deployment_rules())
-    for d in raw["definitions"]:
+    for d in h.definitions_of(raw):
         d["content"]["title"] += " (edited)"
         d["content"]["why"] += " Edited."
     return parse_rules_document(raw)
@@ -63,7 +64,7 @@ def test_t016_activation_and_environment_change_never_clear_lower_or_repin_an_ac
     (w,) = world.by_definition("co2_above_limit")
     before = dict(world.warnings)
     gone = copy.deepcopy(h.deployment_rules())
-    gone["definitions"] = [d for d in gone["definitions"] if d["id"] != "co2_above_limit"]
+    gone["definitions"] = [d for d in h.definitions_of(gone) if d["id"] != "co2_above_limit"]
     for new_doc, env in (
         (parse_rules_document(gone), EnvironmentId.STATION_LEO),
         (parse_rules_document(h.deployment_rules()), EnvironmentId.LUNAR_SURFACE),
@@ -110,6 +111,7 @@ def test_t017_a_level_lowered_by_a_release_keeps_the_old_until_it_clears_by_its_
         == ()
     )
     assert world.warnings[old.warning_id].level is Level.ACT and world.warnings[old.warning_id].active
+    assert old.pin.limit is not None
     fingerprint = old.pin.limit.limit_fingerprint
     for offset in range(70, 740, 60):  # the pinned dwell, on results evaluated under the pinned limit
         world.now = h.T0 + timedelta(seconds=offset)
@@ -143,7 +145,7 @@ def test_a_threshold_edit_leaves_the_pinned_dwell_and_never_clears_on_the_new_th
     pinned = w.pin.limit
     assert pinned is not None
     limits = copy.deepcopy(dict(release_docs.sensor_limits))
-    for entry in limits["limits"]:  # type: ignore[attr-defined]
+    for entry in h.list_of(limits, "limits"):
         if entry["limit_id"] == "co2_1h_act":
             entry["value"] = 4
             entry["clear"]["value"] = 4
@@ -174,7 +176,7 @@ def test_a_threshold_edit_leaves_the_pinned_dwell_and_never_clears_on_the_new_th
 def test_t038_a_superseded_warning_leaves_its_trigger_reusable_and_a_resolved_one_does_not(
     world: h.World,
 ) -> None:
-    kw = {"sensor_type": "o2", "channel": "ch_o2"}
+    kw: h.SensorTarget = {"sensor_type": "o2", "channel": "ch_o2"}
     world.feed(world.sensor(results=[h.result("o2_low_watch", **CROSSED)], reading="rdg_a", **kw))
     (watch,) = world.by_definition("oxygen_low_watch")
     world.advance(5)

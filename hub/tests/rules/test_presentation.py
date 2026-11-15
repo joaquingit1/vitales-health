@@ -8,10 +8,9 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 from datetime import datetime, timedelta
-from typing import Any, cast
+from typing import Any, TypedDict
 
 import pytest
-import rules_harness as h
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -23,19 +22,21 @@ from crew_health.rules.domain.ordering import after, order_key, ordered
 from crew_health.rules.domain.vocabulary import ClearReason, Level, OriginMode, WarningState
 from crew_health.rules.domain.warning import HeadlineFields, PersonActor, Warning, acknowledge
 
+from . import rules_harness as h
+
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R36", "V74", "H4", "H16")]
 
 SUPPRESSED = frozenset({"sleep", "eva"})  # the routine-rules `suppressed_overlays` of the example release
 
 
 def suppressed_overlays() -> frozenset[str]:
-    return frozenset(h.example_value("routine-rules")["suppressed_overlays"])
+    return frozenset(str(x) for x in h.list_of(h.example_value("routine-rules"), "suppressed_overlays"))
 
 
 def base_warning(world: h.World) -> Warning:
     world.feed(world.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]))
     (w,) = world.by_definition("co2_above_limit")
-    return cast(Warning, w)
+    return w
 
 
 def variant(
@@ -58,7 +59,7 @@ def variant(
 
 
 def at(minutes: int) -> datetime:
-    return cast(datetime, h.T0 + timedelta(minutes=minutes))
+    return h.T0 + timedelta(minutes=minutes)
 
 
 def test_the_suppressed_overlays_come_from_configuration() -> None:
@@ -144,17 +145,27 @@ def test_q9_act_goes_at_once_to_someone_awake_and_the_sleeper_waits_for_the_conf
     assert routing.notify_now == ("p1", "p2") and routing.wake_now == () and routing.wake_after_seconds == 290
 
 
+class RouteKw(TypedDict):
+    sleepers: list[str]
+    awake_responders: list[str]
+    wake_after_seconds: int | None
+    responders_may_receive: bool
+
+
+class RouteCase(TypedDict):
+    awake_responders: list[str]
+    wake_after_seconds: int | None
+    responders_may_receive: bool
+
+
 @pytest.mark.trace("Q9")
 def test_q9_an_awake_acknowledgement_prevents_the_wake_and_expiry_wakes() -> None:
-    kw = {
-        "sleepers": ["p3"],
-        "awake_responders": ["p1"],
-        "wake_after_seconds": 300,
-        "responders_may_receive": True,
-    }
-    acked = route_act(acknowledged_by=["p1"], elapsed_seconds=999, **kw)  # type: ignore[arg-type]
+    kw = RouteKw(
+        sleepers=["p3"], awake_responders=["p1"], wake_after_seconds=300, responders_may_receive=True
+    )
+    acked = route_act(acknowledged_by=["p1"], elapsed_seconds=999, **kw)
     assert acked.wake_now == ()
-    expired = route_act(acknowledged_by=["p9"], elapsed_seconds=300, **kw)  # type: ignore[arg-type]
+    expired = route_act(acknowledged_by=["p9"], elapsed_seconds=300, **kw)
     assert expired.wake_now == ("p3",)  # an acknowledgement by someone not awake does not count
 
 
@@ -176,9 +187,9 @@ def test_q9_an_awake_acknowledgement_prevents_the_wake_and_expiry_wakes() -> Non
     ],
 )
 def test_q9_the_sleeper_is_woken_at_once_when_nobody_can_act_or_the_time_is_not_configured(
-    case: dict[str, object],
+    case: RouteCase,
 ) -> None:
-    routing = route_act(sleepers=["p3"], acknowledged_by=[], elapsed_seconds=0, **case)  # type: ignore[arg-type]
+    routing = route_act(sleepers=["p3"], acknowledged_by=[], elapsed_seconds=0, **case)
     assert routing.wake_now == ("p3",) and routing.wake_after_seconds is None
 
 

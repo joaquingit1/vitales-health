@@ -7,9 +7,9 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import timedelta
+from typing import Unpack
 
 import pytest
-import rules_harness as h
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -20,17 +20,19 @@ from crew_health.rules.domain.errors import InvalidInput
 from crew_health.rules.domain.inputs import LimitRenderFacts
 from crew_health.rules.domain.vocabulary import ClearReason, Level, OriginMode, WarningState
 
+from . import rules_harness as h
+
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R36", "R35", "INV-E24-05", "INV-E24-07", "INV-E24-14")]
 
-CROSSED = {"crossed": True, "clear_holds": False}
-HOLDING = {"crossed": False, "clear_holds": True}
+CROSSED: h.Crossing = {"crossed": True, "clear_holds": False}
+HOLDING: h.Crossing = {"crossed": False, "clear_holds": True}
 
 
 def co2_raise(world: h.World) -> None:
     world.feed(world.sensor(results=[h.result("co2_1h_act", **CROSSED)]))
 
 
-def holding(world: h.World, offset: int, *, limit: str = "co2_1h_act", **kw: object) -> None:
+def holding(world: h.World, offset: int, *, limit: str = "co2_1h_act", **kw: Unpack[h.SensorKw]) -> None:
     world.now = h.T0 + timedelta(seconds=offset)
     world.feed(world.sensor(results=[h.result(limit, **HOLDING)], **kw))
 
@@ -87,7 +89,7 @@ def test_t020_o2_below_the_emergency_limit_raises_emergency_and_supersedes_lower
 def test_t018_a_lower_crossing_under_a_higher_active_warning_raises_nothing_then_deescalates_linked(
     world: h.World,
 ) -> None:
-    kw = {"sensor_type": "o2", "channel": "ch_o2"}
+    kw: h.SensorKw = {"sensor_type": "o2", "channel": "ch_o2"}
     world.feed(world.sensor(results=[h.result("o2_low_emergency", **CROSSED)], **kw))
     (top,) = world.by_definition("oxygen_low_emergency")
     world.advance(10)
@@ -149,9 +151,9 @@ def test_evidence_without_an_origin_is_refused_with_a_typed_error_raising_and_cl
     (w,) = world.by_definition("co2_above_limit")
     holding = world.sensor(results=[h.result("co2_1h_act", crossed=False, clear_holds=True)])
     for inp in (
-        replace(holding, origin_mode=None),
-        replace(world.freshness_input("current"), origin_mode=None),
-        replace(
+        h.replace_unchecked(holding, origin_mode=None),
+        h.replace_unchecked(world.freshness_input("current"), origin_mode=None),
+        h.replace_unchecked(
             world.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]), origin_mode=None
         ),
     ):
@@ -168,7 +170,6 @@ def test_t029_never_reported_raises_nothing(world: h.World) -> None:
 @pytest.mark.trace("T-E24-027", "T-E24-028", "INV-E24-14")
 def test_t027_a_null_threshold_and_a_display_only_limit_raise_nothing(world: h.World) -> None:
     pending = world.limits["co2_1h_act"]
-    from dataclasses import replace
 
     world.limits["co2_1h_act"] = replace(pending, value=None, status="threshold_pending")
     assert world.feed(world.sensor(results=[h.result("co2_1h_act", **CROSSED)])) == ()
@@ -247,7 +248,7 @@ def test_t046_the_same_evaluation_instant_never_advances_a_dwell_and_false_reset
     ],
 )
 def test_t120_untrusted_or_stale_evaluations_never_complete_a_dwell(
-    world: h.World, kwargs: dict[str, str]
+    world: h.World, kwargs: h.SensorKw
 ) -> None:
     co2_raise(world)
     (w,) = world.by_definition("co2_above_limit")
@@ -317,7 +318,7 @@ def test_replay_clears_on_data_time_but_only_replay_evidence_clears_a_replay_war
 
     data0 = datetime(2014, 10, 7, 15, 36, tzinfo=UTC)
 
-    def replay(offset: int, **kw: object) -> None:
+    def replay(offset: int, **kw: Unpack[h.Crossing]) -> None:
         e = data0 + timedelta(seconds=offset)
         world.advance(60)
         world.feed(
@@ -358,7 +359,6 @@ def test_a_replay_that_does_not_advance_and_a_receive_reference_that_is_stale_ne
         origin=OriginMode.REPLAY,
         results=[h.result("co2_1h_act", **HOLDING)],
     )
-    from dataclasses import replace
 
     assert (
         clear_evidence.eligible(replace(no_ref, receive_reference=None), w, world.now).reason
@@ -440,7 +440,7 @@ def test_d1_without_a_pinned_fingerprint_only_the_warnings_own_release_may_clear
 def test_a_pending_evaluation_freezes_every_clear_and_every_supersession_but_not_a_raise(
     world: h.World,
 ) -> None:
-    kw = {"sensor_type": "o2", "channel": "ch_o2"}
+    kw: h.SensorKw = {"sensor_type": "o2", "channel": "ch_o2"}
     world.feed(world.sensor(results=[h.result("o2_low_watch", **CROSSED)], **kw))
     (watch,) = world.by_definition("oxygen_low_watch")
     world.frozen = True
@@ -474,7 +474,7 @@ def test_a_pending_evaluation_freezes_every_clear_and_every_supersession_but_not
 def test_a_stale_release_input_raises_nothing_and_is_refused(world: h.World) -> None:
     decision = world.feed(world.sensor(release="rel_other", results=[h.result("co2_1h_act", **CROSSED)]))
     assert [type(s) for s in decision] == [Refuse]
-    assert decision[0].code == "stale_release"
+    assert h.as_type(decision[0], Refuse).code == "stale_release"
     assert not world.warnings
 
 
@@ -488,7 +488,7 @@ def test_two_identical_inputs_give_one_active_warning_and_a_spent_trigger_never_
     (w,) = world.by_definition("co2_above_limit")
     world.apply((Clear(w.warning_id, ClearReason.CONDITION_FALSE),))
     again = world.feed(inp)
-    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"
+    assert [type(s) for s in again] == [Refuse] and h.as_type(again[0], Refuse).code == "trigger_spent"
     assert not world.by_definition("co2_above_limit")
 
 
@@ -524,8 +524,8 @@ def test_t026_a_warning_never_clears_before_a_full_eligible_dwell(steps: list[tu
         offset += delta
         world.now = h.T0 + timedelta(seconds=offset)
         e = world.now
-        kwargs: dict[str, object] = {}
-        flags: dict[str, bool | None] = dict(HOLDING)
+        kwargs: h.SensorKw = {}
+        flags: h.Crossing = HOLDING.copy()
         if kind == "false":
             flags = {"crossed": False, "clear_holds": False}
         elif kind == "none":
