@@ -13,6 +13,14 @@ const router = useRouter();
 const title = ref("");
 const id = ref<string | null>(null);
 
+function readHandoff(): string | null {
+  try {
+    return window.sessionStorage.getItem(HANDOFF_KEY);
+  } catch {
+    return null;
+  }
+}
+
 /** The check this person helps with, when the hub lets them read it; nothing otherwise. */
 onMounted(async () => {
   let stored: string | null = null;

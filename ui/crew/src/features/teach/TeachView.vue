@@ -277,6 +277,13 @@ onBeforeUnmount(() => {
 
       <template v-else>
         <p
+          v-if="!isHelper && !check.result"
+          class="sub"
+          data-test="handoff"
+        >
+          {{ fill(WORDS.handoff, { helper: firstName(check.helper.display_name) }) }}
+        </p>
+        <p
           v-if="steps && current"
           class="sub"
         >
