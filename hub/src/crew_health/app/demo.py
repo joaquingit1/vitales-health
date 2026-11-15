@@ -187,6 +187,19 @@ def _resources(fixture: Fixture, target: Path) -> HubResources:
     return HubResources(target)
 
 
+# docs/tdd/E28.md operational settings table (team defaults). Their registered maxima are not a consistent profile:
+# 1024 escalations per run exceeds storage.max_rows (1000), so loading a run would refuse.
+E28_PLANS: dict[str, object] = {
+    "plans.max_plans_per_document": 300,
+    "plans.max_steps_per_plan": 40,
+    "plans.max_observations_per_record": 16,
+    "plans.max_rechecks_per_step": 500,
+    "plans.max_escalations_per_run": 64,
+    "plans.max_text_chars": 2000,
+    "plans.parsed_plan_cache_entries": 512,
+}
+
+
 def settings_document(path: Path, camera: dict[str, object] | None = None) -> Path:
     """Every registered setting: the E02 module defaults, the supervisor polling at 50 ms, the camera worker's
     address, token file and adapter (`camera`), and every other integer at its registered maximum, switches off and
@@ -199,6 +212,7 @@ def settings_document(path: Path, camera: dict[str, object] | None = None) -> Pa
         **identity_defaults(),
         **consent_defaults(),
         "supervisor.poll_ms": 50,
+        **E28_PLANS,
         **(camera or {}),
     }
     entries = []
@@ -213,7 +227,7 @@ def settings_document(path: Path, camera: dict[str, object] | None = None) -> Pa
                 "unit": None if spec.unit is None else spec.unit.code,
                 "minimum": None if spec.minimum is None else str(spec.minimum),
                 "maximum": None if spec.maximum is None else str(spec.maximum),
-                "basis": "demo-mara-fd19 profile: E02 defaults, the camera worker row, otherwise each registered maximum",
+                "basis": "demo-mara-fd19 profile: E02 defaults, E28's table, the camera worker row, otherwise each registered maximum",
                 "value": value,
             }
         )
