@@ -15,9 +15,12 @@ import json
 import os
 import secrets
 import shutil
+import signal
+import socket
 import subprocess
 import sys
 import threading
+import time
 import urllib.error
 import urllib.request
 import uuid
@@ -32,6 +35,7 @@ from crew_health.app.assembly import BuildCatalog, Runtime, create_app
 
 if TYPE_CHECKING:
     from crew_health.app.cli import Server
+from crew_health.app.camera_reports import HubReports
 from crew_health.app.demo_mission import DemoMission, write_environment
 from crew_health.app.privacy import DemoOperatorRecord
 from crew_health.app.station import HubResources, Origin, bootstrap_release, production
@@ -174,28 +178,12 @@ class Fixture:
 
 
 def _resources(fixture: Fixture, target: Path) -> HubResources:
-    """The repository resources a hub reads, with config/kit-map.json and config/onboard-plans.json replaced by
-    the release documents the fixture names (see its `release.basis`)."""
+    """The repository resources a hub reads, copied as they are: the first start activates the repository's own
+    config/ release (the fixture's `release.basis`)."""
+    if fixture.section("release").get("source") != "config":
+        raise DemoError("the demo serves only the repository's config/ release")
     for name in COPIED:
         shutil.copytree(fixture.root / name, target / name)
-    release = fixture.section("release")
-    kit_map = fixture.cited(release["kit_map"])
-    plans = fixture.cited(release["onboard_plans"])
-    if not isinstance(plans, dict):
-        raise DemoError("onboard plans are not an object")
-    # The plans release check verifies form quotes and rtdc against the saved forms; the package example's few
-    # quotes and its one rtdc are not in them, so they are removed as most of its steps already are
-    # (hub/tests/app/conftest.py does the same).
-    for plan in plans["plans"]:
-        for stage in plan["stages"]:
-            if stage.get("rtdc") is not None:
-                stage["rtdc"] = None
-            for step in stage.get("steps", []):
-                step["replaces_ground_task"] = None
-    for name, value in (("kit-map", kit_map), ("onboard-plans", plans)):
-        (target / "config" / (name + ".json")).write_text(
-            json.dumps(value, ensure_ascii=False), encoding="utf-8"
-        )
     return HubResources(target)
 
 
@@ -225,7 +213,7 @@ def settings_document(path: Path, camera: dict[str, object] | None = None) -> Pa
                 "unit": None if spec.unit is None else spec.unit.code,
                 "minimum": None if spec.minimum is None else str(spec.minimum),
                 "maximum": None if spec.maximum is None else str(spec.maximum),
-                "basis": "demo-mara-fd19 profile: E02 defaults, otherwise each registered maximum",
+                "basis": "demo-mara-fd19 profile: E02 defaults, the camera worker row, otherwise each registered maximum",
                 "value": value,
             }
         )
@@ -293,6 +281,10 @@ def reset(
             "workers.camera.url": f"http://127.0.0.1:{worker_port}",
             "workers.camera.token_file": str(worker_token),
             "workers.camera.adapter_id": str(section["adapter_principal_id"]),
+            # SYSTEM 3 camera worker row: own /health every 5 s; also the probe and camera task pass interval.
+            "workers.camera.health_ms": 5000,
+            # The stop budget for the hub's workers and the demo's camera companions together.
+            "workers.shutdown_timeout_ms": 10000,
         },
     )
     write_environment(directory, fixture.initial_environment, source="demo_reset", at=datetime.now(UTC))
@@ -343,23 +335,40 @@ def _uv() -> str:
     return found
 
 
-def _wait_line(process: subprocess.Popen[str], marker: str, seconds: float) -> str:
-    """The first output line containing `marker`, within `seconds`; the process is left running."""
+# First `uv run` of the twin syncs its environment; a bound on that one start, not a hub operational setting.
+TWIN_START_S = 180
+
+
+def _wait_line(process: subprocess.Popen[str], marker: str, seconds: float, what: str) -> str:
+    """The first output line containing `marker`, within `seconds`; the process is left running. A process that
+    exits first, or stays silent, fails loudly with `what` named."""
     found: list[str] = []
     event = threading.Event()
 
     def watch() -> None:
-        if process.stdout is None:
-            return
-        for line in process.stdout:
-            if marker in line and not found:
-                found.append(line.strip())
-                event.set()
+        if process.stdout is not None:
+            for line in process.stdout:
+                if marker in line and not found:
+                    found.append(line.strip())
+                    event.set()
+        event.set()
 
     threading.Thread(target=watch, daemon=True).start()
-    if not event.wait(seconds):
-        raise DemoError("did not start: " + marker)
+    event.wait(seconds)
+    if not found:
+        raise DemoError(f"{what} did not start (exit code {process.poll()})")
     return found[0]
+
+
+def _require_free(port: int, what: str) -> None:
+    """A companion's port must be free before it starts: a port in use fails loudly with the port named."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        try:
+            probe.bind(("127.0.0.1", port))
+        except OSError:
+            raise DemoError(
+                f"{what} port {port} is in use; stop what holds it or reset with another port"
+            ) from None
 
 
 def camera_companions(
@@ -393,15 +402,23 @@ def camera_companions(
         root = Path(str(fixture.root))
         processes: list[subprocess.Popen[str]] = []
 
+        grace_s = runtime.database.settings.integer("workers.shutdown_timeout_ms") / 1000
+
         def stop() -> None:
+            """Every companion stops with the hub, within workers.shutdown_timeout_ms in all; any still running
+            then is killed."""
             for process in reversed(processes):
                 process.terminate()
+            deadline = time.monotonic() + grace_s
             for process in processes:
                 try:
-                    process.wait(15)
+                    process.wait(max(deadline - time.monotonic(), 0))
                 except subprocess.TimeoutExpired:
                     process.kill()
+                    process.wait()
 
+        _require_free(int(str(state["twin_port"])), "camera twin")
+        _require_free(int(str(state["camera_port"])), "camera worker")
         try:
             processes.append(
                 subprocess.Popen(
@@ -420,7 +437,9 @@ def camera_companions(
                     encoding="utf-8",
                 )  # fmt: skip
             )
-            listening = _wait_line(processes[-1], "listening on", 180).rsplit(" ", 1)[-1]
+            listening = _wait_line(processes[-1], "listening on", TWIN_START_S, "camera twin").rsplit(" ", 1)[
+                -1
+            ]
             cameras = [
                 {
                     "device_id": c["device_id"],
@@ -466,14 +485,33 @@ def camera_companions(
     return start
 
 
+def _terminated(signum: int, frame: object) -> None:
+    raise SystemExit(128 + signum)
+
+
+def _reports(directory: Path, host: str, port: int) -> HubReports:
+    """The camera's attempt reports over this hub's own listener, under the adapter token `demo serve` issues, each
+    call bounded by the hub setting workers.camera.timeout_ms."""
+    document = json.loads((directory / "hub-settings.json").read_text(encoding="utf-8"))
+    timeout_ms = next(
+        int(entry["value"]) for entry in document["settings"] if entry["key"] == "workers.camera.timeout_ms"
+    )
+    return HubReports(f"http://{host}:{port}", directory / "camera" / "adapter.token", timeout_ms / 1000)
+
+
 def serve(directory: Path, *, host: str, port: int, server: Server | None = None, camera: bool = True) -> int:
     from crew_health.app.cli import TimeConfirmation
     from crew_health.app.cli import serve as serve_hub
 
     state = json.loads((directory / STATE).read_text(encoding="utf-8"))
     fixture = Fixture.load(Path(state["root"]))
+    if camera and threading.current_thread() is threading.main_thread():
+        # uvicorn re-raises the SIGTERM it shut down on; as SystemExit it unwinds through the companions' stop
+        # instead of killing the process and leaving the twin and the worker running.
+        signal.signal(signal.SIGTERM, _terminated)
     return serve_hub(
         ready=camera_companions(directory, fixture, state, host=host, port=port) if camera else None,
+        reports=_reports(directory, host, port) if camera else None,
         database=directory / "hub.sqlite",
         settings=directory / "hub-settings.json",
         host=host,
@@ -502,6 +540,7 @@ class Hub:
         token: str | None = None,
         body: object = None,
         release: str | None = None,
+        if_match: int | None = None,
     ) -> tuple[int, object]:
         headers = {"Accept": "application/json"}
         if body is not None:
@@ -512,6 +551,8 @@ class Hub:
             headers["Idempotency-Key"] = uuid.uuid4().hex
         if release is not None:
             headers["Config-Release"] = release
+        if if_match is not None:
+            headers["If-Match"] = f'"{if_match}"'
         data = None if body is None else json.dumps(body).encode()
         request = urllib.request.Request(self.base_url + path, data=data, method=method, headers=headers)
         try:

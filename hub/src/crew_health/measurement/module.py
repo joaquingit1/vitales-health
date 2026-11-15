@@ -276,7 +276,8 @@ def _bind(live: _Live, api: MeasurementApi, gap_plans: _GapPlansAdapter) -> Call
 
 def audit_policies() -> tuple[AuditPolicy, ...]:
     """SYSTEM 6: every audit event type `MeasurementService._changed` writes for a request transition, keyed by
-    the replicated request it names. An attempt event also names its attempt; gaps are declared with their refs."""
+    the replicated request it names. An attempt event also names its attempt; a gap a request opened names the request, a gap a controller proposed
+    (GapProposalPort) names only its gap and episode."""
     states = frozenset[str | int | bool](get_args(RequestState.__value__))
     reasons = frozenset[str | int | bool](get_args(GapReason.__value__))
     causes = (
@@ -301,6 +302,10 @@ def audit_policies() -> tuple[AuditPolicy, ...]:
     )
     gap = {**request, "gap_id": frozenset({"capability_gap"}), "episode_id": frozenset({"episode"})}
     policies.append(AuditPolicy("measurement.gap_opened", {"reason": reasons}, frozenset(gap), gap))
+    proposed = {"gap_id": frozenset({"capability_gap"}), "episode_id": frozenset({"episode"})}
+    policies.append(
+        AuditPolicy("measurement.gap_proposed", {"reason": reasons}, frozenset(proposed), proposed)
+    )
     return tuple(policies)
 
 
