@@ -10,7 +10,7 @@ from crew_health.contracts_gen.enums import ErrorCode, Role
 from crew_health.kernel.uow import SessionContext
 from crew_health.reports.domain.errors import ReportError, not_found
 
-_REPORT_ROLES = frozenset({Role.CREW, Role.CREW_MEDICAL_OFFICER})
+REPORT_ROLES = frozenset({Role.CREW, Role.CREW_MEDICAL_OFFICER})
 
 
 def require_owner_session(session: SessionContext) -> str:
@@ -21,7 +21,7 @@ def require_owner_session(session: SessionContext) -> str:
         or session.actor.kind != "person"
         or person is None
         or session.actor.id != person
-        or not session.roles & _REPORT_ROLES
+        or not session.roles & REPORT_ROLES
     ):
         raise ReportError(ErrorCode.UNAUTHORIZED_SCOPE, "not_owner_session")
     return person

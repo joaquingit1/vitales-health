@@ -304,7 +304,7 @@ def test_the_pin_the_engine_and_the_actor_must_match() -> None:
     with pytest.raises(ProblemError) as actor:
         st.workflows.record_extraction(session(), stranger, extraction(report, *DEFAULT))
     assert code(actor) is ErrorCode.UNAUTHORIZED_SCOPE
-    other_kind = replace(lease, task=replace(lease.task, public_kind=None))
+    other_kind = replace(lease, task=replace(lease.task, handler="other_handler"))
     with pytest.raises(ProblemError):
         st.workflows.record_extraction(session(), other_kind, extraction(report, *DEFAULT))
 
@@ -336,6 +336,7 @@ def test_confirmation_appends_through_the_recorder_in_one_unit_and_text_stays_te
     assert audit.event_type == "reports.confirmed" and dict(audit.safe_metadata) == {
         "findings": 2,
         "rejected_total": 0,
+        "revision": 3,
     }
 
 
@@ -468,17 +469,17 @@ def test_same_key_submitted_twice_from_one_revision_replays_instead_of_failing(
     report = drafted(st)
     if not coordinator_replays:
         monkeypatch.setattr(st.commands, "lookup", lambda uow, identity: None)
-    real = st.lineage.applied
+    real = st.lineage.binding
     state = {"first": True}
 
-    def interleaved(view: object, *, command_key: str) -> bool:
+    def interleaved(view: object, *, owner_person_id: str, command_key: str) -> tuple[str, str] | None:
         if state["first"]:
             state["first"] = False
             st.workflows.confirm(session(), key="k", report_id=report.report_id, command=cmd(report, 0))
-            return False  # this submission's snapshot read predates the other commit
-        return real(view, command_key=command_key)
+            return None  # this submission's snapshot read predates the other commit
+        return real(view, owner_person_id=owner_person_id, command_key=command_key)
 
-    monkeypatch.setattr(st.lineage, "applied", interleaved)
+    monkeypatch.setattr(st.lineage, "binding", interleaved)
     st.store.serve_stale = report
     second = st.workflows.confirm(session(), key="k", report_id=report.report_id, command=cmd(report, 0))
     assert second == st.store.reports[report.report_id] and second.revision == report.revision + 1
@@ -689,3 +690,35 @@ def decide_one(st: Station, report: Report) -> ConfirmedFinding:
     st.policies.policies["rhythm_interpretation"] = text("rhythm_interpretation")
     st.workflows.confirm(session(), key="ok", report_id=report.report_id, command=cmd(report, 0))
     return st.lineage.applied_keys["ok"][0]
+
+
+def test_a_key_reused_on_another_report_or_body_is_a_conflict_never_a_replay() -> None:
+    st = fresh()
+    first = drafted(st)
+    st.workflows.confirm(session(), key="k", report_id=first.report_id, command=cmd(first, 0))
+    other_upload = st.upload(key="up2", data=PDF + b"%second\n")
+    st.workflows.record_extraction(session(), st.lease(other_upload), extraction(other_upload, *DEFAULT))
+    other = st.store.reports[other_upload.report_id]
+    with pytest.raises(ProblemError) as other_report:
+        st.workflows.confirm(session(), key="k", report_id=other.report_id, command=cmd(other, 0))
+    assert code(other_report) is ErrorCode.DUPLICATE_COMMAND
+    after = st.store.reports[first.report_id]
+    with pytest.raises(ProblemError) as other_body:
+        st.workflows.confirm(session(), key="k", report_id=first.report_id, command=cmd(after, 1))
+    assert code(other_body) is ErrorCode.DUPLICATE_COMMAND
+
+
+def test_deleting_a_report_hides_it_and_a_late_extraction_finds_nothing() -> None:
+    st = fresh()
+    report = st.upload()
+    lease = st.lease(report)
+    st.workflows.delete_report(session(), key="del1", report_id=report.report_id)
+    with pytest.raises(ProblemError) as late:
+        st.workflows.record_extraction(session(), lease, extraction(report, *DEFAULT))
+    assert code(late) is ErrorCode.NOT_FOUND
+    with pytest.raises(ProblemError) as read:
+        st.workflows.get_report(session(), report.report_id)
+    assert code(read) is ErrorCode.NOT_FOUND
+    with pytest.raises(ProblemError) as stranger:
+        st.workflows.delete_report(session(OTHER), key="del2", report_id=report.report_id)
+    assert code(stranger) in (ErrorCode.NOT_FOUND, ErrorCode.UNAUTHORIZED_SCOPE)

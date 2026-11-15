@@ -143,6 +143,7 @@ class FakeLineage:
         self.journal = journal
         self.revisions: dict[str, int] = {}
         self.applied_keys: dict[str, tuple[ConfirmedFinding, ...]] = {}
+        self.bindings: dict[str, tuple[str, str]] = {}
 
     def advance(self, uow: UnitOfWork, *, report_id: str, expected_revision: int, new_revision: int) -> bool:
         if self.revisions.get(report_id) != expected_revision:
@@ -155,6 +156,14 @@ class FakeLineage:
 
     def applied(self, view: object, *, command_key: str) -> bool:
         return command_key in self.applied_keys
+
+    def bind(self, uow: UnitOfWork, *, command_key: str, report_id: str, request_digest: str) -> None:
+        self.journal.pending.append(
+            lambda: self.bindings.__setitem__(command_key, (report_id, request_digest))
+        )
+
+    def binding(self, view: object, *, owner_person_id: str, command_key: str) -> tuple[str, str] | None:
+        return self.bindings.get(command_key)
 
     def findings_of(self, view: object, *, command_key: str) -> tuple[ConfirmedFinding, ...]:
         return self.applied_keys.get(command_key, ())
@@ -231,14 +240,32 @@ class FakeStore:
             self.sources[report.report_id] = source
 
     def store_new(
-        self, session: SessionContext, *, key: str, report: Report, source: bytes
+        self,
+        session: SessionContext,
+        *,
+        key: str,
+        report: Report,
+        source: bytes,
+        apply: Callable[[UnitOfWork], bool],
     ) -> PrivateReceipt:
-        return self._publish(session, key, "uploadReport", report, lambda uow: True, source)
+        return self._publish(session, key, "uploadReport", report, apply, source)
+
+    def read_source(self, session: SessionContext, report_id: str) -> bytes | None:
+        return None if report_id in self.deleted else self.sources.get(report_id)
+
+    def delete(self, session: SessionContext, *, key: str, report_id: str) -> None:
+        self.deleted.add(report_id)
 
     def publish_version(
-        self, session: SessionContext, *, key: str, report: Report, apply: Callable[[UnitOfWork], bool]
+        self,
+        session: SessionContext,
+        *,
+        key: str,
+        operation: str,
+        report: Report,
+        apply: Callable[[UnitOfWork], bool],
     ) -> PrivateReceipt:
-        return self._publish(session, key, "publishVersion", report, apply, None)
+        return self._publish(session, key, operation, report, apply, None)
 
 
 class FakePolicies:
