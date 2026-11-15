@@ -13,7 +13,7 @@ from typing import Any
 
 import e23_station as base
 import pytest
-from e24_station import build, patched, post, seconds, wobble  # noqa: F401
+from e24_station import build, post, seconds, wobble
 
 from crew_health.kernel.errors import StorageUnavailable
 from crew_health.kernel.scheduler import HealthState
@@ -64,7 +64,7 @@ def act(
 
 
 @pytest.mark.trace("T-E24-023")
-def test_limit_crossing_raises_one_act_warning_visible_to_crew(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_limit_crossing_raises_one_act_warning_visible_to_crew(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     items = st.client.get("/v1/warnings", headers=st.headers("crew_a")).json()["items"]
     by_definition = {i["definition_id"]: i for i in items}
@@ -84,7 +84,7 @@ def test_limit_crossing_raises_one_act_warning_visible_to_crew(patched: None, tm
     }  # habitat scope: every crew screen
 
 
-def test_more_readings_never_duplicate_the_active_warning(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_more_readings_never_duplicate_the_active_warning(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     st.advance(seconds=3600)
     feed(st, 4.0, 721)
@@ -93,7 +93,7 @@ def test_more_readings_never_duplicate_the_active_warning(patched: None, tmp_pat
 
 
 @pytest.mark.trace("T-E24-050", "T-E24-054", "T-E24-056", "T-E24-124")
-def test_acknowledge_headers_replay_and_conflicts(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_acknowledge_headers_replay_and_conflicts(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     wid = next(
         i["warning_id"]
@@ -121,7 +121,7 @@ def test_acknowledge_headers_replay_and_conflicts(patched: None, tmp_path: Path)
     assert late.json()["current_state"]["warning_id"] == wid
 
 
-def test_unknown_warning_is_not_found(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_unknown_warning_is_not_found(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path, send=False)
     assert st.client.get("/v1/warnings/wrn_none", headers=st.headers("crew_a")).status_code == 404
     assert act(st, "crew_a", "wrn_none", {"action": "acknowledge"}, "n1", '"1"').status_code == 404
@@ -129,7 +129,7 @@ def test_unknown_warning_is_not_found(patched: None, tmp_path: Path) -> None:  #
 
 @pytest.mark.trace("T-E24-072")
 def test_evaluator_fault_keeps_the_reading_and_freezes_clears(
-    patched: None,  # noqa: F811
+    patched: None,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -151,7 +151,7 @@ def test_evaluator_fault_keeps_the_reading_and_freezes_clears(
 
 @pytest.mark.trace("T-E24-106", "T-E24-123")
 def test_storage_fault_commits_nothing_and_is_never_converted(
-    patched: None,  # noqa: F811
+    patched: None,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -169,7 +169,7 @@ def test_storage_fault_commits_nothing_and_is_never_converted(
 
 
 @pytest.mark.trace("T-E24-062", "T-E24-003")
-def test_the_assistant_cannot_raise_act_or_touch_a_warning(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_the_assistant_cannot_raise_act_or_touch_a_warning(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     guard = st.resolver().require(AssistantWarningGuard)
     wid = table(st, "SELECT warning_id FROM rules_warning WHERE definition_id = 'co2_above_limit'")[0][0]

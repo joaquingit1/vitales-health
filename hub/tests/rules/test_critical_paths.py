@@ -27,10 +27,7 @@ from typing import Any
 import e23_station as base
 import pytest
 import rules_harness as h
-from e24_station import (
-    patched,  # noqa: F401
-    restart,
-)
+from e24_station import restart
 from test_station_co2 import feed, station
 from test_storm_occurrences_served import record
 
@@ -71,7 +68,7 @@ def _health(st: base.Station) -> dict[str, str]:
 
 
 @pytest.mark.trace("T-E24-024", "V70")
-def test_path1_a_silent_channel_keeps_the_hazard_open_and_raises_quiet(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_path1_a_silent_channel_keeps_the_hazard_open_and_raises_quiet(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     assert _active(st)["co2_above_limit"] == "act"
     st.advance(seconds=900)  # primary removed: the CO2 channel stops reporting, past its stale bound
@@ -85,7 +82,7 @@ def test_path1_a_silent_channel_keeps_the_hazard_open_and_raises_quiet(patched: 
 
 @pytest.mark.trace("T-E24-121", "T-E24-075", "V58", "D2")
 def test_path2_a_storm_recorded_on_the_laptop_reaches_every_crew_screen_without_ground_or_model(
-    patched: None,  # noqa: F811
+    patched: None,
     tmp_path: Path,
 ) -> None:
     from e24_station import build
@@ -103,7 +100,7 @@ def test_path2_a_storm_recorded_on_the_laptop_reaches_every_crew_screen_without_
 
 @pytest.mark.trace("T-E24-098", "T-E24-115", "T-E24-078")
 def test_path3_a_client_that_missed_the_live_event_catches_up_by_cursor_and_snapshot(
-    patched: None,  # noqa: F811
+    patched: None,
     tmp_path: Path,
 ) -> None:
     from e24_station import build
@@ -124,7 +121,7 @@ def test_path3_a_client_that_missed_the_live_event_catches_up_by_cursor_and_snap
 
 
 @pytest.mark.trace("T-E24-006", "T-E24-003", "T-E24-062", "INV-E24-04")
-def test_path4_storage_refuses_what_the_domain_would_refuse(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_path4_storage_refuses_what_the_domain_would_refuse(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     (wid,) = _rows(st, "SELECT warning_id FROM rules_warning WHERE definition_id = 'co2_above_limit'")[0]
     before = _rows(st, "SELECT * FROM rules_warning WHERE warning_id = ?", wid)
@@ -164,7 +161,7 @@ def test_path4_storage_refuses_what_the_domain_would_refuse(patched: None, tmp_p
 
 @pytest.mark.trace("T-E24-026", "T-E24-120", "T-E24-127", "INV-E24-05", "INV-E24-07")
 def test_path5_with_the_evidence_check_broken_the_backups_still_keep_the_warning_open(
-    patched: None,  # noqa: F811
+    patched: None,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -199,7 +196,7 @@ def test_path5_with_the_evidence_check_broken_the_backups_still_keep_the_warning
 
 @pytest.mark.trace("T-E24-072", "T-E24-122", "T-E24-123", "INV-E24-16")
 def test_path6_an_evaluator_fault_keeps_capture_survives_restart_and_never_clears(
-    patched: None,  # noqa: F811
+    patched: None,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

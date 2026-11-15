@@ -39,7 +39,7 @@ from typing import Any
 
 import e23_station as base
 import pytest
-from e24_station import build, patched, post, wobble  # noqa: F401
+from e24_station import build, post, wobble
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("AGENTS-4-replay", "V55", "V56", "R35")]
 
@@ -112,7 +112,7 @@ def _radiation_outcome(st: base.Station, sent: int) -> dict[str, Any]:
 
 @pytest.mark.trace("T-E24-028", "INV-E24-14")
 def test_spe_2017_iss_columbus_dostel2_replay_raises_no_radiation_warning(
-    patched: None,  # noqa: F811
+    patched: None,
     tmp_path: Path,
 ) -> None:
     case = _case(CASES / "spe-2017-09-iss-columbus")
@@ -144,7 +144,7 @@ def test_spe_2017_iss_columbus_dostel2_replay_raises_no_radiation_warning(
 
 
 @pytest.mark.trace("T-E24-028", "INV-E24-14")
-def test_spe_2017_mars_surface_rad_replay_raises_no_radiation_warning(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_spe_2017_mars_surface_rad_replay_raises_no_radiation_warning(patched: None, tmp_path: Path) -> None:
     case = _case(MARS_DIR)
     assert case["expected_product_output"]["levels"][0].startswith("watch")
     st = _radiation_station(tmp_path, case["environment_id"])
@@ -183,7 +183,7 @@ def _co2_state(st: base.Station) -> tuple[Any, ...] | None:
 
 
 def test_iss_co2_expedition6_printed_levels_raise_act_and_the_documented_relief_clears_it(
-    patched: None,  # noqa: F811
+    patched: None,
     tmp_path: Path,
 ) -> None:
     """Qualitative case (spot values only). Expected: act while above 4 mm Hg; cleared by the rule after the

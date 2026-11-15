@@ -17,7 +17,6 @@ from typing import Any
 
 import e23_station as base
 import pytest
-from e24_station import patched  # noqa: F401
 from test_station_co2 import act, station
 
 from crew_health.contracts_gen.enums import Role
@@ -60,7 +59,7 @@ BODIES: dict[WarningAction, dict[str, str]] = {
 
 
 @pytest.mark.trace("T-E24-004", "T-E24-005", "T-E24-062")
-def test_the_assistant_cannot_act_on_a_sensor_warning_over_http(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_the_assistant_cannot_act_on_a_sensor_warning_over_http(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     _as_assistant(st)
     wid = _co2(st)
@@ -80,7 +79,7 @@ def test_the_assistant_cannot_act_on_a_sensor_warning_over_http(patched: None, t
 
 
 @pytest.mark.trace("T-E24-003", "T-E24-062")
-def test_the_guard_allows_info_and_watch_only_and_no_action_at_all(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_the_guard_allows_info_and_watch_only_and_no_action_at_all(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     wid = _co2(st)
     before = _rows(st, ROW, wid)

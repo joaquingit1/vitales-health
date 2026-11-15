@@ -27,7 +27,6 @@ from typing import Any
 
 import e23_station as base
 import pytest
-from e24_station import patched  # noqa: F401
 from test_station_co2 import station
 
 from crew_health.kernel.scheduler import HealthState
@@ -84,7 +83,7 @@ def _holding(inp: SensorEvaluatedInput) -> tuple[LimitResult, ...]:
     "broken", ["control", "unknown_time", "future_time", "clock_uncertain", "clock_unknown"]
 )
 def test_unknown_or_untrusted_time_never_clears_on_the_served_hub(
-    patched: None,  # noqa: F811
+    patched: None,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     broken: str,
@@ -113,7 +112,7 @@ def test_unknown_or_untrusted_time_never_clears_on_the_served_hub(
 
 @pytest.mark.trace("T-E24-072", "T-E24-122")
 def test_a_missing_origin_or_a_fault_becomes_pending_degraded_and_never_clears(
-    patched: None,  # noqa: F811
+    patched: None,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

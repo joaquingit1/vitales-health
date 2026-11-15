@@ -97,23 +97,28 @@ class WarningReader:
     def listing(
         self, session: SessionContext, *, state: str, after: tuple[int, str, str] | None, limit: int
     ) -> tuple[list[dict[str, object]], tuple[int, str, str] | None]:
+        """One page of the session's warnings and the cursor of the last row consumed, or None at the end. A full
+        page followed by a further row returns a cursor; a page that ends the list returns None."""
         with self.snapshots.snapshot() as snap:
             facts = self.rt.facts_for_snapshot(snap)
             items: list[dict[str, object]] = []
-            last: tuple[int, str, str] | None = after
+            consumed = after
             seen = 0
-            while len(items) < limit and seen < 10 * limit:
-                batch = self.rt.warnings.page(snap.connection, state=state, after=last, limit=limit)
-                if not batch:
-                    return items, None
+            while seen < 10 * limit:
+                batch = self.rt.warnings.page(snap.connection, state=state, after=consumed, limit=limit)
                 for w in batch:
-                    last = (w.headline.rank, w.raised_at.isoformat().replace("+00:00", "Z"), w.warning_id)
+                    if len(items) == limit:
+                        return (
+                            items,
+                            consumed,
+                        )  # a visible row may follow: the next page starts after `consumed`
+                    consumed = (w.headline.rank, w.raised_at.isoformat().replace("+00:00", "Z"), w.warning_id)
                     seen += 1
-                    if can_see(w, viewer_of(session)).full and len(items) < limit:
+                    if can_see(w, viewer_of(session)).full:
                         items.append(project(self.rt, snap, facts, w, session))
                 if len(batch) < limit:
                     return items, None
-            return items, last
+            return items, consumed
 
     def visible(self, session: SessionContext, warning_id: str) -> bool:
         with self.snapshots.snapshot() as snap:

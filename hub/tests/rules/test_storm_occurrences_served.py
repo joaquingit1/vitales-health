@@ -20,7 +20,7 @@ from typing import Any
 
 import e23_station as base
 import pytest
-from e24_station import build, patched, restart  # noqa: F401
+from e24_station import build, restart
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("INV-E24-08", "INV-E24-17", "H8", "H13", "D3")]
 
@@ -86,7 +86,7 @@ def screens(st: base.Station) -> dict[str, list[str]]:
 
 
 @pytest.mark.trace("T-E24-118", "T-E24-119", "T-E24-075", "T-E24-035", "T-E24-037")
-def test_a_delayed_all_clear_keeps_the_newer_alert_across_restarts(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_a_delayed_all_clear_keeps_the_newer_alert_across_restarts(patched: None, tmp_path: Path) -> None:
     st = build(tmp_path)
     st.initialize("SIM")
     st.advance(hours=2)  # every event below occurred in the past hour; delivery order is not occurrence order

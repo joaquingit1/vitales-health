@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from crew_health.app.registry import ModuleRegistry, Resolver, StartupPhase
-from crew_health.contracts_gen.enums import ErrorCode
+from crew_health.contracts_gen.enums import ErrorCode, EventType
 from crew_health.contracts_gen.schemas.warning_schema import Warning as WireWarning
 from crew_health.help.application import ports as help_ports
 from crew_health.kernel.audit import AuditPolicy
@@ -35,10 +35,17 @@ from crew_health.kernel.uow import (
     ReadSnapshot,
     ReadSnapshotFactory,
     SessionContext,
+    StoredEvent,
     UnitOfWork,
     UnitOfWorkFactory,
 )
-from crew_health.mission.application.ports import MissionEventRecorded, MissionStatePort, StateFactChanged
+from crew_health.mission.application.ports import (
+    DayLabelPort,
+    MissionEventRecorded,
+    MissionStatePort,
+    OverlayPort,
+    StateFactChanged,
+)
 from crew_health.records.application.ports import AnswerAcceptedFact
 from crew_health.rules.adapters.config_reader import WarningRulesCheck
 from crew_health.rules.adapters.migration import apply_migration
@@ -50,13 +57,22 @@ from crew_health.rules.application.core import Runtime
 from crew_health.rules.application.ports import (
     AssistantContext,
     AssistantWarningGuard,
+    InsightWarningPort,
+    RecordFactsPort,
     WarningCommands,
     WarningFact,
     WarningQueries,
 )
+from crew_health.rules.application.presentation import (
+    Presenter,
+    ReplicaView,
+    SessionPresentation,
+    WarningPresentation,
+)
 from crew_health.rules.application.queries import WarningReader
 from crew_health.rules.application.stores import table_declarations
 from crew_health.rules.application.wire import AUDIENCE_RULE, PROJECTION
+from crew_health.rules.domain.inputs import InsightDraft
 from crew_health.rules.settings import specifications
 from crew_health.sensors.application.ports import ChannelFreshnessChanged, SensorEvaluated
 
@@ -79,6 +95,8 @@ def audit_policies() -> tuple[AuditPolicy, ...]:
         for kind in ("raised", "cleared", "updated", "occurrence_attached")
     )
     coded = (
+        AuditPolicy("rules.pending_quarantined", {}, frozenset(), {}),
+        AuditPolicy("warning.replica_applied", {}, frozenset(), {}),
         AuditPolicy("warning.refused", {"code": frozenset(_REFUSALS)}, frozenset(), {}),
         AuditPolicy("insight.rejected", {"code": frozenset(_INSIGHT_CODES)}, frozenset(), {}),
         AuditPolicy("warning.assistant_rejected", {"code": frozenset(_ASSISTANT_CODES)}, frozenset(), {}),
@@ -102,6 +120,7 @@ class _Audience:
 @dataclass
 class _Live:
     api: RulesApi
+    presenter: Presenter | None = None
     resolver: Resolver | None = None
     runtime: Runtime | None = None
 
@@ -121,6 +140,8 @@ def _bind(live: _Live) -> Callable[[Resolver], None]:
             mission=resolver.optional(MissionStatePort),
             binding=resolver.optional(ConfigBinding),
             health=resolver.optional(HealthState),
+            record_facts=resolver.optional(RecordFactsPort),
+            day_labels=resolver.optional(DayLabelPort),
         )
         live.runtime = rt
         snapshots = resolver.require(ReadSnapshotFactory)
@@ -129,6 +150,7 @@ def _bind(live: _Live) -> Callable[[Resolver], None]:
             resolver.require(IdempotencyStore),
             resolver.require(CommandReceipts),
         )
+        live.presenter = Presenter(rt, snapshots, resolver.optional(OverlayPort))
         live.api.reader = WarningReader(rt, snapshots)
         live.api.actions = WarningActions(rt, platform)
         live.api.page_limit = settings.integer("rules.page_limit")
@@ -205,6 +227,38 @@ class _Guard:
         return insight_mod.AssistantGuard(self._live.need()).propose_action(uow, ctx, warning_id, action)
 
 
+class _Presentation:
+    def __init__(self, live: _Live) -> None:
+        self._live = live
+
+    def _presenter(self) -> Presenter:
+        if self._live.presenter is None:
+            raise ProblemError(ErrorCode.INTERNAL_ERROR, "rules_not_bound", retryable=True)
+        return self._live.presenter
+
+    def for_session(self, session: SessionContext) -> SessionPresentation:
+        return self._presenter().for_session(session)
+
+    def replicas(self, session: SessionContext) -> tuple[ReplicaView, ...]:
+        return self._presenter().replicas(session)
+
+
+class _Insights:
+    """What E13 calls in its own transaction (4.2): the evidence facts come from the records owner."""
+
+    def __init__(self, live: _Live) -> None:
+        self._live = live
+
+    def validate_and_raise(self, uow: UnitOfWork, draft: InsightDraft) -> WarningFact | None:
+        return insight_mod.InsightPort(self._live.need()).validate_and_raise(uow, draft)
+
+    def on_insight_dismissed(self, uow: UnitOfWork, insight_id: str, actor: Actor) -> None:
+        insight_mod.InsightPort(self._live.need()).on_insight_dismissed(uow, insight_id, actor)
+
+    def on_insight_expired(self, uow: UnitOfWork, insight_id: str) -> None:
+        insight_mod.InsightPort(self._live.need()).on_insight_expired(uow, insight_id)
+
+
 class _HelpQueries:
     """E26's structural `WarningQueries` (`visible` only)."""
 
@@ -219,6 +273,25 @@ def _late(
     live: _Live, handler: Callable[[Runtime, UnitOfWork, Any], None]
 ) -> Callable[[UnitOfWork, Any], None]:
     return lambda uow, event: handler(live.need(), uow, event)
+
+
+def durable(registry: ModuleRegistry, live: _Live) -> None:
+    """Producers that publish only an outbox event (no in-transaction bus payload on main): the link owner's
+    `ground_link.changed`, and the configuration and mission owners' activations (3.8, C12). Each handler runs in the
+    event worker's unit of work; an evaluator fault there becomes a pending row, a storage fault is retried."""
+
+    def link(uow: UnitOfWork, event: StoredEvent) -> None:
+        handlers.on_ground_link_event(live.need(), uow, event)
+
+    def activated(uow: UnitOfWork, event: StoredEvent) -> None:
+        handlers.on_activation(live.need(), uow, event)
+
+    registry.durable_subscriber("rules.ground_link", frozenset({EventType.GROUND_LINK_CHANGED}), link)
+    registry.durable_subscriber(
+        "rules.activation",
+        frozenset({EventType.CONFIG_RELEASE_ACTIVATED, EventType.ENVIRONMENT_ACTIVATED}),
+        activated,
+    )
 
 
 def register(registry: ModuleRegistry) -> None:
@@ -245,6 +318,8 @@ def register(registry: ModuleRegistry) -> None:
     registry.provide(help_ports.WarningQueries, lambda _: _HelpQueries(live))
     registry.provide(WarningCommands, lambda _: _Commands(live))
     registry.provide(AssistantWarningGuard, lambda _: _Guard(live))
+    registry.provide(InsightWarningPort, lambda _: _Insights(live))
+    registry.provide(WarningPresentation, lambda _: _Presentation(live))
     registry.loader_check(WarningRulesCheck(max_definitions=500))
     registry.subscribe(
         AnswerAcceptedFact, lambda uow, e: handlers.on_answer(live.need(), uow, e), name="rules.answer"
@@ -266,6 +341,7 @@ def register(registry: ModuleRegistry) -> None:
         (StateFactChanged, handlers.on_state_fact, "rules.state_fact"),
     ):
         registry.subscribe(event_class, _late(live, handler), name=name)
+    durable(registry, live)
     registry.scheduler_handler(
         core.DEADLINE_HANDLER, lambda uow, job: handlers.fire_deadline(live.need(), uow, job)
     )

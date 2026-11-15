@@ -10,12 +10,14 @@ from dataclasses import dataclass
 
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.kernel.errors import ProblemError
-from crew_health.kernel.uow import UnitOfWork
+from crew_health.kernel.uow import Actor, UnitOfWork
 from crew_health.rules.application import core
 from crew_health.rules.application.core import Runtime, note_audit
-from crew_health.rules.application.ports import Allowed, AssistantContext, Rejected
-from crew_health.rules.domain.inputs import InsightDraft, InsightInput, RecordFacts
+from crew_health.rules.application.ports import Allowed, AssistantContext, Rejected, WarningFact
+from crew_health.rules.application.wire import fact_of
+from crew_health.rules.domain.inputs import InsightDraft, InsightExpiredInput, InsightInput
 from crew_health.rules.domain.vocabulary import ASSISTANT_LEVELS, Level
+from crew_health.rules.domain.warning import PersonActor, dismiss
 
 
 @dataclass(slots=True)
@@ -42,14 +44,35 @@ class AssistantGuard:
         return Rejected("ACTION_NOT_ALLOWED")
 
 
-def validate_and_raise(
-    rt: Runtime, uow: UnitOfWork, draft: InsightDraft, facts: dict[tuple[str, str], RecordFacts]
-) -> None:
-    """UC-R5. A violation stores nothing and is audited with codes only; the model's own level is never trusted."""
-    from crew_health.rules.domain.inputs import EvidenceKey
+@dataclass(slots=True)
+class InsightPort:
+    """UC-R5, UC-R6: E13 calls these inside its own unit of work (4.2). The record facts of the evidence come from
+    the records owner's `RecordFactsPort`; without it nothing can be verified, so nothing is stored (fail closed)."""
 
-    keyed = tuple((EvidenceKey(k[0], k[1]), v) for k, v in facts.items())  # type: ignore[arg-type]
-    policy = rt.facts(uow).policy
-    if rt.binding is None:
-        raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, "template_renderer_absent", retryable=True)
-    core.run_input(rt, uow, InsightInput(draft, keyed, policy))
+    rt: Runtime
+
+    def validate_and_raise(self, uow: UnitOfWork, draft: InsightDraft) -> WarningFact | None:
+        port = self.rt.record_facts
+        if port is None:
+            raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, "record_facts_absent", retryable=True)
+        found = port.facts(uow, draft.evidence)
+        keyed = tuple((key, found[key]) for key in draft.evidence if key in found)
+        core.run_input(self.rt, uow, InsightInput(draft, keyed, self.rt.facts(uow).policy))
+        raised = self.rt.warnings.for_insight(uow.connection, draft.insight_id)
+        return None if raised is None else fact_of(raised)
+
+    def on_insight_expired(self, uow: UnitOfWork, insight_id: str) -> None:
+        """The insight ended on its own: the warning clears `expired` only through the engine's expiry rule."""
+        w = self.rt.warnings.for_insight(uow.connection, insight_id)
+        if w is not None and w.active:
+            elapsed = max(0, int((uow.now - w.raised_at).total_seconds()))
+            core.run_input(self.rt, uow, InsightExpiredInput(insight_id, elapsed))
+
+    def on_insight_dismissed(self, uow: UnitOfWork, insight_id: str, actor: Actor) -> None:
+        """Only the person the insight concerns dismisses it; the assistant, the engine and every other actor change
+        nothing (AGENTS 1 rule 4). The warning dismisses with it, in the same unit of work."""
+        w = self.rt.warnings.for_insight(uow.connection, insight_id)
+        if w is None or not w.active or actor.kind != "person" or actor.id != w.person_id:
+            return
+        done = dismiss(w, PersonActor(actor.id), uow.now, None)
+        core.commit_final(self.rt, uow, w, done)

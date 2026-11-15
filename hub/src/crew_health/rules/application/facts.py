@@ -37,6 +37,7 @@ class ReleaseFacts:
     what_to_do: Mapping[str, Mapping[str, str]]
     origin_words: Mapping[str, str]
     designed_states: Mapping[str, str]
+    duration_words: Mapping[str, str]
     suppressed_overlays: frozenset[str]
     policy: AssistantPolicy
 
@@ -115,6 +116,7 @@ def build(release: ReleaseHandle) -> ReleaseFacts:
     copy = _doc(release, ConfigName.UI_COPY, required=False)
     words = copy.get("origin_words")
     states = copy.get("designed_states")
+    durations = copy.get("duration_words")
     suppressed = _doc(release, ConfigName.ROUTINE_RULES, required=False).get("suppressed_overlays")
     return ReleaseFacts(
         release_id=release.release_id,
@@ -127,6 +129,7 @@ def build(release: ReleaseHandle) -> ReleaseFacts:
         what_to_do=hazards,
         origin_words={str(k): str(v) for k, v in words.items()} if isinstance(words, dict) else {},
         designed_states={str(k): str(v) for k, v in states.items()} if isinstance(states, dict) else {},
+        duration_words={str(k): str(v) for k, v in durations.items()} if isinstance(durations, dict) else {},
         suppressed_overlays=frozenset(str(s) for s in suppressed)
         if isinstance(suppressed, list)
         else frozenset(),
