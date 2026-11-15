@@ -25,7 +25,11 @@ from crew_health_bench.adapters.case_documents import CaseDocuments, LoadedCase
 from crew_health_bench.adapters.clock import ProcessClock
 from crew_health_bench.adapters.documents import BenchSettings, load_document, read_json
 from crew_health_bench.adapters.hub_driver import HubDriver
-from crew_health_bench.adapters.isolation import refuse_vault_identity, vault_path
+from crew_health_bench.adapters.isolation import (
+    refuse_repository_plaintext,
+    refuse_vault_identity,
+    vault_path,
+)
 from crew_health_bench.adapters.owner import AgeOwnerGrant
 from crew_health_bench.adapters.partitions import verify_partitions
 from crew_health_bench.adapters.run_inputs import SuiteInputs
@@ -165,6 +169,8 @@ class SuiteCommands:
         if manifest["track"] not in ("rules_only", "system_assisted") or manifest["variant"] is not None:
             raise BenchError("case_invalid")
         self._require_partition(manifest, cases)
+        if manifest["partition"] == "holdout":
+            refuse_repository_plaintext(tuple(options.cases), repository=self.repository)
         lifecycle = RunLifecycle(
             store=store,
             inputs=inputs,

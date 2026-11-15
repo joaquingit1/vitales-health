@@ -374,3 +374,34 @@ def providers_ops() -> tuple[str, ...]:
     from crew_health_bench.domain.readiness import DRIVER_OPERATIONS
 
     return DRIVER_OPERATIONS
+
+
+@pytest.mark.trace("E18-03", "R23", "T-E18-01", "INV-E18-01")
+def test_holdout_plaintext_inside_the_repository_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """M3: holdout case files and hidden parts never sit in plaintext inside the repository, and the leak scan
+    has a `cases` target for repository case files."""
+    suite = Suite(tmp_path, monkeypatch)
+    inside = suite.space.repository / "eval" / "cases"
+    inside.mkdir(parents=True)
+    copied = inside / suite.case.name
+    shutil.copyfile(suite.case, copied)
+    hidden = suite.space.private / "hidden"
+    freeze = ["partitions", "freeze", "--salt", str(suite.space.salt), "--fp-salt", "public"]
+    before = sorted(path.name for path in (suite.space.config.parent / "partitions").iterdir())
+    for cases, hidden_dir in ((copied, hidden), (suite.case, inside)):
+        assert suite.cli(*freeze, "--cases", str(cases), "--hidden-dir", str(hidden_dir)) == 5
+        assert _problem(capsys)["title"] == "holdout_plaintext_in_repository"
+    assert sorted(path.name for path in (suite.space.config.parent / "partitions").iterdir()) == before
+    with suite.harness(HubScript()):
+        common = ["--root", str(suite.space.runs), "--cases", str(copied)]
+        release = ["--model-release", str(suite.space.release), "--release-config", str(suite.release_config)]
+        plan = suite.plan_input("system_assisted")
+        assert suite.cli("suite", "plan", *common, *release, "--manifest", str(plan)) == 5
+        assert _problem(capsys)["title"] == "holdout_plaintext_in_repository"
+    assert not list(suite.space.runs.glob("*/state.jsonl")), "nothing recorded"
+    fingerprints = suite.space.config.parent / "fingerprints" / "holdout.fp.json"
+    scan = ["leak", "scan", "--fingerprints", str(fingerprints), "--target", "cases", str(inside)]
+    assert suite.cli(*scan) == 3
+    assert {row["kind"] for row in _last_json(capsys)["findings"]} >= {"canary"}  # type: ignore[union-attr]

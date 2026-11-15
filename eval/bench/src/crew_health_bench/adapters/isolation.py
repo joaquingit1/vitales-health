@@ -40,6 +40,19 @@ def vault_path(root: Path, relative: str) -> Path:
         raise BenchError("target_unreadable", exit_code=6) from error
 
 
+def refuse_repository_plaintext(paths: tuple[Path, ...], *, repository: Path) -> None:
+    """Holdout case files and hidden parts are read only from outside the repository (design 5.1, M3)."""
+    root = repository.resolve()
+    inside = sorted(str(path) for path in paths if path.resolve().is_relative_to(root))
+    if inside:
+        raise BenchError(
+            "holdout_plaintext_in_repository",
+            exit_code=5,
+            detail="holdout plaintext must stay outside the repository; seal it into eval/vault: "
+            + ", ".join(inside),
+        )
+
+
 def generation_environment(environment: Mapping[str, str], *, grader_key_env: str) -> dict[str, str]:
     return {
         key: value for key, value in environment.items() if key not in ("CHC_EVAL_IDENTITY", grader_key_env)

@@ -9,6 +9,7 @@ from crew_health.kernel.ids import IdFactory
 from crew_health_bench.adapters.case_documents import CaseDocuments, LoadedCase
 from crew_health_bench.adapters.documents import BenchSettings, load_document, read_json
 from crew_health_bench.adapters.files import bounded_files
+from crew_health_bench.adapters.isolation import refuse_repository_plaintext
 from crew_health_bench.adapters.owner import AgeOwnerGrant
 from crew_health_bench.adapters.partitions import verify_partitions
 from crew_health_bench.adapters.store import FileArtifactStore
@@ -89,6 +90,7 @@ def freeze(
     )
     owner.require_owner()
     repository = config_dir.resolve().parents[2]
+    refuse_repository_plaintext((*paths, hidden_dir), repository=repository)
     salt = owner.salt(salt_path, repository=repository)
     documents = CaseDocuments.from_config(config_dir, max_file_bytes=maximum, ids=ids)
     cases = load_cases(paths, documents=documents, max_files=settings.integer("bench.scan.max_files"))

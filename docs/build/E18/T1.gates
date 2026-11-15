@@ -12,3 +12,5 @@ uv run --frozen --directory eval/bench --project . mutmut run --max-children 1
 uv run --frozen --directory eval/bench --project . mutmut results
 # Local only, needs the ignored eval/vault/healthbench files (healthbench fetch): every HealthBench command on the real data with stand-ins
 uv run --frozen --directory eval/bench --project . python -m tests.run_real_sample
+# After the first partitions freeze writes eval/bench/fingerprints/holdout.fp.json: repository-wide holdout scan (M3)
+uv run --frozen --project eval/bench chc-bench --config-dir eval/bench/config leak scan --fingerprints eval/bench/fingerprints/holdout.fp.json --target cases eval/ --target prompts model/ --target config config/ --target dev docs/

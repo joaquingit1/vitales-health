@@ -42,7 +42,7 @@ class LeakScanner:
         visited = 0
         total_bytes = 0
         for kind, root in targets:
-            if kind not in ("prompts", "tools", "examples", "config", "evidence", "dev"):
+            if kind not in ("prompts", "tools", "examples", "config", "evidence", "dev", "cases"):
                 raise BenchError("case_invalid")
             files = bounded_files(root, max_files=self.max_files)
             visited += len(files)
