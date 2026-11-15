@@ -1,0 +1,10 @@
+{
+  "max_files": 128,
+  "max_source_bytes": 40000000000,
+  "minimum_free_bytes": 4000000000,
+  "process_timeout_seconds": 7200,
+  "network_timeout_seconds": 30,
+  "basis": "Team operational assumptions: enough capacity for one 18.8GB source checkpoint and bounded converter jobs. E17 5.5 and SYSTEM 5.11.",
+  "quantization_threads": 6,
+  "minimum_conversion_free_bytes": 24000000000
+}
