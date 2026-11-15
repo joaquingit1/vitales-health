@@ -38,6 +38,7 @@ PERSONA = "sim_persona_1"
 ROUTES = {
     "createSession": ("POST", "/v1/sessions"),
     "getContext": ("GET", "/v1/context"),
+    "getConfigIndex": ("GET", "/v1/config"),
     "startEpisode": ("POST", "/v1/episodes"),
     "getEpisode": ("GET", "/v1/episodes/{episode_id}"),
     "getMeasurementRequest": ("GET", "/v1/measurement-requests/{request_id}"),
@@ -66,6 +67,7 @@ class HubScript:
     warning_level: str = "act"
     fabricate: bool = False
     measured_capability: str = "fixture_protocol_quantity"
+    config_release_id: str = "rel_20261113_a"
 
 
 @dataclass
@@ -158,6 +160,11 @@ class _HubServer(ThreadingHTTPServer):
         session["token"] = "token-" + str(body["kind"]) + "-" + str(len(self.state.calls))
         session["session_id"] = "ses_" + str(len(self.state.calls))
         return 201, session
+
+    def _getConfigIndex(self, body: object, *, token: str | None) -> tuple[int, dict[str, object]]:
+        index = example("configuration/index.json")
+        index.update(release_id=self.state.script.config_release_id, model_release_id=None)
+        return 200, index
 
     def _getContext(self, body: object, *, token: str | None) -> tuple[int, dict[str, object]]:
         context = example("context/station.json")

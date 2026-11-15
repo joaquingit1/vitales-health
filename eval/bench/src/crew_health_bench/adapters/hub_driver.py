@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 
 from crew_health.contracts_gen.schemas.assessment_schema import Assessment
+from crew_health.contracts_gen.schemas.config_index_schema import ConfigIndex
 from crew_health.contracts_gen.schemas.context_schema import Context
 from crew_health.contracts_gen.schemas.episode_schema import Episode
 from crew_health.contracts_gen.schemas.event_page_schema import EventPage
@@ -70,7 +71,10 @@ class HubDriver:
         ids: IdFactory,
         run_id: str,
         sleep: Callable[[Quantity], None],
+        config_release_id: str,
+        model_release_id: str,
     ) -> None:
+        self.config_release_id, self.model_release_id = config_release_id, model_release_id
         self.harness, self.settings, self.clock, self.ids, self.run_id = harness, settings, clock, ids, run_id
         self.sleep = sleep
         self.timeout = Quantity(settings.quantity("bench.hub.call_timeout").value * 1000, Unit("ms"))
@@ -92,6 +96,7 @@ class HubDriver:
             require_evaluation_hub(
                 context, hub.hub.data_root, run_id=self.run_id, max_file_bytes=self.maximum
             )
+            self._require_release(state)
             hub.seed(case.seed_steps)
             if track == "rules_only":
                 self._stop_model(state)
@@ -100,6 +105,21 @@ class HubDriver:
             return self._drive(state, case, simulator, start=start, limit=limit)
         finally:
             self.harness.stop(hub)
+
+    def _require_release(self, state: _Case) -> None:
+        """The hub runs the manifest's configuration and model releases, measured at case start (R22, 8.1)."""
+        index = self._parse(ConfigIndex, self._call(state, "getConfigIndex", mutation=False))
+        model = index.model_release_id
+        if index.release_id.root != self.config_release_id or (
+            model is not None and model.root != self.model_release_id
+        ):
+            raise BenchError(
+                "drift",
+                detail="hub runs configuration release "
+                + index.release_id.root
+                + ", the manifest pins "
+                + self.config_release_id,
+            )
 
     def _drive(
         self, state: _Case, case: VisibleCase, simulator: Simulator, *, start: int, limit: int

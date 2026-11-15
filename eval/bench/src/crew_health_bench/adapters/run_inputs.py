@@ -1,4 +1,6 @@
+import platform
 from hashlib import sha256
+from importlib.metadata import version
 from pathlib import Path
 
 from crew_health.kernel.commands import canonical_json
@@ -47,7 +49,10 @@ class HealthBenchInputs:
         harness["module_sha256"] = _hash(Path(healthbench_eval.__file__), self.maximum)
         release = load_release(self.release, self.schema, max_file_bytes=self.maximum)
         source = official_source(self.config_dir.parent / "vendor", max_file_bytes=self.maximum)
+        hardware, software = host_identity()
         manifest.update(
+            hardware=hardware,
+            software=software,
             model_release=dict(release.projection),
             decoding=release.projection["decoding"],
             harness=harness,
@@ -66,6 +71,22 @@ class HealthBenchInputs:
             raise BenchError("case_invalid")
         for name in BENCH_DOCUMENTS:
             load_document(self.config_dir / name, max_file_bytes=self.maximum)
+
+
+def host_identity() -> tuple[dict[str, object], dict[str, object]]:
+    """Hardware and software measured from this host, never typed by the operator (R22)."""
+    hardware: dict[str, object] = {
+        "system": platform.system(),
+        "release": platform.release(),
+        "machine": platform.machine(),
+        "processor": platform.processor() or "unreported",
+    }
+    software: dict[str, object] = {
+        "python": platform.python_version(),
+        "chc-bench": version("crew-health-bench"),
+        "crew-health": version("crew-health"),
+    }
+    return hardware, software
 
 
 def _hash(path: Path, maximum: int) -> str:
@@ -145,7 +166,10 @@ class SuiteInputs:
             else {"repository": "eval/runner (crew_health_harness)", "commit": self.harness_version}
         )
         release_config = {path.name: _hash(path, self.maximum) for path in self._release_files()}
+        hardware, software = host_identity()
         manifest.update(
+            hardware=hardware,
+            software=software,
             model_release=dict(release.projection),
             decoding=release.projection["decoding"],
             harness=harness,

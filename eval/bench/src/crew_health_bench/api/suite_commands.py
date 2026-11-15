@@ -226,6 +226,8 @@ class SuiteCommands:
             ids=self.ids,
             run_id=run_id,
             sleep=lambda quantity: sleep(float(quantity.value) / 1000),
+            config_release_id=text(manifest["config_release_id"]),
+            model_release_id=text(object_map(manifest["model_release"])["release_id"]),
         )
         products = {
             key: ProductCase(

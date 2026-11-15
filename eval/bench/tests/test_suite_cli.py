@@ -107,7 +107,7 @@ class Suite:
             "evidence_release_id": "none:stand-in hub",
             "evidence_sha256": "none:stand-in hub",
             "registry_version": "none:stand-in hub",
-            "config_release_id": "none:stand-in hub",
+            "config_release_id": "rel_20261113_a",
             "seed": "18",
             "repeats": repeats,
             "hardware": {"profile": "harness self test"},
@@ -264,7 +264,7 @@ def test_the_gate_names_a_stand_in_run_and_a_failed_release_verdict_is_final(
     manifest = json.loads((suite.space.published / honest / "run_manifest.json").read_bytes())
     assert stand_in_reason(manifest) == "harness commit " + stand_in.version + " is a stand-in"
     manifest["harness"]["commit"] = "0" * 40
-    assert stand_in_reason(manifest) == "config_release_id is none:stand-in hub"
+    assert stand_in_reason(manifest) == "evidence_release_id is none:stand-in hub"
     settings = BenchSettings(
         load_document(suite.space.config / "bench-settings.json", max_file_bytes=1 << 20)
     )
@@ -405,3 +405,25 @@ def test_holdout_plaintext_inside_the_repository_is_refused(
     scan = ["leak", "scan", "--fingerprints", str(fingerprints), "--target", "cases", str(inside)]
     assert suite.cli(*scan) == 3
     assert {row["kind"] for row in _last_json(capsys)["findings"]} >= {"canary"}  # type: ignore[union-attr]
+
+
+@pytest.mark.trace("E18-03", "R22", "T-E18-19")
+def test_a_hub_on_another_configuration_release_aborts_the_run_and_the_host_is_measured(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """M4: the configuration release comes from the hub's getConfigIndex at case start, never only from the
+    operator's input; hardware and software are measured from the host."""
+    suite = Suite(tmp_path, monkeypatch)
+    with suite.harness(HubScript(warning_level="emergency", config_release_id="rel_other")):
+        assert suite.suite("plan", "--manifest", str(suite.plan_input("system_assisted"))) == 0
+        run_id = str(_last_json(capsys)["run_id"])
+        manifest = json.loads((suite.space.runs / run_id / "manifest.json").read_bytes())
+        assert manifest["hardware"] != {"profile": "harness self test"}
+        assert {"machine", "system"} <= set(manifest["hardware"])
+        assert "python" in manifest["software"]
+        monkeypatch.delenv("CHC_EVAL_IDENTITY")
+        assert suite.suite("generate", "--run-id", run_id) == 4
+        problem = _problem(capsys)
+        assert problem["title"] == "drift" and "rel_other" in str(problem["detail"])
+    lines = (suite.space.runs / run_id / "state.jsonl").read_text("utf-8").splitlines()
+    assert json.loads(lines[-1])["record"]["state"] == "aborted"
