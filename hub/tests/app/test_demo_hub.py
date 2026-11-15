@@ -369,6 +369,38 @@ def test_shot_d_roles_propose_tomas_on_the_icl10_run_and_his_guided_check_starts
     assert status == 201, check
     assert (check["state"], check["teach_step_no"]) == ("teaching", 1)
     assert check["helper"] == {"person_id": "tomas", "display_name": "Tomas Lind"}
+    # Tomas works through the teach steps, starts the 60 s count and taps Beat; the hub records each tap.
+    checks = f"/v1/guided-checks/{check['guided_check_id']}"
+
+    def act(body: dict[str, object]) -> dict[str, object]:
+        _, current = served.get(checks, tomas)
+        revision = current["revision"]
+        assert isinstance(revision, int)
+        status, reply = served.hub.call(
+            "POST",
+            checks + "/actions",
+            token=tomas,
+            body={**body, "client_time": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")},
+            release=served.release(),
+            if_match=revision,
+        )
+        assert status == 200 and isinstance(reply, dict), reply
+        return reply
+
+    for step_no in (1, 2, 3):
+        assert act({"action": "step_done", "step_no": step_no})["teach_step_no"] == step_no + 1
+    counting = act({"action": "start_count"})
+    assert (counting["state"], counting["count_seconds"]) == ("counting", 60)
+    for sequence in (1, 2, 3):
+        status, beat = served.post(
+            checks + "/beats",
+            tomas,
+            {"sequence": sequence, "client_time": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")},
+        )
+        assert status == 200, beat
+        time.sleep(0.8)
+    status, now_counting = served.get(checks, tomas)
+    assert status == 200 and now_counting["beat_count"] == 3, now_counting
 
 
 def test_shot_e_help_opens_with_the_model_stopped(served: Served) -> None:
