@@ -47,13 +47,15 @@ try:
                         raw.decode("utf-8"),
                     )
                     migrations.append(module.name + "/adapters/migrations/" + resource.name)
-        for resource in (module.joinpath("replica.schema.json"),
-                         module.joinpath("schemas", "hub-settings.schema.json")):
+        # Every packaged schema the expected glob names: the replica schema and each schemas/*.json file.
+        packaged = module.joinpath("schemas")
+        nested = sorted(packaged.iterdir(), key=lambda item: item.name) if packaged.is_dir() else []
+        for prefix, resource in [("", module.joinpath("replica.schema.json"))] + [
+            ("schemas/", item) for item in nested if item.name.endswith(".json")
+        ]:
             if resource.is_file():
                 json.loads(resource.read_text(encoding="utf-8"))
-                schemas.append(module.name + "/" + (
-                    "schemas/" if resource.name == "hub-settings.schema.json" else ""
-                ) + resource.name)
+                schemas.append(module.name + "/" + prefix + resource.name)
     json.loads(root.joinpath("contracts_gen", "manifest.json").read_text(encoding="utf-8"))
     with db.snapshot() as view:
         count = view.connection.rows("SELECT count(*) FROM platform_migration", (), limit=1)
@@ -145,7 +147,8 @@ def settings_file(directory: Path) -> Path:
         {
             "key": spec.key,
             "kind": spec.kind,
-            "unit": None,
+            # An integer may carry its UCUM unit (E02's durations do); the document repeats the registered unit.
+            "unit": None if spec.unit is None else spec.unit.code,
             "minimum": None if spec.minimum is None else str(spec.minimum),
             "maximum": None if spec.maximum is None else str(spec.maximum),
             "basis": "installed wheel test profile at each registered maximum",

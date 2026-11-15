@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 from typing import Literal
 
 from crew_health.model.application.ports import LaunchSpec
@@ -37,7 +38,7 @@ class DevelopmentSupervisor:
             stderr=subprocess.DEVNULL,
             start_new_session=os.name != "nt",
         )
-        if os.name != "nt":
+        if sys.platform != "win32":
             os.setpriority(os.PRIO_PROCESS, self.process.pid, spec.nice)
 
     def disable(self, process_id: str) -> None:

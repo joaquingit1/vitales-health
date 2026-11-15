@@ -35,7 +35,8 @@ class LocationPort(Protocol):
     def location_of(self, person_id: str, at: datetime) -> str | None: ...
 
 
-# Provided by E02 (crew_health.identity); structural copy until it is on main.
+# Provided by E02 (crew_health.identity): the E02 design's roster seam. A served hub binds it to E02's roster under
+# this class (app/privacy.py RoutineRosterAdapter).
 @dataclass(frozen=True, slots=True)
 class RosterMember:
     person_id: str
@@ -44,7 +45,7 @@ class RosterMember:
     medical_officer_rank: int | None
 
 
-# Provided by E02 (crew_health.identity); structural copy until it is on main.
+# Provided by E02 (crew_health.identity), bound under this class by app/privacy.py.
 class RosterPort(Protocol):
     def crew(self, at: datetime) -> Sequence[RosterMember]: ...
     def members(self) -> Sequence[RosterMember]: ...
@@ -120,7 +121,7 @@ class HubClock(Protocol):
     def hub_time(self, uow: UnitOfWork, origin_mode: OriginMode) -> TimeInput | None: ...
 
 
-# Provided by E02 (crew_health.identity); structural copy until it is on main.
+# Provided by E02 (crew_health.identity), bound under this class by app/privacy.py (its header gate).
 class RequestAuthenticator(Protocol):
     def authenticate(self, headers: Mapping[str, str], operation_id: str) -> SessionContext: ...
 

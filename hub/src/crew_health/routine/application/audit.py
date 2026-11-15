@@ -1,4 +1,4 @@
-from crew_health.kernel.audit import AuditEntry
+from crew_health.kernel.audit import AuditEntry, AuditPolicy
 from crew_health.kernel.uow import UnitOfWork
 from crew_health.routine.application.deps import RoutineDeps
 
@@ -36,6 +36,23 @@ def audit_event_types() -> tuple[str, ...]:
             "duplicate_override",
             "mission_unavailable",
         )
+    )
+
+
+SOURCE_KINDS = frozenset({"warning", "mission_event", "overlay", "observation", "answer", "person"})
+
+
+def audit_policies() -> tuple[AuditPolicy, ...]:
+    """SYSTEM 5.8: one declared policy per routine audit event type. The platform audit log refuses any entry
+    whose type has no registered policy (INVALID_VALUE), so module.register declares every one of them."""
+    return tuple(
+        AuditPolicy(
+            event_type,
+            {"code": frozenset({event_type.removeprefix("routine.")}), "source_kind": SOURCE_KINDS},
+            frozenset(),
+            {},
+        )
+        for event_type in audit_event_types()
     )
 
 

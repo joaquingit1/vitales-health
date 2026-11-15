@@ -1,5 +1,5 @@
 {
-  "version": "part-a-d12-2",
+  "version": "part-a-d12-d22-3",
   "edits": [
     {
       "id": "d12-unit-mapping-schema",
@@ -86,6 +86,138 @@
       "pointer": "/properties/documents/maxItems",
       "expected": 18,
       "value": 19
+    },
+    {
+      "id": "d22-config-kit-map-1",
+      "decision": "D22",
+      "a3": [
+        "api/schemas/config-kit-map.schema.json:389"
+      ],
+      "op": "replace",
+      "target": "api/schemas/config-kit-map.schema.json",
+      "pointer": "/properties/conditions/items/properties/condition_id/pattern",
+      "expected": "^ICL[1-9][0-9]{0,2}$",
+      "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+    },
+    {
+      "id": "d22-config-onboard-plans-1",
+      "decision": "D22",
+      "a3": [
+        "api/schemas/config-onboard-plans.schema.json:95"
+      ],
+      "op": "replace",
+      "target": "api/schemas/config-onboard-plans.schema.json",
+      "pointer": "/properties/plans/items/properties/scope/oneOf/0/properties/condition_id/pattern",
+      "expected": "^ICL[1-9][0-9]{0,2}$",
+      "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+    },
+    {
+      "id": "d22-kit-check-1",
+      "decision": "D22",
+      "a3": [
+        "api/schemas/kit-check.schema.json:31"
+      ],
+      "op": "replace",
+      "target": "api/schemas/kit-check.schema.json",
+      "pointer": "/properties/condition_ids/items/pattern",
+      "expected": "^ICL[1-9][0-9]{0,2}$",
+      "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+    },
+    {
+      "id": "d22-kit-map-view-1",
+      "decision": "D22",
+      "a3": [
+        "api/schemas/kit-map-view.schema.json:164"
+      ],
+      "op": "replace",
+      "target": "api/schemas/kit-map-view.schema.json",
+      "pointer": "/properties/conditions/items/properties/condition_id/pattern",
+      "expected": "^ICL[1-9][0-9]{0,2}$",
+      "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+    },
+    {
+      "id": "d22-kit-map-view-2",
+      "decision": "D22",
+      "a3": [
+        "api/schemas/kit-map-view.schema.json:363"
+      ],
+      "op": "replace",
+      "target": "api/schemas/kit-map-view.schema.json",
+      "pointer": "/properties/plans_to_write/items/pattern",
+      "expected": "^ICL[1-9][0-9]{0,2}$",
+      "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+    },
+    {
+      "id": "d22-kit-map-what-if-1",
+      "decision": "D22",
+      "a3": [
+        "api/schemas/kit-map-what-if.schema.json:156"
+      ],
+      "op": "replace",
+      "target": "api/schemas/kit-map-what-if.schema.json",
+      "pointer": "/properties/changed/items/properties/condition_id/pattern",
+      "expected": "^ICL[1-9][0-9]{0,2}$",
+      "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+    },
+    {
+      "id": "d22-kit-map-what-if-2",
+      "decision": "D22",
+      "a3": [
+        "api/schemas/kit-map-what-if.schema.json:253"
+      ],
+      "op": "replace",
+      "target": "api/schemas/kit-map-what-if.schema.json",
+      "pointer": "/properties/plans_changed/items/properties/condition_id/anyOf/0/pattern",
+      "expected": "^ICL[1-9][0-9]{0,2}$",
+      "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+    },
+    {
+      "id": "d22-model-action-1",
+      "decision": "D22",
+      "a3": [
+        "api/schemas/model-action.schema.json:89"
+      ],
+      "op": "replace",
+      "target": "api/schemas/model-action.schema.json",
+      "pointer": "/oneOf/1/properties/condition_ids/items/pattern",
+      "expected": "^ICL[1-9][0-9]{0,2}$",
+      "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+    },
+    {
+      "id": "d22-plan-view-1",
+      "decision": "D22",
+      "a3": [
+        "api/schemas/plan-view.schema.json:21"
+      ],
+      "op": "replace",
+      "target": "api/schemas/plan-view.schema.json",
+      "pointer": "/properties/condition_id/anyOf/0/pattern",
+      "expected": "^ICL[1-9][0-9]{0,2}$",
+      "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+    },
+    {
+      "id": "d22-plan-view-2",
+      "decision": "D22",
+      "a3": [
+        "api/schemas/plan-view.schema.json:968"
+      ],
+      "op": "replace",
+      "target": "api/schemas/plan-view.schema.json",
+      "pointer": "/allOf/0/oneOf/0/properties/condition_id/pattern",
+      "expected": "^ICL[1-9][0-9]{0,2}$",
+      "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
+    },
+    {
+      "id": "d22-requests-1",
+      "decision": "D22",
+      "a3": [
+        "api/schemas/requests.schema.json:681"
+      ],
+      "op": "replace",
+      "target": "api/schemas/requests.schema.json",
+      "pointer": "/$defs/MeasurementRequestCreate/properties/condition_ids/items/pattern",
+      "expected": "^ICL[1-9][0-9]{0,2}$",
+      "value": "^ICL[1-9][0-9]{0,2}[A-Z]?$"
     }
   ]
 }

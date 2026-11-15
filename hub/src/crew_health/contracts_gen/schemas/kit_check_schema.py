@@ -7,7 +7,7 @@ from . import common_schema
 
 
 class ConditionId(RootModel[str]):
-    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
+    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}[A-Z]?$")
 
 
 class KitCheck(BaseModel):

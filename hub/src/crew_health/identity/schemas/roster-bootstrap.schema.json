@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "roster-bootstrap.schema.json",
+  "title": "Roster bootstrap",
+  "description": "The whole roster of one mission namespace as one document, applied by the operator at the hub console (E02 3 and 4). Members absent from a later document are removed and their sessions end. Patterns are copied from common.schema.json; the domain checks uniqueness, order, officer ranks and bounds again before any write.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "mission_id", "namespace", "members", "principals"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "mission_id": {"$ref": "#/$defs/id"},
+    "namespace": {"enum": ["LIVE", "REPLAY", "SIM"], "description": "origin_mode of common.schema.json."},
+    "members": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "description": "Crew persons in roster order. maxItems is the identity.roster_max setting's upper bound.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "person_id",
+          "display_name",
+          "roster_index",
+          "on_roster_from_day",
+          "on_roster_until_day",
+          "medical_officer_rank"
+        ],
+        "properties": {
+          "person_id": {"$ref": "#/$defs/id"},
+          "display_name": {"$ref": "#/$defs/display_name"},
+          "roster_index": {"type": "integer", "minimum": 0, "maximum": 4095},
+          "on_roster_from_day": {"type": "integer", "description": "mission_day of common.schema.json."},
+          "on_roster_until_day": {"type": ["integer", "null"]},
+          "medical_officer_rank": {
+            "anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}],
+            "description": "As crew-member.schema.json: 1 for the crew medical officer, 2 for the second, null for other crew."
+          }
+        }
+      }
+    },
+    "principals": {
+      "type": "array",
+      "maxItems": 64,
+      "description": "Non-person principals. At most one each of station, ground, operator and editor; adapters may repeat.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["principal_id", "kind", "display_name"],
+        "properties": {
+          "principal_id": {"$ref": "#/$defs/id"},
+          "kind": {"enum": ["station", "ground", "operator", "editor", "adapter"]},
+          "display_name": {"$ref": "#/$defs/display_name"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "display_name": {"type": "string", "minLength": 1, "maxLength": 256}
+  }
+}

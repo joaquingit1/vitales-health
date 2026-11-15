@@ -1,0 +1,191 @@
+"""E15 section 4.2 canonical ports and consumer-owned optional seams.
+
+All public DTOs remain independent of domain/adapters so consumers can import these exact class objects.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Protocol
+
+from crew_health.episodes.application.dto import (
+    Answer,
+    CrewMember,
+    EpisodeFact,
+    EpisodeRef,
+    EpisodeToolFacts,
+    NewEpisode,
+    ObservationFact,
+    Viewer,
+)
+from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
+
+type View = ReadSnapshot | UnitOfWork
+type EpisodeView = dict[str, object]
+
+
+class RecordAuthorization(Protocol):
+    """Exact E01 records read seam; its owner module currently imports its own domain."""
+
+    def require_read(
+        self,
+        view: ReadSnapshot | UnitOfWork,
+        session: SessionContext,
+        *,
+        object_ref: str,
+        patient_id: str,
+        fields: frozenset[str],
+    ) -> None: ...
+
+
+@dataclass(frozen=True, slots=True)
+class DeliveredEpisodeProjection:
+    handoff_id: str
+    content_sha256: str
+    episode_id: str
+    recipient_id: str
+    selected_fields: frozenset[str]
+    body_json: bytes
+    original_at: datetime
+    delivered_at: datetime
+
+
+class DeliveredEpisodeReader(Protocol):
+    """E16 implements this consumer-owned seam. Recheck the recipient's current field grant.
+
+    Only delivered, immutable, approved bytes may be returned. The body contains precisely
+    selected_fields. Live rows, queued bundles and unapproved catch-up data never qualify.
+    """
+
+    def read(
+        self, view: ReadSnapshot | UnitOfWork, session: SessionContext, *, episode_id: str
+    ) -> DeliveredEpisodeProjection | None: ...
+
+
+class EpisodeKernel(Protocol):
+    def create(self, uow: UnitOfWork, draft: NewEpisode) -> EpisodeRef: ...
+    def facts(self, uow: UnitOfWork, episode_id: str) -> EpisodeFact | None: ...
+    def record_route(
+        self, uow: UnitOfWork, episode_id: str, module_id: str, area_answer_id: str, at: datetime
+    ) -> None: ...
+    def view(self, uow: UnitOfWork, viewer: Viewer, episode_id: str) -> EpisodeView: ...
+
+
+class EpisodeFacts(Protocol):
+    def get(self, uow: UnitOfWork, episode_id: str) -> EpisodeFact | None: ...
+    def visible_to(self, uow: UnitOfWork, episode_id: str, actor: Actor) -> bool: ...
+    def episode_of(self, uow: UnitOfWork, kind: str, ref_id: str) -> str | None: ...
+
+
+class EpisodeFactsPort(Protocol):
+    def facts(self, uow: UnitOfWork, episode_id: str, sections: frozenset[str]) -> EpisodeToolFacts: ...
+    def subject_of(self, uow: UnitOfWork, episode_id: str) -> str | None: ...
+
+
+class RefCheckPort(Protocol):
+    def visible(self, ref_id: str, actor: Actor) -> bool: ...
+
+
+class EpisodeReader(Protocol):
+    def subject_of(self, episode_id: str) -> str | None: ...
+    def visible(self, session: SessionContext, episode_id: str) -> EpisodeRef | None: ...
+
+
+class EpisodeRecordsSource(Protocol):
+    def items(self, uow: UnitOfWork, person_id: str, cursor: str | None, limit: int) -> dict[str, object]: ...
+
+
+class QuestionSensitivity(Protocol):
+    def is_restricted(self, questionnaire_version: str, question_id: str) -> bool: ...
+
+
+class IntakeGaps(Protocol):
+    def not_answered(self, uow: UnitOfWork, episode_id: str) -> tuple[str, ...]: ...
+
+
+class AnswerStore(Protocol):
+    def for_episode(self, uow: View, episode_id: str) -> Sequence[Answer]: ...
+    def question_ids_answered(self, uow: UnitOfWork, episode_id: str) -> frozenset[str]: ...
+    def heads(self, uow: UnitOfWork, episode_id: str) -> Mapping[str, Answer]: ...
+
+
+class ObservationFacts(Protocol):
+    def get(self, uow: UnitOfWork, observation_id: str) -> ObservationFact | None: ...
+
+
+class UrgencyQueries(Protocol):
+    def summary(self, uow: View, episode_id: str) -> object: ...
+    def blocks_resolution(self, uow: UnitOfWork, episode_id: str) -> bool: ...
+
+
+class AssessmentFacts(Protocol):
+    def citing(self, uow: View, episode_id: str, record_ids: Sequence[str]) -> Sequence[str]: ...
+    def ids_for_episode(self, uow: View, episode_id: str) -> Sequence[str]: ...
+
+
+class AssessmentCommands(Protocol):
+    def mark_stale(self, uow: UnitOfWork, assessment_id: str, cause_ref: str) -> None: ...
+    def mark_reviewed(self, uow: UnitOfWork, assessment_id: str, review_id: str) -> None: ...
+
+
+class RosterPort(Protocol):
+    def crew(self, at: datetime) -> Sequence[CrewMember]: ...
+
+
+class ConsentQueries(Protocol):
+    def allows(self, uow: View, subject_id: str, recipient_id: str, scope: tuple[str, str]) -> bool: ...
+
+
+class OriginNamespace(Protocol):
+    def origin(self, uow: View, patient_id: str, mission_id: str) -> str | None: ...
+
+
+class MissionClock(Protocol):
+    def day_end(self, instant: datetime) -> datetime: ...
+
+
+class DayLabelPort(Protocol):
+    def inline_label_at(self, instant: datetime) -> str: ...
+
+
+class SessionAuthenticator(Protocol):
+    def authenticate(self, headers: Mapping[str, str], operation_id: str) -> SessionContext | None: ...
+
+
+class CommandFingerprint(Protocol):
+    def fingerprint(self, canonical_body: bytes) -> str: ...
+
+
+class GapFacts(Protocol):
+    def for_episode(self, uow: View, episode_id: str) -> Sequence[Mapping[str, object]]: ...
+
+
+@dataclass(frozen=True, slots=True)
+class SelectedEpisodeField:
+    field_id: str
+    label: str
+    value_text: str | None
+    source_refs: tuple[str, ...]
+    observed_at: datetime
+    missing_reason: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class SelectedEpisodeSnapshot:
+    episode_id: str
+    subject_person_id: str
+    revision: int
+    origin_mode: str
+    config_release_id: str
+    config_sha256: str
+    fields: tuple[SelectedEpisodeField, ...]
+
+
+class SelectedEpisodeFacts(Protocol):
+    """E16 selected handoff source. No journal, arbitrary chart or unapproved answer values."""
+
+    def read(
+        self, view: ReadSnapshot, session: SessionContext, *, episode_id: str, fields: frozenset[str]
+    ) -> SelectedEpisodeSnapshot: ...

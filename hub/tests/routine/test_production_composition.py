@@ -28,6 +28,7 @@ from httpx import ASGITransport, AsyncClient
 
 from crew_health.app.assembly import BuildCatalog
 from crew_health.app.installed_modules import REGISTRATIONS
+from crew_health.app.privacy import RoutineRosterAdapter
 from crew_health.app.registry import ModuleRegistry
 from crew_health.clock.application.history import MissionClockService
 from crew_health.kernel.met import MissionClock, MissionClockVersion
@@ -38,6 +39,7 @@ from crew_health.routine import module as routine_module
 from crew_health.routine.adapters.hub_clock import SharedHubClock
 from crew_health.routine.adapters.record_facts import SharedRecordFacts
 from crew_health.routine.application import ports
+from crew_health.routine.application.audit import audit_event_types
 from crew_health.routine.application.ports import RoutineQueries
 from crew_health.routine.application.seams import SEAMS
 from crew_health.routine.domain import vocabulary
@@ -284,3 +286,90 @@ def _get(app: FastAPI, path: str) -> tuple[int, str]:
             return response.status_code, str(body.get("code", body.get("status")))
 
     return asyncio.run(call())
+
+
+def test_every_routine_audit_type_is_declared_and_a_served_refusal_appends_it(
+    tmp_path: Path, station_resources: Path
+) -> None:
+    """SYSTEM 5.8: the platform audit log refuses an entry whose type has no registered policy (INVALID_VALUE).
+    Routine declares one per audit type in module.register; a served refusal proves the assembly installed them:
+    completing one's own occurrence with an unknown linked observation is refused UNAUTHORIZED_SCOPE, and the
+    refusal's `routine.unauthorized` audit entry is appended to the hash chained log."""
+    hub, app, _ = _started(tmp_path, station_resources)
+    declared = set(app.state.runtime.database.audit_policies)
+    assert set(audit_event_types()) <= declared
+    with hub.db.snapshot() as view:
+        [(occurrence_id,)] = view.connection.rows(
+            "SELECT occurrence_id FROM routine_occurrence WHERE person_id='person_sim' LIMIT 1", (), limit=1
+        )
+        before = view.connection.rows("SELECT count(*) FROM platform_audit", (), limit=1)[0][0]
+
+    async def act() -> tuple[int, str]:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://station") as client:
+            response = await client.post(
+                f"/v1/routine/occurrences/{occurrence_id}/actions",
+                headers={
+                    "Authorization": "Bearer crew",
+                    "Idempotency-Key": "key_e25_audit_1",
+                    "If-Match": '"1"',
+                },
+                json={"action": "complete", "observation_ids": ["obs_not_recorded"]},
+            )
+            return response.status_code, str(response.json().get("code"))
+
+    assert asyncio.run(act()) == (403, "UNAUTHORIZED_SCOPE")
+    with hub.db.snapshot() as view:
+        rows = view.connection.rows(
+            "SELECT envelope FROM platform_audit WHERE seq > ? ORDER BY seq", (before,), limit=100
+        )
+    assert any(b"routine.unauthorized" in bytes(row[0]) for row in rows)
+
+
+def _e02_station() -> ModuleType:
+    """E02's served station (hub/tests/privacy): app/station.py `production`, so the E02 composition of
+    app/privacy.py, with every installed module and E02's real identity and consent."""
+    spec = importlib.util.spec_from_file_location(
+        "e25_e02_station", APP_TESTS.parent / "privacy" / "e02_station.py"
+    )
+    assert spec is not None and spec.loader is not None
+    loaded = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = loaded
+    spec.loader.exec_module(loaded)
+    return loaded
+
+
+def test_a_served_hub_binds_routine_to_the_e02_roster_and_session_gate(tmp_path: Path) -> None:
+    """With E02 installed, routine's roster and request authenticator resolve to E02's real services through
+    app/privacy.py; only the seams whose epics are not on main (E23 mission and location, visibility, E24
+    warnings) stay missing. A signed-in crew member reaches routine through E02's session; the mission port is
+    still absent, so today refuses with CAPABILITY_UNAVAILABLE instead of a 401 or a fault."""
+    e02 = _e02_station()
+    hub = e02.station(tmp_path)
+    running = e02.serve(hub)
+    routine = running.app.state.runtime.resolver.require(RoutineQueries)
+    assert isinstance(routine, routine_module.RoutineRuntime)
+    assert isinstance(routine.engine.deps.roster, RoutineRosterAdapter)
+    assert routine.authenticator is not None
+    assert "roster" not in routine.missing
+    expected = {member.person_id for member in e02.sim_members()}
+    assert routine.engine.deps.roster.person_ids() == frozenset(expected)
+    person = sorted(expected)[0]
+
+    async def today() -> tuple[int, str]:
+        async with AsyncClient(
+            transport=ASGITransport(app=running.app), base_url="http://station:8080"
+        ) as client:
+            signed = await client.post(
+                "/v1/sessions",
+                json={"kind": "crew", "credential": e02.credential(person), "person_id": person},
+            )
+            assert signed.status_code == 201, signed.text
+            token = signed.json()["token"]
+            response = await client.get("/v1/routine/today", headers={"Authorization": "Bearer " + token})
+            unauthenticated = await client.get("/v1/routine/today")
+            assert unauthenticated.status_code == 401, unauthenticated.text
+            return response.status_code, str(response.json().get("code"))
+
+    assert asyncio.run(today()) == (422, "CAPABILITY_UNAVAILABLE")
+    snap = running.app.state.runtime.resolver.require(HealthState).snapshot()
+    assert snap.status == "ok", [(c.component, c.code) for c in snap.components if c.code]

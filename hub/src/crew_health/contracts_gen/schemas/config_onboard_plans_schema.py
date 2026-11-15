@@ -39,7 +39,7 @@ class Scope(BaseModel):
     condition_id: str = Field(
         ...,
         description="ICL row ID as in condition-assessments-119.csv.",
-        pattern="^ICL[1-9][0-9]{0,2}$",
+        pattern="^ICL[1-9][0-9]{0,2}[A-Z]?$",
     )
 
 

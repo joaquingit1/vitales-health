@@ -89,6 +89,26 @@ class HttpSecurity(Protocol):
     def authorize(self, session: SessionContext, operation_id: str) -> None: ...
 
 
+class RegisteredSecurity:
+    """The HttpSecurity the composition registered under `HttpSecurity` (E02 identity, app/privacy.py). It is read
+    on each request from the resolved runtime; before resolution, or when nothing is registered, every request is
+    refused (DenySecurity)."""
+
+    def __init__(self, runtime: Runtime) -> None:
+        self.runtime = runtime
+
+    def _target(self) -> HttpSecurity:
+        resolver = self.runtime.resolver
+        value = None if resolver is None else resolver.optional(HttpSecurity)  # type: ignore[type-abstract]
+        return DenySecurity() if value is None else value
+
+    def authenticate(self, request: Request) -> SessionContext:
+        return self._target().authenticate(request)
+
+    def authorize(self, session: SessionContext, operation_id: str) -> None:
+        self._target().authorize(session, operation_id)
+
+
 class DenySecurity:
     def authenticate(self, request: Request) -> SessionContext:
         raise ProblemError(ErrorCode.UNAUTHENTICATED, ErrorCode.UNAUTHENTICATED.value)
@@ -189,6 +209,7 @@ def _identity(request: Request, session: SessionContext, operation: str, target:
 def _record_router(runtime: Runtime, services: RecordHttpServices, executor: CommandExecutor) -> APIRouter:
     def record(request: Request, session: SessionContext, value: ObservationInput) -> ObservationRecord:
         identity = _identity(request, session, "recordObservation", "/v1/observations")
+        accepted: list[ObservationRecord] = []
 
         def apply(uow: UnitOfWork) -> StoredResult:
             release = request.headers.get("Config-Release")
@@ -198,11 +219,16 @@ def _record_router(runtime: Runtime, services: RecordHttpServices, executor: Com
             receipt = CommandLedger(runtime.database.ids, settings=runtime.database.settings).accepted(
                 uow, identity
             )
+            accepted.append(result)
             return StoredResult(receipt, 201, result.observation_id, "accepted", None)
 
         result = executor.execute(session, identity, apply)
         if result.resource_ref is None:
             raise ProblemError(ErrorCode.INTERNAL_ERROR, ErrorCode.INTERNAL_ERROR.value)
+        if accepted and accepted[-1].observation_id == result.resource_ref:
+            # E02 3.4: the capture command returns what it just accepted, once, to the capturing session. That is
+            # not a read grant: a replay or any later read goes through the reader's current read authorization.
+            return accepted[-1]
         with runtime.database.snapshot() as view:
             return services.queries.observation(view, session, result.resource_ref)
 
@@ -757,7 +783,7 @@ def create_app(
     runtime = Runtime(database)
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     app.state.runtime = runtime
-    access = security or DenySecurity()
+    access = security or RegisteredSecurity(runtime)
     catalog: OperationCatalog | None = None
     try:
         verify_base(contract_path.parents[2])

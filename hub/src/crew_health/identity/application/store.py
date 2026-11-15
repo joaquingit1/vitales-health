@@ -1,0 +1,86 @@
+"""Outbound ports of the identity module, implemented in `identity/adapters` (E02 4 and 5)."""
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Protocol
+
+from crew_health.identity.application.ports import RosterEntry
+from crew_health.identity.domain.limits import Bucket, BucketScope
+from crew_health.identity.domain.roster import Namespace, RosterBootstrap
+from crew_health.identity.domain.session import EndReason, PrincipalKind, SessionRecord
+from crew_health.kernel.storage import StorageSession
+
+
+@dataclass(frozen=True, slots=True)
+class Principal:
+    principal_id: str
+    kind: PrincipalKind
+    person_id: str | None
+    mission_id: str
+    display_name: str
+    verifier: str | None
+    generation: int
+    enabled: bool
+
+
+@dataclass(frozen=True, slots=True)
+class RosterState:
+    mission_id: str
+    namespace: Namespace
+    revision: int
+
+
+class CredentialHasher(Protocol):
+    """Argon2id verifier: one bounded computation per call, never a key derivation for private data."""
+
+    def hash(self, secret: str) -> str: ...
+    def verify(self, verifier: str | None, secret: str) -> bool: ...
+
+
+class TokenSource(Protocol):
+    def new_token(self) -> str: ...
+    def digest(self, token: str) -> str: ...
+
+
+class IdentityStore(Protocol):
+    def roster_state(self, connection: StorageSession) -> RosterState | None: ...
+    def save_roster_state(self, connection: StorageSession, state: RosterState) -> None: ...
+    def apply_roster(
+        self, connection: StorageSession, document: RosterBootstrap, *, removed_at: datetime
+    ) -> tuple[str, ...]: ...
+    def roster(
+        self, connection: StorageSession, *, day: int, after_index: int | None, limit: int
+    ) -> tuple[RosterEntry, ...]: ...
+    def roster_member(
+        self, connection: StorageSession, person_id: str, *, day: int
+    ) -> RosterEntry | None: ...
+    def principal(self, connection: StorageSession, principal_id: str) -> Principal | None: ...
+    def principal_for_kind(self, connection: StorageSession, kind: PrincipalKind) -> Principal | None: ...
+    def set_verifier(
+        self, connection: StorageSession, principal_id: str, verifier: str, generation: int
+    ) -> None: ...
+    def session_by_digest(self, connection: StorageSession, digest: str) -> SessionRecord | None: ...
+    def session_by_id(self, connection: StorageSession, session_id: str) -> SessionRecord | None: ...
+    def live_sessions(
+        self, connection: StorageSession, *, principal_id: str | None, now: datetime, limit: int
+    ) -> tuple[SessionRecord, ...]: ...
+    def count_live(self, connection: StorageSession, *, now: datetime) -> int: ...
+    def insert_session(self, connection: StorageSession, record: SessionRecord, digest: str) -> None: ...
+    def end_session(
+        self, connection: StorageSession, session_id: str, *, at: datetime, reason: EndReason
+    ) -> bool: ...
+    def stale_epoch_sessions(
+        self, connection: StorageSession, *, process_epoch: str, limit: int
+    ) -> tuple[str, ...]: ...
+    def bump_access_generation(self, connection: StorageSession) -> int: ...
+    def access_generation(self, connection: StorageSession) -> int: ...
+    def buckets(
+        self, connection: StorageSession, keys: Sequence[tuple[BucketScope, str]]
+    ) -> tuple[Bucket, ...]: ...
+    def count_buckets(self, connection: StorageSession) -> int: ...
+    def oldest_buckets(self, connection: StorageSession, *, limit: int) -> tuple[Bucket, ...]: ...
+    def save_bucket(self, connection: StorageSession, bucket: Bucket) -> None: ...
+    def delete_bucket(self, connection: StorageSession, bucket: Bucket) -> None: ...

@@ -9,7 +9,7 @@ from . import common_schema
 
 
 class PlanView1(BaseModel):
-    condition_id: str | None = Field(None, pattern="^ICL[1-9][0-9]{0,2}$")
+    condition_id: str | None = Field(None, pattern="^ICL[1-9][0-9]{0,2}[A-Z]?$")
     flow_id: None = Field(None)
 
 
@@ -19,7 +19,7 @@ class PlanView2(BaseModel):
 
 
 class ConditionId(RootModel[str]):
-    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
+    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}[A-Z]?$")
 
 
 class TextFirstTime(RootModel[str]):
@@ -565,7 +565,7 @@ class PlanView4(BaseModel):
 
 
 class ConditionId6(RootModel[str]):
-    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
+    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}[A-Z]?$")
 
 
 class Recheck7(BaseModel):

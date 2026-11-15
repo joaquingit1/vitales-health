@@ -58,7 +58,6 @@ from crew_health.platform.testing.sqlite import test_settings as platform_settin
 from crew_health.records.adapters.repository import RecordRepository
 from crew_health.routine import module
 from crew_health.routine.adapters.sqlite_repository import migration_sql
-from crew_health.routine.application.audit import audit_event_types
 from crew_health.routine.application.deps import RoutineDeps
 from crew_health.routine.application.ports import (
     HubClock,
@@ -237,25 +236,15 @@ class RoutineHarness:
             encoding="utf-8"
         )
         self.db.migrate_tracked("routine.0002", sha256(sql.encode()).hexdigest(), sql)
-        for event_type in audit_event_types():
-            self.db.register_audit_policy(
-                AuditPolicy(
-                    event_type,
-                    {
-                        "code": frozenset({event_type.removeprefix("routine.")}),
-                        "source_kind": frozenset(
-                            {"warning", "mission_event", "overlay", "observation", "answer", "person"}
-                        ),
-                    },
-                    frozenset(),
-                    {},
-                )
-            )
         self.ledger = CommandLedger(self.ids, settings=self.settings)
         self._clock_history(initialize)
         self.registry = DeclarationRegistry(max_ports=64, max_hooks=256)
         self._providers()
         module.register(self.registry)
+        # The module's own declared policies, as the assembly installs them: an audit type routine appends
+        # without a declaration fails here exactly as it does in a served hub (INVALID_VALUE).
+        for policy in self.registry.declarations.get("audit_policies", {}).values():
+            self.db.register_audit_policy(cast(AuditPolicy, policy))
         self._handlers()
         self.resolver = self.registry.resolve()
         for key, callback in sorted(

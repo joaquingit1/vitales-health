@@ -43,7 +43,7 @@ from crew_health.routine.adapters.sqlite_repository import SqliteRoutineStore
 from crew_health.routine.adapters.wire_inputs import parse_input
 from crew_health.routine.api.router import build_router
 from crew_health.routine.application.actions import RoutineActions
-from crew_health.routine.application.audit import audit
+from crew_health.routine.application.audit import audit, audit_policies
 from crew_health.routine.application.checks import CheckNotifications
 from crew_health.routine.application.deps import RoutineDeps
 from crew_health.routine.application.engine import RoutineEngine
@@ -367,6 +367,8 @@ def register(registry: ModuleRegistry) -> None:
     registry.router(build_router(runtime, runtime, runtime.authenticate))
     for spec in specs():
         registry.setting(spec)
+    for policy in audit_policies():
+        registry.audit_policy(policy)
     for record_type, prefix in (
         ("routine_occurrence", "ro"),
         ("routine_override", "rov"),
