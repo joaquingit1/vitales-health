@@ -16,7 +16,9 @@ from crew_health.kernel.errors import ErrorCode
 from crew_health.reports.domain.errors import ReportError
 
 type MediaKind = Literal["pdf", "png", "jpeg"]
-type QuarantineReason = Literal["type_mismatch", "truncated", "active_content"]
+type QuarantineReason = Literal[
+    "type_mismatch", "truncated", "active_content", "corrupt", "over_bounds", "unverified"
+]
 
 MEDIA_TYPES: Final[dict[MediaKind, str]] = {
     "pdf": "application/pdf",
@@ -88,3 +90,10 @@ def check_media(data: bytes, *, declared_type: str | None, max_bytes: int) -> Me
         raise ReportError(ErrorCode.UNSUPPORTED_MEDIA_TYPE, "unsupported_media")
     reason = _quarantine_reason(kind, data, declared_type)
     return MediaDecision("accepted" if reason is None else "quarantined", kind, MEDIA_TYPES[kind], reason)
+
+
+def quarantine_after_inspection(decision: MediaDecision, reason: QuarantineReason | None) -> MediaDecision:
+    """The decode inspection (contained parser, T2) can only add a quarantine, never lift one."""
+    if reason is None or decision.state == "quarantined":
+        return decision
+    return MediaDecision("quarantined", decision.kind, decision.media_type, reason)

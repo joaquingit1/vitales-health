@@ -9,19 +9,35 @@ a finding; reuse of a key with another body is the boundary's CommandIdentity co
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from decimal import Decimal
 
 from crew_health.kernel.audit import AuditEntry
 from crew_health.kernel.clock import Clock
-from crew_health.kernel.commands import CommandIdentity, CommandReceipts, IdempotencyStore, StoredResult
+from crew_health.kernel.commands import (
+    CommandIdentity,
+    CommandReceipts,
+    IdempotencyStore,
+    StoredResult,
+    canonical_json,
+    command_identity,
+)
 from crew_health.kernel.config import ConfigReleaseReader, ReleaseHandle
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.ids import IdFactory, require_id
 from crew_health.kernel.settings import HubSettings
-from crew_health.kernel.tasks import TaskLease, TaskResult, TaskRunner
+from crew_health.kernel.tasks import TaskInput, TaskLease, TaskQueue, TaskResult, TaskRunner
 from crew_health.kernel.units import UnitRegistry
-from crew_health.kernel.uow import Actor, ReadSnapshotFactory, SessionContext, UnitOfWork, UnitOfWorkFactory
+from crew_health.kernel.uow import (
+    Actor,
+    Audience,
+    AudienceProjectionKey,
+    ReadSnapshotFactory,
+    SessionContext,
+    UnitOfWork,
+    UnitOfWorkFactory,
+)
 from crew_health.reports.application.access import require_owner_session, require_report_owner
 from crew_health.reports.application.ports import (
     ConfirmationLineage,
@@ -46,7 +62,12 @@ from crew_health.reports.domain.extraction import (
     publish_extraction,
 )
 from crew_health.reports.domain.findings import Provenance, SpecialistEntry, validate_entry
-from crew_health.reports.domain.media import check_media, sha256_hex
+from crew_health.reports.domain.media import (
+    QuarantineReason,
+    check_media,
+    quarantine_after_inspection,
+    sha256_hex,
+)
 from crew_health.reports.domain.model import (
     ConfirmedFinding,
     Report,
@@ -55,6 +76,10 @@ from crew_health.reports.domain.model import (
     parse_source_date,
 )
 
+EXTRACTION_TASK = "report_extraction"
+REPORT_AUDIENCE = "reports.owner"
+REPORT_AUDIENCE_POLICY = "owner_current_grant"
+REPORT_PROJECTION = AudienceProjectionKey("reports", "report", 1)
 _MAX_NAME_CHARS = 255  # file-name length bound shared by the supported platforms; no domain meaning
 
 
@@ -76,11 +101,33 @@ class ReportPorts:
     clock: Clock
     settings: HubSettings
     limits: ReportLimits
+    inspector: Callable[[str, bytes], QuarantineReason | None] | None = None
+    queue: TaskQueue | None = None
+    extraction_version: str = "report-extract-1"
 
 
 def _check_name(name: str) -> None:
     if not name or len(name) > _MAX_NAME_CHARS or any(ord(char) < 32 for char in name):
         raise invalid_value("original_name", field="file")
+
+
+def _request_digest(command: ConfirmationCommand) -> str:
+    """The request body of a confirmation as a digest: part of the command identity (SYSTEM 5.8)."""
+    body = [
+        [
+            d.draft_id,
+            d.decision,
+            None if d.value is None else str(d.value),
+            d.unit,
+            None if d.date is None else d.date.isoformat(),
+        ]
+        for d in command.decisions
+    ]
+    expected = (
+        None if command.expected is None else [command.expected.revision, command.expected.source_version_id]
+    )
+    asserted = command.asserted_patient_id
+    return hashlib.sha256(canonical_json([body, expected, asserted])).hexdigest()
 
 
 class _Replay(Exception):  # noqa: N818  # control signal inside one apply, never crosses the module
@@ -113,6 +160,9 @@ class ReportWorkflows:
         decision = check_media(
             data, declared_type=declared_type, max_bytes=self.p.settings.integer("private.max_report_bytes")
         )
+        decision = quarantine_after_inspection(
+            decision, None if self.p.inspector is None else self.p.inspector(decision.kind, data)
+        )
         digest = sha256_hex(data)
         report_id = self.p.ids.derived("rpt", person, key)
         existing = self.p.store.load(session, report_id)
@@ -141,7 +191,9 @@ class ReportWorkflows:
             (),
             None,
         )
-        self.p.store.store_new(session, key=key, report=report, source=data)
+        self.p.store.store_new(
+            session, key=key, report=report, source=data, apply=self._submit_extraction(report, key)
+        )
         return report
 
     def get_report(self, session: SessionContext, report_id: str) -> Report:
@@ -156,7 +208,7 @@ class ReportWorkflows:
         self, session: SessionContext, lease: TaskLease, result: ExtractionResult
     ) -> Report:
         """D17/D18: a draft is published only by the current generation, pinned to the source version."""
-        if lease.task.public_kind != "report_extraction" or lease.task.actor.kind != "person":
+        if lease.task.handler != EXTRACTION_TASK or lease.task.actor.kind != "person":
             raise invalid_transition("not_extraction_task")
         report_id, version = parse_pin(lease.task.input_ref)
         report = self.p.store.load(session, report_id)
@@ -187,8 +239,10 @@ class ReportWorkflows:
             self._advance(uow, report, after)
             return self.p.tasks.complete(uow, lease, outcome)
 
-        key = self.p.ids.derived("cmd", lease.task.task_id, str(lease.generation))
-        self.p.store.publish_version(session, key=key, report=after, apply=apply)
+        key = self.p.ids.derived("rcm", lease.task.task_id, str(lease.generation))
+        self.p.store.publish_version(
+            session, key=key, operation="reportExtraction", report=after, apply=apply
+        )
         return after
 
     def confirm(
@@ -206,9 +260,13 @@ class ReportWorkflows:
             raise not_found()
         require_report_owner(session, report.patient_id)
         command = replace(command, confirmer_id=person, confirmed_at=self.p.clock.now())
+        digest = _request_digest(command)
         with self.p.snapshots.snapshot() as view:
-            if self.p.lineage.applied(view, command_key=key):
-                return report
+            bound = self.p.lineage.binding(view, owner_person_id=person, command_key=key)
+        if bound is not None:
+            if bound != (report.report_id, digest):
+                raise ReportError(ErrorCode.DUPLICATE_COMMAND, "key_reused")
+            return report
         release = self._pinned_release(report)
         outcome = decide(
             report,
@@ -220,8 +278,9 @@ class ReportWorkflows:
         )
 
         def apply(uow: UnitOfWork) -> bool:
-            if self.p.lineage.applied(uow, command_key=key):
+            if self.p.lineage.binding(uow, owner_person_id=person, command_key=key) is not None:
                 raise _Replay
+            self.p.lineage.bind(uow, command_key=key, report_id=report.report_id, request_digest=digest)
             self._advance(uow, report, outcome.report)
             recorded = tuple(self._record(uow, session, f) for f in outcome.findings)
             self.p.lineage.append(uow, recorded, command_key=key)
@@ -232,22 +291,37 @@ class ReportWorkflows:
                     "reports.confirmed",
                     1,
                     uow.actor,
-                    {"report_id": report.report_id, "revision": str(outcome.report.revision)},
+                    {"report_id": report.report_id},
                     uow.correlation_id,
                     None,
-                    {"findings": len(recorded), "rejected_total": rejected},
+                    {
+                        "findings": len(recorded),
+                        "rejected_total": rejected,
+                        "revision": outcome.report.revision,
+                    },
                 )
             )
             return True
 
         try:
-            self.p.store.publish_version(session, key=key, report=outcome.report, apply=apply)
+            self.p.store.publish_version(
+                session, key=key, operation="confirmExtraction", report=outcome.report, apply=apply
+            )
         except _Replay:
             pass  # another submission of this key committed first: replay its stored result
         stored = self.p.store.load(session, report.report_id)
         if stored is None:
             raise not_found()
         return stored
+
+    def delete_report(self, session: SessionContext, *, key: str, report_id: str) -> None:
+        """D18: owner deletion revokes every version. Late extraction or confirmation then finds nothing."""
+        require_owner_session(session)
+        report = self.p.store.load(session, require_id(report_id))
+        if report is None or report.state == "deleted":
+            raise not_found()
+        require_report_owner(session, report.patient_id)
+        self.p.store.delete(session, key=require_id(key), report_id=report.report_id)
 
     def _pinned_release(self, report: Report) -> ReleaseHandle:
         """Policies come from the release the extraction ran under, never the active one (fail closed)."""
@@ -292,6 +366,49 @@ class ReportWorkflows:
         if finding.role == "interpretation" or not isinstance(finding.value, Decimal):
             return finding
         return replace(finding, record_ref=self.p.recorder.record(uow, session, finding))
+
+    def _submit_extraction(self, report: Report, key: str) -> Callable[[UnitOfWork], bool]:
+        """Upload queues one report_extraction task pinned to the source version in the upload's own unit of
+        work. A quarantined report queues nothing: it is never parsed (E09-01)."""
+
+        def submit(uow: UnitOfWork) -> bool:
+            if report.state != "accepted" or self.p.queue is None:
+                return True
+            self.p.queue.submit(uow, self._extraction_task(uow, report, key))
+            return True
+
+        return submit
+
+    def _extraction_task(self, uow: UnitOfWork, report: Report, key: str) -> TaskInput:
+        task_id = self.p.ids.derived("rtk", report.report_id, report.source_version_id)
+        pin = pin_ref(report.report_id, report.source_version_id)
+        identity = command_identity(
+            key=self.p.ids.derived("rcm", task_id),
+            actor_ref=report.patient_id,
+            operation="reportExtraction",
+            target=report.report_id,
+            parameters_json=b"{}",
+            body_fingerprint=hashlib.sha256((pin + key).encode()).hexdigest(),
+            fingerprint_kind="sha256",
+        )
+        return TaskInput(
+            task_id,
+            EXTRACTION_TASK,
+            self.p.extraction_version,
+            pin,
+            hashlib.sha256(pin.encode()).hexdigest(),
+            uow.release.release_id,
+            None,
+            Actor("person", report.patient_id),
+            Audience(
+                REPORT_AUDIENCE,
+                report.report_id,
+                AudienceProjectionKey("reports", "extraction", 1),
+                REPORT_AUDIENCE_POLICY,
+            ),
+            identity,
+            None,  # internal task: public Job projection of a report is not contracted yet (PLAN P4)
+        )
 
 
 __all__ = ["ReportPorts", "ReportWorkflows"]
