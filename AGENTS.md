@@ -137,6 +137,12 @@ version stays active. Updates arrive as signed bundles through the ground link, 
   synthetic video with a known injected pulse for ground truth. A simulated device declares itself simulated in its
   device identity, so the hub labels its readings SIM through the normal source rule (section 1 rule 2); the pipeline
   has no other branch for it.
+- **Replay known outcomes.** Where real data and its documented outcome are both public (a NASA case, study or
+  analog mission in `docs/product/nasa-data/cases/`), the owning epic replays the data that preceded the outcome
+  through the real pipeline, and the test asserts that the product reaches the documented result: the warning level,
+  the condition flagged for the crew medical officer, the trend deviation, at or before the documented onset. This is
+  model validation in the section 7 sense, never a diagnosis claim. A case the product misses is a finding to fix or
+  to explain with evidence, never a test to delete; a qualitative case is labeled as such.
 - **End to end** runs on the demo fixture, with the model stopped wherever the scenario allows (`eval/`).
 
 ## 5. How we work
