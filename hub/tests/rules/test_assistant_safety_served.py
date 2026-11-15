@@ -15,14 +15,15 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-import e23_station as base
 import pytest
-from test_station_co2 import act, station
 
 from crew_health.contracts_gen.enums import Role
 from crew_health.kernel.uow import Actor, SessionContext
 from crew_health.rules.application.ports import Allowed, AssistantContext, AssistantWarningGuard, Rejected
 from crew_health.rules.domain.vocabulary import ASSISTANT_LEVELS, Level, WarningAction
+
+from . import rules_station as base
+from .test_station_co2 import act, station
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("INV-E24-02", "INV-E24-03", "H1", "H2")]
 

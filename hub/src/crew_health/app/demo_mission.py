@@ -133,6 +133,7 @@ class DemoMission:
                 planned_start=_instant(row.get("planned_start")),
                 started_at=_instant(row.get("started_at")),
                 ended_at=_instant(row.get("ended_at")),
+                planned_end=_instant(row.get("planned_end")),
             )
             started = fact.started_at is not None and fact.started_at <= at
             if fact.person_id in wanted and fact.state == "active" and started:

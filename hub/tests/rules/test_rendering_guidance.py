@@ -9,9 +9,9 @@ import json
 import string
 from dataclasses import replace
 from datetime import UTC, datetime
+from typing import Literal
 
 import pytest
-import rules_harness as h
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -22,14 +22,17 @@ from crew_health.rules.domain.errors import InvalidInput
 from crew_health.rules.domain.guidance import GuidanceVerdict
 from crew_health.rules.domain.loader_checks import CONTENT_PLACEHOLDERS
 from crew_health.rules.domain.vocabulary import Basis, OriginMode
-from crew_health.rules.domain.warning import DefinitionPin, LimitPin
+from crew_health.rules.domain.warning import DefinitionPin, LimitPin, Warning
+
+from . import rules_harness as h
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R36", "R43", "INV-E24-12", "INV-E24-19")]
 
 
 def example_warning(name: str) -> dict[str, object]:
     path = h.ROOT / "docs" / "product" / "api" / "examples" / "warnings" / f"{name}.json"
-    return json.loads(path.read_text(encoding="utf-8"))["value"]  # type: ignore[no-any-return]
+    value: dict[str, object] = json.loads(path.read_text(encoding="utf-8"))["value"]
+    return value
 
 
 @pytest.mark.trace("T-E24-040", "C13")
@@ -156,7 +159,7 @@ def test_t011_rendering_leaves_no_braces_and_a_missing_value_renders_the_unknown
 # --- guidance (T-E24-130, pure part) -----------------------------------------------------------------
 
 
-def live_warning(world: h.World):  # type: ignore[no-untyped-def]
+def live_warning(world: h.World) -> Warning:
     world.feed(world.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]))
     (w,) = world.by_definition("co2_above_limit")
     return w
@@ -176,10 +179,10 @@ def test_t130_eligible_unreviewed_steps_are_served_in_live_with_their_exact_labe
 @pytest.mark.trace("T-E24-130", "INV-E24-19")
 @pytest.mark.parametrize("outcome", ["show_with_substitute", "not_here", "not_supported"])
 def test_t130_anything_but_an_explicit_show_is_unsupported_with_no_steps(
-    world: h.World, outcome: str
+    world: h.World, outcome: Literal["show_with_substitute", "not_here", "not_supported"]
 ) -> None:
     w = live_warning(world)
-    served = guidance.serve(w, GuidanceVerdict(outcome, "live", "not_clinically_reviewed"))  # type: ignore[arg-type]
+    served = guidance.serve(w, GuidanceVerdict(outcome, "live", "not_clinically_reviewed"))
     assert served.mode == "unsupported" and served.steps == () and served.review_label is None
     assert w.steps  # the stored steps are never altered
 

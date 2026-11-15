@@ -1,22 +1,17 @@
 """A real E24 station for integration tests: the E23 station (real E01 mechanisms, mission and sensors over a
 temporary on-disk SQLite) plus the real rules module. Only what E01 has no production provider for is a named fake
-in e23_station (session source, unit registry, roster). Configuration is the shipped config/ documents."""
+in rules_station (session source, unit registry, roster). Configuration is the shipped config/ documents."""
 
 from __future__ import annotations
 
 import hashlib
 import json
-import sys
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
 import pytest
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "sensors"))
-
-import e23_station as base  # noqa: E402
 
 from crew_health.contracts_gen.enums import ConfigName  # noqa: E402
 from crew_health.kernel.config import ConfigDocumentView  # noqa: E402
@@ -25,6 +20,8 @@ from crew_health.rules.application.ports import RecordFactsPort  # noqa: E402
 from crew_health.rules.domain.inputs import EvidenceKey, RecordFacts  # noqa: E402
 from crew_health.rules.settings import DEFAULTS as RULE_DEFAULTS  # noqa: E402
 from crew_health.rules.settings import specifications as rule_specs  # noqa: E402
+
+from . import rules_station as base
 
 ADAPTER = base.ADAPTER
 _SENSORS = base.sensors_module

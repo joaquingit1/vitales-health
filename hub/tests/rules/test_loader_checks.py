@@ -11,16 +11,17 @@ from decimal import Decimal
 from typing import Any
 
 import pytest
-import rules_harness as h
 
 from crew_health.rules.domain import loader_checks as lc
 from crew_health.rules.domain.definitions import parse_rules_document
+
+from . import rules_harness as h
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R43", "INV-E24-12", "INV-E24-15")]
 
 
 def context() -> dict[str, Any]:
-    limits = {e["limit_id"]: e for e in h.example_value("sensor-limits")["limits"]}
+    limits = {e["limit_id"]: e for e in h.list_of(h.example_value("sensor-limits"), "limits")}
     return {
         "max_definitions": 500,
         "limits": limits,

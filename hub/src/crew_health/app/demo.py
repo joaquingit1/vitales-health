@@ -25,9 +25,9 @@ import urllib.error
 import urllib.request
 import uuid
 from collections import deque
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
@@ -767,6 +767,23 @@ def run_drill(
     )
 
 
+def walk_end(walk: Mapping[str, object], at: datetime) -> datetime:
+    """The walk's planned end (E31 Q9): the fixture's `until_local` at its `utc_offset`, the next such time at or
+    after the start, in UTC. A fixture without both fields is invalid, never an open ended walk."""
+    try:
+        hours, minutes = (int(part) for part in str(walk["until_local"]).split(":"))
+        sign = -1 if str(walk["utc_offset"]).startswith("-") else 1
+        offset_h, offset_m = (int(part) for part in str(walk["utc_offset"]).lstrip("+-").split(":"))
+        zone = timezone(sign * timedelta(hours=offset_h, minutes=offset_m))
+        local = at.astimezone(zone)
+        end = local.replace(hour=hours, minute=minutes, second=0, microsecond=0)
+    except (KeyError, ValueError) as error:
+        raise DemoError("surface_walk needs until_local HH:MM and utc_offset +HH:MM") from error
+    if end < local:
+        end += timedelta(days=1)
+    return end.astimezone(UTC)
+
+
 def start_walk(directory: Path, fixture: Fixture, person_id: str, at: datetime) -> dict[str, object]:
     """E23's createOverlay is not on main: the demo control records the fixture's surface walk overlay for one of
     its people as an E23 ActivityOverlay, started now (I-O1: at most one active overlay of a kind per person)."""
@@ -794,6 +811,7 @@ def start_walk(directory: Path, fixture: Fixture, person_id: str, at: datetime) 
         "state": "active",
         "planned_start": None,
         "started_at": at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "planned_end": walk_end(walk, at).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "ended_at": None,
         "source": {"kind": "operator", "ref_id": None},
         "location": None,

@@ -6,11 +6,12 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any, TypedDict
 
 import pytest
-import rules_harness as h
 
 from crew_health.contracts_gen.enums import ConfigName
 from crew_health.kernel.config import CandidateRelease, ConfigDocumentView
@@ -33,6 +34,9 @@ from crew_health.rules.application.wire import wire_json
 from crew_health.rules.domain.definitions import parse_rules_document
 from crew_health.rules.domain.dwell import DwellMarker
 from crew_health.rules.domain.vocabulary import ConditionKind
+from crew_health.rules.domain.warning import Warning
+
+from . import rules_harness as h
 
 pytestmark = pytest.mark.E24
 T0 = datetime(2026, 11, 14, 9, 0, tzinfo=UTC)
@@ -58,7 +62,7 @@ class Session:
         return tuple(self.db.execute(sql, parameters).fetchmany(limit))
 
 
-def raised(sensor_reading: str = "rdg_1"):  # type: ignore[no-untyped-def]
+def raised(sensor_reading: str = "rdg_1") -> tuple[h.World, Warning]:
     w = h.World(parse_rules_document(h.deployment_rules()), h.release_documents())
     w.feed(
         w.sensor(reading=sensor_reading, results=[h.result("co2_1h_act", crossed=True, clear_holds=False)])
@@ -107,17 +111,49 @@ def test_warning_store_unique_active_immutable_and_spent() -> None:
         store.update(c, warning, expected_revision=5)
 
 
+class OccurrenceArgs(TypedDict):
+    definition_id: str
+    scope_key: str
+    trigger_ref: str
+    warning_id: str | None
+    kind: str
+    occurred_at: datetime
+    recorded_at: datetime
+
+
+class ReplicaArgs(TypedDict):
+    warning_id: str
+    origin_node_id: str
+    origin_hlc: str
+    revision: int
+    scope: str
+    person_id: str | None
+    warning_json: str
+    now: datetime
+
+
+class PendingArgs(TypedDict):
+    kind: str
+    ref: str
+    input_json: str
+    code: str
+    now: datetime
+    max_rows: int
+
+
 def test_small_stores() -> None:
     c = Session()
     _, warning = raised()
     WarningStore().insert(c, warning)
     occ = OccurrenceStore()
-    args = dict(definition_id="d", scope_key="k", trigger_ref="e1", warning_id=warning.warning_id, kind="trigger",
-                occurred_at=T0, recorded_at=T0)  # fmt: skip
+    args = OccurrenceArgs(
+        definition_id="d", scope_key="k", trigger_ref="e1", warning_id=warning.warning_id, kind="trigger",
+        occurred_at=T0, recorded_at=T0,
+    )  # fmt: skip
     assert occ.record(c, **args) and not occ.record(c, **args)
     assert len(occ.for_warnings(c, [warning.warning_id], limit=5)[warning.warning_id]) == 1
     assert occ.resolve_before(c, warning.warning_id, T0 + timedelta(seconds=1), "clr") == 1
-    occ.record(c, **{**args, "trigger_ref": "c1", "kind": "clear", "warning_id": None})
+    occ.record(c, **(args | {"trigger_ref": "c1", "kind": "clear", "warning_id": None}))
     assert occ.latest_clears(c, limit=5) == {("d", "k"): T0}
     dwell = DwellStore()
     marker = DwellMarker(warning.warning_id, "ch", "fp", T0, T0, "seg")
@@ -141,9 +177,11 @@ def test_small_stores() -> None:
     results.put(c, "per_a", "k1", warning.warning_id, "{}", T0)
     assert results.get(c, "per_a", "k1") == (warning.warning_id, "{}", T0)
     replica = ReplicaStore()
-    one = dict(warning_id="w", origin_node_id="n2", origin_hlc="h", revision=2, scope="crew", person_id=None,
-               warning_json="{}", now=T0)  # fmt: skip
-    assert replica.apply(c, **one) and not replica.apply(c, **{**one, "revision": 1})  # type: ignore[arg-type]
+    one = ReplicaArgs(
+        warning_id="w", origin_node_id="n2", origin_hlc="h", revision=2, scope="crew", person_id=None,
+        warning_json="{}", now=T0,
+    )  # fmt: skip
+    assert replica.apply(c, **one) and not replica.apply(c, **(one | {"revision": 1}))
     assert len(replica.page(c, limit=5)) == 1
     mission = MissionEventStore()
     w = h.World(parse_rules_document(h.deployment_rules()), h.release_documents())
@@ -155,12 +193,12 @@ def test_small_stores() -> None:
 def test_pending_store_coalesces_overflows_and_quarantines() -> None:
     c = Session()
     p = PendingStore()
-    base = dict(kind="K", ref="K", input_json="{}", code="X", now=T0, max_rows=2)
-    p.record(c, pending_id="p1", coalesce_key="a", **base)  # type: ignore[arg-type]
-    p.record(c, pending_id="p2", coalesce_key="a", **base)  # type: ignore[arg-type]  # coalesces with p1
+    base = PendingArgs(kind="K", ref="K", input_json="{}", code="X", now=T0, max_rows=2)
+    p.record(c, pending_id="p1", coalesce_key="a", **base)
+    p.record(c, pending_id="p2", coalesce_key="a", **base)  # coalesces with p1
     assert p.count(c) == 1 and p.blocking(c)
-    p.record(c, pending_id="p3", coalesce_key=None, **base)  # type: ignore[arg-type]
-    p.record(c, pending_id="p4", coalesce_key=None, **base)  # type: ignore[arg-type]  # past the bound
+    p.record(c, pending_id="p3", coalesce_key=None, **base)
+    p.record(c, pending_id="p4", coalesce_key=None, **base)  # past the bound
     assert {r[0] for r in c.rows("SELECT state FROM rules_pending", (), limit=9)} >= {"overflow"}
     due = p.due(c, T0, 10)
     assert [r[0] for r in due][0] == "p2"
@@ -196,7 +234,7 @@ def test_release_facts_wire_and_loader_check() -> None:
         facts.build(MemoryRelease("rel_y", broken))
     _, warning = raised("rdg_abc")
     wire = wire_json(warning, steps=warning.steps, allowed=())
-    assert wire["evidence"][0]["summary"] == "rdg_abc" and wire["allowed_actions"] == []  # type: ignore[index]
+    assert h.list_of(wire, "evidence")[0]["summary"] == "rdg_abc" and wire["allowed_actions"] == []
 
 
 # --- stored data that is not what was written is refused, never repaired (AGENTS 6: integrity errors fail loud) --
@@ -218,7 +256,7 @@ def test_release_facts_wire_and_loader_check() -> None:
     ],
     ids=["text", "integer", "bool", "list", "object", "instant_type", "instant_zone", "enum", "optional_int"],
 )
-def test_a_corrupt_stored_warning_is_refused(mutate) -> None:  # type: ignore[no-untyped-def]
+def test_a_corrupt_stored_warning_is_refused(mutate: Callable[[dict[str, object]], object]) -> None:
     _, warning = raised()
     stored = codec.to_raw(warning)
     mutate(stored)
@@ -242,12 +280,13 @@ def test_a_corrupt_pending_input_is_refused_and_an_unsupported_one_is_never_writ
         with pytest.raises(Exception):  # noqa: B017, PT011
             input_codec.loads(kind, json.dumps(bad))
     with pytest.raises(Exception, match="unsupported"):
-        input_codec.dumps(object())  # type: ignore[arg-type]
+        untyped_codec: Any = input_codec
+        untyped_codec.dumps(object())
     deep: object = 1
     for _ in range(20):
         deep = (deep,)
     with pytest.raises(Exception, match="bound"):
-        input_codec.dumps(deep)  # type: ignore[arg-type]
+        untyped_codec.dumps(deep)
 
 
 @pytest.mark.trace("INV-E24-14")

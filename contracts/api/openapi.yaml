@@ -7335,6 +7335,75 @@ paths:
             application/json:
               schema:
                 $ref: schemas/error.schema.json
+  /v1/guided-checks/{guided_check_id}/steps:
+    get:
+      operationId: getGuidedCheckSteps
+      tags:
+        - Teach and check
+      summary: The guided check's teach steps, rendered from its pinned skills catalog
+      description: "E30 X1 interim: the card title, notice and numbered steps (instruction, count, question with its choices) of the check's pinned skill. Only the check's helper reads them. Roles: crew, crew_medical_officer, station."
+      x-roles:
+        - crew
+        - crew_medical_officer
+        - station
+      parameters:
+        - $ref: "#/components/parameters/path_guided_check_id"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      responses:
+        "200":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - guided_check_id
+                  - card_title_text
+                  - notice
+                  - teach_steps
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
   /v1/guided-checks/{guided_check_id}/beats:
     post:
       operationId: tapBeat
