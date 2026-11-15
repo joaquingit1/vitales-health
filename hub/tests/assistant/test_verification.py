@@ -96,3 +96,9 @@ def test_only_seen_usable_owned_refs_survive_and_duplicates_never_inflate_suppor
 def test_unknown_body_region_or_condition_rejects_output(claim: Claim) -> None:
     with pytest.raises(AssistantRefused, match="invalid_claim_identity"):
         run((claim,), (Support(OBS, "p_own", True, True, True),))
+
+
+@pytest.mark.trace("T-E13-043", "V25", "INV-E13-03")
+def test_passage_reference_cannot_relabel_a_foreign_person_record() -> None:
+    with pytest.raises(AssistantRefused, match="foreign_evidence"):
+        run((Claim("hypothesis", "h", (PASSAGE,)),), (Support(PASSAGE, "p_other", True, True, True),))

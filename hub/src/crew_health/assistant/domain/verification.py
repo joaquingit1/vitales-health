@@ -63,7 +63,7 @@ def verify_claims(
         refs: list[EvidenceRef] = []
         for ref in dict.fromkeys(claim.refs):
             item = by_ref.get(ref)
-            if item is not None and ref.kind != "passage" and item.person_id not in (None, subject_person_id):
+            if item is not None and item.person_id not in (None, subject_person_id):
                 raise AssistantRefused("foreign_evidence")
             if item is None or not _eligible(item, claim.kind, subject_person_id):
                 dropped += 1
@@ -85,7 +85,10 @@ def _eligible(item: Support, claim_kind: str, subject_person_id: str) -> bool:
         and item.usable
         and not item.replay_exposure
         and not item.habitat
-        and (item.ref.kind == "passage" or item.person_id == subject_person_id)
+        and (
+            (item.ref.kind == "passage" and item.person_id is None)
+            or (item.ref.kind != "passage" and item.person_id == subject_person_id)
+        )
         and (not item.finding_only or claim_kind == "finding")
         and (item.ref.kind != "answer" or item.presence == "answered")
     )
