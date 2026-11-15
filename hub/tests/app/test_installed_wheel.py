@@ -47,13 +47,18 @@ try:
                         raw.decode("utf-8"),
                     )
                     migrations.append(module.name + "/adapters/migrations/" + resource.name)
-        for resource in (module.joinpath("replica.schema.json"),
-                         module.joinpath("schemas", "hub-settings.schema.json")):
+        resources = [(module.joinpath("replica.schema.json"), module.name + "/replica.schema.json")]
+        schema_directory = module.joinpath("schemas")
+        if schema_directory.is_dir():
+            resources.extend(
+                (resource, module.name + "/schemas/" + resource.name)
+                for resource in sorted(schema_directory.iterdir(), key=lambda item: item.name)
+                if resource.is_file() and resource.name.endswith(".json")
+            )
+        for resource, relative_name in resources:
             if resource.is_file():
                 json.loads(resource.read_text(encoding="utf-8"))
-                schemas.append(module.name + "/" + (
-                    "schemas/" if resource.name == "hub-settings.schema.json" else ""
-                ) + resource.name)
+                schemas.append(relative_name)
     json.loads(root.joinpath("contracts_gen", "manifest.json").read_text(encoding="utf-8"))
     with db.snapshot() as view:
         count = view.connection.rows("SELECT count(*) FROM platform_migration", (), limit=1)
@@ -208,3 +213,25 @@ def _health(port: int, process: subprocess.Popen[bytes]) -> dict[str, object] | 
             pass
         time.sleep(0.1)
     return None  # the caller reports the process output
+
+
+@pytest.mark.trace("R25")
+def test_wheel_smoke_checks_every_module_schema(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import importlib.resources
+
+    root = tmp_path / "package"
+    names = (
+        "assistant/schemas/assistant-ui.schema.json",
+        "extra/schemas/tuning.schema.json",
+        "extra/replica.schema.json",
+    )
+    for name in (*names, "contracts_gen/manifest.json"):
+        target = root / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(importlib.resources, "files", lambda _: root)
+    monkeypatch.setattr(sys, "argv", ["wheel-smoke", str(tmp_path / "state")])
+    exec(compile(_SMOKE, "wheel-smoke", "exec"), {})
+    assert json.loads(capsys.readouterr().out)["schemas"] == sorted(names)
