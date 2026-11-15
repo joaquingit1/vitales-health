@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Literal
 
@@ -77,3 +77,5 @@ class Assessment:
     validation_status: Literal["draft", "stale", "reviewed"] = "draft"
     cause_ref: str | None = None
     review_id: str | None = None
+    revision: int = 1
+    origin_mode: Literal["LIVE", "REPLAY", "SIM"] = field(kw_only=True)

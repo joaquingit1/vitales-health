@@ -183,6 +183,7 @@ def assessment() -> Assessment:
         "turn_own",
         "job_own",
         AT,
+        origin_mode="SIM",
     )
 
 

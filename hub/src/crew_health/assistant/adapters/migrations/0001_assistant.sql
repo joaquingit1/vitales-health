@@ -31,7 +31,7 @@ CREATE TABLE assistant_assessment (
  body BLOB NOT NULL CHECK(json_valid(body)), completeness TEXT NOT NULL CHECK(completeness IN ('complete','incomplete')),
  stop_reason TEXT, config_release_id TEXT NOT NULL, turn_id TEXT NOT NULL, job_id TEXT NOT NULL,
  created_at TEXT NOT NULL, validation_status TEXT NOT NULL CHECK(validation_status IN ('draft','stale','reviewed')),
- cause_ref TEXT, review_id TEXT
+ cause_ref TEXT, review_id TEXT, revision INTEGER NOT NULL CHECK(revision>=1), origin_mode TEXT NOT NULL CHECK(origin_mode IN ('LIVE','REPLAY','SIM'))
 ) STRICT;
 CREATE INDEX assistant_assessment_episode ON assistant_assessment(episode_id,created_at,assessment_id);
 CREATE TABLE assistant_claim_ref (
@@ -71,8 +71,8 @@ CREATE TRIGGER assistant_runtime_history_no_delete BEFORE DELETE ON assistant_ru
 CREATE TRIGGER assistant_assessment_history_no_update BEFORE UPDATE ON assistant_assessment_history BEGIN SELECT RAISE(ABORT,'immutable assistant history'); END;
 CREATE TRIGGER assistant_assessment_history_no_delete BEFORE DELETE ON assistant_assessment_history BEGIN SELECT RAISE(ABORT,'immutable assistant history'); END;
 CREATE TRIGGER assistant_assessment_no_delete BEFORE DELETE ON assistant_assessment BEGIN SELECT RAISE(ABORT,'immutable assistant assessment'); END;
-CREATE TRIGGER assistant_assessment_content BEFORE UPDATE ON assistant_assessment WHEN NEW.assessment_id IS NOT OLD.assessment_id OR NEW.episode_id IS NOT OLD.episode_id OR NEW.person_id IS NOT OLD.person_id OR NEW.body IS NOT OLD.body OR NEW.completeness IS NOT OLD.completeness OR NEW.stop_reason IS NOT OLD.stop_reason OR NEW.config_release_id IS NOT OLD.config_release_id OR NEW.turn_id IS NOT OLD.turn_id OR NEW.job_id IS NOT OLD.job_id OR NEW.created_at IS NOT OLD.created_at BEGIN SELECT RAISE(ABORT,'immutable assistant assessment'); END;
-CREATE TRIGGER assistant_assessment_transition BEFORE UPDATE ON assistant_assessment WHEN NOT ((OLD.validation_status='draft' AND NEW.validation_status IN ('reviewed','stale')) OR (OLD.validation_status='reviewed' AND NEW.validation_status='stale')) BEGIN SELECT RAISE(ABORT,'invalid assessment transition'); END;
+CREATE TRIGGER assistant_assessment_content BEFORE UPDATE ON assistant_assessment WHEN NEW.assessment_id IS NOT OLD.assessment_id OR NEW.episode_id IS NOT OLD.episode_id OR NEW.person_id IS NOT OLD.person_id OR NEW.body IS NOT OLD.body OR NEW.completeness IS NOT OLD.completeness OR NEW.stop_reason IS NOT OLD.stop_reason OR NEW.config_release_id IS NOT OLD.config_release_id OR NEW.turn_id IS NOT OLD.turn_id OR NEW.job_id IS NOT OLD.job_id OR NEW.created_at IS NOT OLD.created_at OR NEW.origin_mode IS NOT OLD.origin_mode BEGIN SELECT RAISE(ABORT,'immutable assistant assessment'); END;
+CREATE TRIGGER assistant_assessment_transition BEFORE UPDATE ON assistant_assessment WHEN NEW.revision != OLD.revision+1 OR NOT ((OLD.validation_status='draft' AND NEW.validation_status IN ('reviewed','stale')) OR (OLD.validation_status='reviewed' AND NEW.validation_status='stale')) BEGIN SELECT RAISE(ABORT,'invalid assessment transition'); END;
 CREATE TRIGGER assistant_claim_ref_no_update BEFORE UPDATE ON assistant_claim_ref BEGIN SELECT RAISE(ABORT,'immutable assistant support'); END;
 CREATE TRIGGER assistant_claim_ref_no_delete BEFORE DELETE ON assistant_claim_ref BEGIN SELECT RAISE(ABORT,'immutable assistant support'); END;
 CREATE TRIGGER assistant_conversation_identity BEFORE UPDATE ON assistant_conversation WHEN NEW.conversation_id IS NOT OLD.conversation_id OR NEW.person_id IS NOT OLD.person_id OR NEW.context_kind IS NOT OLD.context_kind OR NEW.context_ref_id IS NOT OLD.context_ref_id OR NEW.revision != OLD.revision+1 BEGIN SELECT RAISE(ABORT,'invalid conversation projection'); END;

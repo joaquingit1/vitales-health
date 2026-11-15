@@ -205,7 +205,7 @@ class Store:
         if len(refs) > self.max_rows:
             raise ProblemError(ErrorCode.PAYLOAD_TOO_LARGE, "assistant support bound exceeded")
         uow.connection.execute(
-            "INSERT INTO assistant_assessment VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO assistant_assessment VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                 value.assessment_id,
                 value.episode_id,
@@ -220,6 +220,8 @@ class Store:
                 value.validation_status,
                 value.cause_ref,
                 value.review_id,
+                value.revision,
+                value.origin_mode,
             ),
         )
         for section, index, kind, ref in dict.fromkeys(refs):
@@ -252,13 +254,15 @@ class Store:
             cast(Literal["draft", "stale", "reviewed"], _text(r[10])),
             _optional(r[11]),
             _optional(r[12]),
+            cast(int, r[13]),
+            origin_mode=cast(Literal["LIVE", "REPLAY", "SIM"], _text(r[14])),
         )
 
     def mark_assessment(
         self, uow: UnitOfWork, ref: str, *, state: str, cause: str | None = None, review: str | None = None
     ) -> None:
         changed = uow.connection.execute(
-            "UPDATE assistant_assessment SET validation_status=?,cause_ref=?,review_id=coalesce(?,review_id) WHERE assessment_id=?",
+            "UPDATE assistant_assessment SET validation_status=?,cause_ref=?,review_id=coalesce(?,review_id),revision=revision+1 WHERE assessment_id=?",
             (state, cause, review, ref),
         )
         _changed(changed.affected_rows)
