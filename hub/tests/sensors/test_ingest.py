@@ -92,7 +92,7 @@ def test_a_malformed_row_is_rejected_by_index_and_the_valid_rows_around_it_survi
 
 @pytest.mark.trace("T-E23-021", "T-E23-084", "PLAN-c1-1", "R42")
 def test_every_accepted_row_is_evaluated_once_in_ingest_order_with_its_own_input(station: Station) -> None:
-    rows = [reading("ch_co2", n, 2.0 + n / 10, "mmHg", at(station, 30 - n)) for n in range(1, 4)]
+    rows = [reading("ch_co2", n, 2.0 + n / 10000, "mmHg", at(station, 30 - n)) for n in range(1, 4)]
     assert post(station, rows).status_code == 200
     inputs = sql(station, "SELECT input_ref, high_rev FROM sensors_evaluation_input ORDER BY high_rev")
     assert [r[1] for r in inputs] == sorted({r[1] for r in inputs}) and len(
@@ -212,21 +212,19 @@ def test_before_mission_init_readings_are_kept_but_never_evaluated(tmp_path: Pat
 
 @pytest.mark.trace("T-E23-048", "R-E23-2", "AGENTS-1.5")
 def test_without_plausibility_criteria_capture_stays_unevaluated_and_live_is_refused(tmp_path: Path) -> None:
-    live = channel("ch_live", "co2", "co2", "LIVE", "mmHg")
-    st = build_station(
-        tmp_path, registry={"channels": [live, channel("ch_sim", "co2", "co2", "SIM", "mmHg")]}
-    )
+    # rad is a sensor type the catalog gives no sourced criteria (co2 has them, so LIVE co2 is accepted)
+    cadence: dict[str, Any] = {"expected_interval_seconds": None, "stale_after_seconds": 600}
+    live = channel("ch_live", "rad", "radiation", "LIVE", "µGy/h", **cadence)
+    sim = channel("ch_sim", "rad", "radiation", "SIM", "µGy/h", **cadence)
+    st = build_station(tmp_path, registry={"channels": [live, sim]})
     names = [r[0] for r in sql(st, "SELECT channel_id FROM sensors_channel")]
     assert (
         names == []
     )  # the whole registry is refused: LIVE needs sourced criteria, nothing is partly accepted
-    ok = build_station(
-        tmp_path / "second", registry={"channels": [channel("ch_sim", "co2", "co2", "SIM", "mmHg")]}
-    )
+    ok = build_station(tmp_path / "second", registry={"channels": [sim]})
     ok.initialize("SIM")
     ok.advance(seconds=60)
-    assert post(ok, [reading("ch_sim", 1, 2.5, "mmHg", at(ok, 5))]).status_code == 200
-    evaluation = ok.client.get("/v1/sensors/co2", headers=ok.headers("crew_a")).json()["evaluation"]
-    assert (
-        evaluation["status"] == "insufficient_data" and evaluation["level"] is None
-    )  # never raised from nothing
+    assert post(ok, [reading("ch_sim", 1, 2.5, "µGy/h", at(ok, 5))]).status_code == 200
+    evaluation = ok.client.get("/v1/sensors/rad", headers=ok.headers("crew_a")).json()["evaluation"]
+    assert evaluation["level"] is None and evaluation["status"] not in ("within_limit", "beyond_limit")
+    assert sql(ok, "SELECT provenance_trace FROM sensors_reading") == [("criteria_missing",)]

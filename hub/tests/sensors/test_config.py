@@ -104,6 +104,10 @@ def test_shipped_sensor_documents_are_the_package_examples_and_pass_every_check(
             for kind in expected["sensor_types"]:
                 if kind["id"] == "o2":
                     kind["accepted_units"] = [u for u in kind["accepted_units"] if u["unit"] != "kPa"]
+            for kind in shipped["sensor_types"]:
+                # R-E23-2: the sourced `plausibility` objects are the only addition to the package example
+                # (the example predates the schema field). The coordinator updates the example; see the PR.
+                kind.pop("plausibility", None)
         assert shipped == expected  # provenance, sources and notices exactly as the package states them
         assert shipped["notice"] == "Unreviewed draft: needs clinician review before live guidance."
     shipped_docs = {
@@ -456,11 +460,13 @@ def test_a_sourced_threshold_edited_consistently_in_a_scratch_release_changes_ma
 
 
 @pytest.mark.trace("T-E23-070", "DE23-8", "R-E23-2")
-def test_the_catalog_schema_carries_no_plausibility_criteria_so_none_are_invented(
-    config: SensorConfig,
-) -> None:
+def test_only_sensor_types_with_a_sourced_criteria_object_carry_one(config: SensorConfig) -> None:
+    """R-E23-2: criteria exist only where every criterion has a source; the others stay unavailable."""
+    with_criteria = {k.id for k in config.sensor_types if k.plausibility is not None}
+    assert with_criteria == {"co2"}
     for kind in config.sensor_types:
-        assert not hasattr(kind, "plausibility") and not hasattr(kind, "range_check")
+        for source in () if kind.plausibility is None else kind.plausibility.sources:
+            assert source.source_ids and source.citation
 
 
 # --- T-E23-083, 092: guards and bounds ---------------------------------------------------------------------------

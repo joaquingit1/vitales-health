@@ -438,6 +438,17 @@ class SqliteSensorStore:
             floor = (stamp(last.observed_at), last.rev or 0)
         return tuple(found)
 
+    def recent_readings(
+        self, view: View, channel_id: str, *, before: datetime, limit: int
+    ) -> Sequence[ReadingRecord]:
+        rows = view.connection.rows(
+            f"SELECT {_READING_COLUMNS} FROM sensors_reading WHERE channel_id = ? AND observed_at < ? "
+            "ORDER BY observed_at DESC, rev DESC LIMIT ?",
+            (channel_id, stamp(before), limit),
+            limit=limit,
+        )
+        return tuple(_reading(r) for r in rows)
+
     def instant_peers(
         self, view: View, channel_id: str, corrected_at: datetime, origin: Origin, dataset: str | None
     ) -> Sequence[ReadingRecord]:

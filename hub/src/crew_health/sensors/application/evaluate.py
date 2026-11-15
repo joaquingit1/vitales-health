@@ -8,6 +8,7 @@ isolated by E01; storage, integrity and configuration failures escape and abort 
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import replace
 from datetime import datetime, timedelta
 
@@ -15,6 +16,7 @@ from pydantic import TypeAdapter
 
 from crew_health.kernel.evaluation import EvaluationInput as KernelInput
 from crew_health.kernel.uow import ReadSnapshot, UnitOfWork
+from crew_health.sensors.application.history import fact_of, plausibility_history
 from crew_health.sensors.application.runtime import (
     EVALUATOR_VERSION,
     WINDOW_SCAN_BOUND,
@@ -31,7 +33,7 @@ from crew_health.sensors.domain.evaluation import (
     evaluate_channel,
     limits_for,
 )
-from crew_health.sensors.domain.plausibility import assess
+from crew_health.sensors.domain.plausibility import PlausibilityResult, assess
 from crew_health.sensors.domain.reading import (
     ReadingFact,
     advance_window_end,
@@ -41,21 +43,6 @@ from crew_health.sensors.domain.reading import (
 
 EVALUATION = TypeAdapter(Evaluation)
 _MARGIN = timedelta(seconds=1)
-
-
-def fact_of(record: ReadingRecord) -> ReadingFact:
-    return ReadingFact(
-        record.reading_id,
-        record.channel_id,
-        record.adapter_sequence,
-        record.corrected_at,
-        record.received_at,
-        record.time_state,
-        record.canonical,
-        record.quality_status,
-        record.origin_mode,
-        record.segment_id,
-    )
 
 
 def evaluation_id(rt: Runtime, channel_id: str, profile_id: str, release_id: str) -> str:
@@ -138,8 +125,7 @@ class SensorEvaluator:
             channel.clock_state == "trusted",
             uow.now,
         )
-        last = facts[-1] if facts else None
-        verdict = assess(kind, last) if last is not None else assess(kind, _placeholder(channel))
+        verdict = _verdict(rt, uow, kind, records, channel)
         try:
             instants = collapse_instants(
                 facts, activated_at=environment.activated_at, max_rows=rt.limits.window_scan_max_readings
@@ -158,6 +144,22 @@ class SensorEvaluator:
             window_advanced=advanced,
         )
         return evaluate_channel(full, verdict)
+
+
+def _verdict(
+    rt: Runtime,
+    uow: UnitOfWork,
+    kind: SensorTypeFacts,
+    records: Sequence[ReadingRecord],
+    channel: ChannelState,
+) -> PlausibilityResult:
+    """The plausibility of the newest reading that was not rejected, with the same history ingest used."""
+    kept = [r for r in records if r.quality_status != "rejected"]
+    if not kept:
+        return assess(kind, _placeholder(channel))
+    last = kept[-1]
+    history = plausibility_history(rt, uow, channel.facts.channel_id, last.observed_at)
+    return assess(kind, fact_of(last), history, history_bound=rt.limits.plausibility_history_max)
 
 
 def _placeholder(channel: ChannelState) -> ReadingFact:

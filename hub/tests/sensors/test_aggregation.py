@@ -263,11 +263,13 @@ def test_replay_activation_cutoff_uses_receive_time_live_uses_observed_time() ->
 
 @pytest.mark.trace("T-E23-025", "T-E23-070", "DE23-11", "R-E23-2")
 def test_missing_plausibility_criteria_never_pass_and_nothing_is_evaluated(config: SensorConfig) -> None:
-    kind = sensor(config, "co2")
+    kind = sensor(
+        config, "rad"
+    )  # a type the catalog gives no sourced criteria (co2 has them, see test_plausibility)
     result = assess(kind, reading(utc(2026, 1, 1), "3"))
     assert result.status == "unavailable" and not result.evaluable and result.failed_check is None
     rows = [point(utc(2014, 10, 7, 15, 36), "3.9")]
-    inp = evaluation_input(config, "co2", rows, interval=300)
+    inp = evaluation_input(config, "rad", rows, interval=300)
     evaluation = evaluate_channel(inp, result)
     assert evaluation.status == "insufficient_data"
     assert evaluation.level is None and evaluation.unavailable_reason == "criteria_missing"
