@@ -15,9 +15,15 @@ that is safe to use, with every number traceable, and nothing that waits for the
 
 ## Decisions
 
-1. **The engine proposes, a person confirms.** The dose engine computes one amount per proposal from `treatments.json`
-   rules and the lot's potency estimate. The crew medical officer confirms; the acting medical officer confirms only a
-   product whose `confirm_by` is `any_trained_crew`, at the label dose (E32 3.7). RT01 p. 3: two CMOs per increment.
+1. **The engine proposes, a person confirms (SYSTEM 8.4 rule 3, Q14).** The dose engine computes one amount per
+   proposal from `treatments.json` rules and the lot's potency estimate. Who confirms comes from E31's
+   `ClinicalAuthorityQuery` in the confirming transaction, never from the caller. The crew medical officer confirms
+   any proposal. The accepted acting medical officer confirms the recommended dose, compensated included, when the
+   product's `confirm_by` is `any_trained_crew` or the subject's active plan step names this medicine for this
+   condition (E28, `PlanMedicines`); never an allergy or interaction override. The administration and its audit
+   entry record `confirmed_as` and, when acting, the `role_assignment_id`. RT01 p. 3: two CMOs per increment.
+   Training: no skill in `skills-catalog.json` covers medication and no product names a required skill, so the
+   `any_trained_crew` permission stands for "with the required training" until the catalog has one (a gap, stated).
 2. **Every safety limit is the hub's.** Per administration, per period, cumulative and catastrophic limits are
    enforced on the final amount at proposal and again inside the confirming transaction (INV-M1). No person and no
    model can raise one; the only route past a refusal is a manual administration, which is still bounded by stock,
@@ -28,9 +34,8 @@ that is safe to use, with every number traceable, and nothing that waits for the
    with a reason, recorded." Override eligibility is separate from confirmation eligibility.
 5. **Potency compensation is on by default (owner decision), bounded and gated.** Compensation raises the amount
    toward the target at the lot's median potency and is capped at the remaining allowance, with the shortfall stated.
-   It is never applied to a `do_not_use` lot. In LIVE it applies only to products with a
-   `live_compensation_authorizations` entry; otherwise the label dose is given with the estimate and the shortfall
-   (owner decision R-E32-10, V104).
+   It is never applied to a `do_not_use` lot. It applies in LIVE as in SIM and REPLAY with no outside authorization
+   (Q11 removed the `live_compensation_authorizations` gate); every engine gate still applies.
    Spec correction 2 (decided here): with a rounding tolerance of 0 and whole tablets, the nearest amount rarely
    equals the target, and E32 3.6 refused it (`no_deliverable_amount`), so compensation never produced a dose. The
    compensated path now takes the largest number of increments whose expected delivery at the median stays at or
@@ -64,6 +69,21 @@ that is safe to use, with every number traceable, and nothing that waits for the
 13. **FHIR export stays unavailable** until E29 (B07): `exportMedicationAdministration` returns
     `CONTEXT_INAPPLICABLE`.
 14. **No ground step.** Ground consultation is information (`consult_ground_first`, N18 p. 6-2), never a wait.
+15. **Visibility before disclosure (SYSTEM 8.3).** Every read, every person event and every replayed saved result
+    needs the subject or the subject's consent for that field (`ConsentQueries.allows`, scope `("medicines",
+    context|proposals|administrations|names)`). Officer status, an acting assignment or a help session grants no
+    chart read. A confirm or correct error carries the proposal or the record only after that check; otherwise it is
+    `UNAUTHORIZED_SCOPE` with no `current_state`. Commands whose answer holds chart content need the grant as well as
+    the authority.
+16. **Idempotency identity (SYSTEM 5.8).** `If-Match` is one of the identity parameters of
+    `confirmDoseProposal`, so the same key with another revision is a conflict, never a replay; a replay is rechecked
+    under the current grant before its result or reference is returned.
+17. **Clock discontinuity (E32 C1 to C4, SYSTEM 5.2).** Each medicines command compares wall time against the
+    injected monotonic clock since this process's previous command. A forward jump over
+    `medicines.clock_forward_tolerance_seconds` (team default 60 s) is stored in `med_clock_check` with both deltas,
+    the reading it was measured from and the clock module's correction head; until a correction newer than that head
+    is in `ClockCorrections.history`, proposals refuse `clock_discontinuity` and confirmations supersede. A new
+    process has no common monotonic origin, so its first reading starts a new chain.
 
 ## Interim choices of this build
 
@@ -85,6 +105,11 @@ that is safe to use, with every number traceable, and nothing that waits for the
   label, below the lower limit, plus degradant and coverage reasons). At the fixture's as-of of 2027-11-01 the real
   engine reproduces the fixture states within 0.001 on every quantile. A station running the default bundle today
   therefore excludes those lots until assays arrive; that is the engine's answer and E32 shows it as such.
+- Consent and plan medicines are structural copies of ports not on main: `ConsentQueries` (E02, as measurement's
+  copy) and `PlanMedicines` (E28: its steps carry `medicine.named_as` text only, no product ID, so no plan port
+  answers this yet). Absent, they answer no: until E02 binds consent only the subject reads their medicines, so the
+  officer cannot use the chart in production; until E28 answers, the acting officer confirms only `any_trained_crew`
+  products. Without the clock module, a detected jump stays marked.
 - Weight comes through medicines' own `WeightReader` port. Medicines may not import records' port module (it imports
   records' domain, and the import contract forbids that), so the app assembly binds it:
   `WeightReader = RecordsWeightReader(RecordsStore)`, a structural copy of `RecordsStore.observations` checked by a
