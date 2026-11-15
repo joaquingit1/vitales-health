@@ -169,7 +169,7 @@ def _authorization(product_id: str) -> dict[str, object]:
     }
 
 
-@pytest.mark.trace("E32-8.4", "M-L1", "M-L2", "M-L5", "M-L8", "M-L9", "M-SRC")
+@pytest.mark.trace("E32-8.4", "M-L1", "M-L2", "M-L5", "M-L8", "M-SRC", "Q11")
 @pytest.mark.parametrize(
     ("edit", "check"),
     [
@@ -185,8 +185,7 @@ def _authorization(product_id: str) -> dict[str, object]:
         ("period_below_cap", "M-L5"),
         ("unknown_kind", "M-L8"),
         ("missing_kind", "M-L8"),
-        ("live_twice", "M-L9"),
-        ("live_not_compensable", "M-L9"),
+        ("live_authorization_gate", "M-SCHEMA"),  # Q11 removed the gate; the field is no longer accepted
         ("caution_unknown", "M-L8"),
     ],
 )
@@ -223,10 +222,8 @@ def test_more_invalid_documents_are_rejected(tmp_path: Path, edit: str, check: s
             kinds.append({**kinds[0], "kind": "astrology"})
         elif edit == "missing_kind":
             treatments["alert_policies"] = kinds[1:]
-        elif edit == "live_twice":
-            policy["live_compensation_authorizations"] = [_authorization("promethazine_25_tab")] * 2
-        elif edit == "live_not_compensable":
-            policy["live_compensation_authorizations"] = [_authorization("promethazine_25mg_ml_inj")]
+        elif edit == "live_authorization_gate":
+            policy["live_compensation_authorizations"] = [_authorization("promethazine_25_tab")]
         elif edit == "caution_unknown":
             treatments["dose_rules"][1]["condition_cautions"] = ["ICL9999"]  # type: ignore[index]
 

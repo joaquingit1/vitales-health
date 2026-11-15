@@ -169,9 +169,6 @@ def proposal_wire(
         ],
         "potency": {
             "path": proposal.path,
-            "live_authorization": None
-            if proposal.live_authorized_at is None
-            else {"product_id": proposal.product_id, "authorized_at": proposal.live_authorized_at},
             "status": proposal.potency_status,
             "assessment_run_id": proposal.assessment_run_id,
             "intervals": [

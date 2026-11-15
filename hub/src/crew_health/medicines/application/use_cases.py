@@ -396,7 +396,6 @@ def assemble(
         "mode": partition.origin_mode,
         "treatments": docs.treatments.sha256,
         "policy": docs.policy.sha256,
-        "live": docs.policy.live_authorizations.get(product_id),
         "lots": sorted(
             [
                 lot.lot_id,

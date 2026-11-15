@@ -6,8 +6,6 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel
 
-from . import common_schema
-
 
 class EnvironmentZone(RootModel[str]):
     root: str = Field(..., min_length=1)
@@ -53,18 +51,6 @@ class PotencyPolicy(BaseModel):
     basis: str = Field(..., min_length=1)
     to_be_set_by: str = Field(..., min_length=1)
     source_ids: list[SourceId]
-
-
-class LiveCompensationAuthorization(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    product_id: str = Field(..., min_length=1)
-    authorized_by_role: str = Field(..., min_length=1)
-    authorized_at: common_schema.Instant
-    basis: str = Field(..., min_length=1)
-    source_ids: list[SourceId]
-    note: str
 
 
 class Citation(BaseModel):
@@ -121,4 +107,3 @@ class MedicinesJson(BaseModel):
     timing_basis: str = Field(..., min_length=1)
     timing_to_be_set_by: str = Field(..., min_length=1)
     potency_policy: PotencyPolicy
-    live_compensation_authorizations: list[LiveCompensationAuthorization]

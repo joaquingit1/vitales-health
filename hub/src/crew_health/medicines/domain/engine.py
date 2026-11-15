@@ -370,8 +370,6 @@ class _Run:
             )
         if self.request.labeled_only:
             return "labeled_with_estimate"
-        if self.ctx.mode == "LIVE" and product.product_id not in self.ctx.policy.live_authorizations:
-            return "labeled_with_estimate"
         return "compensated"
 
 
@@ -642,9 +640,6 @@ def _propose(run: _Run) -> Proposal:
         trace=tuple(run.trace),
         next_dose_earliest_at=ctx.now
         + timedelta(seconds=max(lim.rule.min_interval_seconds for lim in limits.values())),
-        live_authorized_at=ctx.policy.live_authorizations.get(line.product_id)
-        if ctx.mode == "LIVE"
-        else None,
         review_state=rule.review_state,
     )
 

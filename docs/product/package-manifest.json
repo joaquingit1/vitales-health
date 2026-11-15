@@ -1525,8 +1525,8 @@
     },
     {
       "path": "api/schemas/config-medicines.schema.json",
-      "bytes": 7663,
-      "sha256": "bb22610f7caad77df708aed347cb0222aa276210e40cb132cb6c27b06e2979f1"
+      "bytes": 6652,
+      "sha256": "2248dd93e6d0545901c16ba6e23b6fef9d98101138f6598b955c3dd6c35a05e6"
     },
     {
       "path": "api/schemas/config-onboard-plans.schema.json",
@@ -1635,8 +1635,8 @@
     },
     {
       "path": "api/schemas/dose-proposal.schema.json",
-      "bytes": 11200,
-      "sha256": "126ae1c62dc8661ebdd7f724b8d6c1ec14e8fefb27f8e41dea877414ba7c6b8b"
+      "bytes": 10543,
+      "sha256": "562c5822b19a9c8ca228edb1064220790446181db1e6b2efb0bf7fbfe3233450"
     },
     {
       "path": "api/schemas/drill.schema.json",

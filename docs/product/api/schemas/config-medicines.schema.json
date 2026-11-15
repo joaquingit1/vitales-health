@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "config-medicines.schema.json",
   "title": "medicines.json",
-  "description": "Clinical policy of the medicines engine (docs/tdd/E32.md 8.4, R-E32-12): zones per environment, sensor bindings, assessment timing, the potency policy and the LIVE compensation authorizations. Operational bounds are hub settings.",
+  "description": "Clinical policy of the medicines engine (docs/tdd/E32.md 8.4, R-E32-12): zones per environment, sensor bindings, assessment timing and the potency policy (compensation is on in every mode, LIVE included, Q11). Operational bounds are hub settings.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -18,8 +18,7 @@
     "proposal_ttl_seconds",
     "timing_basis",
     "timing_to_be_set_by",
-    "potency_policy",
-    "live_compensation_authorizations"
+    "potency_policy"
   ],
   "properties": {
     "version": {
@@ -193,48 +192,6 @@
           "items": {
             "type": "string",
             "minLength": 1
-          }
-        }
-      }
-    },
-    "live_compensation_authorizations": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "product_id",
-          "authorized_by_role",
-          "authorized_at",
-          "basis",
-          "source_ids",
-          "note"
-        ],
-        "properties": {
-          "product_id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "authorized_by_role": {
-            "type": "string",
-            "minLength": 1
-          },
-          "authorized_at": {
-            "$ref": "common.schema.json#/$defs/instant"
-          },
-          "basis": {
-            "type": "string",
-            "minLength": 1
-          },
-          "source_ids": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "note": {
-            "type": "string"
           }
         }
       }

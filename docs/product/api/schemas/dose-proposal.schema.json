@@ -240,7 +240,6 @@
       "additionalProperties": false,
       "required": [
         "path",
-        "live_authorization",
         "status",
         "assessment_run_id",
         "intervals"
@@ -252,30 +251,6 @@
             "labeled",
             "labeled_with_estimate",
             "compensated"
-          ]
-        },
-        "live_authorization": {
-          "anyOf": [
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "product_id",
-                "authorized_at"
-              ],
-              "properties": {
-                "product_id": {
-                  "type": "string",
-                  "minLength": 1
-                },
-                "authorized_at": {
-                  "$ref": "common.schema.json#/$defs/instant"
-                }
-              }
-            },
-            {
-              "type": "null"
-            }
           ]
         },
         "status": {

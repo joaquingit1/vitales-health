@@ -226,10 +226,6 @@ def parse_policy(raw: Json, sha256: str) -> MedicinesPolicy:
                 str(x) for x in cast(list[object], potency["validated_engine_versions"])
             ),
         ),
-        live_authorizations={
-            str(a["product_id"]): str(a["authorized_at"])
-            for a in _list(raw["live_compensation_authorizations"])
-        },
     )
 
 
@@ -338,22 +334,13 @@ def _check_policy(
     zone_ids: frozenset[str],
     out: list[Finding],
 ) -> None:
-    """M-L4 (zones exist) and M-L9 (one live authorization per compensable product)."""
+    """M-L4 (zones exist). M-L9 checked LIVE compensation authorizations, which Q11 removed."""
     for env, zones in p.environment_zones.items():
         out.extend(
             Finding("M-L4", f"/environment_zones/{env}", f"unknown zone {zone}")
             for zone in zones
             if zone not in zone_ids
         )
-    seen: set[str] = set()
-    for n, auth in enumerate(_list(policy_raw["live_compensation_authorizations"])):
-        product_id = str(auth["product_id"])
-        where = f"/live_compensation_authorizations/{n}"
-        if product_id in seen:
-            out.append(Finding("M-L9", where, "one entry per product"))
-        seen.add(product_id)
-        if product_id not in t.products or not formulary.get(product_id, _NO).potency_adjustment_allowed:
-            out.append(Finding("M-L9", where, "product cannot be compensated"))
 
 
 def check(

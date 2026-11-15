@@ -76,14 +76,6 @@ class Ingredient(BaseModel):
     remaining_allowance: RemainingAllowance
 
 
-class LiveAuthorization(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    product_id: str = Field(..., min_length=1)
-    authorized_at: common_schema.Instant
-
-
 class AssessmentRunId(RootModel[str]):
     root: str = Field(..., min_length=1)
 
@@ -103,7 +95,6 @@ class Potency(BaseModel):
         extra='forbid',
     )
     path: Literal['labeled', 'labeled_with_estimate', 'compensated']
-    live_authorization: LiveAuthorization | None
     status: Literal['estimated', 'stale', 'none']
     assessment_run_id: AssessmentRunId | None
     intervals: list[Interval]

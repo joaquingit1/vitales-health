@@ -6023,10 +6023,6 @@ export interface components {
             potency: {
                 /** @enum {string} */
                 path: "labeled" | "labeled_with_estimate" | "compensated";
-                live_authorization: {
-                    product_id: string;
-                    authorized_at: components["schemas"]["instant"];
-                } | null;
                 /** @enum {string} */
                 status: "estimated" | "stale" | "none";
                 assessment_run_id: string | null;

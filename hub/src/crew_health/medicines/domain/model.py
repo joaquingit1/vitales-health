@@ -199,7 +199,6 @@ class MedicinesPolicy:
     proposal_ttl_seconds: int
     max_assessment_age_seconds: int
     potency: PotencyPolicy
-    live_authorizations: Mapping[str, str]  # product_id -> authorized_at text
 
 
 # ---- the dose request and its context (E32 4.3 DoseContext) ----
@@ -358,6 +357,5 @@ class Proposal:
     alerts: tuple[Alert, ...]
     trace: tuple[TraceEntry, ...]
     next_dose_earliest_at: datetime | None = None
-    live_authorized_at: str | None = None
     review_state: str | None = None
     extra: Mapping[str, str] = field(default_factory=dict)

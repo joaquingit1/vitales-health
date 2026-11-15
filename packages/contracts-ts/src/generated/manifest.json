@@ -269,7 +269,7 @@
     "api/schemas/config-index.schema.json": "269cde8b164a86162b028b6eccd4d56f47261f9fa96c25728e2467cf6db722fc",
     "api/schemas/config-indicator-catalog.schema.json": "3a03eb8efcb0ed700fe53bc315a110fcb29410ae26bacff25f52f28e72a04e42",
     "api/schemas/config-kit-map.schema.json": "3961e6fd22467e40e1075df84584e9a6d09cf3a4589071a063aefab8ca446f8c",
-    "api/schemas/config-medicines.schema.json": "bb22610f7caad77df708aed347cb0222aa276210e40cb132cb6c27b06e2979f1",
+    "api/schemas/config-medicines.schema.json": "2248dd93e6d0545901c16ba6e23b6fef9d98101138f6598b955c3dd6c35a05e6",
     "api/schemas/config-onboard-plans.schema.json": "31bf7545f4b1d7406de37dbda41d7447325e80f35daf06365cc467027947bffe",
     "api/schemas/config-participation-rules.schema.json": "33b688e0ed1d5af9f6601b811c0eeebc044b04e0c4068f1ae31c0e2afce6e6ec",
     "api/schemas/config-questionnaires.schema.json": "f9419c705b36ac3ef5d3963b446cfeb623ed72dff24914c5fd0514b0612fce38",
@@ -291,7 +291,7 @@
     "api/schemas/crew-member.schema.json": "a77a629b03ff2d238ee69f74abea6fc6fe96a47c5ae976320678d9e0f4a23a46",
     "api/schemas/crew-readiness-view.schema.json": "1a0b23661d989d7a251aaa81627cb539737436937cf7bba91c6551f33ac0c54b",
     "api/schemas/daily-check.schema.json": "1e42b07503462a2ac280cf07ec5d8679b8105369eaf749afb61d1ae207d7c6ad",
-    "api/schemas/dose-proposal.schema.json": "126ae1c62dc8661ebdd7f724b8d6c1ec14e8fefb27f8e41dea877414ba7c6b8b",
+    "api/schemas/dose-proposal.schema.json": "562c5822b19a9c8ca228edb1064220790446181db1e6b2efb0bf7fbfe3233450",
     "api/schemas/drill.schema.json": "6246019354090e81c4fad8a35bf432cc2e64592483cb350435289206685521e9",
     "api/schemas/environment-profile.schema.json": "35bf2cab074c0b2c354c222a49722f30df28b80571dbecafa2b02bf1a35e83d2",
     "api/schemas/episode.schema.json": "076d4857adf9b476f4b90d6601fc98f2c29cd7f258c9fd4e7a2daf72f7ddb7f6",
@@ -629,7 +629,7 @@
     "api/schemas/config-index.schema.json": "269cde8b164a86162b028b6eccd4d56f47261f9fa96c25728e2467cf6db722fc",
     "api/schemas/config-indicator-catalog.schema.json": "3a03eb8efcb0ed700fe53bc315a110fcb29410ae26bacff25f52f28e72a04e42",
     "api/schemas/config-kit-map.schema.json": "3961e6fd22467e40e1075df84584e9a6d09cf3a4589071a063aefab8ca446f8c",
-    "api/schemas/config-medicines.schema.json": "bb22610f7caad77df708aed347cb0222aa276210e40cb132cb6c27b06e2979f1",
+    "api/schemas/config-medicines.schema.json": "2248dd93e6d0545901c16ba6e23b6fef9d98101138f6598b955c3dd6c35a05e6",
     "api/schemas/config-onboard-plans.schema.json": "31bf7545f4b1d7406de37dbda41d7447325e80f35daf06365cc467027947bffe",
     "api/schemas/config-participation-rules.schema.json": "33b688e0ed1d5af9f6601b811c0eeebc044b04e0c4068f1ae31c0e2afce6e6ec",
     "api/schemas/config-questionnaires.schema.json": "f9419c705b36ac3ef5d3963b446cfeb623ed72dff24914c5fd0514b0612fce38",
@@ -652,7 +652,7 @@
     "api/schemas/crew-member.schema.json": "a77a629b03ff2d238ee69f74abea6fc6fe96a47c5ae976320678d9e0f4a23a46",
     "api/schemas/crew-readiness-view.schema.json": "1a0b23661d989d7a251aaa81627cb539737436937cf7bba91c6551f33ac0c54b",
     "api/schemas/daily-check.schema.json": "1e42b07503462a2ac280cf07ec5d8679b8105369eaf749afb61d1ae207d7c6ad",
-    "api/schemas/dose-proposal.schema.json": "126ae1c62dc8661ebdd7f724b8d6c1ec14e8fefb27f8e41dea877414ba7c6b8b",
+    "api/schemas/dose-proposal.schema.json": "562c5822b19a9c8ca228edb1064220790446181db1e6b2efb0bf7fbfe3233450",
     "api/schemas/drill.schema.json": "6246019354090e81c4fad8a35bf432cc2e64592483cb350435289206685521e9",
     "api/schemas/environment-profile.schema.json": "35bf2cab074c0b2c354c222a49722f30df28b80571dbecafa2b02bf1a35e83d2",
     "api/schemas/episode.schema.json": "076d4857adf9b476f4b90d6601fc98f2c29cd7f258c9fd4e7a2daf72f7ddb7f6",
@@ -739,7 +739,7 @@
     "crew_health.trends.module": "657f6588850fba8722cc447298e69f513b0092931c08d4e0b820c96b80dd6591"
   },
   "outputs": {
-    "api.ts": "026283c6e266694a684a3bd1c5c67f202054091fdba414d0b629883cf1bcc70c",
+    "api.ts": "b057f45fcd71ef7097831c732de21ad3f5eded0151ae23e9dd0828452d1848b8",
     "client.ts": "f48fd6a6611d11359f179e95e8a2bb9dc36e201b96ca97183c2af4cf1abae142"
   },
   "overlay": {
@@ -747,7 +747,7 @@
       "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
       "part-a.json": "51d6fe596f1a31bcf6e1256d4184d485d5d9ab2f51a2f66789742152aeadc468"
     },
-    "manifest_sha256": "0a1bbb9ba39113b30413139ca571d2ea90f3b9a0240891f63cbff1aba68ddc85",
+    "manifest_sha256": "a41dd2ffaa34c32b536812313a249564552d745cc3cb5533fd137a9d2d3e1313",
     "traces": [
       {
         "a3": [

@@ -19,6 +19,7 @@ from crew_health.medicines.domain.model import (
     DoseContext,
     DoseRequest,
     IngredientRule,
+    LotView,
     Mode,
     WeightObservation,
     WeightPolicy,
@@ -256,21 +257,43 @@ def test_the_gate_table_picks_the_path(
     assert (proposal.path if proposal.outcome == "proposal" else _refusal(proposal)) == expected
 
 
-@pytest.mark.trace("T-78", "INV-M2")
-def test_live_without_an_authorization_is_never_compensated() -> None:
-    base = given(mode="LIVE")
-    rules = {k: replace(v, review_state="reviewed") for k, v in base.treatments.rules.items()}
-    summary = assessed("adjust", "1.0", "1.0", "1.0", "promethazine")
-    ctx = replace(
-        base,
-        treatments=replace(base.treatments, rules=rules),
-        lots=(lot("lot-pmz-tab-001", "promethazine_25_tab", summary=summary),),
+@pytest.mark.trace("T-78", "INV-M2", "Q11")
+def test_live_compensates_like_sim_with_no_outside_authorization_and_every_gate_still_applies() -> None:
+    """Q11: compensation is on in every mode, LIVE included, with no authorization entry; the engine's gates (a
+    do_not_use lot, an ineligible estimate, the product opt-out) still refuse or keep the label."""
+    summary = assessed("adjust", "0.85", "0.9", "0.95", "promethazine")
+
+    def context(mode: str, view: LotView) -> DoseContext:
+        base = given(mode=mode)
+        rules = {k: replace(v, review_state="reviewed") for k, v in base.treatments.rules.items()}
+        return replace(base, treatments=replace(base.treatments, rules=rules), lots=(view,))
+
+    eligible = lot("lot-pmz-tab-001", "promethazine_25_tab", summary=summary)
+    for mode in ("LIVE", "SIM", "REPLAY"):
+        assert propose(ask("promethazine_25_tab", "ICL97"), context(mode, eligible)).path == "compensated", (
+            mode
+        )
+    ineligible = lot(
+        "lot-pmz-tab-001",
+        "promethazine_25_tab",
+        summary=assessed("adjust", "0.85", "0.9", "0.95", "promethazine", eligible=False),
     )
-    assert propose(ask("promethazine_25_tab", "ICL97"), ctx).path == "labeled_with_estimate"
-    authorized = replace(
-        ctx, policy=replace(ctx.policy, live_authorizations={"promethazine_25_tab": "2028-01-01"})
+    assert _refusal(propose(ask("promethazine_25_tab", "ICL97"), context("LIVE", ineligible))) == (
+        "adjustment_not_permitted"
     )
-    assert propose(ask("promethazine_25_tab", "ICL97"), authorized).path == "compensated"
+    gone = lot(
+        "lot-pmz-tab-001",
+        "promethazine_25_tab",
+        summary=assessed("do_not_use", "0.5", "0.6", "0.7", "promethazine"),
+    )
+    assert _refusal(propose(ask("promethazine_25_tab", "ICL97"), context("LIVE", gone))) == "no_usable_lot"
+    opted_out = context("LIVE", eligible)
+    formulary = dict(opted_out.formulary)
+    formulary["promethazine_25_tab"] = replace(
+        formulary["promethazine_25_tab"], potency_adjustment_allowed=False
+    )
+    refused = propose(ask("promethazine_25_tab", "ICL97"), replace(opted_out, formulary=formulary))
+    assert _refusal(refused) == "adjustment_not_permitted"
 
 
 @pytest.mark.trace("T-69", "INV-M4")
