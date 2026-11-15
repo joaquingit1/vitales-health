@@ -277,7 +277,7 @@ def build() -> tuple[bytes, bytes]:
         "capabilities": capabilities,
         "kits": {e: list(_list(kits[e])) for e in ENVIRONMENTS},
         "candidates": list(_list(example["candidates"])),
-        **_supply_keys(),
+        **_supply_keys(_supplies(head, example)),
         "conditions": rows,
     }
     side_file = {
@@ -292,7 +292,7 @@ def build() -> tuple[bytes, bytes]:
     return _dump(document), _dump(side_file)
 
 
-def _supply_keys() -> Obj:
+def _supply_keys(referenced: list[Obj]) -> Obj:
     """E32's four keys in the kit map's key order; every catalogued supply must cite at least one source."""
     owned = _obj(_load(SUPPLIES))
     supplies = [_obj(s) for s in _list(owned["supplies"])]
@@ -304,9 +304,18 @@ def _supply_keys() -> Obj:
     return {
         "candidate_supplies": list(_list(owned["candidate_supplies"])),
         "candidate_skills": list(_list(owned["candidate_skills"])),
-        "supplies": supplies,
+        "supplies": _merge_supplies(referenced, supplies),
         "stock": {e: list(_list(stock[e])) for e in ENVIRONMENTS},
     }
+
+
+def _merge_supplies(referenced: list[Obj], owned: list[Obj]) -> list[Obj]:
+    """The supplies kit.json names (other release documents reference them), then E32's owned supplies.
+
+    An ID in both keeps E32's entry in the first position."""
+    by_id = {_str(s["supply_id"]): s for s in owned}
+    merged = [by_id.pop(_str(s["supply_id"]), s) for s in referenced]
+    return merged + [s for s in owned if _str(s["supply_id"]) in by_id]
 
 
 def _dump(value: object) -> bytes:
