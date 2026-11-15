@@ -1,10 +1,13 @@
-# D31: every test runs on every supported OS. Actual branch coverage is combined per OS, never across OSes.
+# D31: every test runs on every supported OS before a merge. Actual branch coverage is combined per OS, never across OSes.
+# A draft pull request runs the same suite on Ubuntu only (fast feedback, a fraction of the runner minutes); marking
+# it ready for review runs every OS, and a draft cannot be merged, so the merge gate is unchanged.
 name: CI
 
 on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 permissions:
@@ -51,7 +54,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ fromJSON(github.event_name == 'pull_request' && github.event.pull_request.draft && '["ubuntu-latest"]' || '["ubuntu-latest", "macos-latest", "windows-latest"]') }}
         group: [core-0, core-1, core-2, core-3, contracts, wheel]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
@@ -88,7 +91,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ fromJSON(github.event_name == 'pull_request' && github.event.pull_request.draft && '["ubuntu-latest"]' || '["ubuntu-latest", "macos-latest", "windows-latest"]') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     defaults:
