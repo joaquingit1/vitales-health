@@ -20,9 +20,12 @@ from crew_health.help.application.settings import help_setting_specs
 from crew_health.help.application.support import (
     BROADCAST_AUDIENCE,
     GROUND_AUDIENCE,
+    LOCAL_AUDIENCE,
     SESSION_AUDIENCE,
     HelpDeps,
 )
+from crew_health.help.audit_policies import audit_policies
+from crew_health.kernel.audit import AuditPolicy
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import CommandReceipts, IdempotencyStore
 from crew_health.kernel.config import ConfigReader, ConfigReleaseReader
@@ -47,6 +50,7 @@ class ModuleRegistry(Protocol):
     ) -> None: ...
     def bind(self, name: str, fn: Callable[[Resolver], None]) -> None: ...
     def audience_rule(self, name: str, rule: AudienceRule) -> None: ...
+    def audit_policy(self, policy: AuditPolicy) -> None: ...
     def id_prefix(self, *, record_type: str, prefix: str) -> None: ...
     def setting(self, spec: SettingSpec) -> None: ...
 
@@ -184,6 +188,13 @@ def _declare_ports(registry: ModuleRegistry, runtime: HelpRuntime) -> None:
     registry.provide(ports.HelpTurnGuardPort, lambda _: _Sink(runtime))  # type: ignore[type-abstract]
 
 
+class _LocalOnly:
+    """The audience of help's audit reference declarations: no session is ever admitted to them."""
+
+    def admits(self, snapshot: object, session: SessionContext, audience: object) -> bool:
+        return False
+
+
 def register(registry: ModuleRegistry) -> None:
     for spec in help_setting_specs():
         registry.setting(spec)
@@ -199,6 +210,9 @@ def register(registry: ModuleRegistry) -> None:
     registry.audience_rule(SESSION_AUDIENCE, SessionReaderRule())
     registry.audience_rule(BROADCAST_AUDIENCE, BroadcastRule())
     registry.audience_rule(GROUND_AUDIENCE, GroundMessageRule())
+    registry.audience_rule(LOCAL_AUDIENCE, _LocalOnly())
+    for policy in audit_policies():
+        registry.audit_policy(policy)
     runtime = HelpRuntime()
     _declare_ports(registry, runtime)
     registry.router(build_router(runtime))

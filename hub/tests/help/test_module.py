@@ -55,6 +55,7 @@ def test_registration_binds_with_only_kernel_ports_and_serves_help(tmp_path: Pat
         "help.session_reader",
         "help.broadcast_reader",
         "help.ground_message_reader",
+        "help.local",
     }
     for provided in (
         ports.HelpSessionReader,

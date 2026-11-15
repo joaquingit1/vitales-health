@@ -102,5 +102,26 @@
     "initial": "station_leo",
     "planned_length_days": 30,
     "basis": "VALIDATION 3: environment for acts 1 and 2 is station_leo, SIM; flight day 19 of 30"
-  }
+  },
+  "camera": {
+    "adapter_principal_id": "adp_camera",
+    "adapter_display_name": "Camera worker",
+    "worker_port": 8091,
+    "basis_worker_port": "SYSTEM 3: the camera worker listens on 127.0.0.1:8091",
+    "twin": {
+      "scenario": "synthetic",
+      "port": 8190,
+      "basis": "AGENTS 4 and E06: the camera twin's synthetic video with a known injected pulse, declared SIM; never a person's webcam clip"
+    },
+    "cameras": [
+      {
+        "device_id": "camera_twin_1",
+        "name": "Camera twin",
+        "kind": "station",
+        "subject_id": "mara",
+        "basis": "Coordinator 2026-11-15: the twin paired with Mara's station so its readings arrive labeled SIM"
+      }
+    ]
+  },
+  "hub_port": 8080
 }
