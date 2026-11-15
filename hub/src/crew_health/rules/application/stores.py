@@ -43,6 +43,15 @@ class WarningStore:
         rows = c.rows("SELECT body_json FROM rules_warning WHERE warning_id = ?", (warning_id,), limit=1)
         return codec.loads(_s(rows[0][0])) if rows else None
 
+    def for_insight(self, c: Conn, insight_id: str) -> Warning | None:
+        """The warning raised from one insight: at most one, since an insight id is its trigger (3.9)."""
+        rows = c.rows(
+            "SELECT body_json FROM rules_warning WHERE insight_id = ? ORDER BY raised_at DESC LIMIT 1",
+            (insight_id,),
+            limit=1,
+        )
+        return codec.loads(_s(rows[0][0])) if rows else None
+
     def active(self, c: Conn, *, limit: int) -> tuple[Warning, ...]:
         rows = c.rows(
             "SELECT body_json FROM rules_warning WHERE state IN ('raised','acknowledged') "
@@ -383,6 +392,19 @@ class PendingStore:
             ),
         )
 
+    def rows(self, c: Conn, *, limit: int) -> tuple[tuple[str, str, str, int, str, str, str | None], ...]:
+        """Operator listing, in input order: id, kind, state, attempts, last code, first failure, next attempt."""
+        found = c.rows(
+            "SELECT pending_id, input_kind, state, attempts, last_code, first_failed_at, next_attempt_at "
+            "FROM rules_pending ORDER BY input_seq LIMIT ?",
+            (limit,),
+            limit=limit,
+        )
+        return tuple(
+            (_s(r[0]), _s(r[1]), _s(r[2]), _i(r[3]), _s(r[4]), _s(r[5]), None if r[6] is None else _s(r[6]))
+            for r in found
+        )
+
     def quarantine(self, c: Conn, pending_id: str) -> bool:
         return (
             c.execute(
@@ -391,6 +413,14 @@ class PendingStore:
             ).affected_rows
             == 1
         )
+
+    def release_stuck(self, c: Conn, now: datetime) -> bool:
+        """A row the evaluator gave up on is tried again after an activation (5.5). True while any row can run."""
+        c.execute(
+            "UPDATE rules_pending SET state = 'pending', attempts = 0, next_attempt_at = ? WHERE state = 'stuck'",
+            (codec.instant(now),),
+        )
+        return self.blocking(c)
 
     def blocking(self, c: Conn) -> bool:
         """Clears stay frozen while any row is not quarantined (5.5)."""

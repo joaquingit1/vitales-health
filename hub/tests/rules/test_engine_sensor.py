@@ -5,6 +5,7 @@ T-E24-018 to 022, 024 to 029, 045, 046, 047, 049, 120 and the D1, D3, D14 regres
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import timedelta
 
 import pytest
@@ -15,6 +16,7 @@ from hypothesis import strategies as st
 from crew_health.rules.domain import clear_evidence
 from crew_health.rules.domain.decisions import Clear, Raise, Refuse
 from crew_health.rules.domain.definitions import RulesDocument
+from crew_health.rules.domain.errors import InvalidInput
 from crew_health.rules.domain.inputs import LimitRenderFacts
 from crew_health.rules.domain.vocabulary import ClearReason, Level, OriginMode, WarningState
 
@@ -121,6 +123,41 @@ def test_t024_a_stale_channel_raises_quiet_and_leaves_the_co2_warning_open(world
     (quiet,) = world.by_definition("sensor_quiet")
     assert quiet.level is Level.WATCH and quiet.channel_id == "ch_co2"
     assert world.dwell == {}
+
+
+@pytest.mark.trace("T-E24-024", "T-E24-120", "INV-E24-07")
+def test_a_stale_channel_with_no_known_instant_breaks_the_dwell_and_never_clears(world: h.World) -> None:
+    """E23 serves stale with stale_since null when it cannot place the instant (DE23-13). The input is accepted, so
+    the producer's ingest keeps the real reading (found by E23's served plausibility test, 84b6810); it resets the
+    dwell, clears nothing and raises no sensor_quiet, whose trigger is that instant."""
+    co2_raise(world)
+    (w,) = world.by_definition("co2_above_limit")
+    holding(world, 60)
+    assert w.warning_id in world.dwell
+    world.feed(world.freshness_input("stale", since=None))
+    assert world.dwell == {} and world.warnings[w.warning_id] == w
+    assert world.by_definition("sensor_quiet") == []
+
+
+@pytest.mark.trace("T-E24-072", "T-E24-122", "INV-E24-16")
+def test_evidence_without_an_origin_is_refused_with_a_typed_error_raising_and_clearing_nothing(
+    world: h.World,
+) -> None:
+    """Fail closed and loud (AGENTS 2, D13): the typed error is what the isolation boundary turns into a pending
+    evaluation and degraded health; the served half is test_fail_closed_served.py."""
+    co2_raise(world)
+    (w,) = world.by_definition("co2_above_limit")
+    holding = world.sensor(results=[h.result("co2_1h_act", crossed=False, clear_holds=True)])
+    for inp in (
+        replace(holding, origin_mode=None),
+        replace(world.freshness_input("current"), origin_mode=None),
+        replace(
+            world.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]), origin_mode=None
+        ),
+    ):
+        with pytest.raises(InvalidInput):
+            world.feed(inp)
+    assert world.warnings[w.warning_id] == w and len(world.warnings) == 1
 
 
 @pytest.mark.trace("T-E24-029", "INV-E24-14")

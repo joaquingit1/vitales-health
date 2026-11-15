@@ -22,7 +22,7 @@ from crew_health.rules.domain.activation import definition_status
 from crew_health.rules.domain.errors import NotVisible
 from crew_health.rules.domain.visibility import Viewer, can_see
 from crew_health.rules.domain.vocabulary import ACTIVE, EnvironmentId, Level, OriginMode, WarningAction
-from crew_health.rules.domain.warning import PersonActor, SessionActor, Warning
+from crew_health.rules.domain.warning import Actor, AssistantActor, PersonActor, SessionActor, Warning
 
 type View = ReadSnapshot | UnitOfWork
 
@@ -31,14 +31,19 @@ def viewer_of(session: SessionContext) -> Viewer:
     return Viewer(session.kind, session.person_id)
 
 
+def actor_of(session: SessionContext) -> Actor:
+    """The domain actor of a session. An assistant actor stays the assistant even inside a crew member's session,
+    so no transition accepts it (AGENTS 1 rule 4): the session kind never launders the assistant into a person."""
+    if session.actor.kind == "assistant":
+        return AssistantActor(session.actor.id)
+    if session.kind == "crew" and session.person_id is not None and session.actor.kind == "person":
+        return PersonActor(session.person_id)
+    return SessionActor(session.kind, session.actor.id)
+
+
 def requester_of(session: SessionContext, w: Warning) -> actions.Requester:
-    viewer = viewer_of(session)
-    actor = (
-        PersonActor(session.person_id)
-        if session.kind == "crew" and session.person_id is not None
-        else SessionActor(session.kind, session.actor.id)
-    )
-    return actions.Requester(viewer, actor, "none", None, session.kind == "crew")
+    actor = actor_of(session)
+    return actions.Requester(viewer_of(session), actor, "none", None, isinstance(actor, PersonActor))
 
 
 def served(w: Warning) -> guidance.ServedSteps:
@@ -92,23 +97,28 @@ class WarningReader:
     def listing(
         self, session: SessionContext, *, state: str, after: tuple[int, str, str] | None, limit: int
     ) -> tuple[list[dict[str, object]], tuple[int, str, str] | None]:
+        """One page of the session's warnings and the cursor of the last row consumed, or None at the end. A full
+        page followed by a further row returns a cursor; a page that ends the list returns None."""
         with self.snapshots.snapshot() as snap:
             facts = self.rt.facts_for_snapshot(snap)
             items: list[dict[str, object]] = []
-            last: tuple[int, str, str] | None = after
+            consumed = after
             seen = 0
-            while len(items) < limit and seen < 10 * limit:
-                batch = self.rt.warnings.page(snap.connection, state=state, after=last, limit=limit)
-                if not batch:
-                    return items, None
+            while seen < 10 * limit:
+                batch = self.rt.warnings.page(snap.connection, state=state, after=consumed, limit=limit)
                 for w in batch:
-                    last = (w.headline.rank, w.raised_at.isoformat().replace("+00:00", "Z"), w.warning_id)
+                    if len(items) == limit:
+                        return (
+                            items,
+                            consumed,
+                        )  # a visible row may follow: the next page starts after `consumed`
+                    consumed = (w.headline.rank, w.raised_at.isoformat().replace("+00:00", "Z"), w.warning_id)
                     seen += 1
-                    if can_see(w, viewer_of(session)).full and len(items) < limit:
+                    if can_see(w, viewer_of(session)).full:
                         items.append(project(self.rt, snap, facts, w, session))
                 if len(batch) < limit:
                     return items, None
-            return items, last
+            return items, consumed
 
     def visible(self, session: SessionContext, warning_id: str) -> bool:
         with self.snapshots.snapshot() as snap:

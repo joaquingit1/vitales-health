@@ -77,6 +77,25 @@ def _limit_raw(pin: LimitPin | None) -> object:
     }
 
 
+def _ending_raw(w: Warning) -> dict[str, object]:
+    """How a person ended the warning, and the notes they left."""
+    return {
+        "resolved": None
+        if w.resolved is None
+        else {
+            "by_id": w.resolved.by_id,
+            "by_kind": w.resolved.by_kind,
+            "at": instant(w.resolved.at),
+            "reason": w.resolved.reason,
+            "role": w.resolved.role,
+        },
+        "dismissed": None
+        if w.dismissed is None
+        else {"by_id": w.dismissed.by_id, "at": instant(w.dismissed.at), "reason": w.dismissed.reason},
+        "notes": [{"by_id": n.by_id, "at": instant(n.at), "text": n.text} for n in w.notes],
+    }
+
+
 def to_raw(w: Warning) -> dict[str, object]:
     return {
         "warning_id": w.warning_id,
@@ -114,19 +133,7 @@ def to_raw(w: Warning) -> dict[str, object]:
         "acknowledgements": [{"person_id": a.person_id, "at": instant(a.at)} for a in w.acknowledgements],
         "cleared_at": None if w.cleared_at is None else instant(w.cleared_at),
         "clear_reason": None if w.clear_reason is None else w.clear_reason.value,
-        "resolved": None
-        if w.resolved is None
-        else {
-            "by_id": w.resolved.by_id,
-            "by_kind": w.resolved.by_kind,
-            "at": instant(w.resolved.at),
-            "reason": w.resolved.reason,
-            "role": w.resolved.role,
-        },
-        "dismissed": None
-        if w.dismissed is None
-        else {"by_id": w.dismissed.by_id, "at": instant(w.dismissed.at), "reason": w.dismissed.reason},
-        "notes": [{"by_id": n.by_id, "at": instant(n.at), "text": n.text} for n in w.notes],
+        **_ending_raw(w),
         "previous_warning_id": w.previous_warning_id,
         "routine_override_ids": list(w.routine_override_ids),
         "scope_key": w.scope_key,
@@ -229,6 +236,24 @@ def _dismissal(value: object) -> Dismissal | None:
     return Dismissal(_text(raw, "by_id"), parse_instant(raw["at"]), _opt_text(raw, "reason"))
 
 
+def _citation(raw: Raw) -> Citation:
+    return Citation(_text(raw, "text"), tuple(str(s) for s in _list(raw, "source_ids")), _basis(raw["basis"]))
+
+
+def _acknowledgements(raw: Raw) -> tuple[Acknowledgement, ...]:
+    return tuple(
+        Acknowledgement(_text(_map(a), "person_id"), parse_instant(_map(a)["at"]))
+        for a in _list(raw, "acknowledgements")
+    )
+
+
+def _notes(raw: Raw) -> tuple[Note, ...]:
+    return tuple(
+        Note(_text(_map(n), "by_id"), parse_instant(_map(n)["at"]), _text(_map(n), "text"))
+        for n in _list(raw, "notes")
+    )
+
+
 def from_raw(raw: Raw) -> Warning:
     citation = _map(raw["citation"])
     headline = _map(raw["headline"])
@@ -261,26 +286,16 @@ def from_raw(raw: Raw) -> Warning:
         evidence=tuple(_evidence(e) for e in _list(raw, "evidence")),
         evidence_time=parse_instant(raw["evidence_time"]),
         evidence_time_label=_text(raw, "evidence_time_label"),
-        citation=Citation(
-            _text(citation, "text"),
-            tuple(str(s) for s in _list(citation, "source_ids")),
-            _basis(citation["basis"]),
-        ),
+        citation=_citation(citation),
         insight_id=_opt_text(raw, "insight_id"),
         state=WarningState(_text(raw, "state")),
         raised_at=parse_instant(raw["raised_at"]),
-        acknowledgements=tuple(
-            Acknowledgement(_text(_map(a), "person_id"), parse_instant(_map(a)["at"]))
-            for a in _list(raw, "acknowledgements")
-        ),
+        acknowledgements=_acknowledgements(raw),
         cleared_at=_opt_instant(raw["cleared_at"]),
         clear_reason=None if raw["clear_reason"] is None else ClearReason(_text(raw, "clear_reason")),
         resolved=_resolution(raw["resolved"]),
         dismissed=_dismissal(raw["dismissed"]),
-        notes=tuple(
-            Note(_text(_map(n), "by_id"), parse_instant(_map(n)["at"]), _text(_map(n), "text"))
-            for n in _list(raw, "notes")
-        ),
+        notes=_notes(raw),
         previous_warning_id=_opt_text(raw, "previous_warning_id"),
         routine_override_ids=tuple(str(s) for s in _list(raw, "routine_override_ids")),
         scope_key=_text(raw, "scope_key"),

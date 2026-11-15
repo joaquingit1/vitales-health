@@ -58,6 +58,7 @@ class EngineView:
     answer_events: tuple[MissionEventInput, ...] = ()
     clock_regressed: bool = False
     origin_words: Mapping[str, str] | None = None
+    duration_words: Mapping[str, str] | None = None
     context_placeholders: Mapping[str, str] | None = None
 
 

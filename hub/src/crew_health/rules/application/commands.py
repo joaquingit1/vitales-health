@@ -15,10 +15,10 @@ from crew_health.contracts_gen.enums import ErrorCode, EventType
 from crew_health.kernel.commands import CommandIdentity, CommandReceipts, IdempotencyStore, StoredResult
 from crew_health.kernel.errors import FieldError, ProblemError
 from crew_health.kernel.uow import SessionContext, UnitOfWork, UnitOfWorkFactory
+from crew_health.rules.application import core
 from crew_health.rules.application.core import Runtime, note_audit, replicate_local
-from crew_health.rules.application.ports import WarningCleared
 from crew_health.rules.application.queries import context_of, project, requester_of, viewer_of
-from crew_health.rules.application.wire import emit, fact_of
+from crew_health.rules.application.wire import emit
 from crew_health.rules.domain import actions
 from crew_health.rules.domain.errors import ActionNotAllowed, InvalidTransition, NotVisible, RulesDomainError
 from crew_health.rules.domain.visibility import can_see
@@ -134,16 +134,15 @@ class WarningActions:
         self, uow: UnitOfWork, session: SessionContext, before: Warning, done: Warning, identity: CommandIdentity
     ) -> tuple[dict[str, object], int]:  # fmt: skip
         rt, c = self.rt, uow.connection
-        if not rt.warnings.update(c, done, expected_revision=before.revision):
-            raise ProblemError(ErrorCode.STALE_VERSION, ErrorCode.STALE_VERSION.value)
-        replicate_local(uow, done.warning_id, "version")
         final = done.state in (WarningState.RESOLVED, WarningState.DISMISSED)
         if final:
-            rt.dwell.delete(c, done.warning_id)
-        emit(uow, EventType.WARNING_CLEARED if final else EventType.WARNING_UPDATED, done)
-        note_audit(rt, uow, "warning.updated", {"warning": done.warning_id}, {})
-        if final:
-            uow.publish(WarningCleared(fact_of(done)))
+            core.commit_final(rt, uow, before, done)
+        else:
+            if not rt.warnings.update(c, done, expected_revision=before.revision):
+                raise ProblemError(ErrorCode.STALE_VERSION, ErrorCode.STALE_VERSION.value)
+            replicate_local(uow, done.warning_id, "version")
+            emit(uow, EventType.WARNING_UPDATED, done)
+            note_audit(rt, uow, "warning.updated", {"warning": done.warning_id}, {})
         body = project(rt, uow, rt.facts(uow), done, session)
         text = json.dumps(body, sort_keys=True)
         rt.results.put(c, identity.actor_ref, identity.key, done.warning_id, text, uow.now)

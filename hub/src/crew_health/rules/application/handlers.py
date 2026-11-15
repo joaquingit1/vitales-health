@@ -12,14 +12,18 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Literal
 
+from pydantic import ValidationError
+
+from crew_health.contracts_gen.schemas.ground_link_schema import GroundLink
 from crew_health.kernel.clock import ClockCorrected, ClockRegressed, NormalizedTime, TimeInput
 from crew_health.kernel.scheduler import ScheduledJob
 from crew_health.kernel.units import Quantity, Unit
-from crew_health.kernel.uow import UnitOfWork
+from crew_health.kernel.uow import StoredEvent, UnitOfWork
 from crew_health.mission.application.ports import MissionEventRecorded, StateFactChanged
 from crew_health.records.application.ports import AnswerAcceptedFact
 from crew_health.rules.application import core, input_codec
 from crew_health.rules.application.core import Runtime
+from crew_health.rules.domain.errors import RulesDomainError
 from crew_health.rules.domain.inputs import (
     AnswerInput,
     ChannelRenderFacts,
@@ -41,7 +45,8 @@ def on_answer(rt: Runtime, uow: UnitOfWork, event: AnswerAcceptedFact) -> None:
     inp = AnswerInput(
         answer_id=event.answer_id, person_id=event.patient_id, question_id=event.question_id,
         presence=event.presence, answered_at=event.answered_at, answered_corrected_at=None,
-        origin_mode=OriginMode(event.origin_mode), day_label=f"{event.answered_at:%Y-%m-%d}",
+        origin_mode=OriginMode(event.origin_mode),
+        day_label=rt.day_label(event.answered_at) or f"{event.answered_at:%Y-%m-%d}",
         time_label=f"{event.answered_at:%H:%M}",
     )  # fmt: skip
     core.run_input(rt, uow, inp)
@@ -68,6 +73,10 @@ def on_clock_corrected(rt: Runtime, uow: UnitOfWork, event: ClockCorrected) -> N
                 core.schedule(rt, uow, key, "elapsed", row[1] + shift, row[2])
     cleared_at = uow.now + timedelta(microseconds=1)
     rt.facts_store.put(c, core.FACT_REGRESSED, cleared_at, {"on": False})
+    expire_overdue(rt, uow)  # expiries that came due while clears were suspended
+    reevaluate_ground(
+        rt, uow
+    )  # an absolute deadline does not move: the new clock may put it in the past (3.11)
 
 
 def on_ground_link(rt: Runtime, uow: UnitOfWork, inp: GroundLinkInput) -> None:
@@ -75,6 +84,69 @@ def on_ground_link(rt: Runtime, uow: UnitOfWork, inp: GroundLinkInput) -> None:
     body: dict[str, object] = {"kind": "GroundLinkInput", "json": input_codec.dumps(inp)[1]}
     if rt.facts_store.put(uow.connection, core.FACT_GROUND, inp.observed_at, body):
         core.run_input(rt, uow, inp)
+
+
+def expire_overdue(rt: Runtime, uow: UnitOfWork) -> None:
+    """An expiry that fired while `ClockRegressed` suspended clears was consumed without effect; once the clock is
+    corrected every active insight warning is checked again against its own expiry (3.11). The engine decides."""
+    for w in rt.warnings.active(uow.connection, limit=rt.cap("rules.active_scan_max")):
+        if w.insight_id is not None:
+            elapsed = max(0, int((uow.now - w.raised_at).total_seconds()))
+            core.run_input(rt, uow, InsightExpiredInput(w.insight_id, elapsed))
+
+
+def reevaluate_ground(rt: Runtime, uow: UnitOfWork) -> None:
+    """Re-run the last stored link state under the current clock and release. A forward correction or a new rule may
+    raise; nothing here clears, because the engine clears only on the link itself (3.11)."""
+    stored = rt.facts_store.get(uow.connection, core.FACT_GROUND)
+    if stored is not None:
+        core.run_input(rt, uow, input_codec.loads("GroundLinkInput", str(stored["json"])))
+
+
+def on_ground_link_event(rt: Runtime, uow: UnitOfWork, event: StoredEvent) -> None:
+    """The outbox event `ground_link.changed` of the link owner (E29), mapped to E24's private input. A payload that
+    does not match the contract is never guessed at: the engine is marked degraded and the event is skipped, loudly."""
+    try:
+        link = GroundLink.model_validate_json(event.data_json)
+    except ValidationError:
+        if rt.health is not None:
+            rt.health.mark_degraded(core.HEALTH_COMPONENT, core.FAULT_CODE, uow.now)
+        return
+    on_ground_link(
+        rt, uow,
+        GroundLinkInput(
+            link.status,
+            None if link.next_contact_at is None else link.next_contact_at.root,
+            link.source,
+            link.environment_id.root,
+            link.gap_planned,
+            event.occurred_at,
+        ),
+    )  # fmt: skip
+
+
+def on_activation(rt: Runtime, uow: UnitOfWork, event: StoredEvent) -> None:
+    """`config.release_activated` and `environment.activated` (3.8, C12, D1). An activation never clears, lowers or
+    re-pins an active warning: the active ones keep their pinned definition and clear by it. What it does:
+
+    - the release facts of the new release are built now; a document that cannot be read marks the engine degraded
+      and stops here (never a stuck event stream): every following input then becomes a pending evaluation, loudly;
+    - rows the evaluator gave up on are retried (`stuck` back to `pending`), and recovery runs at once;
+    - the stored link state is re-evaluated under the new release, which may raise a new ground silence.
+
+    Sensor, mission and answer state is re-evaluated by its producers after activation (an input computed under
+    another release is refused), so E24 holds no copy of it.
+    """
+    try:
+        rt.facts(uow)
+    except RulesDomainError:
+        if rt.health is not None:
+            rt.health.mark_degraded(core.HEALTH_COMPONENT, core.FAULT_CODE, uow.now)
+        return
+    c = uow.connection
+    if rt.pending.release_stuck(c, uow.now):
+        core.record_recovery_due(rt, uow)
+    reevaluate_ground(rt, uow)
 
 
 def fire_deadline(rt: Runtime, uow: UnitOfWork, job: ScheduledJob) -> None:
@@ -116,9 +188,12 @@ def recover_pending(rt: Runtime, uow: UnitOfWork, job: ScheduledJob) -> None:
         wait = min(
             s.integer("rules.reeval_backoff_max_s"), s.integer("rules.reeval_backoff_initial_s") * 2**attempts
         )
-        rt.pending.failed(
-            c, pending_id, core.fault_code(fault), uow.now + timedelta(seconds=wait), stuck=stuck
-        )
+        retry_at = uow.now + timedelta(seconds=wait)
+        rt.pending.failed(c, pending_id, core.fault_code(fault), retry_at, stuck=stuck)
+        if not stuck:
+            core.schedule(
+                rt, uow, core.RECOVER_HANDLER, "absolute", retry_at, None
+            )  # the next attempt is a job
         return
     if rt.pending.due(c, uow.now, 1):
         core.schedule(rt, uow, core.RECOVER_HANDLER, "absolute", uow.now, None)

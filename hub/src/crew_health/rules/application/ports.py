@@ -7,12 +7,13 @@ records; E24 maps them to its private domain inputs in `subscriptions.py` (anti-
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from typing import ClassVar, Literal, Protocol
 
-from crew_health.kernel.uow import SessionContext, UnitOfWork
+from crew_health.kernel.uow import Actor, SessionContext, UnitOfWork
+from crew_health.rules.domain.inputs import EvidenceKey, InsightDraft, RecordFacts
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,3 +88,18 @@ class AssistantWarningGuard(Protocol):
     def propose_action(
         self, uow: UnitOfWork, ctx: AssistantContext, warning_id: str, action: str
     ) -> Rejected: ...
+
+
+class RecordFactsPort(Protocol):
+    """Facts about the records an insight cites (existence, owner, origin, state), never their content. Owned by the
+    records module (R-E24-14); until it provides it, no insight can be verified and none is stored."""
+
+    def facts(self, uow: UnitOfWork, keys: Sequence[EvidenceKey]) -> Mapping[EvidenceKey, RecordFacts]: ...
+
+
+class InsightWarningPort(Protocol):
+    """What the assistant controller (E13) calls in its own unit of work (4.2, UC-R5, UC-R6)."""
+
+    def validate_and_raise(self, uow: UnitOfWork, draft: InsightDraft) -> WarningFact | None: ...
+    def on_insight_dismissed(self, uow: UnitOfWork, insight_id: str, actor: Actor) -> None: ...
+    def on_insight_expired(self, uow: UnitOfWork, insight_id: str) -> None: ...
