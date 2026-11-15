@@ -82,6 +82,7 @@ jobs:
         run: |
           uv run --project simulators/camera --locked camera-twin-fetch
           uv run --project workers/camera --locked --extra capture crew-health-camera-models
+          uv sync --project eval/bench --locked
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: collection-plan

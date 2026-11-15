@@ -105,7 +105,7 @@ class FreezeLibrary:
         except OSError as error:
             raise BenchError("target_unreadable", exit_code=6) from error
         return FrozenManifest(
-            str(root.relative_to(self.repository_root)),
+            root.relative_to(self.repository_root).as_posix(),
             files,
             self.clock.now(),
             self.frozen_by,
@@ -115,7 +115,7 @@ class FreezeLibrary:
     def verify_tree(self, root: Path, manifest: FrozenManifest) -> Sequence[FreezeFinding]:
         root = self._root(root)
         if (
-            str(root.relative_to(self.repository_root)) != manifest.root
+            root.relative_to(self.repository_root).as_posix() != manifest.root
             or len(manifest.files) > self.max_files
             or _digest(manifest.files) != manifest.manifest_sha256
         ):

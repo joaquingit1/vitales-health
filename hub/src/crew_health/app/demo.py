@@ -230,6 +230,7 @@ def settings_document(path: Path, camera: dict[str, object] | None = None) -> Pa
         **consent_defaults(),
         **sensor_defaults,
         "supervisor.poll_ms": 250,
+        "groundlink.history_rows": 1000,  # one history read stays within storage.max_rows
         **E28_PLANS,
         **(camera or {}),
     }
