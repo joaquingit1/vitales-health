@@ -1595,8 +1595,8 @@
     },
     {
       "path": "api/schemas/config-ui-copy.schema.json",
-      "bytes": 45172,
-      "sha256": "3017911a7ad011f8548da40bbc19724900c6b97b025211dc1ed209535550fa50"
+      "bytes": 45876,
+      "sha256": "78c096cb16cb472343437d37982f3f4e9863ac36e4709265bb5f54d9de0b02aa"
     },
     {
       "path": "api/schemas/config-warning-rules.schema.json",
@@ -2015,8 +2015,8 @@
     },
     {
       "path": "design/config-bundle.js",
-      "bytes": 350708,
-      "sha256": "a6a6a1a236ff9f8087ea7cab28d758048ae1bb2f8faea3c3e4e5fd847186dfc6"
+      "bytes": 350706,
+      "sha256": "e73bfdd80e9aabb03b0b3b54d662fa040fed56d8134540bceba1a44f8b2b0f6d"
     },
     {
       "path": "design/crew-data.js",

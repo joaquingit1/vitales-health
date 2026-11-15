@@ -109,15 +109,16 @@ class CameraReference:
     def begin_window(self, request: ReferenceWindowRequest, *, timeout: timedelta) -> ReferenceTicket:
         if request.window_end <= request.window_start or request.ticket_ttl <= timedelta(0):
             return ReferenceTicket(None, "invalid_window")
-        if request.persist and self._observations is None:
-            return ReferenceTicket(None, "camera_record_unavailable")
         probe = self._link.fresh(self._clock.now())
         if probe is None or not probe.camera_count:
             return ReferenceTicket(None, "camera_unavailable")
         if request.capability_code not in probe.capability_codes:
             return ReferenceTicket(None, "capability_not_supported")
+        # before the record check: a camera on another source is never compared (E30 3.6), and the check says so
         if probe.origin_mode != request.required_origin:
             return ReferenceTicket(None, "camera_origin_mismatch")
+        if request.persist and self._observations is None:
+            return ReferenceTicket(None, "camera_record_unavailable")
         devices = probe.paired_with(request.record_id)
         if not devices:
             return ReferenceTicket(None, "camera_not_paired")

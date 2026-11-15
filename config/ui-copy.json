@@ -171,7 +171,9 @@
     "experimental": "Experimental",
     "result_agree": "They agree",
     "result_disagree": "They don't agree. No value is written.",
-    "result_no_reference": "No camera reading. Your count is kept, unchecked."
+    "result_no_reference": "No camera reading. Your count is kept, unchecked.",
+    "your_count": "Your count {n} a minute",
+    "not_compared_origin": "not compared: the cameras and your count come from different sources"
   },
   "freshness_words": {
     "fresh": "Fresh",

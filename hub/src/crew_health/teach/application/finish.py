@@ -32,6 +32,9 @@ from crew_health.teach.domain.errors import IncompleteCapture, TeachError
 from crew_health.teach.domain.guided_check import CameraResult, GuidedCheck
 
 QUALITY_RULE_VERSION = "guided-check-1"  # version of the capture and agreement rules in this code (3.5)
+# The camera's refusal when its source (LIVE, SIM, REPLAY) is not the count's (camera/application/reference.py): 3.6
+# never compares them, and the screen says so instead of a bare "not available here".
+ORIGIN_MISMATCH = "camera_origin_mismatch"
 
 
 @dataclass(frozen=True, slots=True)
@@ -187,12 +190,18 @@ class FinishGuidedCheck(TeachCore):
         """The camera reference as shown, and the exact value compared, only from a real, comparable reading."""
         count_origin = origin(check)
         if outcome is None or outcome.kind != "reading" or outcome.value is None:
-            reason = outcome.reason if outcome is not None and outcome.reason else read.unavailable_reason
+            # a window the camera refused to open is the hub's refusal code, not the camera's words: only a refusal
+            # for another source is said as such; any other one reads "not available here" (3.4 step 3)
+            refused = ORIGIN_MISMATCH if read.unavailable_reason == ORIGIN_MISMATCH else None
+            reason = outcome.reason if outcome is not None and outcome.reason else refused
             camera = CameraResult(
                 None, None, None, reason, (outcome.origin_mode if outcome else None) or count_origin
             )
             return _Reference(camera, None, reason)
-        if not comparable_origins(count_origin, outcome.origin_mode) or not self._fresh(outcome):
+        if not comparable_origins(count_origin, outcome.origin_mode):
+            camera = CameraResult(None, None, None, None, outcome.origin_mode or count_origin)
+            return _Reference(camera, None, ORIGIN_MISMATCH)
+        if not self._fresh(outcome):
             camera = CameraResult(None, None, None, None, outcome.origin_mode or count_origin)
             return _Reference(camera, None, None)
         canonical = self.p.observations.canonical_unit(count_check.reference_code)
@@ -272,7 +281,11 @@ class FinishGuidedCheck(TeachCore):
 
 
 def _reason(content: PinnedContent, reference: _Reference, tolerance: Fraction | None) -> str:
-    """3.4 step 3: the camera's words, else not available here, else (tolerance pending) threshold pending."""
+    """3.4 step 3: the camera's words, else not available here, else (tolerance pending) threshold pending. A camera
+    on another source than the count (3.6) reads as not compared for that reason, when the pinned ui-copy has it."""
+    if reference.reason == ORIGIN_MISMATCH:
+        word = content.guided_check_word("not_compared_origin")
+        return word if word is not None else content.designed_state("not_available_here")
     if reference.reason:
         return reference.reason
     if reference.comparable is not None and tolerance is None:

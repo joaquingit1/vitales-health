@@ -336,13 +336,14 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
 
 def _camera_f1(registry: ModuleRegistry, provided: Mapping[object, object], reports: object | None) -> None:
     """E06's F1 binding (app/camera_reports.py): E01's task ports from the platform TaskService, the camera's
-    readiness and assignment under E05's port classes, and, when the profile names the hub listener, the attempt
-    reports over E05's recordAttempt route."""
-    from crew_health.app.camera_reports import MeasurementAssignments, MeasurementReadiness
+    readiness and assignment under E05's port classes, the camera's reference windows under E30's port class, and,
+    when the profile names the hub listener, the attempt reports over E05's recordAttempt route."""
+    from crew_health.app.camera_reports import MeasurementAssignments, MeasurementReadiness, TeachReference
     from crew_health.camera.application import ports as camera_ports
     from crew_health.kernel.tasks import TaskQueue, TaskRunner
     from crew_health.measurement.application import ports as measurement_ports
     from crew_health.platform.application.tasks import TaskService
+    from crew_health.teach.application import ports as teach_ports
 
     def tasks(resolver: object) -> object:
         return resolver.require(TaskService)  # type: ignore[attr-defined]
@@ -353,11 +354,15 @@ def _camera_f1(registry: ModuleRegistry, provided: Mapping[object, object], repo
     def assignments(resolver: object) -> object:
         return MeasurementAssignments(resolver.require(camera_ports.AdapterAssignmentPort))  # type: ignore[attr-defined]
 
+    def reference(resolver: object) -> object:
+        return TeachReference(resolver.require(camera_ports.CameraReferencePort))  # type: ignore[attr-defined]
+
     bindings: tuple[tuple[object, Callable[[object], object], tuple[object, ...]], ...] = (
         (TaskQueue, tasks, (TaskService,)),
         (TaskRunner, tasks, (TaskService,)),
         (measurement_ports.AdapterReadinessPort, readiness, (camera_ports.AdapterReadinessPort,)),
         (measurement_ports.AdapterAssignmentPort, assignments, (camera_ports.AdapterAssignmentPort,)),
+        (teach_ports.CameraReferencePort, reference, (camera_ports.CameraReferencePort,)),
     )
     for port, factory, requires in bindings:
         if port not in provided:
