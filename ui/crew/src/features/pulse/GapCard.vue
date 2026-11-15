@@ -92,7 +92,7 @@ onMounted(() => {
 
 <template>
   <article
-    class="card paper"
+    class="card paper a-gap"
     data-test="gap-card"
   >
     <div class="card-head">
@@ -100,32 +100,34 @@ onMounted(() => {
         {{ WORDS.gapTitle }}
       </h2>
     </div>
-    <div class="gap-fig">
-      <svg
-        viewBox="0 0 200 140"
-        preserveAspectRatio="xMidYMid meet"
-        role="img"
-        aria-label="An open dashed ring: a test this kit does not carry."
-      >
-        <circle
-          cx="100"
-          cy="70"
-          r="52"
-          fill="none"
-          stroke="#1c1e1c"
-          stroke-width="1.6"
-          stroke-dasharray="5 6"
-        />
-        <path
-          d="M58 72h22l7-18 10 34 8-26 5 10h32"
-          fill="none"
-          stroke="#6b6f69"
-          stroke-width="1.4"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-dasharray="2 4"
-        />
-      </svg>
+    <div class="a-gap-top">
+      <div class="gap-fig">
+        <svg
+          viewBox="0 0 200 140"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-label="An open dashed ring: a test this kit does not carry."
+        >
+          <circle
+            cx="100"
+            cy="70"
+            r="52"
+            fill="none"
+            stroke="#1c1e1c"
+            stroke-width="1.6"
+            stroke-dasharray="5 6"
+          />
+          <path
+            d="M58 72h22l7-18 10 34 8-26 5 10h32"
+            fill="none"
+            stroke="#6b6f69"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-dasharray="2 4"
+          />
+        </svg>
+      </div>
     </div>
     <template v-if="gap">
       <p

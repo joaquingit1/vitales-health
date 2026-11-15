@@ -15,7 +15,6 @@ import {
   type TeachSteps,
 } from "../pulse/hub";
 import { WORDS, fill } from "../pulse/words";
-import "../pulse/flow.css";
 
 const api = useCrewApi();
 const session = useSession();
@@ -203,282 +202,277 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main class="pt">
-    <section
-      class="cards"
-      aria-label="A crewmate checks"
+  <section
+    class="cards flow f-teach"
+    aria-label="A crewmate checks"
+  >
+    <article
+      class="card paper t-main"
     >
-      <article
-        class="card paper"
-        style="grid-column: 1 / span 14; grid-row: 1 / span 2"
-      >
-        <div class="card-head">
-          <h2 class="card-title">
-            {{ steps?.card_title_text ?? helper?.task_text ?? "" }}
-          </h2>
-          <span
-            v-if="steps"
-            class="tag"
-          >{{ steps.notice }}</span>
+      <div class="card-head">
+        <h2 class="card-title">
+          {{ steps?.card_title_text ?? helper?.task_text ?? "" }}
+        </h2>
+        <span
+          v-if="steps"
+          class="tag"
+        >{{ steps.notice }}</span>
+      </div>
+
+      <template v-if="!check">
+        <div
+          v-if="helper"
+          class="list"
+          data-test="helper-row"
+        >
+          <div class="li">
+            <span class="what">{{ helper.person.display_name }}<small>{{ helper.reason_text }}</small></span>
+          </div>
+          <div
+            v-if="officer"
+            class="li"
+          >
+            <span
+              class="what"
+              data-test="officer"
+            >{{ officer.text }}.</span>
+          </div>
+        </div>
+        <div class="acts">
+          <button
+            v-if="helper"
+            class="pill do"
+            type="button"
+            :disabled="busy"
+            data-test="teach"
+            @click="teach"
+          >
+            {{ WORDS.teach }} {{ firstName(helper.person.display_name) }}
+          </button>
+        </div>
+      </template>
+
+      <template v-else>
+        <p
+          v-if="steps && current"
+          class="sub"
+        >
+          {{ fill(WORDS.stepOf, { i: current.step_no, n: steps.teach_steps.length }) }}
+        </p>
+        <div class="nsteps t-steps">
+          <div
+            v-for="s in shown"
+            :key="s.step_no"
+            class="li"
+            :class="s === current ? 'now' : 'done'"
+            data-test="step"
+          >
+            <span class="what">{{ s.text }}<template v-if="s.kind === 'question' && check.helper_answer"> {{ s.choices.find((x) => x.answer === check?.helper_answer)?.label }}</template></span>
+          </div>
         </div>
 
-        <template v-if="!check">
-          <div
-            v-if="helper"
-            class="list"
-            data-test="helper-row"
+        <div
+          v-if="current?.kind === 'instruction'"
+          class="acts"
+        >
+          <button
+            class="pill do"
+            type="button"
+            :disabled="busy"
+            data-test="next"
+            @click="nextStep"
           >
-            <div class="li">
-              <span class="what">{{ helper.person.display_name }}<small>{{ helper.reason_text }}</small></span>
-            </div>
-            <div
-              v-if="officer"
-              class="li"
-            >
-              <span
-                class="what"
-                data-test="officer"
-              >{{ officer.text }}.</span>
-            </div>
+            {{ WORDS.nextStep }}
+          </button>
+        </div>
+        <div v-else-if="current?.kind === 'count'">
+          <button
+            class="pill do beat"
+            type="button"
+            data-test="beat"
+            @click="beat"
+          >
+            {{ copy("guided_check_words.beat_button") }}
+          </button>
+          <div class="rows-l">
+            <span><i>{{ WORDS.tapsLabel }}</i><b data-test="taps">{{ check.beat_count }}</b></span>
+            <span><i>{{ WORDS.leftLabel }}</i><b class="secs">{{ copy("guided_check_words.seconds_left", { n: left }) }}</b></span>
           </div>
+        </div>
+        <div
+          v-else-if="current?.kind === 'question'"
+          class="pills"
+        >
+          <button
+            v-for="ch in current.choices"
+            :key="ch.answer"
+            class="pill"
+            type="button"
+            :disabled="busy"
+            :data-test="`answer-${ch.answer}`"
+            @click="answer(ch.answer)"
+          >
+            {{ ch.label }}
+          </button>
+        </div>
+
+        <div
+          v-if="check.result"
+          data-test="verdict"
+        >
+          <p
+            class="note"
+            :style="{ color: check.result === 'agree' ? 'var(--green-2)' : 'var(--ink-2)' }"
+          >
+            {{ check.result === "disagree" ? copy("guided_check_words.result_disagree") + " " : "" }}{{ check.result_text }}
+          </p>
+          <p
+            class="note"
+            data-test="ring-line"
+          >
+            {{ check.what_it_shows?.does_not ?? "" }} {{ anotherWay ?? "" }}
+          </p>
           <div class="acts">
             <button
-              v-if="helper"
-              class="pill do"
-              type="button"
-              :disabled="busy"
-              data-test="teach"
-              @click="teach"
-            >
-              {{ WORDS.teach }} {{ firstName(helper.person.display_name) }}
-            </button>
-          </div>
-        </template>
-
-        <template v-else>
-          <p
-            v-if="steps && current"
-            class="sub"
-          >
-            {{ fill(WORDS.stepOf, { i: current.step_no, n: steps.teach_steps.length }) }}
-          </p>
-          <div class="nsteps t-steps">
-            <div
-              v-for="s in shown"
-              :key="s.step_no"
-              class="li"
-              :class="s === current ? 'now' : 'done'"
-              data-test="step"
-            >
-              <span class="what">{{ s.text }}<template v-if="s.kind === 'question' && check.helper_answer"> {{ s.choices.find((x) => x.answer === check?.helper_answer)?.label }}</template></span>
-            </div>
-          </div>
-
-          <div
-            v-if="current?.kind === 'instruction'"
-            class="acts"
-          >
-            <button
-              class="pill do"
-              type="button"
-              :disabled="busy"
-              data-test="next"
-              @click="nextStep"
-            >
-              {{ WORDS.nextStep }}
-            </button>
-          </div>
-          <div v-else-if="current?.kind === 'count'">
-            <button
-              class="pill do beat"
-              type="button"
-              data-test="beat"
-              @click="beat"
-            >
-              {{ copy("guided_check_words.beat_button") }}
-            </button>
-            <div class="rows-l">
-              <span><i>{{ WORDS.tapsLabel }}</i><b data-test="taps">{{ check.beat_count }}</b></span>
-              <span><i>{{ WORDS.leftLabel }}</i><b class="secs">{{ copy("guided_check_words.seconds_left", { n: left }) }}</b></span>
-            </div>
-          </div>
-          <div
-            v-else-if="current?.kind === 'question'"
-            class="pills"
-          >
-            <button
-              v-for="ch in current.choices"
-              :key="ch.answer"
+              v-if="check.allowed_actions.includes('retry' as never)"
               class="pill"
               type="button"
               :disabled="busy"
-              :data-test="`answer-${ch.answer}`"
-              @click="answer(ch.answer)"
+              @click="again"
             >
-              {{ ch.label }}
+              {{ WORDS.countAgain }}
             </button>
           </div>
-
-          <div
-            v-if="check.result"
-            data-test="verdict"
-          >
-            <p
-              class="note"
-              :style="{ color: check.result === 'agree' ? 'var(--green-2)' : 'var(--ink-2)' }"
-            >
-              {{ check.result === "disagree" ? copy("guided_check_words.result_disagree") + " " : "" }}{{ check.result_text }}
-            </p>
-            <p
-              class="note"
-              data-test="ring-line"
-            >
-              {{ check.what_it_shows?.does_not ?? "" }} {{ anotherWay ?? "" }}
-            </p>
-            <div class="acts">
-              <button
-                v-if="check.allowed_actions.includes('retry' as never)"
-                class="pill"
-                type="button"
-                :disabled="busy"
-                @click="again"
-              >
-                {{ WORDS.countAgain }}
-              </button>
-            </div>
-          </div>
-        </template>
-        <p
-          v-if="problem"
-          class="note"
-          data-test="problem"
-        >
-          {{ problem }}
-        </p>
-      </article>
-
-      <article
-        class="card paper"
-        style="grid-column: 1 / span 14; grid-row: 3"
+        </div>
+      </template>
+      <p
+        v-if="problem"
+        class="note"
+        data-test="problem"
       >
-        <div class="card-head">
-          <h2 class="card-title">
-            {{ WORDS.taps }}
-          </h2>
-          <span class="tag">{{ copy("guided_check_words.seconds_left", { n: check?.count_seconds ?? 0 }) }}</span>
-        </div>
-        <div
-          class="taps"
-          role="img"
-          :aria-label="`${String(check?.beat_count ?? 0)} taps`"
-        >
-          <svg
-            viewBox="0 0 600 60"
-            preserveAspectRatio="none"
-          >
-            <line
-              x1="0"
-              y1="44"
-              x2="600"
-              y2="44"
-              stroke="var(--line)"
-              stroke-width="1"
-              vector-effect="non-scaling-stroke"
-            />
-            <line
-              v-for="(x, i) in ticks"
-              :key="i"
-              :x1="x"
-              y1="16"
-              :x2="x"
-              y2="44"
-              stroke="var(--ink)"
-              stroke-width="1.4"
-              vector-effect="non-scaling-stroke"
-              data-test="tick"
-            />
-          </svg>
-        </div>
-        <p
-          class="fine"
-          style="margin-top: auto"
-        >
-          {{ WORDS.tapsNote }}
-        </p>
-      </article>
+        {{ problem }}
+      </p>
+    </article>
 
-      <article
-        class="card paper"
-        style="grid-column: 15 / span 10; grid-row: 1 / span 3"
+    <article
+      class="card paper t-taps"
+    >
+      <div class="card-head">
+        <h2 class="card-title">
+          {{ WORDS.taps }}
+        </h2>
+        <span class="tag">{{ copy("guided_check_words.seconds_left", { n: check?.count_seconds ?? 0 }) }}</span>
+      </div>
+      <div
+        class="taps"
+        role="img"
+        :aria-label="`${String(check?.beat_count ?? 0)} taps`"
       >
-        <div class="card-head">
-          <h2 class="card-title">
-            {{ WORDS.aboutCheck }}
-          </h2>
-          <span
-            v-if="check?.experimental"
-            class="tag"
-          >{{ copy("guided_check_words.experimental") }}</span>
-        </div>
+        <svg
+          viewBox="0 0 600 60"
+          preserveAspectRatio="none"
+        >
+          <line
+            x1="0"
+            y1="44"
+            x2="600"
+            y2="44"
+            stroke="var(--line)"
+            stroke-width="1"
+            vector-effect="non-scaling-stroke"
+          />
+          <line
+            v-for="(x, i) in ticks"
+            :key="i"
+            :x1="x"
+            y1="16"
+            :x2="x"
+            y2="44"
+            stroke="var(--ink)"
+            stroke-width="1.4"
+            vector-effect="non-scaling-stroke"
+            data-test="tick"
+          />
+        </svg>
+      </div>
+      <p
+        class="fine"
+        style="margin-top: auto"
+      >
+        {{ WORDS.tapsNote }}
+      </p>
+    </article>
+
+    <article
+      class="card paper t-about"
+    >
+      <div class="card-head">
+        <h2 class="card-title">
+          {{ WORDS.aboutCheck }}
+        </h2>
+        <span
+          v-if="check?.experimental"
+          class="tag"
+        >{{ copy("guided_check_words.experimental") }}</span>
+      </div>
+      <div
+        class="cams"
+        style="grid-template-columns: 1fr"
+      >
         <div
-          class="cams"
-          style="grid-template-columns: 1fr"
+          class="cam"
+          :class="{ scan: check?.state === 'counting', ok: !!ref0 && ref0.value !== null, off: !!ref0 && ref0.value === null }"
         >
-          <div
-            class="cam"
-            :class="{ scan: check?.state === 'counting', ok: !!ref0 && ref0.value !== null, off: !!ref0 && ref0.value === null }"
-          >
-            <svg viewBox="0 0 24 24"><circle
-              cx="12"
-              cy="10"
-              r="5"
-            /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
-          </div>
+          <svg viewBox="0 0 24 24"><circle
+            cx="12"
+            cy="10"
+            r="5"
+          /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
         </div>
-        <div
-          v-if="ref0"
-          class="result"
-          data-test="camera-reference"
-        >
-          <template v-if="ref0.value !== null">
-            <div class="big">
-              {{ ref0.value }}<small>{{ ref0.unit === "/min" ? "bpm" : ref0.unit }}</small>
-            </div>
-            <SourceWord :origin="ref0.origin_mode" />
-          </template>
-          <template v-else>
-            <span class="r-num word">{{ copy("designed_states.no_reading") }}</span>
-            <span class="tag watch">{{ ref0.no_reading_reason }}</span>
-          </template>
-        </div>
-        <p
-          v-else
-          class="sub"
-          style="margin-top: 10px"
-        >
-          {{ WORDS.compared }}
-        </p>
-        <template v-if="check?.what_it_shows">
-          <p class="label-k">
-            {{ WORDS.doesAndNot }}
-          </p>
-          <div class="list">
-            <div class="li">
-              <span class="what">{{ check.what_it_shows.does }}</span>
-            </div>
-            <div class="li">
-              <span class="what">{{ check.what_it_shows.does_not }}</span>
-            </div>
+      </div>
+      <div
+        v-if="ref0"
+        class="result"
+        data-test="camera-reference"
+      >
+        <template v-if="ref0.value !== null">
+          <div class="big">
+            {{ ref0.value }}<small>{{ ref0.unit === "/min" ? "bpm" : ref0.unit }}</small>
           </div>
+          <SourceWord :origin="ref0.origin_mode" />
         </template>
-        <p
-          v-if="check?.tolerance"
-          class="fine"
-          style="margin-top: auto"
-        >
-          {{ WORDS.agreement }}: {{ check.tolerance.value }} {{ check.tolerance.unit }}, {{ check.tolerance.basis }}, {{ check.tolerance.to_be_set_by }}.
+        <template v-else>
+          <span class="r-num word">{{ copy("designed_states.no_reading") }}</span>
+          <span class="tag watch">{{ ref0.no_reading_reason }}</span>
+        </template>
+      </div>
+      <p
+        v-else
+        class="sub"
+        style="margin-top: 10px"
+      >
+        {{ WORDS.compared }}
+      </p>
+      <template v-if="check?.what_it_shows">
+        <p class="label-k">
+          {{ WORDS.doesAndNot }}
         </p>
-      </article>
-    </section>
-  </main>
+        <div class="list">
+          <div class="li">
+            <span class="what">{{ check.what_it_shows.does }}</span>
+          </div>
+          <div class="li">
+            <span class="what">{{ check.what_it_shows.does_not }}</span>
+          </div>
+        </div>
+      </template>
+      <p
+        v-if="check?.tolerance"
+        class="fine"
+        style="margin-top: auto"
+      >
+        {{ WORDS.agreement }}: {{ check.tolerance.value }} {{ check.tolerance.unit }}, {{ check.tolerance.basis }}, {{ check.tolerance.to_be_set_by }}.
+      </p>
+    </article>
+  </section>
 </template>

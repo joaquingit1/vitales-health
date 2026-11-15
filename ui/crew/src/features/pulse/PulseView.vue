@@ -17,7 +17,6 @@ import {
   type Observation,
 } from "./hub";
 import { WORDS } from "./words";
-import "./flow.css";
 
 type Phase = "idle" | "starting" | "reading" | "failed" | "done" | "refused";
 interface Tried {
@@ -165,165 +164,161 @@ defineExpose({ phase });
 </script>
 
 <template>
-  <main class="pt">
-    <section
-      class="cards"
-      aria-label="Measurement"
+  <section
+    class="cards flow f-measure"
+    aria-label="Measurement"
+  >
+    <article
+      class="card paper m-main"
     >
-      <article
-        class="card paper"
-        style="grid-column: 1 / span 14; grid-row: 1 / span 2"
+      <div class="card-head">
+        <h2 class="card-title">
+          {{ WORDS.pulseTitle }}
+        </h2>
+        <span
+          v-if="capability?.expected_duration_seconds"
+          class="tag"
+        >{{ copy("guided_check_words.seconds_left", { n: capability.expected_duration_seconds }) }}</span>
+      </div>
+      <p
+        class="sub"
+        data-test="lede"
       >
-        <div class="card-head">
-          <h2 class="card-title">
-            {{ WORDS.pulseTitle }}
-          </h2>
-          <span
-            v-if="capability?.expected_duration_seconds"
-            class="tag"
-          >{{ copy("guided_check_words.seconds_left", { n: capability.expected_duration_seconds }) }}</span>
-        </div>
-        <p
-          class="sub"
-          data-test="lede"
-        >
-          {{ lede }}
-        </p>
-        <div class="cams">
-          <div
-            v-for="cam in cameras.length ? cameras : ['']"
-            :key="cam"
-            class="cam"
-            :class="{
-              scan: phase === 'reading' || phase === 'starting',
-              ok: phase === 'done' && reading?.device_id === cam,
-              off: phase === 'failed' || (phase === 'done' && reading?.device_id !== cam),
-            }"
-          >
-            <svg viewBox="0 0 24 24"><circle
-              cx="12"
-              cy="10"
-              r="5"
-            /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
-            <span>{{ cam ? deviceWords(cam) : (capability?.instrument_ids[0] ? deviceWords(capability.instrument_ids[0]) : "") }}</span>
-          </div>
-        </div>
-
+        {{ lede }}
+      </p>
+      <div class="cams">
         <div
-          v-if="phase === 'failed' && last"
-          data-test="no-reading"
+          v-for="cam in cameras.length ? cameras : ['']"
+          :key="cam"
+          class="cam"
+          :class="{
+            scan: phase === 'reading' || phase === 'starting',
+            ok: phase === 'done' && reading?.device_id === cam,
+            off: phase === 'failed' || (phase === 'done' && reading?.device_id !== cam),
+          }"
         >
-          <div class="result">
-            <span class="r-num word">{{ copy("designed_states.no_reading") }}</span>
-            <span class="tag watch">{{ WORDS.keptFailed }}</span>
-          </div>
-          <div class="rows-l">
-            <span><i>{{ WORDS.why }}</i>{{ last.reason }}</span>
-            <span><i>{{ WORDS.taken }}</i>{{ hm(last.at) }}</span>
-          </div>
+          <svg viewBox="0 0 24 24"><circle
+            cx="12"
+            cy="10"
+            r="5"
+          /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
+          <span>{{ cam ? deviceWords(cam) : (capability?.instrument_ids[0] ? deviceWords(capability.instrument_ids[0]) : "") }}</span>
         </div>
-        <div
-          v-else-if="phase === 'done' && reading"
-          data-test="reading"
-        >
-          <div class="result">
-            <div class="big">
-              {{ reading.value }}<small>{{ unitWords(reading.unit) }}</small>
-            </div>
-            <span class="tag"><SourceWord :origin="reading.origin_mode" />, {{ deviceWords(reading.device_id) }}</span>
-          </div>
-          <div class="rows-l">
-            <span><i>{{ WORDS.taken }}</i>{{ hm(reading.observed_at) }}</span>
-            <span><i>{{ WORDS.quality }}</i>{{ reading.quality_status }}</span>
-          </div>
-        </div>
-        <p
-          v-else-if="phase === 'refused'"
-          class="note"
-          data-test="refused"
-        >
-          {{ problem }}
-        </p>
+      </div>
 
-        <div class="acts">
-          <button
-            v-if="phase === 'idle' || phase === 'refused'"
-            class="pill do"
-            type="button"
-            :disabled="!capability || capability.status !== 'available'"
-            @click="measure"
-          >
-            {{ WORDS.start }}
-          </button>
-          <button
-            v-if="phase === 'failed'"
-            class="pill do"
-            type="button"
-            @click="measure"
-          >
-            {{ WORDS.tryAgain }}
-          </button>
-          <button
-            v-if="phase === 'reading'"
-            class="pill"
-            type="button"
-            @click="cancel"
-          >
-            {{ WORDS.cancel }}
-          </button>
-        </div>
-        <p
-          v-if="problem && phase !== 'refused'"
-          class="fine"
-        >
-          {{ problem }}
-        </p>
-      </article>
-
-      <article
-        class="card paper"
-        style="grid-column: 1 / span 14; grid-row: 3"
+      <div
+        v-if="phase === 'failed' && last"
+        data-test="no-reading"
       >
-        <div class="card-head">
-          <h2 class="card-title">
-            {{ WORDS.todayTitle }}
-          </h2>
+        <div class="result">
+          <span class="r-num word">{{ copy("designed_states.no_reading") }}</span>
+          <span class="tag watch">{{ WORDS.keptFailed }}</span>
         </div>
-        <div
-          class="bars"
-          :style="{ gridTemplateColumns: `repeat(${String(Math.max(3, bars.length))}, 1fr)` }"
-        >
-          <div
-            v-for="(b, i) in bars"
-            :key="i"
-            class="bar"
-            :class="b.kind"
-          >
-            <em
-              v-if="b.value === null"
-              style="bottom: 34px"
-            >{{ copy("designed_states.no_reading") }}</em>
-            <em
-              v-else
-              :style="{ bottom: `calc(${b.height} + 22px)` }"
-            >{{ b.value }} {{ unitWords(b.unit) }}</em>
-            <i :style="{ height: b.height }" />
-            <span>{{ b.at }}</span>
+        <div class="rows-l">
+          <span><i>{{ WORDS.why }}</i>{{ last.reason }}</span>
+          <span><i>{{ WORDS.taken }}</i>{{ hm(last.at) }}</span>
+        </div>
+      </div>
+      <div
+        v-else-if="phase === 'done' && reading"
+        data-test="reading"
+      >
+        <div class="result">
+          <div class="big">
+            {{ reading.value }}<small>{{ unitWords(reading.unit) }}</small>
           </div>
+          <span class="tag"><SourceWord :origin="reading.origin_mode" />, {{ deviceWords(reading.device_id) }}</span>
         </div>
-        <div class="swatches">
-          <span class="s-sim"><i />{{ copy("origin_words.SIM") }}</span>
-          <span class="s-live"><i />{{ copy("origin_words.LIVE") }}</span>
-          <span class="s-none"><i />{{ WORDS.noReadingKept }}</span>
+        <div class="rows-l">
+          <span><i>{{ WORDS.taken }}</i>{{ hm(reading.observed_at) }}</span>
+          <span><i>{{ WORDS.quality }}</i>{{ reading.quality_status }}</span>
         </div>
-      </article>
+      </div>
+      <p
+        v-else-if="phase === 'refused'"
+        class="note"
+        data-test="refused"
+      >
+        {{ problem }}
+      </p>
 
-      <GapCard
-        v-if="capability"
-        style="grid-column: 15 / span 10; grid-row: 1 / span 3"
-        :region="capability.body_region"
-        :episode-id="episodeId"
-      />
-    </section>
-  </main>
+      <div class="acts">
+        <button
+          v-if="phase === 'idle' || phase === 'refused'"
+          class="pill do"
+          type="button"
+          :disabled="!capability || capability.status !== 'available'"
+          @click="measure"
+        >
+          {{ WORDS.start }}
+        </button>
+        <button
+          v-if="phase === 'failed'"
+          class="pill do"
+          type="button"
+          @click="measure"
+        >
+          {{ WORDS.tryAgain }}
+        </button>
+        <button
+          v-if="phase === 'reading'"
+          class="pill"
+          type="button"
+          @click="cancel"
+        >
+          {{ WORDS.cancel }}
+        </button>
+      </div>
+      <p
+        v-if="problem && phase !== 'refused'"
+        class="fine"
+      >
+        {{ problem }}
+      </p>
+    </article>
+
+    <article
+      class="card paper m-today"
+    >
+      <div class="card-head">
+        <h2 class="card-title">
+          {{ WORDS.todayTitle }}
+        </h2>
+      </div>
+      <div
+        class="bars"
+        :style="{ gridTemplateColumns: `repeat(${String(Math.max(3, bars.length))}, 1fr)` }"
+      >
+        <div
+          v-for="(b, i) in bars"
+          :key="i"
+          class="bar"
+          :class="b.kind"
+        >
+          <em
+            v-if="b.value === null"
+            style="bottom: 34px"
+          >{{ copy("designed_states.no_reading") }}</em>
+          <em
+            v-else
+            :style="{ bottom: `calc(${b.height} + 22px)` }"
+          >{{ b.value }} {{ unitWords(b.unit) }}</em>
+          <i :style="{ height: b.height }" />
+          <span>{{ b.at }}</span>
+        </div>
+      </div>
+      <div class="swatches">
+        <span class="s-sim"><i />{{ copy("origin_words.SIM") }}</span>
+        <span class="s-live"><i />{{ copy("origin_words.LIVE") }}</span>
+        <span class="s-none"><i />{{ WORDS.noReadingKept }}</span>
+      </div>
+    </article>
+
+    <GapCard
+      v-if="capability"
+      class="m-about"
+      :region="capability.body_region"
+      :episode-id="episodeId"
+    />
+  </section>
 </template>
