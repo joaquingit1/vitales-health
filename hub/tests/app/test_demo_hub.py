@@ -143,6 +143,31 @@ def test_shot_a_the_kit_map_counts_come_from_the_server(served: Served) -> None:
     assert {row["condition_id"] for row in kit["conditions"]} >= {"ICL10"}
 
 
+def _steps(plan: dict[str, object]) -> dict[str, dict[str, object]]:
+    stages = plan["stages"]
+    assert isinstance(stages, list)
+    return {step["step_id"]: step for stage in stages for step in stage.get("steps", [])}
+
+
+def test_the_icl10_plan_shows_real_availability_and_the_ground_line(served: Served) -> None:
+    """GET /v1/conditions/ICL10/plan on the served hub: content facts from the release's onboard plans and source
+    registry, the environment from the demo mission, roles' operators over E02's roster and the demo overlays."""
+    status, plan = served.get("/v1/conditions/ICL10/plan", served.sign_in("mara"))
+    assert status == 200, plan
+    steps = _steps(plan)
+    note = steps["icl10_note_episodes"]
+    assert (note["availability"], note["availability_text"]) == ("aboard", None)
+    who = note["who_can"]
+    assert isinstance(who, list) and {p["person_id"] for p in who} == {"mara", "ilya", "sofia", "tomas"}
+    review = steps["icl10_mo_review"]
+    assert review["availability"] == "aboard"
+    assert isinstance(review["who_can"], list) and "ilya" in {p["person_id"] for p in review["who_can"]}
+    # Nobody has a recorded pulse check practice yet: the step waits for a skill holder, it is not "Unknown".
+    assert steps["icl10_pulse_by_crewmate"]["availability"] == "needs_skill_holder"
+    ground = next(s for s in plan["stages"] if s["stage_id"] == "ground_log")  # type: ignore[union-attr]
+    assert ground["link_text"]
+
+
 def test_shot_b_the_ground_link_goes_down_with_next_contact_26_hours_ahead(served: Served) -> None:
     token = served.sign_in("mara")
     assert served.cue("environment-lunar-surface") == 0

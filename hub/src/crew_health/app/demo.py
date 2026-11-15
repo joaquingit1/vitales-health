@@ -36,7 +36,7 @@ from crew_health.app.assembly import BuildCatalog, Runtime, create_app
 if TYPE_CHECKING:
     from crew_health.app.cli import Server
 from crew_health.app.camera_reports import HubReports
-from crew_health.app.demo_mission import DemoMission, write_environment
+from crew_health.app.demo_mission import DemoMission, write_environment, write_overlays
 from crew_health.app.privacy import DemoOperatorRecord
 from crew_health.app.station import HubResources, Origin, bootstrap_release, production
 from crew_health.identity.application.admin import IdentityAdmin
@@ -288,6 +288,7 @@ def reset(
         },
     )
     write_environment(directory, fixture.initial_environment, source="demo_reset", at=datetime.now(UTC))
+    write_overlays(directory, ())
     ids = [m.person_id for m in fixture.members()] + [
         p.principal_id for p in fixture.principals() if p.kind != "adapter"
     ]
