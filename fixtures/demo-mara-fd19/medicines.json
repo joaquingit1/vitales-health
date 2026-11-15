@@ -1,0 +1,52 @@
+{
+  "fixture_id": "demo-mara-fd19-medicines",
+  "origin": "SIM",
+  "notice": "SIM demo inventory of the demo-mara-fd19 profile, loaded only by `crew-health demo reset`. Each lot is a configured lot of config/pharmacy/lots.json (product, quantity, release assay, packaging and shelf life unchanged) dated relative to the reset, with the custody below. Not a real inventory.",
+  "basis": "VALIDATION 3 acts 1 and 2: flight day 19 of 30 on station_leo, so every lot reached the station kit 19 days before the reset; ground storage before launch is the configured ICH long-term zone.",
+  "lots": [
+    {
+      "lot_id": "lot-apap-sim-019",
+      "from_lot_id": "lot-apap-001",
+      "manufacturer_lot": "SIMAPAP019",
+      "manufactured_days_before_reset": 45,
+      "custody": [
+        {"zone_id": "ground_storage", "from_days_before_reset": 45, "to_days_before_reset": 19},
+        {"zone_id": "station_kit", "from_days_before_reset": 19, "to_days_before_reset": null}
+      ],
+      "note": "SIM: acetaminophen made 45 days before the reset, 19 days in the station kit."
+    },
+    {
+      "lot_id": "lot-amc-sim-019",
+      "from_lot_id": "lot-amc-001",
+      "manufacturer_lot": "SIMAMC019",
+      "manufactured_days_before_reset": 700,
+      "custody": [
+        {"zone_id": "ground_storage", "from_days_before_reset": 700, "to_days_before_reset": 19},
+        {"zone_id": "station_kit", "from_days_before_reset": 19, "to_days_before_reset": null}
+      ],
+      "note": "SIM: amoxicillin and clavulanate near the end of its shelf life, 19 days aboard."
+    },
+    {
+      "lot_id": "lot-vitc-sim-019",
+      "from_lot_id": "lot-vitc-001",
+      "manufacturer_lot": "SIMVITC019",
+      "manufactured_days_before_reset": 600,
+      "custody": [
+        {"zone_id": "ground_storage", "from_days_before_reset": 600, "to_days_before_reset": 19},
+        {"zone_id": "station_kit", "from_days_before_reset": 19, "to_days_before_reset": null}
+      ],
+      "note": "SIM: ascorbic acid stored 20 months before launch, 19 days aboard."
+    },
+    {
+      "lot_id": "lot-epi-sim-019",
+      "from_lot_id": "lot-epi-ai-001",
+      "manufacturer_lot": "SIMEPI019",
+      "manufactured_days_before_reset": 650,
+      "custody": [
+        {"zone_id": "ground_storage", "from_days_before_reset": 650, "to_days_before_reset": 19},
+        {"zone_id": "station_kit", "from_days_before_reset": 19, "to_days_before_reset": null}
+      ],
+      "note": "SIM: epinephrine autoinjector stored 21 months before launch, 19 days aboard."
+    }
+  ]
+}

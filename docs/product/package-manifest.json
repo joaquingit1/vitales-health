@@ -1425,8 +1425,8 @@
     },
     {
       "path": "api/openapi.yaml",
-      "bytes": 427821,
-      "sha256": "ebdedb19a828fb347d82e30435d6db8e23283d3060f803c336f306fc24ad184a"
+      "bytes": 431404,
+      "sha256": "af8c62f26c64c4540f4873b45f6b707ab5b122876587135c34ea19a28c113dc3"
     },
     {
       "path": "api/schemas/activity-overlay.schema.json",
@@ -1595,8 +1595,8 @@
     },
     {
       "path": "api/schemas/config-ui-copy.schema.json",
-      "bytes": 45876,
-      "sha256": "78c096cb16cb472343437d37982f3f4e9863ac36e4709265bb5f54d9de0b02aa"
+      "bytes": 53566,
+      "sha256": "158c01d3a4d4eaed11e2ecb731ae288834580ced28588ea768754b466cf7a54a"
     },
     {
       "path": "api/schemas/config-warning-rules.schema.json",

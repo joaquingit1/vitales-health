@@ -250,6 +250,17 @@ onBeforeUnmount(() => {
             <span class="what">{{ cap(item.name) }}</span>
           </div>
         </div>
+        <RouterLink
+          class="li medicines-link"
+          :to="{ name: 'medicines' }"
+          data-testid="kit-medicines-link"
+        >
+          <span class="what">{{ copy("medicine_words.open") }}<small>{{ copy("medicine_words.open_line") }}</small></span>
+          <span class="go"><svg
+            class="icon"
+            viewBox="0 0 24 24"
+          ><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg></span>
+        </RouterLink>
       </div>
     </article>
     <article
@@ -327,5 +338,14 @@ onBeforeUnmount(() => {
 }
 .headline-note {
   margin-top: 10px;
+}
+.medicines-link {
+  margin-top: auto;
+  color: inherit;
+  text-decoration: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+.medicines-link .go {
+  color: var(--ink);
 }
 </style>

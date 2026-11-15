@@ -1644,6 +1644,41 @@ def lots_view(deps: Deps, session: SessionContext, environment_id: str | None) -
         )
 
 
+def lot_estimates_view(deps: Deps, session: SessionContext, environment_id: str | None) -> dict[str, object]:
+    """listMedicineLotEstimates: for each lot lots_view lists, its LotAssessment from the latest completed run's
+    stored result artifact, re-hashed on read and passed on as the engine wrote it (numbers stay exact Decimals).
+    Before any completed run, `lots` is empty and the run fields are null."""
+    roles = {str(r) for r in session.roles}
+    if not roles & {"crew", CMO, "operator"}:
+        raise _problem(ErrorCode.UNAUTHORIZED_SCOPE, "/", "not allowed")
+    with deps.snapshots.snapshot() as view:
+        partition = _partition(deps, view)
+        if environment_id is not None:
+            partition = replace(partition, environment_id=environment_id)
+        docs = deps.documents()
+        listed = {lot.lot_id for lot in lot_views(deps, view, partition, docs)}
+        run = deps.store.latest_completed(view, partition.mission_id, partition.origin_mode)
+        result = None if run is None else deps.store.result(view, run.run_id)
+        raw = None if result is None else deps.store.artifact(view, result.result_sha256)
+        if run is None or result is None or raw is None or run.start is None:
+            return {
+                "environment_id": partition.environment_id,
+                "run_id": None,
+                "as_of": None,
+                "engine_version": None,
+                "lots": [],
+            }
+        stored = cast(Mapping[str, object], json.loads(raw, parse_float=Decimal))
+        assessed = cast(list[Mapping[str, object]], stored.get("assessments") or [])
+        return {
+            "environment_id": partition.environment_id,
+            "run_id": run.run_id,
+            "as_of": instant(run.start.as_of),
+            "engine_version": result.engine_version,
+            "lots": [lot for lot in assessed if str(lot.get("lot_id")) in listed],
+        }
+
+
 def _assessment_status(deps: Deps, view: View, partition: Partition) -> str:
     """`completed` while the newest finished run is the one in use; `unknown` when a newer run ended without a
     valid result (failed, timed out, interrupted, result_invalid): the last completed lots and their exclusions stay

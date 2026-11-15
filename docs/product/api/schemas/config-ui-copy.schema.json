@@ -1529,6 +1529,335 @@
       ],
       "additionalProperties": false,
       "description": "Words for the crew app's context bar, the crew sign in and Today's body panel (E03 7.16)."
+    },
+    "medicine_words": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "headline": {
+          "type": "string",
+          "minLength": 1
+        },
+        "intro": {
+          "type": "string",
+          "minLength": 1
+        },
+        "open": {
+          "type": "string",
+          "minLength": 1
+        },
+        "open_line": {
+          "type": "string",
+          "minLength": 1
+        },
+        "no_assessment": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assessment_unknown": {
+          "type": "string",
+          "minLength": 1
+        },
+        "no_lots": {
+          "type": "string",
+          "minLength": 1
+        },
+        "as_of": {
+          "type": "string",
+          "minLength": 1
+        },
+        "engine_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lot": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aboard": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label_expiry": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state_in_specification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state_adjust": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state_do_not_use": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state_none": {
+          "type": "string",
+          "minLength": 1
+        },
+        "predicted": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interval": {
+          "type": "string",
+          "minLength": 1
+        },
+        "specification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "below_lower": {
+          "type": "string",
+          "minLength": 1
+        },
+        "within_spec": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pathways": {
+          "type": "string",
+          "minLength": 1
+        },
+        "driver_thermal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "driver_light": {
+          "type": "string",
+          "minLength": 1
+        },
+        "driver_radiation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "not_contributing": {
+          "type": "string",
+          "minLength": 1
+        },
+        "storage": {
+          "type": "string",
+          "minLength": 1
+        },
+        "storage_span": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mkt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "temperature_range": {
+          "type": "string",
+          "minLength": 1
+        },
+        "range": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "longest_gap": {
+          "type": "string",
+          "minLength": 1
+        },
+        "radiation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "radiation_method": {
+          "type": "string",
+          "minLength": 1
+        },
+        "radiation_loss": {
+          "type": "string",
+          "minLength": 1
+        },
+        "radiation_bound": {
+          "type": "string",
+          "minLength": 1
+        },
+        "radiosensitive": {
+          "type": "string",
+          "minLength": 1
+        },
+        "degradants": {
+          "type": "string",
+          "minLength": 1
+        },
+        "degradant_limit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "chemistry": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flags": {
+          "type": "string",
+          "minLength": 1
+        },
+        "placards": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reasons": {
+          "type": "string",
+          "minLength": 1
+        },
+        "draws": {
+          "type": "string",
+          "minLength": 1
+        },
+        "converged": {
+          "type": "string",
+          "minLength": 1
+        },
+        "not_converged": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis_measured_model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis_assay_updated": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis_computed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis_class_prior": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flag_outside_validated_range": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flag_coverage_low": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flag_computed_only": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flag_mc_not_converged": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flag_assay_model_conflict": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flag_assay_reanchored": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flag_inspection_override": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flag_regime_switch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flag_radiosensitive_dose_exceeded": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flag_degradant_profile_not_reviewed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "show_chemistry": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hide_chemistry": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "title",
+        "headline",
+        "intro",
+        "open",
+        "open_line",
+        "no_assessment",
+        "assessment_unknown",
+        "no_lots",
+        "as_of",
+        "engine_version",
+        "lot",
+        "aboard",
+        "label_expiry",
+        "state_in_specification",
+        "state_adjust",
+        "state_do_not_use",
+        "state_none",
+        "predicted",
+        "interval",
+        "specification",
+        "below_lower",
+        "within_spec",
+        "pathways",
+        "driver_thermal",
+        "driver_light",
+        "driver_radiation",
+        "not_contributing",
+        "storage",
+        "storage_span",
+        "mkt",
+        "temperature_range",
+        "range",
+        "dose",
+        "longest_gap",
+        "radiation",
+        "radiation_method",
+        "radiation_loss",
+        "radiation_bound",
+        "radiosensitive",
+        "degradants",
+        "degradant_limit",
+        "chemistry",
+        "flags",
+        "placards",
+        "reasons",
+        "draws",
+        "converged",
+        "not_converged",
+        "basis_measured_model",
+        "basis_assay_updated",
+        "basis_computed",
+        "basis_class_prior",
+        "flag_outside_validated_range",
+        "flag_coverage_low",
+        "flag_computed_only",
+        "flag_mc_not_converged",
+        "flag_assay_model_conflict",
+        "flag_assay_reanchored",
+        "flag_inspection_override",
+        "flag_regime_switch",
+        "flag_radiosensitive_dose_exceeded",
+        "flag_degradant_profile_not_reviewed",
+        "show_chemistry",
+        "hide_chemistry"
+      ],
+      "additionalProperties": false,
+      "description": "Words for the crew app's medicines screen: potency estimates of the pharmacy engine (E32)."
     }
   },
   "required": [

@@ -841,6 +841,76 @@ class ContextWords(BaseModel):
     sign_out: str = Field(..., min_length=1)
 
 
+class MedicineWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    title: str = Field(..., min_length=1)
+    headline: str = Field(..., min_length=1)
+    intro: str = Field(..., min_length=1)
+    open: str = Field(..., min_length=1)
+    open_line: str = Field(..., min_length=1)
+    no_assessment: str = Field(..., min_length=1)
+    assessment_unknown: str = Field(..., min_length=1)
+    no_lots: str = Field(..., min_length=1)
+    as_of: str = Field(..., min_length=1)
+    engine_version: str = Field(..., min_length=1)
+    lot: str = Field(..., min_length=1)
+    aboard: str = Field(..., min_length=1)
+    label_expiry: str = Field(..., min_length=1)
+    state_in_specification: str = Field(..., min_length=1)
+    state_adjust: str = Field(..., min_length=1)
+    state_do_not_use: str = Field(..., min_length=1)
+    state_none: str = Field(..., min_length=1)
+    predicted: str = Field(..., min_length=1)
+    interval: str = Field(..., min_length=1)
+    specification: str = Field(..., min_length=1)
+    below_lower: str = Field(..., min_length=1)
+    within_spec: str = Field(..., min_length=1)
+    pathways: str = Field(..., min_length=1)
+    driver_thermal: str = Field(..., min_length=1)
+    driver_light: str = Field(..., min_length=1)
+    driver_radiation: str = Field(..., min_length=1)
+    not_contributing: str = Field(..., min_length=1)
+    storage: str = Field(..., min_length=1)
+    storage_span: str = Field(..., min_length=1)
+    mkt: str = Field(..., min_length=1)
+    temperature_range: str = Field(..., min_length=1)
+    range: str = Field(..., min_length=1)
+    dose: str = Field(..., min_length=1)
+    longest_gap: str = Field(..., min_length=1)
+    radiation: str = Field(..., min_length=1)
+    radiation_method: str = Field(..., min_length=1)
+    radiation_loss: str = Field(..., min_length=1)
+    radiation_bound: str = Field(..., min_length=1)
+    radiosensitive: str = Field(..., min_length=1)
+    degradants: str = Field(..., min_length=1)
+    degradant_limit: str = Field(..., min_length=1)
+    chemistry: str = Field(..., min_length=1)
+    flags: str = Field(..., min_length=1)
+    placards: str = Field(..., min_length=1)
+    reasons: str = Field(..., min_length=1)
+    draws: str = Field(..., min_length=1)
+    converged: str = Field(..., min_length=1)
+    not_converged: str = Field(..., min_length=1)
+    basis_measured_model: str = Field(..., min_length=1)
+    basis_assay_updated: str = Field(..., min_length=1)
+    basis_computed: str = Field(..., min_length=1)
+    basis_class_prior: str = Field(..., min_length=1)
+    flag_outside_validated_range: str = Field(..., min_length=1)
+    flag_coverage_low: str = Field(..., min_length=1)
+    flag_computed_only: str = Field(..., min_length=1)
+    flag_mc_not_converged: str = Field(..., min_length=1)
+    flag_assay_model_conflict: str = Field(..., min_length=1)
+    flag_assay_reanchored: str = Field(..., min_length=1)
+    flag_inspection_override: str = Field(..., min_length=1)
+    flag_regime_switch: str = Field(..., min_length=1)
+    flag_radiosensitive_dose_exceeded: str = Field(..., min_length=1)
+    flag_degradant_profile_not_reviewed: str = Field(..., min_length=1)
+    show_chemistry: str = Field(..., min_length=1)
+    hide_chemistry: str = Field(..., min_length=1)
+
+
 class UiCopyJson(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -888,4 +958,8 @@ class UiCopyJson(BaseModel):
     context_words: ContextWords | None = Field(
         None,
         description="Words for the crew app's context bar, the crew sign in and Today's body panel (E03 7.16).",
+    )
+    medicine_words: MedicineWords | None = Field(
+        None,
+        description="Words for the crew app's medicines screen: potency estimates of the pharmacy engine (E32).",
     )

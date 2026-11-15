@@ -307,6 +307,7 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
     from crew_health.measurement.application.ports import MissionStatePort as MeasurementMission
     from crew_health.records.application.seams import MissionStatePort as RecordsMission
     from crew_health.routine.application.ports import MissionStatePort as RoutineMission
+    from crew_health.supplies.application.ports import MissionStatePort as SuppliesMission
 
     clock = cast(type[object], MissionClock)
 
@@ -323,6 +324,7 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
         MeasurementMission,
         RecordsMission,
         RoutineMission,
+        SuppliesMission,  # supplies and medicines (E32 partitions by the current mission)
         KitMission,
         MissionStatePort,
         OverlayPort,

@@ -254,6 +254,108 @@ def settings_document(path: Path, camera: dict[str, object] | None = None) -> Pa
     return path
 
 
+MEDICINES_FIXTURE = "fixtures/demo-mara-fd19/medicines.json"
+
+
+def _utc_text(at: datetime) -> str:
+    return at.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _demo_lot(base: Mapping[str, object], entry: Mapping[str, object], now: datetime) -> dict[str, object]:
+    """One SIM lot: the configured lot `from_lot_id` (its product, quantity, release assay and packaging) dated
+    relative to the reset, with the fixture's custody. The label's shelf life is the configured lot's own."""
+    made_base = datetime.fromisoformat(str(base["manufactured_at_utc"]))
+    shelf = datetime.fromisoformat(str(base["labeled_expiry_utc"])) - made_base
+    made = now - timedelta(days=float(str(entry["manufactured_days_before_reset"])))
+    shift = made - made_base
+    packages = [
+        dict(p, from_utc=_utc_text(datetime.fromisoformat(str(p["from_utc"])) + shift))
+        for p in cast(list[dict[str, object]], base["package_history"])
+        if datetime.fromisoformat(str(p["from_utc"])) + shift <= now
+    ]
+    custody = [
+        {
+            "zone_id": str(c["zone_id"]),
+            "from_utc": _utc_text(now - timedelta(days=float(str(c["from_days_before_reset"])))),
+            "to_utc": None
+            if c["to_days_before_reset"] is None
+            else _utc_text(now - timedelta(days=float(str(c["to_days_before_reset"])))),
+        }
+        for c in cast(list[dict[str, object]], entry["custody"])
+    ]
+    return dict(
+        base,
+        lot_id=str(entry["lot_id"]),
+        manufacturer_lot=str(entry["manufacturer_lot"]),
+        manufactured_at_utc=_utc_text(made),
+        labeled_expiry_utc=_utc_text(made + shelf),
+        custody=custody,
+        package_history=packages,
+        note=str(entry["note"]),
+    )
+
+
+def demo_medicines(root: Path, directory: Path, now: datetime) -> dict[str, object]:
+    """The demo's medicines documents (fixtures/demo-mara-fd19/medicines.json, SIM): the repository's treatments,
+    medicines policy and pharmacy bundle copied unchanged, except lots.json, which holds the fixture's lots dated
+    relative to this reset. Returns the hub settings that point the medicines module at them and at the root
+    environment's interpreter (the one carrying pharmacy and numpy); without that environment the setting stays
+    empty and every assessment fails engine_unavailable, shown as such."""
+    fixture = json.loads((root / MEDICINES_FIXTURE).read_text(encoding="utf-8"))
+    target = directory / "medicines"
+    shutil.copytree(root / "config/pharmacy", target / "pharmacy")
+    for name in ("treatments.json", "medicines.json"):
+        shutil.copyfile(root / "config" / name, target / name)
+    lots_path = target / "pharmacy/lots.json"
+    document = json.loads(lots_path.read_text(encoding="utf-8"))
+    configured = {str(lot["lot_id"]): lot for lot in document["lots"]}
+    document["lots"] = [_demo_lot(configured[str(e["from_lot_id"])], e, now) for e in fixture["lots"]]
+    document["notice"] = str(fixture["notice"])
+    lots_path.write_text(json.dumps(document, indent=1), encoding="utf-8")
+    scripts = "Scripts/python.exe" if os.name == "nt" else "bin/python"
+    python = root / ".venv" / scripts
+    return {
+        "medicines.config_dir": str(target),
+        "medicines.engine_python": str(python) if python.is_file() else "",
+    }
+
+
+MEDICINES_TASK = "medicines.assessment"  # crew_health.medicines.application.scheduling.HANDLER
+MEDICINES_WORKER = Actor("engine", "demo.medicines")
+
+
+def drain_medicine_assessments(runtime: Runtime) -> int:
+    """Runs the queued potency assessments through the medicines module's own task handler and the platform task
+    runner (claim, execute outside any unit of work, complete), as E32 5.2's worker would; the served hub has no
+    task worker for them yet. The demo calls it once at reset, so the first start's run is stored before the hub
+    serves (a run queued later stays queued, and the board keeps showing the last completed one). Returns how many
+    ran."""
+    from crew_health.kernel.tasks import TaskRegistration, TaskRunner
+    from crew_health.kernel.uow import UnitOfWorkFactory
+
+    if runtime.resolver is None:
+        return 0
+    registration = cast(
+        "TaskRegistration | None", runtime.registry.declarations.get("tasks", {}).get(MEDICINES_TASK)
+    )
+    if registration is None:
+        return 0
+    runner = runtime.resolver.require(TaskRunner)  # type: ignore[type-abstract]
+    uows = runtime.resolver.require(UnitOfWorkFactory)  # type: ignore[type-abstract]
+    ids = runtime.database.ids
+    with uows.begin(actor=MEDICINES_WORKER, correlation_id=ids.new("cor")) as uow:
+        leases = runner.claim(
+            uow, worker_id=MEDICINES_WORKER.id, handlers=frozenset({MEDICINES_TASK}), limit=1
+        )
+    for lease in leases:
+        result = registration.handler.execute(lease)
+        with uows.begin(actor=MEDICINES_WORKER, correlation_id=ids.new("cor")) as uow:
+            completed = runner.complete(uow, lease, result)
+        if not completed:
+            registration.handler.discard(result)
+    return len(leases)
+
+
 def _first_start(runtime: Runtime, fixture: Fixture, credentials: dict[str, str]) -> None:
     from crew_health.app.cli import MissionDay, TimeConfirmation, confirm_time
 
@@ -384,6 +486,7 @@ def reset(
             ),
             "sensors.deployment_profile": "demo",
             "sensors.sweep_timer_enabled": True,
+            **demo_medicines(resources_root, directory, datetime.now(UTC)),
         },
     )
     write_environment(directory, fixture.initial_environment, source="demo_reset", at=datetime.now(UTC))
@@ -408,6 +511,7 @@ def reset(
         try:
             _first_start(runtime, fixture, credentials)
             _bind_hub_clock(settings, runtime)
+            drain_medicine_assessments(runtime)
         finally:
             runtime.shutdown()
     finally:

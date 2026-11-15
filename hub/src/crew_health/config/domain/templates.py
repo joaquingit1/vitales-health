@@ -45,6 +45,7 @@ def _copy_placeholders(field: str) -> frozenset[str]:
         "supply_words": "n name quantity",
         "readiness_words": "skill_short n",
         "context_words": "n met delay gap total count",
+        "medicine_words": "time version lot n date p low high lower upper days threshold limit",
     }
     return frozenset(rules.get(field, "").split())
 

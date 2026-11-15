@@ -11424,6 +11424,102 @@ paths:
             application/json:
               schema:
                 $ref: schemas/error.schema.json
+  /v1/medicines/lots/estimates:
+    get:
+      operationId: listMedicineLotEstimates
+      tags:
+        - Medicines
+      summary: The engine's potency estimates for the lots in one environment
+      description: "E32 interim for the medicines screen: for each lot listMedicineLots returns, its LotAssessment (contracts/pharmacy/inventory-assessment.schema.json: potency estimates with coverage intervals, specification, pathway contributions, degradants, radiation and exposure basis, trace, flags, placards and the lot decision) from the latest completed assessment, exactly as the engine stored it. A lot the latest run did not assess is absent. No person data. Roles: crew_medical_officer, crew, operator."
+      x-roles:
+        - crew_medical_officer
+        - crew
+        - operator
+      parameters:
+        - $ref: "#/components/parameters/q_environment_id"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      responses:
+        "200":
+          description: OK.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - environment_id
+                  - run_id
+                  - as_of
+                  - engine_version
+                  - lots
+                properties:
+                  environment_id:
+                    type: string
+                    minLength: 1
+                  run_id:
+                    anyOf:
+                      - type: string
+                        minLength: 1
+                      - type: "null"
+                  as_of:
+                    anyOf:
+                      - $ref: "schemas/common.schema.json#/$defs/instant"
+                      - type: "null"
+                  engine_version:
+                    anyOf:
+                      - type: string
+                        minLength: 1
+                      - type: "null"
+                  lots:
+                    type: array
+                    items:
+                      type: object
+                      description: "One LotAssessment of contracts/pharmacy/inventory-assessment.schema.json."
+                      required:
+                        - lot_id
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: UNAUTHORIZED_SCOPE, ROLE_NOT_ELIGIBLE."
+          x-error-codes:
+            - UNAUTHORIZED_SCOPE
+            - ROLE_NOT_ELIGIBLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "422":
+          description: "Refused: CONTEXT_INAPPLICABLE."
+          x-error-codes:
+            - CONTEXT_INAPPLICABLE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
   /v1/medicines/inspections:
     post:
       operationId: recordMedicineInspection
