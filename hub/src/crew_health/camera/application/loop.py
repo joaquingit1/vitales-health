@@ -38,6 +38,16 @@ class CameraLoop:
     def stop(self) -> None:
         self._stop.set()
 
+    def stop_within(self, timeout_s: float) -> bool:
+        """The hub's WorkerLifecycle stop (SYSTEM 5.12): ask the loop to stop, wait at most `timeout_s` seconds and
+        report whether its thread ended."""
+        self.stop()
+        thread = self._thread
+        if thread is None:
+            return True
+        thread.join(timeout_s)
+        return not thread.is_alive()
+
     def _run(self) -> None:
         while not self._stop.is_set():
             try:

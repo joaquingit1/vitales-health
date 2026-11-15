@@ -8,34 +8,49 @@ from __future__ import annotations
 import json
 import logging
 import threading
-from collections.abc import Callable, Mapping
-from typing import Protocol
+from collections.abc import Callable, Mapping, Sequence
+from datetime import datetime
+from typing import Literal, Protocol
 
 from fastapi import APIRouter, Request
 
 from crew_health.contracts_gen.enums import ErrorCode, EventType
-from crew_health.guidance.application.ports import SkillFacts
+from crew_health.guidance.application.ports import Fact, OperatorFact, SkillFacts
+from crew_health.help.application.ports import BroadcastRole, BroadcastRolesSource
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import IdempotencyStore
 from crew_health.kernel.config import ConfigReader, ReleaseCheck
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import IdFactory
+from crew_health.kernel.scheduler import WorkerLifecycle
 from crew_health.kernel.settings import HubSettings, SettingSpec
-from crew_health.kernel.uow import SessionContext, StoredEvent, UnitOfWork, UnitOfWorkFactory
+from crew_health.kernel.uow import (
+    ReadSnapshot,
+    ReadSnapshotFactory,
+    SessionContext,
+    StoredEvent,
+    UnitOfWork,
+    UnitOfWorkFactory,
+)
 from crew_health.roles.adapters.sqlite_repository import SqliteRolesRepository
 from crew_health.roles.api.router import RequestAuthenticator, build_router
 from crew_health.roles.application.actions import RoleActions, RoleCommand
 from crew_health.roles.application.config import ConfigCache, RolesReleaseCheck
 from crew_health.roles.application.ports import (
+    AssignmentRecord,
+    AuthorityDecision,
     ClinicalAuthorityQuery,
     DayLabelPort,
+    DoseAuthorityContext,
     DrillReader,
+    DrillRef,
     HelpSessionReader,
     LocationPort,
     MissionStatePort,
     OverlayPort,
     PlanRunReader,
     RoleAssignmentReader,
+    RoleAssignmentRef,
     RoleQueryPort,
     RosterPort,
     SkillHolderPort,
@@ -48,6 +63,7 @@ from crew_health.roles.application.skills import DrillFinish, DrillStart, Skills
 from crew_health.roles.application.world import Deps
 
 _LOGGER = "crew_health.roles"
+WORKER_NAME = "roles.recompute"
 
 
 def context_events() -> frozenset[EventType]:
@@ -91,6 +107,7 @@ def build_deps(resolver: Resolver, configs: ConfigCache) -> Deps:
     """Production wiring: every required port from its provider; optional ones stay absent (fail closed)."""
     return Deps(
         uow=resolver.require(UnitOfWorkFactory),
+        snapshots=resolver.require(ReadSnapshotFactory),
         repository=SqliteRolesRepository,
         clock=resolver.require(Clock),
         ids=resolver.require(IdFactory),
@@ -118,11 +135,12 @@ class RolesRuntime:
         self.skills: Skills | None = None
         self.proposals: Proposals | None = None
         self.authenticator: RequestAuthenticator | None = None
+        self.provided: RolesProvided | None = None
         self.wake = threading.Event()
 
     def _need[T](self, value: T | None) -> T:
         if value is None:
-            raise ProblemError(ErrorCode.INTERNAL_ERROR, "roles module is not bound yet")
+            raise ProblemError(ErrorCode.INTERNAL_ERROR, "roles module is not bound yet", retryable=True)
         return value
 
     # RoleActionsApi
@@ -200,6 +218,8 @@ def run_worker(runtime: RolesRuntime, interval_seconds: float, stop: threading.E
     while not stop.is_set():
         runtime.wake.wait(timeout=interval_seconds)
         runtime.wake.clear()
+        if stop.is_set():
+            return
         proposals = runtime.proposals
         if proposals is None:
             continue
@@ -209,12 +229,84 @@ def run_worker(runtime: RolesRuntime, interval_seconds: float, stop: threading.E
             logging.getLogger(_LOGGER).error("roles: recompute pass failed: %s", type(error).__name__)
 
 
+def start_worker(runtime: RolesRuntime, interval_seconds: float, lifecycle: WorkerLifecycle) -> None:
+    """Report the recompute worker to the hub's WorkerLifecycle (SYSTEM 5.12), then start it. Its stop sets the stop
+    flag, wakes the loop and joins within the given budget; a refused report starts nothing."""
+    stop = threading.Event()
+    thread = threading.Thread(
+        target=run_worker, args=(runtime, interval_seconds, stop), name="roles-recompute", daemon=True
+    )
+
+    def halt(timeout_seconds: float) -> bool:
+        stop.set()
+        runtime.wake.set()
+        if thread.ident is None:
+            return True
+        thread.join(max(0.0, timeout_seconds))
+        return not thread.is_alive()
+
+    lifecycle.started(WORKER_NAME, halt)
+    thread.start()
+
+
+class _Provided:
+    """Factories need no dependencies; methods delegate only after the roles binding is complete."""
+
+    def __init__(self, runtime: RolesRuntime) -> None:
+        self._runtime = runtime
+
+    def _service(self) -> RolesProvided:
+        return self._runtime._need(self._runtime.provided)
+
+    def authority(
+        self,
+        snapshot: ReadSnapshot | UnitOfWork,
+        *,
+        person_id: str,
+        subject_person_id: str,
+        action: Literal["urgency_disposition", "dose_confirmation", "record_review", "clinician_assessed"],
+        dose: DoseAuthorityContext | None,
+        at: datetime,
+    ) -> AuthorityDecision:
+        return self._service().authority(
+            snapshot,
+            person_id=person_id,
+            subject_person_id=subject_person_id,
+            action=action,
+            dose=dose,
+            at=at,
+        )
+
+    def plan_run_person_ids(self, plan_run_id: str) -> frozenset[str]:
+        return self._service().plan_run_person_ids(plan_run_id)
+
+    def medical_officer_assignments(self, subject_person_id: str) -> Sequence[RoleAssignmentRef]:
+        return self._service().medical_officer_assignments(subject_person_id)
+
+    def operators(
+        self, snapshot: ReadSnapshot, subject_person_id: str | None, patient_location_id: str | None
+    ) -> Fact[tuple[OperatorFact, ...]]:
+        return self._service().operators(snapshot, subject_person_id, patient_location_id)
+
+    def holders(self, skill_id: str, at: datetime) -> Sequence[str]:
+        return self._service().holders(skill_id, at)
+
+    def running_drill(self, drill_id: str) -> DrillRef | None:
+        return self._service().running_drill(drill_id)
+
+    def get(self, role_assignment_id: str) -> AssignmentRecord | None:
+        return self._service().get(role_assignment_id)
+
+    def roles_for_session(self, help_session_id: str) -> Sequence[BroadcastRole]:
+        return self._service().roles_for_session(help_session_id)
+
+
 def register(registry: ModuleRegistry) -> None:
     configs = ConfigCache()
     runtime = RolesRuntime()
 
-    def provided(resolver: Resolver) -> RolesProvided:
-        return RolesProvided(build_deps(resolver, configs))
+    def provided(_: Resolver) -> _Provided:
+        return _Provided(runtime)
 
     def bind(resolver: Resolver) -> None:
         deps = build_deps(resolver, configs)
@@ -223,13 +315,9 @@ def register(registry: ModuleRegistry) -> None:
         runtime.proposals = Proposals(deps)
         runtime.authenticator = resolver.require(RequestAuthenticator)
         runtime.proposals.startup_sweep()  # design 5.2: every open context is recomputed after a restart
+        runtime.provided = RolesProvided(deps)
         # Started once every port resolved: the worker never runs against a partial wiring.
-        threading.Thread(
-            target=run_worker,
-            args=(runtime, float(deps.settings.retry_base_seconds), threading.Event()),
-            name="roles-recompute",
-            daemon=True,
-        ).start()
+        start_worker(runtime, float(deps.settings.retry_base_seconds), resolver.require(WorkerLifecycle))
 
     for record_type, prefix in (("role_assignment", "rol"), ("drill", "drl"), ("skill_practice", "prc")):
         registry.id_prefix(record_type=record_type, prefix=prefix)
@@ -243,5 +331,6 @@ def register(registry: ModuleRegistry) -> None:
     registry.provide(SkillHolderPort, provided)
     registry.provide(DrillReader, provided)
     registry.provide(RoleAssignmentReader, provided)
+    registry.provide(BroadcastRolesSource, provided)
     registry.bind("roles", bind)
     registry.durable_subscriber("roles.context", context_events(), runtime.on_event)

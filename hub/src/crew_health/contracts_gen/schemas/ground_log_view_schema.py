@@ -10,9 +10,9 @@ from . import common_schema
 
 class Gap(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    from_: common_schema.Instant = Field(..., alias='from')
+    from_: common_schema.Instant = Field(..., alias="from")
     to: common_schema.Instant | None
     gap_kind: common_schema.GapKind
     gap_planned: bool
@@ -20,9 +20,9 @@ class Gap(BaseModel):
 
 class Item(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['ground_message', 'handoff']
+    kind: Literal["ground_message", "handoff"]
     ref_id: common_schema.Id
     title: str = Field(..., min_length=1)
     queued_at: common_schema.Instant
@@ -34,7 +34,7 @@ class Item(BaseModel):
 
 class GroundLogView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     since: common_schema.Instant | None
     gap: Gap | None

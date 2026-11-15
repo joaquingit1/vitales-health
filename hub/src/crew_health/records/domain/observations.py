@@ -140,6 +140,10 @@ def assess_quality(
         reasons.append("out_of_range")
     if quantity.value <= policy.saturation_minimum or quantity.value >= policy.saturation_maximum:
         reasons.append("saturation")
+    if any(last.unit != quantity.unit for _, last in previous):
+        # History in another unit cannot run the stuck and rate checks, and a reading those checks cannot clear
+        # is never trusted: it is rejected and kept, with range and saturation reasons intact (AGENTS 2).
+        return QualityAssessment("rejected", tuple(reasons) + ("history_unit_mismatch",))
     if len(previous) >= policy.stuck_count - 1 and all(
         item[1] == quantity for item in previous[: policy.stuck_count - 1]
     ):

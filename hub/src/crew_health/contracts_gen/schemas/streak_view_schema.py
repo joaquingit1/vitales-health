@@ -10,22 +10,22 @@ from . import common_schema
 
 class Day(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     mission_day: common_schema.MissionDay
-    status: Literal['checked', 'missed', 'due']
+    status: Literal["checked", "missed", "due"]
 
 
 class StreakView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     patient_id: common_schema.Id
     mission_id: common_schema.Id
-    origin_mode: Literal['LIVE', 'SIM']
+    origin_mode: Literal["LIVE", "SIM"]
     as_of: common_schema.Instant
     current_mission_day: common_schema.MissionDay
-    today: Literal['checked', 'due']
+    today: Literal["checked", "due"]
     current_streak_days: int = Field(..., ge=0)
     longest_streak_days: int = Field(..., ge=0)
     completed_days_total: int = Field(..., ge=0)

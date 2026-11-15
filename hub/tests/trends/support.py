@@ -285,11 +285,11 @@ def station(tmp_path: Path) -> Station:
         initialize=True,
     )
     for module in ("records", "clock", "trends"):
-        db.migrate(
-            (ROOT / "hub/src/crew_health" / module / "adapters/migrations" / f"0001_{module}.sql").read_text(
-                encoding="utf-8"
-            )
-        )
+        # Every migration the module ships, as the hub applies them (records 0002 adds the source history index).
+        for migration in sorted(
+            (ROOT / "hub/src/crew_health" / module / "adapters/migrations").glob("*.sql")
+        ):
+            db.migrate(migration.read_text(encoding="utf-8"))
     clocks = PersistentClocks(
         repository=SqlClockRepository(
             settings=hub_settings, node_id=db.origin_node_id, incarnation_id=db.origin_incarnation

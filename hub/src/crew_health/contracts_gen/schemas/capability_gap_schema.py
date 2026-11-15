@@ -15,25 +15,23 @@ class Alternative(RootModel[str]):
 class PlanId(RootModel[str]):
     root: str = Field(
         ...,
-        description='The plan aboard for the condition the gap leaves open (CONTRACTS section 22). The gap card offers its check_another_way steps.',
-        pattern='^plan_[a-z0-9_]{1,59}$',
+        description="The plan aboard for the condition the gap leaves open (CONTRACTS section 22). The gap card offers its check_another_way steps.",
+        pattern="^plan_[a-z0-9_]{1,59}$",
     )
 
 
 class CapabilityGap(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     gap_id: common_schema.Id
     episode_id: common_schema.Id
     capability_code: common_schema.ConfigId
-    reason: Literal[
-        'no_capability', 'device_absent', 'operator_absent', 'context_inapplicable'
-    ]
+    reason: Literal["no_capability", "device_absent", "operator_absent", "context_inapplicable"]
     consequence: str = Field(..., min_length=1)
     alternatives: list[Alternative]
     body_region: common_schema.BodyRegionOrNull | None
-    state: Literal['open', 'addressed']
+    state: Literal["open", "addressed"]
     plan_id: PlanId | None
     check_another_way_step_ids: list[common_schema.ConfigId] = Field(
         ...,

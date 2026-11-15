@@ -23,6 +23,7 @@ from crew_health.kernel.uow import (
     OutboxEvent,
     SessionContext,
 )
+from crew_health.platform.domain.errors import StorageConstraintViolated
 from crew_health.platform.testing.sqlite import database
 
 pytestmark = [pytest.mark.E01, pytest.mark.trace("T-E01-11", "V35", "privacy")]
@@ -203,11 +204,11 @@ def test_retention_waits_for_subscribers_and_rejects_arbitrary_delete(station):
     row = emit(db, event(db, key))
     db.clock.at += timedelta(hours=db.settings.integer("events.retention_hours") + 1)
     retention = EventRetention(
-        repository=repository, settings=db.settings, advance=db.retention_advance, subscribers=("consumer",)
+        repository=repository, settings=db.settings, advance=db.retention_advance, registry=subscriptions
     )
     with db.begin(actor=Actor("engine", "engine_1"), correlation_id="correlation_1") as uow:
         assert retention.prune(uow) == 0
-        with pytest.raises(StorageUnavailable):
+        with pytest.raises(StorageConstraintViolated):
             uow.connection.execute("DELETE FROM events_outbox")
         with pytest.raises(StorageUnavailable):
             uow.connection.execute("UPDATE events_retention SET watermark=999 WHERE singleton=1")
@@ -375,7 +376,10 @@ def test_retention_is_bounded_by_page_and_cannot_remove_cursor(station):
         emit(db, event(db, key))
     db.clock.at += timedelta(hours=db.settings.integer("events.retention_hours") + 1)
     retention = EventRetention(
-        repository=repository, settings=db.settings, advance=db.retention_advance, subscribers=()
+        repository=repository,
+        settings=db.settings,
+        advance=db.retention_advance,
+        registry=DurableSubscriptions(repository=repository, settings=db.settings, factory=db),
     )
     with db.begin(actor=Actor("engine", "engine_1"), correlation_id="correlation_1") as uow:
         assert retention.prune(uow) == db.settings.integer("events.page_size")

@@ -14,7 +14,7 @@ class SavedAs(RootModel[str]):
 
 class ResearchSource(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     source_id: common_schema.SourceId
     title: str = Field(..., min_length=1)
@@ -23,12 +23,12 @@ class ResearchSource(BaseModel):
     access: str = Field(..., min_length=1)
     saved_as: SavedAs | None
     status: Literal[
-        'discovered',
-        'captured',
-        'extracted',
-        'technically_checked',
-        'clinically_reviewed',
-        'approved',
-        'superseded',
-        'withdrawn',
+        "discovered",
+        "captured",
+        "extracted",
+        "technically_checked",
+        "clinically_reviewed",
+        "approved",
+        "superseded",
+        "withdrawn",
     ]

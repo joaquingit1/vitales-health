@@ -11,7 +11,7 @@ from . import common_schema
 class LocationLabel(RootModel[str]):
     root: str = Field(
         ...,
-        description='Shown after the aggregation words on the card, for example Columbus module. null: not shown.',
+        description="Shown after the aggregation words on the card, for example Columbus module. null: not shown.",
         min_length=1,
     )
 
@@ -27,14 +27,14 @@ class Dataset(RootModel[str]):
 class DisplayNote(RootModel[str]):
     root: str = Field(
         ...,
-        description='Channel note shown instead of the composed context, for example a Sim scenario note.',
+        description="Channel note shown instead of the composed context, for example a Sim scenario note.",
         min_length=1,
     )
 
 
 class SensorChannel(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     channel_id: common_schema.Id
     sensor_type_id: common_schema.ConfigId
@@ -49,7 +49,7 @@ class SensorChannel(BaseModel):
     stale_after_seconds: int = Field(..., ge=1)
     last_received_at: common_schema.Instant | None
     last_observed_at: common_schema.Instant | None
-    freshness: Literal['current', 'stale', 'never_reported']
+    freshness: Literal["current", "stale", "never_reported"]
     source_label: str = Field(..., min_length=1)
     dataset: Dataset | None
     display_note: DisplayNote | None

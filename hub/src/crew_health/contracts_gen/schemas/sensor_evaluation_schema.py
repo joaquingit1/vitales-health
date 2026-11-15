@@ -18,16 +18,16 @@ class Coverage(RootModel[float]):
 
 class SensorEvaluation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     status: Literal[
-        'within_limit',
-        'beyond_limit',
-        'insufficient_data',
-        'stale',
-        'no_limit_on_file',
-        'threshold_pending',
-        'no_reading',
+        "within_limit",
+        "beyond_limit",
+        "insufficient_data",
+        "stale",
+        "no_limit_on_file",
+        "threshold_pending",
+        "no_reading",
     ]
     level: common_schema.Level | None
     limit_id: common_schema.ConfigId | None

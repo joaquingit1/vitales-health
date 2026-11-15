@@ -43,6 +43,7 @@ from crew_health.contracts_gen.enums import ErrorCode, EventType
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import IdFactory
+from crew_health.kernel.scheduler import WorkerLifecycle
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.tasks import TaskQueue, TaskRunner
 from crew_health.kernel.testing import MemoryUnits
@@ -151,6 +152,7 @@ def _bound(
     enabled: bool = False,
     texts: dict[str, str] | None = None,
     tasks: bool = True,
+    lifecycle: object | None = None,
 ) -> tuple[DeclarationRegistry, module.Live, Store]:
     store = camera_store(tmp_path)
     settings = camera_settings(kernel_settings(), enabled=enabled, texts=texts)
@@ -169,6 +171,8 @@ def _bound(
         values += [(TaskQueue, queue), (TaskRunner, queue), (camera_ports.AttemptReports, Reports())]
     if transport is not None:
         values.append((WorkerTransport, transport))
+    if lifecycle is not None:
+        values.append((WorkerLifecycle, lifecycle))
     for port, value in values:
         registry.provide(port, _const(value))
     registry.resolve()
@@ -212,6 +216,33 @@ def test_an_enabled_camera_without_a_readable_token_stays_unknown(tmp_path: Path
     assert live.loop.tick() == 0
     with store.uows.snapshot() as view:
         assert _port(registry, AdapterReadinessPort).ready_methods(view) is None
+
+
+class Lifecycle:
+    def __init__(self) -> None:
+        self.started_workers: list[tuple[str, Callable[[float], bool]]] = []
+
+    def started(self, name: str, stop: Callable[[float], bool]) -> None:
+        self.started_workers.append((name, stop))
+
+
+def test_an_enabled_camera_reports_its_loop_to_the_hub_and_stops_with_it(tmp_path: Path) -> None:
+    texts = {
+        "workers.camera.url": "http://127.0.0.1:9",
+        "workers.camera.token_file": str(tmp_path / "missing-token"),
+    }
+    lifecycle = Lifecycle()
+    _, live, _ = _bound(tmp_path, None, enabled=True, texts=texts, lifecycle=lifecycle)
+    assert [name for name, _ in lifecycle.started_workers] == ["camera"]
+    _, stop = lifecycle.started_workers[0]
+    assert stop(5.0)  # SYSTEM 5.12: the loop's thread ends within the shutdown budget
+    assert live.loop is not None and live.loop.stop_within(0.0)
+
+
+def test_a_disabled_camera_reports_no_worker(tmp_path: Path) -> None:
+    lifecycle = Lifecycle()
+    _bound(tmp_path, ScriptedTransport(fallback=describe()), lifecycle=lifecycle)
+    assert lifecycle.started_workers == []
 
 
 @pytest.mark.trace("M6", "AGENTS-1.3")

@@ -42,7 +42,7 @@ class GetGuidedCheck(TeachCore):
         with self.unit(meta, None) as uow:
             check = self.load(uow, guided_check_id)
             access.authorize(meta.session, check, "read")
-            return self.steps(check)
+            return self.steps(uow, check)
 
 
 def sample_wire(sample: StoredSample) -> dict[str, object]:
@@ -76,7 +76,8 @@ class CoachingSamples(TeachCore):
 
     def page(
         self, session: SessionContext, help_session_id: str, cursor: str | None, limit: int | None
-    ) -> dict[str, object]:
+    ) -> tuple[dict[str, object], str]:
+        """One page and the release its snapshot saw, sent as Config-Release."""
         size = self.p.settings.list_page_max if limit is None else limit
         if not 1 <= size <= self.p.settings.list_page_max:
             raise ProblemError(ErrorCode.INVALID_VALUE, ErrorCode.INVALID_VALUE.value)
@@ -85,10 +86,11 @@ class CoachingSamples(TeachCore):
         after = _parse_cursor(cursor)
         with self.p.snapshots.snapshot() as view:
             items = self._samples.page(view, help_session_id, after=after, limit=size + 1)
+            release_id = view.release.release_id
         shown = list(items[:size])
         more = len(items) > size
         next_cursor = _cursor(shown[-1]) if more and shown else None
-        return {"items": [sample_wire(s) for s in shown], "page": {"next_cursor": next_cursor}}
+        return {"items": [sample_wire(s) for s in shown], "page": {"next_cursor": next_cursor}}, release_id
 
     def record(
         self, uow: UnitOfWork, help_session_id: str, skill_id: str, raw: RawRateSample, pins: dict[str, str]
@@ -113,7 +115,9 @@ class CoachingSamples(TeachCore):
         if not phrase:
             raise ProblemError(ErrorCode.INTERNAL_ERROR, ErrorCode.INTERNAL_ERROR.value, retryable=False)
         rate = None if derived.rate is None else rounded(derived.rate, self.p.settings.rate_display_decimals)
-        text = self.p.renderer.render(PHRASE_FIELD, phrase, {} if rate is None else {"rate": str(rate)})
+        text = self.p.config.bind(uow).render(
+            PHRASE_FIELD, phrase, {} if rate is None else {"rate": str(rate)}
+        )
         sample = StoredSample(
             sample_id=self.p.ids.new("cs"),
             help_session_id=help_session_id,
@@ -127,7 +131,7 @@ class CoachingSamples(TeachCore):
             text=text,
             experimental=check.experimental,
         )
-        release = self.p.releases.active().release_id
+        release = uow.release.release_id
         self._samples.add(uow, sample, release_id=release)
         audience = Audience(COACHING_RULE, help_session_id, COACHING_PROJECTION, "teach-access-1")
         uow.emit(

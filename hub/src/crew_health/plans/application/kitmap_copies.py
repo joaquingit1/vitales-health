@@ -23,7 +23,9 @@ class KitMapReleaseView(Protocol):
 
 
 @dataclass(frozen=True, slots=True)
-class KitMapContext:
+class KitMapContext[Document = object]:
+    """Generic over the provider's parsed document like kitmap's own; plans reads only the release view."""
+
     snapshot: Snap
     release: KitMapReleaseView
     environment_id: str
@@ -68,9 +70,9 @@ class PlanChange:
 
 
 class PlanColumnsPort(Protocol):
-    def row_columns(
-        self, ctx: KitMapContext, *, kit: frozenset[str], plan_ids: Sequence[str | None]
+    def row_columns[Document](
+        self, ctx: KitMapContext[Document], *, kit: frozenset[str], plan_ids: Sequence[str | None]
     ) -> Sequence[PlanColumns]: ...
-    def plans_changed(
-        self, ctx: KitMapContext, *, base_kit: frozenset[str], delta: PlanningDelta
+    def plans_changed[Document](
+        self, ctx: KitMapContext[Document], *, base_kit: frozenset[str], delta: PlanningDelta
     ) -> Sequence[PlanChange]: ...
