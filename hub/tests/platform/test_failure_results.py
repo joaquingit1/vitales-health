@@ -171,3 +171,21 @@ def test_fail_pending_rechecks_current_authorization(tmp_path: Path) -> None:
     with s.db.snapshot() as view:
         row = s.service.repository.get(view, s.task.task_id)
         assert row is not None and row.status.state == "cancelled"
+
+
+@pytest.mark.trace("SYSTEM.5.10.1", "SYSTEM.5.2")
+def test_missing_clock_mapping_never_claims_an_unrecoverable_lease(tmp_path: Path) -> None:
+    s = station(tmp_path)
+    known_capture = s.service.capture
+    assert known_capture is not None
+    s.service.capture = lambda at: replace(known_capture(at), source_clock_version=0)
+    with s.db.begin(actor=s.session.actor, correlation_id="unmapped_claim") as uow:
+        s.service.submit(uow, s.task)
+        assert s.service.claim(uow, worker_id="worker_one", handlers=frozenset({"assessment"}), limit=1) == ()
+    with s.db.snapshot() as view:
+        row = s.service.repository.get(view, s.task.task_id)
+        assert row is not None and row.status.state == "queued"
+        assert row.attempts == 0 and row.generation == 0
+    s.service.capture = known_capture
+    lease = s.claim()
+    assert lease.generation == 1

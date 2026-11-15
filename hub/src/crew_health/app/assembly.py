@@ -31,6 +31,7 @@ from crew_health.config.module import register as register_config
 from crew_health.contracts_gen.build import load_json, object_map, verify_base
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode, EventType
 from crew_health.contracts_gen.schemas.health_schema import Health
+from crew_health.contracts_gen.schemas.job_schema import Job
 from crew_health.events.adapters.notifier import BoundedNotifier
 from crew_health.events.adapters.repository import EventRepository, EventValidator
 from crew_health.events.application.delivery import SessionAuthorizer
@@ -54,10 +55,19 @@ from crew_health.kernel.private import PrivateRecordCoordinator
 from crew_health.kernel.replication import ProjectionKey, ReplicatedTable, ReplicationAllowlist
 from crew_health.kernel.scheduler import HealthState, ScheduledJob, WorkerLifecycle
 from crew_health.kernel.settings import HubSettings, SettingSpec
-from crew_health.kernel.tasks import JobQueries, TaskInput, TaskQueue, TaskRegistration, TaskStatus
+from crew_health.kernel.task_results import TaskFailureResults
+from crew_health.kernel.tasks import (
+    JobQueries,
+    TaskInput,
+    TaskQueue,
+    TaskRegistration,
+    TaskRunner,
+    TaskStatus,
+)
 from crew_health.kernel.uow import (
     Actor,
     Audience,
+    AudienceProjectionKey,
     AudienceRule,
     DomainEvent,
     LocalProjectionRegistration,
@@ -71,6 +81,7 @@ from crew_health.platform.adapters.ledger import CommandLedger
 from crew_health.platform.adapters.migrations import require_expansion
 from crew_health.platform.adapters.tasks import TaskRepository
 from crew_health.platform.api.jobs import create_router as jobs_router
+from crew_health.platform.api.jobs import job_body
 from crew_health.platform.application.commands import CommandExecutor, OperationPolicy
 from crew_health.platform.application.evaluation import EvaluationService
 from crew_health.platform.application.supervisor import Supervisor
@@ -128,7 +139,7 @@ class BuildCatalog:
         inventory = {name: value for name, value in modules.items() if isinstance(value, str)}
         if len(inventory) != len(modules):
             raise ValueError("invalid installed module inventory")
-        return cls(root, inventory, REGISTRATIONS)
+        return cls(root, inventory, cast(tuple[Callable[[ModuleRegistry], None], ...], REGISTRATIONS))
 
     def verify(self, maximum: int) -> None:
         if set(self.inventory) != {fn.__module__ for fn in self.registrations} or len(
@@ -160,6 +171,23 @@ class TaskHttpServices:
     queue: TaskQueue
     queries: JobQueries
     visibility: ResultVisibility
+
+
+class JobAudience:
+    def __init__(self, runtime: Runtime) -> None:
+        self.runtime = runtime
+
+    def admits(self, snapshot: ReadSnapshot, session: SessionContext, audience: Audience) -> bool:
+        resolver = self.runtime.resolver
+        if resolver is None:
+            return False
+        try:
+            resolver.require(TaskService).get(snapshot, session, audience.object_ref)
+            return True
+        except ProblemError as error:
+            if error.code in (ErrorCode.NOT_FOUND, ErrorCode.UNAUTHORIZED_SCOPE):
+                return False
+            raise
 
 
 def _identity(request: Request, session: SessionContext, operation: str, target: str) -> CommandIdentity:
@@ -493,17 +521,7 @@ def _hub_time(
     """A capture on the hub's own clock: its latest segment and the correction revision in force now."""
 
     def capture(uow: UnitOfWork) -> TimeInput:
-        segment = (
-            None
-            if clocks.hub_source_clock_id is None
-            else clocks.repository.latest_segment(uow.connection, clocks.hub_source_clock_id)
-        )
-        if segment is None:
-            raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, "hub clock segment not open")
-        version = clocks.repository.correction_head(uow.connection)
-        return TimeInput(
-            uow.now, segment.source_clock_id, segment.segment_id, version, "hub_corrected", origin(uow)
-        )
+        return clocks.capture_hub(uow, origin_mode=origin(uow))
 
     return capture
 
@@ -541,24 +559,10 @@ def platform_services(registry: DeclarationRegistry, runtime: Runtime) -> None:
     def tasks(resolver: Resolver) -> TaskService:
         clocks, metadata = resolver.require(PersistentClocks), resolver.require(ConfigHttpMetadata)
 
-        def capture(at: datetime) -> TimeInput:
-            segment, origin = runtime.hub_segment, runtime.origin
-            if segment is None or origin is None:
-                raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, "hub clock segment not open")
-            return TimeInput(
-                at,
-                segment.source_clock_id,
-                segment.segment_id,
-                segment.capture_offset_version,
-                "hub_corrected",
-                origin,
-            )
-
         registrations = tuple(
             cast(TaskRegistration, value)
             for _, value in sorted(registry.declarations.get("tasks", {}).items(), key=lambda p: str(p[0]))
         )
-        del metadata
         return TaskService(
             settings=db.settings,
             repository=TaskRepository(),
@@ -566,12 +570,41 @@ def platform_services(registry: DeclarationRegistry, runtime: Runtime) -> None:
             registrations=registrations,
             authorize=_owner_only,
             authorize_completion=_completion_open,
-            capture=capture,
+            capture_in_view=lambda view: clocks.capture_hub(view, origin_mode=metadata.origin(view)),
             elapsed=clocks.elapsed,
+            public_payload=lambda status, correlation: job_body(status, None, correlation),
         )
 
     registry.provide(EvaluationService, evaluation, requires=(PersistentClocks, ConfigHttpMetadata))
     registry.provide(TaskService, tasks, requires=(PersistentClocks, ConfigHttpMetadata))
+    registry.provide(TaskQueue, lambda resolver: resolver.require(TaskService), requires=(TaskService,))  # type: ignore[type-abstract]
+    registry.provide(TaskRunner, lambda resolver: resolver.require(TaskService), requires=(TaskService,))  # type: ignore[type-abstract]
+    registry.provide(JobQueries, lambda resolver: resolver.require(TaskService), requires=(TaskService,))  # type: ignore[type-abstract]
+    registry.provide(
+        TaskFailureResults,  # type: ignore[type-abstract]
+        lambda resolver: resolver.require(TaskService),
+        requires=(TaskService,),
+    )
+    if TaskHttpServices not in registry.providers:
+        registry.provide(
+            TaskHttpServices,
+            lambda resolver: TaskHttpServices(
+                resolver.require(TaskService),
+                resolver.require(TaskService),
+                resolver.require(ConfigHttpMetadata).visibility,
+            ),
+            requires=(TaskService, ConfigHttpMetadata),
+        )
+    audience = JobAudience(runtime)
+    registry.audience_rule("platform.job.owner", audience)
+    registry.local_projection(
+        LocalProjectionRegistration(
+            AudienceProjectionKey("platform", "job", 1),
+            canonical_json(Job.model_json_schema()),
+            ("/job_id", "/kind", "/state"),
+            audience,
+        )
+    )
 
 
 def _startup(
