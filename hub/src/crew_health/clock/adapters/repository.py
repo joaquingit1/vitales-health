@@ -229,6 +229,32 @@ class SqlClockRepository:
         return tuple(_correction(row) for row in rows)
 
     @staticmethod
+    def hub_capture_version(connection: StorageSession, segment: ClockSegment) -> int:
+        rows = connection.rows(
+            "SELECT version FROM clock_hub_capture WHERE source_clock_id=? AND segment_id=?",
+            (segment.source_clock_id, segment.segment_id),
+            limit=1,
+        )
+        return _integer(rows[0][0]) if rows else 0
+
+    def set_hub_capture(self, connection: StorageSession, correction: ClockCorrection) -> None:
+        accepted = self.correction(
+            connection,
+            source=correction.source_clock_id,
+            segment=correction.segment_id,
+            version=correction.version,
+        )
+        if accepted != correction or correction.source != "operator":
+            raise InvalidClockValue()
+        result = connection.execute(
+            "INSERT INTO clock_hub_capture(source_clock_id,segment_id,version) VALUES(?,?,?) "
+            "ON CONFLICT(source_clock_id,segment_id) DO UPDATE SET version=excluded.version",
+            (correction.source_clock_id, correction.segment_id, correction.version),
+        )
+        if result.affected_rows != 1:
+            raise StorageUnavailable("corrupt")
+
+    @staticmethod
     def state(connection: StorageSession) -> ClockState | None:
         rows = connection.rows(
             "SELECT last_committed_at,frozen,correction_version,minimum_revision FROM clock_state WHERE singleton=1",

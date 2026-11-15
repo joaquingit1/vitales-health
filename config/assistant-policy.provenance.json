@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "artifact": "config/assistant-policy.json",
+  "artifact_sha256": "abb28eac2f393fd5fa2c359881791d3b9ae133565fe332d450532ab624a7927c",
+  "classification": "team operational limits and non-diagnostic research topic routing; not clinically reviewed",
+  "operational_basis": {
+    "source": "docs/tdd/E13.md section3.5; docs/product/LLM-ARCHITECTURE.md section5",
+    "classification": "team assumptions, no NASA timing or clinical cutoff claim",
+    "values": {
+      "max_iterations": 8,
+      "max_schema_repairs": 1,
+      "turn_timeout_seconds": 90,
+      "first_token_timeout_seconds": 20,
+      "tool_timeout_seconds": 10
+    }
+  },
+  "topics": [
+    {
+      "id": "sleep_reaction",
+      "sources": [
+        {
+          "source_id": "C15",
+          "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-041-sleep-accommodations.pdf",
+          "section": "RevB, printed page3, Background: Performance and Cognitive abilities"
+        },
+        {
+          "source_id": "C23",
+          "url": "https://www.nasa.gov/wp-content/uploads/2026/03/ochmo-mtb-009-circadian-desynchrony.pdf",
+          "section": "printed pages1-2, Executive Summary and Overview"
+        }
+      ],
+      "scope": "Qualitative association only. No alert threshold, causal inference or medical recommendation is derived."
+    },
+    {
+      "id": "gravity_adjustment",
+      "sources": [
+        {
+          "source_id": "C09",
+          "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-019-orthostatic-intolerance.pdf",
+          "section": "RevB, printed pages1-2, Executive Summary and Background"
+        }
+      ],
+      "scope": "Qualitative adaptation context only. No standing test, intervention, numerical cutoff or diagnosis is prescribed."
+    }
+  ],
+  "interface_basis": "coordinator Q18: label not clinically reviewed; source and purpose eligibility remain mandatory",
+  "warning_levels_basis": "CONTRACTS section14, assistant may request info/watch only and never alter rule/sensor warnings"
+}
