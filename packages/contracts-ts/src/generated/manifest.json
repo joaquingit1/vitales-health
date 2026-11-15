@@ -726,6 +726,7 @@
     "crew_health.measurement.module": "a90e0b30fda9245525e5e7e7c960df76147c822cc8867fa9daea6e52c3ac0943",
     "crew_health.mission.module": "1c6a45e3c1f5548459b898e07c8f5539a33da415f9e3d834de906950a0fced2c",
     "crew_health.model.module": "9440f4e50c50c54afdcfdf6818c3015729bf52f785f56b34d060703da7d2503f",
+    "crew_health.participation.module": "a4c4139fad7bf4b3659862a239963783e178628729f96b0dbc09a8f3c43802f8",
     "crew_health.plans.module": "686efb5938df0587d6a27bdd9b1ab3462051a76ee62ba1deacd5848e1b159e20",
     "crew_health.platform.module": "83dc121aa6d29d0c465abd2cba408aa36eead9de16022e193f1d498028eb9cdc",
     "crew_health.records.module": "3968a31d83b37fd272da432a56e542b0acd506781d08a65f2b2ab533524c5f33",
