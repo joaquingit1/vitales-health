@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { components } from "@crew-health/contracts";
-import { computed, onMounted, ref, shallowRef } from "vue";
+import { computed, onMounted, onUnmounted, ref, shallowRef, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import { useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
 import { copy, originWord } from "../../design/copy";
-import PageFrame from "../plan/PageFrame.vue";
+import { useStage } from "../../shell/stage";
+import { CHROME } from "../../design/chrome";
 import { postIfMatch } from "./hubCommand";
 import {
   assistantWords,
@@ -18,13 +19,16 @@ import {
   type HelpScreen,
   type HelpSession,
 } from "./helpModel";
-import { ASSISTANT_TITLE, GROUND_TITLE, HELP_NAME, PRODUCT_NAME } from "./labels";
+import { ASSISTANT_TITLE, GROUND_TITLE } from "./labels";
+
+const HELP_NAME = CHROME.someoneNeedsHelp;
 
 type GroundLink = components["schemas"]["ground-link.schema"];
 
 const api = useCrewApi();
 const session = useSession();
 const router = useRouter();
+const stage = useStage();
 
 const openedAt = new Date().toISOString();
 const help = shallowRef<HelpSession | null>(null);
@@ -54,6 +58,17 @@ const logLines = computed(() =>
     return `${String(at.getHours()).padStart(2, "0")}:${String(at.getMinutes()).padStart(2, "0")}  ${entry.text}`;
   }),
 );
+
+watchEffect(() => {
+  stage.subline = who.value;
+  stage.headline = screen.value.kind === "flow" ? screen.value.question : HELP_NAME;
+  stage.focus = null;
+  stage.marks = [];
+});
+onUnmounted(() => {
+  stage.headline = "";
+  stage.subline = "";
+});
 
 function problem(failure: unknown): string {
   const code = typeof failure === "object" && failure !== null && "code" in failure ? String(failure.code) : "INTERNAL_ERROR";
@@ -127,20 +142,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageFrame
-    :who-line="who"
-    :title="screen.kind === 'flow' ? screen.question : HELP_NAME"
-    :urgent-label="null"
+  <div
+    class="urgent"
+    data-test="help"
   >
-    <template #brand>
-      {{ PRODUCT_NAME }}
-    </template>
-    <template #foot>
-      <p class="fine">
-        {{ notice }}
-      </p>
-    </template>
-
     <article
       class="card paper hp-main"
       role="dialog"
@@ -240,6 +245,9 @@ onMounted(() => {
         >
           {{ refused }}
         </p>
+        <p class="fine help-notice">
+          {{ notice }}
+        </p>
       </div>
     </article>
 
@@ -288,18 +296,13 @@ onMounted(() => {
         </div>
       </div>
     </article>
-  </PageFrame>
+  </div>
 </template>
 
 <style scoped>
-.hp-main { grid-column: 1 / span 14; grid-row: 1 / span 3; }
-.hp-asst { grid-column: 15 / span 10; grid-row: 1 / span 2; }
-.hp-log { grid-column: 15 / span 10; grid-row: 3; }
-.hp-main .ask-q { font-size: 34px; line-height: 42px; color: #8a4f08; }
-.hp-main .card-title { color: #8a4f08; }
-.hp-main .pills .pill { white-space: normal; height: auto; min-height: 30px; padding: 5px 14px; line-height: 18px; text-align: left; }
 .hp-asst .swatches i.off { background: rgba(255, 255, 255, 0.4); }
 .hp-asst .say { font-size: 28px; line-height: 34px; }
 .nsteps button.li { width: 100%; text-align: left; background: none; border-left: 0; border-right: 0; border-bottom: 0; cursor: pointer; }
+.help-notice { margin-top: auto; padding-top: 14px; }
 .src { font-size: 12px; line-height: 16px; color: var(--ink-3); white-space: nowrap; }
 </style>

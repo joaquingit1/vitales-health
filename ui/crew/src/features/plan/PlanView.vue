@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { ApiProblem, useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
-import { HELP_NAME, PLAN_CARD_TITLE, PRODUCT_NAME, START_PLAN } from "../help/labels";
-import PageFrame from "./PageFrame.vue";
+import { useStage } from "../../shell/stage";
+import { PLAN_CARD_TITLE, START_PLAN } from "../help/labels";
 import { groundLine, planCountLine, shownStages, startedAt, type KitMapView, type PlanRun, type PlanView } from "./planModel";
 import { copy } from "../../design/copy";
 
 const api = useCrewApi();
 const session = useSession();
 const route = useRoute();
+const stage = useStage();
 
 const plan = ref<PlanView | null>(null);
 const planError = ref<string | null>(null);
@@ -111,36 +112,24 @@ const runLine = computed(() => {
   }
   return `${copy("plan_lines.plan_tag", { plan_label: plan.value?.condition_id ?? current.plan_id })} · ${startedAt(current)} · ${current.state}`;
 });
+watchEffect(() => {
+  stage.subline = who.value;
+  stage.headline = plan.value?.title ?? "";
+  stage.focus = null;
+  stage.marks = [];
+});
+onUnmounted(() => {
+  stage.headline = "";
+  stage.subline = "";
+});
 const canStart = computed(() => run.value === null && episodeId.value !== null && session.current?.person != null);
 </script>
 
 <template>
-  <PageFrame
-    :who-line="who"
-    :title="plan?.title ?? ''"
-    :urgent-label="HELP_NAME"
+  <section
+    class="cards flow f-plan"
+    aria-label="The plan aboard"
   >
-    <template #brand>
-      {{ PRODUCT_NAME }}
-    </template>
-    <template #under-title>
-      <p
-        v-if="plan"
-        class="plan-mode"
-        data-test="plan-mode"
-      >
-        <span class="tag">{{ plan.mode_text }}</span>
-      </p>
-    </template>
-    <template #foot>
-      <p
-        v-if="plan"
-        class="fine"
-      >
-        {{ plan.notice }}
-      </p>
-    </template>
-
     <article
       class="card g g-deep plan-main"
       aria-labelledby="plan-card-title"
@@ -151,6 +140,11 @@ const canStart = computed(() => run.value === null && episodeId.value !== null &
           class="card-title"
         >
           {{ PLAN_CARD_TITLE }}
+          <span
+            v-if="plan"
+            class="tag plan-mode"
+            data-test="plan-mode"
+          >{{ plan.mode_text }}</span>
         </h2>
         <div
           v-if="plan"
@@ -181,13 +175,13 @@ const canStart = computed(() => run.value === null && episodeId.value !== null &
         data-test="plan-stages"
       >
         <div
-          v-for="stage in stages"
-          :key="stage.id"
+          v-for="s in stages"
+          :key="s.id"
           class="li"
-          :class="{ done: run !== null && stage.id === 'do_now' }"
-          :data-stage="stage.id"
+          :class="{ done: run !== null && s.id === 'do_now' }"
+          :data-stage="s.id"
         >
-          <span class="what"><b>{{ stage.word }}</b><span class="t">{{ stage.text }}</span><small v-if="stage.note">{{ stage.note }}</small></span>
+          <span class="what"><b>{{ s.word }}</b><span class="t">{{ s.text }}</span><small v-if="s.note">{{ s.note }}</small></span>
         </div>
       </div>
       <p
@@ -223,6 +217,12 @@ const canStart = computed(() => run.value === null && episodeId.value !== null &
       >
         {{ ground ?? "" }}
       </p>
+      <p
+        v-if="plan"
+        class="fine"
+      >
+        {{ plan.notice }}
+      </p>
     </article>
 
     <article
@@ -251,19 +251,22 @@ const canStart = computed(() => run.value === null && episodeId.value !== null &
         {{ kitMap.kit_map_label }}
       </p>
     </article>
-  </PageFrame>
+  </section>
 </template>
 
 <style scoped>
 .plan-main { grid-column: 1 / span 24; grid-row: 1 / span 2; }
 .plan-ground { grid-column: 1 / span 14; grid-row: 3; }
 .plan-count { grid-column: 15 / span 10; grid-row: 3; }
-.plan-mode { margin-top: 10px; }
+.plan-mode { margin-left: 10px; vertical-align: 2px; background: rgba(255, 255, 255, 0.16); color: #fff; }
+.f-plan .card { cursor: default; }
+.f-plan .card:hover { transform: none; }
 .plan-acts { margin: 0; flex-wrap: nowrap; }
 .plan-steps { flex: 1; min-height: 0; margin-top: 28px; }
 .plan-steps.nsteps.across .what { font-size: 20px; line-height: 27px; font-weight: 300; }
 .plan-steps.nsteps.across .what b { font-size: 15px; font-weight: 500; }
 .plan-steps.nsteps.across .what .t { -webkit-line-clamp: 6; }
 .plan-steps.nsteps.across .what small { -webkit-line-clamp: 4; font-size: 14px; line-height: 19px; }
+.plan-steps .li.done::before { background: #fff; color: var(--green); }
 .plan-fine { margin-top: 6px; color: rgba(255, 255, 255, 0.82); font-size: 15px; line-height: 22px; }
 </style>
