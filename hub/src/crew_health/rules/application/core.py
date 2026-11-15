@@ -25,7 +25,7 @@ from crew_health.rules.application import facts as release_facts
 from crew_health.rules.application import input_codec
 from crew_health.rules.application.codec import dumps as warning_json
 from crew_health.rules.application.facts import ReleaseFacts
-from crew_health.rules.application.ports import WarningCleared, WarningRaised
+from crew_health.rules.application.ports import RecordFactsPort, WarningCleared, WarningRaised
 from crew_health.rules.application.stores import (
     ActionResultStore,
     DeadlineStore,
@@ -101,6 +101,7 @@ class Runtime:
     mission: MissionStatePort | None
     binding: ConfigBinding | None
     health: HealthState | None
+    record_facts: RecordFactsPort | None = None
     warnings: WarningStore = field(default_factory=WarningStore)
     occurrences: OccurrenceStore = field(default_factory=OccurrenceStore)
     dwell: DwellStore = field(default_factory=DwellStore)
@@ -250,6 +251,7 @@ def build_view(rt: Runtime, uow: UnitOfWork, facts: ReleaseFacts, inp: RuleInput
         ),
         clock_regressed=bool(regressed and regressed.get("on")),
         origin_words=facts.origin_words,
+        duration_words=facts.duration_words,
     )
 
 
@@ -348,6 +350,20 @@ def apply_clear(rt: Runtime, uow: UnitOfWork, step: Clear) -> None:
     cancel(rt, uow, EXPIRE_PREFIX + w.warning_id)
     emit(uow, EventType.WARNING_CLEARED, done)
     note_audit(rt, uow, "warning.cleared", {"warning": w.warning_id}, {})
+    uow.publish(WarningCleared(fact_of(done)))
+
+
+def commit_final(rt: Runtime, uow: UnitOfWork, before: Warning, done: Warning) -> None:
+    """A warning that a person ended (resolve, dismiss): the one writer of the final transition, so the action
+    endpoint and the insight dismissal leave the same records (update, replication, deadline, outbox, audit, bus)."""
+    c = uow.connection
+    if not rt.warnings.update(c, done, expected_revision=before.revision):
+        raise ProblemError(ErrorCode.STALE_VERSION, ErrorCode.STALE_VERSION.value)
+    replicate_local(uow, done.warning_id, "version")
+    rt.dwell.delete(c, done.warning_id)
+    cancel(rt, uow, EXPIRE_PREFIX + done.warning_id)
+    emit(uow, EventType.WARNING_CLEARED, done)
+    note_audit(rt, uow, "warning.updated", {"warning": done.warning_id}, {})
     uow.publish(WarningCleared(fact_of(done)))
 
 

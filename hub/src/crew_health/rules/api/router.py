@@ -155,7 +155,7 @@ def build_router(api: RulesApi) -> APIRouter:
 
     router.add_api_route("/v1/warnings/{warning_id}", get_warning, methods=["GET"], operation_id="getWarning")
 
-    def act(request: Request, warning_id: str) -> JSONResponse:
+    def act(request: Request, warning_id: str) -> Response:
         session = _session(request)
         _, actions = api.bound()
         body = _body(request)
