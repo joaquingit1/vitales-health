@@ -1,6 +1,6 @@
 {
   "summary": "REPLAY GET /v1/sensors/co2/series?aggregation=mean_1h",
-  "description": "Hourly one-hour means for the 24 hours ending 15:36 on 7 Oct 2014, computed from nasa-data/eda_rr1_telemetry.csv with the section 13 window rule. Illustrative only: not seed data.",
+  "description": "Hourly one-hour means for the 24 hours ending 15:36 on 7 Oct 2014, computed from nasa-data/habitat-environment/eda_rr1_telemetry.csv with the section 13 window rule. Illustrative only: not seed data.",
   "x-schema": "sensor-series.schema.json",
   "value": {
     "sensor_type_id": "co2",

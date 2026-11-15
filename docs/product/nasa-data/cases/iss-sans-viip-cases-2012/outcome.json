@@ -1,0 +1,87 @@
+{
+  "case_id": "iss-sans-viip-cases-2012",
+  "case_type": "qualitative",
+  "case_type_reason": "Onset is printed in weeks or months and findings are narrative; the measurements themselves are restricted medical data.",
+  "title": "Seven ISS astronauts with vision changes (now SANS) from NASA's 2012 evidence report",
+  "environment_id": "station_leo",
+  "input_data": [
+    {
+      "path": "viip_cases_2012.csv",
+      "use": "Whether and when each crewman reported a vision change in flight"
+    }
+  ],
+  "documented_outcome": [
+    {
+      "quote": "After exposure to spaceflight of 5 to 6 months duration, seven astronauts were discovered to have neuro-ophthalmic findings.",
+      "source": "viip2012",
+      "location": "Section III, PDF page 6"
+    },
+    {
+      "quote": "Lumbar punctures performed in four astronauts with disc edema showed opening pressures of 22, 21, 28, and 28.5 cm H2O performed at 60, 19, 12 and 57 days post-mission, respectively.",
+      "source": "viip2012",
+      "location": "PDF page 6"
+    },
+    {
+      "quote": "Three weeks after the ultrasound examination and Amlser grid testing, reading glasses (2.5 D and 3.25 D) were delivered to the ISS via a Shuttle mission and one astronaut reported that the 3.25 D glasses worked best.",
+      "source": "viip2012",
+      "location": "PDF page 14 (cases 4 and 5)"
+    },
+    {
+      "quote": "the CO2 levels on the ISS are nominally between 2.3 to 5.3 mm Hg",
+      "source": "viip2012",
+      "location": "PDF page 20 (case 7; case 4 on PDF page 13 says CO2 was within normal operating levels)"
+    }
+  ],
+  "onset_relative_to_data": "In-flight onset of the reported vision change: case 5 after 3 weeks, cases 4 and 7 about 2 months, case 2 about 3 months, case 1 throughout the mission. Cases 3 and 6 reported nothing in flight; their findings came after return.",
+  "expected_product_output": [
+    {
+      "hazard_id": "microgravity",
+      "level": "act",
+      "rule_in_environment_hazards_json": "Any new change in vision. A specialist eye examination is needed; threshold to be set by clinical review for what counts as a change.",
+      "applies_to_cases": [
+        1,
+        2,
+        4,
+        5,
+        7
+      ],
+      "when": "At the first daily check where the crewman logs the vision change"
+    },
+    {
+      "condition_id": "ICL100",
+      "condition": "SPACEFLIGHT ASSOCIATED NEURO-OCULAR SYNDROME (SANS)",
+      "role": "The candidate the product names, with its 'needs specialist eye examination' answer; never a diagnosis."
+    },
+    {
+      "negative_control": "Cases 3 and 6: no in-flight symptom, so no in-flight alert is expected. The product must not claim it would have caught them; only scheduled eye imaging could."
+    },
+    {
+      "context": "CO2 was within normal ISS levels in the cases where the report states it, so a CO2 warning is not expected to co-occur."
+    }
+  ],
+  "consumers": [
+    {
+      "epic": "E25",
+      "use": "Vision self-check in the routine"
+    },
+    {
+      "epic": "E28",
+      "use": "Spare reading glasses in the plan"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenarios"
+    }
+  ],
+  "is_not": "Not individual measurements; the report's Table 1 (an image) and the underlying OCT, fundus, MRI and IOP data were not used. Detailed astronaut medical data are released only through LSAH (see ../restricted-and-not-found.json).",
+  "sources": {
+    "viip2012": {
+      "title": "Evidence Report: Risk of Spaceflight-Induced Intracranial Hypertension and Vision Alterations (Risk of Microgravity-Induced Visual Impairment/Intracranial Pressure), Version 1.0, approved for public release 12 July 2012, Alexander, Gibson, Hamilton et al., NASA Human Research Program",
+      "url": "https://humanresearchroadmap.nasa.gov/evidence/reports/VIIP.pdf",
+      "bytes_of_copy_read": 3892346,
+      "sha256_of_copy_read": "b797ae47550ed0ac12925b4fceb1c4be9bf5c2106bc5fda1d1b55a77eb8cfc43",
+      "is_nasa": "NASA",
+      "catalog_id": "N37"
+    }
+  }
+}

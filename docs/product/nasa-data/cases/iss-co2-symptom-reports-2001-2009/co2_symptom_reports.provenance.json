@@ -1,0 +1,30 @@
+{
+  "file": "co2_symptom_reports.csv",
+  "catalog_id": "N38, C25",
+  "bytes": 1674,
+  "sha256": "ce504e59d320fa24bbc938094d020a9c0165b29c3d8c1e86209981a8c0236240",
+  "source_url": "https://inspectapedia.com/hazmat/In-Flight-CO2-Exposure-Implications-Law-NASA.pdf",
+  "documentation": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-004-carbon-dioxide.pdf",
+  "retrieved_at_utc": "2026-11-15T01:51:00Z",
+  "mission_instrument": "ISS and Space Shuttle, 2001 to 2009; cabin CO2 from the station's Major Constituent Analyzer and Shuttle sensors as summarized in NASA/TP-2010-216126",
+  "rows": 4,
+  "units": {
+    "co2_low_mm_hg": "mm[Hg] (ppCO2)",
+    "co2_high_mm_hg": "mm[Hg] (ppCO2)",
+    "source_pdf_page": "page of the 30 page PDF copy"
+  },
+  "preprocessing": "Transcribed by hand from section 2.1 and 2.2 of the paper. co2_low and co2_high hold only numbers the text prints; blank means not printed. The paper itself summarizes these events from Felker (2003), not from raw data.",
+  "license_terms": "NASA technical paper, public domain in the United States; the copy read is on a third-party host (see sources).",
+  "provenance": "REPLAY. Event summaries printed in a NASA technical paper; not CO2 telemetry.",
+  "is_not": "Not one-hour averages: the printed values are spot readings, peaks or ranges. Not a time series, and the symptom times are only dates or less.",
+  "consumers": [
+    {
+      "epic": "E23/E24",
+      "use": "CO2 act level and its guidance"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenarios with a documented symptom or no symptom"
+    }
+  ]
+}

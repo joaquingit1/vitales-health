@@ -215,9 +215,9 @@
     "api/examples/sensors/channels-station.json": "899bec4a391c9405719b33b802f3d2964873e9a1fc7f06dd48f43cd7c455ab6d",
     "api/examples/sensors/ingest-result-rejected.json": "4e61b8394e17fb9795be00b67a9ab81fca719d026c907e7a6b9507dc01e3d26f",
     "api/examples/sensors/ingest-result.json": "f2cfe12f32f76ba3b3163aa7987bc316fe3820e455eaf01afd3d1a428981cb5d",
-    "api/examples/sensors/reading-co2-replay.json": "a39f19638edec4a460fccc5c24006522418c199bfc02d81677600453fd254b50",
-    "api/examples/sensors/series-co2-replay.json": "d932bd99ba1bf86740ec700a7f4f8200d4c3879f91d736bac5d55b7adbfa337f",
-    "api/examples/sensors/series-rad-replay.json": "35c76b27c4295e7bcc3dd263f208565e3dac834ec71b6ccb5a56f09b4fa2c5b0",
+    "api/examples/sensors/reading-co2-replay.json": "d843b9c1e44480ebe9c191e8d9ca86ec427ff2fce1e6547efbfd7f0674e0e838",
+    "api/examples/sensors/series-co2-replay.json": "f36f7b58b1e9333e6fe9a5c4417cf0b58cf1f9787fd22a727d6519f311141aec",
+    "api/examples/sensors/series-rad-replay.json": "695ac05db23e812b72acdf86fd6930f8a388ddd6f97f07db95f51d1abb706db8",
     "api/examples/sensors/status-co2-station.json": "86a75c93308e90a7b78265f83bc20d91876d4c220f0ab1166e4b17c236f1b401",
     "api/examples/sensors/status-lunar.json": "81d8dbfffa5f73b956dece8852dd26f6ebc75a1170e9b008b14fee267844780b",
     "api/examples/sensors/status-mars.json": "4534a64d022bdc997c1a7cb8ecdfa6b188082d0fb54847d1f927d02eb785e9da",
@@ -569,9 +569,9 @@
     "api/examples/sensors/channels-station.json": "899bec4a391c9405719b33b802f3d2964873e9a1fc7f06dd48f43cd7c455ab6d",
     "api/examples/sensors/ingest-result-rejected.json": "4e61b8394e17fb9795be00b67a9ab81fca719d026c907e7a6b9507dc01e3d26f",
     "api/examples/sensors/ingest-result.json": "f2cfe12f32f76ba3b3163aa7987bc316fe3820e455eaf01afd3d1a428981cb5d",
-    "api/examples/sensors/reading-co2-replay.json": "a39f19638edec4a460fccc5c24006522418c199bfc02d81677600453fd254b50",
-    "api/examples/sensors/series-co2-replay.json": "d932bd99ba1bf86740ec700a7f4f8200d4c3879f91d736bac5d55b7adbfa337f",
-    "api/examples/sensors/series-rad-replay.json": "35c76b27c4295e7bcc3dd263f208565e3dac834ec71b6ccb5a56f09b4fa2c5b0",
+    "api/examples/sensors/reading-co2-replay.json": "d843b9c1e44480ebe9c191e8d9ca86ec427ff2fce1e6547efbfd7f0674e0e838",
+    "api/examples/sensors/series-co2-replay.json": "f36f7b58b1e9333e6fe9a5c4417cf0b58cf1f9787fd22a727d6519f311141aec",
+    "api/examples/sensors/series-rad-replay.json": "695ac05db23e812b72acdf86fd6930f8a388ddd6f97f07db95f51d1abb706db8",
     "api/examples/sensors/status-co2-station.json": "86a75c93308e90a7b78265f83bc20d91876d4c220f0ab1166e4b17c236f1b401",
     "api/examples/sensors/status-lunar.json": "81d8dbfffa5f73b956dece8852dd26f6ebc75a1170e9b008b14fee267844780b",
     "api/examples/sensors/status-mars.json": "4534a64d022bdc997c1a7cb8ecdfa6b188082d0fb54847d1f927d02eb785e9da",
@@ -731,7 +731,7 @@
       "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
       "part-a.json": "51d6fe596f1a31bcf6e1256d4184d485d5d9ab2f51a2f66789742152aeadc468"
     },
-    "manifest_sha256": "608b10adbf3c32a14ced4cf37dd932507f01aaf6d883eb70dda8d01b1d9267ca",
+    "manifest_sha256": "0bd7924756f3eedab2567af1e5a9181f6a2f888194b8b129e5ef4b2fc66355f3",
     "traces": [
       {
         "a3": [
@@ -748,6 +748,6 @@
     "version": "part-a-d12-1"
   },
   "sources": {
-    "docs/product/CONTRACTS.md": "4d8085fb55083f5bc5c0579d247b12040177b2139131b69ffd7fc01f032c7c21"
+    "docs/product/CONTRACTS.md": "7ea599049f13a702a4ae3d677fda656ef9532b821e5eae07c964b2e08eba9f77"
   }
 }
