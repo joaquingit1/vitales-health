@@ -52,8 +52,8 @@ function slotStyle(index: number): Record<string, string> {
 function setStage(): void {
   stage.marks = [];
   stage.focus = null;
-  /* the reference's who-line: the person, then the place; the headline names the view */
-  stage.subline = place.value === null || name.value === "" ? name.value : `${name.value}, ${place.value}`;
+  /* the person; the stage adds the place to the who-line. The headline names the view. */
+  stage.subline = name.value;
   stage.headline = copy("display_group_labels.today");
 }
 

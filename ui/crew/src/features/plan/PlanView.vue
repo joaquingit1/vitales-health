@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { refusalText } from "../../design/refusal";
-import { computed, onMounted, ref, watch, watchEffect } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { ApiProblem, useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
@@ -116,6 +116,12 @@ watchEffect(() => {
   stage.subline = who.value;
   stage.headline = plan.value?.title ?? "";
   stage.focus = null;
+  /* the body is the index (UX-DESIGN 1.6): the plan's condition lights its first region, as 11-assess does */
+  const condition = kitMap.value?.conditions.find((c) => c.condition_id === plan.value?.condition_id);
+  const region = condition?.body_regions[0];
+  stage.marks = region === undefined ? [] : [{ region, kind: "dot" }];
+});
+onBeforeUnmount(() => {
   stage.marks = [];
 });
 const canStart = computed(() => run.value === null && episodeId.value !== null && session.current?.person != null);

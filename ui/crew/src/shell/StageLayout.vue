@@ -6,6 +6,8 @@ import BodyFigure from "../design/BodyFigure.vue";
 import { CHROME } from "../design/chrome";
 import { copy } from "../design/copy";
 import { CREW_API } from "./api/client";
+import { placeOf } from "../features/today/place";
+import type { GroundLink } from "../features/today/groundLink";
 import { useSession } from "./session";
 import { useStage } from "./stage";
 
@@ -32,10 +34,23 @@ const api = inject(CREW_API, null);
 /* The stage's three readings (UX-DESIGN 1.2): the first three measurements this place can take, from the hub.
    The hub serves no recent value to the stage, so each reads as the designed state "No reading". */
 const readings = ref<{ code: string; label: string }[]>([]);
+/* The who-line ends with the place, as the reference writes it ("Mara Okafor, flight day 19 of 30, space station"):
+   the active environment from the hub's ground link, its place word from the environment profiles. */
+const place = ref<string | null>(null);
+const whoLine = computed(() => [stage.subline, place.value ?? ""].filter((part) => part !== "").join(", "));
 onMounted(() => {
   if (api === null || session.state.value.session === null) {
     return;
   }
+  api
+    .get<GroundLink>("/v1/ground-link")
+    .then((link) => placeOf(api, link.environment_id))
+    .then((value) => {
+      place.value = value;
+    })
+    .catch(() => {
+      place.value = null;
+    });
   api
     .get<{ items: Capability[] }>("/v1/capabilities")
     .then((value) => {
@@ -110,7 +125,7 @@ onMounted(() => {
           class="who-line"
           data-testid="stage-subline"
         >
-          {{ stage.subline }}
+          {{ whoLine }}
         </div>
         <h1 data-testid="stage-headline">
           {{ stage.headline }}

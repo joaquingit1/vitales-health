@@ -6,7 +6,6 @@ import { copy } from "../../design/copy";
 import { useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
 import { useStage } from "../../shell/stage";
-import { placeOf } from "../today/place";
 import { KIT_STATES, STATE_MK, figureMarks, instrumentNames, loadKitMap, type KitMapView, type KitState } from "./kitMap";
 
 const api = useCrewApi();
@@ -82,10 +81,6 @@ onMounted(async () => {
     instrumentName.value = await instrumentNames(api, view);
     kit.value = view;
     stage.marks = figureMarks(kit.value);
-    const place = await placeOf(api, kit.value.environment_id).catch(() => null);
-    if (place !== null && stage.subline !== "") {
-      stage.subline = `${stage.subline}, ${place}`;
-    }
   } catch {
     failed.value = true;
   }
