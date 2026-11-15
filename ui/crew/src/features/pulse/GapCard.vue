@@ -9,6 +9,7 @@ import { WORDS } from "./words";
 
 type PlanView = components["schemas"]["plan-view.schema"];
 type Episode = components["schemas"]["episode.schema"];
+type HelpSession = components["schemas"]["help-session.schema"];
 
 const props = defineProps<{ region: string | null; episodeId: string | null }>();
 const api = useCrewApi();
@@ -31,6 +32,17 @@ const another = computed(() => {
   return stage && "steps" in stage ? stage : null;
 });
 const step = computed(() => another.value?.steps[0] ?? null);
+/* The reference's "Check it another way" (11-assess, 12-teach): offered when the step is a guided check whose
+   instruments and supplies are aboard. A missing skill holder is what the teach step answers, so it does not hide
+   the action; the hub still decides when the run starts. */
+const teachable = computed(() => {
+  const s = step.value;
+  if (s === null || another.value === null) return false;
+  if (s.availability === "aboard") return true;
+  return (
+    s.guided_check_skill_id != null && s.missing.instruments.length === 0 && s.missing.supplies.length === 0
+  );
+});
 
 /** E27: the test this kit lacks for the region, from the hub's capabilities, kit map view and kit-map document. */
 async function load(): Promise<void> {
@@ -58,7 +70,12 @@ async function planFor(code: string, conditions: KitMapView["conditions"]): Prom
     if (own?.plan_id) return own.plan_id;
   }
   const named = typeof route.query["condition"] === "string" ? route.query["condition"] : null;
-  return conditions.find((c) => c.condition_id === named)?.plan_id ?? null;
+  /* no episode and no named condition: the first condition the kit map lists for this gap that has a plan aboard */
+  return (
+    conditions.find((c) => c.condition_id === named)?.plan_id ??
+    conditions.find((c) => c.plan_id != null && c.plan_aboard)?.plan_id ??
+    null
+  );
 }
 
 /** Check it another way runs inside the plan aboard: the open run of this plan, or a new one for the episode. */
@@ -73,6 +90,20 @@ async function checkAnotherWay(): Promise<void> {
     let run = runs.items.find((r) => r.plan_id === p.plan_id && r.state !== "closed") ?? null;
     if (!run && props.episodeId) {
       run = await api.post<PlanRun>("/v1/plan-runs", { plan_id: p.plan_id, subject_person_id: me, episode_id: props.episodeId });
+    }
+    if (!run) {
+      /* no episode: the run hangs on a help session (PlanRunCreate takes exactly one of episode_id or help_session_id).
+         createHelpSession, then startPlanRun with it, then the teach step (getGuidedCheckSteps via the teach route). */
+      const help = await api.post<HelpSession>("/v1/help-sessions", {
+        subject: { kind: "self", person_id: me },
+        entry: { kind: "button" },
+        client_opened_at: new Date().toISOString(),
+      });
+      run = await api.post<PlanRun>("/v1/plan-runs", {
+        plan_id: p.plan_id,
+        subject_person_id: me,
+        help_session_id: help.help_session_id,
+      });
     }
     if (run) await router.push({ name: "teach", params: { id: run.plan_run_id } });
     else problem.value = WORDS.noPlanRunning;
@@ -139,7 +170,7 @@ onMounted(() => {
       <p class="sub">
         {{ WORDS.notAboard }}
         <a
-          v-for="url in forms"
+          v-for="url in forms.slice(0, 1)"
           :key="url"
           class="cliff"
           :href="url"
@@ -165,7 +196,7 @@ onMounted(() => {
       {{ problem }}
     </p>
     <div
-      v-if="step && another && step.availability === 'aboard'"
+      v-if="teachable && another"
       class="acts"
     >
       <button
