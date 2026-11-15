@@ -8,8 +8,7 @@ from datetime import datetime
 from typing import ClassVar, Literal, Protocol
 
 from crew_health.assistant.application.content import CopyDocument
-from crew_health.contracts_gen.enums import ErrorCode
-from crew_health.kernel.tasks import TaskLease, TaskResult
+from crew_health.kernel.task_results import TaskFailureResults as TaskFailureResults
 from crew_health.kernel.uow import ReadSnapshot, SessionContext, UnitOfWork
 
 
@@ -135,19 +134,6 @@ class InsightWarningPort(Protocol):
 
 class InsightQuery(Protocol):
     def active(self, uow: UnitOfWork) -> Sequence[Mapping[str, object]]: ...
-
-
-class TaskFailureResults(Protocol):
-    """E01 bridge: apply an explicitly incomplete result under the same live-generation fence.
-
-    This is terminal, never a retry. Existing TaskRunner.fail remains unchanged.
-    """
-
-    def fail_with_result(
-        self, uow: UnitOfWork, lease: TaskLease, result: TaskResult, *, code: ErrorCode
-    ) -> bool: ...
-
-    def fail_pending(self, uow: UnitOfWork, task_id: str, *, code: ErrorCode) -> bool: ...
 
 
 class SessionReader(Protocol):
