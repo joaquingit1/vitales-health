@@ -1,7 +1,8 @@
 """Test-only composition for E32 medicines: E01's real SQLiteDatabase, command ledger and audit on a tmp file, the
 real medicines module registered into E01's DeclarationRegistry and the repository's own configuration (config/
 treatments.json, medicines.json, pharmacy formulary and lots, the kit map). Fakes stand in for providers not on main
-(E02 sessions, E23 mission, E31 acting officer). Production never binds anything here."""
+(E02 sessions and consent, E23 mission, E28 plan medicines; E31 authority and the clock corrections are fakes of
+ports that are on main, so a test can set them). Production never binds anything here."""
 
 from __future__ import annotations
 
@@ -12,7 +13,7 @@ import sqlite3
 import warnings
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, cast
 
@@ -22,7 +23,14 @@ from fastapi.routing import APIRouter
 from crew_health.app.registry import DeclarationRegistry, Resolver
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode, Role
 from crew_health.events.adapters.repository import EventRepository, EventValidator
-from crew_health.kernel.clock import Clock, TimeInput
+from crew_health.kernel.clock import (
+    Clock,
+    ClockCorrected,
+    ClockCorrection,
+    ClockCorrections,
+    NormalizedTime,
+    TimeInput,
+)
 from crew_health.kernel.config import ConfigDocumentView
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import IdFactory
@@ -37,8 +45,9 @@ from crew_health.medicines.adapters.potency import BUNDLE_FILES
 from crew_health.medicines.adapters.weights import RecordsObservations, RecordsWeightReader
 from crew_health.medicines.application import settings as medicines_settings
 from crew_health.medicines.application.ports import (
-    ActingOfficerPort,
+    ConsentQueries,
     MedicationRecordReader,
+    PlanMedicines,
     PotencyEngine,
     RunOutcome,
     WeightReader,
@@ -53,6 +62,11 @@ from crew_health.platform.settings import ValidatedSettings
 from crew_health.platform.storage import SQLiteDatabase
 from crew_health.platform.testing.sqlite import test_settings
 from crew_health.records.application.ports import RecordsStore
+from crew_health.roles.application.ports import (
+    AuthorityDecision,
+    ClinicalAuthorityQuery,
+    DoseAuthorityContext,
+)
 from crew_health.supplies.application.ports import MissionFacts, MissionStatePort
 
 with warnings.catch_warnings():  # starlette's own deprecation notice on importing its test client, not ours
@@ -78,6 +92,7 @@ def medicines_values(config_dir: Path, engine_python: str = "") -> dict[str, obj
         "medicines.max_window_rows": 1000,
         "medicines.future_tolerance_seconds": 300,
         "medicines.clock_backward_tolerance_seconds": 60,
+        "medicines.clock_forward_tolerance_seconds": 60,
         "medicines.config_dir": str(config_dir),
         "medicines.engine_python": engine_python,
         "medicines.assessment_timeout_seconds": 120,
@@ -114,17 +129,23 @@ class Settings:
 
 @dataclass
 class StepClock:
+    """Wall time `at`; monotonic time is the real elapsed time, so a wall clock jump (`jump`) moves `at` alone."""
+
     at: datetime = NOW
     epoch: str = "epoch_1"
+    jumped: timedelta = timedelta(0)
 
     def now(self) -> datetime:
         return self.at
 
     def monotonic_ns(self) -> int:
-        return int((self.at - NOW).total_seconds() * 1e9)
+        return int((self.at - NOW - self.jumped).total_seconds() * 1e9)
 
     def process_epoch(self) -> str:
         return self.epoch
+
+    def jump(self, by: timedelta) -> None:
+        self.at, self.jumped = self.at + by, self.jumped + by
 
 
 @dataclass
@@ -139,13 +160,94 @@ class Mission:
 
 
 @dataclass
-class Acting:
-    """E31 fake: (officer, subject) pairs for whom the officer is acting now."""
+class Authority:
+    """E31 ClinicalAuthorityQuery fake: `officers` are crew medical officers (never for their own case); `acting`
+    maps (person, subject) to the accepted medical_officer assignment that makes the person acting for that subject."""
 
-    pairs: set[tuple[str, str]] = field(default_factory=set)
+    officers: set[str] = field(default_factory=lambda: {CMO})
+    acting: dict[tuple[str, str], str] = field(default_factory=dict)
 
-    def is_acting(self, view: UnitOfWork | ReadSnapshot, person_id: str, subject_person_id: str) -> bool:
-        return (person_id, subject_person_id) in self.pairs
+    def authority(
+        self,
+        snapshot: ReadSnapshot | UnitOfWork,
+        *,
+        person_id: str,
+        subject_person_id: str,
+        action: str,
+        dose: DoseAuthorityContext | None,
+        at: datetime,
+    ) -> AuthorityDecision:
+        if person_id == subject_person_id:
+            return AuthorityDecision("none", None, "subject")
+        if person_id in self.officers:
+            return AuthorityDecision("crew_medical_officer", None, "rank")
+        assignment = self.acting.get((person_id, subject_person_id))
+        if assignment is not None:
+            return AuthorityDecision("acting_medical_officer", assignment, "acting")
+        return AuthorityDecision("none", None, "no_role")
+
+
+@dataclass
+class Consent:
+    """E02 ConsentQueries fake: (subject, recipient, field) grants, `*` for any. By default every subject shared
+    every medicines field with the crew medical officer, so tests that are not about privacy read as before."""
+
+    grants: set[tuple[str, str, str]] = field(default_factory=lambda: {("*", CMO, "*")})
+
+    def allows(
+        self,
+        view: ReadSnapshot | UnitOfWork,
+        *,
+        subject_person_id: str,
+        recipient: str,
+        scope: tuple[str, str],
+    ) -> bool:
+        return any(
+            s in ("*", subject_person_id)
+            and r == recipient
+            and f in ("*", scope[1])
+            and scope[0] == "medicines"
+            for s, r, f in self.grants
+        )
+
+
+@dataclass
+class Plans:
+    """E28 fake: (subject, condition, product) triples an active plan step names."""
+
+    named: set[tuple[str, str, str]] = field(default_factory=set)
+
+    def names_medicine(
+        self, view: ReadSnapshot | UnitOfWork, *, subject_person_id: str, condition_id: str, product_id: str
+    ) -> bool:
+        return (subject_person_id, condition_id, product_id) in self.named
+
+
+@dataclass
+class Corrections:
+    """The clock module's correction journal (SYSTEM 5.2): `record` appends a correction at the next version."""
+
+    journal: list[ClockCorrection] = field(default_factory=list)
+
+    def record(self, at: datetime) -> None:
+        version = len(self.journal) + 1
+        self.journal.append(
+            ClockCorrection(f"corr_{version}", "hub", "segment_1", version, at, None, 0, 0, at, "operator")
+        )
+
+    def history(
+        self, snapshot: ReadSnapshot | UnitOfWork, *, after_version: int, limit: int
+    ) -> tuple[ClockCorrection, ...]:
+        return tuple(c for c in self.journal if c.version > after_version)[:limit]
+
+    def apply(self, uow: UnitOfWork, correction: ClockCorrection) -> ClockCorrected:
+        raise NotImplementedError("medicines reads the correction journal only")
+
+    def normalize(self, snapshot: ReadSnapshot, value: TimeInput) -> NormalizedTime:
+        raise NotImplementedError("medicines reads the correction journal only")
+
+    def elapsed(self, snapshot: ReadSnapshot, start: TimeInput, end: TimeInput) -> timedelta | None:
+        raise NotImplementedError("medicines reads the correction journal only")
 
 
 def session(person: str, roles: frozenset[Role]) -> SessionContext:
@@ -177,10 +279,19 @@ def kit_map_release() -> MemoryRelease:
     return MemoryRelease("release_1", {ConfigName.KIT_MAP: document})
 
 
+CONFIRMED_AS: frozenset[str | int | bool] = frozenset({"crew_medical_officer", "acting_medical_officer"})
+
+
 def audit_policies() -> tuple[AuditPolicy, ...]:
     """The audit entries this module writes (m11: registered by the harness until E01's registry hooks merge)."""
     return (
-        AuditPolicy("medicines.administered", {}, frozenset(), {}),
+        AuditPolicy("medicines.administered", {"confirmed_as": CONFIRMED_AS}, frozenset(), {}),
+        AuditPolicy(
+            "medicines.administered_acting",
+            {"confirmed_as": CONFIRMED_AS},
+            frozenset({"role_assignment"}),
+            {"role_assignment": frozenset({"role_assignment"})},
+        ),
         AuditPolicy("medicines.corrected", {}, frozenset(), {}),
     )
 
@@ -275,11 +386,14 @@ class Station:
     db: SQLiteDatabase
     clock: StepClock
     mission: Mission
-    acting: Acting
+    authority: Authority
     resolver: Resolver
     client: TestClient
     runtime_deps: Callable[[], Deps]
     tasks: TaskService
+    consent: Consent
+    plans: Plans
+    corrections: Corrections
     registry: DeclarationRegistry = field(
         default_factory=lambda: DeclarationRegistry(max_ports=1, max_hooks=1)
     )
@@ -287,6 +401,15 @@ class Station:
     @property
     def deps(self) -> Deps:
         return self.runtime_deps()
+
+    def assign_acting(self, person: str, subject: str, assignment: str = "rol_acting_1") -> None:
+        """E31 made `person` the accepted acting medical officer for `subject`: the assignment record exists (roles
+        replicated it, so the audit can reference it) and the authority query answers acting."""
+        with sqlite3.connect(self.db.path) as connection:
+            connection.execute(
+                "INSERT OR IGNORE INTO platform_reference VALUES ('role_assignment', ?)", (assignment,)
+            )
+        self.authority.acting[(person, subject)] = assignment
 
     def use_engine(self, engine: PotencyEngine) -> None:
         """Swap the bound worker (white box: tests that do not spawn the pharmacy child)."""
@@ -370,13 +493,17 @@ def build_station(
     for policy in audit_policies():
         db.register_audit_policy(policy)
     registry = DeclarationRegistry(max_ports=1024, max_hooks=1024)
-    fake_mission, acting = Mission(mission if mission is not None else lunar()), Acting()
+    fake_mission, authority = Mission(mission if mission is not None else lunar()), Authority()
+    consent, plans, corrections = Consent(), Plans(), Corrections()
     registry.provide(SQLiteDatabase, lambda _: db)
     registry.provide(HubSettings, lambda _: db.settings)  # type: ignore[type-abstract]
     registry.provide(IdFactory, lambda _: db.ids)  # type: ignore[type-abstract]
     registry.provide(Clock, lambda _: clock)  # type: ignore[type-abstract]
     registry.provide(MissionStatePort, lambda _: fake_mission)  # type: ignore[type-abstract]
-    registry.provide(ActingOfficerPort, lambda _: acting)  # type: ignore[type-abstract]
+    registry.provide(ClinicalAuthorityQuery, lambda _: authority)  # type: ignore[type-abstract]
+    registry.provide(ConsentQueries, lambda _: consent)  # type: ignore[type-abstract]
+    registry.provide(PlanMedicines, lambda _: plans)  # type: ignore[type-abstract]
+    registry.provide(ClockCorrections, lambda _: corrections)  # type: ignore[type-abstract]
     registry.provide(medicines_module.RequestAuthenticator, lambda _: Sessions())  # type: ignore[type-abstract]
     platform_module.register(registry)
     medicines_module.register(registry)
@@ -407,7 +534,18 @@ def build_station(
         if isinstance(router, APIRouter):
             app.include_router(router)
     station = Station(
-        db, clock, fake_mission, acting, resolver, TestClient(app), _runtime_deps(resolver), service, registry
+        db,
+        clock,
+        fake_mission,
+        authority,
+        resolver,
+        TestClient(app),
+        _runtime_deps(resolver),
+        service,
+        consent,
+        plans,
+        corrections,
+        registry,
     )
     if engine is not None or not engine_python:  # with an interpreter the real worker stays bound
         station.use_engine(engine if engine is not None else FakeEngine())

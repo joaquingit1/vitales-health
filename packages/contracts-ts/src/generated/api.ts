@@ -6097,6 +6097,13 @@ export interface components {
             }[];
             administered_at: components["schemas"]["instant"];
             confirmed_by: components["schemas"]["id"];
+            /**
+             * @description The clinical authority the confirmer held (SYSTEM 8.4 rule 3): an acting officer is shown as acting.
+             * @enum {string}
+             */
+            confirmed_as?: "crew_medical_officer" | "acting_medical_officer";
+            /** @description The accepted medical_officer assignment that made the confirmer acting; null for the crew medical officer. */
+            role_assignment_id?: components["schemas"]["id"] | null;
             overrides: {
                 alert_id: string;
                 kind: string;

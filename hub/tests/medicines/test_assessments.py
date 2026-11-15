@@ -473,7 +473,9 @@ def test_medicines_events_carry_ids_and_states_only_to_their_audiences(st_plain:
         "session_station", "station", Actor("station", "station_1"), None, frozenset({Role.STATION})
     )
     with st.db.snapshot() as view:
-        rule = events.PersonAudience()
+        rule = events.PersonAudience(
+            lambda: st.consent
+        )  # the fixture's subject shared everything with the CMO
         assert rule.admits(view, SESSIONS["subject"], person) and rule.admits(view, SESSIONS["cmo"], person)
         assert not rule.admits(view, SESSIONS["crew_b"], person) and not rule.admits(view, station, person)
         assert events.CrewAudience().admits(view, SESSIONS["crew_b"], crew)

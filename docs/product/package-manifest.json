@@ -1775,8 +1775,8 @@
     },
     {
       "path": "api/schemas/medication-administration.schema.json",
-      "bytes": 3742,
-      "sha256": "5ed372e2a3aba51d21b6b6208b90da8ba2f2dc5cc3fdf9299e6853e159130287"
+      "bytes": 4315,
+      "sha256": "bf9e24c0eb987b69ae48dcbb4c58c0aa028cf8941063e38cdf20fb54a3c010e4"
     },
     {
       "path": "api/schemas/medication-context.schema.json",

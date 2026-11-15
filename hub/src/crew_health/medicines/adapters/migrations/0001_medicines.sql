@@ -67,6 +67,26 @@ CREATE TABLE med_correction (
 CREATE TRIGGER med_correction_no_update BEFORE UPDATE ON med_correction BEGIN SELECT RAISE(ABORT, 'append-only'); END;
 CREATE TRIGGER med_correction_no_delete BEFORE DELETE ON med_correction BEGIN SELECT RAISE(ABORT, 'append-only'); END;
 
+-- Clock evidence (E32 3.8 C1, C3, C4): every medicines command appends the hub clock, the monotonic reading and the
+-- process epoch it ran at; a forward jump inside one process (wall time advanced more than monotonic time beyond
+-- medicines.clock_forward_tolerance_seconds) appends a discontinuity row with the reading it was measured against and
+-- the clock correction journal head at detection. It is resolved only by a later correction revision.
+CREATE TABLE med_clock_check (
+  seq INTEGER PRIMARY KEY AUTOINCREMENT,
+  kind TEXT NOT NULL CHECK (kind IN ('reading', 'discontinuity')),
+  at_utc TEXT NOT NULL,
+  monotonic_ns INTEGER NOT NULL,
+  process_epoch TEXT NOT NULL,
+  reference_seq INTEGER REFERENCES med_clock_check (seq),
+  wall_delta_ms INTEGER,
+  monotonic_delta_ms INTEGER,
+  correction_version INTEGER,
+  CHECK ((kind = 'discontinuity') = (reference_seq IS NOT NULL))
+) STRICT;
+CREATE INDEX med_clock_check_epoch ON med_clock_check (process_epoch, kind, seq);
+CREATE TRIGGER med_clock_check_no_update BEFORE UPDATE ON med_clock_check BEGIN SELECT RAISE(ABORT, 'append-only'); END;
+CREATE TRIGGER med_clock_check_no_delete BEFORE DELETE ON med_clock_check BEGIN SELECT RAISE(ABORT, 'append-only'); END;
+
 -- Artifacts (E32 5.2): content-addressed bytes of pharmacy bundle files, bundle manifests, engine inputs and results.
 -- Pruning is the only delete, and only of a hash recorded in med_artifact_prune first.
 CREATE TABLE med_artifact (

@@ -1,5 +1,5 @@
 """Medicines use cases (E32 4.4). The engine proposes; the crew medical officer, or the acting medical officer for an
-`any_trained_crew` product at the label dose, confirms. Every safety limit is rechecked inside the confirming
+`any_trained_crew` product or a medicine the subject's active plan names (Q14), confirms. Every safety limit is rechecked inside the confirming
 transaction; stock draws go through the supplies stock port, so a lot never goes below zero."""
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ from typing import cast
 
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.kernel.audit import AuditEntry
+from crew_health.kernel.clock import Clock, ClockCorrections
 from crew_health.kernel.commands import (
     AcceptedReceipt,
     CommandIdentity,
@@ -36,11 +37,13 @@ from crew_health.medicines.application.codec import (
     summary_from,
 )
 from crew_health.medicines.application.ports import (
-    ActingOfficerPort,
     BundleCheck,
+    ClockCheck,
+    ConsentQueries,
     MedicinesRepository,
     Movement,
     Partition,
+    PlanMedicines,
     PotencyEngine,
     PotencyStore,
     RecordRow,
@@ -64,10 +67,8 @@ from crew_health.medicines.domain.model import (
     Treatments,
     WorkingDiagnosis,
 )
-from crew_health.medicines.domain.model import (
-    Path as PathKind,
-)
 from crew_health.medicines.domain.units import Amount
+from crew_health.roles.application.ports import ClinicalAuthorityQuery
 from crew_health.supplies.application.ports import (
     MissionStatePort,
     StockBelowZero,
@@ -77,8 +78,12 @@ from crew_health.supplies.application.ports import (
 )
 
 CMO = "crew_medical_officer"
+SCOPE = "medicines"  # ConsentQueries scope (SCOPE, field): context, proposals, administrations, names
 PARTS = ("allergies", "other_medicines", "renal", "hepatic", "conditions")
 AUDIT_ADMINISTERED = "medicines.administered"
+AUDIT_ADMINISTERED_ACTING = (
+    "medicines.administered_acting"  # refs the role_assignment that made the confirmer acting
+)
 AUDIT_CORRECTED = "medicines.corrected"
 ADMIN_RECORD = "medication_administration"
 _INTERNAL = frozenset({"rule_id", "lineage_id", "reason_text"})  # stored, never on the wire
@@ -99,6 +104,7 @@ class Limits:
     max_window_rows: int
     future_tolerance_seconds: int
     clock_backward_tolerance_seconds: int
+    clock_forward_tolerance_seconds: int = 60
     retained_unreferenced_runs: int = 20
     max_inputs_bytes: int = 128 * 1024 * 1024
     max_weights: int = 8
@@ -112,7 +118,7 @@ class Deps:
     idempotency: IdempotencyStore
     repository: MedicinesRepository
     mission: MissionStatePort
-    acting: ActingOfficerPort | None
+    authority: ClinicalAuthorityQuery | None
     documents: Callable[[], Documents]
     limits: Limits
     process_epoch: str
@@ -121,6 +127,10 @@ class Deps:
     bundle_check: BundleCheck
     tasks: TaskQueue | None
     weights: WeightReader | None
+    clock: Clock | None = None
+    corrections: ClockCorrections | None = None
+    consent: ConsentQueries | None = None
+    plans: PlanMedicines | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -149,12 +159,22 @@ def _partition(deps: Deps, view: View) -> Partition:
 
 
 def _confirmer(deps: Deps, view: View, session: SessionContext, subject: str) -> Confirmer:
-    acting = (
-        deps.acting is not None
-        and session.person_id is not None
-        and deps.acting.is_acting(view, session.person_id, subject)
+    """E31's clinical authority for this subject now (SYSTEM 8.4), never a caller boolean. Without E31 the crew
+    medical officer role of the authenticated session stands and nobody is acting."""
+    if session.person_id is None or session.kind == "station":
+        return Confirmer(None, "none")
+    if deps.authority is None:
+        roles = {str(r) for r in session.roles}
+        return Confirmer(session.person_id, "crew_medical_officer" if CMO in roles else "none")
+    decided = deps.authority.authority(
+        view,
+        person_id=session.person_id,
+        subject_person_id=subject,
+        action="dose_confirmation",
+        dose=None,
+        at=view.now,
     )
-    return Confirmer(session.person_id, frozenset(str(r) for r in session.roles), acting)
+    return Confirmer(session.person_id, decided.kind, decided.role_assignment_id)
 
 
 def _require_clinician(deps: Deps, view: View, session: SessionContext, subject: str) -> Confirmer:
@@ -168,14 +188,101 @@ def _require_clinician(deps: Deps, view: View, session: SessionContext, subject:
     return who
 
 
-def _can_read(deps: Deps, view: View, session: SessionContext, subject: str) -> bool:
-    if session.person_id is not None and session.person_id == subject:
+def _can_read(deps: Deps, view: View, session: SessionContext, subject: str, field: str) -> bool:
+    """SYSTEM 8.3 object and field grant: the subject, or a reader the subject shared this field with (E02 consent).
+    Officer status, an acting assignment or a help session is never a chart grant; a station never reads."""
+    if session.person_id is None or session.kind == "station":
+        return False
+    if session.person_id == subject:
         return True
-    return CMO in {str(r) for r in session.roles} or (
-        deps.acting is not None
-        and session.person_id is not None
-        and deps.acting.is_acting(view, session.person_id, subject)
+    return deps.consent is not None and deps.consent.allows(
+        view, subject_person_id=subject, recipient=session.person_id, scope=(SCOPE, field)
     )
+
+
+def _require_read(deps: Deps, view: View, session: SessionContext, subject: str, field: str) -> None:
+    if not _can_read(deps, view, session, subject, field):
+        raise _problem(ErrorCode.UNAUTHORIZED_SCOPE, "/", "no grant for this crew member's " + field)
+
+
+_FIELD_OF_KIND = {
+    "context": "context",
+    "diagnosis": "context",
+    "proposal": "proposals",
+    "administration": "administrations",
+}
+
+
+class MedicinesResultVisibility:
+    """kernel ResultVisibility for a saved medicines result (SYSTEM 5.8): rechecked under the current grant before a
+    replay returns it or even its reference; a record with no subject (lot, movement, assessment) is crew data."""
+
+    def __init__(self, deps: Deps) -> None:
+        self.deps = deps
+
+    def authorize(
+        self, snapshot: View, session: SessionContext, identity: CommandIdentity, result: StoredResult
+    ) -> None:
+        if result.resource_ref is None:
+            return
+        row = self.deps.repository.record(snapshot, result.resource_ref)
+        subject = None if row is None else row.subject_person_id
+        if row is None or subject is None:
+            return
+        _require_read(self.deps, snapshot, session, subject, _FIELD_OF_KIND.get(row.kind, "context"))
+
+
+def _correction_head(deps: Deps, view: View) -> int:
+    """The newest clock correction revision (SYSTEM 5.2 global journal), paged with a bound."""
+    if deps.corrections is None:
+        return 0
+    head = 0
+    for _ in range(64):
+        page = deps.corrections.history(view, after_version=head, limit=deps.limits.max_rows)
+        if not page:
+            break
+        head = max(c.version for c in page)
+    return head
+
+
+def _clock_marked(deps: Deps, view: View) -> bool:
+    """C4: a forward discontinuity stays marked until a person records a clock correction after it (a correction
+    revision newer than the journal head at detection). Without the clock module nothing can resolve it."""
+    mark = deps.repository.last_clock_check(view, "discontinuity")
+    if mark is None:
+        return False
+    if deps.corrections is None:
+        return True
+    later = deps.corrections.history(view, after_version=mark.correction_version or 0, limit=1)
+    return not later
+
+
+def _clock_check(deps: Deps, uow: UnitOfWork) -> None:
+    """C1 and C3, once per medicines command: compare wall against monotonic time since this process's last
+    medicines operation; a forward jump beyond the tolerance is stored as evidence. Then this reading is stored."""
+    if deps.clock is None:
+        return
+    monotonic = deps.clock.monotonic_ns()
+    last = deps.repository.last_clock_check(uow, "reading", deps.process_epoch)
+    if last is not None:
+        wall_ms = int((uow.now - last.at).total_seconds() * 1000)
+        monotonic_ms = (monotonic - last.monotonic_ns) // 1_000_000
+        if wall_ms - monotonic_ms > deps.limits.clock_forward_tolerance_seconds * 1000:
+            deps.repository.add_clock_check(
+                uow,
+                ClockCheck(
+                    0,
+                    "discontinuity",
+                    uow.now,
+                    monotonic,
+                    deps.process_epoch,
+                    last.seq,
+                    wall_ms,
+                    monotonic_ms,
+                    _correction_head(deps, uow),
+                ),
+            )
+    deps.repository.add_clock_check(uow, ClockCheck(0, "reading", uow.now, monotonic, deps.process_epoch))
 
 
 def _future(deps: Deps, at: datetime, now: datetime, field: str) -> None:
@@ -184,9 +291,21 @@ def _future(deps: Deps, at: datetime, now: datetime, field: str) -> None:
 
 
 def _identity(
-    session: SessionContext, cmd: Command, operation: str, target: str, partition: Partition
+    session: SessionContext,
+    cmd: Command,
+    operation: str,
+    target: str,
+    partition: Partition,
+    extra: Mapping[str, str],
 ) -> CommandIdentity:
-    parameters = {"target": target, "mission_id": partition.mission_id, "origin_mode": partition.origin_mode}
+    """SYSTEM 5.8: every semantically relevant header is a parameter; `If-Match` (the revision a confirmation was
+    made against) is one, so the same key with another revision is a conflict, never a replay."""
+    parameters = {
+        "target": target,
+        "mission_id": partition.mission_id,
+        "origin_mode": partition.origin_mode,
+        **extra,
+    }
     return command_identity(
         key=cmd.key,
         actor_ref=session.actor.id,
@@ -210,20 +329,24 @@ def _run_command(
     target: str,
     apply: Callable[[UnitOfWork, Partition, str], Result],
     replay: Callable[[UnitOfWork, str], Mapping[str, object]],
+    parameters: Mapping[str, str] | None = None,
 ) -> Result:
-    """Identity first, then the ledger, then the business checks, in one BEGIN IMMEDIATE unit of work."""
+    """Identity first, then the ledger (a saved result is returned only under the current grant), then the clock
+    check and the business checks, in one BEGIN IMMEDIATE unit of work."""
     with deps.snapshots.snapshot() as view:
         partition = _partition(deps, view)
-    identity = _identity(session, cmd, operation, target, partition)
+    identity = _identity(session, cmd, operation, target, partition, parameters or {})
     with deps.uow.begin(actor=session.actor, command=identity, correlation_id=cmd.correlation_id) as uow:
         stored = deps.idempotency.lookup(uow, identity)
         if stored is not None:
             if stored.resource_ref is None:
                 raise ProblemError(ErrorCode(stored.result_code), "refused before", retryable=False)
+            MedicinesResultVisibility(deps).authorize(uow, session, identity, stored)
             return Result(stored.status, stored.resource_ref, replay(uow, stored.resource_ref))
         now_partition = _partition(deps, uow)
         if now_partition != partition:
             raise ProblemError(ErrorCode.INTERNAL_ERROR, "the mission or mode changed; retry", retryable=True)
+        _clock_check(deps, uow)
         result = apply(uow, partition, _command_key(identity))
         receipt = AcceptedReceipt(
             identity.key, identity.operation, identity.target, deps.ids.new("receipt"), uow.now
@@ -389,7 +512,8 @@ def assemble(
         history=history,
         context=context,
         weights=weights,
-        clock_discontinuity=_discontinuity(deps, view.now, [h.at for h in history]),
+        clock_discontinuity=_discontinuity(deps, view.now, [h.at for h in history])
+        or _clock_marked(deps, view),
         max_window_rows=deps.limits.max_window_rows,
     )
     material = {
@@ -635,6 +759,7 @@ def record_context(
 ) -> Result:
     def apply(uow: UnitOfWork, partition: Partition, key: str) -> Result:
         _future(deps, client_time, uow.now, "/client_time")
+        _require_read(deps, uow, session, subject, "context")
         _require_clinician(deps, uow, session, subject)
         if part not in PARTS:
             raise _problem(ErrorCode.INVALID_VALUE, "/part", "unknown part")
@@ -695,8 +820,7 @@ def context_view(deps: Deps, view: View, partition: Partition, subject: str) -> 
 
 def get_context(deps: Deps, session: SessionContext, subject: str) -> dict[str, object]:
     with deps.snapshots.snapshot() as view:
-        if not _can_read(deps, view, session, subject):
-            raise _problem(ErrorCode.NOT_FOUND, "/person_id", "not found")
+        _require_read(deps, view, session, subject, "context")
         return context_view(deps, view, _partition(deps, view), subject)
 
 
@@ -765,8 +889,8 @@ def treatment_options(deps: Deps, session: SessionContext, diagnosis_id: str) ->
         partition = _partition(deps, view)
         row = _diagnosis(deps, view, partition, diagnosis_id)
         subject = str(row.subject_person_id)
-        if not may_record_manual(_confirmer(deps, view, session, subject), subject):
-            raise _problem(ErrorCode.NOT_FOUND, "/working_diagnosis_id", "working diagnosis not found")
+        _require_read(deps, view, session, subject, "context")
+        _require_clinician(deps, view, session, subject)
         docs = deps.documents()
         lots = lot_views(deps, view, partition, docs)
         options = []
@@ -808,6 +932,7 @@ def create_proposal(
         _future(deps, client_time, uow.now, "/client_time")
         diagnosis = _diagnosis(deps, uow, partition, diagnosis_id)
         subject = str(diagnosis.subject_person_id)
+        _require_read(deps, uow, session, subject, "proposals")
         _require_clinician(deps, uow, session, subject)
         docs = deps.documents()
         example = activation_findings(docs.treatments, docs.policy, partition.origin_mode)
@@ -916,9 +1041,9 @@ def get_proposal(deps: Deps, session: SessionContext, proposal_id: str) -> dict[
             row is None
             or row.kind != "proposal"
             or (row.mission_id, row.origin_mode) != (partition.mission_id, partition.origin_mode)
-            or not _can_read(deps, view, session, str(row.subject_person_id))
         ):
             raise _problem(ErrorCode.NOT_FOUND, "/proposal_id", "proposal not found")
+        _require_read(deps, view, session, str(row.subject_person_id), "proposals")
         return proposal_view(deps, view, proposal_id)
 
 
@@ -930,10 +1055,17 @@ class Override:
 
 
 def _open_proposal(
-    deps: Deps, uow: UnitOfWork, partition: Partition, proposal_id: str, if_match: str, lot_id: str
+    deps: Deps,
+    uow: UnitOfWork,
+    partition: Partition,
+    session: SessionContext,
+    proposal_id: str,
+    if_match: str,
+    lot_id: str,
 ) -> RecordRow:
-    """ConfirmDose steps 1 and 3: the proposal exists here, is an open proposal (one terminal event; a refusal is
-    never confirmed) at the If-Match revision, and names this lot."""
+    """ConfirmDose steps 1 and 3: the proposal exists here, the caller may read it (before any error that carries
+    it), it is an open proposal (one terminal event; a refusal is never confirmed) at the If-Match revision, and it
+    names this lot."""
     row = deps.repository.record(uow, proposal_id)
     if (
         row is None
@@ -945,6 +1077,7 @@ def _open_proposal(
         )
     ):
         raise _problem(ErrorCode.NOT_FOUND, "/proposal_id", "proposal not found")
+    _require_read(deps, uow, session, str(row.subject_person_id), "proposals")
     wire = cast(Mapping[str, object], row.body["wire"])
     if wire["outcome"] != "proposal" or deps.repository.terminal(uow, proposal_id) is not None:
         raise ProblemError(
@@ -1043,14 +1176,15 @@ def confirm_proposal(
 
     def apply(uow: UnitOfWork, partition: Partition, key: str) -> Result:
         _future(deps, client_time, uow.now, "/client_time")
-        row = _open_proposal(deps, uow, partition, proposal_id, if_match, lot_id)
+        row = _open_proposal(deps, uow, partition, session, proposal_id, if_match, lot_id)
         wire = cast(Mapping[str, object], row.body["wire"])
         internal = cast(Mapping[str, object], row.body["internal"])
         subject, docs = str(row.subject_person_id), deps.documents()
         product = docs.treatments.products.get(str(wire["product_id"]))
         who = _confirmer(deps, uow, session, subject)
-        path = cast(PathKind, cast(Mapping[str, object], wire["potency"])["path"])
-        if product is None or not may_confirm(who, subject, product.confirm_by, path):
+        if product is None or not may_confirm(
+            who, subject, product.confirm_by, _plan_names(deps, uow, row, str(wire["product_id"]))
+        ):
             raise _problem(ErrorCode.ROLE_NOT_ELIGIBLE, "/", "not eligible to confirm this proposal")
         if internal["process_epoch"] != deps.process_epoch or uow.now >= parse_instant(wire["expires_at"]):
             return _terminal(deps, uow, proposal_id, "expired", "process restarted or time to live passed")
@@ -1071,6 +1205,7 @@ def confirm_proposal(
             rule_id=again.rule_id,
             lineage_id=str(diagnosis.body["lineage_id"]),
             administered_at=uow.now,
+            who=who,
         )
         body = _administer(deps, uow, partition, session, key, administered)
         deps.repository.add_terminal(uow, proposal_id, "confirmed", str(body["administration_id"]))
@@ -1078,7 +1213,31 @@ def confirm_proposal(
         return Result(201, str(body["administration_id"]), body)
 
     return _run_command(
-        deps, session, cmd, "confirmDoseProposal", proposal_id, apply, lambda v, r: _replay_any(deps, v, r)
+        deps,
+        session,
+        cmd,
+        "confirmDoseProposal",
+        proposal_id,
+        apply,
+        lambda v, r: _replay_any(deps, v, r),
+        {"if_match": if_match.strip('"')},
+    )
+
+
+def _plan_names(deps: Deps, uow: UnitOfWork, proposal: RecordRow, product_id: str) -> bool:
+    """Q14: the subject's active plan step names this medicine for the proposal's condition, from E28 in this
+    transaction. Absent provider: no plan grants it."""
+    if deps.plans is None:
+        return False
+    wire = cast(Mapping[str, object], proposal.body["wire"])
+    diagnosis = deps.repository.record(uow, str(wire["working_diagnosis_id"]))
+    if diagnosis is None:
+        return False
+    return deps.plans.names_medicine(
+        uow,
+        subject_person_id=str(proposal.subject_person_id),
+        condition_id=str(diagnosis.body["condition_id"]),
+        product_id=product_id,
     )
 
 
@@ -1119,6 +1278,7 @@ class Administered:
     rule_id: str | None
     lineage_id: str | None
     administered_at: datetime
+    who: Confirmer
     reason_text: str | None = None
 
 
@@ -1157,7 +1317,9 @@ def _administration_body(
             {"ingredient_id": k, "accounting": amount_json(v)} for k, v in sorted(a.accounting.items())
         ],
         "administered_at": instant(a.administered_at),
-        "confirmed_by": session.person_id or session.actor.id,
+        "confirmed_by": a.who.person_id or session.actor.id,
+        "confirmed_as": a.who.authority,
+        "role_assignment_id": a.who.role_assignment_id,
         "overrides": list(a.overrides),
         "limit_findings": list(a.findings),
         "status": "completed",
@@ -1208,23 +1370,25 @@ def _administer(
         None,
     )
     deps.repository.add_movement(uow, movement)
-    _audit(deps, uow, AUDIT_ADMINISTERED)
+    _audit(deps, uow, AUDIT_ADMINISTERED, a.who)
     events.administered(uow, administration_id, a.subject, a.proposal_id, a.outside_engine)
     return administration_view(deps, uow, administration_id)
 
 
-def _audit(deps: Deps, uow: UnitOfWork, event_type: str) -> None:
-    """No private text in the audit trail: the event type and the actor only (AGENTS 6)."""
+def _audit(deps: Deps, uow: UnitOfWork, event_type: str, who: Confirmer | None = None) -> None:
+    """No private text in the audit trail: the event type, the actor and, for an administration, the authority it
+    was confirmed under; an acting officer's entry names the accepted assignment (SYSTEM 8.4 rule 3; AGENTS 6)."""
+    acting = who is not None and who.role_assignment_id is not None
     uow.audit(
         AuditEntry(
             event_id=deps.ids.new("aud"),
-            event_type=event_type,
+            event_type=AUDIT_ADMINISTERED_ACTING if acting else event_type,
             event_version=1,
             actor=uow.actor,
-            refs={},
+            refs={"role_assignment": str(who.role_assignment_id)} if acting and who is not None else {},
             correlation_id=uow.correlation_id,
             causation_id=None,
-            safe_metadata={},
+            safe_metadata={} if who is None else {"confirmed_as": who.authority},
         )
     )
 
@@ -1256,7 +1420,8 @@ def record_manual(
 
     def apply(uow: UnitOfWork, partition: Partition, key: str) -> Result:
         _future(deps, administered_at, uow.now, "/administered_at")
-        _require_clinician(deps, uow, session, subject)
+        _require_read(deps, uow, session, subject, "administrations")
+        who = _require_clinician(deps, uow, session, subject)
         docs = deps.documents()
         formulary = docs.formulary.get(product_id)
         if formulary is None:
@@ -1283,6 +1448,7 @@ def record_manual(
             rule_id=None,
             lineage_id=None,
             administered_at=administered_at,
+            who=who,
             reason_text=reason_text,
         )
         body = _administer(deps, uow, partition, session, key, administered)
@@ -1303,8 +1469,7 @@ def list_administrations(deps: Deps, session: SessionContext, subject: str) -> d
     if session.kind == "station":
         raise _problem(ErrorCode.UNAUTHORIZED_SCOPE, "/", "never to a station session")
     with deps.snapshots.snapshot() as view:
-        if not _can_read(deps, view, session, subject):
-            return {"subject_person_id": subject, "items": []}
+        _require_read(deps, view, session, subject, "administrations")
         partition = _partition(deps, view)
         rows = deps.repository.records(
             view, "administration", partition, limit=deps.limits.max_rows, subject_person_id=subject
@@ -1330,6 +1495,7 @@ def correct_administration(
             )
         ):
             raise _problem(ErrorCode.NOT_FOUND, "/administration_id", "administration not found")
+        _require_read(deps, uow, session, str(row.subject_person_id), "administrations")
         _require_clinician(deps, uow, session, str(row.subject_person_id))
         if deps.repository.correction(uow, administration_id) is not None:
             raise ProblemError(
@@ -1478,10 +1644,7 @@ def active_medicine_names(deps: Deps, session: SessionContext, subject: str) -> 
     is absent or later than now, or a product administered (not entered in error) inside its rule's longest limit
     window, so still counting against a limit. Scope as getMedicationContext; refused, never an empty answer."""
     with deps.snapshots.snapshot() as view:
-        if not _can_read(deps, view, session, subject):
-            raise _problem(
-                ErrorCode.UNAUTHORIZED_SCOPE, "/person_id", "no grant for this crew member's medicines"
-            )
+        _require_read(deps, view, session, subject, "names")
         partition = _partition(deps, view)
         docs = deps.documents()
         context, _ = _context(deps, view, partition, subject)

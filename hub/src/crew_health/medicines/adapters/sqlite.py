@@ -12,7 +12,7 @@ from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.storage import SqlValue
 from crew_health.kernel.uow import ReadSnapshot, UnitOfWork
 from crew_health.medicines.application.codec import dumps, loads
-from crew_health.medicines.application.ports import Movement, Partition, RecordRow
+from crew_health.medicines.application.ports import ClockCheck, Movement, Partition, RecordRow
 
 MIGRATION = Path(__file__).parent / "migrations" / "0001_medicines.sql"
 type View = UnitOfWork | ReadSnapshot
@@ -34,6 +34,39 @@ def instant(at: datetime) -> str:
 
 def parse_instant(text: str) -> datetime:
     return datetime.fromisoformat(text.replace("Z", "+00:00"))
+
+
+def _int(value: SqlValue) -> int:
+    if not isinstance(value, int):
+        raise ProblemError(ErrorCode.INTERNAL_ERROR, "medicines row is malformed", retryable=False)
+    return value
+
+
+def _oint(value: SqlValue) -> int | None:
+    return None if value is None else _int(value)
+
+
+_CLOCK = (
+    "seq, kind, at_utc, monotonic_ns, process_epoch, reference_seq, wall_delta_ms, monotonic_delta_ms, "
+    "correction_version"
+)
+
+
+def _check(r: tuple[SqlValue, ...]) -> ClockCheck:
+    kind = _t(r[1])
+    if kind not in ("reading", "discontinuity"):
+        raise ProblemError(ErrorCode.INTERNAL_ERROR, "medicines row is malformed", retryable=False)
+    return ClockCheck(
+        seq=_int(r[0]),
+        kind="reading" if kind == "reading" else "discontinuity",
+        at=parse_instant(_t(r[2])),
+        monotonic_ns=_int(r[3]),
+        process_epoch=_t(r[4]),
+        reference_seq=_oint(r[5]),
+        wall_delta_ms=_oint(r[6]),
+        monotonic_delta_ms=_oint(r[7]),
+        correction_version=_oint(r[8]),
+    )
 
 
 def _row(r: tuple[SqlValue, ...]) -> RecordRow:
@@ -186,6 +219,39 @@ class SqliteMedicines:
             "SELECT reason_text FROM med_correction WHERE administration_id=?", (administration_id,), limit=1
         )
         return _t(rows[0][0]) if rows else None
+
+    def add_clock_check(self, uow: UnitOfWork, check: ClockCheck) -> int:
+        cursor = uow.connection.execute(
+            f"INSERT INTO med_clock_check ({_CLOCK.removeprefix('seq, ')}) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                check.kind,
+                instant(check.at),
+                check.monotonic_ns,
+                check.process_epoch,
+                check.reference_seq,
+                check.wall_delta_ms,
+                check.monotonic_delta_ms,
+                check.correction_version,
+            ),
+        )
+        if cursor.last_row_id is None:
+            raise ProblemError(ErrorCode.INTERNAL_ERROR, "clock evidence not stored", retryable=False)
+        return cursor.last_row_id
+
+    def last_clock_check(self, view: View, kind: str, process_epoch: str | None = None) -> ClockCheck | None:
+        if process_epoch is None:
+            rows = view.connection.rows(
+                f"SELECT {_CLOCK} FROM med_clock_check WHERE kind=? ORDER BY seq DESC LIMIT 1",
+                (kind,),
+                limit=1,
+            )
+        else:
+            rows = view.connection.rows(
+                f"SELECT {_CLOCK} FROM med_clock_check WHERE kind=? AND process_epoch=? ORDER BY seq DESC LIMIT 1",
+                (kind, process_epoch),
+                limit=1,
+            )
+        return _check(rows[0]) if rows else None
 
     def add_correction(
         self, uow: UnitOfWork, administration_id: str, reason: str, by_id: str, key: str

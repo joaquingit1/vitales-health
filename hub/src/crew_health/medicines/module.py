@@ -13,7 +13,7 @@ from typing import Protocol, cast
 from fastapi import APIRouter, Request
 
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode
-from crew_health.kernel.clock import Clock
+from crew_health.kernel.clock import Clock, ClockCorrections
 from crew_health.kernel.commands import IdempotencyStore
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import IdFactory
@@ -32,10 +32,16 @@ from crew_health.medicines.adapters.runs import SqlitePotencyStore
 from crew_health.medicines.adapters.sqlite import SqliteMedicines
 from crew_health.medicines.api.router import build_router
 from crew_health.medicines.application import assessments, events, scheduling
-from crew_health.medicines.application.ports import ActingOfficerPort, MedicationRecordReader, WeightReader
+from crew_health.medicines.application.ports import (
+    ConsentQueries,
+    MedicationRecordReader,
+    PlanMedicines,
+    WeightReader,
+)
 from crew_health.medicines.application.settings import CONFIG_DIR, ENGINE_PYTHON, read_limits, specs
 from crew_health.medicines.application.use_cases import Deps, Documents, active_medicine_names
 from crew_health.medicines.domain.documents import DocumentsInvalid
+from crew_health.roles.application.ports import ClinicalAuthorityQuery
 from crew_health.supplies.application.ports import MissionStatePort
 
 
@@ -97,6 +103,7 @@ def build_deps(resolver: Resolver, documents: DocumentsHolder) -> Deps:
         )
     python = settings.text(ENGINE_PYTHON)
     limits = read_limits(settings)
+    clock = resolver.require(Clock)
     engine = PotencyWorker(
         Path(python) if python else None,
         timeout_seconds=settings.integer("medicines.assessment_timeout_seconds"),
@@ -110,15 +117,19 @@ def build_deps(resolver: Resolver, documents: DocumentsHolder) -> Deps:
         idempotency=resolver.require(IdempotencyStore),
         repository=SqliteMedicines(),
         mission=mission,
-        acting=resolver.optional(ActingOfficerPort),
+        authority=resolver.optional(ClinicalAuthorityQuery),
         documents=documents,
         limits=limits,
-        process_epoch=resolver.require(Clock).process_epoch(),
+        process_epoch=clock.process_epoch(),
         store=SqlitePotencyStore(max_rows=limits.max_rows),
         engine=engine,
         bundle_check=PharmacyBundleCheck(engine),
         tasks=resolver.optional(TaskQueue),
         weights=_weights(resolver),
+        clock=clock,
+        corrections=resolver.optional(ClockCorrections),
+        consent=resolver.optional(ConsentQueries),
+        plans=resolver.optional(PlanMedicines),
     )
 
 
@@ -149,6 +160,9 @@ class MedicinesRuntime:
     def __init__(self) -> None:
         self.deps: Deps | None = None
         self.authenticator: RequestAuthenticator | None = None
+
+    def consent(self) -> ConsentQueries | None:
+        return None if self.deps is None else self.deps.consent
 
     def need(self) -> Deps:
         if self.deps is None:
@@ -196,8 +210,9 @@ def register(registry: ModuleRegistry) -> None:
     for spec in specs():
         registry.setting(spec)
     registry.audience_rule(events.CREW_RULE, events.CrewAudience())
-    registry.audience_rule(events.PERSON_RULE, events.PersonAudience())
-    for projection in events.projections():
+    person = events.PersonAudience(runtime.consent)
+    registry.audience_rule(events.PERSON_RULE, person)
+    for projection in events.projections(person):
         registry.local_projection(projection)
     registry.task(
         TaskRegistration(

@@ -114,6 +114,25 @@
     "confirmed_by": {
       "$ref": "common.schema.json#/$defs/id"
     },
+    "confirmed_as": {
+      "type": "string",
+      "enum": [
+        "crew_medical_officer",
+        "acting_medical_officer"
+      ],
+      "description": "The clinical authority the confirmer held (SYSTEM 8.4 rule 3): an acting officer is shown as acting."
+    },
+    "role_assignment_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The accepted medical_officer assignment that made the confirmer acting; null for the crew medical officer."
+    },
     "overrides": {
       "type": "array",
       "items": {

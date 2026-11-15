@@ -1,11 +1,12 @@
 """Medicines domain events (E32 4.5; R-E32-11): IDs and states only, never a dose, product, diagnosis or note
 (10.3). `medicine.assessment_changed` is a crew event (crew, medical officer, operator and station sessions see it);
-the proposal and administration events are person events, delivered to the subject and to crew medical officer
-sessions only, never to other crew or a station (as `skill.practiced`)."""
+the proposal and administration events are person events, delivered to the subject and to a reader the subject shared
+that field with (E02 consent, SYSTEM 8.3), never by officer status and never to a station."""
 
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 
 from crew_health.contracts_gen.enums import EventType, Role
 from crew_health.kernel.uow import (
@@ -18,6 +19,7 @@ from crew_health.kernel.uow import (
     SessionContext,
     UnitOfWork,
 )
+from crew_health.medicines.application.ports import ConsentQueries
 
 CREW_RULE = "medicines.crew"
 PERSON_RULE = "medicines.person"
@@ -30,13 +32,37 @@ class CrewAudience:
         return audience.rule == CREW_RULE and bool(session.roles & CREW_ROLES)
 
 
+# The consented field each person event discloses (the scope of getMedicationContext's sibling reads).
+FIELD_OF_EVENT = {
+    EventType.MEDICINE_PROPOSAL_CHANGED.value: "proposals",
+    EventType.MEDICATION_ADMINISTERED.value: "administrations",
+    EventType.MEDICATION_ADMINISTRATION_CORRECTED.value: "administrations",
+}
+
+
 class PersonAudience:
-    """The subject (audience ref) or a crew medical officer session; a station session never."""
+    """The subject (audience ref), or a person the subject shared this event's field with now. The consent port is
+    resolved at binding; until then, or without E02, only the subject receives it (fail closed)."""
+
+    def __init__(self, consent: Callable[[], ConsentQueries | None] = lambda: None) -> None:
+        self.consent = consent
 
     def admits(self, snapshot: ReadSnapshot, session: SessionContext, audience: Audience) -> bool:
-        if audience.rule != PERSON_RULE or session.kind == "station":
+        if audience.rule != PERSON_RULE or session.kind == "station" or session.person_id is None:
             return False
-        return session.person_id == audience.object_ref or Role.CREW_MEDICAL_OFFICER in session.roles
+        if session.person_id == audience.object_ref:
+            return True
+        consent, field = self.consent(), FIELD_OF_EVENT.get(audience.projection.name)
+        return (
+            consent is not None
+            and field is not None
+            and consent.allows(
+                snapshot,
+                subject_person_id=audience.object_ref,
+                recipient=session.person_id,
+                scope=("medicines", field),
+            )
+        )
 
 
 def _id() -> dict[str, object]:
@@ -80,7 +106,7 @@ def projection(event: EventType) -> AudienceProjectionKey:
     return AudienceProjectionKey("medicines", event.value, 1)
 
 
-def projections() -> tuple[LocalProjectionRegistration, ...]:
+def projections(person: PersonAudience) -> tuple[LocalProjectionRegistration, ...]:
     out = []
     for event, (properties, required) in _SCHEMAS.items():
         schema = {
@@ -89,7 +115,7 @@ def projections() -> tuple[LocalProjectionRegistration, ...]:
             "required": sorted(properties),
             "properties": properties,
         }
-        rule = CrewAudience() if event is EventType.MEDICINE_ASSESSMENT_CHANGED else PersonAudience()
+        rule = CrewAudience() if event is EventType.MEDICINE_ASSESSMENT_CHANGED else person
         out.append(
             LocalProjectionRegistration(
                 key=projection(event),

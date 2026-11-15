@@ -28,6 +28,13 @@ _INTEGERS: tuple[tuple[str, int, int, str], ...] = (
         "SYSTEM C2 team default 60: a stored medicines time this far past the hub clock is a discontinuity",
     ),
     (
+        "medicines.clock_forward_tolerance_seconds",
+        1,
+        3600,
+        "SYSTEM C3 team default 60: wall time running ahead of monotonic time by more than this between two "
+        "medicines operations of one process is a forward clock jump",
+    ),
+    (
         "medicines.assessment_timeout_seconds",
         1,
         86_400,
@@ -103,6 +110,7 @@ def read_limits(settings: HubSettings) -> Limits:
         max_window_rows=settings.integer("medicines.max_window_rows"),
         future_tolerance_seconds=settings.integer("medicines.future_tolerance_seconds"),
         clock_backward_tolerance_seconds=settings.integer("medicines.clock_backward_tolerance_seconds"),
+        clock_forward_tolerance_seconds=settings.integer("medicines.clock_forward_tolerance_seconds"),
         retained_unreferenced_runs=settings.integer("medicines.retained_unreferenced_runs"),
         max_inputs_bytes=settings.integer("medicines.max_inputs_bytes"),
     )

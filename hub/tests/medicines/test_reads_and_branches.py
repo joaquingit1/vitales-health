@@ -55,7 +55,13 @@ def test_treatment_options_list_the_reviewed_formulary_lines_with_usable_lots(st
     hidden = st.client.get(
         f"/v1/working-diagnoses/{diagnosis}/treatment-options", headers=headers("subject_cmo")
     )
-    assert hidden.status_code == 404  # the subject is never the clinician for their own record
+    assert (
+        hidden.json()["code"] == "ROLE_NOT_ELIGIBLE"
+    )  # the subject is never the clinician for their own record
+    unshared = st.client.get(
+        f"/v1/working-diagnoses/{diagnosis}/treatment-options", headers=headers("crew_b")
+    )
+    assert unshared.json()["code"] == "UNAUTHORIZED_SCOPE"
 
 
 @pytest.mark.trace("T-72", "DD9", "R-E32-10")
@@ -108,7 +114,7 @@ def test_proposals_administrations_and_names_follow_the_record_grant(st: Station
     )
     proposal = _propose(st, _diagnose(st))
     path = f"/v1/dose-proposals/{proposal['proposal_id']}"
-    assert st.client.get(path, headers=headers("crew_b")).status_code == 404
+    assert st.client.get(path, headers=headers("crew_b")).json()["code"] == "UNAUTHORIZED_SCOPE"
     assert st.client.get(path, headers=headers("subject")).json()["proposal_id"] == proposal["proposal_id"]
     assert _confirm(st, proposal).status_code == 201
     listed = st.client.get(f"/v1/medication-administrations?subject={SUBJECT}", headers=headers("subject"))

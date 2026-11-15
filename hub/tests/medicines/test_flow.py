@@ -22,9 +22,11 @@ from .harness import (
     REPO,
     SCHEMAS,
     SUBJECT,
+    FakeEngine,
     Station,
     build_station,
     config_copy,
+    fixture_config,
     headers,
     lunar,
 )
@@ -176,17 +178,64 @@ def test_confirming_with_another_lot_is_refused_and_writes_nothing(st: Station) 
     assert st.rows("SELECT count(*) FROM med_proposal_terminal") == [(0,)]
 
 
-@pytest.mark.trace("T-61", "T-62", "INV-M6")
-def test_who_may_confirm(st: Station) -> None:
+@pytest.mark.trace("T-61", "T-62", "INV-M6", "Q14", "SYSTEM-8.4", "REVIEW-B6")
+def test_who_may_confirm_comes_from_clinical_authority_and_an_acting_confirmation_is_recorded_as_acting(
+    st: Station,
+) -> None:
+    st.consent.grants.add(("*", CREW_B, "*"))  # a read grant alone is never authority (SYSTEM 8.4 rule 3)
     apap = _propose(st, _diagnose(st))
     assert _confirm(st, apap, token="subject_cmo").json()["code"] == "ROLE_NOT_ELIGIBLE"  # never the subject
-    assert _confirm(st, apap, token="crew_b").json()["code"] == "ROLE_NOT_ELIGIBLE"  # not acting
-    st.acting.pairs.add((CREW_B, SUBJECT))
-    pmz = _propose(st, _diagnose(st, "ICL97"), "promethazine_25_tab")
-    assert _confirm(st, pmz, token="crew_b").json()["code"] == "ROLE_NOT_ELIGIBLE"  # pmz is CMO only
-    confirmed = _confirm(st, apap, token="crew_b")  # apap: any trained crew, the acting officer
+    assert _confirm(st, apap, token="crew_b").json()["code"] == "ROLE_NOT_ELIGIBLE"  # E31: not acting
+    st.assign_acting(CREW_B, SUBJECT, "rol_acting_7")
+    confirmed = _confirm(st, apap, token="crew_b")  # any_trained_crew: the acting officer confirms
     assert confirmed.status_code == 201, confirmed.text
-    assert confirmed.json()["confirmed_by"] == CREW_B
+    body = confirmed.json()
+    _valid("medication-administration.schema.json", body)
+    assert (body["confirmed_by"], body["confirmed_as"], body["role_assignment_id"]) == (
+        CREW_B,
+        "acting_medical_officer",
+        "rol_acting_7",
+    )
+    (envelope,) = [r[0] for r in st.rows("SELECT envelope FROM platform_audit") if b"administered" in r[0]]  # type: ignore[operator]
+    assert b"medicines.administered_acting" in envelope and b"rol_acting_7" in envelope  # type: ignore[operator]
+    assert b"acting_medical_officer" in envelope  # type: ignore[operator]
+
+
+@pytest.mark.trace("Q14", "Q11", "SYSTEM-8.4", "REVIEW-B6")
+def test_an_acting_officer_confirms_a_compensated_dose_of_an_officer_only_product_when_the_active_plan_names_it(
+    tmp_path: Path,
+) -> None:
+    """Q14: for a product the formulary keeps to the crew medical officer, the acting officer confirms the engine's
+    recommended dose, compensated included, only when the subject's active plan step names this medicine for this
+    condition (E28, read in the same transaction); the crew medical officer needs no plan."""
+    st = build_station(tmp_path, config_dir=fixture_config(tmp_path / "config-fixture-lots"))
+    st.use_engine(FakeEngine(scale=0.97))
+    _context(st)
+    assert st.drain() == 1
+    st.consent.grants.add(("*", CREW_B, "*"))
+    st.assign_acting(CREW_B, SUBJECT)
+    diagnosis = _diagnose(st, "ICL97")
+    proposal = _propose(st, diagnosis, "promethazine_25_tab")
+    assert proposal["outcome"] == "proposal", proposal
+    assert cast(dict[str, object], proposal["potency"])["path"] == "compensated"
+    acks = [
+        a["alert_id"] for a in cast(list[dict[str, str]], proposal["alerts"]) if a["level"] == "acknowledge"
+    ]
+    refused = _confirm(st, proposal, token="crew_b", acknowledged_alert_ids=acks)
+    assert refused.json()["code"] == "ROLE_NOT_ELIGIBLE"  # no plan names it
+    st.plans.named.add((SUBJECT, "ICL97", "promethazine_25_tab"))
+    confirmed = _confirm(st, proposal, token="crew_b", acknowledged_alert_ids=acks)
+    assert confirmed.status_code == 201, confirmed.text
+    assert confirmed.json()["confirmed_as"] == "acting_medical_officer"
+    st.plans.named.clear()
+    st.clock.at += timedelta(hours=7)  # past the minimum interval, real time (monotonic moves with it)
+    officer = _propose(st, _diagnose(st, "ICL97"), "promethazine_25_tab")
+    assert officer["outcome"] == "proposal", officer
+    acks = [
+        a["alert_id"] for a in cast(list[dict[str, str]], officer["alerts"]) if a["level"] == "acknowledge"
+    ]
+    done = _confirm(st, officer, acknowledged_alert_ids=acks, client_time="2028-03-01T14:59:00Z")
+    assert done.json()["confirmed_as"] == "crew_medical_officer", done.text
 
 
 @pytest.mark.trace("T-54", "INV-M8")
@@ -236,7 +285,8 @@ def test_an_override_alert_needs_the_officer_and_a_listed_reason(tmp_path: Path)
     (alert,) = [a for a in alerts if a["level"] == "override_required"]
     missing = _confirm(st, proposal)
     assert missing.status_code == 422 and missing.json()["field_errors"][0]["field"] == "/overrides"
-    st.acting.pairs.add((CREW_B, SUBJECT))
+    st.consent.grants.add(("*", CREW_B, "*"))
+    st.assign_acting(CREW_B, SUBJECT)  # acting, on an any_trained_crew product: still never an override
     override = [{"alert_id": alert["alert_id"], "reason_code": "benefit_outweighs_risk"}]
     assert _confirm(st, proposal, token="crew_b", overrides=override).json()["code"] == "ROLE_NOT_ELIGIBLE"
     wrong = [{"alert_id": alert["alert_id"], "reason_code": "not_a_reason"}]
@@ -321,19 +371,16 @@ def test_lot_movements_never_take_a_lot_below_zero(st: Station) -> None:
 
 
 @pytest.mark.trace("T-75", "AGENTS-7")
-def test_the_medication_context_is_private_to_the_subject_and_the_officers(st: Station) -> None:
+def test_the_medication_context_is_private_to_the_subject_and_its_consented_readers(st: Station) -> None:
+    """SYSTEM 8.3: the subject, or a reader the subject shared the field with; officer status grants nothing."""
     path = f"/v1/people/{SUBJECT}/medication-context"
-    assert st.client.get(path, headers=headers("crew_b")).status_code == 404
+    assert st.client.get(path, headers=headers("crew_b")).json()["code"] == "UNAUTHORIZED_SCOPE"
     mine = st.client.get(path, headers=headers("subject"))
     assert mine.status_code == 200
     _valid("medication-context.schema.json", mine.json())
-    assert st.client.get(path, headers=headers("cmo")).status_code == 200
-    assert (
-        st.client.get(f"/v1/medication-administrations?subject={SUBJECT}", headers=headers("crew_b")).json()[
-            "items"
-        ]
-        == []
-    )
+    assert st.client.get(path, headers=headers("cmo")).status_code == 200  # the subject shared it (fixture)
+    listed = st.client.get(f"/v1/medication-administrations?subject={SUBJECT}", headers=headers("crew_b"))
+    assert listed.status_code == 403 and listed.json()["code"] == "UNAUTHORIZED_SCOPE"
 
 
 @pytest.mark.trace("B07", "T-68")

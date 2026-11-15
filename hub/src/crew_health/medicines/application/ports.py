@@ -52,7 +52,26 @@ class Movement:
     command_key: str | None
 
 
+@dataclass(frozen=True, slots=True)
+class ClockCheck:
+    """One row of medicines clock evidence (E32 3.8): a reading, or a forward discontinuity measured against one."""
+
+    seq: int
+    kind: Literal["reading", "discontinuity"]
+    at: datetime
+    monotonic_ns: int
+    process_epoch: str
+    reference_seq: int | None = None
+    wall_delta_ms: int | None = None
+    monotonic_delta_ms: int | None = None
+    correction_version: int | None = None
+
+
 class MedicinesRepository(Protocol):
+    def add_clock_check(self, uow: UnitOfWork, check: ClockCheck) -> int: ...
+    def last_clock_check(
+        self, view: View, kind: Literal["reading", "discontinuity"], process_epoch: str | None = None
+    ) -> ClockCheck | None: ...
     def add_record(self, uow: UnitOfWork, row: RecordRow) -> None: ...
     def record(self, view: View, record_id: str) -> RecordRow | None: ...
     def by_command_key(self, view: View, command_key: str) -> RecordRow | None: ...
@@ -200,8 +219,20 @@ class MedicationRecordReader(Protocol):
 # ---- consumed ----
 
 
-class ActingOfficerPort(Protocol):
-    """E31's cascade: whether `person_id` is the acting medical officer for `subject_person_id` now (the subject
-    excluded). Absent provider: nobody is acting, so only the crew medical officer confirms."""
+# Provided by E02 (crew_health.consent); structural copy until it is on main (SYSTEM 4.2 row consent, 8.3).
+class ConsentQueries(Protocol):
+    """Whether `subject_person_id` shared `scope` with `recipient` now. SYSTEM 8.3: officer status, an assignment or
+    a help session never grants a chart read; absent provider, nobody but the subject reads (fail closed)."""
 
-    def is_acting(self, view: View, person_id: str, subject_person_id: str) -> bool: ...
+    def allows(
+        self, view: View, *, subject_person_id: str, recipient: str, scope: tuple[str, str]
+    ) -> bool: ...
+
+
+# Provided by E28 (crew_health.plans); structural copy until E28 provides it. Q14: the subject's active onboard plan
+# step names this medicine for this condition. E28's steps carry `medicine.named_as` text only, no product ID, so
+# until E28 answers this no plan grants it (absent provider: False, fail closed).
+class PlanMedicines(Protocol):
+    def names_medicine(
+        self, view: View, *, subject_person_id: str, condition_id: str, product_id: str
+    ) -> bool: ...

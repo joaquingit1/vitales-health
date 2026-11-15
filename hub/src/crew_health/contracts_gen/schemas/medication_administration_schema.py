@@ -61,6 +61,16 @@ class MedicationAdministration(BaseModel):
     ingredients: list[Ingredient]
     administered_at: common_schema.Instant
     confirmed_by: common_schema.Id
+    confirmed_as: Literal['crew_medical_officer', 'acting_medical_officer'] | None = (
+        Field(
+            None,
+            description='The clinical authority the confirmer held (SYSTEM 8.4 rule 3): an acting officer is shown as acting.',
+        )
+    )
+    role_assignment_id: common_schema.Id | None = Field(
+        None,
+        description='The accepted medical_officer assignment that made the confirmer acting; null for the crew medical officer.',
+    )
     overrides: list[Override]
     limit_findings: list[LimitFinding]
     status: Literal['completed', 'entered_in_error']
