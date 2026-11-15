@@ -126,3 +126,19 @@ def test_episode_migration_is_expand_only() -> None:
 
     migration = Path(__file__).parents[2] / "src/crew_health/episodes/adapters/migrations/0001_episodes.sql"
     require_expansion(migration.read_text(encoding="utf-8"))
+
+
+@pytest.mark.trace("T-E15-035", "SYSTEM.5.7", "SYSTEM.5.8")
+def test_episode_module_declares_production_audit_and_aggregate_write_guard() -> None:
+    from crew_health.kernel.audit import AuditPolicy
+    from crew_health.kernel.replication import ReplicatedTable
+
+    registry = DeclarationRegistry(max_ports=100, max_hooks=200)
+    register(cast(Registry, registry))
+    policies = registry.declarations.get("audit_policies", {})
+    created = cast(AuditPolicy, policies.get("episode.created"))
+    assert created is not None
+    assert dict(created.reference_types) == {"episode": frozenset({"episode"})}
+    assert dict(created.metadata) == {}
+    tables = registry.declarations.get("replicated_tables", {})
+    assert tables.get("episodes_episode") == ReplicatedTable("episodes_episode", "episode", "episode_id")
