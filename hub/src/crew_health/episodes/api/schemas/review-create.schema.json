@@ -1,0 +1,95 @@
+{
+  "$defs": {
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "minLength": 1,
+          "title": "Item",
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "agree",
+            "disagree",
+            "needs_more",
+            "not_assessed"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "rationale": {
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "item",
+        "decision",
+        "rationale"
+      ],
+      "title": "Decision",
+      "type": "object"
+    },
+    "Id": {
+      "description": "An opaque object ID issued by the hub. Never a display name.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "UnresolvedItem": {
+      "minLength": 1,
+      "title": "UnresolvedItem",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "assessment_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Id"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "decisions": {
+      "items": {
+        "$ref": "#/$defs/Decision"
+      },
+      "minItems": 1,
+      "title": "Decisions",
+      "type": "array"
+    },
+    "unresolved": {
+      "items": {
+        "$ref": "#/$defs/UnresolvedItem"
+      },
+      "title": "Unresolved",
+      "type": "array"
+    },
+    "supersedes_review_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9_]+$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Supersedes Review Id"
+    }
+  },
+  "required": [
+    "decisions",
+    "unresolved"
+  ],
+  "title": "ReviewRequest",
+  "type": "object"
+}
