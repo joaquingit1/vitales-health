@@ -438,6 +438,6 @@ const linkLineText = computed(() => {
 .cover-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .cover-counts b { display: block; font-size: 44px; line-height: 48px; font-weight: 300; font-variant-numeric: tabular-nums; }
 .cover-counts span { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-2); }
-.kit-glance .fine { margin-top: auto; font-size: 14px; color: var(--ink-2); }
+.kit-glance .fine { margin-top: 22px; font-size: 14px; color: var(--ink-2); }
 .hab-line { font-size: 20px; line-height: 26px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 </style>
