@@ -14,7 +14,7 @@ from pydantic import ValidationError
 
 from crew_health.catchup.application.bounded import BoundedCall
 from crew_health.catchup.application.config import PinnedWords, pinned_versions, pins_key
-from crew_health.catchup.application.ports import ConsentQueries, PlanCatchUpPort
+from crew_health.catchup.application.ports import ConsentQueries, PlanCatchUpPort, PlanLinkView
 from crew_health.catchup.application.quarantine import Quarantine
 from crew_health.catchup.application.repository import CatchUpRepository, Message
 from crew_health.catchup.application.settings import CatchUpSettings
@@ -88,6 +88,21 @@ class CatchUpComposer:
             "gap_planned": link.gap_planned,
         }
         return LinkSnapshot(link.status, link.next_contact_at, link.source != "measured", contract)
+
+    def plan_link(self) -> PlanLinkView:
+        """E28's ground_log line: the link in one read snapshot, at that snapshot's time. No provider or an unknown
+        state raises CatchUpUnavailable."""
+        query = self.deps.link
+        if query is None:
+            raise CatchUpUnavailable()
+        with self.deps.snapshots.snapshot() as view:
+            link = query.current(view)
+            observed_at = view.now
+        if link is None:
+            raise CatchUpUnavailable()
+        return PlanLinkView(
+            link.status, link.next_contact_at, link.one_way_delay_s, link.source != "measured", observed_at
+        )
 
     def for_help(self, snapshot: HelpLogSnapshotView) -> Composition:
         """Help's preview, press response and reads: the frozen copy once it exists, else the same pure render."""

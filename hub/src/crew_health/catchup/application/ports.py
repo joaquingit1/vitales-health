@@ -39,6 +39,25 @@ class GroundLogView(Protocol):
     def log(self, since: datetime | None, *, recipient: str) -> GroundLog: ...
 
 
+@dataclass(frozen=True, slots=True)
+class PlanLinkView:
+    """The link for E28's ground_log line (E28 4.1 GroundLinkReader), stamped with the read snapshot's time. Only a
+    measured link is not simulated."""
+
+    status: Literal["up", "delayed", "down"]
+    next_contact_at: datetime | None
+    one_way_delay_s: float | None
+    simulated: bool
+    observed_at: datetime
+
+
+class PlanGroundLink(Protocol):
+    """E29's ground presentation for plans: the plans module sees the link only through this port (EI1, D43). An
+    absent or unknown link raises, which plans renders as its Unknown line."""
+
+    def current(self) -> PlanLinkView: ...
+
+
 GROUND_LOG_SCOPE = ("ground_log", "catchup/approved/1")
 """SYSTEM 5.7.1 stream `catchup/approved/1`: the grant a named ground recipient needs for each subject."""
 

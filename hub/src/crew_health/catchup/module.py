@@ -13,6 +13,8 @@ from crew_health.catchup.application.ports import (
     GroundLog,
     GroundLogView,
     PlanCatchUpPort,
+    PlanGroundLink,
+    PlanLinkView,
     QuarantineRecord,
 )
 from crew_health.catchup.application.settings import CatchUpSettings, catchup_setting_specs
@@ -70,6 +72,16 @@ class CatchUpRuntime:
             return deps.repository.quarantined(view, limit=limit)
 
 
+class PlanLinkReader:
+    """PlanGroundLink over the bound composer; before binding, or with no link provider, it raises."""
+
+    def __init__(self, runtime: CatchUpRuntime) -> None:
+        self._runtime = runtime
+
+    def current(self) -> PlanLinkView:
+        return self._runtime.composer.plan_link()
+
+
 def register(registry: ModuleRegistry) -> None:
     runtime = CatchUpRuntime()
     for spec in catchup_setting_specs():
@@ -79,6 +91,7 @@ def register(registry: ModuleRegistry) -> None:
     registry.provide(CatchUpRuntime, lambda _: runtime)
     registry.provide(GroundLogComposer, lambda _: runtime)
     registry.provide(GroundLogView, lambda _: runtime)
+    registry.provide(PlanGroundLink, lambda _: PlanLinkReader(runtime))
 
     def changed(uow: UnitOfWork, event: StoredEvent) -> None:
         runtime.composer.on_ground_message_changed(uow, event)
