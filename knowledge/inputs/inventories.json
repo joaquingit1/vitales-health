@@ -1,0 +1,47 @@
+{
+  "provenance": {
+    "basis": "docs/tdd/E10.md sections 3.2 and 8; docs/product/RESEARCH-ANNEX.md sections 3 and 4",
+    "source_ids": [
+      "S01"
+    ],
+    "responsible_author": "E10"
+  },
+  "inventories": [
+    {
+      "inventory_id": "ICL",
+      "prefix": "ICL",
+      "source_inventory": "condition-assessments-119.json",
+      "expected_count": 119,
+      "status": "active"
+    },
+    {
+      "inventory_id": "MCL",
+      "prefix": "MCL",
+      "source_inventory": "nasa-master-450-candidate-entries.csv",
+      "expected_count": 450,
+      "status": "candidate"
+    },
+    {
+      "inventory_id": "PFCL",
+      "prefix": "PFCL",
+      "source_inventory": "nasa-pfcl-entries.csv",
+      "expected_count": 92,
+      "status": "candidate"
+    },
+    {
+      "inventory_id": "ARCL",
+      "prefix": "ARCL",
+      "source_inventory": "nasa-arcl-entries.csv",
+      "expected_count": 184,
+      "status": "candidate"
+    },
+    {
+      "inventory_id": "RCL",
+      "prefix": "RCL",
+      "source_inventory": "nasa-rcl-66-removed-or-consolidated-entries.csv",
+      "expected_count": 66,
+      "status": "removed_or_split"
+    }
+  ],
+  "planning_sentinel": "PLANNING_REVIEW_REQUIRED"
+}

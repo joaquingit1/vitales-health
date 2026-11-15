@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "Inventories.schema.json",
+  "title": "Inventories",
+  "type": "object",
+  "properties": {
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "basis": {
+          "type": "string"
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "responsible_author": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "basis",
+        "source_ids",
+        "responsible_author"
+      ],
+      "additionalProperties": false
+    },
+    "inventories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "inventory_id": {
+            "type": "string"
+          },
+          "prefix": {
+            "type": "string"
+          },
+          "source_inventory": {
+            "type": "string"
+          },
+          "expected_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "status": {
+            "enum": [
+              "active",
+              "candidate",
+              "removed_or_split"
+            ]
+          }
+        },
+        "required": [
+          "inventory_id",
+          "prefix",
+          "source_inventory",
+          "expected_count",
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "planning_sentinel": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "provenance",
+    "inventories",
+    "planning_sentinel"
+  ],
+  "additionalProperties": false
+}
