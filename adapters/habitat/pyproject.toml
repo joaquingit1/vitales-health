@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crew-health-adapter-habitat"
+version = "0.1.0"
+description = "Habitat adapters (E23): REPLAY and SIM through the hub's ingestReadings boundary, BLE ESS and XTCE parsers."
+requires-python = ">=3.14,<3.15"
+dependencies = ["httpx", "pydantic>=2", "jsonschema", "crew-health"]
+
+[project.optional-dependencies]
+ble = ["bleak"]
+
+[project.scripts]
+crew-health-adapters = "crew_health_adapter_habitat.cli:entry"
+
+[dependency-groups]
+dev = [
+  "pytest", "hypothesis", "mypy", "ruff", "import-linter", "types-jsonschema", "bleak",
+  "crew-health-sim-habitat", "pyyaml", "types-pyyaml", "schemathesis",
+]
+
+[tool.uv.sources]
+crew-health = { path = "../../hub", editable = true }
+crew-health-sim-habitat = { path = "../../simulators/habitat", editable = true }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+crew_health_adapter_habitat = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]
+addopts = "--strict-markers --strict-config --import-mode=importlib -m 'not hardware'"
+xfail_strict = true
+markers = [
+  "trace(*ids): requirements and invariants",
+  "hardware: needs a real Bluetooth device; deselected by default, never the only run",
+  "e23: E23 adapter tests",
+  "E01: platform foundation marker used by the hub test station the integration test loads",
+]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["crew_health_adapter_habitat", "crew_health_sim_habitat"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+mypy_path = "adapters/habitat/src:simulators/habitat/src:hub/src"
+
+[tool.importlinter]
+root_packages = ["crew_health_adapter_habitat", "crew_health"]
+
+[[tool.importlinter.contracts]]
+name = "adapter-layers"
+type = "layers"
+layers = [
+  "crew_health_adapter_habitat.cli",
+  "crew_health_adapter_habitat.pipeline",
+  "crew_health_adapter_habitat.http_client | crew_health_adapter_habitat.health",
+  "crew_health_adapter_habitat.sim",
+  "crew_health_adapter_habitat.replay | crew_health_adapter_habitat.ble_ess | crew_health_adapter_habitat.xtce | crew_health_adapter_habitat.queue",
+  "crew_health_adapter_habitat.feeds",
+  "crew_health_adapter_habitat.ports",
+  "crew_health_adapter_habitat.errors",
+]
+
+[[tool.importlinter.contracts]]
+name = "adapter-uses-only-generated-contracts"
+type = "forbidden"
+source_modules = ["crew_health_adapter_habitat"]
+forbidden_modules = [
+  "crew_health.kernel", "crew_health.platform", "crew_health.mission", "crew_health.sensors", "crew_health.app",
+]
+allow_indirect_imports = true
