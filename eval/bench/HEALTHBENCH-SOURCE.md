@@ -41,7 +41,10 @@ files were fetched from the URLs above and all three hashes matched the plan.
 lines and ideal completions, with the public `fp_salt` of `partition-policy.json`, plus the HealthBench canary. A hash
 is kept when its value is a multiple of `fingerprint_sample_modulus` (16): the full set is about 2.3 million shingles
 (over 40 MB as JSON), while containment measured against a target's full shingle set stays an unbiased estimate with the
-sample (202,663 hashes, 4.4 MB). Case references are salted; no text is written. The leak scan gate checks
+sample. Each text (prompt message, rubric line, ideal completion) keeps its own list in `parts` and is scanned on its
+own as `<case_ref>:<index>`, so one copied rubric line is never diluted by the rest of its example; a text whose sample
+holds fewer than `fingerprint_min_shingles` (3) hashes keeps its 3 lowest instead (78,709 texts, 7.6 MB, under the
+8 MiB canonical JSON ceiling). Case references are salted; no text is written. The leak scan gate checks
 `model/` and `config/` against it.
 
 ## Grader

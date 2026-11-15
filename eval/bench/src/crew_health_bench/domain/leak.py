@@ -51,3 +51,23 @@ def scan_text(
                     LeakFinding(target, "containment", item.case_ref, overlap / len(grams | item.shingles))
                 )
     return tuple(findings)
+
+
+def part_fingerprints(
+    parts: tuple[str, ...], *, fp_salt: str, sample_modulus: int, min_kept: int
+) -> tuple[frozenset[str], ...]:
+    """One sampled shingle set per text, never pooled across texts of an example (design 5.4).
+
+    The modulus sample keeps a published file small; a text whose sample falls under `min_kept` keeps its
+    `min_kept` lowest hashes instead, so a short rubric line is never left with too few shingles to match.
+    """
+    if not fp_salt or sample_modulus < 1 or min_kept < 1:
+        raise BenchError("case_invalid")
+    result: list[frozenset[str]] = []
+    for part in parts:
+        values = fingerprints(part, fp_salt=fp_salt)
+        sampled = {value for value in values if int(value, 16) % sample_modulus == 0}
+        if len(sampled) < min_kept:
+            sampled |= set(sorted(values)[:min_kept])
+        result.append(frozenset(sampled))
+    return tuple(result)

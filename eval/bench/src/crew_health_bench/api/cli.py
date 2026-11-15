@@ -177,12 +177,17 @@ def _fingerprints(path: Path, limit: int) -> tuple[str, tuple[Fingerprint, ...]]
     result: list[Fingerprint] = []
     for item in rows:
         row = object_map(item)
-        result.append(
+        reference, canaries = text(row.get("case_ref")), text_list(row.get("canaries"))
+        parts = row.get("parts")
+        if not isinstance(parts, list):
+            result.append(Fingerprint(reference, frozenset(text_list(row.get("shingles"))), canaries))
+            continue
+        result.extend(
             Fingerprint(
-                text(row.get("case_ref")),
-                frozenset(text_list(row.get("shingles"))),
-                text_list(row.get("canaries")),
+                reference + ":" + str(index), frozenset(text_list(part)), canaries if index == 0 else ()
             )
+            for index, part in enumerate(parts)
+            if text_list(part) or (index == 0 and canaries)
         )
     if any(not item.shingles and not item.canaries for item in result):
         raise BenchError("case_invalid", instance=str(path))

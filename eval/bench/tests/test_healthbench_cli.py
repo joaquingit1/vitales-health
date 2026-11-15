@@ -291,6 +291,7 @@ def test_healthbench_fingerprints_catch_rubric_text_and_the_canary(
     )
     written = json.loads((space.config.parent / "fingerprints/healthbench.fp.json").read_bytes())
     assert len(written["cases"]) == 6, "examples shared by the three variants are fingerprinted once"
+    assert {len(row["parts"]) for row in written["cases"]} == {4}, "the prompt and three rubric lines apart"
     assert "Synthetic" not in json.dumps(written) and "synthetic-0" not in json.dumps(written)
     fingerprints = str(space.config.parent / "fingerprints/healthbench.fp.json")
     clean = tmp_path / "clean"

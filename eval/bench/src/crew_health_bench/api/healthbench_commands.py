@@ -131,7 +131,12 @@ class HealthBenchCommands:
                     self.settings,
                 )
             )
-        data = healthbench_fingerprints(tuple(corpora), fp_salt=fp_salt, sample_modulus=modulus)
+        data = healthbench_fingerprints(
+            tuple(corpora),
+            fp_salt=fp_salt,
+            sample_modulus=modulus,
+            min_kept=integer(policy["fingerprint_min_shingles"]),
+        )
         target = self.config.parent / "fingerprints"
         with FileArtifactStore(target, max_line_bytes=len(data), max_records=1) as store:
             store.write_atomic(Path("healthbench.fp.json"), data)

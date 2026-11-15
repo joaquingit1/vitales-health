@@ -386,6 +386,39 @@
             "to_be_set_by"
           ],
           "additionalProperties": false
+        },
+        "fingerprint_min_shingles": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -397,9 +430,15 @@
         "min_groups_for_split",
         "vault",
         "fp_salt",
-        "fingerprint_sample_modulus"
+        "fingerprint_sample_modulus",
+        "fingerprint_min_shingles"
       ],
       "additionalProperties": false
+    },
+    "fingerprint_min_shingles": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 64
     }
   },
   "required": [
@@ -412,7 +451,8 @@
     "holdout_fraction",
     "min_groups_for_split",
     "vault",
-    "provenance"
+    "provenance",
+    "fingerprint_min_shingles"
   ],
   "additionalProperties": false,
   "$schema": "https://json-schema.org/draft/2020-12/schema"

@@ -12,18 +12,20 @@ from crew_health_bench.adapters.store import FileArtifactStore
 from crew_health_bench.domain.documents import integer, object_map, text
 from crew_health_bench.domain.errors import BenchError
 from crew_health_bench.domain.healthbench import HealthBenchVisible
-from crew_health_bench.domain.text import fingerprints
+from crew_health_bench.domain.leak import part_fingerprints
 
 
 def healthbench_fingerprints(
-    corpora: tuple[HealthBenchCorpus, ...], *, fp_salt: str, sample_modulus: int
+    corpora: tuple[HealthBenchCorpus, ...], *, fp_salt: str, sample_modulus: int, min_kept: int
 ) -> bytes:
     """Salted 8-gram fingerprints of every HealthBench prompt, rubric line and ideal completion (design 5.4).
 
     A shingle hash is kept when its value is a multiple of `sample_modulus`, so containment measured
     against a target's full shingle set stays an unbiased estimate while the committed file stays
-    small. Examples shared by several variants are fingerprinted once. The case reference is salted;
-    no text is written.
+    small. Each text keeps its own shingle list in `parts`, scanned as `<case_ref>:<index>`, so a copied
+    rubric line is measured against that line alone and never diluted by the rest of the example.
+    Examples shared by several variants are fingerprinted once. The case reference is salted; no text
+    is written.
     """
     if not fp_salt or sample_modulus < 1 or not corpora:
         raise BenchError("case_invalid")
@@ -41,17 +43,16 @@ def healthbench_fingerprints(
                 for name, value in sorted(ideal.items())
                 if name.startswith("ideal_completion") and isinstance(value, str)
             ]
-            kept: set[str] = set()
-            for part in parts:
-                kept |= {
-                    value
-                    for value in fingerprints(part, fp_salt=fp_salt)
-                    if int(value, 16) % sample_modulus == 0
-                }
             canaries = [case.canary] if case.canary else []
-            if not kept and not canaries:
-                continue
-            rows[reference] = {"case_ref": reference, "shingles": sorted(kept), "canaries": canaries}
+            kept = part_fingerprints(
+                tuple(parts), fp_salt=fp_salt, sample_modulus=sample_modulus, min_kept=min_kept
+            )
+            if any(kept) or canaries:
+                rows[reference] = {
+                    "case_ref": reference,
+                    "parts": [sorted(values) for values in kept],
+                    "canaries": canaries,
+                }
     return canonical_json(
         {
             "fp_salt": fp_salt,
