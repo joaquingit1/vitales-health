@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "artifact": "config/assistant-policy.json",
-  "artifact_sha256": "3d48fe7c3a24b217e6621ebe6a15ef72841c8187bf388551b43f56905489915d",
+  "artifact_sha256": "17ae6b9dfe5e348b8fb39e5d513be1a179c0110d9b3ff6b08dd02c2dd6e812e1",
   "classification": "team operational limits and non-diagnostic research topic routing; not clinically reviewed",
   "operational_basis": {
     "source": "docs/tdd/E13.md section3.5; docs/product/LLM-ARCHITECTURE.md section5",
-    "classification": "team assumptions, no NASA timing or clinical cutoff claim",
+    "classification": "team assumptions, no NASA timing or clinical cutoff claim; turn and first token limits sized to a measured live HuatuoGPT-3-9B Q4 turn on an M3 (about 14 tokens per second, prompt evaluation about 34 s, a three step intake turn about 87 s)",
     "values": {
       "max_iterations": 8,
       "max_schema_repairs": 1,
-      "turn_timeout_seconds": 90,
-      "first_token_timeout_seconds": 20,
+      "turn_timeout_seconds": 240,
+      "first_token_timeout_seconds": 60,
       "tool_timeout_seconds": 10
     }
   },

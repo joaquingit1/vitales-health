@@ -9,6 +9,7 @@ Someone needs help, warnings or records waits on this module (AGENTS rule 3).
 from __future__ import annotations
 
 import json
+import logging
 import queue
 import threading
 from collections.abc import Callable, Mapping
@@ -277,6 +278,15 @@ class Conversations:
 
     # Commit ----------------------------------------------------------------------------------------------------
     def _finish(self, session: SessionContext, turn_id: str, outcome: Completed | Stopped) -> None:
+        if isinstance(outcome, Stopped):
+            # Allowlisted fields only (AGENTS 6): the turn id and the controller's fixed reason code, never text.
+            logging.getLogger(__name__).warning(
+                "assistant_turn_stopped turn_id=%s state=%s code=%s reason=%s",
+                turn_id,
+                outcome.state,
+                outcome.code.value,
+                outcome.reason,
+            )
         boundary = self._boundaries.pop(turn_id, None)
         calls = [] if boundary is None else boundary.seen.calls
         try:

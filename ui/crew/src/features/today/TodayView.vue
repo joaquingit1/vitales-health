@@ -8,11 +8,12 @@ import { ApiProblem, useCrewApi, type Health } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
 import { useStage } from "../../shell/stage";
 import { todayCards } from "../../shell/todaySlots";
-import { KIT_STATES, STATE_MK, loadKitMap, type KitMapView } from "../kit/kitMap";
+import { KIT_STATES, STATE_MK, instrumentNames, loadKitMap, type KitMapView } from "../kit/kitMap";
 import { linkLine, linkOrigin, type GroundLink } from "./groundLink";
 import { placeOf } from "./place";
 import { ASSISTANT_TITLE } from "../help/labels";
-import { assistantWords } from "../help/helpModel";
+import assistantUi from "../../../../../config/assistant-ui.json";
+import AssistantConversation from "./AssistantConversation.vue";
 
 /* The cards the Today cards work fills (features/today/cards/HabitatCard.vue, HowYouAreCard.vue, PulseCard.vue):
    each takes its place in the grid as soon as its file exists; until then the place shows this view's own card. */
@@ -39,8 +40,24 @@ const place = ref<string | null>(null);
 function sentence(text: string): string {
   return text === "" ? text : (text[0] ?? "").toUpperCase() + text.slice(1);
 }
+/* The assistant's true state, from health (which reads the assistant module's own runtime record, like
+   GET /v1/assistant/status and the station card). Running: the card names where it runs and takes a message. */
 const assistantState = ref<string | null>(null);
-const assistant = computed(() => (assistantState.value === null ? null : assistantWords(assistantState.value)));
+const assistantLine = computed((): string | null => {
+  switch (assistantState.value) {
+    case null:
+      return null;
+    case "running":
+      return copy("context_words.assistant_running");
+    case "loading":
+      return assistantUi.states.loading;
+    case "stopped":
+      return copy("designed_states.assistant_stopped");
+    default:
+      return copy("error_messages.MODEL_UNAVAILABLE");
+  }
+});
+const instruments = ref<ReadonlyMap<string, string>>(new Map());
 const LINK_POLL_MS = 2000;
 let poll = 0;
 
@@ -72,6 +89,7 @@ onMounted(async () => {
       }),
       api.get<Health>("/v1/health").then((value) => {
         hubNow.value = Date.parse(value.server_time ?? "");
+        assistantState.value = value.assistant_state ?? null;
       }),
     ]).catch(() => undefined);
   }, LINK_POLL_MS);
@@ -91,8 +109,9 @@ onMounted(async () => {
     },
   );
   const kitRead = loadKitMap(api).then(
-    (value) => {
+    async (value) => {
       kit.value = value;
+      instruments.value = await instrumentNames(api, value).catch(() => new Map<string, string>());
     },
     () => {
       kitFailed.value = true;
@@ -252,8 +271,9 @@ onBeforeUnmount(() => {
 
     <!-- E: the assistant's true state -->
     <article
-      v-if="assistant"
+      v-if="assistantLine !== null"
       class="card g g-deep assistant area-assistant"
+      :data-state="assistantState"
       data-testid="assistant-card"
     >
       <div class="card-head">
@@ -262,8 +282,12 @@ onBeforeUnmount(() => {
         </h2>
       </div>
       <p class="say">
-        {{ assistant.line }}
+        {{ assistantLine }}
       </p>
+      <AssistantConversation
+        :running="assistantState === 'running'"
+        :instruments="instruments"
+      />
     </article>
   </section>
 </template>
@@ -284,6 +308,21 @@ onBeforeUnmount(() => {
     "pulse pulse pulse habitat habitat habitat"
     "kit kit kit help help help"
     "kit kit kit assistant assistant assistant";
+}
+/* A conversation on the Assistant card takes the lower left; Someone needs help keeps its place. */
+.today-grid:has(.ask.active) {
+  grid-template-areas:
+    "todo todo todo todo todo todo"
+    "pulse pulse pulse habitat habitat habitat"
+    "assistant assistant assistant help help help"
+    "assistant assistant assistant kit kit howyou";
+}
+.today-grid:not(:has(.area-howyou)):has(.ask.active) {
+  grid-template-areas:
+    "todo todo todo todo todo todo"
+    "pulse pulse pulse habitat habitat habitat"
+    "assistant assistant assistant help help help"
+    "assistant assistant assistant kit kit kit";
 }
 .area-pulse { grid-area: pulse; }
 .area-habitat { grid-area: habitat; }

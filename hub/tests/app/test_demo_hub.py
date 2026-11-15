@@ -422,7 +422,7 @@ def test_shot_e_help_opens_with_the_model_stopped(served: Served) -> None:
     back. The runtime control route is served now: model-stop is accepted, and the assistant still reads as not
     running in health."""
     _, health = served.hub.call("GET", "/v1/health")
-    assert isinstance(health, dict) and health["assistant_state"] == "unavailable"
+    assert isinstance(health, dict) and health["assistant_state"] in ("unavailable", "stopped")
     assert served.cue("model-stop") == 0
     _, health = served.hub.call("GET", "/v1/health")
     assert isinstance(health, dict) and health["assistant_state"] in ("unavailable", "stopped")

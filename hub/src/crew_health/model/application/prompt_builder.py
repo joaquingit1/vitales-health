@@ -58,6 +58,9 @@ def request_body(bundle: PromptBundle) -> dict[str, object]:
             for t in bundle.tools
         ]
         body["tool_choice"] = "auto"
+        # One tool call per step: the controller ends a turn that proposes two actions at once (multiple_actions),
+        # so the runtime is asked for at most one call instead of letting the model emit a rejected pair.
+        body["parallel_tool_calls"] = False
     if bundle.response_schema is not None:
         body["response_format"] = {
             "type": "json_schema",
