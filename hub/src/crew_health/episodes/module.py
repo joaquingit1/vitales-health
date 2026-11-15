@@ -6,11 +6,11 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from enum import IntEnum
 from typing import Protocol
 
 from fastapi import APIRouter
 
+from crew_health.app.registry import StartupPhase
 from crew_health.episodes.adapters.sqlite_repo import EpisodeRepository
 from crew_health.episodes.api.router import EpisodeApi, build_router
 from crew_health.episodes.application import ports
@@ -63,10 +63,6 @@ from crew_health.roles.application.ports import ClinicalAuthorityQuery
 class Resolver(Protocol):
     def require[P](self, port: type[P]) -> P: ...
     def optional[P](self, port: type[P]) -> P | None: ...
-
-
-class StartupPhase(IntEnum):
-    STATE_SWEEP = 40
 
 
 class Registry(Protocol):
