@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 
+from crew_health.kernel.units import Quantity
+
 
 @dataclass(frozen=True, slots=True)
 class FieldIssue:
@@ -32,7 +34,7 @@ class UseInvalid(SuppliesError):
 class SupplyBelowZero(SuppliesError):
     """A use would take quantity_now below zero, or the supply has no stock row here (INV-S9, INV-S14)."""
 
-    def __init__(self, supply_id: str, quantity_now: str | None, requested: str) -> None:
+    def __init__(self, supply_id: str, quantity_now: Quantity | None, requested: Quantity) -> None:
         super().__init__("supply below zero")
         self.supply_id, self.quantity_now, self.requested = supply_id, quantity_now, requested
 

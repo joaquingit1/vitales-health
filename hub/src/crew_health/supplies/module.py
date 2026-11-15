@@ -157,12 +157,14 @@ class SuppliesProvided:
         self._runtime = runtime
 
     def stock(self, environment_id: str) -> Mapping[str, StockLevel]:
-        return provided.stock_levels(self._runtime.need(), environment_id)
+        with provided.port_boundary():
+            return provided.stock_levels(self._runtime.need(), environment_id)
 
     def uses_after_one(
         self, environment_id: str, needs: Sequence[SupplyNeed], stock: Mapping[str, StockLevel]
     ) -> Mapping[tuple[str, str], int | None]:
-        return provided.uses_after_one(self._runtime.need(), environment_id, needs, stock)
+        with provided.port_boundary():
+            return provided.uses_after_one(self._runtime.need(), environment_id, needs, stock)
 
     def record_step_uses(
         self,
@@ -177,18 +179,19 @@ class SuppliesProvided:
         actor: Actor,
         at: datetime,
     ) -> Sequence[str]:
-        return record_step_uses(
-            self._runtime.need(),
-            uow,
-            environment_id=environment_id,
-            plan_run_id=plan_run_id,
-            step_id=step_id,
-            occurrence=occurrence,
-            pinned_release_id=pinned_release_id,
-            uses=uses,
-            actor=actor,
-            at=at,
-        )
+        with provided.port_boundary():
+            return record_step_uses(
+                self._runtime.need(),
+                uow,
+                environment_id=environment_id,
+                plan_run_id=plan_run_id,
+                step_id=step_id,
+                occurrence=occurrence,
+                pinned_release_id=pinned_release_id,
+                uses=uses,
+                actor=actor,
+                at=at,
+            )
 
     def rows(
         self,
@@ -198,12 +201,14 @@ class SuppliesProvided:
         after_supply_id: str | None,
         limit: int,
     ) -> tuple[CoverFact, ...]:
-        return provided.cover_facts(self._runtime.need(), view, partition, after_supply_id, limit)
+        with provided.port_boundary():
+            return provided.cover_facts(self._runtime.need(), view, partition, after_supply_id, limit)
 
     def cover_changed(
         self, ctx: KitMapContext, *, add_supplies: Sequence[SupplyAddition]
     ) -> Sequence[CoverChange]:
-        return provided.cover_changed(self._runtime.need(), ctx, add_supplies)
+        with provided.port_boundary():
+            return provided.cover_changed(self._runtime.need(), ctx, add_supplies)
 
 
 class SuppliesStockFacts:

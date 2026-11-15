@@ -27,15 +27,16 @@ from crew_health.supplies import module as supplies_module
 from crew_health.supplies.application import ports
 from crew_health.supplies.application.ports import (
     CoverPlanningPort,
+    StockBelowZero,
     StockReader,
     SupplyCoverChanged,
     SupplyCoverFacts,
     SupplyCoverPort,
+    SupplyInputInvalid,
     SupplyLedgerPort,
     SupplyNeed,
     SupplyPartition,
 )
-from crew_health.supplies.domain.errors import SupplyBelowZero, WhatIfInvalid
 
 from .harness import Station, build_station, crew_session, headers, use_body
 
@@ -163,7 +164,7 @@ def test_step_uses_are_all_or_nothing_and_reentrant_by_occurrence(station: Stati
             )
 
     short = [_need("eye_rinse", "eye_rinse_water", 1), _need("eye_rinse", "towels", 21, "towel")]
-    with pytest.raises(SupplyBelowZero):
+    with pytest.raises(StockBelowZero):
         run(1, short)
     assert station.rows("SELECT count(*) FROM supplies_use") == [(0,)] and not seen
     first = run(1, [_need("eye_rinse", "eye_rinse_water", 1), _need("eye_rinse", "eye_wash_set", 1, "set")])
@@ -234,5 +235,5 @@ def test_the_what_if_refuses_repeats_bounds_and_other_releases(station: Station)
             ("release_0", [shield]),
         ):
             context = kitmap_ports.KitMapContext(view, _Release(release_id), "station_leo", AT)  # type: ignore[arg-type]
-            with pytest.raises(WhatIfInvalid):
+            with pytest.raises(SupplyInputInvalid):
                 planning.cover_changed(context, add_supplies=additions)

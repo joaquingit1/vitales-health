@@ -9,7 +9,7 @@ from crew_health.kernel.units import Quantity
 from crew_health.supplies.domain.cover import quantity_now
 from crew_health.supplies.domain.errors import SupplyBelowZero, UnitMismatch
 from crew_health.supplies.domain.model import Admitted, Head, StockRow, SupplyDef
-from crew_health.supplies.domain.quantity import add, decimal_text, subtract, zero
+from crew_health.supplies.domain.quantity import add, subtract, zero
 
 
 def admit(supply: SupplyDef, row: StockRow | None, head: Head | None, quantity: Quantity) -> Admitted:
@@ -23,10 +23,10 @@ def admit(supply: SupplyDef, row: StockRow | None, head: Head | None, quantity: 
         raise ValueError("a use quantity is positive")
     used = head.used if head is not None else zero(supply.unit)
     if row is None:
-        raise SupplyBelowZero(supply.supply_id, None, decimal_text(quantity.value))
+        raise SupplyBelowZero(supply.supply_id, None, quantity)
     now = quantity_now(row, used)
     if now is not None and subtract(now, quantity).value < 0:
-        raise SupplyBelowZero(supply.supply_id, decimal_text(now.value), decimal_text(quantity.value))
+        raise SupplyBelowZero(supply.supply_id, now, quantity)
     seq = head.seq + 1 if head is not None else 1
     return Admitted(supply.supply_id, quantity, seq, add(used, quantity))
 

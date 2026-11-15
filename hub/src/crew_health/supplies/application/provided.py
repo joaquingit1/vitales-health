@@ -3,11 +3,13 @@ unit of work. Every missing fact stays missing: an unknown mission or supply is 
 
 from __future__ import annotations
 
-from collections.abc import Collection, Mapping, Sequence
+from collections.abc import Collection, Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from decimal import Decimal
 
 from crew_health.guidance.application.ports import Fact, Known, StockFact, Unknown
-from crew_health.kernel.units import Quantity
+from crew_health.kernel.errors import FieldError
+from crew_health.kernel.units import Quantity, Unit
 from crew_health.kernel.uow import ReadSnapshot
 from crew_health.supplies.application.context import (
     Deps,
@@ -22,14 +24,25 @@ from crew_health.supplies.application.ports import (
     CoverChange,
     CoverFact,
     KitMapContext,
+    StockBelowZero,
     StockLevel,
+    StockUnitMismatch,
     SupplyAddition,
+    SupplyInputInvalid,
     SupplyNeed,
     SupplyPartition,
+    SupplyUnavailable,
 )
 from crew_health.supplies.application.repository import View
 from crew_health.supplies.domain.cover import compute_row
-from crew_health.supplies.domain.errors import FieldIssue, SuppliesError, WhatIfInvalid
+from crew_health.supplies.domain.errors import (
+    FieldIssue,
+    SuppliesError,
+    SupplyBelowZero,
+    UnitMismatch,
+    UseInvalid,
+    WhatIfInvalid,
+)
 from crew_health.supplies.domain.model import CoverRow, Partition, SupplyDef
 from crew_health.supplies.domain.overlay import added_row
 from crew_health.supplies.domain.quantity import boundary_unit, floor_ratio, subtract, within_bounds
@@ -39,6 +52,25 @@ NOT_LISTED = "supply not in the kit map"
 NO_MISSION = "no current mission"
 NOT_READABLE = "supplies not readable"
 OVERLAY_BASIS = "team default"  # INV-S11: a row the what-if adds has the not-aboard basis of INV-S5
+
+
+@contextmanager
+def port_boundary() -> Iterator[None]:
+    """Every supplies domain error leaves a provided port as a port error of application/ports.py, which consumers
+    may import (SYSTEM modules-independent) and which renders as the contract envelope (AGENTS 3)."""
+    try:
+        yield
+    except SupplyBelowZero as error:
+        raise StockBelowZero(error.supply_id, error.quantity_now, error.requested) from error
+    except UnitMismatch as error:
+        raise StockUnitMismatch(Unit(error.right), Unit(error.left)) from error
+    except (UseInvalid, WhatIfInvalid) as error:
+        fields = tuple(FieldError(i.field, i.code, i.message) for i in error.issues)
+        raise SupplyInputInvalid(fields) from error
+    except MissionUnknown as error:
+        raise SupplyUnavailable(NO_MISSION, retryable=True) from error
+    except SuppliesError as error:
+        raise SupplyUnavailable(NOT_READABLE, retryable=False) from error
 
 
 def _rows(deps: Deps, view: View, where: Partition) -> tuple[CoverRow, ...]:
