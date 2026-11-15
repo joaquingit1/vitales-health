@@ -27,7 +27,7 @@
       "environment_ids": ["station_leo"],
       "location": "columbus",
       "location_label": "Columbus module",
-      "adapter_id": "adp_replay_osdr",
+      "adapter_id": "adp_replay_radlab",
       "origin_mode": "REPLAY",
       "input_unit": "µGy/h",
       "expected_interval_seconds": null,
@@ -36,13 +36,13 @@
       "dataset": "OSDR RadLab DosTel1, 1 to 2 Apr 2022",
       "display_note": null,
       "trusted": true,
-      "health_url": "http://127.0.0.1:8101/health"
+      "health_url": "http://127.0.0.1:8103/health"
     },
     {
       "channel_id": "ch_co2_cabin_sim",
       "sensor_type_id": "co2",
       "hazard_id": "co2",
-      "environment_ids": ["station_leo"],
+      "environment_ids": ["station_leo", "lunar_surface"],
       "location": "cabin",
       "location_label": null,
       "adapter_id": "adp_sim",
@@ -55,6 +55,42 @@
       "display_note": null,
       "trusted": true,
       "health_url": "http://127.0.0.1:8102/health"
+    },
+    {
+      "channel_id": "ch_noise_cabin_sim",
+      "sensor_type_id": "noise",
+      "hazard_id": "noise",
+      "environment_ids": ["station_leo", "lunar_surface"],
+      "location": "cabin",
+      "location_label": null,
+      "adapter_id": "adp_sim_noise",
+      "origin_mode": "SIM",
+      "input_unit": "dBA",
+      "expected_interval_seconds": null,
+      "stale_after_seconds": 600,
+      "source_label": "Sim",
+      "dataset": null,
+      "display_note": "Simulated sound level meter",
+      "trusted": true,
+      "health_url": "http://127.0.0.1:8104/health"
+    },
+    {
+      "channel_id": "ch_rad_cabin_sim",
+      "sensor_type_id": "rad",
+      "hazard_id": "radiation",
+      "environment_ids": ["lunar_surface"],
+      "location": "cabin",
+      "location_label": null,
+      "adapter_id": "adp_sim_rad",
+      "origin_mode": "SIM",
+      "input_unit": "µGy/h",
+      "expected_interval_seconds": null,
+      "stale_after_seconds": 600,
+      "source_label": "Sim",
+      "dataset": null,
+      "display_note": "Simulated area dosimeter",
+      "trusted": true,
+      "health_url": "http://127.0.0.1:8105/health"
     }
   ]
 }

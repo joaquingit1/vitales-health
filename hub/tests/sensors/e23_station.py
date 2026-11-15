@@ -185,6 +185,7 @@ def build_station(
     registry: dict[str, Any] | None = None,
     build_app: bool = True,
     settings: dict[str, object] | None = None,
+    hub_uncertainty_ms: int = 0,
 ) -> Station:
     tmp_path.mkdir(parents=True, exist_ok=True)
     state = tmp_path / "state"
@@ -224,7 +225,7 @@ def build_station(
         service.activate(uow, editor, release_id="release_e23", expected_etag='"release_e23:1:0"')
     db.set_release_reader(lambda view: SQLiteConfigReader(view, repository).active())
     _allow_sensor_inputs(db)
-    clocks = _open_clocks(db)
+    clocks = _open_clocks(db, hub_uncertainty_ms)
     app = _app(db, security, package_artifacts, tmp_path) if build_app else None
     client = TestClient(app, raise_server_exceptions=False) if app is not None else None
     return Station(tmp_path, db, app, client, security, clocks, registry_file)  # type: ignore[arg-type]
@@ -247,7 +248,7 @@ def _allow_sensor_inputs(db: SQLiteDatabase) -> None:
         )
 
 
-def _open_clocks(db: SQLiteDatabase) -> PersistentClocks:
+def _open_clocks(db: SQLiteDatabase, hub_uncertainty_ms: int = 0) -> PersistentClocks:
     from crew_health.clock.adapters.repository import SqlClockRepository
 
     clocks = PersistentClocks(
@@ -272,7 +273,7 @@ def _open_clocks(db: SQLiteDatabase) -> PersistentClocks:
                     datetime(1990, 1, 1, tzinfo=UTC),
                     None,
                     0,
-                    0,
+                    hub_uncertainty_ms if source == HUB_CLOCK else 0,
                     uow.now,
                     "operator",
                 ),

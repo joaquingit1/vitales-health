@@ -63,7 +63,7 @@ def test_the_hub_receive_stamp_normalizes_once_the_operator_confirms_the_segment
     assert (confirmed.state, confirmed.correction_id) == ("known", "cor_served")
 
 
-def _fed(tmp: Path, health: str, origin: str) -> tuple[Station, dict[str, Any]]:
+def _fed(tmp: Path, health: str, origin: str, hub_uncertainty_ms: int = 0) -> tuple[Station, dict[str, Any]]:
     """One channel of an adapter that has no clock segment of its own, as every adapter of a served hub."""
     registry = {
         "channels": [
@@ -73,7 +73,7 @@ def _fed(tmp: Path, health: str, origin: str) -> tuple[Station, dict[str, Any]]:
             )
         ]
     }  # fmt: skip
-    st = build_station(tmp, registry=registry)
+    st = build_station(tmp, registry=registry, hub_uncertainty_ms=hub_uncertainty_ms)
     st.initialize(origin)
     st.advance(seconds=60)
     if origin == "REPLAY":
@@ -116,3 +116,11 @@ def test_a_replay_row_keeps_its_dataset_time_and_freshness_follows_receive_time(
     st, shown = _fed(tmp_path, REMOTE, "REPLAY")
     assert _time_state(st) == "replay"
     assert shown["freshness"] == "current"  # D14: the hub's receive reference, not the 2014 dataset date
+
+
+def test_a_replay_row_is_current_on_a_hub_whose_confirmed_time_carries_uncertainty(tmp_path: Path) -> None:
+    """The demo hub confirms its time to 500 ms. The receive reference and the freshness `now` are readings of that
+    same clock, so its uncertainty cancels between them: a row received now is current, not stale for good."""
+    st, shown = _fed(tmp_path, REMOTE, "REPLAY", hub_uncertainty_ms=500)
+    assert _time_state(st) == "replay"
+    assert shown["freshness"] == "current"

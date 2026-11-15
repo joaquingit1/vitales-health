@@ -13,7 +13,7 @@
       "naive_time": "carry_as_dataset_clock",
       "from": "2014-09-30T15:41:00",
       "to": "2014-10-07T15:36:00",
-      "pace": {"mode": "burst"},
+      "pace": {"mode": "recorded", "speedup": 60},
       "cabin_pressure": {
         "value": 760,
         "basis": "assumed",
@@ -27,13 +27,13 @@
         "unit": {"text": "units_from_portal_js in eda_rr1_provenance.json: co2_iss is ppm. Wire spelling ppm; UCUM [ppm] by config/unit-mapping.json.", "source_ids": ["N02"]},
         "time_basis": {"text": "timestamp_timezone in eda_rr1_provenance.json: not stated in the downloaded payload; not assumed UTC.", "source_ids": ["N02"]},
         "window": {"text": "Seven days of the file ending 2014-10-07 15:36, the demo replay clock (DEMO-CONDITIONS.md); 2012 rows, the original dates kept.", "source_ids": ["N02"]},
-        "pace": {"text": "Burst: the demo does not wait five minutes per sample. Freshness follows hub receive time of rows that advance the window end (D14).", "source_ids": ["N02"]}
+        "pace": {"text": "The recorded spacing sped up 60 times: one 300 s sample every 5 s, so the seven days play for about 2.8 hours. A burst sent every row at once and the channel went stale 600 s later, because freshness follows hub receive time of rows that advance the window end (D14).", "source_ids": ["N02"]}
       }
     },
     {
       "feed_id": "feed_dostel1_rad_replay",
       "kind": "replay",
-      "adapter_id": "adp_replay_osdr",
+      "adapter_id": "adp_replay_radlab",
       "channel_id": "ch_rad_columbus_replay",
       "file": "radlab_dostel_sample.csv",
       "columns": {"time": "timestamp", "value": "absorbed_dose_rate", "unit": "µGy/h"},
@@ -41,12 +41,50 @@
       "dataset": "OSDR RadLab DosTel1, 1 to 2 Apr 2022",
       "time_basis": "Dataset clock as printed in the source file. The API states no time zone, so the printed time is carried with a Z suffix as the dataset's own clock and is not asserted to be UTC.",
       "naive_time": "carry_as_dataset_clock",
-      "pace": {"mode": "burst"},
+      "pace": {"mode": "recorded", "speedup": 2},
       "basis": {
         "file": {"text": "Byte copy of radlab_dostel_sample.csv (SHA-256 in provenance.json). Only DosTel1 rows: an instrument dose rate in the Columbus module, never a person's dose.", "source_ids": ["N20"]},
         "unit": {"text": "absorbed_dose_rate_units in radlab_dostel_sample.provenance.json: microgray per hour.", "source_ids": ["N20"]},
         "time_basis": {"text": "timestamp_timezone in radlab_dostel_sample.provenance.json: not stated by the API; not asserted.", "source_ids": ["N20"]},
-        "pace": {"text": "Burst, as for the RR-1 feed.", "source_ids": ["N20"]}
+        "pace": {"text": "The recorded spacing (about 90 s between DosTel1 rows) sped up 2 times, so the two hours play for about an hour, the channel stays current that long plus 600 s, and no gap reaches its 600 s staleness. The rad type has no plausibility criteria yet, so its REPLAY rows are captured and drawn but never evaluated (T-E23-070): the tile shows the line and its source, and its value stays No reading. Its own adapter principal, so its sequence never interleaves with the RR-1 feed's.", "source_ids": ["N20"]}
+      }
+    },
+    {
+      "feed_id": "feed_noise_cabin_sim",
+      "kind": "sim",
+      "adapter_id": "adp_sim_noise",
+      "channel_id": "ch_noise_cabin_sim",
+      "unit": "dBA",
+      "sim": {
+        "type": "twin",
+        "protocol": "xtce",
+        "scenario": "station_nominal",
+        "select": "laeq",
+        "config_dir": "../../../../simulators/habitat/config"
+      },
+      "pace": {"mode": "fixed", "interval_s": 5},
+      "basis": {
+        "sim": {"text": "The habitat simulator's CCSDS packet twin sends the simulated sound level meter's A-weighted equivalent level (scenario station_nominal) as space packets described by an XTCE document, as for the CO2 SIM feed. The twin declares itself simulated.", "source_ids": ["EV01"]},
+        "pace": {"text": "One packet every 5 s, the same pace as the CO2 SIM feed; the meter's own interval is a team assumption (devices.json).", "source_ids": ["EV01"]}
+      }
+    },
+    {
+      "feed_id": "feed_rad_cabin_sim",
+      "kind": "sim",
+      "adapter_id": "adp_sim_rad",
+      "channel_id": "ch_rad_cabin_sim",
+      "unit": "µGy/h",
+      "sim": {
+        "type": "twin",
+        "protocol": "xtce",
+        "scenario": "station_nominal",
+        "select": "dose_rate",
+        "config_dir": "../../../../simulators/habitat/config"
+      },
+      "pace": {"mode": "fixed", "interval_s": 5},
+      "basis": {
+        "sim": {"text": "The habitat simulator's CCSDS packet twin sends the simulated area dosimeter's dose rate as space packets described by an XTCE document. It serves the surface environments, where the ISS DosTel replay is not the place's instrument. The twin declares itself simulated.", "source_ids": ["EV01"]},
+        "pace": {"text": "One packet every 5 s, the same pace as the CO2 SIM feed.", "source_ids": ["EV01"]}
       }
     },
     {

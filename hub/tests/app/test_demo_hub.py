@@ -89,7 +89,9 @@ def served(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Served]:
         root=ROOT,
         camera_port=_free_port(),
         twin_port=_free_port(),
-        habitat_ports=[_free_port(), _free_port()],
+        habitat_ports=[
+            _free_port() for _ in cast(list[object], demo.Fixture.load(ROOT).section("habitat")["feeds"])
+        ],
     )
     started: list[uvicorn.Server] = []
 
