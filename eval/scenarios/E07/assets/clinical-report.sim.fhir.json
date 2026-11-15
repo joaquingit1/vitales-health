@@ -1,0 +1,133 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "meta": {
+    "security": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        "code": "HTEST"
+      }
+    ]
+  },
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "sim-1",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "59408-5",
+              "display": "Oxygen saturation in Arterial blood by Pulse oximetry"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/mara"
+        },
+        "effectiveDateTime": "2026-11-13T08:10:00Z",
+        "performer": [
+          {
+            "reference": "Practitioner/cmo"
+          }
+        ],
+        "valueQuantity": {
+          "value": 96,
+          "unit": "%",
+          "system": "http://unitsofmeasure.org",
+          "code": "%"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "sim-2",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8601-7",
+              "display": "EKG impression"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/mara"
+        },
+        "effectiveDateTime": "2026-11-13T08:10:00Z",
+        "performer": [
+          {
+            "reference": "Practitioner/cmo"
+          }
+        ],
+        "valueString": "SIM report text: sinus rhythm"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "sim-3",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8310-5",
+              "display": "Body temperature"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/mara"
+        },
+        "effectiveDateTime": "2026-11-13T08:10:00Z",
+        "performer": [
+          {
+            "reference": "Practitioner/cmo"
+          }
+        ],
+        "valueQuantity": {
+          "value": 98.6,
+          "unit": "degF",
+          "system": "http://unitsofmeasure.org",
+          "code": "[degF]"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "sim-4",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8480-6",
+              "display": "Systolic blood pressure"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/kai"
+        },
+        "effectiveDateTime": "2026-11-13T08:10:00Z",
+        "performer": [
+          {
+            "reference": "Practitioner/cmo"
+          }
+        ],
+        "valueQuantity": {
+          "value": 118,
+          "unit": "mmHg",
+          "system": "http://unitsofmeasure.org",
+          "code": "mm[Hg]"
+        }
+      }
+    }
+  ]
+}

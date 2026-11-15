@@ -1,0 +1,622 @@
+{
+  "models": {
+    "CancelReply": {
+      "additionalProperties": false,
+      "properties": {
+        "acquisition_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+          "title": "Acquisition Id",
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "stopped",
+            "cannot_stop",
+            "unknown"
+          ],
+          "title": "Result",
+          "type": "string"
+        }
+      },
+      "required": [
+        "acquisition_id",
+        "result"
+      ],
+      "title": "CancelReply",
+      "type": "object"
+    },
+    "CancelRequest": {
+      "additionalProperties": false,
+      "description": "Optional body of a cancel. A persisted reference reading is released only when the hub names the observation\nit recorded the reading as.",
+      "properties": {
+        "recorded_observation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recorded Observation Id"
+        }
+      },
+      "title": "CancelRequest",
+      "type": "object"
+    },
+    "DescribeReply": {
+      "$defs": {
+        "CameraReply": {
+          "additionalProperties": false,
+          "properties": {
+            "device_id": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+              "title": "Device Id",
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "personal",
+                "station"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "subject_id": {
+              "anyOf": [
+                {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subject Id"
+            }
+          },
+          "required": [
+            "device_id",
+            "name",
+            "kind",
+            "subject_id"
+          ],
+          "title": "CameraReply",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "adapter_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+          "title": "Adapter Id",
+          "type": "string"
+        },
+        "cameras": {
+          "items": {
+            "$ref": "#/$defs/CameraReply"
+          },
+          "title": "Cameras",
+          "type": "array"
+        },
+        "capability_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Capability Codes",
+          "type": "array"
+        },
+        "max_ttl_ms": {
+          "maximum": 3600000,
+          "minimum": 1,
+          "title": "Max Ttl Ms",
+          "type": "integer"
+        },
+        "origin_mode": {
+          "enum": [
+            "LIVE",
+            "REPLAY",
+            "SIM"
+          ],
+          "title": "Origin Mode",
+          "type": "string"
+        },
+        "policy": {
+          "title": "Policy",
+          "type": "string"
+        },
+        "protocol_version": {
+          "const": "1",
+          "title": "Protocol Version",
+          "type": "string"
+        },
+        "ready_methods": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ready Methods",
+          "type": "array"
+        },
+        "worker_utc": {
+          "format": "date-time",
+          "title": "Worker Utc",
+          "type": "string"
+        }
+      },
+      "required": [
+        "protocol_version",
+        "adapter_id",
+        "origin_mode",
+        "policy",
+        "cameras",
+        "ready_methods",
+        "capability_codes",
+        "max_ttl_ms",
+        "worker_utc"
+      ],
+      "title": "DescribeReply",
+      "type": "object"
+    },
+    "ErrorReply": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "UNAUTHORIZED",
+            "INVALID",
+            "CONFLICT",
+            "BUSY",
+            "UNSUPPORTED",
+            "NO_CAMERA",
+            "NOT_PAIRED",
+            "ORIGIN_MISMATCH",
+            "NOT_FOUND"
+          ],
+          "title": "Code",
+          "type": "string"
+        },
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "detail"
+      ],
+      "title": "ErrorReply",
+      "type": "object"
+    },
+    "StartRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "acquisition_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+          "title": "Acquisition Id",
+          "type": "string"
+        },
+        "capability_code": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+          "title": "Capability Code",
+          "type": "string"
+        },
+        "clock_offset_ms": {
+          "default": 0,
+          "maximum": 86400000,
+          "minimum": -86400000,
+          "title": "Clock Offset Ms",
+          "type": "integer"
+        },
+        "clock_uncertainty_ms": {
+          "default": 0,
+          "maximum": 86400000,
+          "minimum": 0,
+          "title": "Clock Uncertainty Ms",
+          "type": "integer"
+        },
+        "device_ids": {
+          "default": [],
+          "items": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+            "type": "string"
+          },
+          "maxItems": 16,
+          "title": "Device Ids",
+          "type": "array"
+        },
+        "kind": {
+          "enum": [
+            "measurement",
+            "reference"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "patient_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Patient Id"
+        },
+        "persist": {
+          "default": false,
+          "title": "Persist",
+          "type": "boolean"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Id"
+        },
+        "required_origin": {
+          "anyOf": [
+            {
+              "enum": [
+                "LIVE",
+                "REPLAY",
+                "SIM"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Origin"
+        },
+        "sequence": {
+          "anyOf": [
+            {
+              "maximum": 1000000,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sequence"
+        },
+        "ttl_ms": {
+          "maximum": 3600000,
+          "minimum": 1,
+          "title": "Ttl Ms",
+          "type": "integer"
+        },
+        "warmup_max_ms": {
+          "maximum": 60000,
+          "minimum": 1000,
+          "title": "Warmup Max Ms",
+          "type": "integer"
+        },
+        "window_end": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Window End"
+        },
+        "window_start": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Window Start"
+        }
+      },
+      "required": [
+        "acquisition_id",
+        "kind",
+        "capability_code",
+        "ttl_ms",
+        "warmup_max_ms"
+      ],
+      "title": "StartRequest",
+      "type": "object"
+    },
+    "StatusReply": {
+      "$defs": {
+        "OutcomeReply": {
+          "additionalProperties": false,
+          "properties": {
+            "capability_code": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+              "title": "Capability Code",
+              "type": "string"
+            },
+            "disagree": {
+              "title": "Disagree",
+              "type": "boolean"
+            },
+            "ended_at": {
+              "format": "date-time",
+              "title": "Ended At",
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "reading",
+                "no_reading"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "origin_mode": {
+              "enum": [
+                "LIVE",
+                "REPLAY",
+                "SIM"
+              ],
+              "title": "Origin Mode",
+              "type": "string"
+            },
+            "quality_rule": {
+              "title": "Quality Rule",
+              "type": "string"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Reason"
+            },
+            "reason_text": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Reason Text"
+            },
+            "refused": {
+              "items": {
+                "$ref": "#/$defs/Refused"
+              },
+              "title": "Refused",
+              "type": "array"
+            },
+            "selected": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/View"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "selection_reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Selection Reason"
+            },
+            "spread": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Spread"
+            },
+            "started_at": {
+              "format": "date-time",
+              "title": "Started At",
+              "type": "string"
+            },
+            "views": {
+              "items": {
+                "$ref": "#/$defs/View"
+              },
+              "title": "Views",
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "capability_code",
+            "origin_mode",
+            "started_at",
+            "ended_at",
+            "selected",
+            "views",
+            "reason",
+            "reason_text",
+            "selection_reason",
+            "disagree",
+            "spread",
+            "refused",
+            "quality_rule"
+          ],
+          "title": "OutcomeReply",
+          "type": "object"
+        },
+        "Refused": {
+          "additionalProperties": false,
+          "properties": {
+            "device_id": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+              "title": "Device Id",
+              "type": "string"
+            },
+            "reason": {
+              "title": "Reason",
+              "type": "string"
+            },
+            "reason_text": {
+              "title": "Reason Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "device_id",
+            "reason",
+            "reason_text"
+          ],
+          "title": "Refused",
+          "type": "object"
+        },
+        "View": {
+          "additionalProperties": false,
+          "properties": {
+            "camera_name": {
+              "title": "Camera Name",
+              "type": "string"
+            },
+            "device_id": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+              "title": "Device Id",
+              "type": "string"
+            },
+            "selected": {
+              "title": "Selected",
+              "type": "boolean"
+            },
+            "unit": {
+              "title": "Unit",
+              "type": "string"
+            },
+            "value": {
+              "title": "Value",
+              "type": "string"
+            }
+          },
+          "required": [
+            "device_id",
+            "camera_name",
+            "value",
+            "unit",
+            "selected"
+          ],
+          "title": "View",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "acquisition_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+          "title": "Acquisition Id",
+          "type": "string"
+        },
+        "clock_uncertainty_ms": {
+          "title": "Clock Uncertainty Ms",
+          "type": "integer"
+        },
+        "delivery_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Delivery Code"
+        },
+        "kind": {
+          "enum": [
+            "measurement",
+            "reference"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OutcomeReply"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "receipt_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+          "title": "Receipt Id",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "accepted",
+            "capturing",
+            "delivering",
+            "delivered",
+            "rejected",
+            "reading",
+            "no_reading",
+            "cancelled",
+            "expired"
+          ],
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "acquisition_id",
+        "receipt_id",
+        "kind",
+        "state",
+        "outcome",
+        "delivery_code",
+        "clock_uncertainty_ms"
+      ],
+      "title": "StatusReply",
+      "type": "object"
+    }
+  },
+  "protocol_version": "1",
+  "title": "crew-health-camera protocol"
+}

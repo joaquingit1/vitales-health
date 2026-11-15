@@ -1,0 +1,99 @@
+{
+  "scenarios": {
+    "normal": {
+      "description": "Baseline physiological variability and sensor noise.",
+      "parameters": {}
+    },
+    "hypoxia_drop": {
+      "description": "SpO2 falls linearly to a target and stays there.",
+      "parameters": {
+        "target_percent": "82",
+        "samples": "20"
+      }
+    },
+    "fever": {
+      "description": "A sustained temperature offset.",
+      "parameters": {
+        "offset_cel": "2"
+      }
+    },
+    "hypertension": {
+      "description": "Elevated systolic and diastolic means.",
+      "parameters": {
+        "systolic_mean_mmhg": "165",
+        "diastolic_mean_mmhg": "105"
+      }
+    },
+    "motion_low_perfusion": {
+      "description": "Motion and low perfusion flag unreliable readings.",
+      "parameters": {
+        "noise_multiplier": "4"
+      }
+    },
+    "finger_out": {
+      "description": "Oximeter reports unavailable values and an unattached sensor.",
+      "parameters": {}
+    },
+    "disconnect_mid_reading": {
+      "description": "The link drops after the configured notification count.",
+      "parameters": {
+        "notifications": "4"
+      }
+    },
+    "low_battery": {
+      "description": "A low battery report precedes power loss.",
+      "parameters": {
+        "percent": "5",
+        "notifications": "4"
+      }
+    },
+    "out_of_range": {
+      "description": "Wire-valid readings exceed plausible device ranges.",
+      "parameters": {
+        "spo2_percent": "110",
+        "pulse_bpm": "300",
+        "temperature_cel": "46",
+        "systolic_mmhg": "320",
+        "diastolic_mmhg": "180"
+      }
+    },
+    "frozen_sensor": {
+      "description": "Measurement payloads freeze, including device timestamps, while notifications continue.",
+      "parameters": {
+        "from_notification": "2"
+      }
+    },
+    "malformed_packet": {
+      "description": "One notification loses its final byte before normal frames resume.",
+      "parameters": {
+        "notification_index": "1"
+      }
+    }
+  },
+  "provenance": [
+    {
+      "path": "frozen_sensor.from_notification",
+      "note": "AGENTS.md section 4 requires simulated twins to cover frozen or stuck sensor faults. Index 2 is a zero-based scenario choice, not physiology or a clinical threshold. Each characteristic retains its own last measurement bytes, including its device timestamp; battery events are unchanged. Non-NASA: this fault-injection index does not describe a physiological quantity."
+    },
+    {
+      "path": "hypoxia_drop.target_percent",
+      "note": "82: below the 95 to 100 percent of 'most healthy individuals', C08 (FDA). Scenario value, not a clinical threshold."
+    },
+    {
+      "path": "fever.offset_cel",
+      "note": "2: puts the reading at about 39 C, above 'A high temperature is usually considered to be 38C or above', RT30 (NHS, in docs/product/ROUTINE.md). Scenario value."
+    },
+    {
+      "path": "hypertension.*",
+      "note": "165 and 105: above 'If your blood pressure is 140/90 mm Hg or higher, you have Stage 2 high blood pressure', RT27 (MedlinePlus). Scenario value."
+    },
+    {
+      "path": "out_of_range.*",
+      "note": "Values outside any plausible device or physiological range (SpO2 above 100 percent is impossible by definition). Scenario values."
+    },
+    {
+      "path": "motion_low_perfusion, finger_out, disconnect_mid_reading, low_battery, malformed_packet",
+      "note": "Fault behaviors required by AGENTS.md section 4 (motion, low signal, disconnect, out of range); status bits from the Bluetooth SIG GATT Specification Supplement (non-NASA: no NASA catalog document defines a device protocol). Counts are scenario values."
+    }
+  ]
+}

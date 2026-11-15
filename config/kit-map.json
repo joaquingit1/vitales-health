@@ -255,7 +255,11 @@
    "body_region": "shoulder",
    "operator_requirement": "self",
    "expected_duration_seconds": null,
-   "basis": "team default"
+   "basis": "team default",
+   "components": [
+    "systolic_bp",
+    "diastolic_bp"
+   ]
   },
   {
    "code": "temperature",

@@ -1,0 +1,12 @@
+{
+  "max_acquisitions": {"value": 16, "basis": "one capture runs at a time; a small table holds queued starts, undelivered attempts and reference outcomes until their lifetime ends; a table full of undelivered attempts refuses new starts as busy"},
+  "max_frames": {"value": 2400, "basis": "per camera: a 40 s window at 60 frames per second; longer captures are cut, never extended"},
+  "max_devices": {"value": 4, "basis": "a laptop webcam plus a three camera station (docs/product/api/examples/clinical/measurement-request-pulse.json notes three cameras)"},
+  "delivery_backoff_ms": {"value": 1000, "basis": "first wait before an undelivered attempt is sent again with the same Idempotency-Key; doubles after every failed try (SYSTEM 5.11 workers row: retries indefinitely at bounded rate)"},
+  "delivery_backoff_max_ms": {"value": 30000, "basis": "longest wait between deliveries, the hub's own restart backoff cap (SYSTEM 3 hub row: backoff 1 s doubling to 30 s), so a returning hub gets the attempt within one of its restart steps"},
+  "max_ttl_ms": {"value": 600000, "basis": "a reference window or measurement lives at most ten minutes (E20 restart window, docs/tdd/E20.md:485); the worker reports it in describe and the hub never asks for more"},
+  "hub_timeout_ms": {"value": 5000, "basis": "every call into the hub is bounded (SYSTEM section 3 footer); five seconds matches the health interval"},
+  "runner_idle_ms": {"value": 200, "basis": "runner poll interval when no acquisition is waiting"},
+  "max_body_bytes": {"value": 65536, "basis": "largest start body read (the protocol's start has fixed fields and at most 16 camera IDs); bounded buffer per AGENTS 3.2"},
+  "camera_timeout_ms": {"value": 3000, "basis": "every connect to and read from a camera is bounded (AGENTS 3.2); a stream silent this long has dropped, which is ten frame intervals of a 3 frames per second camera"}
+}

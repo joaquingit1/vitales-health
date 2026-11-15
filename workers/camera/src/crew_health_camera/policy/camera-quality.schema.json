@@ -1,0 +1,438 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "camera-quality.schema.json",
+  "title": "Camera quality policy (E06 worker)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "policy_id",
+    "version",
+    "provenance",
+    "frames",
+    "capture",
+    "pulse",
+    "breathing",
+    "selection",
+    "reasons",
+    "notes"
+  ],
+  "$defs": {
+    "limit": {
+      "type": "object",
+      "required": [
+        "value",
+        "basis"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "band": {
+      "type": "object",
+      "required": [
+        "min",
+        "max",
+        "basis"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "min": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "max": {
+          "type": "number",
+          "maximum": 10
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "properties": {
+    "policy_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "owner",
+        "status",
+        "sources",
+        "nasa_sources",
+        "non_nasa_scope"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "nasa_sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "non_nasa_scope": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "frames": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_rate_hz",
+        "max_gap_ms",
+        "min_luma",
+        "max_saturated_fraction",
+        "max_face_motion",
+        "max_torso_motion",
+        "max_shoulder_excursion"
+      ],
+      "properties": {
+        "min_rate_hz": {
+          "$ref": "#/$defs/limit"
+        },
+        "max_gap_ms": {
+          "$ref": "#/$defs/limit"
+        },
+        "min_luma": {
+          "$ref": "#/$defs/limit"
+        },
+        "max_saturated_fraction": {
+          "$ref": "#/$defs/limit"
+        },
+        "max_face_motion": {
+          "$ref": "#/$defs/limit"
+        },
+        "max_torso_motion": {
+          "$ref": "#/$defs/limit"
+        },
+        "max_shoulder_excursion": {
+          "$ref": "#/$defs/limit"
+        }
+      }
+    },
+    "capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "saturated_level",
+        "face_region_margin",
+        "min_landmark_visibility",
+        "settled_change_per_s"
+      ],
+      "properties": {
+        "saturated_level": {
+          "$ref": "#/$defs/limit"
+        },
+        "face_region_margin": {
+          "$ref": "#/$defs/limit"
+        },
+        "min_landmark_visibility": {
+          "$ref": "#/$defs/limit"
+        },
+        "settled_change_per_s": {
+          "$ref": "#/$defs/limit"
+        }
+      }
+    },
+    "pulse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "unit",
+        "band_hz",
+        "window_s",
+        "min_coverage",
+        "min_snr_db",
+        "snr_halfwidth_hz",
+        "edge_margin_hz",
+        "frequency_step_hz",
+        "decimals",
+        "pos_window_s",
+        "max_method_gap_per_min"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unit": {
+          "const": "/min",
+          "description": "UCUM per minute: every value is computed as a frequency in Hz times 60, so no other unit can describe it"
+        },
+        "band_hz": {
+          "$ref": "#/$defs/band"
+        },
+        "window_s": {
+          "$ref": "#/$defs/limit"
+        },
+        "min_coverage": {
+          "$ref": "#/$defs/limit"
+        },
+        "min_snr_db": {
+          "$ref": "#/$defs/limit"
+        },
+        "snr_halfwidth_hz": {
+          "$ref": "#/$defs/limit"
+        },
+        "edge_margin_hz": {
+          "$ref": "#/$defs/limit"
+        },
+        "frequency_step_hz": {
+          "$ref": "#/$defs/limit"
+        },
+        "decimals": {
+          "$ref": "#/$defs/limit"
+        },
+        "pos_window_s": {
+          "$ref": "#/$defs/limit"
+        },
+        "max_method_gap_per_min": {
+          "$ref": "#/$defs/limit"
+        }
+      }
+    },
+    "breathing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "unit",
+        "band_hz",
+        "window_s",
+        "min_coverage",
+        "min_snr_db",
+        "snr_halfwidth_hz",
+        "edge_margin_hz",
+        "frequency_step_hz",
+        "decimals"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unit": {
+          "const": "/min",
+          "description": "UCUM per minute: every value is computed as a frequency in Hz times 60, so no other unit can describe it"
+        },
+        "band_hz": {
+          "$ref": "#/$defs/band"
+        },
+        "window_s": {
+          "$ref": "#/$defs/limit"
+        },
+        "min_coverage": {
+          "$ref": "#/$defs/limit"
+        },
+        "min_snr_db": {
+          "$ref": "#/$defs/limit"
+        },
+        "snr_halfwidth_hz": {
+          "$ref": "#/$defs/limit"
+        },
+        "edge_margin_hz": {
+          "$ref": "#/$defs/limit"
+        },
+        "frequency_step_hz": {
+          "$ref": "#/$defs/limit"
+        },
+        "decimals": {
+          "$ref": "#/$defs/limit"
+        }
+      }
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agreement_tolerance_per_min"
+      ],
+      "properties": {
+        "agreement_tolerance_per_min": {
+          "$ref": "#/$defs/limit"
+        }
+      }
+    },
+    "reasons": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "time_discontinuous",
+        "invalid_signal",
+        "too_short",
+        "frame_rate_too_low",
+        "frame_gaps",
+        "face_not_visible",
+        "shoulders_not_visible",
+        "too_dark",
+        "overexposed",
+        "stuck_input",
+        "too_much_movement",
+        "outside_analysis_range",
+        "signal_quality_too_low",
+        "methods_disagree",
+        "not_paired",
+        "ambiguous_subject",
+        "pairing_expired",
+        "pairing_revoked",
+        "no_camera",
+        "capture_failed",
+        "camera_not_settled",
+        "window_missed",
+        "origin_mismatch"
+      ],
+      "properties": {
+        "time_discontinuous": {
+          "type": "string",
+          "minLength": 1
+        },
+        "invalid_signal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "too_short": {
+          "type": "string",
+          "minLength": 1
+        },
+        "frame_rate_too_low": {
+          "type": "string",
+          "minLength": 1
+        },
+        "frame_gaps": {
+          "type": "string",
+          "minLength": 1
+        },
+        "face_not_visible": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shoulders_not_visible": {
+          "type": "string",
+          "minLength": 1
+        },
+        "too_dark": {
+          "type": "string",
+          "minLength": 1
+        },
+        "overexposed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stuck_input": {
+          "type": "string",
+          "minLength": 1
+        },
+        "too_much_movement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "outside_analysis_range": {
+          "type": "string",
+          "minLength": 1
+        },
+        "signal_quality_too_low": {
+          "type": "string",
+          "minLength": 1
+        },
+        "methods_disagree": {
+          "type": "string",
+          "minLength": 1
+        },
+        "not_paired": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ambiguous_subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pairing_expired": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pairing_revoked": {
+          "type": "string",
+          "minLength": 1
+        },
+        "no_camera": {
+          "type": "string",
+          "minLength": 1
+        },
+        "capture_failed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "camera_not_settled": {
+          "type": "string",
+          "minLength": 1
+        },
+        "window_missed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "origin_mismatch": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "notes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selected",
+        "disagree",
+        "refused"
+      ],
+      "properties": {
+        "selected": {
+          "type": "string",
+          "minLength": 1
+        },
+        "disagree": {
+          "type": "string",
+          "minLength": 1
+        },
+        "refused": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "version": "3",
+  "provenance": [
+    {
+      "path": "heart_rate.mean_bpm",
+      "note": "56: N21 (NASA Neurolab, Ertl and others, J Physiol 2002, NTRS 20040088546), abstract: resting heart rate 56 +/- 4 beats per minute (mean +/- SEM), similar pre-flight and in flight."
+    },
+    {
+      "path": "heart_rate.rsa_amplitude_bpm, heart_rate.respiration_per_min, heart_rate.noise_sd_bpm",
+      "note": "Modelling assumptions, no source read: no NASA catalog document gives beat to beat variability or a breathing rate for a resting crew member. They only make the series vary; no check depends on their size."
+    },
+    {
+      "path": "spo2.mean_percent",
+      "note": "97.5: midpoint of 'between 95% and 100% for most healthy individuals', C08 (FDA, Pulse Oximeter Basics, cited in docs/product/DEMO-CONDITIONS.md). Non-NASA: the NASA catalog gives no SpO2 values. Listed as a non-NASA exception in docs/product/NASA-SOURCES.md (simulated clinical devices)."
+    },
+    {
+      "path": "spo2.sensor_noise_sd_percent",
+      "note": "Modelling assumption, no source read: C08 says readings carry 'a risk of an inaccurate reading' but gives no figure."
+    },
+    {
+      "path": "temperature.mesor_cel",
+      "note": "37: 'The average normal body temperature is generally accepted as 98.6 F (37 C)', MedlinePlus, Body temperature norms (https://medlineplus.gov/ency/article/001982.htm) (review date 1 January 2025). Non-NASA: no NASA catalog document gives a body temperature value. Listed as a non-NASA exception in docs/product/NASA-SOURCES.md (simulated clinical devices)."
+    },
+    {
+      "path": "temperature.amplitude_cel",
+      "note": "null: no source read gives the daily swing of body temperature. N22 (NTRS 20160003864, p. 13) supports a circadian temperature rhythm but gives no amplitude, and N23 (NASA TM-88197, p. 9) gives its acrophase only; the amplitude appears there only as a plotted figure. Missing stays missing: the twin leaves the daily term out until a source gives it, and the acrophase applies from then on."
+    },
+    {
+      "path": "temperature.acrophase_hour",
+      "note": "15.2: N23 (NASA TM-88197, Gander and others, 1985, NTRS 19860007420), p. 9: 'The average baseline acrophase of the temperature rhythm ... was 15.2 hr' (Greenwich Mean Time, aircrew on Earth). The twin's clock is read as that same clock. On Mir three of four astronauts showed 'an average phase delay of two hours in the circadian rhythm of core body temperature' (N22, p. 13); a scenario can shift the phase."
+    },
+    {
+      "path": "temperature.noise_sd_cel",
+      "note": "Modelling assumption, no source read."
+    },
+    {
+      "path": "blood_pressure.systolic_mean_mmhg, blood_pressure.diastolic_mean_mmhg",
+      "note": "118 and 76: inside 'Normal blood pressure is when the top number (systolic blood pressure) is below 120' and 'the bottom number (diastolic blood pressure) is below 80', RT27 (MedlinePlus, Blood pressure measurement, in docs/product/ROUTINE.md). Non-NASA: RT16 and RT17 (NASA) say blood pressure is measured in the periodic health exam but give no values. Listed as a non-NASA exception in docs/product/NASA-SOURCES.md (simulated clinical devices)."
+    },
+    {
+      "path": "blood_pressure.systolic_sd_mmhg, blood_pressure.diastolic_sd_mmhg, blood_pressure.correlation",
+      "note": "Modelling assumptions, no source read. RT27 says 'It is normal for your blood pressure to vary at different times of the day' without figures; systolic and diastolic move together in the model so a reading is never physiologically inverted."
+    }
+  ],
+  "heart_rate": {
+    "mean_bpm": "56",
+    "rsa_amplitude_bpm": "3",
+    "respiration_per_min": "14",
+    "noise_sd_bpm": "1.5"
+  },
+  "spo2": {
+    "mean_percent": "97.5",
+    "sensor_noise_sd_percent": "0.6"
+  },
+  "temperature": {
+    "mesor_cel": "37",
+    "amplitude_cel": null,
+    "acrophase_hour": "15.2",
+    "noise_sd_cel": "0.05"
+  },
+  "blood_pressure": {
+    "systolic_mean_mmhg": "118",
+    "diastolic_mean_mmhg": "76",
+    "systolic_sd_mmhg": "6",
+    "diastolic_sd_mmhg": "5",
+    "correlation": "0.7"
+  }
+}

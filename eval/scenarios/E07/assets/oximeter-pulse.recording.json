@@ -1,0 +1,22 @@
+{
+  "origin": "SIM",
+  "provenance": "SIM frames synthesized from the GATT Specification Supplement byte layouts; not a device recording. The reading settles (SpO2 97 then 98, pulse 72 then 73) and holds, the steady number C08 asks for.",
+  "frames": [
+    {
+      "characteristic": "plx_continuous",
+      "payload_hex": "0061004800"
+    },
+    {
+      "characteristic": "plx_continuous",
+      "payload_hex": "0062004900"
+    },
+    {
+      "characteristic": "plx_continuous",
+      "payload_hex": "0062004900"
+    },
+    {
+      "characteristic": "plx_continuous",
+      "payload_hex": "0062004900"
+    }
+  ]
+}

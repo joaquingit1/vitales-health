@@ -1,0 +1,337 @@
+{
+  "notice": "Unreviewed draft: needs clinician review before live guidance.",
+  "description": "How the simulator is wired: its devices, which device output feeds which hub channel, the replay datasets, and the feeder bounds.",
+  "catalog_path": "config/sensor-catalog.json",
+  "channel_registry_path": "simulators/habitat/config/sensor-channels.sim.json",
+  "adapters": {
+    "SIM": {
+      "adapter_id": "adp_sim_habitat",
+      "token_env": "CREW_HEALTH_SIM_ADAPTER_TOKEN"
+    },
+    "REPLAY": {
+      "adapter_id": "adp_replay_habitat",
+      "token_env": "CREW_HEALTH_REPLAY_ADAPTER_TOKEN"
+    }
+  },
+  "hub_url": "http://127.0.0.1:8080",
+  "quality_status": {
+    "ok": "accepted",
+    "warming_up": "uncertain",
+    "saturated": "uncertain"
+  },
+  "devices": [
+    {
+      "device_id": "sim_ndir_co2_cabin",
+      "kind": "ndir_co2",
+      "location": "cabin"
+    },
+    {
+      "device_id": "sim_baro_cabin",
+      "kind": "barometer",
+      "location": "cabin"
+    },
+    {
+      "device_id": "sim_o2_cell_cabin",
+      "kind": "o2_cell",
+      "location": "cabin"
+    },
+    {
+      "device_id": "sim_ec_co_cabin",
+      "kind": "ec_co",
+      "location": "cabin"
+    },
+    {
+      "device_id": "sim_ec_nh3_cabin",
+      "kind": "ec_nh3",
+      "location": "cabin"
+    },
+    {
+      "device_id": "sim_mox_voc_cabin",
+      "kind": "mox_voc",
+      "location": "cabin"
+    },
+    {
+      "device_id": "sim_opc_pm_cabin",
+      "kind": "optical_pm",
+      "location": "cabin"
+    },
+    {
+      "device_id": "sim_sound_cabin",
+      "kind": "sound_meter",
+      "location": "cabin"
+    },
+    {
+      "device_id": "sim_temp_rh_cabin",
+      "kind": "temp_rh",
+      "location": "cabin"
+    },
+    {
+      "device_id": "sim_geiger_cabin",
+      "kind": "geiger",
+      "location": "cabin"
+    },
+    {
+      "device_id": "sim_area_dosimeter_cabin",
+      "kind": "area_dosimeter",
+      "location": "cabin"
+    }
+  ],
+  "bindings": [
+    {
+      "device_id": "sim_ndir_co2_cabin",
+      "output": "co2",
+      "channel_id": "ch_co2_cabin_sim",
+      "cabin_pressure": {
+        "device_id": "sim_baro_cabin",
+        "output": "pressure"
+      },
+      "aggregation": null
+    },
+    {
+      "device_id": "sim_o2_cell_cabin",
+      "output": "ppo2",
+      "channel_id": "ch_o2_cabin_sim",
+      "cabin_pressure": null,
+      "aggregation": null
+    },
+    {
+      "device_id": "sim_sound_cabin",
+      "output": "laeq",
+      "channel_id": "ch_noise_cabin_sim",
+      "cabin_pressure": null,
+      "aggregation": "energy_mean"
+    },
+    {
+      "device_id": "sim_opc_pm_cabin",
+      "output": "pm10",
+      "channel_id": "ch_dust_cabin_sim",
+      "cabin_pressure": null,
+      "aggregation": null
+    },
+    {
+      "device_id": "sim_area_dosimeter_cabin",
+      "output": "dose_rate",
+      "channel_id": "ch_rad_cabin_sim",
+      "cabin_pressure": null,
+      "aggregation": null
+    }
+  ],
+  "datasets": {
+    "rr1": {
+      "path": "docs/product/nasa-data/habitat-environment/eda_rr1_telemetry.csv",
+      "provenance": "docs/product/nasa-data/habitat-environment/eda_rr1_provenance.json",
+      "sha256": "2d03645b927eae08b275be09ee168b829ac647c0db608ba08cda5e6af494b787",
+      "source_ids": [
+        "N02"
+      ]
+    },
+    "rr5": {
+      "path": "docs/product/nasa-data/habitat-environment/eda_rr5_telemetry.csv",
+      "provenance": "docs/product/nasa-data/habitat-environment/eda_rr5_telemetry.provenance.json",
+      "sha256": "c1a21b96136a0489f0a4531609f3fada1f7037c8167f7b800827a7d5aba45d81",
+      "source_ids": [
+        "N02"
+      ]
+    },
+    "dostel": {
+      "path": "docs/product/nasa-data/radiation/radlab_dostel_sample.csv",
+      "provenance": "docs/product/nasa-data/radiation/radlab_dostel_sample.provenance.json",
+      "sha256": "67b2faab53ad1427f34e75933113c09f6a0542cc07334bbe1033ed9562eb9631",
+      "source_ids": [
+        "N20"
+      ]
+    },
+    "radlab_spe_2017": {
+      "path": "docs/product/nasa-data/radiation/radlab_iss_2017-09_spe.csv",
+      "provenance": "docs/product/nasa-data/radiation/radlab_iss_2017-09_spe.provenance.json",
+      "sha256": "5631a9bd60b6ae5e79c87ae87abaceb499612ad82375af9e1faaf6d81d18aad5",
+      "source_ids": [
+        "N20",
+        "N40"
+      ]
+    },
+    "tepc_spe_2017": {
+      "path": "docs/product/nasa-data/radiation/cdaweb_iss_tepc_2017-09_spe.csv",
+      "provenance": "docs/product/nasa-data/radiation/cdaweb_iss_tepc_2017-09_spe.provenance.json",
+      "sha256": "881a5c45fe8f2b76fc381fd0bcc86ee8195d41d03b8231a5516c9712c0e0b7ad",
+      "source_ids": [
+        "N30"
+      ],
+      "columns": [
+        "time",
+        "dose",
+        "dose_eq60",
+        "time_interval",
+        "longitude",
+        "latitude",
+        "altitude"
+      ]
+    },
+    "msl_rad_spe_2017": {
+      "path": "docs/product/nasa-data/cases/spe-2017-09-mars-surface/radlab_msl_rad_surface_20170905_20170919.csv",
+      "provenance": "docs/product/nasa-data/cases/spe-2017-09-mars-surface/radlab_msl_rad_surface_20170905_20170919.provenance.json",
+      "sha256": "5bb00b16536f4ba4fa132f8a9765383e7734537179b63781e1f59d01fe3de0a0",
+      "source_ids": [
+        "N20",
+        "N39",
+        "N40"
+      ]
+    }
+  },
+  "replay_feeds": [
+    {
+      "feed_id": "rr1_co2",
+      "dataset": "rr1",
+      "time_column": "time",
+      "time_format": "%Y-%m-%d %H:%M:%S",
+      "value_column": "co2_iss",
+      "unit": "ppm",
+      "row_filter": null,
+      "channel_id": "ch_co2_cabin_replay",
+      "dataset_label": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+      "time_basis": "Times as in the source file, which states no zone (its provenance file); sent with the Z suffix the contract requires, the zone itself not asserted.",
+      "cabin_pressure": {
+        "value": 760,
+        "unit": "mmHg",
+        "basis": "NASA-SOURCES.md section 2: the file has no cabin pressure, so the package assumes 760 mmHg",
+        "source_ids": [
+          "N02"
+        ]
+      }
+    },
+    {
+      "feed_id": "rr1_temperature",
+      "dataset": "rr1",
+      "time_column": "time",
+      "time_format": "%Y-%m-%d %H:%M:%S",
+      "value_column": "temperature_iss",
+      "unit": "Cel",
+      "row_filter": null,
+      "channel_id": null,
+      "dataset_label": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+      "time_basis": "Times as in the source file, which states no zone (its provenance file); sent with the Z suffix the contract requires, the zone itself not asserted.",
+      "cabin_pressure": null
+    },
+    {
+      "feed_id": "rr1_humidity",
+      "dataset": "rr1",
+      "time_column": "time",
+      "time_format": "%Y-%m-%d %H:%M:%S",
+      "value_column": "rh_iss",
+      "unit": "%",
+      "row_filter": null,
+      "channel_id": null,
+      "dataset_label": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+      "time_basis": "Times as in the source file, which states no zone (its provenance file); sent with the Z suffix the contract requires, the zone itself not asserted.",
+      "cabin_pressure": null
+    },
+    {
+      "feed_id": "dostel1_rad",
+      "dataset": "dostel",
+      "time_column": "timestamp",
+      "time_format": "%Y-%m-%dT%H:%M:%S",
+      "value_column": "absorbed_dose_rate",
+      "unit": "µGy/h",
+      "row_filter": {
+        "column": "instrument_id",
+        "equals": "DosTel1"
+      },
+      "channel_id": "ch_rad_columbus_replay",
+      "dataset_label": "OSDR RadLab DosTel1, 1 to 2 Apr 2022",
+      "time_basis": "Times as in the source file, which states no zone (its provenance file); sent with the Z suffix the contract requires, the zone itself not asserted.",
+      "cabin_pressure": null
+    },
+    {
+      "feed_id": "rr5_co2",
+      "dataset": "rr5",
+      "time_column": "time",
+      "time_format": "%Y-%m-%d %H:%M:%S",
+      "value_column": "co2_iss",
+      "unit": "ppm",
+      "row_filter": null,
+      "channel_id": "ch_co2_cabin_rr5_replay",
+      "dataset_label": "OSDR Rodent Research-5 ISS environmental telemetry, 2017",
+      "time_basis": "Times as in the source file, which states no zone (its provenance file); sent with the Z suffix the contract requires, the zone itself not asserted.",
+      "cabin_pressure": {
+        "value": 760,
+        "unit": "mmHg",
+        "basis": "NASA-SOURCES.md section 2 rule for the RR files: they carry no cabin pressure, so 760 mmHg is assumed",
+        "source_ids": [
+          "N02"
+        ]
+      }
+    },
+    {
+      "feed_id": "rr5_temperature",
+      "dataset": "rr5",
+      "time_column": "time",
+      "time_format": "%Y-%m-%d %H:%M:%S",
+      "value_column": "temperature_iss",
+      "unit": "Cel",
+      "row_filter": null,
+      "channel_id": null,
+      "dataset_label": "OSDR Rodent Research-5 ISS environmental telemetry, 2017",
+      "time_basis": "Times as in the source file, which states no zone (its provenance file); sent with the Z suffix the contract requires, the zone itself not asserted.",
+      "cabin_pressure": null
+    },
+    {
+      "feed_id": "rr5_humidity",
+      "dataset": "rr5",
+      "time_column": "time",
+      "time_format": "%Y-%m-%d %H:%M:%S",
+      "value_column": "rh_iss",
+      "unit": "%",
+      "row_filter": null,
+      "channel_id": null,
+      "dataset_label": "OSDR Rodent Research-5 ISS environmental telemetry, 2017",
+      "time_basis": "Times as in the source file, which states no zone (its provenance file); sent with the Z suffix the contract requires, the zone itself not asserted.",
+      "cabin_pressure": null
+    },
+    {
+      "feed_id": "dostel2_spe_2017",
+      "dataset": "radlab_spe_2017",
+      "time_column": "timestamp",
+      "time_format": "%Y-%m-%dT%H:%M:%S",
+      "value_column": "absorbed_dose_rate",
+      "unit": "µGy/h",
+      "row_filter": {
+        "column": "instrument_id",
+        "equals": "DosTel2"
+      },
+      "channel_id": "ch_rad_columbus_spe_replay",
+      "dataset_label": "OSDR RadLab DosTel2, ISS Columbus, 3 to 16 Sep 2017 (solar particle event of 10 and 11 Sep)",
+      "time_basis": "Timestamps as served by the RadLab API, which states no zone; the provenance notes they line up with the UTC TEPC file. Sent with the Z suffix the contract requires.",
+      "cabin_pressure": null
+    },
+    {
+      "feed_id": "tepc_spe_2017",
+      "dataset": "tepc_spe_2017",
+      "time_column": "time",
+      "time_format": "%Y-%m-%dT%H:%M:%S.%fZ",
+      "value_column": "dose",
+      "unit": "µGy/min",
+      "row_filter": null,
+      "channel_id": null,
+      "dataset_label": "CDAWeb ISS_DOSANL_TEPC, 3 to 16 Sep 2017",
+      "time_basis": "UTC, as the HAPI isotime with Z states (provenance file).",
+      "cabin_pressure": null
+    },
+    {
+      "feed_id": "msl_rad_spe_2017",
+      "dataset": "msl_rad_spe_2017",
+      "time_column": "timestamp",
+      "time_format": "%Y-%m-%dT%H:%M:%S",
+      "value_column": "absorbed_dose_rate",
+      "unit": "µGy/h",
+      "row_filter": {
+        "column": "instrument_id",
+        "equals": "MSL-RAD-Surface"
+      },
+      "channel_id": "ch_rad_mars_surface_replay",
+      "dataset_label": "OSDR RadLab MSL-RAD on the surface of Mars, 5 to 19 Sep 2017",
+      "time_basis": "Timestamps as served by the RadLab API, which states no zone and not whether they are Mars event or Earth receive times (provenance file). Sent with the Z suffix the contract requires.",
+      "cabin_pressure": null
+    }
+  ],
+  "bindings_note": "aggregation: energy_mean for the sound meter's LAeq, which is an energy average over its interval; other outputs are samples."
+}
