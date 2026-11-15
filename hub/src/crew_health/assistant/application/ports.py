@@ -222,6 +222,9 @@ class DeliveredAssessment:
     model_release_id: str | None
     source_revision: int
     delivered_at: datetime
+    origin_mode: Literal["LIVE", "REPLAY", "SIM"]
+    created_at: datetime
+    validation_status: Literal["draft", "stale", "reviewed"]
 
 
 class DeliveredAssessmentSource(Protocol):
@@ -253,6 +256,8 @@ class SelectedAssessment:
     selected_fields: frozenset[str]
     content_sha256: str
     body_json: bytes
+    origin_mode: Literal["LIVE", "REPLAY", "SIM"]
+    created_at: datetime
 
 
 class SelectedAssessmentFacts(Protocol):
