@@ -1,10 +1,10 @@
-<p align="center">
-  <img src="assets/crew-health-hero.png" alt="Crew Health Check, NASA Space Apps Challenge 2026" width="100%" />
-</p>
-
 # Crew Health Check
 
 **Measures what it can. Shows what it can't. Teaches the crew the rest.**
+
+<p align="center">
+  <img src="docs/readme/today.gif" alt="The crew app running on one laptop: Mara's Today on the Moon base with the ground link down, then the kit map: 9 conditions measured here, 82 on what she reports, 28 that need a test this ship doesn't carry, marked on her body, and the device that would close the most gaps" width="100%" />
+</p>
 
 <p align="center">
   <img src="assets/badge-space-apps.svg" alt="Space Apps 2026" />
@@ -13,23 +13,63 @@
   <img src="assets/badge-prototype.svg" alt="Research prototype" />
 </p>
 
-On Mars, a message to mission control takes 4 to 24 minutes each way
+On Mars, a message to mission control takes up to 24 minutes each way
 ([N09](https://www.nasa.gov/missions/tech-demonstration/space-communications-7-things-you-need-to-know)), and NASA's
 exploration medicine team plans for "No evacuations possible"
-([N13](https://ntrs.nasa.gov/api/citations/20230007863/downloads/EIMO.AsMA2023.Lemery.final.pdf), slide 5). Today's
-crew medical officer trains about 15 hours, "knowing that ground specialists will provide real-time guidance"
-([N15](https://ntrs.nasa.gov/citations/20205008925)). Crew Health Check is health software for a crew that Earth cannot help in time. It checks each
-of the 119 conditions NASA models for exploration missions against the kit actually on board, draws what this ship cannot
-test on the crew member's body, holds a plan aboard for every condition, computes how much of each medicine is still potent, and teaches a crewmate to take a pulse by hand,
-accepting it only when two independent readings agree. It runs on one laptop with no network, and its plans and its emergency flow run with the
-AI switched off.
+([N13](https://ntrs.nasa.gov/api/citations/20230007863/downloads/EIMO.AsMA2023.Lemery.final.pdf), slide 5). Crew
+Health Check is health software for a crew that Earth cannot help in time: it checks the 119 conditions NASA models
+for exploration missions against the kit actually aboard, holds a plan for every one of them and computes, from each
+medicine's chemistry, how much of it is still potent. It runs on one laptop with no network, and its plans and its
+emergency flow keep working with the AI switched off.
 
 NASA Space Apps Challenge 2026 · "Create Health Monitoring Software for Astronauts on Space Missions"
 
-![Mara's Today screen on the Moon base with the ground link down: the body figure marking what the kit measures, a camera pulse of 72/min labeled Sim, the habitat card with its replayed CO2 trace, the kit card (28 of 119 need a test this ship doesn't carry) and Someone needs help with 119 of 119 plans aboard](docs/readme/today.png)
-
-
 ## What sets it apart
+
+**It knows what this ship cannot test.** The kit map ([config/kit-map.json](config/kit-map.json)) has one row for each
+of the 119 conditions on NASA's exploration condition list, each linked to its NASA Clinical Findings Form (119 of
+119). With the station kit, 9 conditions get a measurement, 82 rest on what the person reports and 28 need a test that
+is not aboard. The app draws that on the crew member's body and names the device that would close the most gaps.
+
+**There is a plan aboard for every condition.** [config/onboard-plans.json](config/onboard-plans.json) holds a plan
+for all 119 conditions plus 20 responder flows. Each plan runs in stages, ends in a stated mode (resolve here, talk a
+crewmate through it, stabilize and watch) and puts the log for the ground last. Where the ship lacks a test, a step
+stands in for it and says what it cannot replace: "It cannot replace an ECG".
+
+**Two independent readings agree.** When the medical officer is the patient or outside on a surface walk, a crewmate
+without medical training is walked through a pulse check and taps each beat, while the camera takes its own reading.
+The hub records agree, disagree or incomplete, with both sources, so a count by hand stands only when two independent
+readings agree.
+
+## Run it in one command
+
+```sh
+uv run scripts/demo.py
+```
+
+It resets a demo hub with simulated crew, habitat feeds and a camera twin, serves it on `127.0.0.1:8080` with the crew
+app on `127.0.0.1:5173`, and prints the station and crew credentials. Every reading it shows is labeled Sim or Replay.
+It needs [uv](https://docs.astral.sh/uv/) and pnpm, and no cloud account, network or container. The first run
+computes each medicine's quantum chemistry once (several minutes); later runs reuse it and start in under a minute. Full setup, tests and
+the plain hub are in [Run it](#run-it).
+
+## Validation
+
+| What was checked | Result | Evidence |
+|---|---|---|
+| The local medical model on 400 MedQA questions (US Medical Licensing Examination style), the exact build that ships, offline | 317 correct: 79.3% (95% interval 75.0% to 82.9%), byte for byte reproducible | [MEDQA-PROXY.md](docs/build/E18/MEDQA-PROXY.md) |
+| The potency engine against an independent oracle written from its contract alone | Agreement to 1e-9 on the checked quantities | [VALIDATION-REPORT.md](docs/VALIDATION-REPORT.md) |
+| Someone needs help with the ground link up, delayed and down | Identical session bytes in all three | [independence.json](eval/results/E29/independence.json) |
+| Kit map rows linked to their NASA Clinical Findings Form | 119 of 119 | [kit-map.json](config/kit-map.json) |
+| Plans that end with the log for the ground | 139 of 139 | [onboard-plans.json](config/onboard-plans.json) |
+| Hub and end-to-end tests | 4,650, run in CI on Ubuntu, macOS and Windows | [hub-tests.yml](.github/workflows/hub-tests.yml) |
+
+These are numerical verification and model validation. Clinical validation and mission acceptance are not claimed
+([Disclaimer](#disclaimer)).
+
+---
+
+## Everything it does
 
 **1. It shows what this ship cannot test.** The kit map ([config/kit-map.json](config/kit-map.json)) has one row for
 each of the 119 conditions on NASA's exploration condition list
