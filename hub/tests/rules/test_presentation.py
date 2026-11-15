@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 from datetime import datetime, timedelta
+from typing import Any, cast
 
 import pytest
 import rules_harness as h
@@ -28,13 +29,13 @@ SUPPRESSED = frozenset({"sleep", "eva"})  # the routine-rules `suppressed_overla
 
 
 def suppressed_overlays() -> frozenset[str]:
-    return frozenset(h.example_value("routine-rules")["suppressed_overlays"])  # type: ignore[arg-type]
+    return frozenset(h.example_value("routine-rules")["suppressed_overlays"])
 
 
 def base_warning(world: h.World) -> Warning:
     world.feed(world.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]))
     (w,) = world.by_definition("co2_above_limit")
-    return w
+    return cast(Warning, w)
 
 
 def variant(
@@ -57,7 +58,7 @@ def variant(
 
 
 def at(minutes: int) -> datetime:
-    return h.T0 + timedelta(minutes=minutes)
+    return cast(datetime, h.T0 + timedelta(minutes=minutes))
 
 
 def test_the_suppressed_overlays_come_from_configuration() -> None:
@@ -265,9 +266,10 @@ def test_attention_never_hides_an_unheld_unacknowledged_act_or_emergency(
 # --- headline and list order -------------------------------------------------------------------------
 
 
-def example_list(name: str) -> list[dict[str, object]]:
+def example_list(name: str) -> list[dict[str, Any]]:
     path = h.ROOT / "docs" / "product" / "api" / "examples" / "warnings" / f"list-{name}.json"
-    return json.loads(path.read_text(encoding="utf-8"))["value"]["items"]  # type: ignore[no-any-return]
+    items: list[dict[str, Any]] = json.loads(path.read_text(encoding="utf-8"))["value"]["items"]
+    return items
 
 
 @pytest.mark.trace("T-E24-042", "C14")
@@ -292,7 +294,7 @@ def test_t042_headline_vectors_for_the_four_environments(
             warning_id=f"wrn_{environment}_{i}",
             headline=HeadlineFields(
                 i_["headline"]["fragment"], i_["headline"]["rank"], i_["headline"]["solo"]
-            ),  # type: ignore[index]
+            ),
             raised_at=datetime.fromisoformat(str(i_["raised_at"])),
         )
         for i, i_ in enumerate(items)
@@ -331,6 +333,6 @@ def test_t043_list_order_is_headline_rank_then_raised_at_then_id(world: h.World)
 def test_the_example_list_order_defect_is_recorded_r_e24_6(example_doc: RulesDocument) -> None:
     """R-E24-6: the example list puts rank 20 before rank 10 against the operation's description."""
     station = example_list("station")
-    ranks = [i["headline"]["rank"] for i in station]  # type: ignore[index]
+    ranks = [i["headline"]["rank"] for i in station]
     assert ranks == [20, 10]
     assert OriginMode.LIVE.value == "LIVE" and example_doc.headline.max_fragments >= 1

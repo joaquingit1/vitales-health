@@ -25,7 +25,7 @@ TARGET_DEFINITIONS = 50
 
 def fifty_definitions() -> dict[str, object]:
     raw = h.deployment_rules()
-    definitions = list(raw["definitions"])  # type: ignore[call-overload]
+    definitions = list(raw["definitions"])
     sensor = [
         d
         for d in definitions

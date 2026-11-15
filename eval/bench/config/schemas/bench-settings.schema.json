@@ -1,0 +1,597 @@
+{
+  "type": "object",
+  "properties": {
+    "bench.generation.max_concurrency": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1
+        },
+        "unit": {
+          "const": null
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.grader.max_concurrency": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4
+        },
+        "unit": {
+          "const": null
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.grader.call_timeout": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120
+        },
+        "unit": {
+          "const": "s"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.grader.max_retries": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "unit": {
+          "const": null
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.grader.backoff_initial": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "unit": {
+          "const": "s"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.grader.backoff_cap": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "unit": {
+          "const": "s"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.model.connect_timeout": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "unit": {
+          "const": "s"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.model.identity_retries": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "unit": {
+          "const": null
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.model.identity_retry_interval": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "unit": {
+          "const": "s"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.hub.start_timeout": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120
+        },
+        "unit": {
+          "const": "s"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.hub.call_timeout": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "unit": {
+          "const": "s"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.hub.max_retries": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "unit": {
+          "const": null
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.case.deadline": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 900
+        },
+        "unit": {
+          "const": "s"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.case.max_hub_calls": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        },
+        "unit": {
+          "const": null
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.case.max_events": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5000
+        },
+        "unit": {
+          "const": null
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.store.max_line_bytes": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        },
+        "unit": {
+          "const": "By"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.leak.max_file_bytes": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16777216
+        },
+        "unit": {
+          "const": "By"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.monitor.sample_interval": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1
+        },
+        "unit": {
+          "const": "s"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.scan.max_files": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20000
+        },
+        "unit": {
+          "const": null
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.fetch.timeout": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        },
+        "unit": {
+          "const": "s"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    },
+    "bench.hub.poll_interval": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "unit": {
+          "const": "ms"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "bench.generation.max_concurrency",
+    "bench.grader.max_concurrency",
+    "bench.grader.call_timeout",
+    "bench.grader.max_retries",
+    "bench.grader.backoff_initial",
+    "bench.grader.backoff_cap",
+    "bench.model.connect_timeout",
+    "bench.model.identity_retries",
+    "bench.model.identity_retry_interval",
+    "bench.hub.start_timeout",
+    "bench.hub.call_timeout",
+    "bench.hub.max_retries",
+    "bench.case.deadline",
+    "bench.case.max_hub_calls",
+    "bench.case.max_events",
+    "bench.store.max_line_bytes",
+    "bench.leak.max_file_bytes",
+    "bench.monitor.sample_interval",
+    "bench.scan.max_files",
+    "bench.fetch.timeout",
+    "bench.hub.poll_interval"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

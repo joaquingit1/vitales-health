@@ -1,0 +1,27 @@
+HealthBench source and numerical verification
+
+Catalog source: L02, openai/simple-evals.
+Repository: https://github.com/openai/simple-evals
+Commit: 652c89d0ca9df547706735883097e9537d40dc47
+Primary files: healthbench_eval.py, common.py, types.py,
+sampler/chat_completion_sampler.py. Original MIT license is retained.
+The original source bytes and their SHA-256 values are in vendor/SOURCE.json.
+The scorer is packaged without source edits because upstream has no wheel metadata.
+
+Dataset URLs, exact byte counts, example counts and measured SHA-256 values
+are recorded in vendor/SOURCE.json and healthbench-plan.json. The three files
+were independently fetched and their bytes reverified on 2026-11-15.
+Main: 5000 examples. Hard: 1000 examples. Consensus: 3671 examples.
+All records passed the generated boundary schema. Private local projections
+contain prompt_id and prompt only. No patient example or rubric is committed.
+
+Grader sampler values come from healthbench_eval.py physician_completions_main
+and ChatCompletionSampler.__init__ at the pinned commit: the selected model,
+system message, output token bound and sampler temperature are recorded in
+vendor/SOURCE.json and the versioned plan. A changed dataset, grader or harness
+is modified. It is never silently labeled official.
+
+NASA does not define this external benchmark or its scoring algorithm.
+The numerical protocol fixture checks positive and negative point arithmetic
+against a separately calculated one-third score. This verifies computation,
+not clinical correctness. It supplies no clinical golden expectation.

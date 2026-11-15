@@ -16,6 +16,7 @@ from hypothesis import strategies as st
 from crew_health.rules.domain import insight_bounds
 from crew_health.rules.domain.decisions import Clear, Raise, RejectInsight
 from crew_health.rules.domain.definitions import parse_rules_document
+from crew_health.rules.domain.errors import ActionNotAllowed
 from crew_health.rules.domain.inputs import (
     AssistantPolicy,
     EvidenceKey,
@@ -25,7 +26,7 @@ from crew_health.rules.domain.inputs import (
     RecordFacts,
 )
 from crew_health.rules.domain.vocabulary import ASSISTANT_LEVELS, ClearReason, Level, OriginMode, WarningState
-from crew_health.rules.domain.warning import ActionNotAllowed, PersonActor, dismiss
+from crew_health.rules.domain.warning import PersonActor, dismiss
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R40", "V10", "V65", "D17", "INV-E24-02", "INV-E24-03")]
 
@@ -121,7 +122,7 @@ def test_t061_a_pinned_act_proposal_is_rejected_and_a_clear_attempt_changes_noth
     (co2,) = world.by_definition("co2_above_limit")
     for level in (Level.ACT, Level.EMERGENCY):
         decision = world.feed(InsightInput(draft(level=level), facts((OBS, good())), policy_from_config()))
-        assert [type(s) for s in decision] == [RejectInsight] and decision[0].codes == ("level_not_allowed",)  # type: ignore[union-attr]
+        assert [type(s) for s in decision] == [RejectInsight] and decision[0].codes == ("level_not_allowed",)
     assert world.warnings[co2.warning_id] == co2
     assert not any(
         isinstance(s, Clear)
@@ -163,7 +164,7 @@ def test_an_insight_in_a_live_mission_never_raises_from_sim_or_replay_origin() -
     decision = world.feed(
         InsightInput(sim, facts((OBS, replace(good(), origin_mode=OriginMode.SIM))), policy_from_config())
     )
-    assert [type(s).__name__ for s in decision] == ["Refuse"] and decision[0].code == "origin_mismatch"  # type: ignore[union-attr]
+    assert [type(s).__name__ for s in decision] == ["Refuse"] and decision[0].code == "origin_mismatch"
     assert not world.warnings
 
 
@@ -194,7 +195,7 @@ def test_expiry_runs_on_elapsed_time_and_is_suspended_while_the_clock_is_regress
     )  # no clear while an evaluation is pending
     world.frozen = False
     decision = world.feed(InsightExpiredInput("ins_1", expires))
-    assert [type(s) for s in decision] == [Clear] and decision[0].reason is ClearReason.EXPIRED  # type: ignore[union-attr]
+    assert [type(s) for s in decision] == [Clear] and decision[0].reason is ClearReason.EXPIRED
     assert world.warnings[w.warning_id].state is WarningState.CLEARED
 
 

@@ -1,0 +1,155 @@
+{
+  "release_id": "protocol-release",
+  "created_at": "2026-11-14T00:00:00Z",
+  "prompt_version": "protocol",
+  "tool_catalog_version": "protocol",
+  "status": "candidate",
+  "mode": "live",
+  "model": {
+    "model_id": "protocol-model",
+    "hf_repo": "protocol",
+    "revision": "0000000000000000000000000000000000000000",
+    "license": "protocol",
+    "license_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "files": []
+  },
+  "weights": {
+    "file_name": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.gguf",
+    "weights_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "size_bytes": 1,
+    "quantization": "Q4_K_M",
+    "lineage": {
+      "source_files_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "bf16_gguf_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "equivalence_report_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "reproducibility_report_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "llama_cpp_commit": "0000000000000000000000000000000000000000"
+    }
+  },
+  "tokenizer_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "chat_template_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "thinking_mode": "on",
+  "tool_call_mode": "native",
+  "runtime": {
+    "engine": "llama.cpp",
+    "build": "protocol",
+    "commit": "0000000000000000000000000000000000000000",
+    "backend": "cpu",
+    "context_tokens": 1,
+    "kv_cache_type": "f16",
+    "parallel_slots": 1,
+    "threads": 1,
+    "gpu_layers": 0,
+    "load_timeout_seconds": 1,
+    "max_queued_turns": 1,
+    "max_preemptions": 0
+  },
+  "decoding": {
+    "temperature": 0,
+    "top_p": 1,
+    "top_k": 1,
+    "min_p": 0,
+    "seed": 1,
+    "max_tokens_by_phase": {
+      "intake": 1,
+      "assessment": 1,
+      "disposition": 1,
+      "help": 1,
+      "insight": 1,
+      "general": 1,
+      "verifier": 1
+    },
+    "reasoning_format": "deepseek"
+  },
+  "context_settings": {
+    "budget_tokens_by_phase": {
+      "intake": 1,
+      "assessment": 1,
+      "disposition": 1,
+      "help": 1,
+      "insight": 1,
+      "general": 1,
+      "verifier": 1
+    },
+    "section_order": [
+      "protocol"
+    ],
+    "transcript_max_messages": 1
+  },
+  "retrieval_settings": {
+    "k_lexical": 1,
+    "k_dense": 1,
+    "final_min": 1,
+    "final_max": 1,
+    "budget_tokens": 1,
+    "max_per_parent": 1,
+    "k_rrf": 1,
+    "rerank": false
+  },
+  "verifier": {
+    "claim_support_pass": true
+  },
+  "controller": {
+    "max_iterations": 1,
+    "max_tool_calls": 1
+  },
+  "embedding": {
+    "model_id": "protocol-embedding",
+    "revision": "0000000000000000000000000000000000000000",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "dims": 1
+  },
+  "evaluated_with": {
+    "evidence_release_id": "protocol",
+    "config_release_id": "protocol",
+    "turn_timeout_seconds": 1
+  },
+  "evaluation": {
+    "probe_report_ids": [],
+    "dev_report_ids": [],
+    "gate_run_ids": [],
+    "gate_sha256": null
+  },
+  "previous_release_id": null,
+  "basis": {
+    "/evaluated_with/turn_timeout_seconds": "team default: synthetic protocol fixture, no model claim",
+    "/decoding/max_tokens_by_phase/verifier": "team default: synthetic protocol fixture, no model claim",
+    "/decoding/max_tokens_by_phase/general": "team default: synthetic protocol fixture, no model claim",
+    "/decoding/max_tokens_by_phase/insight": "team default: synthetic protocol fixture, no model claim",
+    "/decoding/max_tokens_by_phase/help": "team default: synthetic protocol fixture, no model claim",
+    "/decoding/max_tokens_by_phase/disposition": "team default: synthetic protocol fixture, no model claim",
+    "/decoding/max_tokens_by_phase/assessment": "team default: synthetic protocol fixture, no model claim",
+    "/decoding/max_tokens_by_phase/intake": "team default: synthetic protocol fixture, no model claim",
+    "/decoding/seed": "team default: synthetic protocol fixture, no model claim",
+    "/decoding/min_p": "team default: synthetic protocol fixture, no model claim",
+    "/decoding/top_k": "team default: synthetic protocol fixture, no model claim",
+    "/decoding/top_p": "team default: synthetic protocol fixture, no model claim",
+    "/decoding/temperature": "team default: synthetic protocol fixture, no model claim",
+    "/runtime/max_preemptions": "team default: synthetic protocol fixture, no model claim",
+    "/runtime/max_queued_turns": "team default: synthetic protocol fixture, no model claim",
+    "/runtime/load_timeout_seconds": "team default: synthetic protocol fixture, no model claim",
+    "/runtime/gpu_layers": "team default: synthetic protocol fixture, no model claim",
+    "/runtime/threads": "team default: synthetic protocol fixture, no model claim",
+    "/runtime/parallel_slots": "team default: synthetic protocol fixture, no model claim",
+    "/runtime/context_tokens": "team default: synthetic protocol fixture, no model claim",
+    "/weights/size_bytes": "team default: synthetic protocol fixture, no model claim",
+    "/context_settings/budget_tokens_by_phase/intake": "team default: synthetic protocol fixture, no model claim",
+    "/context_settings/budget_tokens_by_phase/assessment": "team default: synthetic protocol fixture, no model claim",
+    "/context_settings/budget_tokens_by_phase/disposition": "team default: synthetic protocol fixture, no model claim",
+    "/context_settings/budget_tokens_by_phase/help": "team default: synthetic protocol fixture, no model claim",
+    "/context_settings/budget_tokens_by_phase/insight": "team default: synthetic protocol fixture, no model claim",
+    "/context_settings/budget_tokens_by_phase/general": "team default: synthetic protocol fixture, no model claim",
+    "/context_settings/budget_tokens_by_phase/verifier": "team default: synthetic protocol fixture, no model claim",
+    "/context_settings/transcript_max_messages": "team default: synthetic protocol fixture, no model claim",
+    "/retrieval_settings/k_lexical": "team default: synthetic protocol fixture, no model claim",
+    "/retrieval_settings/k_dense": "team default: synthetic protocol fixture, no model claim",
+    "/retrieval_settings/final_min": "team default: synthetic protocol fixture, no model claim",
+    "/retrieval_settings/final_max": "team default: synthetic protocol fixture, no model claim",
+    "/retrieval_settings/budget_tokens": "team default: synthetic protocol fixture, no model claim",
+    "/retrieval_settings/max_per_parent": "team default: synthetic protocol fixture, no model claim",
+    "/retrieval_settings/k_rrf": "team default: synthetic protocol fixture, no model claim",
+    "/controller/max_iterations": "team default: synthetic protocol fixture, no model claim",
+    "/controller/max_tool_calls": "team default: synthetic protocol fixture, no model claim",
+    "/embedding/dims": "team default: synthetic protocol fixture, no model claim"
+  }
+}

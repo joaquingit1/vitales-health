@@ -77,6 +77,9 @@ class LimitResult:
     window_start: datetime | None
     window_end: datetime | None
     reason: LimitReason
+    suspect_reason: str | None = (
+        None  # a suspect reading is in this window: it may raise, clear_holds is None
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -95,6 +98,7 @@ class Evaluation:
     faults: tuple[str, ...]
     conflict: bool
     unavailable_reason: str | None
+    suspect_reason: str | None = None  # rate_exceeded or stuck_value: the evaluation may raise, never clears
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,6 +113,9 @@ class EvaluationInput:
     window_advanced: bool
     clock_trusted: bool
     evaluated_at: datetime
+    suspects: tuple[
+        tuple[datetime, str], ...
+    ] = ()  # observation time and reason of each suspect reading kept
 
 
 def crosses(comparator: Comparator, value: Decimal, threshold: Decimal) -> bool:
@@ -360,8 +367,30 @@ def evaluate_limits(inp: EvaluationInput) -> Evaluation:
 
 
 def evaluate_channel(inp: EvaluationInput, plausibility: PlausibilityResult) -> Evaluation:
-    """Gate on plausibility (R-E23-2): without a passed check nothing is evaluated, raised or cleared."""
-    if not plausibility.evaluable:
+    """Gate on plausibility (R-E23-2). An impossible or unproved reading evaluates nothing. A suspect one (rate or
+    stuck) evaluates for raising only: every limit result loses its clear proof, so nothing clears or lowers."""
+    if not plausibility.raises:
         empty = _empty(inp, "insufficient_data", "untrusted")
         return replace(empty, unavailable_reason=plausibility.reason)
-    return evaluate_limits(inp)
+    evaluation = evaluate_limits(inp)
+    marks = tuple(sorted(inp.suspects))
+    results: list[LimitResult] = []
+    now = plausibility.reason if plausibility.suspect else None
+    for result in evaluation.results:
+        found = now if now is not None else _suspect_in(result, marks)
+        results.append(result if found is None else replace(result, clear_holds=None, suspect_reason=found))
+    reasons = [r.suspect_reason for r in results if r.suspect_reason is not None]
+    return replace(
+        evaluation, results=tuple(results), suspect_reason=now or (reasons[-1] if reasons else None)
+    )
+
+
+def _suspect_in(result: LimitResult, marks: Sequence[tuple[datetime, str]]) -> str | None:
+    """The reason of the newest suspect reading inside this result's window (start, end], else None. A suspect
+    reading stays in the evidence of every window that holds it, so none of them can prove a clear."""
+    end = result.window_end
+    if end is None:
+        return None
+    start = result.window_start
+    inside = [m for m in marks if m[0] <= end and (m[0] > start if start is not None else m[0] == end)]
+    return inside[-1][1] if inside else None

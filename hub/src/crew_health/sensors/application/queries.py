@@ -31,7 +31,7 @@ from crew_health.sensors.domain.evaluation import (
     no_reading_evaluation,
 )
 from crew_health.sensors.domain.freshness import FreshnessDecision, TimeFacts, decide_freshness
-from crew_health.sensors.domain.reading import round_wire
+from crew_health.sensors.domain.reading import QualityStatus, TimeState, round_wire
 
 
 def iso(value: datetime) -> str:
@@ -308,24 +308,25 @@ def _latest(
     state = next((c for c in channels if c.facts.channel_id == channel_id), None)
     if state is None:
         return None
-    records = [
-        r
-        for r in rt.store.readings_since(
-            view, channel_id, since=None, up_to_rev=None, limit=rt.limits.window_scan_max_readings
-        )
-        if r.quality_status != "rejected" and _after_activation(r, env)
-    ]
-    return (
-        None
-        if not records
-        else reading_model(max(records, key=lambda r: (r.observed_at, r.rev or 0)), state, config)
-    )
+    newest = rt.store.newest_readings(
+        view,
+        channel_id,
+        until=None,
+        statuses=_SHOWN,
+        time_states=_TIME_STATES,
+        limit=1,
+        activated_at=env.activated_at,
+    )  # the newest one: past any scan bound the card still shows the newest reading, never an old slice
+    return None if not newest else reading_model(newest[0], state, config)
 
 
-def _after_activation(record: ReadingRecord, env: EnvironmentRow) -> bool:
-    """DE23-13: only readings after activation belong to the active place (REPLAY by receive time)."""
-    basis = record.received_at if record.origin_mode == "REPLAY" else record.corrected_at
-    return basis is not None and basis >= env.activated_at
+_SHOWN: tuple[QualityStatus, ...] = ("accepted", "uncertain", "not_assessed")  # every status but rejected
+_TIME_STATES: tuple[TimeState, ...] = (
+    "known",
+    "unknown",
+    "future",
+    "replay",
+)  # the card's latest has no time filter
 
 
 def series_model(
@@ -348,20 +349,23 @@ def series_model(
     if status.channel_id is None:
         raise ProblemError(ErrorCode.NOT_FOUND, ErrorCode.NOT_FOUND.value)
     limit = rt.limits.series_max_points
-    records = [
-        r
-        for r in rt.store.readings_since(
-            view, status.channel_id.root, since=since, up_to_rev=None, limit=limit
-        )
-        if r.quality_status != "rejected"
-        and r.time_state in ("known", "replay")
-        and _after_activation(r, env)
-    ]
+    # Newest first up to `until`, filtered in SQL, so the bound counts only the readings this series would show:
+    # a rejected or pre-activation row can never hide an overflow and hand back an old slice (hard rule 5).
+    newest = rt.store.newest_readings(
+        view,
+        status.channel_id.root,
+        until=until,
+        statuses=_SHOWN,
+        time_states=("known", "replay"),
+        limit=limit + 1,
+        activated_at=env.activated_at,
+    )
+    records = [r for r in reversed(newest) if since is None or r.observed_at >= since]
     if len(records) > limit:
         raise ProblemError(ErrorCode.INVALID_VALUE, "series above sensors.series_max_points")
     spec = kind.aggregation(kind.display_aggregation_id)
     width = bucket_seconds or rt.limits.aggregate_bucket_s
-    chosen = [r for r in records if until is None or r.observed_at <= until]
+    chosen = records
     groups: dict[int, list[ReadingRecord]] = {}
     for record in chosen:
         groups.setdefault(bucket_index(record.observed_at, width), []).append(record)

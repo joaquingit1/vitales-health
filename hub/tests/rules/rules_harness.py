@@ -154,9 +154,9 @@ def limit_facts(docs: ReleaseDocuments) -> dict[str, LimitFacts]:
 
 
 def _limit_facts(docs: ReleaseDocuments) -> dict[str, LimitFacts]:
-    catalog = {t["id"]: t for t in docs.sensor_catalog["sensor_types"]}  # type: ignore[attr-defined,index]
+    catalog = {t["id"]: t for t in docs.sensor_catalog["sensor_types"]}  # type: ignore[attr-defined]
     facts: dict[str, LimitFacts] = {}
-    for entry in docs.sensor_limits["limits"]:  # type: ignore[attr-defined,index]
+    for entry in docs.sensor_limits["limits"]:  # type: ignore[attr-defined]
         value = entry["value"]
         facts[entry["limit_id"]] = LimitFacts(
             limit_id=entry["limit_id"],

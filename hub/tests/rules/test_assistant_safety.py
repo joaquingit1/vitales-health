@@ -12,6 +12,7 @@ T-E24-002, 003, 004, 005, 062; INV-E24-02, INV-E24-03; H1, H2.
 from __future__ import annotations
 
 import copy
+from collections.abc import Callable
 from dataclasses import replace
 from datetime import timedelta
 
@@ -137,12 +138,12 @@ def test_no_transition_accepts_the_assistant_at_any_level_or_kind(
     w = variant(level, raiser, scope, state)
     bot = AssistantActor("assistant_1")
     at = h.T0 + timedelta(minutes=5)
-    attempts = (
+    attempts: tuple[Callable[[], object], ...] = (
         lambda: acknowledge(w, bot, at),
         lambda: add_note(w, bot, at, "note", max_notes=10),
         lambda: resolve(w, bot, at, "reason", role="crew_medical_officer"),
         lambda: dismiss(w, bot, at, "reason"),
-        lambda: clear(w, bot, reason, at),  # type: ignore[arg-type]
+        lambda: clear(w, bot, reason, at),
     )
     for attempt in attempts:
         with pytest.raises(ActionNotAllowed):

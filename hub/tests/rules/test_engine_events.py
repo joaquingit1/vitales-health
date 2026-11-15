@@ -8,6 +8,7 @@ from __future__ import annotations
 import copy
 from collections.abc import Callable
 from datetime import timedelta
+from typing import Literal, cast
 
 import pytest
 import rules_harness as h
@@ -48,7 +49,7 @@ def at(minutes: int):  # type: ignore[no-untyped-def]
 
 def feed_at(world: h.World, minutes: int, event_id: str, event_type: str, **kw: object) -> tuple[object, ...]:
     world.now = at(minutes)
-    return world.feed(world.event(event_id, event_type, at(minutes), **kw))  # type: ignore[arg-type]
+    return cast(tuple[object, ...], world.feed(world.event(event_id, event_type, at(minutes), **kw)))
 
 
 def storm(world: h.World):  # type: ignore[no-untyped-def]
@@ -108,7 +109,7 @@ def test_t036_an_alert_whose_later_all_clear_is_already_recorded_raises_nothing(
     feed_at(world, 30, "evt_c", ALL_CLEAR)  # recorded first
     world.now = at(32)
     late = world.feed(world.event("evt_a_late", ALERT, at(0)))
-    assert [type(s) for s in late] == [Refuse] and late[0].code == "clear_later"  # type: ignore[union-attr]
+    assert [type(s) for s in late] == [Refuse] and late[0].code == "clear_later"
     assert storm(world) is None
 
 
@@ -121,7 +122,7 @@ def test_t037_redelivery_changes_nothing_while_active_and_never_resurrects_after
     feed_at(world, 30, "evt_c", ALL_CLEAR)
     assert feed_at(world, 31, "evt_c", ALL_CLEAR) == ()  # duplicate clear: nothing to resolve
     again = feed_at(world, 32, "evt_a", ALERT)  # the spent alert delivered again after the clear
-    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"  # type: ignore[union-attr]
+    assert [type(s) for s in again] == [Refuse] and cast(Refuse, again[0]).code == "trigger_spent"
     assert storm(world) is None
     feed_at(world, 40, "evt_new", ALERT)  # a new occurrence gets a new warning
     assert storm(world) is not None
@@ -227,7 +228,7 @@ def test_a_person_warning_is_refused_for_evidence_outside_the_persons_namespace(
     w = mars(make_world, deployment_doc)  # mission mode LIVE
     w.answer_events = (w.event("evt_land", "landing", at(-60)),)
     decision = w.feed(answer(w, "ans_1", 0, origin=origin))
-    assert [type(s) for s in decision] == [Refuse] and decision[0].code == "origin_mismatch"  # type: ignore[union-attr]
+    assert [type(s) for s in decision] == [Refuse] and decision[0].code == "origin_mismatch"
     assert not w.warnings
 
 
@@ -240,7 +241,7 @@ def test_a_resolved_answer_warning_is_spent_and_never_reraised_by_redelivery(
     (warning,) = w.by_definition("dizzy_after_landing")
     w.finish(warning.warning_id, WarningState.RESOLVED)
     redelivered = w.feed(answer(w, "ans_1", 1))
-    assert [type(s) for s in redelivered] == [Refuse] and redelivered[0].code == "trigger_spent"  # type: ignore[union-attr]
+    assert [type(s) for s in redelivered] == [Refuse] and redelivered[0].code == "trigger_spent"
     w.feed(answer(w, "ans_3", 2))  # a new answer raises a new warning
     assert w.by_definition("dizzy_after_landing")
 
@@ -308,7 +309,12 @@ def with_threshold(seconds: int | None) -> Callable[[dict[str, object]], None]:
 
 
 def link(
-    status: str, contact_minutes: int | None, observed: int, *, planned: bool = False, source: str = "adapter"
+    status: Literal["up", "delayed", "down"],
+    contact_minutes: int | None,
+    observed: int,
+    *,
+    planned: bool = False,
+    source: str = "adapter",
 ) -> GroundLinkInput:
     return GroundLinkInput(
         status,
@@ -317,7 +323,7 @@ def link(
         "station_leo",
         planned,
         at(observed),
-    )  # type: ignore[arg-type]
+    )
 
 
 @pytest.mark.trace("T-E24-086", "3.11")

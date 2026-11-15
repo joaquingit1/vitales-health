@@ -19,12 +19,12 @@ from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
 from crew_health.rules.domain.definitions import (
-    DefinitionInvalid,
     RulesDocument,
     definition_to_raw,
     parse_definition,
     parse_rules_document,
 )
+from crew_health.rules.domain.errors import DefinitionInvalid
 from crew_health.rules.domain.fingerprint import (
     ReleaseDocuments,
     content_hash,
@@ -60,7 +60,7 @@ def test_every_shipped_and_example_definition_is_schema_valid_and_parses() -> No
     for raw in (h.deployment_rules(), h.example_value("warning-rules")):
         assert validator().is_valid(raw)
         document = parse_rules_document(raw)
-        assert len(document.definitions) == len(raw["definitions"])  # type: ignore[arg-type]
+        assert len(document.definitions) == len(raw["definitions"])
 
 
 POOL: list[object] = [
@@ -168,7 +168,7 @@ def test_t013_a_content_edit_changes_the_content_hash_only(
     deployment_doc: RulesDocument, release_docs: ReleaseDocuments
 ) -> None:
     raw = copy.deepcopy(h.deployment_rules())
-    for d in raw["definitions"]:  # type: ignore[attr-defined]
+    for d in raw["definitions"]:
         d["content"]["title"] = d["content"]["title"] + " edited"
         d["content"]["source_ids"] = ["C25"]
     edited = parse_rules_document(raw)
@@ -184,7 +184,7 @@ def test_provenance_edits_never_change_the_rule_fingerprint(
     deployment_doc: RulesDocument, release_docs: ReleaseDocuments
 ) -> None:
     raw = copy.deepcopy(h.deployment_rules())
-    for d in raw["definitions"]:  # type: ignore[attr-defined]
+    for d in raw["definitions"]:
         d["clear"]["basis"] = "sourced" if d["clear"]["basis"] == "team default" else "team default"
         cond = d["condition"]
         for key in ("basis", "to_be_set_by"):
@@ -257,7 +257,10 @@ def test_catalog_stale_bound_aggregation_questionnaire_and_policy_dependencies(
             if rule_fingerprint(d, docs) != rule_fingerprint(d, release_docs)
         }
 
-    co2 = lambda d: next(t for t in d["sensor_types"] if t["id"] == "co2")  # noqa: E731
+    def co2(d: dict[str, Any]) -> dict[str, Any]:
+        found: dict[str, Any] = next(t for t in d["sensor_types"] if t["id"] == "co2")
+        return found
+
     assert {"co2_above_limit", "co2_week_high"} <= changed(
         "sensor_catalog", lambda d: co2(d).__setitem__("stale_after_seconds", 1)
     )
@@ -266,7 +269,11 @@ def test_catalog_stale_bound_aggregation_questionnaire_and_policy_dependencies(
     assert "co2_above_limit" in changed(
         "sensor_catalog", lambda d: co2(d)["aggregations"][1].__setitem__("window_seconds", 7200)
     )
-    question = lambda d: next(q for q in d["questions"] if q["id"] == "dizzy_standing")  # noqa: E731
+
+    def question(d: dict[str, Any]) -> dict[str, Any]:
+        found: dict[str, Any] = next(q for q in d["questions"] if q["id"] == "dizzy_standing")
+        return found
+
     assert changed(
         "questionnaires", lambda d: question(d)["choices"][0].__setitem__("presence", "unknown")
     ) == {"dizzy_after_landing"}
@@ -284,7 +291,7 @@ def test_catalog_stale_bound_aggregation_questionnaire_and_policy_dependencies(
 def test_fingerprints_do_not_depend_on_key_order(rng: random.Random) -> None:
     raw = h.deployment_rules()
     shuffled = copy.deepcopy(raw)
-    for d in shuffled["definitions"]:  # type: ignore[attr-defined]
+    for d in shuffled["definitions"]:
         for obj in (d, d["clear"], d["content"], d["condition"]):
             items = list(obj.items())
             rng.shuffle(items)

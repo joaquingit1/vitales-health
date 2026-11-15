@@ -14,7 +14,7 @@ import rules_harness as h
 
 from crew_health.contracts_gen.enums import ConfigName
 from crew_health.kernel.config import CandidateRelease, ConfigDocumentView
-from crew_health.kernel.storage import StatementResult
+from crew_health.kernel.storage import SqlValue, StatementResult
 from crew_health.kernel.testing import MemoryRelease
 from crew_health.rules.adapters.config_reader import WarningRulesCheck
 from crew_health.rules.application import codec, facts, input_codec
@@ -48,12 +48,14 @@ class Session:
         ).read_text(encoding="utf-8")
         self.db.executescript(sql)
 
-    def execute(self, sql: str, parameters: tuple[object, ...] = ()) -> StatementResult:
-        cursor = self.db.execute(sql, parameters)  # type: ignore[arg-type]
+    def execute(self, sql: str, parameters: tuple[SqlValue, ...] = ()) -> StatementResult:
+        cursor = self.db.execute(sql, parameters)
         return StatementResult(cursor.rowcount, cursor.lastrowid)
 
-    def rows(self, sql: str, parameters: tuple[object, ...], *, limit: int) -> tuple[tuple[object, ...], ...]:
-        return tuple(self.db.execute(sql, parameters).fetchmany(limit))  # type: ignore[arg-type]
+    def rows(
+        self, sql: str, parameters: tuple[SqlValue, ...], *, limit: int
+    ) -> tuple[tuple[SqlValue, ...], ...]:
+        return tuple(self.db.execute(sql, parameters).fetchmany(limit))
 
 
 def raised(sensor_reading: str = "rdg_1"):  # type: ignore[no-untyped-def]
@@ -112,10 +114,10 @@ def test_small_stores() -> None:
     occ = OccurrenceStore()
     args = dict(definition_id="d", scope_key="k", trigger_ref="e1", warning_id=warning.warning_id, kind="trigger",
                 occurred_at=T0, recorded_at=T0)  # fmt: skip
-    assert occ.record(c, **args) and not occ.record(c, **args)  # type: ignore[arg-type]
+    assert occ.record(c, **args) and not occ.record(c, **args)
     assert len(occ.for_warnings(c, [warning.warning_id], limit=5)[warning.warning_id]) == 1
     assert occ.resolve_before(c, warning.warning_id, T0 + timedelta(seconds=1), "clr") == 1
-    occ.record(c, **{**args, "trigger_ref": "c1", "kind": "clear", "warning_id": None})  # type: ignore[arg-type]
+    occ.record(c, **{**args, "trigger_ref": "c1", "kind": "clear", "warning_id": None})
     assert occ.latest_clears(c, limit=5) == {("d", "k"): T0}
     dwell = DwellStore()
     marker = DwellMarker(warning.warning_id, "ch", "fp", T0, T0, "seg")

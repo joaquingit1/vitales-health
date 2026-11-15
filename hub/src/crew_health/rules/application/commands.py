@@ -94,12 +94,16 @@ class WarningActions:
     ) -> tuple[dict[str, object], int]:
         stored = self.rt.results.get(uow.connection, identity.actor_ref, identity.key)
         window = timedelta(hours=self.rt.settings.integer("rules.action_replay_hours"))
-        if stored is not None and uow.now - stored[2] <= window:
-            body = json.loads(stored[1])
-            return body, int(body["revision"])
         w = self.rt.warnings.get(uow.connection, warning_id)
+        visible = w is not None and can_see(w, viewer_of(session)).full
+        # The cache holds only the revision (AGENTS 6: no private text): an unchanged warning is re-projected under
+        # the current grant; a later revision gets the accepted-command receipt instead.
+        if stored is not None and uow.now - stored[2] <= window and w is not None and visible:
+            revision = int(json.loads(stored[1])["revision"])
+            if w.revision == revision:
+                return project(self.rt, uow, self.rt.facts(uow), w, session), revision
         state = None
-        if w is not None and can_see(w, viewer_of(session)).full:
+        if w is not None and visible:
             state = project(self.rt, uow, self.rt.facts(uow), w, session)
         raise ProblemError(
             ErrorCode.DUPLICATE_COMMAND, ErrorCode.DUPLICATE_COMMAND.value, current_state=state
@@ -144,8 +148,10 @@ class WarningActions:
             emit(uow, EventType.WARNING_UPDATED, done)
             note_audit(rt, uow, "warning.updated", {"warning": done.warning_id}, {})
         body = project(rt, uow, rt.facts(uow), done, session)
-        text = json.dumps(body, sort_keys=True)
-        rt.results.put(c, identity.actor_ref, identity.key, done.warning_id, text, uow.now)
+        reference = json.dumps(
+            {"revision": done.revision}, sort_keys=True
+        )  # a reference, never the projection
+        rt.results.put(c, identity.actor_ref, identity.key, done.warning_id, reference, uow.now)
         receipt = self.platform.receipts.accepted(uow, identity)
         self.platform.ledger.record(
             uow, identity,

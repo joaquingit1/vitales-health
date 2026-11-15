@@ -17,8 +17,8 @@ from e24_station import build, post, seconds, wobble
 
 from crew_health.kernel.errors import StorageUnavailable
 from crew_health.kernel.scheduler import HealthState
-from crew_health.rules.application import core
 from crew_health.rules.application.ports import AssistantContext, AssistantWarningGuard
+from crew_health.rules.domain import engine
 
 pytestmark = pytest.mark.E24
 
@@ -139,7 +139,7 @@ def test_evaluator_fault_keeps_the_reading_and_freezes_clears(
     def broken(*args: object, **kwargs: object) -> object:
         raise RuntimeError("injected evaluator fault")
 
-    monkeypatch.setattr(core.engine, "evaluate", broken)
+    monkeypatch.setattr(engine, "evaluate", broken)
     st.advance(seconds=3600)
     feed(st, 2.0, 721)  # every reading is accepted although the evaluator is down
     assert table(st, "SELECT count(*) FROM sensors_reading")[0][0] == 1440
@@ -160,7 +160,7 @@ def test_storage_fault_commits_nothing_and_is_never_converted(
     def full(*args: object, **kwargs: object) -> object:
         raise StorageUnavailable("disk_full")
 
-    monkeypatch.setattr(core.engine, "evaluate", full)
+    monkeypatch.setattr(engine, "evaluate", full)
     rows = _rows(st, 4.0, 1, 200)
     sent = post(st, rows, "f1")
     assert sent.status_code == 500 and sent.json()["retryable"] is True
@@ -175,10 +175,10 @@ def test_the_assistant_cannot_raise_act_or_touch_a_warning(patched: None, tmp_pa
     wid = table(st, "SELECT warning_id FROM rules_warning WHERE definition_id = 'co2_above_limit'")[0][0]
     ctx = AssistantContext("assistant_stub", "per_a")
     with st.begin() as uow:
-        assert guard.propose_level(uow, ctx, "act", "sleep_reaction").code == "LEVEL_NOT_ALLOWED"  # type: ignore[union-attr]
-        assert guard.propose_level(uow, ctx, "emergency", None).code == "LEVEL_NOT_ALLOWED"  # type: ignore[union-attr]
+        assert guard.propose_level(uow, ctx, "act", "sleep_reaction").code == "LEVEL_NOT_ALLOWED"
+        assert guard.propose_level(uow, ctx, "emergency", None).code == "LEVEL_NOT_ALLOWED"
         assert guard.propose_action(uow, ctx, wid, "clear").code == "ACTION_NOT_ALLOWED"
-        assert guard.propose_level(uow, ctx, "watch", "sleep_reaction").level == "watch"  # type: ignore[union-attr]
+        assert guard.propose_level(uow, ctx, "watch", "sleep_reaction").level == "watch"
     assert table(st, f"SELECT revision, state FROM rules_warning WHERE warning_id = '{wid}'") == [
         (1, "raised")
     ]

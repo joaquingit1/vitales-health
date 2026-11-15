@@ -32,8 +32,7 @@ from test_station_co2 import feed, station
 from test_storm_occurrences_served import record
 
 from crew_health.kernel.scheduler import HealthState
-from crew_health.rules.application import core
-from crew_health.rules.domain import clear_evidence
+from crew_health.rules.domain import clear_evidence, engine
 from crew_health.rules.domain.clear_evidence import Eligibility
 from crew_health.rules.domain.decisions import Clear
 from crew_health.rules.domain.definitions import parse_rules_document
@@ -206,7 +205,7 @@ def test_path6_an_evaluator_fault_keeps_capture_survives_restart_and_never_clear
     def broken(*args: object, **kwargs: object) -> object:
         raise RuntimeError("injected evaluator fault")
 
-    monkeypatch.setattr(core.engine, "evaluate", broken)  # primary removed
+    monkeypatch.setattr(engine, "evaluate", broken)  # primary removed
     st.advance(seconds=3600)
     feed(st, 2.0, 721)  # safe-side readings that would count toward clearing if evaluated
     assert _rows(st, "SELECT count(*) FROM sensors_reading")[0][0] == 1440  # fail safe: every record kept

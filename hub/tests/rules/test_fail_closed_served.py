@@ -23,7 +23,7 @@ import sqlite3
 from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import e23_station as base
 import pytest
@@ -91,6 +91,10 @@ def test_unknown_or_untrusted_time_never_clears_on_the_served_hub(
     st = station(tmp_path)
     rt, inp = _captured(st, monkeypatch)
     before = _co2(st)
+    clock_states: dict[str, Literal["trusted", "uncertain", "unknown"]] = {
+        "clock_uncertain": "uncertain",
+        "clock_unknown": "unknown",
+    }
     for n in range(30):  # 30 minutes of "clear holds", three times the pinned 600 s dwell
         st.advance(seconds=60)
         observed = inp.observed
@@ -100,7 +104,7 @@ def test_unknown_or_untrusted_time_never_clears_on_the_served_hub(
         step = replace(
             inp, observed=replace(observed, normalized=normalized), results=_holding(inp),
             reading_id=f"rdg_broken_{n}", receive_reference=None,
-            clock_state={"clock_uncertain": "uncertain", "clock_unknown": "unknown"}.get(broken, "trusted"),
+            clock_state=clock_states.get(broken, "trusted"),
         )  # fmt: skip
         with st.begin() as uow:
             core.run_input(rt, uow, step)

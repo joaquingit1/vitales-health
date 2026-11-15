@@ -12,7 +12,7 @@ from typing import Any
 
 import e23_station as base
 import pytest
-from e24_station import build, post, seconds
+from e24_station import build, co2_act_hour
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -31,7 +31,10 @@ from crew_health.rules.api.router import RulesApi, build_router
 from crew_health.rules.application import commands, core, handlers
 from crew_health.rules.application.ports import WarningCommands, WarningQueries
 from crew_health.rules.application.presentation import WarningPresentation
+from crew_health.rules.application.stores import WarningStore
+from crew_health.rules.domain import engine
 from crew_health.rules.domain.errors import InvariantViolation, NotVisible
+from crew_health.rules.domain.vocabulary import WarningAction
 
 pytestmark = pytest.mark.E24
 
@@ -45,7 +48,7 @@ def rows(st: base.Station, sql: str) -> list[tuple[Any, ...]]:
 
 
 def station(tmp: Path, environment: str = "station_leo") -> base.Station:
-    st = build(tmp, registry={"channels": [base.channel("ch_o2", "o2", "oxygen", "SIM", "mmHg")]})
+    st = build(tmp, registry={"channels": [base.channel("ch_co2", "co2", "co2", "SIM", "mmHg")]})
     st.initialize("SIM", environment)
     st.advance(seconds=3600)
     return st
@@ -54,7 +57,7 @@ def station(tmp: Path, environment: str = "station_leo") -> base.Station:
 def publish(st: base.Station, *events: object) -> None:
     with st.begin() as uow:
         for event in events:
-            uow.publish(event)  # type: ignore[arg-type]
+            uow.publish(event)
 
 
 def storm(st: base.Station) -> MissionEventRecorded:
@@ -93,14 +96,14 @@ def warning_id(st: base.Station, definition: str) -> str:
 def test_the_query_ports_answer_what_consumers_need_and_nothing_more(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     publish(st, storm(st))
-    assert post(st, [base.reading("ch_o2", 1, 400.0, "mmHg", seconds(st, 5))], "o2").status_code == 200
+    co2_act_hour(st, "co2")
     queries = st.resolver().require(WarningQueries)
     crew = st.security.tokens["crew_a"]
-    storm_id, oxygen_id = warning_id(st, "radiation_storm_shelter"), warning_id(st, "oxygen_high_act")
+    storm_id, sensor_id = warning_id(st, "radiation_storm_shelter"), warning_id(st, "co2_above_limit")
     assert queries.visible(crew, storm_id) and not queries.visible(crew, "wrn_none")
     assert queries.count_active_visible(crew) == 2
     shared = queries.active_shared_at_or_above("act")
-    assert {w.warning_id for w in shared} == {storm_id, oxygen_id}
+    assert {w.warning_id for w in shared} == {storm_id, sensor_id}
     assert [w.level for w in queries.active_shared_at_or_above("emergency")] == ["emergency"]
     help_queries = st.resolver().require(help_ports.WarningQueries)
     assert help_queries.visible(crew, storm_id) and not help_queries.visible(crew, "wrn_none")
@@ -184,7 +187,7 @@ def test_recovery_with_no_rows_marks_the_engine_healthy_and_a_storage_fault_is_n
     rt = runtime(st)
     with st.begin(Actor("engine", "scheduler")) as uow:
         handlers.recover_pending(rt, uow, job(core.RECOVER_HANDLER))  # nothing to recover: no error
-    monkeypatch.setattr(core.engine, "evaluate", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("down")))
+    monkeypatch.setattr(engine, "evaluate", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("down")))
     publish(st, storm(st))
     assert rows(st, "SELECT count(*) FROM rules_pending") == [(1,)]
     monkeypatch.undo()
@@ -233,9 +236,7 @@ def test_a_concurrent_revision_move_is_a_stale_version_and_never_a_lost_update(
     st = station(tmp_path)
     publish(st, storm(st))
     wid = warning_id(st, "radiation_storm_shelter")
-    monkeypatch.setattr(
-        core.WarningStore, "update", lambda *a, **k: False
-    )  # another writer moved the revision
+    monkeypatch.setattr(WarningStore, "update", lambda *a, **k: False)  # another writer moved the revision
     sent = st.client.post(
         f"/v1/warnings/{wid}/actions",
         content=b'{"action":"acknowledge"}',
@@ -271,7 +272,7 @@ def test_an_action_by_someone_other_than_the_signed_in_actor_is_refused(
         key="k_mismatch", actor_ref="per_b", operation="actOnWarning", target=f"/v1/warnings/{wid}/actions",
         parameters_json=b"{}", body_fingerprint="0" * 64, fingerprint_kind="sha256",
     )  # fmt: skip
-    body = commands.ActBody(commands.WarningAction.ACKNOWLEDGE, None, None)
+    body = commands.ActBody(WarningAction.ACKNOWLEDGE, None, None)
     with pytest.raises(ProblemError) as caught:
         actions.act(session, wid, body, identity, if_match=1, config_release=None)
     assert caught.value.code is ErrorCode.UNAUTHORIZED_SCOPE

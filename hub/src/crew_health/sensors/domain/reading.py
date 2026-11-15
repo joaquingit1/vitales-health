@@ -86,6 +86,7 @@ class ReadingFact:
     quality_status: QualityStatus
     origin_mode: Origin
     segment_id: str | None
+    suspect_reason: str | None = None  # rate_exceeded or stuck_value: kept, may raise, never clears
 
     def __post_init__(self) -> None:
         require_finite(self.value)

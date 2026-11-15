@@ -4,13 +4,17 @@ ProvenanceStreamsPort. Reads only; each is bound to the caller's view, and a cal
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import replace
 from datetime import datetime
 
 from crew_health.kernel.units import Quantity, Unit
 from crew_health.kernel.uow import ReadSnapshot, ReadSnapshotFactory, UnitOfWork
+from crew_health.sensors.application.evaluate import SensorEvaluator
+from crew_health.sensors.application.exports import sensor_evaluated
 from crew_health.sensors.application.ports import (
     Freshness,
     HabitatStream,
+    SensorEvaluated,
     SeriesPoint,
     SeriesSlice,
 )
@@ -38,6 +42,25 @@ class SensorProviders:
             raise InvalidValue("unknown sensor type")
         return kind.name
 
+    def last_results(self, uow: UnitOfWork, channel_id: str) -> SensorEvaluated | None:
+        """The channel's newest evaluation, computed from its stored readings under the release now active, so a
+        consumer can re-evaluate after a configuration activation without a new reading. None when the channel
+        has no evaluated reading in the active environment. Freshness is the decision at this unit of work's now."""
+        rt = self._rt
+        channel = rt.store.channel(uow, channel_id)
+        if channel is None:
+            raise InvalidValue("unknown channel")
+        environment = rt.store.environment(uow)
+        current = SensorEvaluator(rt).current(uow, channel)
+        if environment is None or current is None:
+            return None
+        evaluation, kind = current
+        now = decide_now(uow, channel, environment).state
+        fresh = replace(channel, freshness=now if now != "never_reported" else channel.freshness)
+        return sensor_evaluated(
+            rt, uow, rt.config_of(uow.release), kind, fresh, evaluation, uow.release.release_id
+        )
+
     def accepted(self, channel_id: str, *, until: datetime, limit: int) -> SeriesSlice:
         rt = self._rt
         if not 1 <= limit <= rt.limits.series_max_points:
@@ -49,17 +72,16 @@ class SensorProviders:
             kind = rt.config_of(view.release).sensor_type(channel.facts.sensor_type_id)
             if kind is None:
                 raise InvalidValue("unknown sensor type")
-            records = [
-                r
-                for r in rt.store.readings_since(
-                    view, channel_id, since=None, up_to_rev=None, limit=rt.limits.window_scan_max_readings
-                )
-                if r.quality_status == "accepted"
-                and r.time_state in ("known", "replay")
-                and r.observed_at <= until
-            ]
-        records.sort(key=lambda r: (r.observed_at, r.rev or 0))
-        chosen = records[-limit:]
+            newest = rt.store.newest_readings(
+                view,
+                channel_id,
+                until=until,
+                statuses=("accepted",),
+                time_states=("known", "replay"),
+                limit=limit + 1,
+            )  # the newest window, so trends never read a frozen old slice; one more row tells truncation
+        chosen = list(reversed(newest[:limit]))  # ascending for consumers
+        records = newest
         points = tuple(
             SeriesPoint(
                 r.observed_at, Quantity(r.canonical, Unit(kind.unit)), r.quality_status, r.origin_mode

@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from crew_health.contracts_gen.enums import ErrorCode
+from crew_health.contracts_gen.enums import ErrorCode, Role
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.uow import ReadSnapshot, ReadSnapshotFactory, SessionContext, UnitOfWork
 from crew_health.rules.application.core import Runtime
@@ -41,9 +41,20 @@ def actor_of(session: SessionContext) -> Actor:
     return SessionActor(session.kind, session.actor.id)
 
 
+def authority_of(session: SessionContext, actor: Actor) -> actions.Authority:
+    """D21: the crew medical officer resolves a warning whose definition was edited or withdrawn. The role comes
+    from the authenticated session's grants (E02), only for a person acting in their own crew session; the
+    assistant and every other session kind hold no authority."""
+    if isinstance(actor, PersonActor) and Role.CREW_MEDICAL_OFFICER in session.roles:
+        return "crew_medical_officer"
+    return "none"
+
+
 def requester_of(session: SessionContext, w: Warning) -> actions.Requester:
     actor = actor_of(session)
-    return actions.Requester(viewer_of(session), actor, "none", None, isinstance(actor, PersonActor))
+    return actions.Requester(
+        viewer_of(session), actor, authority_of(session, actor), None, isinstance(actor, PersonActor)
+    )
 
 
 def served(w: Warning) -> guidance.ServedSteps:

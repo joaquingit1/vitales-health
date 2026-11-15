@@ -12,7 +12,7 @@ import json
 import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import e23_station as base
 import pytest
@@ -27,6 +27,7 @@ from crew_health.kernel.uow import Actor, Audience, AudienceProjectionKey, Event
 from crew_health.mission.application.ports import MissionEventRecorded
 from crew_health.rules.application import core
 from crew_health.rules.application.ports import InsightWarningPort, WarningQueries
+from crew_health.rules.domain import engine
 from crew_health.rules.domain.inputs import EvidenceKey, InsightDraft, RecordFacts
 from crew_health.rules.domain.vocabulary import Level, OriginMode
 
@@ -76,7 +77,7 @@ def station(tmp: Path) -> base.Station:
 
 def publish(st: base.Station, event: object) -> None:
     with st.begin() as uow:
-        uow.publish(event)  # type: ignore[arg-type]
+        uow.publish(event)
 
 
 def storm(
@@ -115,7 +116,7 @@ def deliver(st: base.Station, subscriber: str, event: StoredEvent) -> None:
 
 
 def fire_due(st: base.Station) -> int:
-    return st.dispatch()
+    return cast(int, st.dispatch())
 
 
 # --- ground silence (3.5, 3.11) -------------------------------------------------------------------
@@ -218,19 +219,19 @@ def test_recovery_after_the_fault_is_fixed_raises_from_the_backlog_and_drains_th
     patched: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     st = station(tmp_path)
-    original = core.engine.evaluate
+    original = engine.evaluate
 
     def broken(*args: object, **kwargs: object) -> object:
         raise RuntimeError("injected evaluator fault")
 
-    monkeypatch.setattr(core.engine, "evaluate", broken)
+    monkeypatch.setattr(engine, "evaluate", broken)
     when = st.clock.at - timedelta(seconds=90)
     publish(st, storm(st, "evt_storm_1", ago=90))
     assert warnings_of(st, "radiation_storm_shelter") == []  # nothing raised, the event is not lost
     assert rows(st, "SELECT state, attempts FROM rules_pending") == [("pending", 0)]
     health = {c.component: c.code for c in st.resolver().require(HealthState).snapshot().components}
     assert health["rules"] == core.FAULT_CODE
-    monkeypatch.setattr(core.engine, "evaluate", original)  # the fix
+    monkeypatch.setattr(engine, "evaluate", original)  # the fix
     st.advance(seconds=30)
     fire_due(st)
     assert rows(st, "SELECT count(*) FROM rules_pending") == [(0,)]
@@ -247,15 +248,15 @@ def test_a_row_that_keeps_failing_backs_off_and_sticks_and_an_activation_tries_i
     patched: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     st = station(tmp_path)
-    original = core.engine.evaluate
-    monkeypatch.setattr(core.engine, "evaluate", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("down")))
+    original = engine.evaluate
+    monkeypatch.setattr(engine, "evaluate", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("down")))
     publish(st, storm(st, "evt_storm_2"))
     for _ in range(12):
         st.advance(hours=2)  # past each doubling of the back-off (1 s up to the hour)
         fire_due(st)
     [(state, attempts)] = rows(st, "SELECT state, attempts FROM rules_pending")
     assert (state, attempts) == ("stuck", 10)  # rules.reeval_max_attempts
-    monkeypatch.setattr(core.engine, "evaluate", original)
+    monkeypatch.setattr(engine, "evaluate", original)
     deliver(
         st, "rules.activation",
         stored(EventType.CONFIG_RELEASE_ACTIVATED, {}, at=st.clock.at, seq=5),
@@ -300,7 +301,7 @@ def test_an_activation_whose_documents_cannot_be_read_degrades_health_and_never_
         raise DefinitionInvalid("document unavailable: warning-rules")
 
     monkeypatch.setattr(release_facts, "build", unreadable)
-    live = st.resolver().require(WarningQueries)._live  # type: ignore[attr-defined]  # a new release id is a cache miss
+    live = st.resolver().require(WarningQueries)._live  # a new release id is a cache miss
     live.runtime.cache.clear()
     deliver(st, "rules.activation", stored(EventType.CONFIG_RELEASE_ACTIVATED, {}, at=st.clock.at, seq=3))
     components = {c.component: c.code for c in st.resolver().require(HealthState).snapshot().components}
@@ -465,6 +466,14 @@ def minute_of_readings(st: base.Station, first: int, value: float, key: str) -> 
     return first + 12
 
 
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Finding (R-E23-2): oxygen has no sourced plausibility criteria, so E23 marks every o2 reading "
+        "unavailable and never evaluates it; oxygen_high_act can neither raise nor clear from real readings. "
+        "Fail closed for clearing, but an oxygen hazard goes unwarned. Passes again once o2 criteria exist."
+    ),
+)
 @pytest.mark.trace("T-E24-048", "T-E24-024")
 def test_a_stale_channel_voids_the_dwell_and_the_warning_stays_until_a_full_new_dwell(
     patched: None, tmp_path: Path

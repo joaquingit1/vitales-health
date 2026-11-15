@@ -1,6 +1,6 @@
 """E24 surface on a real station: the HTTP operations, hold and attention, replicas and the operator console.
 
-Warnings are raised the way their producers raise them: a mission event, an accepted answer and one oxygen reading
+Warnings are raised the way their producers raise them: a mission event, an accepted answer and an hour of CO2 readings
 published or posted into the real hub. Nothing here constructs a warning by hand.
 """
 
@@ -12,11 +12,11 @@ import sqlite3
 from collections.abc import Sequence
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import e23_station as base
 import pytest
-from e24_station import build, post, seconds
+from e24_station import build, co2_act_hour
 
 from crew_health.app.cli import main as hub_main
 from crew_health.contracts_gen.enums import ErrorCode
@@ -34,6 +34,7 @@ from crew_health.rules.application import core
 from crew_health.rules.application.presentation import Presenter
 from crew_health.rules.application.replication import ReplicatedWarning, apply_replica
 from crew_health.rules.application.stores import PendingStore
+from crew_health.rules.domain import engine
 from crew_health.rules.domain.errors import InvariantViolation
 
 pytestmark = pytest.mark.E24
@@ -48,7 +49,7 @@ def rows(st: base.Station, sql: str) -> list[tuple[Any, ...]]:
 
 
 def lunar(tmp: Path, environment: str = "lunar_surface") -> base.Station:
-    st = build(tmp, registry={"channels": [base.channel("ch_o2", "o2", "oxygen", "SIM", "mmHg")]})
+    st = build(tmp, registry={"channels": [base.channel("ch_co2", "co2", "co2", "SIM", "mmHg")]})
     st.initialize("SIM", environment)
     st.advance(seconds=3600)
     return st
@@ -57,7 +58,7 @@ def lunar(tmp: Path, environment: str = "lunar_surface") -> base.Station:
 def publish(st: base.Station, *events: object) -> None:
     with st.begin() as uow:
         for event in events:
-            uow.publish(event)  # type: ignore[arg-type]
+            uow.publish(event)
 
 
 def landing(st: base.Station) -> MissionEventRecorded:
@@ -86,9 +87,9 @@ def storm(st: base.Station, environment: str = "lunar_surface") -> MissionEventR
     )
 
 
-def oxygen_high(st: base.Station) -> None:
-    sent = post(st, [base.reading("ch_o2", 1, 400.0, "mmHg", seconds(st, 5))], "o2_1")
-    assert sent.status_code == 200, sent.text
+def sensor_act(st: base.Station) -> None:
+    """A sensor act warning (CO2, the one type E23 can verify under R-E23-2; the oxygen original is a finding)."""
+    co2_act_hour(st, "co2_1")
 
 
 def one(st: base.Station, definition: str) -> dict[str, Any]:
@@ -185,12 +186,12 @@ def test_listing_pages_filters_and_malformed_queries(patched: None, tmp_path: Pa
 
 
 @pytest.mark.trace("T-E24-050")
-def test_an_oxygen_reading_raises_an_act_warning_that_the_station_never_acts_on(
+def test_a_sensor_reading_raises_an_act_warning_that_the_station_never_acts_on(
     patched: None, tmp_path: Path
 ) -> None:
     st = lunar(tmp_path, "station_leo")
-    oxygen_high(st)
-    w = one(st, "oxygen_high_act")
+    sensor_act(st)
+    w = one(st, "co2_above_limit")
     assert (w["level"], w["state"], w["scope"]) == ("act", "raised", "habitat")
     refused = act(st, "operator", w["warning_id"], {"action": "acknowledge"}, "o1", **{"If-Match": '"1"'})
     assert refused.status_code == 403 and refused.json()["code"] == "UNAUTHORIZED_SCOPE"
@@ -233,7 +234,7 @@ def sleep_from(start: datetime, person: str = "per_a") -> OverlayFact:
 
 
 def session(st: base.Station, who: str) -> SessionContext:
-    return st.security.tokens[who]
+    return cast(SessionContext, st.security.tokens[who])
 
 
 @pytest.mark.trace("T-E24-080", "T-E24-081", "T-E24-099")
@@ -243,10 +244,10 @@ def test_a_sleeper_holds_the_act_warning_but_the_storm_still_interrupts_and_the_
     st = lunar(tmp_path, "station_leo")
     started = st.clock.at - timedelta(hours=1)
     publish(st, storm(st, "station_leo"))
-    oxygen_high(st)
+    sensor_act(st)
     asleep = presenter(st, Overlays([sleep_from(started)]))
     shown = asleep.for_session(session(st, "crew_a"))
-    act_id = one(st, "oxygen_high_act")["warning_id"]
+    act_id = one(st, "co2_above_limit")["warning_id"]
     storm_id = one(st, "radiation_storm_shelter")["warning_id"]
     assert set(shown.held) == {act_id}  # emergency is never held
     assert shown.attention[storm_id].interrupt and shown.attention[storm_id].order == 0
@@ -265,7 +266,7 @@ def test_too_many_overlays_hold_nothing_and_other_faults_are_not_hidden(
     patched: None, tmp_path: Path
 ) -> None:
     st = lunar(tmp_path, "station_leo")
-    oxygen_high(st)
+    sensor_act(st)
     big = ProblemError(ErrorCode.PAYLOAD_TOO_LARGE, "overlay rows above the bound")
     assert presenter(st, Overlays(big)).for_session(session(st, "crew_a")).held == {}
     with pytest.raises(ProblemError):
@@ -279,8 +280,8 @@ def test_acknowledging_removes_the_act_warning_from_this_persons_banner_only(
     patched: None, tmp_path: Path
 ) -> None:
     st = lunar(tmp_path, "station_leo")
-    oxygen_high(st)
-    wid = one(st, "oxygen_high_act")["warning_id"]
+    sensor_act(st)
+    wid = one(st, "co2_above_limit")["warning_id"]
     assert act(st, "crew_a", wid, {"action": "acknowledge"}, "a1", **{"If-Match": '"1"'}).status_code == 200
     quiet = presenter(st, None)
     assert quiet.for_session(session(st, "crew_a")).banner == ()
@@ -296,7 +297,7 @@ def test_a_replica_is_listed_with_its_origin_and_age_and_never_touched_by_the_en
     patched: None, tmp_path: Path
 ) -> None:
     st = lunar(tmp_path, "station_leo")
-    oxygen_high(st)
+    sensor_act(st)
     local_before = rows(st, "SELECT warning_id, state, revision FROM rules_warning")
     rt = core.Runtime(
         settings=st.db.settings,
@@ -343,7 +344,7 @@ def console(who: str = "operator_sim") -> tuple[rules_cli.Console, io.StringIO, 
 
 
 def fault_a_storm(st: base.Station, monkeypatch: pytest.MonkeyPatch) -> str:
-    monkeypatch.setattr(core.engine, "evaluate", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("down")))
+    monkeypatch.setattr(engine, "evaluate", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("down")))
     publish(st, storm(st))
     return str(rows(st, "SELECT pending_id FROM rules_pending")[0][0])
 

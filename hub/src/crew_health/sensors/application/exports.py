@@ -37,6 +37,7 @@ def _outcomes(
                 "" if r.value is None else format_value(r.value, kind.decimals, kind.trim_trailing_zeros),
                 kind.unit_display,
                 "" if limit.value is None else format_value(limit.value, kind.decimals, kind.trim_trailing_zeros),
+                r.suspect_reason,
             )
         )  # fmt: skip
     return tuple(found)
@@ -79,6 +80,7 @@ def sensor_evaluated(
         "stale" if channel.freshness == "stale" else "current", f.stale_after_seconds,
         _outcomes(config, kind, evaluation), kind.name, f.location_label, f.source_label,
         None if channel.last_received_at is None else f"{channel.last_received_at:%H:%M}", f.dataset,
+        evaluation.suspect_reason,
     )  # fmt: skip
 
 
