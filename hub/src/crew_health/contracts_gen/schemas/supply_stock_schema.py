@@ -16,7 +16,7 @@ class QuantityNow(RootModel[float]):
 
 class SupplyStock(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     name: str = Field(..., min_length=1)

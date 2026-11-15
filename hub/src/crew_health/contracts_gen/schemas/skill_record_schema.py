@@ -18,7 +18,7 @@ class LastPracticedLabel(RootModel[str]):
 
 class SkillRecord(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person: common_schema.PersonRef
     skill_id: common_schema.ConfigId
@@ -26,13 +26,11 @@ class SkillRecord(BaseModel):
     trained_at: common_schema.Instant | None
     last_practiced_at: common_schema.Instant | None
     last_practiced_label: LastPracticedLabel | None
-    source: Literal['preflight', 'drill', 'event'] | None
+    source: Literal["preflight", "drill", "event"] | None
     source_ref_id: common_schema.Id | None
     origin_mode: common_schema.OriginMode
-    freshness: Literal['fresh', 'due', 'stale', 'never']
-    freshness_text: str = Field(
-        ..., description='ui-copy freshness_words.', min_length=1
-    )
+    freshness: Literal["fresh", "due", "stale", "never"]
+    freshness_text: str = Field(..., description="ui-copy freshness_words.", min_length=1)
     freshness_basis: common_schema.Basis
     freshness_to_be_set_by: common_schema.ToBeSetBy | None
     due_at: common_schema.Instant | None

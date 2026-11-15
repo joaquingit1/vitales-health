@@ -69,6 +69,8 @@ class Wire:
     content_type: str = "text/event-stream"
     seen: dict[str, object] | None = None
     disconnected: threading.Event | None = None
+    startup_delay: float = 0
+    stream_started: threading.Event | None = None
 
 
 @contextmanager
@@ -87,6 +89,8 @@ def server(wire: Wire) -> Iterator[int]:
                         time.sleep(wire.delay)
                     self.wfile.write(frame)
                     self.wfile.flush()
+                if wire.stream_started is not None:
+                    wire.stream_started.set()
                 if wire.disconnected is not None:
                     self.connection.settimeout(0.5)
                     if self.connection.recv(1) == b"":
@@ -102,6 +106,8 @@ def server(wire: Wire) -> Iterator[int]:
     listener.daemon_threads = True
     thread = threading.Thread(target=lambda: listener.serve_forever(poll_interval=0.005), daemon=True)
     thread.start()
+    if wire.startup_delay:
+        time.sleep(wire.startup_delay)
     try:
         yield listener.server_port
     finally:
@@ -237,19 +243,28 @@ def test_first_token_timeout_is_distinct_from_total_timeout() -> None:
 
 
 @pytest.mark.trace("T-E17-022", "V27")
-def test_cancel_closes_real_tcp_stream_promptly() -> None:
+@pytest.mark.parametrize("startup_delay", [0.0, 0.08])
+def test_cancel_closes_real_tcp_stream_promptly(startup_delay: float) -> None:
     cancel = Cancel()
-    closed = threading.Event()
-    wire = Wire((b": waiting\n\n",), disconnected=closed)
-    timer = threading.Timer(0.04, cancel.event.set)
-    timer.start()
-    before = time.monotonic()
+    closed, started = threading.Event(), threading.Event()
+    wire = Wire((b": waiting\n\n",), disconnected=closed, startup_delay=startup_delay, stream_started=started)
+    signalled_at: list[float] = []
+
+    def interrupt_stream() -> None:
+        if started.wait(1):
+            signalled_at.append(time.monotonic())
+            cancel.event.set()
+
+    trigger = threading.Thread(target=interrupt_stream, daemon=True)
+    trigger.start()
     try:
         result = run(wire, cancel=cancel)
+        returned_at = time.monotonic()
     finally:
-        timer.cancel()
+        trigger.join(timeout=1)
+    assert started.is_set() and signalled_at
     assert isinstance(result, StepCancelled)
-    assert time.monotonic() - before < 0.5
+    assert returned_at - signalled_at[0] < 0.5
     assert closed.wait(0.5)
 
 
@@ -307,3 +322,94 @@ def test_native_final_must_match_owned_output_schema() -> None:
             progress=lambda value: None,
         )
     assert isinstance(result, StepMalformed)
+
+
+@pytest.mark.trace("V27", "V26", "T-E17-022", "T-E17-041")
+def test_chunked_cancel_has_one_response_close_owner_and_no_background_exception(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import http.client
+    from collections.abc import Callable
+
+    entered, release = threading.Event(), threading.Event()
+    failures: list[BaseException] = []
+    original_close = http.client.HTTPConnection.close
+    original_response_close = cast(
+        Callable[[http.client.HTTPResponse], None], http.client.HTTPResponse.__dict__["_close_conn"]
+    )
+    original_hook = threading.excepthook
+
+    def response_close(response: http.client.HTTPResponse) -> None:
+        if threading.current_thread().name == "model-step" and not entered.is_set():
+            entered.set()
+            assert release.wait(1)
+        original_response_close(response)
+
+    def connection_close(connection: http.client.HTTPConnection) -> None:
+        if threading.current_thread() is threading.main_thread():
+            assert entered.wait(1)
+        original_close(connection)
+
+    def exception_hook(args: threading.ExceptHookArgs) -> None:
+        if args.thread is not None and args.thread.name == "model-step":
+            if args.exc_value is not None:
+                failures.append(args.exc_value)
+        else:
+            original_hook(args)
+
+    monkeypatch.setattr(http.client.HTTPResponse, "_close_conn", response_close)
+    monkeypatch.setattr(http.client.HTTPConnection, "close", connection_close)
+    monkeypatch.setattr(threading, "excepthook", exception_hook)
+
+    class Handler(BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
+        def do_POST(self) -> None:
+            self.rfile.read(int(self.headers["Content-Length"]))
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.send_header("Transfer-Encoding", "chunked")
+            self.end_headers()
+            payload = frame({"reasoning_content": "PRIVATE_CHUNKED_CANARY"})
+            self.wfile.write(f"{len(payload):X}\r\n".encode() + payload + b"\r\n")
+            self.wfile.flush()
+            self.connection.settimeout(1)
+            try:
+                self.connection.recv(1)
+            except OSError:
+                pass
+
+        def log_message(self, format: str, *args: object) -> None:
+            pass
+
+    endpoint = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    endpoint.daemon_threads = True
+    serving = threading.Thread(target=lambda: endpoint.serve_forever(poll_interval=0.005), daemon=True)
+    serving.start()
+    cancel = Cancel()
+
+    def progress(value: object) -> None:
+        cancel.event.set()
+
+    try:
+        clock = TestClock()
+        now = clock.monotonic_ns()
+        result = LlamaClient(
+            port=endpoint.server_port,
+            api_key="test_key",
+            tokens=Tokens(),
+            limits=ClientLimits(65536, 256, 8, 1, 0.01),
+        ).run_step(
+            request(), deadline=Deadline(now + 10**9, now + 10**9, clock), cancel=cancel, progress=progress
+        )
+        assert isinstance(result, StepCancelled)
+        assert entered.wait(1)
+    finally:
+        release.set()
+        for thread in threading.enumerate():
+            if thread.name == "model-step":
+                thread.join(timeout=1)
+        endpoint.shutdown()
+        endpoint.server_close()
+        serving.join(timeout=1)
+    assert failures == []

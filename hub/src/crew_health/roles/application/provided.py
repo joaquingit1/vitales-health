@@ -4,10 +4,12 @@ SkillHolderPort (E28) and DrillReader (E30). Each fails closed: a missing answer
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal
 
 from crew_health.guidance.application.ports import Fact, Known, OperatorFact, Unknown
+from crew_health.help.application.ports import BroadcastRole
 from crew_health.kernel.uow import Actor, ReadSnapshot, UnitOfWork
 from crew_health.roles.application.ports import (
     AssignmentRecord,
@@ -16,7 +18,7 @@ from crew_health.roles.application.ports import (
     DrillRef,
     RoleAssignmentRef,
 )
-from crew_health.roles.application.world import Deps, read_world, record_for
+from crew_health.roles.application.world import Deps, call, read_world, record_for
 from crew_health.roles.domain.acting import decide_authority, officer_statuses
 from crew_health.roles.domain.errors import PortUnavailable, RolesError
 from crew_health.roles.domain.lifecycle import Assignment
@@ -24,6 +26,16 @@ from crew_health.roles.domain.lifecycle import Assignment
 _ENGINE = Actor("engine", "roles")
 
 type Action = Literal["urgency_disposition", "dose_confirmation", "record_review", "clinician_assessed"]
+
+
+@dataclass(frozen=True, slots=True)
+class BroadcastAssignment:
+    role_assignment_id: str
+    role_id: str
+    label: str
+    person_id: str
+    display_name: str
+    state: Literal["proposed", "accepted", "changed"]
 
 
 def _ref(a: Assignment) -> RoleAssignmentRef:
@@ -43,6 +55,38 @@ class RolesProvided:
 
     def __init__(self, deps: Deps) -> None:
         self.deps = deps
+
+    def roles_for_session(self, help_session_id: str) -> Sequence[BroadcastRole]:
+        """P0 operational assignments only, in configured role order (E26 3.4, E31 3.4)."""
+        at = self.deps.clock.now()
+        roster = tuple(call("roster", lambda: self.deps.roster.crew(at)))
+        names = {member.person_id: member.display_name for member in roster}
+        if len(roster) > self.deps.settings.roster_max or len(names) != len(roster):
+            raise PortUnavailable("roster")
+        with self.deps.snapshots.snapshot() as view:  # a pure read: no write transaction (SYSTEM 5.7)
+            repo = self.deps.repository(view.connection)
+            cfg = self.deps.config_cache().get(view.release)
+            order = {role_id: i for i, role_id in enumerate(cfg.rules.roles)}
+            current = sorted(
+                repo.current("help_session", help_session_id),
+                key=lambda a: (order.get(a.role_id, len(order)), a.role_assignment_id),
+            )
+            result: list[BroadcastRole] = []
+            for assignment in current:
+                name = names.get(assignment.person_id)
+                if name is None:
+                    raise PortUnavailable("roster")
+                result.append(
+                    BroadcastAssignment(
+                        assignment.role_assignment_id,
+                        assignment.role_id,
+                        assignment.label,
+                        assignment.person_id,
+                        name,
+                        assignment.state,
+                    )
+                )
+            return tuple(result)
 
     # SYSTEM 8.4 ClinicalAuthorityQuery.authority; also MedicalOfficerQuery.acting (SYSTEM 4.4)
     def authority(

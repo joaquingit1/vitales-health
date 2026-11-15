@@ -26,10 +26,16 @@ from crew_health.guidance.module import register as register_guidance
 from crew_health.help.module import register as register_help
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import CommandIntents, CommandReceipts, IdempotencyStore
-from crew_health.kernel.config import ConfigReader, ConfigReleaseReader, TemplateRenderer
+from crew_health.kernel.config import ConfigBinding, ConfigReader, ConfigReleaseReader, TemplateRenderer
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.settings import HubSettings, SettingSpec
-from crew_health.kernel.testing import MemoryConfig, MemorySettings, MemoryTemplateRenderer, MemoryUnits
+from crew_health.kernel.testing import (
+    MemoryConfig,
+    MemoryConfigBinding,
+    MemorySettings,
+    MemoryTemplateRenderer,
+    MemoryUnits,
+)
 from crew_health.kernel.units import Unit, UnitRegistry
 from crew_health.kernel.uow import (
     DomainEvent,
@@ -39,6 +45,7 @@ from crew_health.kernel.uow import (
     UnitOfWorkFactory,
 )
 from crew_health.kitmap.application.ports import KitMapContext, KitMapRelease, PlanColumnsPort, PlanningDelta
+from crew_health.kitmap.domain.model import KitMapDoc
 from crew_health.kitmap.module import register as register_kitmap
 from crew_health.measurement.application.ports import GapPlanPort
 from crew_health.measurement.module import register as register_measurement
@@ -77,6 +84,9 @@ class TeachBoundaries:
     def append_observation(
         self, uow: UnitOfWork, draft: teach.ObservationDraft, *, idempotency_key: str
     ) -> str:
+        raise AssertionError("record writer not used by event publication")
+
+    def append_for_attempt(self, uow: UnitOfWork, draft: object) -> str:
         raise AssertionError("record writer not used by event publication")
 
     def append_answer(self, uow: UnitOfWork, draft: teach.AnswerDraft, *, idempotency_key: str) -> str:
@@ -138,6 +148,8 @@ def compose(s: PlansStack, *, plans: bool = True) -> Composed:
         (ConfigReader, config),
         (ConfigReleaseReader, config),
         (TemplateRenderer, MemoryTemplateRenderer("Unknown", {})),
+        # Readers bound to the caller's view (SYSTEM 5.6, E01 N12): teach and kitmap read through this binding.
+        (ConfigBinding, MemoryConfigBinding(MemoryTemplateRenderer("Unknown", {}), config)),
         (UnitRegistry, MemoryUnits({})),
         (MissionStatePort, s.mission),
         (LinkMission, s.mission),
@@ -199,7 +211,7 @@ def test_real_owner_modules_resolve_plans_providers(composed: Composed) -> None:
     assert gap is not None and gap.plan_id == "plan_icl10"
     with s.db.snapshot() as view:
         ctx = KitMapContext(
-            view, cast(KitMapRelease, ReleaseView(s.release.release_id)), "lunar_surface", NOW
+            view, cast(KitMapRelease[object], ReleaseView(s.release.release_id)), "lunar_surface", NOW
         )
         columns = resolver.require(PlanColumnsPort).row_columns(
             ctx, kit=frozenset(), plan_ids=("plan_icl10", None)
@@ -326,7 +338,7 @@ def test_owner_modules_keep_their_absent_plans_fallbacks(tmp_path: Path) -> None
     assert resolver.require(CatchUpRuntime).deps.plans is None
     with composed.stack.db.snapshot() as view:
         ctx = KitMapContext(
-            view, cast(KitMapRelease, ReleaseView(view.release.release_id)), "lunar_surface", NOW
+            view, cast(KitMapRelease[KitMapDoc], ReleaseView(view.release.release_id)), "lunar_surface", NOW
         )
         with pytest.raises(KitMapUnavailable):
             kitmap.columns(ctx, frozenset(), ("plan_icl10",))
@@ -365,7 +377,7 @@ def test_owner_adapter_translates_nonempty_planning_delta(tmp_path: Path, requir
     )
     with s.db.snapshot() as view:
         ctx = KitMapContext(
-            view, cast(KitMapRelease, ReleaseView(view.release.release_id)), "lunar_surface", NOW
+            view, cast(KitMapRelease[object], ReleaseView(view.release.release_id)), "lunar_surface", NOW
         )
         changes = port.plans_changed(ctx, base_kit=frozenset(), delta=delta)
     assert len(changes) == 1 and isinstance(changes[0], PlanChange)

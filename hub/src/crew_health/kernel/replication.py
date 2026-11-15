@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Protocol
 
@@ -97,3 +98,26 @@ class ReplicaExchange(Protocol):
     def acknowledge(
         self, uow: UnitOfWork, recipient: Recipient, *, stream_id: str, through: int, envelope_sha256: str
     ) -> None: ...
+
+
+@dataclass(frozen=True, slots=True)
+class ReplicatedTable:
+    """A module-owned table whose every write must declare replication in the same unit of work (SYSTEM 5.7),
+    with the projection it is exported through and the leaf fields (JSON pointers) that projection may carry.
+    A module declares it through ModuleRegistry.replicated_table; the projection allowlist comes only from here."""
+
+    table: str
+    record_type: str
+    key_column: str
+    projection: ProjectionKey | None = None
+    allowed_fields: frozenset[str] = frozenset()
+
+
+@dataclass(frozen=True, slots=True)
+class ReplicationAllowlist:
+    """Permitted leaf fields per projection, assembled from every module's ReplicatedTable declarations."""
+
+    fields: Mapping[ProjectionKey, frozenset[str]]
+
+    def allowed(self, key: ProjectionKey) -> frozenset[str]:
+        return self.fields.get(key, frozenset())

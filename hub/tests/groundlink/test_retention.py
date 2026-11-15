@@ -8,6 +8,7 @@ from crew_health.contracts_gen.enums import EventType
 from crew_health.groundlink.adapters.sqlite_repository import SqliteGroundLinkRepository
 from crew_health.kernel.storage import SqlValue, StorageSession
 from crew_health.kernel.uow import Actor
+from crew_health.platform.domain.errors import StorageConstraintViolated
 
 from .support import Harness, event
 
@@ -74,7 +75,6 @@ def test_last_gap_reads_gap_primary_key_without_status_history_scan(
 
 @pytest.mark.trace("R48", "E29-01")
 def test_gap_retention_keeps_latest_hundred_and_only_closure_is_mutable(tmp_path: Path) -> None:
-    from crew_health.kernel.errors import StorageUnavailable
 
     h = Harness(tmp_path)
     deps = h.runtime.services.deps
@@ -101,7 +101,8 @@ def test_gap_retention_keeps_latest_hundred_and_only_closure_is_mutable(tmp_path
         "UPDATE groundlink_gap SET gap_kind='unknown'",
         "UPDATE groundlink_gap SET ended_at=NULL",
     ):
-        with pytest.raises(StorageUnavailable):
+        # A trigger abort is a typed constraint violation, not an unavailable store (E01 review).
+        with pytest.raises(StorageConstraintViolated):
             with h.db.begin(actor=Actor("engine", "tamper"), correlation_id="cor_tamper") as uow:
                 uow.connection.execute(sql)
 

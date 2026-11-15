@@ -10,7 +10,7 @@ from . import common_schema
 
 class Reading(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     code: common_schema.ConfigId
     label: str = Field(..., min_length=1)
@@ -24,30 +24,30 @@ class Reading(BaseModel):
 
 class Item(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     name: str = Field(..., min_length=1)
 
 
 class Allergies(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    state: Literal['recorded', 'none_recorded', 'unknown']
+    state: Literal["recorded", "none_recorded", "unknown"]
     items: list[Item]
 
 
 class Medicines(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    state: Literal['recorded', 'none_recorded', 'unknown']
+    state: Literal["recorded", "none_recorded", "unknown"]
     items: list[Item]
 
 
 class SubjectSummary(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     help_session_id: common_schema.Id
     subject: common_schema.PersonRef

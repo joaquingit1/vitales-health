@@ -10,31 +10,31 @@ from .common_schema import EvidenceRef
 
 
 class EvidenceItem(EvidenceRef):
-    kind: Literal['observation', 'answer', 'daily_check', 'routine_occurrence']
+    kind: Literal["observation", "answer", "daily_check", "routine_occurrence"]
 
 
 class HabitatFact(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     sensor_type_id: common_schema.ConfigId
     reading_id: common_schema.Id
     origin_mode: common_schema.OriginMode
     text: str = Field(
         ...,
-        description='Rendered by the hub, never by the model: ui-copy designed_states.replay_note for a REPLAY reading, designed_states.habitat_fact otherwise.',
+        description="Rendered by the hub, never by the model: ui-copy designed_states.replay_note for a REPLAY reading, designed_states.habitat_fact otherwise.",
         min_length=1,
     )
 
 
 class Insight(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     insight_id: common_schema.Id
     person_id: common_schema.Id
     topic_id: common_schema.ConfigId
-    level: Literal['info', 'watch']
+    level: Literal["info", "watch"]
     title: str = Field(..., min_length=1)
     text: str = Field(..., min_length=1)
     why: str = Field(..., min_length=1)
@@ -45,12 +45,12 @@ class Insight(BaseModel):
     )
     habitat_facts: list[HabitatFact] = Field(
         ...,
-        description='Habitat readings the insight may mention as separate facts. Never evidence. The model names only reading_id.',
+        description="Habitat readings the insight may mention as separate facts. Never evidence. The model names only reading_id.",
     )
     citation: common_schema.Citation
     warning_id: common_schema.Id | None
     routine_occurrence_ids: list[common_schema.Id]
-    state: Literal['active', 'dismissed', 'expired']
+    state: Literal["active", "dismissed", "expired"]
     created_at: common_schema.Instant
     model_release_id: common_schema.Id
     origin_mode: common_schema.OriginMode

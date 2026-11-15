@@ -26,7 +26,6 @@ from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.testing import MemoryClock
 from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
 from crew_health.platform.adapters.ledger import CommandLedger
-from crew_health.platform.domain.audit import AuditPolicy
 from crew_health.platform.storage import SQLiteDatabase
 from crew_health.platform.testing.sqlite import database
 from crew_health.roles.application.ports import AuthorityDecision, DoseAuthorityContext
@@ -214,40 +213,10 @@ def station(path: Path) -> Station:
             encoding="utf-8"
         )
     )
-    for name in (
-        "created",
-        "answer",
-        "answer_corrected",
-        "acknowledged",
-        "review_requested",
-        "followup_opened",
-        "followup_completed",
-        "followup_cancelled",
-        "followup_reassigned",
-        "onset_corrected",
-        "resolved",
-        "reopened",
-        "reviewed",
-        "new_activity",
-        "measurement_request",
-        "assessment",
-        "capability_gap",
-        "observation",
-        "plan_run",
-        "guided_check",
-        "handoff",
-        "help_session",
-        "urgency",
-        "urgency_raised",
-        "evidence_changed",
-        "followup_overdue",
-        "effect_failed",
-        "route_recorded",
-        "link_refused",
-    ):
-        db.register_audit_policy(
-            AuditPolicy("episode." + name, {}, frozenset({"episode"}), {"episode": frozenset({"episode"})})
-        )
+    from crew_health.episodes.module import audit_policies
+
+    for policy in audit_policies():
+        db.register_audit_policy(policy)
     f = Facts()
     values = setting_defaults()
     limits = Limits(**{k.split(".", 1)[1]: v for k, v in values.items()})

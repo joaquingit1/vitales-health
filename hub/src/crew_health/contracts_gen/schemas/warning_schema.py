@@ -18,7 +18,7 @@ class Step(RootModel[str]):
 
 class Headline(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fragment: str = Field(..., min_length=1)
     rank: int = Field(..., ge=0)
@@ -27,7 +27,7 @@ class Headline(BaseModel):
 
 class Acknowledgement(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person_id: common_schema.Id
     at: common_schema.Instant
@@ -35,7 +35,7 @@ class Acknowledgement(BaseModel):
 
 class Resolved(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     by: common_schema.Actor
     at: common_schema.Instant
@@ -48,7 +48,7 @@ class Reason(RootModel[str]):
 
 class Dismissed(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     by: common_schema.Actor
     at: common_schema.Instant
@@ -57,7 +57,7 @@ class Dismissed(BaseModel):
 
 class Note(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     by: common_schema.Actor
     at: common_schema.Instant
@@ -66,7 +66,7 @@ class Note(BaseModel):
 
 class Warning(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     warning_id: common_schema.Id
     revision: int = Field(..., ge=1)
@@ -78,7 +78,7 @@ class Warning(BaseModel):
     limit_id: common_schema.ConfigId | None
     sensor_type_id: common_schema.ConfigId | None
     channel_id: common_schema.Id | None
-    scope: Literal['habitat', 'person', 'crew']
+    scope: Literal["habitat", "person", "crew"]
     person_id: common_schema.Id | None
     environment_id: common_schema.EnvironmentId
     location: Location | None
@@ -91,23 +91,21 @@ class Warning(BaseModel):
     headline: Headline
     evidence: list[common_schema.EvidenceRef]
     evidence_time: common_schema.Instant
-    evidence_time_label: str = Field(
-        ..., description='For example 15:36, replay time.', min_length=1
-    )
+    evidence_time_label: str = Field(..., description="For example 15:36, replay time.", min_length=1)
     citation: common_schema.Citation
     insight_id: common_schema.Id | None
-    state: Literal['raised', 'acknowledged', 'cleared', 'resolved', 'dismissed']
+    state: Literal["raised", "acknowledged", "cleared", "resolved", "dismissed"]
     raised_at: common_schema.Instant
     acknowledgements: list[Acknowledgement]
     cleared_at: common_schema.Instant | None
     clear_reason: (
         Literal[
-            'condition_false',
-            'clear_event',
-            'expired',
-            'superseded',
-            'environment_changed',
-            'config_changed',
+            "condition_false",
+            "clear_event",
+            "expired",
+            "superseded",
+            "environment_changed",
+            "config_changed",
         ]
         | None
     )

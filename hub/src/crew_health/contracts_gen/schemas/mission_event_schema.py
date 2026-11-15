@@ -16,7 +16,7 @@ class Note(RootModel[str]):
 
 class MissionEvent(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     event_id: common_schema.Id
     event_type: common_schema.ConfigId

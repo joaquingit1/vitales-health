@@ -151,7 +151,7 @@ class FinishGuidedCheck(TeachCore):
         decimals = content.decimals(count_check.reference_code)
         reason = _reason(content, reference, tolerance)
         shown = display_decimals(count, reference.comparable, tolerance, agreement.result, decimals)
-        text = self._text(count_check, agreement, count, reference, reason, shown)
+        text = self._text(uow, count_check, agreement, count, reference, reason, shown)
         observation_id = self._observe(uow, check, skill, count_check, count, agreement, decimals, r)
         camera = reference.camera
         if camera.value is None:
@@ -214,6 +214,7 @@ class FinishGuidedCheck(TeachCore):
 
     def _text(
         self,
+        uow: UnitOfWork,
         count_check: CountAgreementCheck,
         agreement: AgreementOutcome,
         count: Fraction,
@@ -229,7 +230,7 @@ class FinishGuidedCheck(TeachCore):
             values["camera"] = str(rounded(reference.comparable, decimals))
         if agreement.difference is not None:
             values["difference"] = str(rounded(abs(agreement.difference), decimals))
-        return self.p.renderer.render(PHRASE_FIELD, phrase, values)
+        return self.p.config.bind(uow).render(PHRASE_FIELD, phrase, values)
 
     def _observe(
         self,

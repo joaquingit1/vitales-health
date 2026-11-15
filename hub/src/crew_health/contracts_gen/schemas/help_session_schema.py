@@ -10,13 +10,11 @@ from . import common_schema
 
 class Entry(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal[
-        'button', 'red_flag', 'warning', 'urgent_event_alias', 'plan_step'
-    ] = Field(
+    kind: Literal["button", "red_flag", "warning", "urgent_event_alias", "plan_step"] = Field(
         ...,
-        description='plan_step: opened by a plan run escalate action; ref_id is the plan run (CONTRACTS section 22).',
+        description="plan_step: opened by a plan run escalate action; ref_id is the plan run (CONTRACTS section 22).",
     )
     ref_id: common_schema.Id | None
 
@@ -27,9 +25,9 @@ class DisplayName(RootModel[str]):
 
 class Subject(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['self', 'crewmate', 'unknown']
+    kind: Literal["self", "crewmate", "unknown"]
     person_id: common_schema.Id | None
     display_name: DisplayName | None
 
@@ -40,7 +38,7 @@ class Place(RootModel[str]):
 
 class Helper(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person_id: common_schema.Id
     display_name: str = Field(..., min_length=1)
@@ -53,7 +51,7 @@ class Question(RootModel[str]):
 
 class Answer(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     index: int = Field(..., ge=0)
     label: str = Field(..., min_length=1)
@@ -61,7 +59,7 @@ class Answer(BaseModel):
 
 class ImmediateStep(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     index: int = Field(..., ge=0)
     text: str = Field(..., min_length=1)
@@ -71,7 +69,7 @@ class ImmediateStep(BaseModel):
 
 class Measurement(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     what: str = Field(..., min_length=1)
     how: str = Field(..., min_length=1)
@@ -80,7 +78,7 @@ class Measurement(BaseModel):
 
 class TreatmentStep(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step: str = Field(..., min_length=1)
     who: str = Field(..., min_length=1)
@@ -93,7 +91,7 @@ class EnvironmentNote(RootModel[str]):
 
 class Flow(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     title: str = Field(..., min_length=1)
     plain: str = Field(..., min_length=1)
@@ -109,9 +107,9 @@ class Flow(BaseModel):
 
 class Node(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['triage', 'flow']
+    kind: Literal["triage", "flow"]
     id: common_schema.ConfigId
     question: Question | None
     answers: list[Answer]
@@ -128,10 +126,10 @@ class AnswerLabel(RootModel[str]):
 
 class PathItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     node_id: common_schema.ConfigId
-    kind: Literal['triage', 'flow', 'start_over']
+    kind: Literal["triage", "flow", "start_over"]
     answer_index: AnswerIndex | None
     answer_label: AnswerLabel | None
     at: common_schema.Instant
@@ -140,12 +138,12 @@ class PathItem(BaseModel):
 
 class LogItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     at: common_schema.Instant
     text: str = Field(..., min_length=1)
     by: common_schema.Actor | None
-    kind: Literal['answer', 'step', 'crew', 'ground', 'assistant', 'note', 'system']
+    kind: Literal["answer", "step", "crew", "ground", "assistant", "note", "system"]
 
 
 class LastText(RootModel[str]):
@@ -154,18 +152,18 @@ class LastText(RootModel[str]):
 
 class Assistant(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    status: Literal['off', 'waiting', 'answering', 'stopped', 'unavailable']
+    status: Literal["off", "waiting", "answering", "stopped", "unavailable"]
     conversation_id: common_schema.Id | None
     last_text: LastText | None
 
 
 class FixedButton(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    id: Literal['call_crew', 'tell_ground', 'start_over']
+    id: Literal["call_crew", "tell_ground", "start_over"]
     label: str = Field(..., min_length=1)
 
 
@@ -175,14 +173,14 @@ class Note(RootModel[str]):
 
 class Close(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     disposition: Literal[
-        'resolved_on_board',
-        'handed_to_crew_medical_officer',
-        'ground_consulted',
-        'false_alarm',
-        'other',
+        "resolved_on_board",
+        "handed_to_crew_medical_officer",
+        "ground_consulted",
+        "false_alarm",
+        "other",
     ]
     note: Note | None
     by: common_schema.Actor
@@ -190,11 +188,11 @@ class Close(BaseModel):
 
 class HelpSession(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     help_session_id: common_schema.Id
     revision: int = Field(..., ge=1)
-    state: Literal['open', 'closed']
+    state: Literal["open", "closed"]
     opened_at: common_schema.Instant
     client_opened_at: common_schema.Instant | None
     opened_by: common_schema.Actor
@@ -204,7 +202,7 @@ class HelpSession(BaseModel):
     body_region: common_schema.BodyRegionOrNull | None
     helpers: list[Helper]
     config_pins: list[common_schema.ConfigPin] = Field(..., min_length=1)
-    level: Literal['act', 'emergency']
+    level: Literal["act", "emergency"]
     level_basis: common_schema.Basis
     node: Node
     path: list[PathItem]

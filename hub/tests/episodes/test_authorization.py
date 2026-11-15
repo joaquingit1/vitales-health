@@ -191,7 +191,7 @@ def test_record_authorization_structural_copy_has_exact_owner_signature() -> Non
     import inspect
 
     from crew_health.episodes.application.ports import RecordAuthorization as Consumer
-    from crew_health.records.application.ports import RecordAuthorization as Owner
+    from crew_health.records.application.seams import RecordAuthorization as Owner
 
     assert inspect.signature(Consumer.require_read) == inspect.signature(Owner.require_read)
 

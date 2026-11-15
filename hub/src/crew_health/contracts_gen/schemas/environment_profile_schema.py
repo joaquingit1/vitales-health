@@ -10,7 +10,7 @@ from . import common_schema
 
 class Confirmation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person_id: common_schema.Id
     at: common_schema.Instant
@@ -18,7 +18,7 @@ class Confirmation(BaseModel):
 
 class Ground(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     delay_text: str = Field(..., min_length=1)
     simulated_one_way_delay_seconds: int = Field(..., ge=0)
@@ -26,16 +26,16 @@ class Ground(BaseModel):
 
 class EnvironmentProfile(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     profile_id: common_schema.Id
     revision: int = Field(..., ge=1)
     environment_id: common_schema.EnvironmentId
-    state: Literal['proposed', 'active', 'superseded', 'rejected']
+    state: Literal["proposed", "active", "superseded", "rejected"]
     label: str = Field(..., min_length=1)
     place: str = Field(..., min_length=1)
     eva_word: str = Field(..., min_length=1)
-    reason: Literal['mission_start', 'phase_plan', 'operator', 'ground', 'demo_switch']
+    reason: Literal["mission_start", "phase_plan", "operator", "ground", "demo_switch"]
     proposed_by: common_schema.Actor
     proposed_at: common_schema.Instant
     effective_at: common_schema.Instant | None

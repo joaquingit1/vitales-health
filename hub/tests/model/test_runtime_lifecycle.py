@@ -298,3 +298,108 @@ def test_healthy_non_cancelled_request_reaches_real_inference_transport(
         assert result == StepUnavailable("model_http_error")
         assert runtime.ready and supervisor.disabled == []
         runtime.stop()
+
+
+@pytest.mark.trace("R23", "T-E17-033", "T-E17-080")
+def test_short_probe_budgets_make_hash_progress_and_force_rechecks(
+    store: ManifestStore, manifest: dict[str, Any]
+) -> None:
+    import hashlib
+
+    from crew_health.model.adapters.manifest_store import durable_json
+    from crew_health.model.adapters.runtime_probe import RuntimeIdentity
+    from crew_health.model.domain.release import ModelRefused
+
+    from .test_composition import probe_server
+
+    live(store, manifest)
+    payload = b"EXPLICIT_HASH_PROGRESS_FIXTURE" * 310000
+    digest = hashlib.sha256(payload).hexdigest()
+    path = store.data_dir / "models" / (digest + ".gguf")
+    path.write_bytes(payload)
+    path.chmod(0o444)
+    document = store.read_json(store.root / "releases/model_candidate.json")
+    weights = document["weights"]
+    assert isinstance(weights, dict)
+    weights.update(file_name=path.name, weights_sha256=digest, size_bytes=len(payload))
+    durable_json(store.root / "releases/model_candidate.json", document)
+    with probe_server(str(path), 32768, []) as port:
+        identity = RuntimeIdentity(store, port=port, key="probe_key", max_bytes=65536)
+
+        def short_probe(*, force: bool = False) -> object:
+            calls = 0
+
+            def remaining() -> float:
+                nonlocal calls
+                calls += 1
+                if calls >= 3:
+                    raise ModelRefused("probe_stopped")
+                return 1
+
+            return identity._probe("model_candidate", force_hash=force, remaining=remaining, sockets=[])
+
+        for _ in range(20):
+            short_probe()
+            if identity.cache:
+                break
+        assert identity.cache, "A full digest must eventually complete across bounded probe slices"
+        assert next(iter(identity.cache.values())) == digest
+        assert identity.probe("model_candidate", timeout_s=1).identity_ok
+        short_probe(force=True)
+        assert not identity.cache, "Force verification must not reuse a previously cached full digest"
+        # Change the file while the new verification is partial. The old digest cannot be accepted.
+        path.chmod(0o644)
+        path.write_bytes(b"X" * len(payload))
+        path.chmod(0o444)
+        for _ in range(20):
+            short_probe()
+            if identity.cache:
+                break
+        assert identity.cache and next(iter(identity.cache.values())) != digest
+        assert not identity.probe("model_candidate", timeout_s=1).identity_ok
+
+
+@pytest.mark.trace("R23", "V27", "T-E17-033", "T-E17-022")
+def test_cancelled_hash_probe_serializes_with_concurrent_probe(
+    store: ManifestStore, manifest: dict[str, Any]
+) -> None:
+    from crew_health.model.adapters.runtime_probe import RuntimeIdentity
+    from crew_health.model.domain.release import ModelRefused
+
+    from .test_composition import probe_server
+
+    path = live(store, manifest)
+    entered, released = threading.Event(), threading.Event()
+    with probe_server(str(path), 32768, []) as port:
+        identity = RuntimeIdentity(store, port=port, key="probe_key", max_bytes=65536)
+        results: list[RuntimeProbe] = []
+        calls = 0
+
+        def cancelled_budget() -> float:
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                entered.set()
+                assert released.wait(1)
+                raise ModelRefused("probe_stopped")
+            return 1
+
+        first = threading.Thread(
+            target=lambda: results.append(
+                identity._probe("model_candidate", force_hash=False, remaining=cancelled_budget, sockets=[])
+            )
+        )
+        second = threading.Thread(
+            target=lambda: results.append(
+                identity._probe("model_candidate", force_hash=False, remaining=lambda: 1, sockets=[])
+            )
+        )
+        first.start()
+        assert entered.wait(1)
+        second.start()
+        released.set()
+        first.join(timeout=1)
+        second.join(timeout=1)
+        assert not first.is_alive() and not second.is_alive()
+        assert len(results) == 2 and sum(r.healthy and r.identity_ok for r in results) == 1
+        assert identity.partial is None and len(identity.cache) == 1

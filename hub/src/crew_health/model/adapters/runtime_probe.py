@@ -7,17 +7,35 @@ import socket
 import threading
 import time
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Protocol
 
 from crew_health.model.adapters.manifest_store import ManifestStore
 from crew_health.model.application.ports import CancelToken, Deadline, RuntimeProbe
 from crew_health.model.domain.release import ModelRefused, object_value, strict_json
 
+type FileStamp = tuple[int, int, int, int, int]
+
+
+class HashState(Protocol):
+    def update(self, value: bytes) -> None: ...
+    def hexdigest(self) -> str: ...
+
+
+@dataclass(slots=True)
+class HashProgress:
+    stamp: FileStamp
+    digest: HashState
+    offset: int = 0
+
 
 class RuntimeIdentity:
     def __init__(self, store: ManifestStore, *, port: int, key: str, max_bytes: int) -> None:
         self.store, self.port, self.key, self.max_bytes = store, port, key, max_bytes
-        self.cache: dict[tuple[int, int, int, int], str] = {}
+        self.cache: dict[FileStamp, str] = {}
+        self.partial: HashProgress | None = None
+        self.hash_lock = threading.Lock()
 
     def probe(
         self,
@@ -94,20 +112,9 @@ class RuntimeIdentity:
             runtime = object_value(document["runtime"])
             path = self.store.data_dir / "models" / str(weights["file_name"])
             stat = path.stat()
-            signature = (stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
-            if force_hash or signature not in self.cache:
-                self.cache.clear()
-                digest = hashlib.sha256()
-                with path.open("rb") as stream:
-                    while block := stream.read(1024 * 1024):
-                        remaining()
-                        digest.update(block)
-                self.cache[signature] = digest.hexdigest()
-            if (
-                self.cache[signature] != weights["weights_sha256"]
-                or path.is_symlink()
-                or stat.st_mode & 0o222
-            ):
+            signature = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+            digest = self._hash(path, signature, remaining, force_hash=force_hash)
+            if digest != weights["weights_sha256"] or path.is_symlink() or stat.st_mode & 0o222:
                 return RuntimeProbe(False, False, False, "model_identity_mismatch")
             health = object_value(self._read("/health", remaining, sockets))
             props = object_value(self._read("/props", remaining, sockets))
@@ -131,6 +138,50 @@ class RuntimeIdentity:
             )
         except OSError, http.client.HTTPException, KeyError, TypeError, ValueError:
             return RuntimeProbe(False, False, False, "model_unavailable")
+
+    @staticmethod
+    def _stamp(path: Path) -> FileStamp:
+        stat = path.stat()
+        return stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns
+
+    def _hash(self, path: Path, stamp: FileStamp, remaining: Callable[[], float], *, force_hash: bool) -> str:
+        # A cancelled probe leaves only bounded public-weight digest progress, never an accepted identity.
+        while not self.hash_lock.acquire(timeout=min(remaining(), 0.01)):
+            remaining()
+        try:
+            if force_hash or self.partial is not None and self.partial.stamp != stamp:
+                self.partial = None
+                self.cache.clear()
+            if stamp in self.cache:
+                if self._stamp(path) != stamp:
+                    self.partial = None
+                    self.cache.clear()
+                    raise ModelRefused("weight_file_changed")
+                return self.cache[stamp]
+            if self.partial is None:
+                self.cache.clear()
+                self.partial = HashProgress(stamp, hashlib.sha256())
+            progress = self.partial
+            with path.open("rb") as stream:
+                stream.seek(progress.offset)
+                while progress.offset < stamp[2]:
+                    remaining()
+                    block = stream.read(min(1024 * 1024, stamp[2] - progress.offset))
+                    if not block:
+                        self.partial = None
+                        raise ModelRefused("weight_file_changed")
+                    progress.digest.update(block)
+                    progress.offset += len(block)
+            if self._stamp(path) != stamp:
+                self.partial = None
+                self.cache.clear()
+                raise ModelRefused("weight_file_changed")
+            digest = progress.digest.hexdigest()
+            self.cache[stamp] = digest
+            self.partial = None
+            return digest
+        finally:
+            self.hash_lock.release()
 
     def _read(self, path: str, remaining: Callable[[], float], sockets: list[socket.socket]) -> object:
         connection = http.client.HTTPConnection("127.0.0.1", self.port, timeout=remaining())

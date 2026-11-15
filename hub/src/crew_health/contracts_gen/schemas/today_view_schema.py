@@ -19,7 +19,7 @@ from . import (
 
 class Environment(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     environment_id: common_schema.EnvironmentId
     label: str = Field(..., min_length=1)
@@ -28,14 +28,14 @@ class Environment(BaseModel):
     eva_word: str = Field(..., min_length=1)
     ground_delay_text: str = Field(
         ...,
-        description='Same as GroundLink.delay_text: earth_delay from environment-hazards.json.',
+        description="Same as GroundLink.delay_text: earth_delay from environment-hazards.json.",
         min_length=1,
     )
 
 
 class Headline(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str = Field(..., min_length=1)
     warning_ids: list[common_schema.Id]
@@ -43,7 +43,7 @@ class Headline(BaseModel):
 
 class Counts(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     due: int = Field(..., ge=0)
     later: int = Field(..., ge=0)
@@ -53,7 +53,7 @@ class Counts(BaseModel):
 
 class WeekItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     mission_day: common_schema.MissionDay
     label: str = Field(..., min_length=1)
@@ -63,7 +63,7 @@ class WeekItem(BaseModel):
 
 class Routine(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     counts: Counts
     next: list[routine_occurrence_schema.RoutineOccurrence]
@@ -72,15 +72,15 @@ class Routine(BaseModel):
 
 class DailyCheck(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    state: Literal['not_started', 'started', 'submitted']
+    state: Literal["not_started", "started", "submitted"]
     daily_check_id: common_schema.Id | None
 
 
 class TodayView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person: common_schema.PersonRef
     as_of: common_schema.Instant
@@ -92,12 +92,12 @@ class TodayView(BaseModel):
     routine: Routine
     needs_attention_count: int = Field(
         ...,
-        description='Active warnings for this person plus open routine occurrences today (due or later).',
+        description="Active warnings for this person plus open routine occurrences today (due or later).",
         ge=0,
     )
     daily_check: DailyCheck
     streak: streak_view_schema.StreakView
     crew_goal: crew_goal_view_schema.CrewGoalView
     broadcasts: list[crew_broadcast_schema.CrewBroadcast]
-    assistant_state: Literal['running', 'stopped', 'loading', 'unavailable']
+    assistant_state: Literal["running", "stopped", "loading", "unavailable"]
     config_release_id: common_schema.Id

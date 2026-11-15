@@ -129,7 +129,7 @@ class LlamaClient:
                     active_socket[0].shutdown(socket.SHUT_RDWR)
                 except OSError:
                     pass
-            connection.close()
+            # The worker alone closes HTTPResponse; concurrent close races chunked-reader cleanup.
             thread.join(timeout=self.limits.cancel_poll_s)
 
     def _exchange(

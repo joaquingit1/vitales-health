@@ -10,16 +10,14 @@ from . import common_schema
 
 class AcceptedUnit(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     unit: str = Field(..., min_length=1)
-    conversion: Literal['identity', 'scale', 'ppm_to_mmhg'] = Field(
+    conversion: Literal["identity", "scale", "ppm_to_mmhg"] = Field(
         ...,
         description="ppm_to_mmhg: mmHg = ppm x cabin pressure in mmHg / 1,000,000, using the channel's pressure reading or the assumed pressure recorded in the reading's conversion.",
     )
-    factor: float | None = Field(
-        None, description='For scale: canonical = value x factor.'
-    )
+    factor: float | None = Field(None, description="For scale: canonical = value x factor.")
 
 
 class WindowSeconds(RootModel[int]):
@@ -28,26 +26,24 @@ class WindowSeconds(RootModel[int]):
 
 class Aggregation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
-    kind: Literal[
-        'latest', 'mean', 'time_weighted_mean', 'energy_mean', 'max', 'sum'
-    ] = Field(
+    kind: Literal["latest", "mean", "time_weighted_mean", "energy_mean", "max", "sum"] = Field(
         ...,
-        description='energy_mean is the equivalent continuous level for decibels: 10 log10 of the time-weighted mean of 10^(L/10).',
+        description="energy_mean is the equivalent continuous level for decibels: 10 log10 of the time-weighted mean of 10^(L/10).",
     )
     window_seconds: WindowSeconds | None
     label: str = Field(
         ...,
-        description='Words shown with the value, for example one-hour average.',
+        description="Words shown with the value, for example one-hour average.",
         min_length=1,
     )
 
 
 class ByEnvironment(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     station_leo: list[float] | None = Field(None, max_length=2, min_length=2)
     transit: list[float] | None = Field(None, max_length=2, min_length=2)
@@ -57,11 +53,11 @@ class ByEnvironment(BaseModel):
 
 class Display(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     range: list[float] = Field(..., max_length=2, min_length=2)
     by_environment: ByEnvironment = Field(
-        ..., description='Optional per environment range; missing keys use range.'
+        ..., description="Optional per environment range; missing keys use range."
     )
     basis: common_schema.Basis
 
@@ -69,38 +65,36 @@ class Display(BaseModel):
 class ExpectedIntervalSeconds(RootModel[int]):
     root: int = Field(
         ...,
-        description='How often the channel should report. null when the design decides (radiation, water).',
+        description="How often the channel should report. null when the design decides (radiation, water).",
         ge=1,
     )
 
 
 class SensorType(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     hazard_id: common_schema.ConfigId
-    name: str = Field(
-        ..., description='Short name on cards, for example CO2.', min_length=1
-    )
+    name: str = Field(..., description="Short name on cards, for example CO2.", min_length=1)
     long_name: str = Field(
         ...,
-        description='Name on the detail page, for example Carbon dioxide.',
+        description="Name on the detail page, for example Carbon dioxide.",
         min_length=1,
     )
     body_region: common_schema.BodyRegionOrNull | None
     unit: str = Field(
         ...,
-        description='Canonical unit the hub stores and evaluates in, for example mmHg or mg/m3.',
+        description="Canonical unit the hub stores and evaluates in, for example mmHg or mg/m3.",
         min_length=1,
     )
     unit_display: str = Field(
-        ..., description='Unit as shown, for example mg/m³. Empty for a unitless index.'
+        ..., description="Unit as shown, for example mg/m³. Empty for a unitless index."
     )
     decimals: int = Field(..., ge=0, le=4)
     trim_trailing_zeros: bool | None = Field(
         None,
-        description='After rounding to decimals, drop trailing zeros and a bare decimal point, so 48.0 shows as 48 and 6.2 stays 6.2. Absent means false.',
+        description="After rounding to decimals, drop trailing zeros and a bare decimal point, so 48.0 shows as 48 and 6.2 stays 6.2. Absent means false.",
     )
     accepted_units: list[AcceptedUnit] = Field(..., min_length=1)
     aggregations: list[Aggregation] = Field(..., min_length=1)
@@ -111,24 +105,22 @@ class SensorType(BaseModel):
     interval_source_ids: common_schema.SourceIds
     stale_after_seconds: int = Field(
         ...,
-        description='A channel is quiet when now minus its last received_at exceeds this.',
+        description="A channel is quiet when now minus its last received_at exceeds this.",
         ge=1,
     )
     stale_basis: common_schema.Basis
     no_reading_label: str = Field(
         ...,
-        description='Word shown when no reading exists, for example No reading or Untested.',
+        description="Word shown when no reading exists, for example No reading or Untested.",
         min_length=1,
     )
     manual_alternative_item_id: common_schema.ConfigId | None
-    citation_text: str = Field(
-        ..., description='How the card cites the sensor type.', min_length=1
-    )
+    citation_text: str = Field(..., description="How the card cites the sensor type.", min_length=1)
 
 
 class SensorCatalogJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     notice: str = Field(
         ...,

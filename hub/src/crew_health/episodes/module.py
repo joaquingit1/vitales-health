@@ -38,10 +38,12 @@ from crew_health.episodes.application.rules import EpisodeRulesSource
 from crew_health.episodes.application.selection import SelectedEpisodeReader
 from crew_health.episodes.application.use_cases import EpisodeService, Limits, Providers
 from crew_health.episodes.domain.loader_checks import EpisodeWordsCheck
+from crew_health.kernel.audit import AuditPolicy
 from crew_health.kernel.commands import IdempotencyStore
 from crew_health.kernel.config import ReleaseCheck
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.ids import IdFactory
+from crew_health.kernel.replication import ReplicatedTable
 from crew_health.kernel.scheduler import HealthState, ScheduledJob
 from crew_health.kernel.settings import HubSettings, SettingSpec
 from crew_health.kernel.uow import (
@@ -68,6 +70,8 @@ class StartupPhase(IntEnum):
 
 
 class Registry(Protocol):
+    def audit_policy(self, policy: AuditPolicy) -> None: ...
+    def replicated_table(self, declaration: ReplicatedTable) -> None: ...
     def loader_check(self, check: ReleaseCheck) -> None: ...
     def scheduler_handler(self, name: str, fn: Callable[[UnitOfWork, ScheduledJob], None]) -> None: ...
     def on_startup(self, phase: StartupPhase, fn: Callable[[], None]) -> None: ...
@@ -201,9 +205,50 @@ def _bind(live: Live, api: EpisodeApi, words_check: EpisodeWordsCheck) -> Callab
     return bind
 
 
+def audit_policies() -> tuple[AuditPolicy, ...]:
+    kinds = (
+        "created",
+        "answer",
+        "answer_corrected",
+        "acknowledged",
+        "review_requested",
+        "followup_opened",
+        "followup_completed",
+        "followup_cancelled",
+        "followup_reassigned",
+        "onset_corrected",
+        "resolved",
+        "reopened",
+        "reviewed",
+        "new_activity",
+        "measurement_request",
+        "assessment",
+        "capability_gap",
+        "observation",
+        "plan_run",
+        "guided_check",
+        "handoff",
+        "help_session",
+        "urgency",
+        "urgency_raised",
+        "evidence_changed",
+        "followup_overdue",
+        "effect_failed",
+        "route_recorded",
+        "link_refused",
+    )
+    return tuple(
+        AuditPolicy("episode." + kind, {}, frozenset({"episode"}), {"episode": frozenset({"episode"})})
+        for kind in kinds
+    )
+
+
 def register(registry: Registry) -> None:
     live = Live()
     api = EpisodeApi()
+    for policy in audit_policies():
+        registry.audit_policy(policy)
+    registry.replicated_table(ReplicatedTable("episodes_episode", "episode", "episode_id"))
     words_check = EpisodeWordsCheck(enabled=False)
     registry.loader_check(words_check)
     for spec in setting_specs():

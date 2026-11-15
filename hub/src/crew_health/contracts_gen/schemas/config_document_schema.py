@@ -10,19 +10,19 @@ from . import common_schema
 
 class ConfigDocument(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     name: common_schema.ConfigName
     version: common_schema.Sha256
     schema_: str = Field(
         ...,
-        alias='schema',
-        description='The schema file that validates document, for example config-routine-schedule.schema.json.',
+        alias="schema",
+        description="The schema file that validates document, for example config-routine-schedule.schema.json.",
         min_length=1,
     )
     release_id: common_schema.Id
     loaded_at: common_schema.Instant
     document: dict[str, Any] = Field(
         ...,
-        description='The parsed document. Validated against the named schema before the hub serves it.',
+        description="The parsed document. Validated against the named schema before the hub serves it.",
     )
