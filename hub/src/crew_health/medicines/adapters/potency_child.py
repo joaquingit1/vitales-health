@@ -44,7 +44,7 @@ def _peak_bytes() -> int:
 
         counters = Counters()
         counters.cb = ctypes.sizeof(Counters)
-        windll = ctypes.windll  # type: ignore[attr-defined]
+        windll = ctypes.windll  # type: ignore[attr-defined,unused-ignore]  # only on Windows
         windll.psapi.GetProcessMemoryInfo(
             windll.kernel32.GetCurrentProcess(), ctypes.byref(counters), counters.cb
         )
@@ -55,13 +55,18 @@ def _peak_bytes() -> int:
     return int(peak) if sys.platform == "darwin" else int(peak) * 1024
 
 
+def _check_memory(limit: int) -> None:
+    """Ends the child with the memory exit when its peak is over the limit."""
+    if _peak_bytes() > limit:
+        sys.stderr.write(json.dumps({"error": "memory_limit"}))
+        sys.stderr.flush()
+        os._exit(MEMORY_EXIT)
+
+
 def _watch(limit: int, sample_ms: int, deadline_s: float) -> None:
     """Samples the peak every `sample_ms` for at most the deadline (the parent kills the child at the deadline)."""
     for _ in range(math.ceil(deadline_s * 1000 / sample_ms) + 1):
-        if _peak_bytes() > limit:
-            sys.stderr.write(json.dumps({"error": "memory_limit"}))
-            sys.stderr.flush()
-            os._exit(MEMORY_EXIT)
+        _check_memory(limit)
         time.sleep(sample_ms / 1000)
 
 
@@ -92,8 +97,12 @@ def main() -> int:
         else:
             out = to_json(pipeline.assess_inventory(bundle, payload["inputs"]))
     except Exception as error:  # every engine failure is a failed run, named by its class
+        # A run that went over its limit is memory_limit whichever thread noticed first: the watcher samples on its
+        # own schedule, so an engine error or a result can otherwise win the race (seen on Windows CI).
+        _check_memory(limit)
         sys.stderr.write(json.dumps({"error": type(error).__name__, "detail": str(error)[:300]}))
         return ENGINE_EXIT
+    _check_memory(limit)
     sys.stdout.write(json.dumps(out, sort_keys=True, separators=(",", ":"), allow_nan=False))
     return 0
 
