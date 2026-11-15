@@ -13,7 +13,7 @@ provide(STAGE, createStage());
   <RouterView v-slot="{ Component, route }">
     <template v-if="Component && (route.meta.private !== true || state.session !== null)">
       <StageLayout
-        v-if="route.meta.private === true && route.meta.stage !== false"
+        v-if="(route.meta.private === true && route.meta.stage !== false) || route.meta.stage === true"
         :key="state.epoch"
       >
         <component :is="Component" />

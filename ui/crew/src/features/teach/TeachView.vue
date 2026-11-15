@@ -241,6 +241,15 @@ onBeforeUnmount(() => {
           class="tag"
         >{{ steps.notice }}</span>
       </div>
+      <div
+        v-if="problem"
+        class="result"
+      >
+        <span
+          class="r-num word"
+          data-test="problem"
+        >{{ problem }}</span>
+      </div>
 
       <template v-if="!check">
         <div
@@ -375,13 +384,6 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </template>
-      <p
-        v-if="problem"
-        class="note"
-        data-test="problem"
-      >
-        {{ problem }}
-      </p>
     </article>
 
     <article

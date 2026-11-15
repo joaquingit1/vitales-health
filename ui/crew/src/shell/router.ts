@@ -6,7 +6,7 @@ declare module "vue-router" {
   interface RouteMeta {
     /** The route shows personal content: it mounts only inside an open session. */
     private?: boolean;
-    /** A private route renders beside the body stage unless this is false. */
+    /** A private route renders beside the body stage unless this is false; a public one only when it is true. */
     stage?: boolean;
   }
 }

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { components } from "@crew-health/contracts";
-import { computed, onMounted, ref } from "vue";
+import { computed, inject, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
 import BodyFigure from "../design/BodyFigure.vue";
 import { CHROME } from "../design/chrome";
 import { copy } from "../design/copy";
-import { useCrewApi } from "./api/client";
+import { CREW_API } from "./api/client";
 import { useSession } from "./session";
 import { useStage } from "./stage";
 
@@ -27,11 +27,15 @@ const initials = computed(() =>
 const kitMode = computed(() => stage.marks.length > 0);
 
 type Capability = components["schemas"]["capability.schema"];
-const api = useCrewApi();
+/* optional here: the stage also frames the sign-in station, which a shell may mount before any hub client */
+const api = inject(CREW_API, null);
 /* The stage's three readings (UX-DESIGN 1.2): the first three measurements this place can take, from the hub.
    The hub serves no recent value to the stage, so each reads as the designed state "No reading". */
 const readings = ref<{ code: string; label: string }[]>([]);
 onMounted(() => {
+  if (api === null || session.state.value.session === null) {
+    return;
+  }
   api
     .get<{ items: Capability[] }>("/v1/capabilities")
     .then((value) => {
@@ -93,6 +97,7 @@ onMounted(() => {
           {{ CHROME.someoneNeedsHelp }}
         </RouterLink>
         <RouterLink
+          v-if="who !== ''"
           class="who"
           :to="{ name: 'profile' }"
           :aria-label="who"

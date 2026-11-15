@@ -255,13 +255,15 @@ defineExpose({ phase });
           <span><i>{{ WORDS.quality }}</i>{{ reading.quality_status }}</span>
         </div>
       </div>
-      <p
+      <div
         v-else-if="phase === 'refused'"
-        class="note"
-        data-test="refused"
+        class="result"
       >
-        {{ problem }}
-      </p>
+        <span
+          class="r-num word"
+          data-test="refused"
+        >{{ problem }}</span>
+      </div>
 
       <div class="acts">
         <button

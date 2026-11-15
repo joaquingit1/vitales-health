@@ -1,12 +1,20 @@
 <script setup lang="ts">
-import { inject, ref } from "vue";
+import { inject, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { CHROME } from "../../design/chrome";
 import { copy } from "../../design/copy";
 import { ApiProblem } from "../../shell/api/client";
 import { SESSION_LOCK, STATION_HEADING_ID } from "../identity/sessionLock";
+import { useStage } from "../../shell/stage";
 
 const lock = inject(SESSION_LOCK);
+const stage = useStage();
+onMounted(() => {
+  stage.marks = [];
+  stage.focus = null;
+  stage.subline = "";
+  stage.headline = CHROME.brand;
+});
 const router = useRouter();
 const person = ref("");
 const credential = ref("");
@@ -25,10 +33,8 @@ async function submit(): Promise<void> {
     await router.push({ name: "today" });
   } catch (error) {
     failure.value =
-      error instanceof ApiProblem && error.code !== null
-        ? copy(`error_messages.${error.code}`).startsWith("error_messages.")
-          ? `${CHROME.signInFailed}: ${error.code}`
-          : copy(`error_messages.${error.code}`)
+      error instanceof ApiProblem && error.code !== null && !copy(`error_messages.${error.code}`).startsWith("error_messages.")
+        ? copy(`error_messages.${error.code}`)
         : CHROME.signInFailed;
   } finally {
     busy.value = false;
@@ -37,22 +43,22 @@ async function submit(): Promise<void> {
 </script>
 
 <template>
-  <main class="station">
-    <h1
-      :id="STATION_HEADING_ID"
-      class="station-heading"
-      tabindex="-1"
-    >
-      {{ CHROME.brand }}
-    </h1>
+  <section
+    class="cards flow station"
+    aria-label="Sign in"
+  >
     <form
       class="card paper sign-in"
       data-testid="sign-in"
       @submit.prevent="submit"
     >
-      <h2 class="card-title">
+      <h1
+        :id="STATION_HEADING_ID"
+        class="card-title"
+        tabindex="-1"
+      >
         {{ CHROME.signIn }}
-      </h2>
+      </h1>
       <input
         v-model="person"
         class="line-in"
@@ -87,30 +93,17 @@ async function submit(): Promise<void> {
         </button>
       </div>
     </form>
-  </main>
+  </section>
 </template>
 
 <style scoped>
-.station {
-  min-height: 100vh;
-  padding: 80px 24px 24px;
-  text-align: center;
-}
-
-.station-heading {
-  font-size: 34px;
-  line-height: 42px;
-  font-weight: 300;
-  letter-spacing: -0.01em;
-}
-
+/* the station sits on the stage like every screen (UX-DESIGN 1.2): the figure on the left, the form card on the
+   reference grid's first row */
 .sign-in {
-  width: 380px;
-  margin: 40px auto 0;
-  text-align: left;
-  cursor: default;
+  grid-column: 1 / span 14;
+  grid-row: 1;
 }
-.sign-in:hover {
-  transform: none;
+.sign-in .pills {
+  margin-top: auto;
 }
 </style>

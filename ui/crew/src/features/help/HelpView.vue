@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { refusalText } from "../../design/refusal";
 import type { components } from "@crew-health/contracts";
 import { computed, onMounted, ref, shallowRef, watchEffect } from "vue";
 import { useRouter } from "vue-router";
@@ -69,9 +70,8 @@ watchEffect(() => {
 });
 
 function problem(failure: unknown): string {
-  const code = typeof failure === "object" && failure !== null && "code" in failure ? String(failure.code) : "INTERNAL_ERROR";
-  const message = copy(`error_messages.${code}`);
-  return message.startsWith("error_messages.") ? code : message;
+  const code = typeof failure === "object" && failure !== null && "code" in failure ? String(failure.code) : null;
+  return refusalText(code);
 }
 
 async function act(body: Record<string, unknown>): Promise<void> {

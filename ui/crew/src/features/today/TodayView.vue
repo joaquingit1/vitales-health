@@ -25,6 +25,10 @@ const link = ref<GroundLink | null>(null);
 const linkFailed = ref(false);
 const hubNow = ref<number>(Number.NaN);
 const place = ref<string | null>(null);
+/* a place name opens the habitat line, so it takes a capital as the reference writes it ("Space station") */
+function sentence(text: string): string {
+  return text === "" ? text : (text[0] ?? "").toUpperCase() + text.slice(1);
+}
 const assistantState = ref<string | null>(null);
 const assistant = computed(() => (assistantState.value === null ? null : assistantWords(assistantState.value)));
 const LINK_POLL_MS = 2000;
@@ -118,11 +122,12 @@ onBeforeUnmount(() => {
           {{ CHROME.todo }}
         </h2>
       </div>
-      <div class="split">
-        <div class="big word">
-          {{ copy("designed_states.not_available_here") }}
-        </div>
-      </div>
+      <p
+        class="sub"
+        data-testid="todo-state"
+      >
+        {{ copy("designed_states.not_available_here") }}
+      </p>
     </article>
 
     <article
@@ -140,7 +145,7 @@ onBeforeUnmount(() => {
         data-testid="habitat-line"
       >
         <template v-if="place">
-          {{ place }}.
+          {{ sentence(place) }}.
         </template>
         {{ line }}
         <SourceWord :origin="linkOrigin(link)" />
@@ -235,16 +240,15 @@ onBeforeUnmount(() => {
   color: inherit;
   text-decoration: none;
 }
-.big.word {
-  font-size: 28px;
-  line-height: 34px;
-  white-space: normal;
-}
 .env-line .src {
   margin-left: 6px;
 }
 /* a feature card with nothing to show today leaves its place empty, never an empty frame */
 .slot-card:empty {
   display: none;
+}
+/* with the Daily check place empty, the assistant closes the row up to This kit */
+.cards:not(:has(.slot-card[data-slot="teach"]:not(:empty))) .assistant {
+  grid-column: 9 / span 16;
 }
 </style>
