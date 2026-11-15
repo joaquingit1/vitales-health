@@ -2,15 +2,24 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal, Protocol
+from typing import Literal, Protocol
 
 from crew_health.contracts_gen.enums import ConfigName
 from crew_health.kernel.commands import CommandIdentity, StoredResult
-from crew_health.kernel.config import CandidateRelease, ReleaseHandle, ReleaseRevision
+from crew_health.kernel.config import CandidateRelease, Finding, ReleaseHandle, ReleaseRevision
 from crew_health.kernel.uow import ReadSnapshot, SessionContext, UnitOfWork
 
-if TYPE_CHECKING:
-    from crew_health.config.application.loader import ValidationResult
+
+class ValidationResult(Protocol):
+    """What a stored release keeps of the loader's ValidationResult. Consumers import this file only (SYSTEM 6.4),
+    so it names the loader's result structurally instead of importing the loader and, through it, config.domain."""
+
+    @property
+    def errors(self) -> tuple[Finding, ...]: ...
+    @property
+    def warnings(self) -> tuple[Finding, ...]: ...
+    @property
+    def executed(self) -> tuple[str, ...]: ...
 
 
 @dataclass(frozen=True, slots=True)

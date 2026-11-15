@@ -21,7 +21,8 @@ from crew_health.platform.module import register as register_16
 from crew_health.records.module import register as register_17
 from crew_health.roles.module import register as register_18
 from crew_health.teach.module import register as register_19
-from crew_health.trends.module import register as register_20
+from crew_health.tools.module import register as register_20
+from crew_health.trends.module import register as register_21
 
 REGISTRATIONS = (
     register_0,
@@ -45,4 +46,5 @@ REGISTRATIONS = (
     register_18,
     register_19,
     register_20,
+    register_21,
 )
