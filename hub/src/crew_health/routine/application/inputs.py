@@ -299,6 +299,7 @@ class RoutineInputs:
                 "routine.override",
                 override.ends_at,
                 {"override_id": identifier, "kind": "ends"},
+                kind="elapsed",
             )
         return override
 
@@ -399,17 +400,7 @@ class RoutineInputs:
                 for occ in self.engine.periodic(uow, person, self.engine.day(uow.now)[0], release, mission):
                     if occ.item_id == item.item_id:
                         for old in self.engine.earlier_periodic(uow, person, item.item_id, occ.mission_day):
-                            self.engine.change(
-                                uow,
-                                old,
-                                miss(
-                                    old,
-                                    now=uow.now,
-                                    counted=False,
-                                    reason="superseded_by_next_slot",
-                                    actor_id=uow.actor.id,
-                                ),
-                            )
+                            self.engine.close_predecessor(uow, old)
                         self.engine.insert(uow, occ)
             else:
                 window = trigger_window(
@@ -546,6 +537,7 @@ class RoutineInputs:
                 "routine.override",
                 firing.source_at + timedelta(minutes=effect.every_minutes),
                 {"override_id": override.override_id, "kind": "every", "slot": "1"},
+                kind="elapsed",
             )
 
     def questions(
@@ -642,8 +634,10 @@ class RoutineInputs:
     def each_day(self, uow: UnitOfWork, person: str, day: int) -> None:
         for override in self.engine.overrides_for(uow, person):
             if isinstance(override.effect, AddQuestions) and override.effect.attach_to == "each_occurrence":
-                release = self.engine.release_for_deadline(uow, override.config_release_id)
                 if day <= self.engine.day(override.source_at)[0]:
+                    continue
+                release = self.engine.pinned_for_deadline(uow, override.config_release_id)
+                if release is None:
                     continue
                 start = self.engine.bounds(day, self.engine.day(uow.now)[1])[0]
                 self.questions(uow, override, person, release, override.effect, start, daily=True)
@@ -761,18 +755,22 @@ class RoutineInputs:
         if job.payload["kind"] == "every":
             self.every(uow, override, int(job.payload["slot"]))
         elif override.ends_at is not None:
-            if self.deps.store.clock_suspect_since(uow) is not None:
+            if not self.engine.trusted(uow):
+                # PLAN row 34: unknown time never ends a tightening; look again after the grace.
                 self.engine.schedule(
                     uow,
                     job.key,
                     job.handler,
                     uow.now + timedelta(milliseconds=self.deps.settings.miss_grace_ms),
                     dict(job.payload),
+                    kind="elapsed",
                 )
             elif uow.now >= override.ends_at:
                 self.end(uow, override, "days_elapsed", uow.now)
             else:
-                self.engine.schedule(uow, job.key, job.handler, override.ends_at, dict(job.payload))
+                self.engine.schedule(
+                    uow, job.key, job.handler, override.ends_at, dict(job.payload), kind="elapsed"
+                )
 
     def every(self, uow: UnitOfWork, override: Override, slot: int) -> None:
         effect = override.effect
@@ -802,6 +800,7 @@ class RoutineInputs:
             "routine.override",
             override.started_at + timedelta(minutes=following * effect.every_minutes),
             {"override_id": override.override_id, "kind": "every", "slot": str(following)},
+            kind="elapsed",
         )
 
     def on_answer(self, uow: UnitOfWork, answer: AnswerFacts, mission_id: str) -> None:

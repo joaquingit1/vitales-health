@@ -143,8 +143,6 @@ def test_overlay_overflow_fails_held_and_audits(tmp_path: Path) -> None:
 
 @pytest.mark.trace("T-E25-044", "T-E25-031", "T-E25-093")
 def test_supported_five_day_trigger_waits_for_trusted_clock_before_ending(tmp_path: Path) -> None:
-    from crew_health.kernel.clock import ClockCorrected, ClockRegressed
-
     from .test_integration_inputs import drain_timers
 
     hub = station(tmp_path, at=at(9))
@@ -160,14 +158,12 @@ def test_supported_five_day_trigger_waits_for_trusted_clock_before_ending(tmp_pa
     assert hub.rows("SELECT ends_at FROM routine_override WHERE item_id='vision_self_check'") == (
         ("2026-11-06T09:00:00Z",),
     )
-    hub.advance(at(9, day=6))
-    with hub.db.begin(actor=Actor("operator", "clock_operator"), correlation_id="cor_suspect") as uow:
-        uow.publish(ClockRegressed(hub.clock.now(), hub.clock.now() + timedelta(seconds=1), -1000))
+    hub.advance(at(9, 1, day=6))
+    hub.regress(at(9, day=6))
     drain_timers(hub)
     assert hub.rows("SELECT state FROM routine_override WHERE item_id='vision_self_check'") == (("active",),)
-    with hub.db.begin(actor=Actor("operator", "clock_operator"), correlation_id="cor_corrected") as uow:
-        uow.publish(ClockCorrected(0, 0, hub.clock.now(), 2, "operator"))
-    hub.advance(at(9, 1, day=6))
+    hub.confirm_time()
+    hub.advance(at(9, 2, day=6))
     drain_timers(hub)
     assert hub.rows("SELECT state,end_reason FROM routine_override WHERE item_id='vision_self_check'") == (
         ("ended", "days_elapsed"),

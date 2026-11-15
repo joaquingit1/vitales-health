@@ -67,15 +67,22 @@ def test_pagination_traverses_every_item_once_and_rejects_bad_input() -> None:
 
 
 @pytest.mark.trace("INV-E25-01")
-def test_person_override_is_visible_to_officers_but_not_other_crew() -> None:
+def test_override_is_visible_to_its_people_and_to_officers_only_with_a_grant() -> None:
     from crew_health.routine.application.views import override_visible
+
+    class Grant:
+        def can_read(self, session: object, object_ref: str) -> bool:
+            return object_ref == value.override_id
 
     value = replace(override(), audience="person", person_id="p_test")
     assert override_visible(value, session())
     assert not override_visible(value, session("p_other", officer=True))
+    assert override_visible(value, session("p_other", officer=True), Grant())
     group = replace(value, audience="all_crew", person_id=None)
-    assert override_visible(group, session("p_other", officer=True))
+    assert not override_visible(group, session("p_other", officer=True))
+    assert override_visible(group, session("p_other", officer=True), Grant())
     assert not override_visible(group, session("p_other"))
+    assert override_visible(replace(group, member_ids=("p_other",)), session("p_other"))
 
 
 @pytest.mark.trace("T-E25-015", "T-E25-022")

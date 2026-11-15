@@ -619,16 +619,6 @@ class SqliteRoutineStore:
             (key, generation),
         )
 
-    def clock_suspect_since(self, view: View) -> datetime | None:
-        rows = view.connection.rows("SELECT suspect_since FROM routine_clock_state WHERE id=1", (), limit=1)
-        return codec.optional_time(rows[0][0]) if rows else None
-
-    def set_clock_suspect(self, uow: UnitOfWork, at: datetime | None) -> None:
-        uow.connection.execute(
-            "INSERT INTO routine_clock_state VALUES (1,?) ON CONFLICT(id) DO UPDATE SET suspect_since=excluded.suspect_since",
-            (codec.instant(at),),
-        )
-
     def get_barrier_ask(self, view: View, person_id: str, day: int) -> BarrierAsk | None:
         rows = view.connection.rows(
             "SELECT item_ids_json,outcome,answer_id,at FROM routine_barrier_ask WHERE person_id=? AND offered_day=?",

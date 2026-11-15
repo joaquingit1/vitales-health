@@ -529,7 +529,7 @@ def _suppressed(r: _Reader) -> tuple[Overlay, ...]:
     )
 
 
-def _content_digest(item: RoutineItem) -> str:
+def content_digest(item: RoutineItem) -> str:
     content = {
         "plain": item.plain,
         "why": item.why,
@@ -581,7 +581,7 @@ def parse_release(
         for g in r.objects("display_groups")
     )
     question_sets, question_ids = _questions(questionnaires)
-    digests = {item.item_id: _content_digest(item) for item in items}
+    digests = {item.item_id: content_digest(item) for item in items}
     return RoutineRelease(
         release_id,
         r.text("notice"),

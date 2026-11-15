@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 
-from crew_health.kernel.clock import ClockCorrected, ClockRegressed
 from crew_health.kernel.uow import Actor
 from crew_health.routine.application.engine import RoutineEngine
 from crew_health.routine.domain.occurrence import Occurrence
@@ -102,13 +101,13 @@ def test_forward_jump_records_uncounted_miss_and_read_backup_works(tmp_path: Pat
 @pytest.mark.trace("T-E25-093")
 def test_regressed_clock_marks_misses_uncounted_until_corrected(tmp_path: Path) -> None:
     hub = station(tmp_path)
-    with hub.db.begin(actor=Actor("engine", "clock"), correlation_id="cor_regress") as uow:
-        uow.publish(ClockRegressed(at(1), at(1, 1), 3600000))
+    hub.advance(at(1, 1))
+    hub.regress(at(1))
+    assert not hub.trusted()
     hub.advance(at(1, 17))
     drain(hub)
     assert occurrence_for(hub, "exercise_log").miss_counted is False
-    with hub.db.begin(actor=Actor("engine", "clock"), correlation_id="cor_correct") as uow:
-        uow.publish(ClockCorrected(0, 0, at(1, 17), 1, "operator"))
+    hub.confirm_time()
     hub.advance(at(2))
     drain(hub)
     hub.advance(at(2, 17))
@@ -138,13 +137,15 @@ def test_successor_closes_earlier_periodic_uncounted(tmp_path: Path) -> None:
     with hub.db.begin(actor=Actor("engine", "routine"), correlation_id="cor_successor") as uow:
         hub.engine.materialize(uow, "person_mara", 2)
     prior = occurrence_for(hub, "exercise_log")
+    # B1: the predecessor's own window had already ended, so the successor decides it as its deadline would:
+    # a deadline miss, here uncounted because it is decided an hour past routine.miss_grace_ms.
     assert prior.state == "missed" and prior.miss_counted is False
-    assert prior.end_reason == "superseded_by_next_slot"
+    assert prior.end_reason == "deadline"
     assert occurrence_for(hub, "exercise_log", 2).periodic
     assert hub.rows(
         "SELECT reason_code FROM routine_occurrence_transition WHERE occurrence_id=? AND revision=2",
         (old.occurrence_id,),
-    ) == (("superseded_by_next_slot",),)
+    ) == (("deadline",),)
 
 
 @pytest.mark.trace("T-E25-015", "T-E25-022")

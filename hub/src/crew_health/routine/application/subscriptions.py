@@ -3,7 +3,6 @@
 from collections.abc import Callable
 
 from crew_health.contracts_gen.enums import EventType
-from crew_health.kernel.clock import ClockCorrected, ClockRegressed
 from crew_health.kernel.evaluation import EvaluatorComputationFailure
 from crew_health.kernel.uow import StoredEvent, UnitOfWork
 from crew_health.routine.application.audit import audit
@@ -33,9 +32,3 @@ class RoutineSubscriptions:
     def release(self, uow: UnitOfWork, event: StoredEvent) -> None:
         if event.type is EventType.CONFIG_RELEASE_ACTIVATED:
             self.isolated(uow, lambda: self.engine.release_activated(uow))
-
-    def regressed(self, uow: UnitOfWork, event: ClockRegressed) -> None:
-        self.isolated(uow, lambda: self.engine.on_clock_regressed(uow, event))
-
-    def corrected(self, uow: UnitOfWork, event: ClockCorrected) -> None:
-        self.isolated(uow, lambda: self.engine.on_clock_corrected(uow, event))

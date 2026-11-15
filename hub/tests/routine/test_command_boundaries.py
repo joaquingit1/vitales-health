@@ -39,7 +39,7 @@ def test_manual_all_crew_audience_is_frozen_from_the_available_roster(tmp_path: 
 @pytest.mark.trace("T-E25-006", "INV-E25-07")
 def test_manual_group_requires_roster_but_explicit_person_does_not(tmp_path: Path) -> None:
     h = morning(tmp_path)
-    h.runtime.assemble(replace(h.engine.deps, roster=None))
+    h.restart(replace(h.engine.deps, roster=None))
     with pytest.raises(ActionNotAllowed) as missing:
         h.runtime.create_override(
             officer(),
@@ -59,6 +59,7 @@ def test_manual_group_requires_roster_but_explicit_person_does_not(tmp_path: Pat
 @pytest.mark.trace("T-E25-006", "T-E25-022", "INV-E25-07")
 def test_override_replay_rechecks_person_and_current_stop_role(tmp_path: Path) -> None:
     h = morning(tmp_path)
+    h.grant_officer_care()
     _, created = h.runtime.create_override(
         officer(), manual_body(), idempotency_key="cmd_replay_create", config_release=None
     )
@@ -123,7 +124,7 @@ def test_storage_fault_after_real_receipt_rolls_back_the_whole_command_then_retr
     h = morning(tmp_path)
     identifier = occurrence_id(h, "daily_check")
     deps = h.engine.deps
-    h.runtime.assemble(replace(deps, idempotency=FailAfterLedgerRecord(h.ledger)))
+    h.restart(replace(deps, idempotency=FailAfterLedgerRecord(h.ledger)))
     before = h.rows("SELECT revision,state FROM routine_occurrence WHERE occurrence_id=?", (identifier,))
     history = h.rows(
         "SELECT count(*) FROM routine_occurrence_transition WHERE occurrence_id=?", (identifier,)
@@ -148,7 +149,7 @@ def test_storage_fault_after_real_receipt_rolls_back_the_whole_command_then_retr
     assert h.rows("SELECT count(*) FROM platform_command_ledger WHERE command_key='cmd_disk_full'") == ((0,),)
     assert h.rows("SELECT count(*) FROM routine_record_version") == ((0,),)
     assert h.rows("SELECT count(*) FROM routine_command_version") == ((0,),)
-    h.runtime.assemble(deps)
+    h.restart(deps)
     status, accepted = h.runtime.act(
         session(),
         identifier,
@@ -169,7 +170,7 @@ def test_missing_ui_copy_serves_ids_and_scheduler_miss_commits(tmp_path: Path) -
     missing_words = MemoryRelease("rel_no_words", documents)
     h.db.set_release_provider(lambda: missing_words)
     h.advance(h.clock.now() + timedelta(days=1))
-    h.runtime.assemble(h.engine.deps)
+    h.restart(h.engine.deps)
     identifier = h.ids.derived("ro", "person_mara", "exercise_log", "2", "cadence")
     assert h.runtime.occurrence(session(), identifier)["occurrence_id"] == identifier
     h.advance(h.clock.now().replace(hour=17))

@@ -163,10 +163,6 @@ def test_instances_targets_generations_clock_and_barriers_roundtrip(tmp_path: Pa
         store.set_deadline_generation(uow, "routine.occ.ro_test", 1)
         store.set_deadline_generation(uow, "routine.occ.ro_test", 2)
         assert store.deadline_generation(uow, "routine.occ.ro_test") == 2
-        store.set_clock_suspect(uow, NOW)
-        assert store.clock_suspect_since(uow) == NOW
-        store.set_clock_suspect(uow, None)
-        assert store.clock_suspect_since(uow) is None
         store.put_barrier_ask(uow, "p_test", 1, ("vision",), "pending", None, NOW)
         assert store.get_barrier_ask(uow, "p_test", 1) == (("vision",), "pending", None, NOW)
         store.put_barrier_ask(uow, "p_test", 1, ("vision",), "answered", "ans_1", NOW)

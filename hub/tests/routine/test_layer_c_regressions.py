@@ -35,7 +35,7 @@ def test_action_accepts_the_occurrences_pinned_release(tmp_path: Path) -> None:
 
 
 @pytest.mark.trace("T-E25-027", "T-E25-101")
-def test_person_override_is_visible_to_authorities(tmp_path: Path) -> None:
+def test_person_override_is_visible_to_an_officer_with_a_grant_only(tmp_path: Path) -> None:
     hub = station(tmp_path)
     officer = session("person_tomas", roles=frozenset({Role.CREW_MEDICAL_OFFICER}))
     _, override = hub.commands.create_override(
@@ -43,6 +43,8 @@ def test_person_override_is_visible_to_authorities(tmp_path: Path) -> None:
         OverrideCreateBody("vision_self_check", 0, "person_mara", OverrideUntil("person_stops")),
         idempotency_key="private_override",
     )
+    assert hub.queries.overrides(officer, None, 50)["items"] == []
+    hub.grant_officer_care()
     assert hub.queries.overrides(officer, None, 50)["items"] == [override]
     ground = session(None, roles=frozenset({Role.GROUND}))
     assert hub.queries.overrides(ground, None, 50)["items"] == []

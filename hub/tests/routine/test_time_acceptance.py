@@ -107,7 +107,10 @@ def test_environment_anchor_is_rejected_without_environment_start_fact(tmp_path:
 @pytest.mark.trace("T-E25-014", "SYSTEM-5-11")
 def test_supported_open_bound_above_storage_page_size_still_materializes(tmp_path: Path) -> None:
     hub = station(tmp_path, values={"routine.max_open_per_person": 2000})
-    assert hub.health.snapshot().status == "ok"
+    # Seams this harness leaves absent report themselves (B2); routine's own components stay ok.
+    assert not [
+        c for c in hub.health.snapshot().components if c.code and not c.component.startswith("routine.seam.")
+    ]
     assert hub.rows("SELECT COUNT(*) FROM routine_occurrence")[0][0] != 0
     schedule = hub.queries.schedule(session(), "today")
     assert schedule["person_id"] == "person_mara"
@@ -129,9 +132,11 @@ def test_tighter_warning_cadence_closes_previous_periodic_without_counting_it(tm
     hub.advance(at(2, 9))
     hub.raise_warning()
     hub.deliver()
+    # B1: the old slot's window ended at the day boundary, so the tightening decides it as its deadline would;
+    # decided nine hours late it is still not counted.
     assert hub.rows(
         "SELECT state,miss_counted,end_reason FROM routine_occurrence WHERE occurrence_id=?", (old,)
-    ) == (("missed", 0, "superseded_by_next_slot"),)
+    ) == (("missed", 0, "deadline"),)
     assert hub.rows(
         "SELECT mission_day,cause_kind,periodic FROM routine_occurrence WHERE person_id=? AND item_id='vision_self_check' AND mission_day=2",
         ("person_mara",),

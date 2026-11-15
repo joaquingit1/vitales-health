@@ -207,7 +207,7 @@ class Grants:
 
 
 @pytest.mark.trace("T-E25-027", "INV-E25-07")
-def test_person_override_care_requires_grant_and_ground_only_reads_own_start(tmp_path: Path) -> None:
+def test_person_override_care_requires_a_grant_even_for_the_person_who_started_it(tmp_path: Path) -> None:
     hub = station(tmp_path)
     owner = session()
     officer = session("person_tomas", roles=frozenset({Role.CREW_MEDICAL_OFFICER}))
@@ -222,7 +222,7 @@ def test_person_override_care_requires_grant_and_ground_only_reads_own_start(tmp
     assert hub.queries.overrides(ground, None, 100)["items"] == []
     with pytest.raises(NotFound):
         hub.runtime.end_override(officer, ref, if_match=1, idempotency_key="denied_private_end")
-    hub.runtime.assemble(replace(hub.engine.deps, visibility=Grants(frozenset({ref}))))
+    hub.restart(replace(hub.engine.deps, visibility=Grants(frozenset({ref}))))
     assert hub.runtime.overrides(officer, None, 100)["items"] == [private]
     assert hub.rows(
         "SELECT count(*) FROM platform_audit WHERE json_extract(envelope,'$.entry.event_type')='routine.care_read'"
@@ -234,7 +234,9 @@ def test_person_override_care_requires_grant_and_ground_only_reads_own_start(tmp
         idempotency_key="ground_private",
         config_release=None,
     )
-    assert hub.runtime.overrides(ground, None, 100)["items"] == [ground_private]
+    # M4: starting an override is no grant; without a current grant for it the starter reads nothing.
+    assert ground_private["person_id"] == "person_tomas"
+    assert hub.runtime.overrides(ground, None, 100)["items"] == []
 
 
 @pytest.mark.trace("T-E25-027", "INV-E25-07")
@@ -247,7 +249,7 @@ def test_occurrence_care_grant_controls_read_and_audit(tmp_path: Path) -> None:
     officer = session("person_tomas", roles=frozenset({Role.CREW_MEDICAL_OFFICER}))
     with pytest.raises(NotFound):
         hub.runtime.occurrence(officer, ref)
-    hub.runtime.assemble(replace(hub.engine.deps, visibility=Grants(frozenset({ref}))))
+    hub.restart(replace(hub.engine.deps, visibility=Grants(frozenset({ref}))))
     assert hub.runtime.occurrence(officer, ref)["person_id"] == "person_mara"
     assert hub.rows(
         "SELECT count(*) FROM platform_audit WHERE json_extract(envelope,'$.entry.event_type')='routine.care_read'"
@@ -269,7 +271,7 @@ class Attachments:
 def test_warning_attachments_share_creating_and_repointing_transaction(tmp_path: Path) -> None:
     hub = station(tmp_path)
     attachments = Attachments()
-    hub.runtime.assemble(replace(hub.engine.deps, warnings=attachments))
+    hub.restart(replace(hub.engine.deps, warnings=attachments))
     hub.raise_warning()
     hub.deliver()
     initial = attachments.calls[-1]
@@ -366,7 +368,7 @@ def test_event_audiences_recheck_care_grants_and_audit(tmp_path: Path) -> None:
     officer = session("person_tomas", roles=frozenset({Role.CREW_MEDICAL_OFFICER}))
     ground = session(None, roles=frozenset({Role.GROUND}))
     for allowed in (False, True, False):
-        hub.runtime.assemble(
+        hub.restart(
             replace(
                 hub.runtime.engine.deps,
                 visibility=Grants(frozenset({override, occurrence}) if allowed else frozenset()),

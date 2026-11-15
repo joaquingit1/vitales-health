@@ -44,9 +44,7 @@ def example_occurrence(name: str, item: str, *, state: str | None = None) -> dic
 @pytest.mark.trace("T-E25-020", "CONTRACTS 20")
 def test_station_end_texts_reproduce_all_four_contract_vectors(tmp_path: Path) -> None:
     hub = station(tmp_path, at=at(8, day=14))
-    hub.runtime.assemble(
-        replace(hub.engine.deps, mission_clock=InlineClock(hub.mission_clock, "day {day}", 0))
-    )
+    hub.restart(replace(hub.engine.deps, mission_clock=InlineClock(hub.mission_clock, "day {day}", 0)))
     hub.engine, hub.queries, hub.commands = hub.runtime.engine, hub.runtime.queries, hub.runtime.commands
     hub.commands.act(
         session(),
@@ -71,13 +69,20 @@ def test_station_end_texts_reproduce_all_four_contract_vectors(tmp_path: Path) -
         if_match=int(str(reaction["revision"])),
         idempotency_key="reaction_0738",
     )
-    for item, state in (
-        ("blood_pressure", "due"),
-        ("vision_self_check", "later"),
-        ("reaction_test", "done"),
-        ("body_mass", "not_due"),
+    # The example's day 19 has blood_pressure and vision_self_check open, which needs them last finished on day 12.
+    # The old successor rule faked that here by replacing the overdue day 14 weekly occurrences each day; B1 now
+    # decides those day 14 misses (next due day 21). Their two vectors come from a station whose first day is 19.
+    fresh_dir = tmp_path / "fresh"
+    fresh_dir.mkdir()
+    fresh = station(fresh_dir, at=at(9, 10, day=19))
+    fresh.restart(replace(fresh.engine.deps, mission_clock=InlineClock(fresh.mission_clock, "day {day}", 0)))
+    for source, item, state in (
+        (fresh, "blood_pressure", "due"),
+        (fresh, "vision_self_check", "later"),
+        (hub, "reaction_test", "done"),
+        (hub, "body_mass", "not_due"),
     ):
-        actual = row_for(hub, item)
+        actual = row_for(source, item)
         expected = example_occurrence("today-station", item, state=state)
         assert actual["end_text"] == expected["end_text"], item
 
@@ -109,7 +114,7 @@ def test_moon_next_walk_and_mars_first_walk_match_contract_end_texts(tmp_path: P
         ]
         template = next(p["day_label"]["inline_template"] for p in profiles if p["environment_id"] == env)
         clock = InlineClock(hub.mission_clock, template, offset)
-        hub.runtime.assemble(replace(hub.engine.deps, mission_clock=clock))
+        hub.restart(replace(hub.engine.deps, mission_clock=clock))
         hub.engine, hub.queries, hub.commands = hub.runtime.engine, hub.runtime.queries, hub.runtime.commands
         # CONTRACTS 20's summary vector starts from the producer's existing
         # overlay snapshot, before a walk occurrence has been materialized.
@@ -219,6 +224,7 @@ def test_all_environment_override_examples_match_nontext_contract_fields(tmp_pat
 @pytest.mark.trace("T-E25-038", "CONTRACTS 20")
 def test_manual_override_start_and_end_match_every_stable_example_field(tmp_path: Path) -> None:
     hub = station(tmp_path, at=at(9, 30, day=19))
+    hub.grant_officer_care()
     started = manual(hub)
     assert stable_override(started) == stable_override(routine_example("override-manual"))
     hub.advance(at(12, day=19))

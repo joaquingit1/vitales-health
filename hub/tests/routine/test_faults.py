@@ -144,8 +144,9 @@ def test_person_override_is_private_while_group_override_admits_members_and_offi
         assert not rule.admits(view, officer, audience("routine.override", personal))
         assert not rule.admits(view, ground, audience("routine.override", personal))
         assert rule.admits(view, session(), audience("routine.override", group))
-        assert rule.admits(view, officer, audience("routine.override", group))
-        assert rule.admits(view, ground, audience("routine.override", group))
+        # M4: officer and ground status alone admit no override; members of the group do.
+        assert not rule.admits(view, officer, audience("routine.override", group))
+        assert not rule.admits(view, ground, audience("routine.override", group))
         assert not rule.admits(view, session("person_ilya"), audience("routine.override", group))
 
 

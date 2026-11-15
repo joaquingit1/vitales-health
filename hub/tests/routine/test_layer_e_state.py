@@ -41,9 +41,19 @@ def test_task_steps_come_verbatim_from_the_release_in_live_and_sim_with_no_revie
     assert hub.mission.facts is not None
     hub.mission.facts = replace(hub.mission.facts, mission_mode="LIVE")
     assert hub.client.get(path, headers=headers()).json()["steps"] == configured
+    hub.mission.facts = replace(hub.mission.facts, mission_mode="SIM")
     edited = [configured[0] + " Edited instruction.", *configured[1:]]
     item["steps"] = edited
     activate(hub, edited_release(hub, "rel_steps_edit", {ConfigName.ROUTINE_SCHEDULE: schedule}))
+    # PLAN row 28, M5: the open occurrence keeps the steps it started with; new work gets the edited ones.
+    assert hub.client.get(path, headers=headers()).json()["steps"] == configured
+    open_row = row_for(hub, "blood_pressure")
+    done = hub.client.post(
+        f"/v1/routine/occurrences/{open_row['occurrence_id']}/actions",
+        json={"action": "complete"},
+        headers=headers(key="steps_edit_done", revision=int(str(open_row["revision"]))),
+    )
+    assert done.status_code == 200, done.text
     assert hub.client.get(path, headers=headers()).json()["steps"] == edited
 
 

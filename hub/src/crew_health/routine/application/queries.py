@@ -13,6 +13,7 @@ from crew_health.routine.application.views import (
     environment,
     instant,
     occurrence_view,
+    open_occurrence,
     override_view,
     require_words,
     task_view,
@@ -184,18 +185,15 @@ class RoutineQueryService:
     def task(self, session: SessionContext, item_id: str) -> dict[str, object]:
         person = person_id(session)
         with self.deps.snapshots.snapshot() as view:
-            release = self.engine.release(view)
-            item = release.item(item_id)
+            item = self.engine.release(view).item(item_id)
             if item is None:
-                pinned = next(
-                    (o for o in self.engine.open_occurrences(view, person) if o.item_id == item_id), None
-                )
-                if pinned is not None:
-                    release = self.engine.release_for(view, pinned.config_release_id)
-                    item = release.item(item_id)
+                # E25 3.12.3: an item absent from the new release is served from its open occurrence's pin.
+                occ = open_occurrence(self.engine, view, person, item_id)
+                if occ is not None:
+                    item = self.engine.release_for(view, occ.config_release_id).item(item_id)
             if item is None:
                 raise NotFound()
-            return task_view(self.deps, self.engine, view, item, session, view.now, release=release)
+            return task_view(self.deps, self.engine, view, item, session, view.now)
 
     def overrides(self, session: SessionContext, cursor: str | None, limit: int) -> dict[str, object]:
         if session.person_id is None and not any(

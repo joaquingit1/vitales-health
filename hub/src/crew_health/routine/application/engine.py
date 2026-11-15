@@ -5,9 +5,10 @@ from dataclasses import replace
 from datetime import datetime, timedelta
 
 from crew_health.contracts_gen.enums import EventType
-from crew_health.kernel.clock import ClockCorrected, ClockRegressed
+from crew_health.kernel.clock import TimeInput
 from crew_health.kernel.commands import canonical_json
-from crew_health.kernel.scheduler import AbsoluteDeadline, ScheduledJob
+from crew_health.kernel.errors import StorageUnavailable
+from crew_health.kernel.scheduler import AbsoluteDeadline, ElapsedDeadline, ScheduledJob
 from crew_health.kernel.uow import (
     Actor,
     Audience,
@@ -22,6 +23,7 @@ from crew_health.routine.application.audit import audit
 from crew_health.routine.application.deps import RoutineDeps
 from crew_health.routine.application.ports import AnswerFacts, MissionFacts
 from crew_health.routine.application.scans import bounded_pages
+from crew_health.routine.application.timers import TimerKind, deadline_kind
 from crew_health.routine.domain.bindings import OverlayInput, TriggerInput
 from crew_health.routine.domain.cadence import (
     CadenceCandidate,
@@ -78,14 +80,15 @@ class RoutineEngine:
             )
         return release
 
-    def release_for_deadline(self, uow: UnitOfWork, release_id: str) -> RoutineRelease:
-        """Holds and misses never fail on presentation: an unreadable pin falls back to the active release (its
-        suppressed overlays decide holds) and marks routine degraded, so a deadline is still recorded."""
+    def pinned_for_deadline(self, uow: UnitOfWork, release_id: str) -> RoutineRelease | None:
+        """AGENTS 6 and PLAN row 28: open work keeps its pinned release. When that pin cannot be read (no
+        ConfigReleaseReader, or an evicted cache after a restart) the caller keeps the stored deadline and routine is
+        marked degraded; the active release never recomputes a hold under open work."""
         try:
             return self.release_for(uow, release_id)
         except ConfigInvalid:
             self.deps.health.mark_degraded("routine", "CONFIG_INVALID", uow.now)
-            return self.release(uow)
+            return None
 
     def day(self, at: datetime) -> tuple[int, str]:
         version = self.deps.mission_clock.version_at(at).clock_version
@@ -158,11 +161,7 @@ class RoutineEngine:
             CadenceCandidate(a.activation_id, a.cadence, a.started_at, item.cadence_basis, item.source_ids)
             for a in self.activations.active(view, person_id)
             if a.item_id == item.item_id
-            and (
-                a.ends_at is None
-                or view.now < a.ends_at
-                or self.deps.store.clock_suspect_since(view) is not None
-            )
+            and (a.ends_at is None or view.now < a.ends_at or not self.trusted(view))
         )
         return effective_cadence(
             item.cadence_for(environment_id),
@@ -220,13 +219,47 @@ class RoutineEngine:
         )
 
     def schedule(
-        self, uow: UnitOfWork, key: str, handler: str, at: datetime, payload: dict[str, str]
+        self,
+        uow: UnitOfWork,
+        key: str,
+        handler: str,
+        at: datetime,
+        payload: dict[str, str],
+        *,
+        kind: TimerKind = "absolute",
     ) -> None:
+        """Every routine timer goes through here; `kind` is its PLAN row 34 class (application/timers.py)."""
+        deadline: AbsoluteDeadline | ElapsedDeadline = AbsoluteDeadline(at)
+        # While the shared clock is frozen the kernel cannot normalize an anchor (clock.py normalize) and nothing
+        # recomputes the job after the sweep, so an elapsed timer set then would never fall due. Its handler
+        # rechecks the trust anyway (no miss counts and no tightening ends on unknown time), so it keeps its
+        # instant until the clock is trusted again.
+        if kind == "elapsed" and self.trusted(uow):
+            anchor = self.hub_time(uow)
+            if anchor is None:
+                self.deps.health.mark_degraded("routine.clock", "CAPABILITY_UNAVAILABLE", uow.now)
+            else:
+                deadline = ElapsedDeadline(anchor, max(at - uow.now, timedelta(0)))
         generation = self.deps.store.deadline_generation(uow, key)
         generation = uow.schedule(
-            ScheduledJob(key, handler, AbsoluteDeadline(at), payload, None), expected_generation=generation
+            ScheduledJob(key, handler, deadline, payload, None), expected_generation=generation
         )
         self.deps.store.set_deadline_generation(uow, key, generation)
+
+    def hub_time(self, uow: UnitOfWork) -> TimeInput | None:
+        if self.deps.hub_clock is None:
+            return None
+        facts = self.deps.mission.current(uow) if self.deps.mission is not None else None
+        return self.deps.hub_clock.hub_time(uow, "SIM" if facts is None else facts.mission_mode)
+
+    def lateness(self, uow: UnitOfWork, job: ScheduledJob) -> timedelta | None:
+        """How late an elapsed timer runs, measured through the shared clock corrections; an unknown hub time is
+        unbounded lateness, so it never counts a miss. None for an absolute timer (`counted` uses the wall clock)."""
+        if not isinstance(job.deadline, ElapsedDeadline):
+            return None
+        now = self.hub_time(uow)
+        elapsed = None if now is None else self.deps.corrections.elapsed(uow, job.deadline.anchor, now)
+        return timedelta.max if elapsed is None else elapsed - job.deadline.duration
 
     def cancel(self, uow: UnitOfWork, key: str) -> None:
         generation = self.deps.store.deadline_generation(uow, key)
@@ -238,7 +271,12 @@ class RoutineEngine:
         if occ.state in FINAL_STATES:
             self.cancel(uow, key)
             return
-        release = self.release_for_deadline(uow, occ.config_release_id)
+        release = self.pinned_for_deadline(uow, occ.config_release_id)
+        if release is None:
+            # M1: the stored deadline stands. A held occurrence (no deadline) stays held until its pin is readable.
+            if occ.due_until is not None:
+                self.schedule_deadline(uow, occ)
+            return
         until, held = self.hold(uow, occ, release, uow.now)
         if (
             until is None
@@ -267,7 +305,19 @@ class RoutineEngine:
         if held is not None or until is None:
             self.cancel(uow, key)
         else:
-            self.schedule(uow, key, "routine.occurrence", until, {"occurrence_id": occ.occurrence_id})
+            self.schedule_deadline(uow, occ)
+
+    def schedule_deadline(self, uow: UnitOfWork, occ: Occurrence) -> None:
+        if occ.due_until is None:
+            return
+        self.schedule(
+            uow,
+            "routine.occ." + occ.occurrence_id,
+            "routine.occurrence",
+            occ.due_until,
+            {"occurrence_id": occ.occurrence_id},
+            kind=deadline_kind(occ),
+        )
 
     def ensure_day_job(self, uow: UnitOfWork, person_id: str) -> None:
         day, version = self.day(uow.now)
@@ -447,7 +497,37 @@ class RoutineEngine:
             if o.item_id == item_id and o.periodic and o.mission_day < day
         )
 
+    def close_predecessor(self, uow: UnitOfWork, older: Occurrence) -> None:
+        """B1: the successor rule closes, uncounted, only work its own deadline has not decided: an occurrence still
+        inside its window, or one a hold extended (design 3.7 and test 109: sleep over an all-day item carries it
+        past midnight). An open predecessor whose absolute deadline has passed is a deadline miss, counted by the
+        same rule as its own deadline job."""
+        if older.due_until is not None and older.due_until <= uow.now and deadline_kind(older) == "absolute":
+            self.deadline_miss(uow, older)
+            return
+        self.change(
+            uow,
+            older,
+            miss(
+                older,
+                now=uow.now,
+                counted=False,
+                reason="superseded_by_next_slot",
+                actor_id=uow.actor.id,
+            ),
+        )
+
+    def close_due(self, uow: UnitOfWork, person_id: str) -> None:
+        """B1: a day boundary is also the deadline of every all-day occurrence, and the scheduler runs the jobs due
+        at one instant in key order (routine.day sorts before routine.occ). So the day job first decides every
+        passed absolute deadline exactly as the occurrence's own job would, whatever order the jobs run in. Needs
+        no mission, roster or release: misses are recorded with every optional provider absent (AGENTS 1 rule 3)."""
+        for occ in self.open_occurrences(uow, person_id):
+            if occ.due_until is not None and occ.due_until <= uow.now and deadline_kind(occ) == "absolute":
+                self.deadline_miss(uow, occ)
+
     def materialize(self, uow: UnitOfWork, person_id: str, day: int) -> None:
+        self.close_due(uow, person_id)
         mission, release = self.mission(uow), self.release(uow)
         try:
             periodic = self.periodic(uow, person_id, day, release, mission)
@@ -455,17 +535,7 @@ class RoutineEngine:
             periodic = ()
         for occ in periodic:
             for older in self.earlier_periodic(uow, person_id, occ.item_id, day):
-                self.change(
-                    uow,
-                    older,
-                    miss(
-                        older,
-                        now=uow.now,
-                        counted=False,
-                        reason="superseded_by_next_slot",
-                        actor_id=uow.actor.id,
-                    ),
-                )
+                self.close_predecessor(uow, older)
             self.insert(uow, occ)
         self.inputs.each_day(uow, person_id, day)
         self.offer_barrier(uow, person_id)
@@ -486,21 +556,57 @@ class RoutineEngine:
         if new.state in FINAL_STATES:
             self.inputs.effect_complete(uow, new.occurrence_id)
             if new.state == "missed":
-                try:
-                    if deadline:
-                        release = self.deps.releases.cached(uow.release.release_id)
-                        if release is not None:
-                            self.offer_barrier(uow, new.person_id, release=release)
-                    else:
-                        self.offer_barrier(uow, new.person_id)
-                except ConfigInvalid:
-                    self.deps.health.mark_degraded("routine", "CONFIG_INVALID", uow.now)
+                self.barrier_after_miss(uow, new.person_id, deadline=deadline)
         return new
 
-    def counted(self, uow: UnitOfWork, until: datetime) -> bool:
-        return (uow.now - until) <= timedelta(
-            milliseconds=self.deps.settings.miss_grace_ms
-        ) and self.deps.store.clock_suspect_since(uow) is None
+    def barrier_after_miss(self, uow: UnitOfWork, person_id: str, *, deadline: bool) -> None:
+        """m1: the deadline path opens no configuration document (AGENTS 1 rule 3), so it offers the barrier
+        question from the cached active release only. A cold cache is no longer silent: routine.barrier turns
+        degraded and the person's next day job offers the question (`day_barrier`)."""
+        release = self.deps.releases.cached(uow.release.release_id)
+        if deadline and release is None:
+            self.deps.health.mark_degraded("routine.barrier", "CONFIG_INVALID", uow.now)
+            return
+        try:
+            self.offer_barrier(uow, person_id, release=release)
+        except ConfigInvalid:
+            self.deps.health.mark_degraded("routine.barrier", "CONFIG_INVALID", uow.now)
+
+    def day_barrier(self, uow: UnitOfWork, person_id: str) -> None:
+        """m1 retry: the day job loads the active release and offers a barrier question a cold deadline deferred."""
+        self.offer_barrier(uow, person_id)
+        self.deps.health.mark_ok("routine.barrier")
+
+    def trusted(self, view: UnitOfWork | ReadSnapshot) -> bool:
+        """The shared clock trust (SYSTEM 5.2, PersistentClocks.clearing_allowed): False after a regression until
+        the correction and its sweep, and at first boot until the hub's first sweep. Routine keeps none of its own."""
+        if self.deps.clock_trust is None:
+            self.deps.health.mark_degraded("routine.clock", "CAPABILITY_UNAVAILABLE", view.now)
+            return False
+        return self.deps.clock_trust.clearing_allowed(view)
+
+    def counted(self, uow: UnitOfWork, until: datetime, *, late: timedelta | None = None) -> bool:
+        """A miss counts only when it is decided inside routine.miss_grace_ms of its deadline on a trusted clock.
+        `late` is an elapsed timer's lateness through the clock corrections (`lateness`); otherwise the wall clock."""
+        lateness = uow.now - until if late is None else late
+        return lateness <= timedelta(milliseconds=self.deps.settings.miss_grace_ms) and self.trusted(uow)
+
+    def deadline_miss(self, uow: UnitOfWork, occ: Occurrence, *, late: timedelta | None = None) -> None:
+        """The one place a deadline miss is decided, by the occurrence's own job or by the day job (B1)."""
+        if occ.due_until is None:
+            return
+        self.change(
+            uow,
+            occ,
+            miss(
+                occ,
+                now=uow.now,
+                counted=self.counted(uow, occ.due_until, late=late),
+                reason="deadline",
+                actor_id=uow.actor.id,
+            ),
+            deadline=True,
+        )
 
     def occurrence_job(self, uow: UnitOfWork, job: ScheduledJob) -> None:
         occ = self.deps.store.get(uow, job.payload["occurrence_id"])
@@ -510,41 +616,45 @@ class RoutineEngine:
         # The durable deadline is sufficient even after a cold restart with invalid config.
         if occ.due_until is None:
             return
-        if uow.now < occ.due_until:
-            self.schedule(
-                uow,
-                "routine.occ." + occ.occurrence_id,
-                "routine.occurrence",
-                occ.due_until,
-                {"occurrence_id": occ.occurrence_id},
-            )
+        late = self.lateness(uow, job)
+        if late is None and uow.now < occ.due_until:
+            self.schedule_deadline(uow, occ)
             return
-        self.change(
-            uow,
-            occ,
-            miss(
-                occ,
-                now=uow.now,
-                counted=self.counted(uow, occ.due_until),
-                reason="deadline",
-                actor_id=uow.actor.id,
-            ),
-            deadline=True,
-        )
+        self.deadline_miss(uow, occ, late=late)
 
     def day_job(self, uow: UnitOfWork, job: ScheduledJob) -> None:
         person = job.payload["person_id"]
         try:
-            self.materialize(uow, person, self.day(uow.now)[0])
-        except (ConfigInvalid, MissionUnavailable) as error:
-            # Unavailable inputs prevent new work, but must not abort the shared
-            # scheduler transaction that records already accepted deadlines.
-            self.deps.health.mark_degraded(
-                "routine",
-                "CONFIG_INVALID" if isinstance(error, ConfigInvalid) else "MISSION_UNAVAILABLE",
-                uow.now,
-            )
+            with uow.savepoint("routine_day"):
+                self.close_due(uow, person)
+        except StorageUnavailable:
+            raise
+        except Exception as error:  # noqa: BLE001  # contained to this person's day job, reported below
+            self.day_failed(uow, "close_due", error)
+        try:
+            with uow.savepoint("routine_materialize"):
+                self.materialize(uow, person, self.day(uow.now)[0])
+                self.day_barrier(uow, person)
+        except StorageUnavailable:
+            raise
+        except Exception as error:  # noqa: BLE001  # contained to this person's day job, reported below
+            self.day_failed(uow, "materialize", error)
         self.ensure_day_job(uow, person)
+
+    def day_failed(self, uow: UnitOfWork, step: str, error: Exception) -> None:
+        """m2: one person's failing day job rolls back only its own savepoint and stays visible, so the deadlines
+        of everyone else in the shared dispatch batch still commit. Storage errors are never contained."""
+        code = (
+            "CONFIG_INVALID"
+            if isinstance(error, ConfigInvalid)
+            else "MISSION_UNAVAILABLE"
+            if isinstance(error, MissionUnavailable)
+            else "EVALUATION_UNAVAILABLE"
+        )
+        logging.getLogger("crew_health.routine").error(
+            "routine day job %s failed: %s", step, type(error).__name__
+        )
+        self.deps.health.mark_degraded("routine", code, uow.now)
 
     def miss_summary(
         self, view: UnitOfWork | ReadSnapshot, person_id: str, release: RoutineRelease, now: datetime
@@ -683,17 +793,6 @@ class RoutineEngine:
 
     def instance_job(self, uow: UnitOfWork, job: ScheduledJob) -> None:
         self.inputs.instance_job(uow, job)
-
-    def on_clock_regressed(self, uow: UnitOfWork, event: ClockRegressed) -> None:
-        previous = self.deps.store.clock_suspect_since(uow)
-        self.deps.store.set_clock_suspect(
-            uow, max(previous, event.observed_at) if previous else event.observed_at
-        )
-
-    def on_clock_corrected(self, uow: UnitOfWork, event: ClockCorrected) -> None:
-        suspect = self.deps.store.clock_suspect_since(uow)
-        if suspect is not None and event.detected_at >= suspect:
-            self.deps.store.set_clock_suspect(uow, None)
 
     def environment_activated(self, uow: UnitOfWork) -> None:
         if self.deps.roster is not None:

@@ -10,7 +10,6 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from crew_health.kernel.clock import ClockCorrected, ClockRegressed
 from crew_health.kernel.errors import StorageUnavailable
 from crew_health.kernel.uow import Actor
 from crew_health.routine.domain.bindings import (
@@ -94,13 +93,11 @@ def test_environment_scoped_event_requires_both_active_and_source_environment() 
 def test_activation_end_waits_for_a_trusted_clock(tmp_path: Path) -> None:
     hub = station(tmp_path, at=at(0))
     land(hub)
-    hub.advance(at(0, day=6))
-    with hub.db.begin(actor=Actor("operator", "clock_operator"), correlation_id="cor_rca_suspect") as uow:
-        uow.publish(ClockRegressed(hub.clock.now(), hub.clock.now() + timedelta(seconds=1), -1000))
+    hub.advance(at(0, day=6) + timedelta(minutes=1))
+    hub.regress(at(0, day=6))
     drain_timers(hub)
     assert hub.rows("SELECT DISTINCT state FROM routine_cadence_activation") == (("active",),)
-    with hub.db.begin(actor=Actor("operator", "clock_operator"), correlation_id="cor_rca_trusted") as uow:
-        uow.publish(ClockCorrected(0, 0, hub.clock.now(), 2, "operator"))
+    hub.confirm_time()
     hub.advance(hub.clock.now() + timedelta(milliseconds=hub.engine.deps.settings.miss_grace_ms))
     drain_timers(hub)
     assert hub.rows("SELECT DISTINCT state,end_reason FROM routine_cadence_activation") == (

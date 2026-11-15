@@ -49,8 +49,6 @@ def test_register_declares_all_runtime_seams() -> None:
     }
     assert set(registry.declarations["durable_subscribers"]) == {"routine.inputs"}
     assert set(registry.declarations["subscriptions"]) == {
-        "routine.clock_regressed",
-        "routine.clock_corrected",
         "routine.daily_submitted",
         "routine.daily_abandoned",
         "routine.reaction",

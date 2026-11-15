@@ -1,12 +1,14 @@
 from datetime import datetime
 from typing import Literal, Protocol
 
+from crew_health.kernel.config import ReleaseHandle
 from crew_health.kernel.uow import ReadSnapshot, UnitOfWork
 from crew_health.routine.domain.activation import CadenceActivation
 from crew_health.routine.domain.bindings import OverlayInput
 from crew_health.routine.domain.instances import QuestionInstance
 from crew_health.routine.domain.occurrence import Occurrence, TransitionRecord
 from crew_health.routine.domain.override import Override
+from crew_health.routine.domain.release import RoutineRelease
 from crew_health.routine.domain.vocabulary import MemberBasis, Overlay
 
 type View = UnitOfWork | ReadSnapshot
@@ -104,8 +106,6 @@ class RoutineStore(Protocol):
     ) -> tuple[OverlayInput, ...]: ...
     def deadline_generation(self, view: View, key: str) -> int | None: ...
     def set_deadline_generation(self, uow: UnitOfWork, key: str, generation: int) -> None: ...
-    def clock_suspect_since(self, view: View) -> datetime | None: ...
-    def set_clock_suspect(self, uow: UnitOfWork, at: datetime | None) -> None: ...
     def get_barrier_ask(self, view: View, person_id: str, day: int) -> BarrierAsk | None: ...
     def put_barrier_ask(
         self,
@@ -133,3 +133,9 @@ class RoutineStore(Protocol):
     def overrides_from_warning(
         self, view: View, warning_id: str, limit: int, *, offset: int = 0
     ) -> tuple[Override, ...]: ...
+
+
+class ReleaseSource(Protocol):
+    def release(self, handle: ReleaseHandle) -> RoutineRelease: ...
+    def cached(self, release_id: str) -> RoutineRelease | None: ...
+    def pinned(self, release_id: str) -> RoutineRelease | None: ...

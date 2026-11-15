@@ -351,6 +351,7 @@ class RoutineActions:
                     "routine.override",
                     override.ends_at,
                     {"override_id": override.override_id, "kind": "ends"},
+                    kind="elapsed",
                 )
             self.deps.store.remember(
                 uow, session.actor.id, cmd.key, override, override_view(override, session)

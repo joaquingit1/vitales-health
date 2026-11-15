@@ -13,7 +13,7 @@ from crew_health.app.registry import ModuleRegistry, Resolver, StartupPhase
 from crew_health.contracts_gen.enums import ErrorCode, EventType
 from crew_health.contracts_gen.schemas.routine_occurrence_schema import RoutineOccurrence
 from crew_health.contracts_gen.schemas.routine_override_schema import RoutineOverride
-from crew_health.kernel.clock import Clock, ClockCorrected, ClockRegressed
+from crew_health.kernel.clock import Clock, ClockCorrections
 from crew_health.kernel.commands import CommandReceipts, IdempotencyStore, canonical_json
 from crew_health.kernel.config import ConfigReleaseReader
 from crew_health.kernel.errors import ProblemError
@@ -35,6 +35,7 @@ from crew_health.kernel.uow import (
     UnitOfWorkFactory,
 )
 from crew_health.routine.adapters.config_reader import ReleaseCache, RoutineReleaseCheck
+from crew_health.routine.adapters.hub_clock import shared_hub_clock
 from crew_health.routine.adapters.sqlite_repository import SqliteRoutineStore
 from crew_health.routine.adapters.wire_inputs import parse_input
 from crew_health.routine.api.router import build_router
@@ -47,10 +48,12 @@ from crew_health.routine.application.evaluator import RoutineEvaluator
 from crew_health.routine.application.ports import (
     AddedQuestion,
     AssistantRoutinePort,
+    ClockTrust,
     DailyCheckAbandoned,
     DailyCheckQuestionSource,
     DailyCheckSubmitted,
     DrillOccurrence,
+    HubClock,
     LocationPort,
     MissionStatePort,
     OccurrenceActionBody,
@@ -78,6 +81,7 @@ from crew_health.routine.application.provided import (
     RoutineToday,
 )
 from crew_health.routine.application.queries import RoutineQueryService
+from crew_health.routine.application.seams import Seam, absent, report
 from crew_health.routine.application.settings import RoutineSettings, specs
 from crew_health.routine.application.subscriptions import RoutineSubscriptions
 from crew_health.routine.domain.loader_checks import Bounds
@@ -134,6 +138,7 @@ class RoutineRuntime:
         self.startup_phase = StartupPhase.STATE_SWEEP
         self._bound = False
         self.authenticator: RequestAuthenticator | None = None
+        self.missing: tuple[Seam, ...] = ()
         self._engine: RoutineEngine | None = None
         self._queries: RoutineQueryService | None = None
         self._commands: RoutineActions | None = None
@@ -166,12 +171,25 @@ class RoutineRuntime:
         self._subscriptions = RoutineSubscriptions(deps, engine)
         self._evaluator = RoutineEvaluator(deps, engine)
         self._checks = CheckNotifications(engine)
-        engine.startup_sweep()
         self._bound = True
 
+    def startup(self) -> None:
+        """SYSTEM 6 STATE_SWEEP: after the module migrations (STORAGE) and the clock regression check (CLOCK), never
+        inside bind, which runs before any table exists."""
+        engine = _need(self._engine)
+        report(engine.deps.health, self.missing, engine.deps.clock.now())
+        engine.startup_sweep()
+
     def authenticate(self, request: Request, operation_id: str) -> SessionContext:
+        """B2: in create_app the hub's operation middleware has already authenticated and authorized this
+        contract operation through its HttpSecurity (E02's sessions provider) and left the session on the request
+        state (app/assembly.py request_session); routine reads exactly that. A RequestAuthenticator seam is only
+        the fallback for a router mounted without that middleware; with neither, every request is 401."""
         if not self._bound:
             raise ProblemError(ErrorCode.INTERNAL_ERROR, "routine is not bound", retryable=True)
+        session: object = getattr(request.state, "session", None)
+        if isinstance(session, SessionContext):
+            return session
         if self.authenticator is None:
             raise ProblemError(ErrorCode.UNAUTHENTICATED, ErrorCode.UNAUTHENTICATED.value)
         return self.authenticator.authenticate(request.headers, operation_id)
@@ -310,15 +328,10 @@ class RoutineRuntime:
     def reaction(self, uow: UnitOfWork, event: ReactionTestRecorded) -> None:
         _need(self._subscriptions).isolated(uow, lambda: _need(self._checks).reaction(uow, event))
 
-    def regressed(self, uow: UnitOfWork, event: ClockRegressed) -> None:
-        _need(self._subscriptions).regressed(uow, event)
-
-    def corrected(self, uow: UnitOfWork, event: ClockCorrected) -> None:
-        _need(self._subscriptions).corrected(uow, event)
-
 
 def _deps(resolver: Resolver) -> RoutineDeps:
     settings = RoutineSettings.read(resolver.require(HubSettings))
+    corrections = resolver.require(ClockCorrections)
     return RoutineDeps(
         resolver.require(UnitOfWorkFactory),
         resolver.require(ReadSnapshotFactory),
@@ -338,6 +351,9 @@ def _deps(resolver: Resolver) -> RoutineDeps:
         resolver.optional(MissionStatePort),
         resolver.optional(RosterPort),
         resolver.optional(LocationPort),
+        corrections if isinstance(corrections, ClockTrust) else None,
+        corrections,
+        resolver.optional(HubClock) or shared_hub_clock(corrections),
         resolver.optional(Visibility),
         resolver.optional(RecordFacts),
         resolver.optional(WarningCommands),
@@ -404,8 +420,6 @@ def register(registry: ModuleRegistry) -> None:
         ),
         runtime.event,
     )
-    registry.subscribe(ClockRegressed, runtime.regressed, name="routine.clock_regressed")
-    registry.subscribe(ClockCorrected, runtime.corrected, name="routine.clock_corrected")
     registry.evaluator(EvaluatorRegistration("routine", "1", runtime))
     registry.subscribe(DailyCheckSubmitted, runtime.submitted, name="routine.daily_submitted")
     registry.subscribe(DailyCheckAbandoned, runtime.abandoned, name="routine.daily_abandoned")
@@ -419,6 +433,21 @@ def register(registry: ModuleRegistry) -> None:
 
     def bind(resolver: Resolver) -> None:
         runtime.authenticator = resolver.optional(RequestAuthenticator)
-        runtime.assemble(_deps(resolver))
+        deps = _deps(resolver)
+        runtime.missing = absent(
+            {
+                "roster": deps.roster,
+                "mission": deps.mission,
+                "location": deps.locations,
+                "visibility": deps.visibility,
+                "records": deps.records,
+                "warnings": deps.warnings,
+                "release_history": resolver.optional(ConfigReleaseReader),
+                "clock_trust": deps.clock_trust,
+                "hub_clock": deps.hub_clock,
+            }
+        )
+        runtime.assemble(deps)
 
     registry.bind("routine", bind)
+    registry.on_startup(StartupPhase.STATE_SWEEP, runtime.startup)

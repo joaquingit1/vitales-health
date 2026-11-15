@@ -1,15 +1,18 @@
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
-from typing import ClassVar, Literal, Protocol
+from typing import ClassVar, Literal, Protocol, runtime_checkable
 
 from crew_health.kernel.clock import NormalizedTime, TimeInput
-from crew_health.kernel.config import ReleaseHandle
 from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
-from crew_health.routine.application.store_port import RoutineStore as RoutineStore
-from crew_health.routine.domain.release import RoutineRelease
-from crew_health.routine.domain.vocabulary import OccurrenceState, OriginMode, SkipReason
+
+# This module is the routine seam other modules may import (generated contract <module>-independent-routine allows
+# routine.application.ports only), so it must never reach routine.domain. These literals repeat
+# routine.domain.vocabulary; hub/tests/routine/test_production_composition.py asserts both stay equal.
+OccurrenceState = Literal["not_due", "due", "later", "done", "skipped", "missed"]
+SkipReason = Literal["not_available", "declined", "no_time", "not_needed_now", "other"]
+OriginMode = Literal["LIVE", "REPLAY", "SIM"]
 
 
 # Provided by E23 (crew_health.mission); structural copy until it is on main.
@@ -97,6 +100,24 @@ class RecordFacts(Protocol):
         self, view: ReadSnapshot | UnitOfWork, observation_id: str
     ) -> ObservationFacts | None: ...
     def answer(self, view: ReadSnapshot | UnitOfWork, answer_id: str) -> AnswerFacts | None: ...
+
+
+# Provided by E01 (crew_health.clock): the shared clock trust, PersistentClocks.clearing_allowed (SYSTEM 5.2). False
+# after a regression until the operator correction and its sweep, and at first boot until the hub's first sweep.
+# Routine may not import clock's application layer, and clock registers PersistentClocks under the kernel
+# ClockCorrections port, so module.py checks that provider against this protocol. A provider without it leaves the
+# clock untrusted (no miss counts) and routine degraded, never a local copy of the trust.
+@runtime_checkable
+class ClockTrust(Protocol):
+    def clearing_allowed(self, snapshot: ReadSnapshot) -> bool: ...
+
+
+# Requested from E01 (crew_health.clock): a capture on the hub's own clock (its latest segment and the correction
+# revision in force), the anchor of routine's elapsed timers (PLAN row 34). E01 builds the same capture privately in
+# its assembly for evaluation and tasks; nothing provides it as a port yet. Absent, or None while the hub clock has no
+# open segment: an elapsed timer falls back to its absolute instant and routine.clock is marked degraded.
+class HubClock(Protocol):
+    def hub_time(self, uow: UnitOfWork, origin_mode: OriginMode) -> TimeInput | None: ...
 
 
 # Provided by E02 (crew_health.identity); structural copy until it is on main.
@@ -229,12 +250,6 @@ class AssistantRoutinePort(Protocol):
     def add_recheck(
         self, uow: UnitOfWork, *, person_id: str, item_id: str, insight_id: str, due_from: datetime
     ) -> OccurrenceRef: ...
-
-
-class ReleaseSource(Protocol):
-    def release(self, handle: ReleaseHandle) -> RoutineRelease: ...
-    def cached(self, release_id: str) -> RoutineRelease | None: ...
-    def pinned(self, release_id: str) -> RoutineRelease | None: ...
 
 
 # Provided by E02 (crew_health.identity) per SYSTEM 8.3; structural copy until it is on main.

@@ -8,6 +8,8 @@ from typing import cast
 
 import pytest
 
+from crew_health.contracts_gen.enums import Role
+
 from .http_harness import HttpHarness, headers, problem, request_example, validate, validator
 
 
@@ -111,6 +113,7 @@ def test_foreign_occurrences_are_hidden_and_skip_notes_stay_private(tmp_path: Pa
 @pytest.mark.trace("T-E25-030", "UC03", "CONTRACTS 15")
 def test_manual_override_roles_visibility_duplicate_replay_and_stop(tmp_path: Path) -> None:
     hub = HttpHarness(tmp_path)
+    hub.grant_officer_care()
     path = "/v1/routine/overrides"
     body = hub.manual_body()
     problem(hub.client.post(path, json=body, headers=headers(key="crew_override")), "UNAUTHORIZED_SCOPE", 403)
@@ -316,6 +319,7 @@ def test_replay_versions_survive_restart_and_are_append_only(tmp_path: Path) -> 
 @pytest.mark.trace("T-E25-024", "T-E25-018")
 def test_override_commands_honor_release_headers_and_body_identity(tmp_path: Path) -> None:
     hub = HttpHarness(tmp_path)
+    hub.grant_officer_care()
     body = hub.manual_body()
     auth = headers("person_tomas", "crew_medical_officer", key="release_create_key", release="rel_foreign")
     problem(hub.client.post("/v1/routine/overrides", json=body, headers=auth), "CONFIG_VERSION_MISMATCH", 409)
@@ -406,6 +410,7 @@ def test_key_reuse_on_another_target_conflicts_and_invalid_actions_leave_no_reco
 @pytest.mark.trace("T-E25-024", "T-E25-027")
 def test_manual_override_shape_errors_rule_errors_and_ground_stop_role(tmp_path: Path) -> None:
     hub = HttpHarness(tmp_path)
+    hub.grant_officer_care(Role.CREW_MEDICAL_OFFICER, Role.GROUND)
     body = hub.manual_body()
     for index, invalid in enumerate(
         (
@@ -446,8 +451,8 @@ def test_manual_override_shape_errors_rule_errors_and_ground_stop_role(tmp_path:
                 "person_tomas", "crew_medical_officer", key="officer_cannot_stop_ground", revision=1
             ),
         ),
-        "NOT_FOUND",
-        404,
+        "ACTION_NOT_ALLOWED",
+        403,
     )
     ended = hub.client.post(
         path,

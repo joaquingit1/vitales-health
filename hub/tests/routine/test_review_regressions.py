@@ -7,7 +7,6 @@ from typing import cast
 import pytest
 
 from crew_health.contracts_gen.enums import ConfigName
-from crew_health.kernel.clock import ClockCorrected, ClockRegressed
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.config import ConfigDocumentView
 from crew_health.kernel.testing import MemoryRelease
@@ -69,16 +68,14 @@ def test_repeat_question_instance_expires_with_its_carrier_policy_window(tmp_pat
 
 
 @pytest.mark.trace("T-E25-093", "INV-E25-11")
-def test_stale_correction_cannot_clear_a_newer_clock_regression(tmp_path: Path) -> None:
+def test_a_correction_without_its_sweep_cannot_clear_a_clock_regression(tmp_path: Path) -> None:
     hub = station(tmp_path)
-    observed_at = hub.clock.now() + timedelta(hours=2)
-    hub.advance(observed_at)
-    with hub.db.begin(actor=Actor("operator", "operator_1"), correlation_id="cor_regress") as uow:
-        uow.publish(ClockRegressed(observed_at, observed_at + timedelta(seconds=1), -1000))
-    with hub.db.begin(actor=Actor("operator", "operator_1"), correlation_id="cor_old_correct") as uow:
-        uow.publish(ClockCorrected(0, 1000, observed_at - timedelta(hours=1), 1, "operator"))
-    with hub.db.snapshot() as view:
-        assert hub.engine.deps.store.clock_suspect_since(view) == observed_at
+    hub.advance(hub.clock.now() + timedelta(hours=2))
+    hub.regress(hub.clock.now() - timedelta(seconds=1))
+    hub.correct(1000)
+    assert not hub.trusted()
+    with hub.db.begin(actor=Actor("engine", "engine_routine"), correlation_id="cor_frozen") as uow:
+        assert hub.engine.counted(uow, uow.now) is False
 
 
 @pytest.mark.trace("T-E25-010", "INV-E25-11")

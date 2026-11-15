@@ -6,22 +6,31 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from pathlib import Path
 from typing import Literal, cast
 
-from crew_health.app.registry import DeclarationRegistry
+from crew_health.app.registry import DeclarationRegistry, StartupPhase
+from crew_health.clock.adapters.repository import SqlClockRepository
+from crew_health.clock.application.clock import PersistentClocks
 from crew_health.contracts_gen.enums import ConfigName, EventType, Role
 from crew_health.events.adapters.repository import EventRepository, EventValidator
 from crew_health.events.application.subscriptions import DurableSubscriptions
-from crew_health.kernel.clock import Clock, TimeInput
+from crew_health.kernel.clock import (
+    Clock,
+    ClockCorrected,
+    ClockCorrection,
+    ClockCorrections,
+    ClockSegment,
+    TimeInput,
+)
 from crew_health.kernel.commands import CommandReceipts, IdempotencyStore, canonical_json
 from crew_health.kernel.config import ConfigDocumentView, ReleaseHandle
 from crew_health.kernel.evaluation import EvaluationInput
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.met import MissionClock, MissionClockVersion
-from crew_health.kernel.scheduler import HealthState, ScheduledJob
+from crew_health.kernel.scheduler import AbsoluteDeadline, HealthState, ScheduledJob
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.storage import SqlValue
 from crew_health.kernel.testing import MemoryClock, MemoryIds, MemoryMissionClock, MemoryRelease
@@ -50,7 +59,9 @@ from crew_health.records.adapters.repository import RecordRepository
 from crew_health.routine import module
 from crew_health.routine.adapters.sqlite_repository import migration_sql
 from crew_health.routine.application.audit import audit_event_types
+from crew_health.routine.application.deps import RoutineDeps
 from crew_health.routine.application.ports import (
+    HubClock,
     LocationPort,
     MissionFacts,
     MissionStatePort,
@@ -166,6 +177,23 @@ class Locations:
         return self.locations.get(person_id)
 
 
+class HarnessHubClock:
+    """The hub clock capture E01 builds privately in its assembly (`_hub_time`), offered here as routine's HubClock."""
+
+    def __init__(self, clocks: PersistentClocks) -> None:
+        self.clocks = clocks
+
+    def hub_time(self, uow: UnitOfWork, origin_mode: Literal["LIVE", "REPLAY", "SIM"]) -> TimeInput | None:
+        source = self.clocks.hub_source_clock_id
+        segment = None if source is None else self.clocks.repository.latest_segment(uow.connection, source)
+        if segment is None:
+            return None
+        version = self.clocks.repository.correction_head(uow.connection)
+        return TimeInput(
+            uow.now, segment.source_clock_id, segment.segment_id, version, "hub_corrected", origin_mode
+        )
+
+
 class RoutineHarness:
     def __init__(
         self,
@@ -224,11 +252,17 @@ class RoutineHarness:
                 )
             )
         self.ledger = CommandLedger(self.ids, settings=self.settings)
+        self._clock_history(initialize)
         self.registry = DeclarationRegistry(max_ports=64, max_hooks=256)
         self._providers()
         module.register(self.registry)
         self._handlers()
         self.resolver = self.registry.resolve()
+        for key, callback in sorted(
+            self.registry.declarations.get("startup", {}).items(), key=lambda pair: str(pair[0])
+        ):
+            if cast(tuple[StartupPhase, str, str], key)[0] == StartupPhase.STATE_SWEEP:
+                cast(Callable[[], None], callback)()
         self.runtime = cast(module.RoutineRuntime, self.resolver.require(RoutineQueries))
         self.engine = self.runtime.engine
         self.queries, self.commands = self.runtime.queries, self.runtime.commands
@@ -248,6 +282,120 @@ class RoutineHarness:
             repository=self.events, settings=self.settings, factory=self.db
         )
 
+    def _clock_history(self, initialize: bool) -> None:
+        """The real E01 clock (SYSTEM 5.2): its migration, the hub's own source clock and segment, and on a new
+        store the operator's first correction and sweep, so the shared clock starts trusted as after a hub's
+        first time confirmation. `regress` and `confirm_time` drive it later."""
+        sql = (REPO / "hub/src/crew_health/clock/adapters/migrations/0001_clock.sql").read_text(
+            encoding="utf-8"
+        )
+        self.db.migrate_tracked("clock.0001", sha256(sql.encode()).hexdigest(), sql)
+        self.clocks = PersistentClocks(
+            repository=SqlClockRepository(
+                settings=self.settings, node_id="node_1", incarnation_id="incarnation_1"
+            ),
+            settings=self.settings,
+            ids=self.ids,
+            hub_source_clock_id="hub_clock",
+        )
+        if initialize:
+            with self.db.begin(actor=Actor("operator", "operator_1"), correlation_id="clock_setup") as uow:
+                self.clocks.open(
+                    uow, ClockSegment("hub_clock", "hub_oscillator", "hub_segment_1", None, 1, 1)
+                )
+            self.confirm_time()
+
+    def confirm_time(self, offset_ms: int = 0) -> None:
+        """An operator correction on the hub clock followed by the correction sweep (clock.py complete_sweep)."""
+        with self.db.snapshot() as view:
+            version = self.clocks.repository.correction_head(view.connection) + 1
+        with self.db.begin(
+            actor=Actor("operator", "operator_1"), correlation_id=f"clock_fix_{version}"
+        ) as uow:
+            self.clocks.apply(
+                uow,
+                ClockCorrection(
+                    f"correction_{version}",
+                    "hub_clock",
+                    "hub_segment_1",
+                    version,
+                    datetime(2026, 1, 1, tzinfo=UTC),
+                    None,
+                    offset_ms,
+                    0,
+                    uow.now,
+                    "operator",
+                ),
+            )
+        self.sweep(version)
+
+    def correct(self, offset_ms: int = 0) -> int:
+        """An operator correction without its sweep: the shared clock stays frozen."""
+        with self.db.snapshot() as view:
+            version = self.clocks.repository.correction_head(view.connection) + 1
+        with self.db.begin(
+            actor=Actor("operator", "operator_1"), correlation_id=f"clock_fix_{version}"
+        ) as uow:
+            self.clocks.apply(
+                uow,
+                ClockCorrection(
+                    f"correction_{version}",
+                    "hub_clock",
+                    "hub_segment_1",
+                    version,
+                    datetime(2026, 1, 1, tzinfo=UTC),
+                    None,
+                    offset_ms,
+                    0,
+                    uow.now,
+                    "operator",
+                ),
+            )
+        return version
+
+    def sweep(self, version: int) -> None:
+        with self.db.begin(
+            actor=Actor("operator", "operator_1"), correlation_id=f"clock_sweep_{version}"
+        ) as uow:
+            self.clocks.check_regression(uow)
+            self.clocks.complete_sweep(uow, correction_version=version)
+
+    def regress(self, to: datetime) -> None:
+        """Moves the wall clock back and runs the kernel's regression check (create_app does it at start and
+        E01 in every write): the shared clock freezes and ClockRegressed is published."""
+        with self.db.begin(actor=Actor("engine", "engine_clock"), correlation_id=self.ids.new("cor")) as uow:
+            self.clocks.check_regression(uow)
+        self.clock.at = to
+        with self.db.begin(actor=Actor("engine", "engine_clock"), correlation_id=self.ids.new("cor")) as uow:
+            self.clocks.check_regression(uow)
+
+    def restart(self, deps: RoutineDeps) -> None:
+        """A routine restart on `deps`: bind's assemble, then the STATE_SWEEP startup hook (SYSTEM 6)."""
+        self.runtime.assemble(deps)
+        self.runtime.startup()
+        self.engine = self.runtime.engine
+        self.queries, self.commands = self.runtime.queries, self.runtime.commands
+
+    def grant_officer_care(self, *roles: Role) -> None:
+        """E02's Visibility (SYSTEM 8.3) granting every routine object to sessions holding one of `roles` (the crew
+        medical officer by default), as a current care relationship or ground assignment would; without it an
+        officer or ground session reads and ends no one else's override."""
+        from dataclasses import replace
+
+        granted = frozenset(roles or (Role.CREW_MEDICAL_OFFICER,))
+
+        class OfficerCare:
+            def can_read(self, session: SessionContext, object_ref: str) -> bool:
+                return bool(granted & session.roles)
+
+        self.runtime.assemble(replace(self.engine.deps, visibility=OfficerCare()))
+        self.engine = self.runtime.engine
+        self.queries, self.commands = self.runtime.queries, self.runtime.commands
+
+    def trusted(self) -> bool:
+        with self.db.snapshot() as view:
+            return self.clocks.clearing_allowed(view)
+
     def _providers(self) -> None:
         def provide[P](port: type[P], value: P) -> None:
             self.registry.provide(port, lambda _: value)
@@ -264,9 +412,36 @@ class RoutineHarness:
         provide(MissionStatePort, self.mission)
         provide(RosterPort, self.roster)
         provide(LocationPort, self.locations)
+        provide(ClockCorrections, self.clocks)
+        provide(HubClock, HarnessHubClock(self.clocks))
         self.registry.provide(RecordFacts, lambda _: self.records)
 
     def _handlers(self) -> None:
+        clocks = self.clocks
+
+        def deadline(uow: UnitOfWork, job: ScheduledJob) -> datetime | None:
+            # The resolver create_app composes (app/assembly.py _wire_declarations), copied for this station.
+            if isinstance(job.deadline, AbsoluteDeadline):
+                return job.deadline.at
+            normalized = clocks.normalize(uow, job.deadline.anchor)
+            if (
+                normalized.state != "known"
+                or normalized.corrected_at is None
+                or normalized.uncertainty_ms is None
+            ):
+                return None
+            return (
+                normalized.corrected_at
+                + job.deadline.duration
+                + timedelta(milliseconds=normalized.uncertainty_ms)
+            )
+
+        self.db.scheduler.deadline = deadline
+
+        def corrected(uow: UnitOfWork, event: ClockCorrected) -> None:
+            self.db.scheduler.recalculate_all(uow)
+
+        self.db.bus.subscribe(ClockCorrected, corrected, name="platform.scheduler.clock_correction")
         for name, fn in self.registry.declarations.get("scheduler_handlers", {}).items():
             self.db.scheduler.register(str(name), cast(Callable[[UnitOfWork, ScheduledJob], None], fn))
         for name, declaration in self.registry.declarations.get("durable_subscribers", {}).items():

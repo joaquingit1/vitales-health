@@ -169,7 +169,10 @@ def test_task_pages_serve_all_configured_content_and_governing_provenance(tmp_pa
             "minutes": item.minutes,
             "body_region": item.body_region,
         }
-        assert task["steps"] == list(item.steps) and task["who"] == list(item.who)
+        # M5, E25 3.12.2: requirement operator "self"; an item the subject cannot perform alone is unsupported
+        # guidance, served as the one-item notice form.
+        expected = list(item.steps) if "self" in item.who else [release.notice]
+        assert task["steps"] == expected and task["who"] == list(item.who)
     hub.raise_warning()
     hub.deliver()
     changed = hub.queries.task(session(), "vision_self_check")
@@ -178,7 +181,10 @@ def test_task_pages_serve_all_configured_content_and_governing_provenance(tmp_pa
     assert changed["basis"] == trigger.basis
     citation = cast(dict[str, object], changed["citation"])
     assert citation["source_ids"] == list(trigger.source_ids)
-    assert citation["text"] == ", ".join(release.sources[s] for s in trigger.source_ids)
+    # M5: the configured "Not clinically reviewed" notice rides on the citation line (RoutineTask has no field).
+    assert (
+        citation["text"] == ", ".join(release.sources[s] for s in trigger.source_ids) + " " + release.notice
+    )
     assert changed["active_override_ids"]
     triggers = cast(list[dict[str, object]], changed["triggers"])
     assert triggers[0]["mode"] == "manual" and triggers[0]["binding_id"] is None
@@ -208,11 +214,14 @@ def test_override_paging_filters_membership_and_person_privacy_before_returning_
         values = collect(lambda c: hub.queries.overrides(session(person, roles=roles), c, 1), 10)
         return {str(value["override_id"]) for value in values}
 
-    assert identifiers("person_mara") == groups | {str(private["override_id"])}
+    # M4: starting an override is not a grant; the officer who started Tomas's private override reads it only
+    # through a current Visibility grant.
+    assert identifiers("person_mara") == groups
     assert identifiers("person_tomas") == groups | {str(private["override_id"])}
     assert identifiers("person_ilya") == set()
-    assert identifiers("person_ilya", frozenset({Role.CREW_MEDICAL_OFFICER})) == groups
-    assert identifiers(None, frozenset({Role.GROUND})) == groups
+    # M4: officer and ground status alone read no group override (per object grants only).
+    assert identifiers("person_ilya", frozenset({Role.CREW_MEDICAL_OFFICER})) == set()
+    assert identifiers(None, frozenset({Role.GROUND})) == set()
 
 
 @pytest.mark.trace("INV-E25-07", "T-E25-015")

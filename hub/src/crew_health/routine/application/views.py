@@ -13,7 +13,13 @@ from crew_health.routine.domain.cadence import EffectiveCadence
 from crew_health.routine.domain.errors import ConfigInvalid, Finding, MissionUnavailable
 from crew_health.routine.domain.occurrence import Occurrence, allowed_actions, display_state
 from crew_health.routine.domain.override import Override
-from crew_health.routine.domain.release import Cadence, RoutineItem, RoutineRelease, RoutineWords
+from crew_health.routine.domain.release import (
+    Cadence,
+    RoutineItem,
+    RoutineRelease,
+    RoutineWords,
+    content_digest,
+)
 from crew_health.routine.domain.rendering import cadence_text, end_text_key, hhmm, render
 from crew_health.routine.domain.vocabulary import FINAL_STATES, OPEN_STATES, OccurrenceState, Overlay
 
@@ -162,7 +168,7 @@ def occurrence_view(
         "due_from": instant(occ.due_from),
         "due_until": instant(occ.due_until),
         "end_text": _end_text(deps, occ, words, now, held, state),
-        **_record_fields(occ),
+        **_record_fields(occ, own=session.person_id == occ.person_id),
         "question_set_ids": _question_sets(deps, view, occ, release),
         "suppressed_by_overlay": held,
         "config_release_id": occ.config_release_id,
@@ -205,7 +211,9 @@ def _question_sets(
     return sorted(result)
 
 
-def _record_fields(occ: Occurrence) -> dict[str, object]:
+def _record_fields(occ: Occurrence, *, own: bool) -> dict[str, object]:
+    """Per field (PLAN row 30): the free-text notes go only to the person they belong to. A care read holds an
+    object grant only, and Visibility cannot express a field grant, so it fails closed on the notes."""
     return {
         "cause": {
             "kind": occ.cause_kind,
@@ -220,11 +228,11 @@ def _record_fields(occ: Occurrence) -> dict[str, object]:
         else {
             "observation_ids": list(occ.outcome.observation_ids),
             "answer_ids": list(occ.outcome.answer_ids),
-            "note": occ.outcome.note,
+            "note": occ.outcome.note if own else None,
         },
         "skip": None
         if occ.skip is None
-        else {"reason": occ.skip.reason, "note": occ.skip.note, "at": instant(occ.skip.at)},
+        else {"reason": occ.skip.reason, "note": occ.skip.note if own else None, "at": instant(occ.skip.at)},
     }
 
 
@@ -242,10 +250,8 @@ def task_view(
     item: RoutineItem,
     session: SessionContext,
     now: datetime,
-    *,
-    release: RoutineRelease | None = None,
 ) -> dict[str, object]:
-    release = engine.release(view) if release is None else release
+    release = engine.release(view)
     words = require_words(release)
     env = environment(deps, view)
     person = session.person_id
@@ -273,18 +279,19 @@ def task_view(
         key=lambda o: (o.due_from is None, o.due_from or now, o.occurrence_id),
         default=None,
     )
+    guide, guide_release = guided(
+        engine, view, release, item, open_occurrence(engine, view, person, item.item_id)
+    )
     return {
         "item_id": item.item_id,
         "name": item.name,
-        "plain": item.plain,
-        "why": item.why,
-        "who": list(item.who),
-        "instrument": item.instrument,
-        "minutes": item.minutes,
-        # A8: routine serves its own configured steps with provenance and never calls guidance; clinical review
-        # absence is the release notice label, never a runtime gate (PLAN row 29).
-        "steps": list(item.steps),
-        "body_region": item.body_region,
+        "plain": guide.plain,
+        "why": guide.why,
+        "who": list(guide.who),
+        "instrument": guide.instrument,
+        "minutes": guide.minutes,
+        "steps": guidance_steps(guide_release, guide),
+        "body_region": guide.body_region,
         "environment_id": env,
         "base_cadence": cadence_view(item.cadence_for(env)),
         "effective_cadence": cadence_view(effective.cadence),
@@ -295,6 +302,44 @@ def task_view(
         "next_occurrence_id": None if next_occ is None else next_occ.occurrence_id,
         "citation": _citation(deps, engine, view, release, effective),
     }
+
+
+def open_occurrence(
+    engine: RoutineEngine, view: ReadSnapshot, person: str, item_id: str
+) -> Occurrence | None:
+    return min(
+        (o for o in engine.open_occurrences(view, person) if o.item_id == item_id),
+        key=lambda o: (o.due_from is None, o.due_from or view.now, o.occurrence_id),
+        default=None,
+    )
+
+
+def guided(
+    engine: RoutineEngine,
+    view: ReadSnapshot,
+    release: RoutineRelease,
+    item: RoutineItem,
+    occ: Occurrence | None,
+) -> tuple[RoutineItem, RoutineRelease]:
+    """PLAN row 28, E25 3.12.3: open work keeps the guidance it started with. With an open occurrence of the item,
+    the guidance parts (those item_content_sha256 covers) come from that occurrence's pinned release; cadence,
+    name and provenance stay current. An unreadable pin is CONFIG_INVALID, never the active release's steps."""
+    if occ is None or occ.config_release_id == release.release_id:
+        return item, release
+    pinned = engine.release_for(view, occ.config_release_id)
+    return pinned.item(item.item_id) or item, pinned
+
+
+def guidance_steps(release: RoutineRelease, item: RoutineItem) -> list[str]:
+    """PLAN rows 29 and 73 without guidance (A8: routine serves its own configured steps). The steps are served
+    only when the item is self-performed (the task view is the subject's own instruction: operator `self`) and
+    the served parts hash to the pinned release's item_content_sha256, the exact content open work started with
+    (row 28). Otherwise `steps` is the one-item notice form of 3.12.2, and Record it, Not available and Later
+    still work. Review status is never a gate: the notice is a label on the citation line."""
+    pinned = release.item_content_sha256.get(item.item_id)
+    if "self" in item.who and pinned is not None and pinned == content_digest(item):
+        return list(item.steps)
+    return [release.notice]
 
 
 def _citation(
@@ -311,7 +356,10 @@ def _citation(
             sources = engine.release_for(view, governing.config_release_id).sources
     text = ", ".join(sources[s] for s in effective.source_ids if s in sources)
     return {
-        "text": text or require_words(release).unknown,
+        # M5 (Q1, D20, PLAN row 29): clinical review is a label, never a gate. RoutineTask has no notice field
+        # (additionalProperties false; R-E25-3 asks for one), so the configured routine-rules notice rides on the
+        # citation line the hub renders, which every task view and printed card shows.
+        "text": " ".join(part for part in (text or require_words(release).unknown, release.notice) if part),
         "source_ids": list(effective.source_ids),
         "basis": effective.basis,
     }

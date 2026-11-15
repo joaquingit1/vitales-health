@@ -92,7 +92,12 @@ class CadenceActivations:
             return
         if ends_at is not None:
             self.engine.schedule(
-                uow, "routine.rca." + identifier, "routine.activation", ends_at, {"activation_id": identifier}
+                uow,
+                "routine.rca." + identifier,
+                "routine.activation",
+                ends_at,
+                {"activation_id": identifier},
+                kind="elapsed",
             )
         if ends_at is None or uow.now < ends_at:
             for occ in self.engine.periodic(uow, person, self.engine.day(uow.now)[0], release, mission):
@@ -138,14 +143,15 @@ class CadenceActivations:
         activation = self.deps.store.get_activation(uow, job.payload["activation_id"])
         if activation is None or activation.state != "active" or activation.ends_at is None:
             return
-        if self.deps.store.clock_suspect_since(uow) is not None:
+        if not self.engine.trusted(uow):
+            # PLAN row 34: unknown time never ends a tightening; look again after the grace.
             at = uow.now + timedelta(milliseconds=self.deps.settings.miss_grace_ms)
         elif uow.now >= activation.ends_at:
             self.end(uow, activation, "days_elapsed")
             return
         else:
             at = activation.ends_at
-        self.engine.schedule(uow, job.key, job.handler, at, dict(job.payload))
+        self.engine.schedule(uow, job.key, job.handler, at, dict(job.payload), kind="elapsed")
 
     def event(self, uow: UnitOfWork, inp: MissionEventInput | WarningClearedInput) -> None:
         for activation in self.active(uow):

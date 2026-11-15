@@ -442,7 +442,7 @@ def test_revoked_care_grant_hides_occurrence_again(tmp_path: Path) -> None:
     row = hub.occurrence()
     ref = str(row["occurrence_id"])
     grant = Grants(frozenset({ref}))
-    hub.runtime.assemble(replace(hub.engine.deps, visibility=grant))
+    hub.restart(replace(hub.engine.deps, visibility=grant))
     auth = headers("person_tomas", "crew_medical_officer")
     assert hub.client.get(f"/v1/routine/occurrences/{ref}", headers=auth).status_code == 200
     assert audited(hub, "care_read")

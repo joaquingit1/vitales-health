@@ -126,7 +126,7 @@ def test_config_edits_change_new_work_and_keep_open_work_pinned(tmp_path: Path) 
         == 200
     )
     hub.advance(hub.clock.now() + timedelta(days=1))
-    hub.runtime.assemble(hub.engine.deps)
+    hub.restart(hub.engine.deps)
     fresh = hub.occurrence(item=item_id)
     assert fresh["config_release_id"] == hub.release.release_id
     assert fresh["occurrence_id"] != old["occurrence_id"]
@@ -160,7 +160,7 @@ def test_missing_ui_copy_serves_identifiers_and_commands_commit_with_degraded_he
     hub = HttpHarness(tmp_path)
     activate(hub, edited_release(hub, "rel_without_words", {ConfigName.UI_COPY: None}))
     hub.advance(hub.clock.now() + timedelta(days=1))
-    hub.runtime.assemble(hub.engine.deps)
+    hub.restart(hub.engine.deps)
     schedule = validate(
         hub.client.get("/v1/routine/today", headers=headers()), "routine-schedule.schema.json"
     )
@@ -182,7 +182,7 @@ def test_missing_ui_copy_serves_identifiers_and_commands_commit_with_degraded_he
 @pytest.mark.trace("T-E25-014", "T-E25-027")
 def test_missing_roster_is_audited_without_creating_location_overrides(tmp_path: Path) -> None:
     hub = HttpHarness(tmp_path)
-    hub.runtime.assemble(replace(hub.engine.deps, roster=None))
+    hub.restart(replace(hub.engine.deps, roster=None))
     hub.raise_warning()
     hub.deliver()
     assert hub.items("/v1/routine/overrides") == []
@@ -193,7 +193,7 @@ def test_missing_roster_is_audited_without_creating_location_overrides(tmp_path:
 def test_missing_mission_does_not_stop_misses_and_today_is_unavailable(tmp_path: Path) -> None:
     hub = HttpHarness(tmp_path)
     row = hub.occurrence()
-    hub.runtime.assemble(replace(hub.engine.deps, mission=None))
+    hub.restart(replace(hub.engine.deps, mission=None))
     problem(hub.client.get("/v1/routine/today", headers=headers()), "CAPABILITY_UNAVAILABLE", 422)
     deadline(
         hub,
@@ -225,7 +225,7 @@ def test_model_devices_ground_and_guidance_are_absent_and_slow_location_is_not_o
     hub = HttpHarness(tmp_path)
     row = hub.occurrence()
     slow = SlowLocations((hub.settings.integer("storage.transaction_timeout_ms") + 1) / 1000)
-    hub.runtime.assemble(replace(hub.engine.deps, locations=slow))
+    hub.restart(replace(hub.engine.deps, locations=slow))
     deadline(
         hub,
         hub.engine,
@@ -243,16 +243,18 @@ def test_model_devices_ground_and_guidance_are_absent_and_slow_location_is_not_o
 @pytest.mark.trace("T-E25-025", "T-E25-014")
 def test_rules_edit_changes_the_served_barrier_threshold_for_new_work(tmp_path: Path) -> None:
     observed: list[bool] = []
-    for threshold in (2, 3):
+    # The edited run moves a day forward to start new work under the new rules; that day's own miss counts (B1),
+    # so it sees three counted misses against the edited threshold of four, the base run two against two.
+    for threshold in (2, 4):
         directory = tmp_path / str(threshold)
         directory.mkdir()
         hub = HttpHarness(directory)
-        if threshold == 3:
+        if threshold == 4:
             rules = document("routine-rules")
             cast(dict[str, object], rules["misses"])["ask_barrier_after_misses"] = threshold
             activate(hub, edited_release(hub, "rel_threshold", {ConfigName.ROUTINE_RULES: rules}))
             hub.advance(hub.clock.now() + timedelta(days=1))
-            hub.runtime.assemble(hub.engine.deps)
+            hub.restart(hub.engine.deps)
         # A configured daily item with an all-day window produces one real miss per day.
         with hub.db.snapshot() as view:
             release = hub.engine.release(view)
@@ -266,7 +268,7 @@ def test_rules_edit_changes_the_served_barrier_threshold_for_new_work(tmp_path: 
                 str(row["occurrence_id"]),
                 datetime.fromisoformat(str(row["due_until"]).replace("Z", "+00:00")),
             )
-            hub.runtime.assemble(hub.engine.deps)
+            hub.restart(hub.engine.deps)
         schedule = validate(
             hub.client.get("/v1/routine/today", headers=headers()), "routine-schedule.schema.json"
         )
@@ -291,7 +293,7 @@ def test_failed_day_materialization_does_not_block_the_real_scheduler_from_recor
             hub.db.scheduler.handlers["routine.occurrence"] = cold.occurrence_job
             hub.db.scheduler.handlers["routine.day"] = cold.day_job
         else:
-            hub.runtime.assemble(replace(hub.engine.deps, mission=None))
+            hub.restart(replace(hub.engine.deps, mission=None))
         hub.advance(datetime.fromisoformat(str(row["due_until"]).replace("Z", "+00:00")))
         assert hub.dispatch() > 0
         assert hub.rows(
