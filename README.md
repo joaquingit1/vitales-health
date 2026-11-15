@@ -9,7 +9,7 @@ exploration medicine team plans for "No evacuations possible"
 crew medical officer trains about 15 hours, "knowing that ground specialists will provide real-time guidance"
 ([N15](https://ntrs.nasa.gov/citations/20205008925)). Crew Health Check is health software for a crew that Earth cannot help in time. It checks each
 of the 119 conditions NASA models for exploration missions against the kit actually on board, draws what this ship cannot
-test on the crew member's body, holds a plan aboard for every condition, and teaches a crewmate to run a check while
+test on the crew member's body, holds a plan aboard for every condition, computes how much of each medicine is still potent, and teaches a crewmate to run a check while
 the webcam verifies the count. It runs on one laptop with no network, and its plans and its emergency flow run with the
 AI switched off.
 
@@ -40,32 +40,45 @@ flows. Each plan runs in stages, ends in a stated mode (resolve here, talk a cre
 and puts the log for the ground last (139 of 139 plans). In 115 plans, a step stands in for a test the ship lacks
 and says what it cannot replace: "It cannot replace an ECG".
 
-**3. The crew teaches crew, and the camera checks the work.** When the medical officer is the patient or outside on a
+**3. It computes how much medicine is left in each lot.** A Mars kit has to outlast its shelf life, and NASA has
+measured the potency of medicines stored for more than 550 days on the ISS
+([MDS58](https://pmc.ncbi.nlm.nih.gov/articles/PMC4706284/)). The potency engine ([pharmacy/](pharmacy/), contract in
+[docs/ENGINE-SPEC.md](docs/ENGINE-SPEC.md)) follows each lot through its recorded storage history (temperature,
+humidity, light, the microclimate inside its package and the radiation dose) and returns the active drug remaining
+with a coverage interval, the degradants that formed, a decision (in specification, adjust, do not use), when the lot
+is forecast to leave specification and which lot to use first. Its chemistry layer reads each molecule with RDKit and
+finds the reactive sites for hydrolysis, autoxidation, photolysis, racemization and radiolysis. Where no measured rate
+exists, it computes one: bond dissociation energies from GFN2-xTB quantum chemistry (tblite) feed an Evans-Polanyi
+relation, next to Hammett substituent effects. Monte Carlo draws carry the uncertainty, and an assay result updates
+the estimate through a Bayesian step. An independent oracle written from the contract alone agrees with it to 1e-9 on
+the checked quantities ([docs/VALIDATION-REPORT.md](docs/VALIDATION-REPORT.md)). It never answers a dosing question.
+
+**4. The crew teaches crew, and the camera checks the work.** When the medical officer is the patient or outside on a
 surface walk, a crewmate without medical training is walked through the pulse check one step at a time and taps each
 beat. The hub compares the count with the camera's reading and records agree, disagree or incomplete as an observation
 with its source. A skills roster with practice recency proposes who helps, and every proposal states its reason.
 
-**4. Nothing waits for Earth.** The ground link is computed from NASA's lunar and Mars communications
+**5. Nothing waits for Earth.** The ground link is computed from NASA's lunar and Mars communications
 documents. Messages for the ground queue until the next contact. The ground link test suite stores the proof in [eval/results/E29/independence.json](eval/results/E29/independence.json): the help
 session's bytes are identical with the link up, delayed and down.
 
-**5. It runs offline on one laptop and its webcam.** The camera worker reads pulse and breathing from the face
+**6. It runs offline on one laptop and its webcam.** The camera worker reads pulse and breathing from the face
 (remote photoplethysmography), refuses a reading when the signal is poor and says why, and never guesses. The
 oximeter, cuff, thermometer and the habitat's Bluetooth environmental sensor are optional; each has a simulated twin
 that emits the real device's protocol bytes, so the same adapter code runs with or without hardware.
 
-**6. The AI is optional and fenced.** A local medical model (HuatuoGPT-3-9B on llama.cpp) explains plans and asks the
+**7. The AI is optional and fenced.** A local medical model (HuatuoGPT-3-9B on llama.cpp) explains plans and asks the
 next question. Its runtime is pinned to a verified build, it listens on loopback only, its tools have closed schemas
 and its output is schema checked. The rule that it never changes safety state is enforced in the domain layer and
 never in a prompt. Someone needs help refuses every command from the assistant, and the design holds the warnings engine to the same
 rule: the assistant never raises "Act now" or "Emergency" and never lowers a warning that a rule or a sensor raised. A hub started with no model reports
 `"assistant_state": "unavailable"` and keeps serving.
 
-**7. Every reading says where it came from.** Live, Replay or Sim travels with each value from the adapter to the
+**8. Every reading says where it came from.** Live, Replay or Sim travels with each value from the adapter to the
 screen, with its UCUM unit. Missing data stays missing: no interpolation, no default values, no fallback to sample
 data.
 
-**8. It replays NASA telemetry with known outcomes.** The repository ships 12 NASA data files (ISS cabin CO2,
+**9. It replays NASA telemetry with known outcomes.** The repository ships 12 NASA data files (ISS cabin CO2,
 radiation, air and water quality, acoustics, Inspiration4 blood panels) and 7 documented cases with their published
 outcomes. In the replay of the September 2017 solar particle event, the test's onset detector fires at 04:18:40 UTC on 11
 September, inside the ISS pass under way at the documented arrival of about 04:30
