@@ -13,7 +13,7 @@ from __future__ import annotations
 from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Literal, Protocol
+from typing import ClassVar, Literal, Protocol
 
 from crew_health.contracts_gen.schemas.environment_profile_schema import (
     EnvironmentProfile as EnvironmentProfileModel,
@@ -119,3 +119,31 @@ class MissionInitializer(Protocol):
         site_node_id: str,
         environment_id: str,
     ) -> str: ...  # returns the new mission_id
+
+
+# Bus payloads for E24 (E23 4.3, R-E24-14, built in the owner's place under AGENTS 1 rule 9). Facts only: no note,
+# no free text. `occurred_corrected_at` is the normalized instant when E01 knows one, else None (S5.2).
+@dataclass(frozen=True, slots=True)
+class MissionEventRecorded:
+    event_type: ClassVar[str] = "mission.event_recorded"
+    event_id: str
+    mission_event_type: str
+    label: str
+    occurred_at: datetime
+    occurred_corrected_at: datetime | None
+    recorded_at: datetime
+    origin_mode: OriginMode
+    environment_id: str
+    person_ids: tuple[str, ...]
+    location: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class StateFactChanged:
+    event_type: ClassVar[str] = "mission.state_fact_changed"
+    fact: str
+    value: bool
+    environment_id: str
+    at: datetime
+    cause_event_id: str
+    origin_mode: OriginMode

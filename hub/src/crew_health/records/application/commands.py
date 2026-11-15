@@ -9,6 +9,7 @@ from crew_health.kernel.config import ReleaseHandle
 from crew_health.kernel.ids import IdFactory, require_id
 from crew_health.kernel.units import Quantity, UnitRegistry, WireUnitConverter
 from crew_health.kernel.uow import SessionContext, UnitOfWork
+from crew_health.records.application.ports import AnswerAcceptedFact
 from crew_health.records.application.seams import (
     AnswerWorkflow,
     EpisodeBinding,
@@ -185,6 +186,12 @@ class RecordsCommands:
         self.repository.add_answer(uow, normalized)
         self._audit(uow, answer.answer_id, "answer.recorded")
         uow.publish(AnswerAccepted(normalized, answer.episode_id, answer.mission_id))
+        uow.publish(
+            AnswerAcceptedFact(
+                normalized.answer_id, normalized.patient_id, normalized.question_id, normalized.presence,
+                normalized.answered_at, normalized.origin_mode, normalized.mission_id,
+            )
+        )  # fmt: skip
         return normalized
 
     def _existing_answer(

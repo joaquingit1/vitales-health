@@ -14,7 +14,12 @@ from decimal import Decimal
 from crew_health.kernel.config import ConfigName, ReleaseHandle
 from crew_health.rules.domain.definitions import RulesDocument, WarningDefinition, parse_rules_document
 from crew_health.rules.domain.errors import DefinitionInvalid
-from crew_health.rules.domain.fingerprint import ReleaseDocuments, content_hash, limit_fingerprint, rule_fingerprint
+from crew_health.rules.domain.fingerprint import (
+    ReleaseDocuments,
+    content_hash,
+    limit_fingerprint,
+    rule_fingerprint,
+)
 from crew_health.rules.domain.inputs import AssistantPolicy, InsightTopic
 from crew_health.rules.domain.views import LimitFacts
 from crew_health.rules.domain.vocabulary import Basis, Level
@@ -55,7 +60,10 @@ def _entries(doc: Mapping[str, object], key: str) -> list[Mapping[str, object]]:
 
 
 def _limits(docs: ReleaseDocuments) -> dict[str, LimitFacts]:
-    stale = {str(t.get("id")): int(str(t.get("stale_after_seconds"))) for t in _entries(docs.sensor_catalog, "sensor_types")}
+    stale = {
+        str(t.get("id")): int(str(t.get("stale_after_seconds")))
+        for t in _entries(docs.sensor_catalog, "sensor_types")
+    }
     found: dict[str, LimitFacts] = {}
     for e in _entries(docs.sensor_limits, "limits"):
         clear = e.get("clear")
@@ -86,7 +94,9 @@ def _policy(doc: Mapping[str, object]) -> AssistantPolicy:
                      None if t.get("body_region") is None else str(t["body_region"]))
         for t in _entries(doc, "insight_topics")
     )  # fmt: skip
-    return AssistantPolicy(frozenset(Level(str(x)) for x in levels) if isinstance(levels, list) else frozenset(), topics)
+    return AssistantPolicy(
+        frozenset(Level(str(x)) for x in levels) if isinstance(levels, list) else frozenset(), topics
+    )
 
 
 def build(release: ReleaseHandle) -> ReleaseFacts:
@@ -117,6 +127,8 @@ def build(release: ReleaseHandle) -> ReleaseFacts:
         what_to_do=hazards,
         origin_words={str(k): str(v) for k, v in words.items()} if isinstance(words, dict) else {},
         designed_states={str(k): str(v) for k, v in states.items()} if isinstance(states, dict) else {},
-        suppressed_overlays=frozenset(str(s) for s in suppressed) if isinstance(suppressed, list) else frozenset(),
+        suppressed_overlays=frozenset(str(s) for s in suppressed)
+        if isinstance(suppressed, list)
+        else frozenset(),
         policy=_policy(docs.assistant_policy),
     )

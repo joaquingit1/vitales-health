@@ -39,7 +39,8 @@ DEFAULTS: dict[str, object] = {
 
 def specifications() -> tuple[SettingSpec, ...]:
     ints = tuple(
-        SettingSpec(key, "integer", None, Decimal(low), Decimal(seed), None, BASIS) for key, seed, low in INTEGERS
+        SettingSpec(key, "integer", None, Decimal(low), Decimal(seed), None, BASIS)
+        for key, seed, low in INTEGERS
     )
     texts = tuple(SettingSpec(key, "text", None, None, None, size, BASIS) for key, size in TEXTS)
     return (*ints, *texts)

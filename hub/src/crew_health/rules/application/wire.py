@@ -8,7 +8,7 @@ from collections.abc import Sequence
 from crew_health.contracts_gen.enums import EventType
 from crew_health.contracts_gen.schemas.warning_schema import Warning as WireWarning
 from crew_health.kernel.uow import Audience, AudienceProjectionKey, EventScope, OutboxEvent, UnitOfWork
-from crew_health.rules.adapters.codec import evidence_raw, instant
+from crew_health.rules.application.codec import evidence_raw, instant
 from crew_health.rules.application.ports import WarningFact
 from crew_health.rules.domain.vocabulary import Scope, WarningAction
 from crew_health.rules.domain.warning import Warning
@@ -19,8 +19,8 @@ PROJECTION = AudienceProjectionKey("rules", "warning", 1)
 
 def fact_of(w: Warning) -> WarningFact:
     return WarningFact(
-        w.warning_id, w.revision, w.definition_id, w.level.value, w.scope.value, w.person_id,  # type: ignore[arg-type]
-        w.environment_id.value, w.origin_mode.value, w.raised_by.value, w.hazard_id, w.state.value,  # type: ignore[arg-type]
+        w.warning_id, w.revision, w.definition_id, w.level.value, w.scope.value, w.person_id,
+        w.environment_id.value, w.origin_mode.value, w.raised_by.value, w.hazard_id, w.state.value,
         w.raised_at, w.cleared_at, None if w.clear_reason is None else w.clear_reason.value,
     )  # fmt: skip
 
@@ -67,7 +67,9 @@ def emit(uow: UnitOfWork, kind: EventType, w: Warning) -> None:
     """Event data is the stored warning with `allowed_actions: []`: lifecycle facts, never a projection (4.4)."""
     data = json.dumps(wire_json(w, steps=w.steps, allowed=()), sort_keys=True).encode()
     object_ref = f"{w.scope.value}:{w.person_id or ''}"
-    scope = EventScope(w.scope.value, w.person_id if w.scope is Scope.PERSON else None, w.environment_id.value)  # type: ignore[arg-type]
+    scope = EventScope(
+        w.scope.value, w.person_id if w.scope is Scope.PERSON else None, w.environment_id.value
+    )
     uow.emit(
         OutboxEvent(
             kind, uow.now, scope, uow.release.release_id, uow.correlation_id, data,

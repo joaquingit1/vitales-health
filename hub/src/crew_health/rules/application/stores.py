@@ -11,12 +11,12 @@ from collections.abc import Sequence
 from datetime import datetime
 
 from crew_health.kernel.storage import SqlValue, StorageSession
-from crew_health.rules.adapters import codec
+from crew_health.rules.application import codec
 from crew_health.rules.domain.dwell import DwellMarker
 from crew_health.rules.domain.errors import InvariantViolation
 from crew_health.rules.domain.inputs import MissionEventInput
 from crew_health.rules.domain.occurrences import Occurrence
-from crew_health.rules.domain.vocabulary import ConditionKind, OriginMode, SPENT_CLEAR_REASONS
+from crew_health.rules.domain.vocabulary import SPENT_CLEAR_REASONS, ConditionKind, OriginMode
 from crew_health.rules.domain.warning import TriggerRef, Warning
 
 type Conn = StorageSession
@@ -70,7 +70,9 @@ class WarningStore:
         )
         return tuple(codec.loads(_s(r[0])) for r in rows)
 
-    def spent(self, c: Conn, kind: ConditionKind, refs: Sequence[str]) -> frozenset[tuple[str, str, TriggerRef]]:
+    def spent(
+        self, c: Conn, kind: ConditionKind, refs: Sequence[str]
+    ) -> frozenset[tuple[str, str, TriggerRef]]:
         found: set[tuple[str, str, TriggerRef]] = set()
         for ref in sorted(set(refs)):
             rows = c.rows(
@@ -134,9 +136,13 @@ def _occurrence(r: tuple[SqlValue, ...]) -> Occurrence:
 
 
 class OccurrenceStore:
-    _COLS = "COALESCE(warning_id,''), definition_id, scope_key, trigger_ref, occurred_at, resolved_by_event_id"
+    _COLS = (
+        "COALESCE(warning_id,''), definition_id, scope_key, trigger_ref, occurred_at, resolved_by_event_id"
+    )
 
-    def for_warnings(self, c: Conn, warning_ids: Sequence[str], *, limit: int) -> dict[str, tuple[Occurrence, ...]]:
+    def for_warnings(
+        self, c: Conn, warning_ids: Sequence[str], *, limit: int
+    ) -> dict[str, tuple[Occurrence, ...]]:
         found: dict[str, tuple[Occurrence, ...]] = {}
         for wid in sorted(warning_ids):
             rows = c.rows(
@@ -210,7 +216,9 @@ class DwellStore:
         total = 0
         for row in c.rows("SELECT DISTINCT channel_id FROM rules_dwell LIMIT 10000", (), limit=10000):
             if _s(row[0]) not in channels:
-                total += c.execute("DELETE FROM rules_dwell WHERE channel_id = ?", (_s(row[0]),)).affected_rows
+                total += c.execute(
+                    "DELETE FROM rules_dwell WHERE channel_id = ?", (_s(row[0]),)
+                ).affected_rows
         return total
 
 
@@ -249,12 +257,26 @@ class MissionEventStore:
 
 class DeadlineStore:
     def put(
-        self, c: Conn, key: str, kind: str, due_at: datetime | None, elapsed: int | None, now: datetime, generation: int
+        self,
+        c: Conn,
+        key: str,
+        kind: str,
+        due_at: datetime | None,
+        elapsed: int | None,
+        now: datetime,
+        generation: int,
     ) -> None:
         c.execute("DELETE FROM rules_deadline WHERE deadline_key = ?", (key,))
         c.execute(
             "INSERT INTO rules_deadline VALUES (?,?,?,?,?,?)",
-            (key, kind, None if due_at is None else codec.instant(due_at), elapsed, codec.instant(now), generation),
+            (
+                key,
+                kind,
+                None if due_at is None else codec.instant(due_at),
+                elapsed,
+                codec.instant(now),
+                generation,
+            ),
         )
 
     def delete(self, c: Conn, key: str) -> None:
@@ -344,14 +366,22 @@ class PendingStore:
         c.execute(
             "UPDATE rules_pending SET attempts = attempts + 1, last_code = ?, next_attempt_at = ?, state = ? "
             "WHERE pending_id = ?",
-            (code, None if next_at is None else codec.instant(next_at), "stuck" if stuck else "pending", pending_id),
+            (
+                code,
+                None if next_at is None else codec.instant(next_at),
+                "stuck" if stuck else "pending",
+                pending_id,
+            ),
         )
 
     def quarantine(self, c: Conn, pending_id: str) -> bool:
-        return c.execute(
-            "UPDATE rules_pending SET state = 'quarantined' WHERE pending_id = ? AND state = 'stuck'",
-            (pending_id,),
-        ).affected_rows == 1
+        return (
+            c.execute(
+                "UPDATE rules_pending SET state = 'quarantined' WHERE pending_id = ? AND state = 'stuck'",
+                (pending_id,),
+            ).affected_rows
+            == 1
+        )
 
     def blocking(self, c: Conn) -> bool:
         """Clears stay frozen while any row is not quarantined (5.5)."""
@@ -380,13 +410,24 @@ class ReplicaStore:
         person_id: str | None, warning_json: str, now: datetime,
     ) -> bool:  # fmt: skip
         """Append only by revision: an older or duplicate version changes nothing (INV-18)."""
-        rows = c.rows("SELECT revision FROM rules_warning_replica WHERE warning_id = ?", (warning_id,), limit=1)
+        rows = c.rows(
+            "SELECT revision FROM rules_warning_replica WHERE warning_id = ?", (warning_id,), limit=1
+        )
         if rows and _i(rows[0][0]) >= revision:
             return False
         c.execute("DELETE FROM rules_warning_replica WHERE warning_id = ?", (warning_id,))
         c.execute(
             "INSERT INTO rules_warning_replica VALUES (?,?,?,?,?,?,?,?)",
-            (warning_id, origin_node_id, origin_hlc, revision, scope, person_id, warning_json, codec.instant(now)),
+            (
+                warning_id,
+                origin_node_id,
+                origin_hlc,
+                revision,
+                scope,
+                person_id,
+                warning_json,
+                codec.instant(now),
+            ),
         )
         return True
 
@@ -397,7 +438,9 @@ class ReplicaStore:
             (limit,),
             limit=limit,
         )
-        return tuple((_s(r[0]), _s(r[1]), _s(r[2]), None if r[3] is None else _s(r[3]), _s(r[4])) for r in rows)
+        return tuple(
+            (_s(r[0]), _s(r[1]), _s(r[2]), None if r[3] is None else _s(r[3]), _s(r[4])) for r in rows
+        )
 
 
 def table_declarations() -> tuple[tuple[str, str, str], ...]:

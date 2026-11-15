@@ -73,7 +73,9 @@ class WarningQueries(Protocol):
 
 
 class WarningCommands(Protocol):
-    def attach_routine_overrides(self, uow: UnitOfWork, warning_id: str, override_ids: Sequence[str]) -> None: ...
+    def attach_routine_overrides(
+        self, uow: UnitOfWork, warning_id: str, override_ids: Sequence[str]
+    ) -> None: ...
 
 
 class AssistantWarningGuard(Protocol):
@@ -82,4 +84,6 @@ class AssistantWarningGuard(Protocol):
     def propose_level(
         self, uow: UnitOfWork, ctx: AssistantContext, level: str, topic_id: str | None
     ) -> Rejected | Allowed: ...
-    def propose_action(self, uow: UnitOfWork, ctx: AssistantContext, warning_id: str, action: str) -> Rejected: ...
+    def propose_action(
+        self, uow: UnitOfWork, ctx: AssistantContext, warning_id: str, action: str
+    ) -> Rejected: ...

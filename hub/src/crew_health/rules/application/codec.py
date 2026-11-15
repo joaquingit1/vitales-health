@@ -202,7 +202,10 @@ def _limit_pin(value: object) -> LimitPin | None:
 def _evidence(value: object) -> EvidenceRef:
     raw = _map(value)
     return EvidenceRef(
-        EvidenceKind(_text(raw, "kind")), _text(raw, "ref_id"), _opt_text(raw, "summary"), _opt_instant(raw["observed_at"])
+        EvidenceKind(_text(raw, "kind")),
+        _text(raw, "ref_id"),
+        _opt_text(raw, "summary"),
+        _opt_instant(raw["observed_at"]),
     )
 
 
@@ -211,7 +214,11 @@ def _resolution(value: object) -> Resolution | None:
         return None
     raw = _map(value)
     return Resolution(
-        _text(raw, "by_id"), _text(raw, "by_kind"), parse_instant(raw["at"]), _text(raw, "reason"), _opt_text(raw, "role")
+        _text(raw, "by_id"),
+        _text(raw, "by_kind"),
+        parse_instant(raw["at"]),
+        _text(raw, "reason"),
+        _opt_text(raw, "role"),
     )
 
 
@@ -248,7 +255,9 @@ def from_raw(raw: Raw) -> Warning:
         why=_text(raw, "why"),
         steps=tuple(str(s) for s in _list(raw, "steps")),
         body_regions=tuple(str(s) for s in _list(raw, "body_regions")),
-        headline=HeadlineFields(_text(headline, "fragment"), _int(headline, "rank"), headline["solo"] is True),
+        headline=HeadlineFields(
+            _text(headline, "fragment"), _int(headline, "rank"), headline["solo"] is True
+        ),
         evidence=tuple(_evidence(e) for e in _list(raw, "evidence")),
         evidence_time=parse_instant(raw["evidence_time"]),
         evidence_time_label=_text(raw, "evidence_time_label"),

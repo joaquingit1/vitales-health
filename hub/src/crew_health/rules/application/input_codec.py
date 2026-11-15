@@ -13,8 +13,6 @@ from decimal import Decimal
 from enum import Enum
 from typing import Any
 
-from crew_health.kernel.clock import NormalizedTime, TimeInput
-from crew_health.kernel.units import Quantity, Unit
 from crew_health.rules.domain import inputs as I  # noqa: E741
 from crew_health.rules.domain.errors import InvariantViolation
 

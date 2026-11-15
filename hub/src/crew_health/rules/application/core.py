@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from typing import Literal
 
 from crew_health.contracts_gen.enums import ErrorCode, EventType
 from crew_health.kernel.audit import AuditEntry
@@ -18,11 +19,14 @@ from crew_health.kernel.errors import ProblemError, StorageUnavailable
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.scheduler import AbsoluteDeadline, HealthState, ScheduledJob
 from crew_health.kernel.settings import HubSettings
-from crew_health.kernel.uow import ReplicationChange, UnitOfWork
+from crew_health.kernel.uow import ReadSnapshot, ReplicationChange, UnitOfWork
 from crew_health.mission.application.ports import MissionStatePort
-from crew_health.rules.adapters import input_codec
-from crew_health.rules.adapters.codec import dumps as warning_json
-from crew_health.rules.adapters.sqlite_repository import (
+from crew_health.rules.application import facts as release_facts
+from crew_health.rules.application import input_codec
+from crew_health.rules.application.codec import dumps as warning_json
+from crew_health.rules.application.facts import ReleaseFacts
+from crew_health.rules.application.ports import WarningCleared, WarningRaised
+from crew_health.rules.application.stores import (
     ActionResultStore,
     DeadlineStore,
     DwellStore,
@@ -33,9 +37,6 @@ from crew_health.rules.adapters.sqlite_repository import (
     ReplicaStore,
     WarningStore,
 )
-from crew_health.rules.application import facts as release_facts
-from crew_health.rules.application.facts import ReleaseFacts
-from crew_health.rules.application.ports import WarningCleared, WarningRaised
 from crew_health.rules.application.wire import AUDIENCE_RULE, PROJECTION, emit, fact_of
 from crew_health.rules.domain import engine, rendering
 from crew_health.rules.domain.decisions import (
@@ -57,7 +58,6 @@ from crew_health.rules.domain.inputs import (
     AnswerInput,
     FreshnessInput,
     GroundLinkInput,
-    InsightExpiredInput,
     InsightInput,
     MissionEventInput,
     RuleInput,
@@ -74,7 +74,15 @@ from crew_health.rules.domain.vocabulary import (
     RaisedBy,
     Scope,
 )
-from crew_health.rules.domain.warning import Citation, NewWarning, Warning, clear, engine_actor, raise_new
+from crew_health.rules.domain.warning import (
+    Citation,
+    NewWarning,
+    TriggerRef,
+    Warning,
+    clear,
+    engine_actor,
+    raise_new,
+)
 
 EXPIRE_PREFIX = "expire:"
 DEADLINE_HANDLER = "rules.deadline"
@@ -113,7 +121,15 @@ class Runtime:
             self.cache[found.release_id] = found
         return found
 
-    def node_id(self, uow: UnitOfWork) -> str:
+    def facts_for_snapshot(self, view: ReadSnapshot) -> ReleaseFacts:
+        found = self.cache.get(view.release.release_id)
+        if found is None:
+            found = release_facts.build(view.release)
+            self.cache.clear()
+            self.cache[found.release_id] = found
+        return found
+
+    def node_id(self, uow: UnitOfWork | ReadSnapshot) -> str:
         configured = self.settings.text("rules.node_id")
         if configured:
             return configured
@@ -128,17 +144,19 @@ class Runtime:
         return self.binding.bind(uow)
 
 
-def note_audit(rt: Runtime, uow: UnitOfWork, event_type: str, refs: dict[str, str], meta: dict[str, str | int | bool]) -> None:
+def note_audit(
+    rt: Runtime, uow: UnitOfWork, event_type: str, refs: dict[str, str], meta: dict[str, str | int | bool]
+) -> None:
     uow.audit(AuditEntry(rt.ids.new("aud"), event_type, 1, uow.actor, refs, uow.correlation_id, None, meta))
 
 
-def replicate_local(uow: UnitOfWork, warning_id: str, operation: str) -> None:
+def replicate_local(uow: UnitOfWork, warning_id: str, operation: Literal["create", "version"]) -> None:
     """Local-only accounting (S5.7, export_projection=None): the reference, never a field."""
     from crew_health.kernel.uow import Audience
 
     uow.replicate(
         ReplicationChange(
-            None, "warning", warning_id, operation,  # type: ignore[arg-type]
+            None, "warning", warning_id, operation,
             ('{"id":"' + warning_id + '"}').encode(), (), uow.release.release_id,
             Audience(AUDIENCE_RULE, "warning:" + warning_id, PROJECTION, "1"),
         )
@@ -155,7 +173,11 @@ def candidate_refs(inp: RuleInput) -> list[tuple[ConditionKind, str]]:
             return [(ConditionKind.SENSOR_LIMIT, inp.reading_id)]
         case FreshnessInput():
             since = inp.stale_since
-            return [] if since is None else [(ConditionKind.SENSOR_QUIET, f"{inp.channel_id}@{since.isoformat()}")]
+            return (
+                []
+                if since is None
+                else [(ConditionKind.SENSOR_QUIET, f"{inp.channel_id}@{since.isoformat()}")]
+            )
         case MissionEventInput():
             return [(ConditionKind.MISSION_EVENT, inp.event_id)]
         case StateFactInput():
@@ -167,7 +189,10 @@ def candidate_refs(inp: RuleInput) -> list[tuple[ConditionKind, str]]:
             return [] if at is None else [(ConditionKind.GROUND_SILENCE, at.isoformat())]
         case SupplyCoverInput():
             return [
-                (ConditionKind.SUPPLY_COVER_LOW, inp.supply_use_id or f"{row.release_id}:{inp.environment_id}")
+                (
+                    ConditionKind.SUPPLY_COVER_LOW,
+                    inp.supply_use_id or f"{row.release_id}:{inp.environment_id}",
+                )
                 for row in inp.rows
             ]
         case InsightInput():
@@ -185,12 +210,14 @@ def build_view(rt: Runtime, uow: UnitOfWork, facts: ReleaseFacts, inp: RuleInput
     s = rt.settings
     active = rt.warnings.active(c, limit=s.integer("rules.active_scan_max"))
     ids = [w.warning_id for w in active]
-    spent: set[tuple[str, str, object]] = set()
+    spent: set[tuple[str, str, TriggerRef]] = set()
     for kind, ref in candidate_refs(inp):
-        spent |= rt.warnings.spent(c, kind, [ref])  # type: ignore[arg-type]
+        spent |= rt.warnings.spent(c, kind, [ref])
     channel = getattr(inp, "channel_id", None)
     sensor = getattr(inp, "sensor_type_id", None)
-    group = tuple(w for w in active if w.channel_id == channel and w.sensor_type_id == sensor) if channel else ()
+    group = (
+        tuple(w for w in active if w.channel_id == channel and w.sensor_type_id == sensor) if channel else ()
+    )
     types = sorted({
         d.condition.within_days_after_event.event_type
         for d in facts.rules.definitions
@@ -212,7 +239,7 @@ def build_view(rt: Runtime, uow: UnitOfWork, facts: ReleaseFacts, inp: RuleInput
         dwell=rt.dwell.all(c, limit=s.integer("rules.dwell_scan_max")),
         occurrences=rt.occurrences.for_warnings(c, ids, limit=s.integer("rules.occurrence_scan_max")),
         latest_clear=rt.occurrences.latest_clears(c, limit=s.integer("rules.clear_scan_max")),
-        spent=frozenset(spent),  # type: ignore[arg-type]
+        spent=frozenset(spent),
         clears_frozen=rt.pending.blocking(c),
         answer_events=rt.mission_events.latest(c, types, per_type=s.integer("rules.answer_event_window")),
         clock_regressed=bool(regressed and regressed.get("on")),
@@ -281,7 +308,9 @@ def apply_clear(rt: Runtime, uow: UnitOfWork, step: Clear) -> None:
     uow.publish(WarningCleared(fact_of(done)))
 
 
-def schedule(rt: Runtime, uow: UnitOfWork, key: str, kind: str, due: datetime | None, elapsed: int | None) -> None:
+def schedule(
+    rt: Runtime, uow: UnitOfWork, key: str, kind: str, due: datetime | None, elapsed: int | None
+) -> None:
     if due is None:
         raise ProblemError(ErrorCode.INTERNAL_ERROR, "deadline_without_time")
     previous = rt.deadlines.get(uow.connection, key)
@@ -299,7 +328,9 @@ def cancel(rt: Runtime, uow: UnitOfWork, key: str) -> None:
         rt.deadlines.delete(uow.connection, key)
 
 
-def apply_decision(rt: Runtime, uow: UnitOfWork, facts: ReleaseFacts, view: EngineView, decision: Decision) -> None:
+def apply_decision(
+    rt: Runtime, uow: UnitOfWork, facts: ReleaseFacts, view: EngineView, decision: Decision
+) -> None:
     """Order of 4.3: clears (supersessions first), occurrence resolution, raises, attaches, dwell, deadlines."""
     c = uow.connection
     for step in decision:
@@ -433,3 +464,13 @@ def ids_of(items: Sequence[Warning]) -> list[str]:
 
 def dump(w: Warning) -> str:
     return warning_json(w)
+
+
+def record_recovery_due(rt: Runtime, uow: UnitOfWork) -> None:
+    """Startup (5.3): recovery runs at once while rows exist, and health says so."""
+    uow.schedule(
+        ScheduledJob(RECOVER_HANDLER, RECOVER_HANDLER, AbsoluteDeadline(uow.now), {}, None),
+        expected_generation=None,
+    )
+    if rt.health is not None:
+        rt.health.mark_degraded(HEALTH_COMPONENT, FAULT_CODE, uow.now)

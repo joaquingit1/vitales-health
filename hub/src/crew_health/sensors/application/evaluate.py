@@ -15,6 +15,7 @@ from pydantic import TypeAdapter
 
 from crew_health.kernel.evaluation import EvaluationInput as KernelInput
 from crew_health.kernel.uow import ReadSnapshot, UnitOfWork
+from crew_health.sensors.application.exports import sensor_evaluated
 from crew_health.sensors.application.runtime import (
     EVALUATOR_VERSION,
     WINDOW_SCAN_BOUND,
@@ -101,6 +102,9 @@ class SensorEvaluator:
                 EVALUATION.dump_json(evaluation).decode(),
             ),
         )
+        event = sensor_evaluated(rt, uow, config, kind, channel, evaluation, release.release_id)
+        if event is not None:
+            uow.publish(event)  # E24 consumes it in this unit of work (R-E24-14)
 
     def _compute(
         self,
