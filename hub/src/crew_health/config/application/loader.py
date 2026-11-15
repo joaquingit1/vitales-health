@@ -119,6 +119,19 @@ class ConfigLoader:
                 executed.append(check_id)
         return ValidationResult(tuple(errors), tuple(warnings), tuple(executed))
 
+    def guarded(
+        self, candidate: CandidateRelease, prior: ValidationResult, uow: UnitOfWork
+    ) -> ValidationResult:
+        """`prior` (this candidate's document checks, run outside any transaction) completed with the activation
+        guards, which read state and so run inside the writing transaction. The document checks are pure functions
+        of the candidate, so running them first keeps a slow host's first start within
+        storage.transaction_timeout_ms."""
+        errors, executed = list(prior.errors), list(prior.executed)
+        for check_id, guard in sorted(self.checks.guards.items()):
+            errors.extend(guard.check(uow, candidate))
+            executed.append(check_id)
+        return ValidationResult(tuple(errors), prior.warnings, tuple(executed))
+
     def _integrity(self, candidate: CandidateRelease) -> list[Finding]:
         errors = [
             Finding("1", name, "/", "required document missing")
