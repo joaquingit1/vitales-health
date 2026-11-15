@@ -12,9 +12,9 @@ from uuid import UUID, uuid7
 
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.kernel.audit import AuditEntry
-from crew_health.kernel.clock import Clock
+from crew_health.kernel.clock import Clock, HlcClock
 from crew_health.kernel.config import ReleaseHandle
-from crew_health.kernel.errors import StorageUnavailable
+from crew_health.kernel.errors import ProblemError, StorageUnavailable
 from crew_health.kernel.ids import IdFactory, require_id
 from crew_health.kernel.scheduler import ScheduledJob
 from crew_health.kernel.settings import HubSettings
@@ -32,27 +32,37 @@ from crew_health.kernel.uow import (
 from crew_health.platform.adapters.audit import AuditRepository
 from crew_health.platform.application.scheduler import SchedulerService
 from crew_health.platform.domain.audit import AuditPolicy, core_policies
-from crew_health.platform.domain.errors import fail
+from crew_health.platform.domain.errors import StorageConstraintViolated, fail
 
 if TYPE_CHECKING:
     from crew_health.kernel.commands import CommandIdentity
     from crew_health.kernel.uow import OutboxEvent, StoredEvent
 
 
-def storage_error(error: sqlite3.Error) -> StorageUnavailable:
+def storage_error(error: sqlite3.Error) -> StorageUnavailable | StorageConstraintViolated:
     code = getattr(error, "sqlite_errorcode", 0) & 255
     if code == sqlite3.SQLITE_FULL:
         return StorageUnavailable("disk_full")
     if code in (sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED):
         return StorageUnavailable("locked")
-    if code in (sqlite3.SQLITE_CORRUPT, sqlite3.SQLITE_NOTADB, sqlite3.SQLITE_CONSTRAINT):
+    if code == sqlite3.SQLITE_CONSTRAINT:
+        return StorageConstraintViolated()
+    if code in (sqlite3.SQLITE_CORRUPT, sqlite3.SQLITE_NOTADB):
         return StorageUnavailable("corrupt")
     return StorageUnavailable("io_error")
 
 
 class SQLiteSession:
-    def __init__(self, connection: sqlite3.Connection, settings: HubSettings, *, readonly: bool) -> None:
+    def __init__(
+        self,
+        connection: sqlite3.Connection,
+        settings: HubSettings,
+        *,
+        readonly: bool,
+        expired: Callable[[], bool] | None = None,
+    ) -> None:
         self._connection, self._settings, self._readonly = connection, settings, readonly
+        self._expired = expired
         self.active = True
 
     def _check(self, sql: str, parameters: tuple[SqlValue, ...]) -> None:
@@ -63,7 +73,7 @@ class SQLiteSession:
             for v in parameters
         ) > self._settings.integer("storage.max_statement_bytes"):
             raise fail(ErrorCode.PAYLOAD_TOO_LARGE)
-        if sql.lstrip().split(maxsplit=1)[0].upper() in (
+        if _first_token(sql) in (
             "BEGIN",
             "COMMIT",
             "END",
@@ -81,10 +91,12 @@ class SQLiteSession:
         stride = min(maximum, 1000)
         steps = 0
 
+        expired = self._expired
+
         def progress() -> int:
             nonlocal steps
             steps += stride
-            return int(steps >= maximum)
+            return int(steps >= maximum or (expired is not None and expired()))
 
         self._connection.set_progress_handler(progress, stride)
 
@@ -128,6 +140,23 @@ class SQLiteSession:
             self._connection.set_authorizer(_read_authorizer if self._readonly else _write_authorizer)
 
 
+def _first_token(sql: str) -> str:
+    """The first keyword after any leading whitespace and SQL comments, upper case."""
+    text = sql
+    for _ in range(len(sql) + 1):
+        text = text.lstrip()
+        if text.startswith("--"):
+            end = text.find("\n")
+            text = "" if end < 0 else text[end + 1 :]
+        elif text.startswith("/*"):
+            end = text.find("*/")
+            text = "" if end < 0 else text[end + 2 :]
+        else:
+            break
+    pieces = text.split(maxsplit=1)
+    return pieces[0].upper() if pieces else ""
+
+
 def _read_authorizer(
     action: int, arg1: str | None, arg2: str | None, db: str | None, source: str | None
 ) -> int:
@@ -165,6 +194,10 @@ def _write_authorizer(
         sqlite3.SQLITE_ATTACH,
         sqlite3.SQLITE_DETACH,
         sqlite3.SQLITE_PRAGMA,
+        # SYSTEM 5.7: no manual commit or nested transaction from module SQL, comment-prefixed or not; the unit
+        # of work clears the authorizer only around its own commit, rollback and savepoint statements.
+        sqlite3.SQLITE_TRANSACTION,
+        sqlite3.SQLITE_SAVEPOINT,
     ):
         return sqlite3.SQLITE_DENY
     if arg1 == "platform_pending_replica" and action in (
@@ -238,6 +271,9 @@ class SQLiteDatabase:
         self._closed = False
         self._postcommit: list[Callable[[], None]] = []
         self._disk_full_handlers: list[Callable[[], None]] = []
+        self._guards: dict[str, Callable[[UnitOfWork], None]] = {}
+        self._required_guards: frozenset[str] = frozenset()
+        self.hlc: HlcClock | None = None
         self.event_sink: Callable[[UnitOfWork, OutboxEvent], StoredEvent] | None = None
         from crew_health.platform.application.uow import EventBus
 
@@ -252,7 +288,9 @@ class SQLiteDatabase:
             if initialize:
                 self._migrate(
                     connection,
-                    Path(__file__).parent.joinpath("adapters/migrations/0001_platform.sql").read_text(),
+                    Path(__file__)
+                    .parent.joinpath("adapters/migrations/0001_platform.sql")
+                    .read_text(encoding="utf-8"),
                 )
                 connection.execute(
                     "INSERT OR IGNORE INTO platform_identity VALUES (1, ?, ?)",
@@ -271,6 +309,8 @@ class SQLiteDatabase:
             connection.close()
 
     def register_replicated_table(self, table: str, *, record_type: str, key_column: str) -> None:
+        if (table, record_type, key_column) in self._replicated_tables:
+            return  # the same declaration from a second assembly over this database
         if (
             not table.isascii()
             or not table.isidentifier()
@@ -316,6 +356,8 @@ class SQLiteDatabase:
                 raise fail(ErrorCode.INTERNAL_ERROR)
 
     def register_audit_policy(self, policy: AuditPolicy) -> None:
+        if self.audit_policies.get(policy.event_type) == policy:
+            return  # the same declaration from a second assembly over this database
         if policy.event_type in self.audit_policies or len(self.audit_policies) >= self.settings.integer(
             "registry.max_hooks"
         ):
@@ -326,6 +368,20 @@ class SQLiteDatabase:
         if len(self._disk_full_handlers) >= self.settings.integer("registry.max_hooks"):
             raise fail(ErrorCode.CONFIG_INVALID)
         self._disk_full_handlers.append(callback)
+
+    def set_transaction_guard(self, name: str, guard: Callable[[UnitOfWork], None]) -> None:
+        """Run `guard` inside every write transaction before its work (SYSTEM 5.2: the clock regression check
+        against the durable last-committed high water). A guard failure rolls the write back. Keyed by name, so
+        assembling an app twice over one database replaces the guard instead of running it twice."""
+        require_id(name)
+        if name not in self._guards and len(self._guards) >= self.settings.integer("registry.max_hooks"):
+            raise fail(ErrorCode.CONFIG_INVALID)
+        self._guards[name] = guard
+
+    def require_guards(self, names: frozenset[str]) -> None:
+        """From now on no write transaction opens unless every named guard is installed (SYSTEM 5.2: the clock
+        high water loads before any write). Assembly calls it before any provider or binding can write."""
+        self._required_guards = self._required_guards | names
 
     def add_postcommit(self, callback: Callable[[], None]) -> None:
         if len(self._postcommit) >= self.settings.integer("registry.max_hooks"):
@@ -356,6 +412,7 @@ class SQLiteDatabase:
     def _connect(self) -> sqlite3.Connection:
         if self._closed:
             raise StorageUnavailable("io_error")
+        connection: sqlite3.Connection | None = None
         try:
             connection = sqlite3.connect(
                 self.path,
@@ -372,6 +429,8 @@ class SQLiteDatabase:
             )
             return connection
         except sqlite3.Error as error:
+            if connection is not None:
+                connection.close()
             raise storage_error(error) from None
 
     @staticmethod
@@ -407,8 +466,9 @@ class SQLiteDatabase:
             raise StorageUnavailable("corrupt")
         if not self._writer.acquire(timeout=self.settings.integer("storage.busy_timeout_ms") / 1000):
             raise StorageUnavailable("locked")
-        connection = self._connect()
+        connection: sqlite3.Connection | None = None
         try:
+            connection = self._connect()
             connection.execute("BEGIN IMMEDIATE")
             prior = connection.execute(
                 "SELECT sha256 FROM platform_migration WHERE name=?", (name,)
@@ -424,9 +484,10 @@ class SQLiteDatabase:
         except sqlite3.Error as error:
             raise storage_error(error) from None
         finally:
-            if connection.in_transaction:
-                connection.rollback()
-            connection.close()
+            if connection is not None:
+                if connection.in_transaction:
+                    connection.rollback()
+                connection.close()
             self._writer.release()
 
     def migrate(self, sql: str) -> None:
@@ -447,6 +508,8 @@ class SQLiteDatabase:
     ) -> Iterator[UnitOfWork]:
         if getattr(self._local, "writing", False):
             raise fail(ErrorCode.INVALID_TRANSITION)
+        if not self._required_guards <= self._guards.keys():
+            raise fail(ErrorCode.CAPABILITY_UNAVAILABLE)
         if not self._admission.acquire(blocking=False):
             raise StorageUnavailable("locked")
         if not self._writer.acquire(timeout=self.settings.integer("storage.busy_timeout_ms") / 1000):
@@ -461,13 +524,27 @@ class SQLiteDatabase:
             connection = self._connect()
             connection.execute("BEGIN IMMEDIATE")
             self._tracking(connection)
-            session = SQLiteSession(connection, self.settings, readonly=False)
+            deadline = (
+                self.clock.monotonic_ns()
+                + self.settings.integer("storage.transaction_timeout_ms") * 1_000_000
+            )
+
+            def expired() -> bool:
+                return self.clock.monotonic_ns() > deadline
+
+            session = SQLiteSession(connection, self.settings, readonly=False, expired=expired)
             connection.set_authorizer(_write_authorizer)
 
             now = self.clock.now()
             uow = Transaction(self, session, self._pin(session, now), now, actor, correlation_id)
+            for name in sorted(self._guards):
+                self._guards[name](uow)
             yield uow
             self._verify_declarations(connection, uow)
+            if expired():
+                # storage.transaction_timeout_ms (E01 11): a callback that held the writer too long fails loudly.
+                raise ProblemError(ErrorCode.INTERNAL_ERROR, "transaction deadline exceeded", retryable=True)
+            connection.set_authorizer(None)
             connection.commit()
             committed = True
         except StorageUnavailable as error:
@@ -475,12 +552,13 @@ class SQLiteDatabase:
             raise
         except sqlite3.Error as error:
             fault = storage_error(error)
-            disk_full = fault.cause == "disk_full"
+            disk_full = isinstance(fault, StorageUnavailable) and fault.cause == "disk_full"
             raise fault from None
         finally:
             if session is not None:
                 session.active = False
             if connection is not None:
+                connection.set_authorizer(None)
                 if connection.in_transaction:
                     connection.rollback()
                 connection.close()
@@ -512,14 +590,22 @@ class SQLiteDatabase:
     def savepoint(self, session: SQLiteSession, name: str) -> Iterator[None]:
         require_id(name)
         connection = session._connection
-        connection.execute('SAVEPOINT "' + name + '"')
+
+        def internal(statement: str) -> None:
+            connection.set_authorizer(None)
+            try:
+                connection.execute(statement)
+            finally:
+                connection.set_authorizer(_write_authorizer)
+
+        internal('SAVEPOINT "' + name + '"')
         try:
             yield
         except BaseException:
-            connection.execute('ROLLBACK TO "' + name + '"')
+            internal('ROLLBACK TO "' + name + '"')
             raise
         finally:
-            connection.execute('RELEASE "' + name + '"')
+            internal('RELEASE "' + name + '"')
 
     def retention_advance(self, uow: UnitOfWork, through: int) -> None:
 
@@ -540,15 +626,21 @@ class SQLiteDatabase:
     def backup_to(self, destination: Path) -> str:
         with self._exclusive():
             source = self._connect()
-            target = sqlite3.connect(destination)
+            target: sqlite3.Connection | None = None
             try:
+                target = sqlite3.connect(destination)
                 source.backup(target, pages=self.settings.integer("storage.max_rows"), sleep=0)
             except sqlite3.Error as error:
                 raise storage_error(error) from None
             finally:
-                target.close()
+                if target is not None:
+                    target.close()
                 source.close()
-        return hashlib.sha256(destination.read_bytes()).hexdigest()
+        digest = hashlib.sha256()
+        with destination.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1 << 20), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
 
 
 class Transaction(SQLiteView):
@@ -600,8 +692,9 @@ class Transaction(SQLiteView):
         if len(self.declared_replication) >= self.db.settings.integer("storage.max_rows"):
             raise fail(ErrorCode.PAYLOAD_TOO_LARGE)
         self.declared_replication.add((change.record_type, change.record_id))
+        stamp = None if self.db.hlc is None else self.db.hlc.tick(self)
         return append_change(
-            self, change, node_id=self.db.origin_node_id, incarnation=self.db.origin_incarnation
+            self, change, node_id=self.db.origin_node_id, incarnation=self.db.origin_incarnation, hlc=stamp
         )
 
     @contextmanager
@@ -634,6 +727,28 @@ def inspect_sqlite(path: Path) -> None:
     finally:
         if connection is not None:
             connection.close()
+
+
+def stored_identity(path: Path) -> tuple[str, str] | None:
+    """The node and incarnation an existing hub database was initialized with, read without writing; None when
+    the file does not exist yet. A file without exactly one identity row is corrupt, never re-identified."""
+    if not path.exists():
+        return None
+    connection: sqlite3.Connection | None = None
+    try:
+        connection = sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=0)
+        connection.execute("PRAGMA trusted_schema=OFF")
+        row = connection.execute(
+            "SELECT node_id, incarnation FROM platform_identity WHERE singleton=1"
+        ).fetchone()
+    except sqlite3.Error as error:
+        raise storage_error(error) from None
+    finally:
+        if connection is not None:
+            connection.close()
+    if not isinstance(row, tuple) or not all(isinstance(value, str) for value in row):
+        raise StorageUnavailable("corrupt")
+    return require_id(row[0]), require_id(row[1])
 
 
 @contextmanager

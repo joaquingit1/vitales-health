@@ -10,13 +10,13 @@ from . import common_schema, sensor_evaluation_schema, sensor_reading_schema
 
 class LimitMark(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     limit_id: common_schema.ConfigId
     value: float
     unit: str = Field(..., min_length=1)
-    comparator: Literal['above', 'at_or_above', 'below', 'at_or_below']
-    role: Literal['warning', 'display_only']
+    comparator: Literal["above", "at_or_above", "below", "at_or_below"]
+    role: Literal["warning", "display_only"]
     label: str = Field(..., min_length=1)
 
 
@@ -26,7 +26,7 @@ class Trace(RootModel[str]):
 
 class Effect(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str = Field(..., min_length=1)
     body_region: common_schema.BodyRegionOrNull | None
@@ -38,7 +38,7 @@ class TodoItem(RootModel[str]):
 
 class SensorStatus(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     sensor_type_id: common_schema.ConfigId
     hazard_id: common_schema.ConfigId
@@ -47,7 +47,7 @@ class SensorStatus(BaseModel):
     long_name: str = Field(..., min_length=1)
     body_region: common_schema.BodyRegionOrNull | None
     channel_id: common_schema.Id | None
-    reading_state: Literal['current', 'stale', 'no_reading']
+    reading_state: Literal["current", "stale", "no_reading"]
     latest_reading: sensor_reading_schema.SensorReading | None
     display_value: common_schema.NumberDisplay
     context_label: str = Field(..., min_length=1)
@@ -66,11 +66,11 @@ class SensorStatus(BaseModel):
     )
     todo: list[TodoItem] = Field(
         ...,
-        description='Sentences of what_to_do at shown_level, or at info when shown_level is null.',
+        description="Sentences of what_to_do at shown_level, or at info when shown_level is null.",
     )
     here: str = Field(
         ...,
-        description='by_environment text of the hazard for the active environment.',
+        description="by_environment text of the hazard for the active environment.",
         min_length=1,
     )
     citation: common_schema.Citation

@@ -92,7 +92,7 @@ class OperationCatalog:
     def _guarded_hash(path: Path) -> str:
         root = path.parent.parent
         relative = path.relative_to(root).as_posix()
-        for line in root.joinpath("SHA256SUMS").read_text().splitlines():
+        for line in root.joinpath("SHA256SUMS").read_text(encoding="utf-8").splitlines():
             pieces = line.split("  ", 1)
             if len(pieces) == 2 and pieces[1] == relative:
                 return pieces[0]

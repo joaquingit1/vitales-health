@@ -123,11 +123,13 @@ class Overlay:
     files: Mapping[str, str]
     additions: Mapping[str, str]
     traces: tuple[Mapping[str, object], ...]
+    replacements: Mapping[str, bytes]
 
     def effective(self, base: Mapping[str, str]) -> dict[str, str]:
         result = dict(base)
         for target, source in sorted(self.additions.items()):
             result[target] = self.files[source]
+        result.update((target, digest(raw)) for target, raw in self.replacements.items())
         return dict(sorted(result.items()))
 
     def record(self) -> dict[str, object]:
@@ -187,10 +189,15 @@ def _traced_edit(
     edit: object, decisions: frozenset[str], rows: Mapping[str, frozenset[str]]
 ) -> dict[str, object]:
     record = object_map(edit)
-    if set(record) != {"id", "decision", "a3", "op", "target", "source"}:
-        raise ValueError("unsupported overlay edit fields")
-    if record["op"] != "add_file":
+    fields = {"id", "decision", "a3", "op", "target"}
+    if record.get("op") == "add_file":
+        fields.add("source")
+    elif record.get("op") == "replace":
+        fields.update({"pointer", "expected", "value"})
+    else:
         raise ValueError("unsupported overlay operation")
+    if set(record) != fields or not isinstance(record["id"], str) or not record["id"]:
+        raise ValueError("unsupported overlay edit fields")
     decision, lines = record["decision"], string_list(record["a3"])
     if not isinstance(decision, str) or decision not in decisions:
         raise ValueError("overlay edit cites no accepted Part A decision: " + str(record["id"]))
@@ -214,27 +221,83 @@ def verify_overlay(root: Path, base: Mapping[str, str]) -> Overlay | None:
     decisions, rows = accepted_traces(root)
     additions: dict[str, str] = {}
     traces: list[Mapping[str, object]] = []
+    replacements: dict[str, bytes] = {}
     identifiers: set[object] = set()
     for edit in edits:
         record = _traced_edit(edit, decisions, rows)
-        target, source = record["target"], record["source"]
+        target = record["target"]
         if (
             not isinstance(target, str)
             or not re.fullmatch(r"api/schemas/[a-z0-9-]+\.schema\.json", target)
-            or target in base
-            or target in additions
-            or not isinstance(source, str)
-            or source not in files
-            or source == OVERLAY_EDITS
             or record["id"] in identifiers
         ):
-            raise ValueError("overlay edit target or source invalid: " + str(record["id"]))
+            raise ValueError("overlay edit target invalid: " + str(record["id"]))
         identifiers.add(record["id"])
-        additions[target] = source
+        if record["op"] == "add_file":
+            source = record["source"]
+            if (
+                target in base
+                or target in additions
+                or not isinstance(source, str)
+                or source not in files
+                or source == OVERLAY_EDITS
+            ):
+                raise ValueError("overlay edit source invalid: " + str(record["id"]))
+            additions[target] = source
+        else:
+            if target not in base:
+                raise ValueError("overlay pointer target absent from base")
+            raw = replacements.get(target)
+            if raw is None:
+                raw = (root / "contracts" / target).read_bytes()
+                if digest(raw) != base[target]:
+                    raise ValueError("overlay pointer base hash mismatch")
+            replacements[target] = replace_pointer(raw, record)
         traces.append(record)
     if set(additions.values()) != files.keys() - {OVERLAY_EDITS}:
         raise ValueError("overlay file is not bound to a traced edit")
-    return Overlay(version, manifest_sha256, files, additions, tuple(traces))
+    return Overlay(version, manifest_sha256, files, additions, tuple(traces), replacements)
+
+
+def replace_pointer(raw: bytes, edit: Mapping[str, object]) -> bytes:
+    """Replace one existing JSON value, rejecting stale expectations and invalid pointers."""
+    pointer = edit["pointer"]
+    if not isinstance(pointer, str) or not pointer.startswith("/") or pointer.count("/") > 64:
+        raise ValueError("invalid overlay JSON pointer")
+    parts = pointer[1:].split("/")
+    if any(re.search(r"~(?![01])", part) for part in parts):
+        raise ValueError("invalid overlay JSON pointer escape")
+    parts = [part.replace("~1", "/").replace("~0", "~") for part in parts]
+    document: object = json.loads(raw, object_pairs_hook=unique_object)
+    parent = document
+    for part in parts[:-1]:
+        if not isinstance(parent, dict) or part not in parent:
+            raise ValueError("overlay JSON pointer does not resolve")
+        parent = parent[part]
+    if not isinstance(parent, dict) or parts[-1] not in parent:
+        raise ValueError("overlay JSON pointer does not resolve")
+    if parent[parts[-1]] != edit["expected"]:
+        raise ValueError("overlay JSON pointer expectation differs")
+    parent[parts[-1]] = edit["value"]
+    return (json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+
+
+def effective_schemas(directory: Path, paths: tuple[Path, ...]) -> dict[str, bytes]:
+    """The runtime schema set by file name: the guarded base schemas in `directory` with the verified decision
+    overlay applied (D12) when `directory` is the repository's contracts/api/schemas. Any other directory, such
+    as a test fixture tree, is used exactly as given."""
+    schemas = {path.name: path.read_bytes() for path in paths}
+    resolved = directory.resolve()
+    root = resolved.parents[2]
+    if resolved != (root / "contracts/api/schemas").resolve():
+        return schemas
+    overlay = verify_overlay(root, verify_base(root))
+    if overlay is not None:
+        for target, source in overlay.additions.items():
+            schemas[Path(target).name] = (root / OVERLAY_DIRECTORY / source).read_bytes()
+        for target, raw in overlay.replacements.items():
+            schemas[Path(target).name] = raw
+    return schemas
 
 
 def effective_tree(
@@ -246,6 +309,8 @@ def effective_tree(
     if overlay is not None:
         for target, source in sorted(overlay.additions.items()):
             (destination / target).write_bytes((root / OVERLAY_DIRECTORY / source).read_bytes())
+        for target, raw in sorted(overlay.replacements.items()):
+            (destination / target).write_bytes(raw)
     actual = {
         p.relative_to(destination).as_posix(): digest(p.read_bytes()) for p in api.rglob("*") if p.is_file()
     }
@@ -355,7 +420,36 @@ def python_outputs(root: Path, api: Path, destination: Path) -> None:
         cwd=root,
     )
     preserve_instant_pattern(schemas, destination / "schemas/common_schema.py")
+    for generated in sorted((destination / "schemas").glob("*.py")):
+        flatten_overridden_bases(generated)
     (destination / "enums.py").write_bytes(enum_source(root, schemas))
+    run(
+        [
+            sys.executable,
+            "-m",
+            "ruff",
+            "check",
+            "--select",
+            "I",
+            "--fix",
+            "--config",
+            str(root / "hub/pyproject.toml"),
+            str(destination),
+        ],
+        cwd=root,
+    )
+    run(
+        [
+            sys.executable,
+            "-m",
+            "ruff",
+            "format",
+            "--config",
+            str(root / "hub/pyproject.toml"),
+            str(destination),
+        ],
+        cwd=root,
+    )
 
 
 def preserve_instant_pattern(schemas: Path, generated: Path) -> None:
@@ -394,6 +488,53 @@ def preserve_instant_pattern(schemas: Path, generated: Path) -> None:
         encoding="utf-8",
         newline="\n",
     )
+
+
+def _fields(node: ast.ClassDef) -> tuple[set[str], ast.expr | None, bool]:
+    """A generated model's annotated field names, its model_config value and whether the body holds only those."""
+    names: set[str] = set()
+    config: ast.expr | None = None
+    plain = True
+    for statement in node.body:
+        if isinstance(statement, ast.AnnAssign) and isinstance(statement.target, ast.Name):
+            names.add(statement.target.id)
+        elif isinstance(statement, ast.Assign) and [ast.unparse(target) for target in statement.targets] == [
+            "model_config"
+        ]:
+            config = statement.value
+        elif not (isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Constant)):
+            plain = False
+    return names, config, plain
+
+
+def flatten_overridden_bases(generated: Path) -> None:
+    """datamodel-codegen models an allOf over a oneOf as a class inheriting each oneOf branch, then redeclares
+    every field in the combined class. Where a branch pins a field to null, the redeclaration widens the base
+    field, which mypy --strict rejects. When the combined class redeclares every field of its in-module bases
+    and the bases carry nothing else (no validators, the same model_config or none), the bases add no runtime
+    behavior, so the class is rebased on BaseModel; pydantic validation is unchanged."""
+    text = generated.read_text(encoding="utf-8")
+    tree = ast.parse(text)
+    models = {node.name: node for node in tree.body if isinstance(node, ast.ClassDef)}
+    lines = text.splitlines(keepends=True)
+    for node in models.values():
+        bases = [base.id for base in node.bases if isinstance(base, ast.Name)]
+        if len(bases) < 2 or len(bases) != len(node.bases) or not all(name in models for name in bases):
+            continue
+        fields, config, plain = _fields(node)
+        inherited = [_fields(models[name]) for name in bases]
+        if not plain or not all(
+            base_plain
+            and base_fields <= fields
+            and (base_config is None or (config is not None and ast.dump(base_config) == ast.dump(config)))
+            for base_fields, base_config, base_plain in inherited
+        ):
+            continue
+        header = lines[node.lineno - 1]
+        if not header.startswith("class " + node.name + "(") or not header.rstrip().endswith("):"):
+            raise ValueError("generated class header spans lines: " + node.name)
+        lines[node.lineno - 1] = "class " + node.name + "(BaseModel):\n"
+    generated.write_text("".join(lines), encoding="utf-8", newline="\n")
 
 
 def typescript_outputs(root: Path, api: Path, destination: Path) -> None:
@@ -479,7 +620,12 @@ def build(root: Path, *, typescript: bool = False, output: Path | None = None) -
         tempfile.TemporaryDirectory(prefix="crew-health-generation-") as directory,
         tempfile.TemporaryDirectory(prefix="crew-health-effective-") as contract,
     ):
-        staging = Path(directory)
+        # datamodel-codegen's builtin formatter reads line length, string normalization and first party names
+        # from the nearest pyproject.toml above its output, so a TMPDIR inside any Python project changed the
+        # generated bytes. An empty pyproject.toml beside the staging tree pins those settings to the defaults.
+        (Path(directory) / "pyproject.toml").write_bytes(b"")
+        staging = Path(directory) / "generated"
+        staging.mkdir()
         api = effective_tree(root, overlay, effective, Path(contract))
         if typescript:
             typescript_outputs(root, api, staging)

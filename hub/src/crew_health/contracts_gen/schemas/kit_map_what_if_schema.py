@@ -10,7 +10,7 @@ from . import common_schema
 
 class BaseCounts(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     measured_here: int = Field(..., ge=0)
     report_only: int = Field(..., ge=0)
@@ -20,7 +20,7 @@ class BaseCounts(BaseModel):
 
 class WhatIfCounts(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     measured_here: int = Field(..., ge=0)
     report_only: int = Field(..., ge=0)
@@ -30,7 +30,7 @@ class WhatIfCounts(BaseModel):
 
 class Counts(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     measured_here: int = Field(..., ge=0)
     report_only: int = Field(..., ge=0)
@@ -40,35 +40,31 @@ class Counts(BaseModel):
 
 class Region(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    region: common_schema.BodyRegion | Literal['whole_body']
+    region: common_schema.BodyRegion | Literal["whole_body"]
     counts: Counts
-    marks: list[Literal['measured_here', 'report_only', 'needs_test_not_aboard']] = (
-        Field(
-            ...,
-            description='States present in this region, in the fixed order measured_here, report_only, needs_test_not_aboard. The client draws one glyph per entry.',
-        )
+    marks: list[Literal["measured_here", "report_only", "needs_test_not_aboard"]] = Field(
+        ...,
+        description="States present in this region, in the fixed order measured_here, report_only, needs_test_not_aboard. The client draws one glyph per entry.",
     )
 
 
 class ChangedItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    condition_id: str = Field(..., pattern='^ICL[1-9][0-9]{0,2}$')
+    condition_id: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
     name: str = Field(..., min_length=1)
-    from_: Literal['measured_here', 'report_only', 'needs_test_not_aboard'] = Field(
-        ..., alias='from'
-    )
-    to: Literal['measured_here', 'report_only', 'needs_test_not_aboard']
+    from_: Literal["measured_here", "report_only", "needs_test_not_aboard"] = Field(..., alias="from")
+    to: Literal["measured_here", "report_only", "needs_test_not_aboard"]
     body_regions: common_schema.BodyRegions
     cliff_url: AnyUrl
 
 
 class AddedSupply(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     quantity: float = Field(..., gt=0.0)
@@ -76,19 +72,19 @@ class AddedSupply(BaseModel):
 
 class AddedSkill(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     skill_id: common_schema.ConfigId
     person_ids: list[common_schema.Id] = Field(..., min_length=1)
 
 
 class ConditionId(RootModel[str]):
-    root: str = Field(..., pattern='^ICL[1-9][0-9]{0,2}$')
+    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
 
 
 class From(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     plan_aboard: bool
     waits_for_medical_officer: bool
@@ -96,7 +92,7 @@ class From(BaseModel):
 
 class To(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     plan_aboard: bool
     waits_for_medical_officer: bool
@@ -104,12 +100,12 @@ class To(BaseModel):
 
 class PlansChangedItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    plan_id: str = Field(..., pattern='^plan_[a-z0-9_]{1,59}$')
+    plan_id: str = Field(..., pattern="^plan_[a-z0-9_]{1,59}$")
     condition_id: ConditionId | None
     flow_id: common_schema.ConfigId | None
-    from_: From = Field(..., alias='from')
+    from_: From = Field(..., alias="from")
     to: To
 
 
@@ -123,7 +119,7 @@ class ToUses(RootModel[int]):
 
 class CoverChangedItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     from_uses: FromUses | None
@@ -132,13 +128,13 @@ class CoverChangedItem(BaseModel):
 
 class KitMapWhatIf(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     environment_id: common_schema.EnvironmentId
     kit_map_version: common_schema.Sha256
     added_instrument_ids: list[common_schema.ConfigId]
     ignored_instrument_ids: list[common_schema.ConfigId] = Field(
-        ..., description='Requested instruments already aboard.'
+        ..., description="Requested instruments already aboard."
     )
     base_counts: BaseCounts
     what_if_counts: WhatIfCounts
@@ -147,11 +143,11 @@ class KitMapWhatIf(BaseModel):
     added_supplies: list[AddedSupply]
     added_skills: list[AddedSkill] = Field(
         ...,
-        description='Crewmates who would practice the skill; treated as fresh holders for the computation.',
+        description="Crewmates who would practice the skill; treated as fresh holders for the computation.",
     )
     plans_changed: list[PlansChangedItem] = Field(
         ...,
-        description='Plans whose plan_aboard or waits_for_medical_officer changes in this environment.',
+        description="Plans whose plan_aboard or waits_for_medical_officer changes in this environment.",
     )
     cover_changed: list[CoverChangedItem]
     persisted: Literal[False]

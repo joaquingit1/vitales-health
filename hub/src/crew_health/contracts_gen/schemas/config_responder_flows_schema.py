@@ -10,7 +10,7 @@ from . import common_schema
 
 class Answer(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     answer: str = Field(..., min_length=1)
     goes_to: common_schema.ConfigId
@@ -18,7 +18,7 @@ class Answer(BaseModel):
 
 class TriageItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     question: str = Field(..., min_length=1)
@@ -35,7 +35,7 @@ class Question(RootModel[str]):
 
 class Measurement(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     what: str = Field(..., min_length=1)
     how: str = Field(..., min_length=1)
@@ -44,10 +44,10 @@ class Measurement(BaseModel):
 
 class TreatmentStep(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step: str = Field(..., min_length=1)
-    who: Literal['any crew', 'crew medical officer', 'ground']
+    who: Literal["any crew", "crew medical officer", "ground"]
     kit: str = Field(..., min_length=1)
     source_ids: common_schema.SourceIds
 
@@ -62,7 +62,7 @@ class AssistantMustNeverItem(RootModel[str]):
 
 class EnvironmentNotes(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     station_leo: str
     transit: str
@@ -73,7 +73,7 @@ class EnvironmentNotes(BaseModel):
 
 class Flow(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     title: str = Field(..., min_length=1)
@@ -88,14 +88,14 @@ class Flow(BaseModel):
     assistant_must_never: list[AssistantMustNeverItem] = Field(..., min_length=1)
     body_regions: common_schema.BodyRegions
     environment_notes: EnvironmentNotes = Field(
-        ..., description='Text per environment key, including eva for being outside.'
+        ..., description="Text per environment key, including eva for being outside."
     )
     source_ids: common_schema.SourceIds
 
 
 class Source(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.SourceId
     title: str = Field(..., min_length=1)
@@ -107,7 +107,7 @@ class Source(BaseModel):
 
 class ResponderFlowsJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     triage: list[TriageItem] = Field(..., min_length=1)
     flows: list[Flow] = Field(..., min_length=1)

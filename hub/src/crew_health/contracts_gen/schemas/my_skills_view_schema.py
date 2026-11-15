@@ -8,7 +8,7 @@ from . import common_schema, skill_record_schema
 
 class MySkillsView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person: common_schema.PersonRef
     skills: list[skill_record_schema.SkillRecord]

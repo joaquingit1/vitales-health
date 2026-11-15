@@ -46,6 +46,7 @@ class ClockRepository(Protocol):
         self, connection: StorageSession, *, source_clock_id: str, sequence: int
     ) -> ClockSegment | None: ...
     def segment(self, connection: StorageSession, source: str, segment: str) -> ClockSegment | None: ...
+    def latest_segment(self, connection: StorageSession, source: str) -> ClockSegment | None: ...
     def previous_offset(self, connection: StorageSession, value: ClockCorrection) -> int: ...
     def append_correction(self, connection: StorageSession, value: ClockCorrection) -> None: ...
     def correction(
@@ -72,9 +73,11 @@ class ClockRepository(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class ClockIdentity:
+    """The hub's node, write incarnation and its own capture stream (SYSTEM 5.2: a unique source_clock_id)."""
+
     node_id: str
     incarnation_id: str
-    hub_source_clock_id: str | None = None
+    hub_source_clock_id: str
 
 
 class PersistentClocks:
@@ -242,6 +245,7 @@ class PersistentClocks:
         return self._advance(uow, remote)
 
     def _advance(self, uow: UnitOfWork, remote: Hlc | None) -> Hlc:
+        self._raise_high_water(uow)
         value = advance(
             milliseconds(uow.now),
             self.repository.hlc(uow.connection),
@@ -252,6 +256,77 @@ class PersistentClocks:
         )
         self.repository.store_hlc(uow.connection, value)
         return value
+
+    def _raise_high_water(self, uow: UnitOfWork) -> None:
+        """Every stamped write moves the durable last-committed time forward; a rollback discards it with the write."""
+        state = self.repository.state(uow.connection)
+        if state is not None and uow.now > state.last_committed_at:
+            self.repository.set_state(uow.connection, replace(state, last_committed_at=uow.now))
+
+    def open_hub_segment(self, uow: UnitOfWork, *, process_epoch: str) -> ClockSegment:
+        """SYSTEM 5.2: the hub's own clock captures its segment directly; each process start opens a new one."""
+        if self.hub_source_clock_id is None:
+            raise InvalidClockValue()
+        repository = self.repository
+        segment_id = self.ids.derived(
+            "hubsegment", repository.node_id, repository.incarnation_id, process_epoch
+        )
+        existing = repository.segment(uow.connection, self.hub_source_clock_id, segment_id)
+        if existing is not None:
+            return existing
+        previous = repository.latest_segment(uow.connection, self.hub_source_clock_id)
+        segment = ClockSegment(
+            self.hub_source_clock_id,
+            self.hub_source_clock_id,
+            segment_id,
+            None if previous is None else previous.segment_id,
+            1 if previous is None else previous.first_sequence + 1,
+            repository.correction_head(uow.connection),
+        )
+        self.open(uow, segment)
+        return segment
+
+    def confirm_hub_time(
+        self, uow: UnitOfWork, *, correction_id: str, offset_ms: int, uncertainty_ms: int
+    ) -> ClockCorrected:
+        """The crew confirms the hub's time (SYSTEM 5.2: trusted local operator): a correction of the hub's own
+        current segment, effective from now, at the next global revision. The supervisor's clock sweep then lifts a
+        first start or regression freeze. Only an operator may confirm, and the uncertainty is bounded as any
+        correction's."""
+        if self.hub_source_clock_id is None:
+            raise InvalidClockValue()
+        segment = self.repository.latest_segment(uow.connection, self.hub_source_clock_id)
+        if segment is None:
+            raise InvalidClockValue()
+        return self.apply(
+            uow,
+            ClockCorrection(
+                correction_id,
+                segment.source_clock_id,
+                segment.segment_id,
+                self.repository.correction_head(uow.connection) + 1,
+                uow.now,
+                None,
+                offset_ms,
+                uncertainty_ms,
+                uow.now,
+                "operator",
+            ),
+        )
+
+    def pending_sweep(self, uow: UnitOfWork) -> int | None:
+        """The hub correction version a sweep may complete now, or None while clearing must stay frozen."""
+        state = self.repository.state(uow.connection)
+        if state is None or not state.frozen or state.correction_version < 1:
+            return None
+        if state.correction_version <= state.minimum_revision or self.hub_source_clock_id is None:
+            return None
+        matching = self.repository.history(
+            uow.connection, after_version=state.correction_version - 1, limit=1
+        )
+        if not matching or matching[0].source_clock_id != self.hub_source_clock_id:
+            return None
+        return state.correction_version
 
     def check_regression(self, uow: UnitOfWork) -> ClockRegressed | None:
         state = self.repository.state(uow.connection)

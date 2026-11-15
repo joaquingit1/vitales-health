@@ -20,7 +20,7 @@ class MedicalOfficerRank(RootModel[int]):
 
 class CrewMember(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person_id: common_schema.Id
     display_name: str = Field(..., min_length=1)

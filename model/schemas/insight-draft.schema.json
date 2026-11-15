@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "none": {
+          "const": true
+        }
+      },
+      "required": [
+        "none"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "topic_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "level": {
+          "enum": [
+            "info",
+            "watch"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "why": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "observation",
+                  "answer",
+                  "passage",
+                  "daily_check"
+                ]
+              },
+              "ref_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "kind",
+              "ref_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "habitat_reading_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        }
+      },
+      "required": [
+        "topic_id",
+        "level",
+        "title",
+        "text",
+        "why",
+        "evidence_refs",
+        "habitat_reading_ids"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "$comment": "E13 section 3.8. No safety state mutation is authorized by this schema."
+}

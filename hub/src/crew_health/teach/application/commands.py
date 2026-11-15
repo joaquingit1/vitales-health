@@ -25,7 +25,7 @@ from crew_health.kernel.commands import (
     canonical_json,
     command_identity,
 )
-from crew_health.kernel.config import ConfigReleaseReader, TemplateRenderer
+from crew_health.kernel.config import ConfigBinding, ConfigReleaseReader
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.units import UnitRegistry
@@ -73,7 +73,7 @@ class TeachPorts:
     settings: TeachSettings
     releases: ConfigReleaseReader
     content: ContentLoader
-    renderer: TemplateRenderer
+    config: ConfigBinding
     idempotency: IdempotencyStore
     receipts: CommandReceipts
     units: UnitRegistry
@@ -154,9 +154,9 @@ class TeachCore:
         body = project(check, content, display_names(self.p.people, check), reading, allowed=allowed)
         return Response(status, body, check.revision, check.config_release_id)
 
-    def steps(self, check: GuidedCheck) -> dict[str, object]:
+    def steps(self, view: UnitOfWork, check: GuidedCheck) -> dict[str, object]:
         names = display_names(self.p.people, check)
-        return project_steps(check, self.content_of(check), self.p.renderer, names)
+        return project_steps(check, self.content_of(check), self.p.config.bind(view), names)
 
     @staticmethod
     def _may(session: SessionContext, check: GuidedCheck, action: str) -> bool:

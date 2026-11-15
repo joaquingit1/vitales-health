@@ -1,0 +1,83 @@
+{
+  "type": "object",
+  "properties": {
+    "scenario": {
+      "type": "string",
+      "minLength": 1
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "conversation_ordinal": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "phase": {
+            "enum": [
+              "intake",
+              "assessment",
+              "disposition",
+              "help",
+              "insight",
+              "general",
+              "verifier"
+            ]
+          },
+          "step_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "final": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "tool_calls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "arguments": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "arguments"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "thinking_canary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "conversation_ordinal",
+          "phase",
+          "step_index",
+          "final",
+          "tool_calls"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "scenario",
+    "entries"
+  ],
+  "additionalProperties": false
+}

@@ -14,7 +14,7 @@ class EnvironmentDay(RootModel[int]):
 
 class Day(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     mission_day: common_schema.MissionDay
     environment_day: EnvironmentDay | None
@@ -24,14 +24,12 @@ class Day(BaseModel):
 
 class Cause(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal[
-        'cadence', 'override', 'per_eva', 'cadence_event', 'assistant', 'person'
-    ]
+    kind: Literal["cadence", "override", "per_eva", "cadence_event", "assistant", "person"]
     override_id: common_schema.Id | None
     binding_id: common_schema.DottedId | None
-    started_by: Literal['rule', 'sensor_limit', 'assistant', 'person'] | None
+    started_by: Literal["rule", "sensor_limit", "assistant", "person"] | None
     insight_id: common_schema.Id | None
 
 
@@ -41,7 +39,7 @@ class Note(RootModel[str]):
 
 class Outcome(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     observation_ids: list[common_schema.Id]
     answer_ids: list[common_schema.Id]
@@ -50,16 +48,16 @@ class Outcome(BaseModel):
 
 class Skip(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    reason: Literal['not_available', 'declined', 'no_time', 'not_needed_now', 'other']
+    reason: Literal["not_available", "declined", "no_time", "not_needed_now", "other"]
     note: Note | None
     at: common_schema.Instant
 
 
 class RoutineOccurrence(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     occurrence_id: common_schema.Id
     revision: int = Field(..., ge=1)
@@ -68,12 +66,12 @@ class RoutineOccurrence(BaseModel):
     environment_id: common_schema.EnvironmentId
     day: Day
     group: common_schema.ConfigId
-    state: Literal['not_due', 'due', 'later', 'done', 'skipped', 'missed']
+    state: Literal["not_due", "due", "later", "done", "skipped", "missed"]
     due_from: common_schema.Instant | None
     due_until: common_schema.Instant | None
     end_text: str = Field(
         ...,
-        description='Rendered state words, for example due now, done 07:38, day 21 or 13:00.',
+        description="Rendered state words, for example due now, done 07:38, day 21 or 13:00.",
         min_length=1,
     )
     cause: Cause

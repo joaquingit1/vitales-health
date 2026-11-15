@@ -1,0 +1,27 @@
+{
+  "P1": "partial: converter and source tensors checked, no E18 dev tokenizer 1000-string run",
+  "P2": "partial:427 text tensors,406 exact and21 exp calculations within1float32ULP; same-host repeatability only",
+  "P3": "blocked on E18 dev prompts: no 200 per-phase mode comparison",
+  "P4": "blocked on E18 dev prompts: no 200-case output rate",
+  "P5": "partial: one short step at32768 context; no full-context matrix with camera/hub/browser",
+  "P6": "partial: one short step latency only, no phase/thread sweep",
+  "P7": "protocol fake-server TCP cancel verified; real-model cancel/restart timing unmeasured",
+  "P8": "unverified: E13/E26/camera concurrent integration unavailable",
+  "activation_allowed": false,
+  "benchmark_claim": "No clinical or benchmark qualification claimed.",
+  "measured": true,
+  "quantization": "Q4_K_M",
+  "quantization_first": {
+    "maxrss_bytes": 6088015872,
+    "peak_footprint_bytes": 7048025704,
+    "wall_seconds": 211.75
+  },
+  "quantization_second": {
+    "maxrss_bytes": 6324551680,
+    "peak_footprint_bytes": 7060149888,
+    "wall_seconds": 188.9
+  },
+  "same_host_builds": 2,
+  "source_revision": "6870b60e54d41cfef88ab36478d9d15d4b9bd7bc",
+  "verdict": "incomplete"
+}

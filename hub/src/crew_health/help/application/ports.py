@@ -46,7 +46,7 @@ class RosterPort(Protocol):
     def crew(self, at: datetime) -> Sequence[CrewMember]: ...
 
 
-# Provided by E31 (crew_health.roles); structural copy until it is on main.
+# P0 role view consumed by help and implemented by E31 (crew_health.roles).
 class BroadcastRole(Protocol):
     @property
     def role_assignment_id(self) -> str: ...
@@ -62,7 +62,7 @@ class BroadcastRole(Protocol):
     def state(self) -> Literal["proposed", "accepted", "changed"]: ...
 
 
-# Provided by E31 (crew_health.roles); structural copy until it is on main.
+# P0 role view consumed by help and implemented by E31 (crew_health.roles).
 class BroadcastRolesSource(Protocol):
     def roles_for_session(self, help_session_id: str) -> Sequence[BroadcastRole]: ...
 

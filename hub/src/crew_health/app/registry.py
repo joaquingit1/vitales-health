@@ -9,11 +9,12 @@ from fastapi import APIRouter
 from crew_health.contracts_gen.enums import EventType
 
 if TYPE_CHECKING:
+    from crew_health.kernel.audit import AuditPolicy
     from crew_health.kernel.commands import CommandResumer
     from crew_health.kernel.config import ActivationGuard, ReleaseCheck
     from crew_health.kernel.evaluation import EvaluatorRegistration
     from crew_health.kernel.private import PrivateReferenceWriter
-    from crew_health.kernel.replication import ProjectionRegistration
+    from crew_health.kernel.replication import ProjectionRegistration, ReplicatedTable
     from crew_health.kernel.scheduler import ScheduledJob
     from crew_health.kernel.settings import SettingSpec
     from crew_health.kernel.tasks import TaskRegistration
@@ -66,6 +67,8 @@ class ModuleRegistry(Protocol):
     def on_startup(self, phase: StartupPhase, fn: Callable[[], None]) -> None: ...
     def id_prefix(self, *, record_type: str, prefix: str) -> None: ...
     def setting(self, spec: SettingSpec) -> None: ...
+    def audit_policy(self, policy: AuditPolicy) -> None: ...
+    def replicated_table(self, table: ReplicatedTable) -> None: ...
 
 
 class DeclarationRegistry:
@@ -104,7 +107,9 @@ class DeclarationRegistry:
         self._add("bindings", name, fn)
         self.bindings[name] = fn
 
-    def resolve(self) -> Resolver:
+    def resolve(self, *, before_bindings: Callable[[Resolver], None] | None = None) -> Resolver:
+        """Construct every provider, run `before_bindings` (assembly's clock guard, so a binding's first write is
+        already guarded), then invoke the named bindings in sorted order."""
         if self.frozen or self.resolving:
             raise ValueError("registry already resolved")
         self.resolving = True
@@ -125,6 +130,8 @@ class DeclarationRegistry:
         if pending:
             raise ValueError("registry.max_ports exceeded")
         resolver = _Resolver(values, frozenset(values), late=True)
+        if before_bindings is not None:
+            before_bindings(resolver)
         for name in sorted(self.bindings):
             self.bindings[name](resolver)
         return resolver
@@ -201,6 +208,20 @@ class DeclarationRegistry:
         if not spec.basis or (spec.kind in ("integer", "quantity") and spec.maximum is None):
             raise ValueError("setting has no provenance or finite ceiling")
         self._add("settings", spec.key, spec)
+
+    def audit_policy(self, policy: AuditPolicy) -> None:
+        """Register the policy for one audit event type the module writes; the assembly installs it in storage."""
+        self._add("audit_policies", policy.event_type, policy)
+
+    def replicated_table(self, table: ReplicatedTable) -> None:
+        """Register a module-owned replicated table and the leaf fields its projection may carry."""
+        if not table.table.isidentifier() or not table.key_column.isidentifier() or not table.record_type:
+            raise ValueError("replicated table identity invalid")
+        if (table.projection is None) != (not table.allowed_fields) or any(
+            not pointer.startswith("/") or len(pointer) < 2 for pointer in table.allowed_fields
+        ):
+            raise ValueError("projection allowlist needs a projection and JSON pointer leaves")
+        self._add("replicated_tables", table.table, table)
 
 
 def _conforms[P](value: object, port: type[P]) -> TypeGuard[P]:

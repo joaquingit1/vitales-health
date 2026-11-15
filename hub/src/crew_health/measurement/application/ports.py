@@ -1,9 +1,8 @@
-"""Ports E05 consumes (structural copies) and provides (SYSTEM 4.2 row `measurement`).
+"""Ports E05 consumes and provides (SYSTEM 4.2 row `measurement`).
 
-Consumed ports are copied from the provider's design with their exact names and parameters. Value types the
-provider owns are mirrored as frozen dataclasses with the provider's field names. Composition binds the real
-providers; tests use small fakes. Ports marked interim have no published provider declaration yet: they are the
-least surprising shape the pending request allows and are listed as gaps.
+Providers on main export the exact classes used by the registry. Tests use small boundary fakes. Ports marked
+interim have no published provider declaration yet: they are the least surprising shape the pending request allows
+and are listed as gaps.
 """
 
 from __future__ import annotations
@@ -13,70 +12,31 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal, Protocol
 
-from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
+from crew_health.kitmap.application.ports import CapabilityWords as CapabilityWords
+from crew_health.kitmap.application.ports import GateOutcome as GateOutcome
+from crew_health.kitmap.application.ports import GateRow as GateRow
+from crew_health.kitmap.application.ports import KitCapabilitiesPort as KitCapabilitiesPort
+from crew_health.kitmap.application.ports import KitCapability as KitCapability
+from crew_health.kitmap.application.ports import KitCheckFacts as KitCheckFacts
+from crew_health.kitmap.application.ports import KitGate as KitGate
 from crew_health.measurement.domain.model import (
     CapabilityStatus,
     GapReason,
-    KitCheck,
     OperatorRequirement,
     OriginMode,
     UnavailableReason,
 )
+
+# E01 records' classes (SYSTEM 4); measurement's draft is records' AttemptObservationDraft (R-E01-17 pending).
+from crew_health.records.application.ports import AttemptObservationDraft as ObservationDraft
+from crew_health.records.application.ports import ObservationCommands as ObservationCommands
 
 type View = ReadSnapshot | UnitOfWork
 
 # ---------------------------------------------------------------------------------------------------------------
 # Consumed
 # ---------------------------------------------------------------------------------------------------------------
-
-
-@dataclass(frozen=True, slots=True)
-class GateRow:
-    condition_id: str
-    plan_id: str | None
-
-
-@dataclass(frozen=True, slots=True)
-class GateOutcome:
-    """E27 4.2: kit_check (contracts.KitCheck), capability words, rows (condition_id, plan_id) in request order."""
-
-    kit_check: KitCheck
-    capability_words: tuple[str, ...]
-    rows: tuple[GateRow, ...]
-
-
-# Provided by E27 (crew_health.kitmap); structural copy until it is on main. SYSTEM 4.4 name `KitGate` prevails
-# over E27's `KitGatePort`. Raises a ProblemError with INVALID_VALUE (E27 KitGateInvalid) for an unknown
-# capability or condition ID.
-class KitGate(Protocol):
-    def check(
-        self, uow: UnitOfWork, *, capability_code: str, environment_id: str, condition_ids: Sequence[str]
-    ) -> GateOutcome: ...
-
-
-@dataclass(frozen=True, slots=True)
-class KitCapability:
-    """E27 3.1: E27's half of contracts.Capability; E05 adds the device overlay."""
-
-    code: str
-    label: str
-    body_region: str | None
-    operator_requirement: OperatorRequirement
-    expected_duration_seconds: int | None
-    methods: tuple[str, ...]
-    instrument_ids: tuple[str, ...]
-    missing_instrument_ids: tuple[str, ...]
-    applicable_environments: tuple[str, ...]
-    kit_status: Literal["available", "unavailable"]
-    kit_reason: Literal["not_in_kit"] | None
-    components: tuple[str, ...] = ()  # a panel's indicator codes (config-kit-map), empty for one value
-
-
-# Provided by E27 (crew_health.kitmap.application.ports.KitCapabilitiesPort). A structural copy: the provider's
-# KitCapability lives in kitmap.domain, which this module may not import.
-class KitCapabilitiesPort(Protocol):
-    def capabilities(self, snapshot: ReadSnapshot, environment_id: str) -> tuple[KitCapability, ...]: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -151,33 +111,6 @@ class GapPlanPort(Protocol):
     def plan_for(
         self, *, condition_ids: Sequence[str], environment_id: str, subject_person_id: str | None
     ) -> GapPlan | None: ...
-
-
-@dataclass(frozen=True, slots=True)
-class ObservationDraft:
-    """A validated attempt value handed to E01 records in the attempt's unit of work."""
-
-    patient_id: str
-    episode_id: str | None
-    code: str
-    quantity: Quantity
-    observed_at: datetime
-    origin_mode: OriginMode
-    acquisition_method: str
-    device_id: str | None
-    context: Mapping[str, str]
-    body_region: str | None
-    supersedes: str | None
-    measurement_request_id: str
-    attempt_id: str
-    operator_id: str | None
-
-
-# Provided by E01 (crew_health.records) as ObservationCommands; structural copy until it is on main. Interim:
-# E01 has not published the method (R-E01-17, R-E05-2). It appends inside the caller's unit of work, runs E01's
-# acceptance pipeline and returns the new Observation ID; a refusal raises ProblemError and rolls back the attempt.
-class ObservationCommands(Protocol):
-    def append_for_attempt(self, uow: UnitOfWork, draft: ObservationDraft) -> str: ...
 
 
 # Interim, R-E05-1 (InstrumentReadinessPort inputs): acquisition methods whose adapter process reports ready now
@@ -289,6 +222,7 @@ __all__ = [
     "AdapterAssignmentPort",
     "AdapterReadinessPort",
     "CapabilityQueries",
+    "CapabilityWords",
     "CapabilityView",
     "ConsentQueries",
     "EpisodeFact",
@@ -302,6 +236,7 @@ __all__ = [
     "GateRow",
     "KitCapabilitiesPort",
     "KitCapability",
+    "KitCheckFacts",
     "KitGate",
     "MeasurementAssignmentPort",
     "MeasurementCommands",

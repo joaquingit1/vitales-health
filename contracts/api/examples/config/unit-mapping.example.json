@@ -1,0 +1,139 @@
+{
+  "summary": "EXAMPLE CONFIG unit-mapping.json",
+  "description": "Wire unit to UCUM unit for each indicator (decision D12). NASA first: cabin CO2 is a partial pressure in mmHg per NASA-STD-3001 Volume 2 Rev F, V2 6004 (NASA-SOURCES.md N01), and ppm becomes mmHg as ppm x cabin pressure in mmHg / 1,000,000 (NASA-SOURCES.md, From ppm to mmHg). NASA does not name unit codes, so the codes /min, mm[Hg] and [ppm] are UCUM (Unified Code for Units of Measure, https://ucum.org/ucum), a non-NASA reference used only for the code spelling. Wire units and indicators come from CONTRACTS.md.",
+  "x-schema": "config-unit-mapping.schema.json",
+  "value": {
+    "version": "example-d12-1",
+    "mappings": [
+      {
+        "indicator_code": "pulse",
+        "wire_unit": "bpm",
+        "ucum_unit": "/min",
+        "conversion": "identity",
+        "factor": null,
+        "rounding": {
+          "decimal_places": 4,
+          "mode": "half_even"
+        },
+        "basis": "sourced",
+        "source_refs": [
+          {
+            "path": "docs/product/CONTRACTS.md",
+            "line": 86,
+            "decision": "D12"
+          }
+        ]
+      },
+      {
+        "indicator_code": "systolic_bp",
+        "wire_unit": "mmHg",
+        "ucum_unit": "mm[Hg]",
+        "conversion": "identity",
+        "factor": null,
+        "rounding": {
+          "decimal_places": 4,
+          "mode": "half_even"
+        },
+        "basis": "sourced",
+        "source_refs": [
+          {
+            "path": "docs/product/CONTRACTS.md",
+            "line": 86,
+            "decision": "D12"
+          }
+        ]
+      },
+      {
+        "indicator_code": "diastolic_bp",
+        "wire_unit": "mmHg",
+        "ucum_unit": "mm[Hg]",
+        "conversion": "identity",
+        "factor": null,
+        "rounding": {
+          "decimal_places": 4,
+          "mode": "half_even"
+        },
+        "basis": "sourced",
+        "source_refs": [
+          {
+            "path": "docs/product/CONTRACTS.md",
+            "line": 86,
+            "decision": "D12"
+          }
+        ]
+      },
+      {
+        "indicator_code": "co2",
+        "wire_unit": "mmHg",
+        "ucum_unit": "mm[Hg]",
+        "conversion": "identity",
+        "factor": null,
+        "rounding": {
+          "decimal_places": 4,
+          "mode": "half_even"
+        },
+        "basis": "sourced",
+        "source_refs": [
+          {
+            "path": "docs/product/CONTRACTS.md",
+            "line": 659,
+            "decision": "D12"
+          },
+          {
+            "path": "docs/product/NASA-SOURCES.md",
+            "line": 12,
+            "decision": "D12"
+          }
+        ]
+      },
+      {
+        "indicator_code": "co2",
+        "wire_unit": "ppm",
+        "ucum_unit": "[ppm]",
+        "conversion": "ppm_to_mmhg",
+        "factor": null,
+        "rounding": {
+          "decimal_places": 4,
+          "mode": "half_even"
+        },
+        "basis": "sourced",
+        "source_refs": [
+          {
+            "path": "docs/product/CONTRACTS.md",
+            "line": 659,
+            "decision": "D12"
+          },
+          {
+            "path": "docs/product/NASA-SOURCES.md",
+            "line": 12,
+            "decision": "D12"
+          },
+          {
+            "path": "docs/product/NASA-SOURCES.md",
+            "line": 141,
+            "decision": "D12"
+          }
+        ]
+      },
+      {
+        "indicator_code": "o2",
+        "wire_unit": "mmHg",
+        "ucum_unit": "mm[Hg]",
+        "conversion": "identity",
+        "factor": null,
+        "rounding": {
+          "decimal_places": 4,
+          "mode": "half_even"
+        },
+        "basis": "sourced",
+        "source_refs": [
+          {
+            "path": "docs/product/CONTRACTS.md",
+            "line": 659,
+            "decision": "D12"
+          }
+        ]
+      }
+    ]
+  }
+}

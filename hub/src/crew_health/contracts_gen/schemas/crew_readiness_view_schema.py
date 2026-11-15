@@ -18,36 +18,34 @@ class MedicalOfficerRank(RootModel[int]):
 
 class Holder(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person: common_schema.PersonRef
-    freshness: Literal['fresh', 'due', 'stale', 'never']
+    freshness: Literal["fresh", "due", "stale", "never"]
     last_practiced_label: LastPracticedLabel | None
     medical_officer_rank: MedicalOfficerRank | None
     available: bool
-    unavailable_reason: Literal['on_eva', 'asleep', 'is_subject'] | None
+    unavailable_reason: Literal["on_eva", "asleep", "is_subject"] | None
 
 
 class Skill(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     skill_id: common_schema.ConfigId
     name: str = Field(..., min_length=1)
     fresh_count: int = Field(..., ge=0)
     text: str = Field(
         ...,
-        description='ui-copy readiness_words fresh_count or nobody_fresh.',
+        description="ui-copy readiness_words fresh_count or nobody_fresh.",
         min_length=1,
     )
-    holders: list[Holder] = Field(
-        ..., description='Listed in roster order, never sorted by freshness.'
-    )
+    holders: list[Holder] = Field(..., description="Listed in roster order, never sorted by freshness.")
 
 
 class CrewReadinessView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     environment_id: common_schema.EnvironmentId
     skills: list[Skill]

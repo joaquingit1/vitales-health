@@ -18,7 +18,7 @@ class OneWayDelayS(RootModel[float]):
 
 class Reply(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str = Field(..., min_length=1)
     by: common_schema.Actor
@@ -27,12 +27,12 @@ class Reply(BaseModel):
 
 class GroundMessage(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     ground_message_id: common_schema.Id
     revision: int = Field(..., ge=1)
     help_session_id: common_schema.Id | None
-    state: Literal['queued', 'sent', 'acknowledged']
+    state: Literal["queued", "sent", "acknowledged"]
     lines: list[Line] = Field(..., min_length=1)
     text: str = Field(..., min_length=1)
     queued_by: common_schema.Actor
@@ -43,7 +43,7 @@ class GroundMessage(BaseModel):
     one_way_delay_s: OneWayDelayS | None
     status_text: str = Field(
         ...,
-        description='From help-presentation ground_message queued_template, sent_template or acknowledged_template.',
+        description="From help-presentation ground_message queued_template, sent_template or acknowledged_template.",
         min_length=1,
     )
     simulated: bool
@@ -52,7 +52,7 @@ class GroundMessage(BaseModel):
     catch_up: common_schema.CatchUp
     session_revision: int = Field(
         ...,
-        description='The help session revision the text was drafted from. The text equals the GroundMessagePreview text at that revision (CONTRACTS section 26).',
+        description="The help session revision the text was drafted from. The text equals the GroundMessagePreview text at that revision (CONTRACTS section 26).",
         ge=1,
     )
     text_sha256: common_schema.Sha256
