@@ -386,3 +386,40 @@ def test_list_checks_authenticated_identity_and_missing_grant_provider(tmp_path:
             s.queries.list_episodes(view, OFFICER, "person_a", None, 20)
         with pytest.raises(ProblemError):
             s.queries.delivered(view, PATIENT, "epi_unknown")
+
+
+@pytest.mark.trace("V04", "D08")
+def test_timeline_marks_recorded_lateness_and_exposes_only_authorized_resolution_reasons(
+    tmp_path: Path,
+) -> None:
+    from datetime import timedelta
+
+    from crew_health.episodes.application.dto import LinkedFact
+
+    from .builders import NOW, PATIENT
+
+    s = station(tmp_path)
+    ep = s.create()
+    s.answer(ep)
+    s.clock.at = NOW + timedelta(minutes=6)
+    with s.db.begin(actor=PATIENT.actor, correlation_id="corr_late") as uow:
+        s.handlers.linked(uow, LinkedFact("evt_late", ep, "observation", "obs_late", "accepted", "SIM", NOW))
+    timeline = s.client.get("/v1/episodes/" + ep + "/timeline", headers={"Authorization": "patient"}).json()
+    assert timeline["items"][-1]["late"] is True
+    assert timeline["items"][0]["late"] is False
+    patient = s.client.get("/v1/episodes/" + ep, headers={"Authorization": "patient"}).json()
+    assert "symptoms_reported_resolved" in patient["resolve_reasons"]
+    assert "clinician_assessed" not in patient["resolve_reasons"]
+    s.facts.authority_kind = "none"
+    officer = s.client.get("/v1/episodes/" + ep, headers={"Authorization": "officer"}).json()
+    assert officer["resolve_reasons"] == [] and officer["allowed_actions"] == []
+
+
+@pytest.mark.trace("V04", "D09")
+def test_resolution_reasons_follow_current_authority(tmp_path: Path) -> None:
+    s = station(tmp_path)
+    ep = s.create()
+    s.answer(ep)
+    response = s.client.get("/v1/episodes/" + ep, headers={"Authorization": "patient"})
+    assert "symptoms_reported_resolved" in response.json()["resolve_reasons"]
+    assert "clinician_assessed" not in response.json()["resolve_reasons"]

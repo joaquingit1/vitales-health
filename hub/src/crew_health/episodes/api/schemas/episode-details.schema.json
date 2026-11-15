@@ -547,6 +547,16 @@
       "items": {
         "$ref": "common.schema.json#/$defs/id"
       }
+    },
+    "resolve_reasons": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "measurement_anomaly_not_reproduced",
+          "symptoms_reported_resolved",
+          "clinician_assessed"
+        ]
+      }
     }
   },
   "required": [
@@ -575,7 +585,8 @@
     "reopenings",
     "onset_history",
     "history_cursors",
-    "observation_ids"
+    "observation_ids",
+    "resolve_reasons"
   ],
   "additionalProperties": false
 }

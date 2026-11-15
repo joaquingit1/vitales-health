@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 from datetime import datetime
+from decimal import Decimal
 from hashlib import sha256
 from typing import Literal, cast
 
@@ -243,6 +244,22 @@ class EpisodeQueries:
             if len(gaps) > self.service.limits.max_links_per_episode:
                 raise ProblemError(ErrorCode.INTERNAL_ERROR, "gap view bound", retryable=True)
             result["capability_gaps"] = [dict(gap) for gap in gaps]
+        result["resolve_reasons"] = []
+        if "resolve" in cast(list[str], result["allowed_actions"]):
+            reasons = []
+            if session.person_id == ep.patient_id:
+                reasons.append("symptoms_reported_resolved")
+            elif (
+                self.service.authority(view, session, ep, action="clinician_assessed").kind
+                == "crew_medical_officer"
+            ):
+                reasons.append("clinician_assessed")
+            superseded = {a.supersedes for a in answers if a.supersedes is not None}
+            if not withheld and not any(
+                a.presence == "present" and a.answer_id not in superseded for a in answers
+            ):
+                reasons.append("measurement_anomaly_not_reproduced")
+            result["resolve_reasons"] = reasons
         if not extended:
             return result
         pages = {
@@ -272,6 +289,8 @@ class EpisodeQueries:
 
     def actions(self, view: View, session: SessionContext, ep: Episode, urgency_state: str) -> list[str]:
         if session.kind != "crew" or session.actor.kind != "person":
+            return []
+        if session.person_id != ep.patient_id and self.service.authority(view, session, ep).kind == "none":
             return []
         keys = ["add_answer"]
         if ep.state != EpisodeState.RESOLVED:
@@ -417,6 +436,14 @@ class EpisodeQueries:
                 "state": r[4],
                 "occurred_at": r[5],
                 "recorded_at": r[6],
+                "late": Decimal(
+                    str(
+                        (
+                            datetime.fromisoformat(text(r[6])) - datetime.fromisoformat(text(r[5]))
+                        ).total_seconds()
+                    )
+                )
+                > self.service.rules.rules(ep.config_release_id).late_seconds,
                 "actor": None if r[7] is None else {"kind": r[7], "id": r[8]},
                 "origin_mode": ep.origin_mode,
             }

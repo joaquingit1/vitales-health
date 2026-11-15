@@ -62,7 +62,7 @@ export function episodeEditor(host: HTMLElement, words: EditorWords, choices: ()
         else if (action === 'reassign_followup') { select('owner_person_id', current.owners); }
         else if (action === 'request_review') { input('note', false, true); }
         else if (action === 'resolve') {
-          select('reason', enumChoices(words.resolutionReasons)); input('rationale', false, true);
+          select('reason', enumChoices(words.resolutionReasons).filter(choice=>(_episode.resolve_reasons ?? []).includes(choice.id))); input('rationale', false, true);
           select('observation_ids', current.observations.length ? current.observations : (_episode.observation_ids ?? []).map(id=>({id,label:id})), false, true); select('review_id', current.reviews.length ? current.reviews : (_episode.review_ids ?? []).map(id=>({id,label:id})), false);
         } else if (action === 'reopen') { select('reason', enumChoices(words.reopenReasons)); input('note', false, true); }
         else if (action === 'correct_onset') {

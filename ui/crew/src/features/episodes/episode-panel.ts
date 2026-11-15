@@ -8,15 +8,15 @@ export type Task = {
 export type Episode = {
   episode_id: string; revision: number; state: string; urgency_state: string; origin_mode: string;
   concern_text: string; allowed_actions: string[]; followup_tasks: Task[];
-  withheld_answer_count: number; review_ids?: string[]; observation_ids?: string[];
+  withheld_answer_count: number; resolve_reasons?: string[]; review_ids?: string[]; observation_ids?: string[];
 };
 export type Words = {
   states: Record<string, string>; origins: Record<string, string>; taskStates: Record<string, string>;
   actions: Record<string, string>; errors: Record<string, string>; overdue: string; duePending: string;
-  stale: string; offline: string; withheld: string; timeline: string; concern: string;
+  stale: string; offline: string; withheld: string; timeline: string; concern: string; lateEntry?: string;
   timelineKinds?: Record<string,string>; reviewDecisions?: Record<string,string>; reviewRoles?: Record<string,string>; groundAdvice?: string;
 };
-export type Timeline = { next_cursor?: string | null; revision: number; items: {kind: string; occurred_at: string; state: string | null; actor: {id: string} | null}[] };
+export type Timeline = { next_cursor?: string | null; revision: number; items: {kind: string; occurred_at: string; recorded_at?: string; late?: boolean; state: string | null; actor: {id: string} | null}[] };
 export type Review = {review_id: string; role: string; reviewer: {id: string; display_name?: string | null}; signed_at: string; decisions: {item: string; decision: string; rationale: string}[]; unresolved: string[]};
 export type Transport = {
   timeline?(path: string, signal: AbortSignal): Promise<Timeline>;
@@ -177,7 +177,7 @@ export class EpisodePanel {
     this.root.append(list);
     if (this.timeline) {
       const history = document.createElement('ol'); history.setAttribute('aria-label', this.words.timeline);
-      for (const item of this.timeline.items) history.append(this.node('li', [this.words.timelineKinds?.[item.kind] ?? this.words.errors.unknown, item.occurred_at, item.actor?.id ?? '', item.state ?? ''].filter(Boolean).join(' ')));
+      for (const item of this.timeline.items) history.append(this.node('li', [this.words.timelineKinds?.[item.kind] ?? this.words.errors.unknown, item.occurred_at, item.actor?.id ?? '', item.state ?? '', item.late ? this.words.lateEntry ?? this.words.errors.unknown : ''].filter(Boolean).join(' ')));
       this.root.append(history);
     }
     for (const review of this.reviews) {

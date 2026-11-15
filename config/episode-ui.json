@@ -126,5 +126,6 @@
     "effect_failed": "Effect failed",
     "route_recorded": "Route recorded",
     "link_refused": "Link refused"
-  }
+  },
+  "lateEntry": "Recorded later than the event"
 }
