@@ -10,12 +10,14 @@ the reading that strictly advanced E (D14). Nothing here rounds a value that eva
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import json
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
+from urllib.parse import urlsplit
 
 from pydantic import ValidationError
 
@@ -52,6 +54,7 @@ from crew_health.sensors.domain.plausibility import PlausibilityResult, assess
 from crew_health.sensors.domain.reading import QualityStatus, ReadingFact, advance_window_end
 
 _ENVELOPE = {"batch_id", "readings"}
+_LATEST = 2**53 - 1  # the newest segment of a clock source
 
 
 @dataclass(frozen=True, slots=True)
@@ -128,16 +131,47 @@ def _row_hash(row: dict[str, Any]) -> str:
     return hashlib.sha256(json.dumps(shaped, sort_keys=True, default=str).encode()).hexdigest()
 
 
+def loopback(health_url: str | None) -> bool:
+    """True when the adapter's registered health url is on this host (E23 5.2, T0): its wall clock is the hub's."""
+    host = None if health_url is None else urlsplit(health_url).hostname
+    if host is None:
+        return False
+    if host == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
+
 def _observed(
-    rt: Runtime, uow: UnitOfWork, adapter: str, sequence: int, at: datetime, origin: str
+    rt: Runtime,
+    uow: UnitOfWork,
+    adapter: str,
+    sequence: int,
+    at: datetime,
+    origin: str,
+    health_url: str | None,
 ) -> tuple[NormalizedTime, TimeInput | None, str | None]:
+    """S5.2 normalization of the observation time. An adapter with its own clock segment uses it. A loopback adapter
+    without one reads the hub host's own wall clock, so its stamp is a raw reading of the hub's current segment and
+    is corrected as the hub's own time is. A REPLAY row without one keeps its dataset time. Any other adapter without
+    a segment stays unknown (fails closed)."""
     unknown = NormalizedTime(at, None, None, None, "unknown")
     if rt.corrections is None or rt.segments is None:
         return unknown, None, None
+    source = adapter
     segment = rt.segments.for_sequence(uow, source_clock_id=adapter, sequence=sequence)
+    if segment is None and origin == "REPLAY":
+        # E23 3.1: a REPLAY window uses the original dataset time, not a clock reading; its freshness comes from
+        # the D14 receive reference alone, so no correction applies to the recorded instant.
+        return NormalizedTime(at, at, None, 0, "replay"), None, None
+    if segment is None and loopback(health_url):
+        source = rt.hub_source_clock_id
+        segment = rt.segments.for_sequence(uow, source_clock_id=source, sequence=_LATEST)
     if segment is None:
         return unknown, None, None
-    stamp = TimeInput(at, adapter, segment.segment_id, segment.capture_offset_version, "source_raw", origin)  # type: ignore[arg-type]
+    stamp = TimeInput(at, source, segment.segment_id, segment.capture_offset_version, "source_raw", origin)  # type: ignore[arg-type]
     return rt.corrections.normalize(uow, stamp), stamp, segment.segment_id
 
 
@@ -145,7 +179,7 @@ def _receive(rt: Runtime, uow: UnitOfWork) -> TimeFacts:
     """D14 receive time through the hub's own capture stream (S5.2); no segment means unknown, never arrival."""
     if rt.corrections is None or rt.segments is None:
         return TimeFacts("unknown", None, None)
-    segment = rt.segments.for_sequence(uow, source_clock_id=rt.hub_source_clock_id, sequence=2**53 - 1)
+    segment = rt.segments.for_sequence(uow, source_clock_id=rt.hub_source_clock_id, sequence=_LATEST)
     if segment is None:
         return TimeFacts("unknown", None, None)
     stamp = TimeInput(
@@ -259,7 +293,13 @@ class _Batch:
         rt, uow = self.rt, self.uow
         observed_at = model.observed_at.root
         normalized, stamp, segment_id = _observed(
-            rt, uow, self.adapter_id, model.adapter_sequence, observed_at, channel.facts.origin_mode
+            rt,
+            uow,
+            self.adapter_id,
+            model.adapter_sequence,
+            observed_at,
+            channel.facts.origin_mode,
+            channel.health_url,
         )
         fact = ReadingFact(
             "",
