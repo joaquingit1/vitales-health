@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, Literal, NoReturn, cast
 from crew_health.app.registry import ModuleRegistry
 
 if TYPE_CHECKING:
+    from crew_health.app.camera_reports import HubReports
     from crew_health.app.demo_mission import DemoMission
     from crew_health.app.privacy import DemoOperatorRecord
 from crew_health.config.adapters.verification import ConfigArtifacts
@@ -315,7 +316,39 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
         KitMission,
         MissionStatePort,
     ):
-        registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))  # type: ignore[arg-type]
+        registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))
+
+
+def _camera_f1(registry: ModuleRegistry, provided: Mapping[object, object], reports: object | None) -> None:
+    """E06's F1 binding (app/camera_reports.py): E01's task ports from the platform TaskService, the camera's
+    readiness and assignment under E05's port classes, and, when the profile names the hub listener, the attempt
+    reports over E05's recordAttempt route."""
+    from crew_health.app.camera_reports import MeasurementAssignments, MeasurementReadiness
+    from crew_health.camera.application import ports as camera_ports
+    from crew_health.kernel.tasks import TaskQueue, TaskRunner
+    from crew_health.measurement.application import ports as measurement_ports
+    from crew_health.platform.application.tasks import TaskService
+
+    def tasks(resolver: object) -> object:
+        return resolver.require(TaskService)  # type: ignore[attr-defined]
+
+    def readiness(resolver: object) -> object:
+        return MeasurementReadiness(resolver.require(camera_ports.AdapterReadinessPort))  # type: ignore[attr-defined]
+
+    def assignments(resolver: object) -> object:
+        return MeasurementAssignments(resolver.require(camera_ports.AdapterAssignmentPort))  # type: ignore[attr-defined]
+
+    bindings: tuple[tuple[object, Callable[[object], object], tuple[object, ...]], ...] = (
+        (TaskQueue, tasks, (TaskService,)),
+        (TaskRunner, tasks, (TaskService,)),
+        (measurement_ports.AdapterReadinessPort, readiness, (camera_ports.AdapterReadinessPort,)),
+        (measurement_ports.AdapterAssignmentPort, assignments, (camera_ports.AdapterAssignmentPort,)),
+    )
+    for port, factory, requires in bindings:
+        if port not in provided:
+            registry.provide(port, factory, requires=requires)  # type: ignore[arg-type]
+    if reports is not None and camera_ports.AttemptReports not in provided:
+        registry.provide(camera_ports.AttemptReports, partial(_constant, reports))  # type: ignore[type-abstract,arg-type]
 
 
 def production(
@@ -324,6 +357,7 @@ def production(
     origin: Origin,
     demo: DemoOperatorRecord | None = None,
     mission: DemoMission | None = None,
+    reports: HubReports | None = None,
 ) -> Callable[[ModuleRegistry], None]:
     """The `configure` hook of a served hub: the offline artifacts and HTTP metadata from the resources, closed
     event sessions and fail-closed stand-ins for every pending port no installed module provides."""
@@ -370,5 +404,6 @@ def production(
         for port in PENDING_PORTS:
             if port not in provided:
                 registry.provide(port, partial(_constant, Unavailable(port)))
+        _camera_f1(registry, getattr(registry, "providers", {}), reports)
 
     return configure

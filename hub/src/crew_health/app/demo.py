@@ -32,6 +32,7 @@ from crew_health.app.assembly import BuildCatalog, Runtime, create_app
 
 if TYPE_CHECKING:
     from crew_health.app.cli import Server
+from crew_health.app.camera_reports import HubReports
 from crew_health.app.demo_mission import DemoMission, write_environment
 from crew_health.app.privacy import DemoOperatorRecord
 from crew_health.app.station import HubResources, Origin, bootstrap_release, production
@@ -225,7 +226,7 @@ def settings_document(path: Path, camera: dict[str, object] | None = None) -> Pa
                 "unit": None if spec.unit is None else spec.unit.code,
                 "minimum": None if spec.minimum is None else str(spec.minimum),
                 "maximum": None if spec.maximum is None else str(spec.maximum),
-                "basis": "demo-mara-fd19 profile: E02 defaults, otherwise each registered maximum",
+                "basis": "demo-mara-fd19 profile: E02 defaults, the camera worker row, otherwise each registered maximum",
                 "value": value,
             }
         )
@@ -293,6 +294,8 @@ def reset(
             "workers.camera.url": f"http://127.0.0.1:{worker_port}",
             "workers.camera.token_file": str(worker_token),
             "workers.camera.adapter_id": str(section["adapter_principal_id"]),
+            # SYSTEM 3 camera worker row: own /health every 5 s; also the probe and camera task pass interval.
+            "workers.camera.health_ms": 5000,
         },
     )
     write_environment(directory, fixture.initial_environment, source="demo_reset", at=datetime.now(UTC))
@@ -466,6 +469,16 @@ def camera_companions(
     return start
 
 
+def _reports(directory: Path, host: str, port: int) -> HubReports:
+    """The camera's attempt reports over this hub's own listener, under the adapter token `demo serve` issues, each
+    call bounded by the hub setting workers.camera.timeout_ms."""
+    document = json.loads((directory / "hub-settings.json").read_text(encoding="utf-8"))
+    timeout_ms = next(
+        int(entry["value"]) for entry in document["settings"] if entry["key"] == "workers.camera.timeout_ms"
+    )
+    return HubReports(f"http://{host}:{port}", directory / "camera" / "adapter.token", timeout_ms / 1000)
+
+
 def serve(directory: Path, *, host: str, port: int, server: Server | None = None, camera: bool = True) -> int:
     from crew_health.app.cli import TimeConfirmation
     from crew_health.app.cli import serve as serve_hub
@@ -474,6 +487,7 @@ def serve(directory: Path, *, host: str, port: int, server: Server | None = None
     fixture = Fixture.load(Path(state["root"]))
     return serve_hub(
         ready=camera_companions(directory, fixture, state, host=host, port=port) if camera else None,
+        reports=_reports(directory, host, port) if camera else None,
         database=directory / "hub.sqlite",
         settings=directory / "hub-settings.json",
         host=host,
