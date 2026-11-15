@@ -200,5 +200,45 @@
     "watch_line": "{step} {recheck}",
     "advice_line": "{topic}",
     "nothing_watched": "Nothing is being watched."
+  },
+  "review_role_words": {
+    "crew_medical_officer": "Crew medical officer",
+    "acting_medical_officer": "Acting medical officer",
+    "ground": "Ground advice"
+  },
+  "episode_words": {
+    "state": {
+      "draft": "Draft",
+      "open": "Open",
+      "awaiting_information": "Awaiting information",
+      "awaiting_review": "Awaiting review",
+      "followup": "Follow-up",
+      "resolved": "Resolved"
+    }
+  },
+  "resolution_reason_words": {
+    "measurement_anomaly_not_reproduced": "Measurement anomaly not reproduced",
+    "symptoms_reported_resolved": "Symptoms reported resolved",
+    "clinician_assessed": "Clinician assessed"
+  },
+  "reopen_reason_words": {
+    "symptoms_recurred": "Symptoms came back",
+    "evidence_changed": "Evidence changed",
+    "recorded_in_error": "Recorded in error",
+    "answer_after_resolution": "New answer after resolution",
+    "urgency_raised": "Urgency raised",
+    "new_activity": "New activity",
+    "review_unresolved": "Review left items open"
+  },
+  "task_kind_words": {
+    "review": "Review",
+    "review_item": "Review item",
+    "custom": "Follow-up"
+  },
+  "review_decision_words": {
+    "agree": "Agree",
+    "disagree": "Disagree",
+    "needs_more": "Needs more information",
+    "not_assessed": "Not assessed"
   }
 }

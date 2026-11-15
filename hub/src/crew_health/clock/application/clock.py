@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
-from typing import Protocol
+from typing import Literal, Protocol
 
 from crew_health.clock.domain.corrections import (
     ClockState,
@@ -61,6 +61,8 @@ class ClockRepository(Protocol):
     def state(self, connection: StorageSession) -> ClockState | None: ...
     def set_state(self, connection: StorageSession, value: ClockState) -> None: ...
     def correction_head(self, connection: StorageSession) -> int: ...
+    def hub_capture_version(self, connection: StorageSession, segment: ClockSegment) -> int: ...
+    def set_hub_capture(self, connection: StorageSession, correction: ClockCorrection) -> None: ...
     def hlc(self, connection: StorageSession) -> Hlc | None: ...
     def store_hlc(self, connection: StorageSession, value: Hlc) -> None: ...
     @staticmethod
@@ -147,6 +149,9 @@ class PersistentClocks:
         )
 
     def apply(self, uow: UnitOfWork, correction: ClockCorrection) -> ClockCorrected:
+        return self._apply(uow, correction, capture=False)
+
+    def _apply(self, uow: UnitOfWork, correction: ClockCorrection, *, capture: bool) -> ClockCorrected:
         if (correction.source == "measured" and uow.actor.kind != "adapter") or (
             correction.source != "measured" and uow.actor.kind != "operator"
         ):
@@ -181,6 +186,8 @@ class PersistentClocks:
         if state is None:
             state = ClockState(uow.now, True, correction.version, -1)
         self.repository.set_state(uow.connection, replace(state, correction_version=correction.version))
+        if capture:
+            self.repository.set_hub_capture(uow.connection, correction)
         event = ClockCorrected(
             previous, correction.offset_ms, correction.recorded_at, correction.version, correction.source
         )
@@ -298,20 +305,42 @@ class PersistentClocks:
         segment = self.repository.latest_segment(uow.connection, self.hub_source_clock_id)
         if segment is None:
             raise InvalidClockValue()
-        return self.apply(
-            uow,
-            ClockCorrection(
-                correction_id,
-                segment.source_clock_id,
-                segment.segment_id,
-                self.repository.correction_head(uow.connection) + 1,
-                uow.now,
-                None,
-                offset_ms,
-                uncertainty_ms,
-                uow.now,
-                "operator",
-            ),
+        if type(offset_ms) is not int:
+            raise InvalidClockValue()
+        try:
+            raw_from = uow.now - timedelta(milliseconds=offset_ms)
+        except (OverflowError, TypeError) as error:
+            raise InvalidClockValue() from error
+        correction = ClockCorrection(
+            correction_id,
+            segment.source_clock_id,
+            segment.segment_id,
+            self.repository.correction_head(uow.connection) + 1,
+            raw_from,
+            None,
+            offset_ms,
+            uncertainty_ms,
+            uow.now,
+            "operator",
+        )
+        return self._apply(uow, correction, capture=True)
+
+    def capture_hub(
+        self, snapshot: ReadSnapshot, *, origin_mode: Literal["LIVE", "REPLAY", "SIM"]
+    ) -> TimeInput:
+        """Tag corrected UTC with the mapping explicitly confirmed for this hub incarnation.
+
+        Retrospective normalization and other streams never change capture provenance.
+        Revision zero denotes a missing calibration and normalizes to unknown.
+        """
+        if self.hub_source_clock_id is None:
+            raise InvalidClockValue()
+        segment = self.repository.latest_segment(snapshot.connection, self.hub_source_clock_id)
+        if segment is None:
+            raise InvalidClockValue()
+        version = self.repository.hub_capture_version(snapshot.connection, segment)
+        return TimeInput(
+            snapshot.now, segment.source_clock_id, segment.segment_id, version, "hub_corrected", origin_mode
         )
 
     def pending_sweep(self, uow: UnitOfWork) -> int | None:

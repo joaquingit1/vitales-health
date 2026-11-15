@@ -458,7 +458,13 @@ def test_loader_ep6_rejects_missing_words_without_touching_e03_config() -> None:
     raw = json.dumps(data).encode()
     doc = ConfigDocumentView(ConfigName.UI_COPY, hashlib.sha256(raw).hexdigest(), raw)
     assert check.check(CandidateRelease("release_complete", {ConfigName.UI_COPY: doc})) == ()
-    raw = (ROOT / "config/ui-copy.json").read_bytes()
+    # R-E15-8 landed: the shipped ui-copy carries every episode word, and dropping one is named by its pointer.
+    shipped = json.loads((ROOT / "config/ui-copy.json").read_bytes())
+    raw = json.dumps(shipped).encode()
+    doc = ConfigDocumentView(ConfigName.UI_COPY, hashlib.sha256(raw).hexdigest(), raw)
+    assert check.check(CandidateRelease("release_shipped", {ConfigName.UI_COPY: doc})) == ()
+    del shipped["episode_words"]["state"]["open"]
+    raw = json.dumps(shipped).encode()
     doc = ConfigDocumentView(ConfigName.UI_COPY, hashlib.sha256(raw).hexdigest(), raw)
     findings = check.check(CandidateRelease("release_missing_words", {ConfigName.UI_COPY: doc}))
-    assert any(f.pointer == "/episode_words/state/open" for f in findings)
+    assert [f.pointer for f in findings] == ["/episode_words/state/open"]

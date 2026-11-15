@@ -95,7 +95,14 @@ class ReleaseActivationService:
             raise ConfigInvalid("activation validation failed")
         return self._activate(uow, release_id)
 
-    def install(self, uow: UnitOfWork, candidate: CandidateRelease, *, note: str) -> ReleaseRevision:
+    def install(
+        self,
+        uow: UnitOfWork,
+        candidate: CandidateRelease,
+        *,
+        note: str,
+        checked: ValidationResult | None = None,
+    ) -> ReleaseRevision:
         """First start (SYSTEM 5.12 CONFIG): the engine proposes and activates the hub's first release in one
         transaction, with the same validation, audit, outbox and replication as an editor's activation. Only a hub
         with no active release accepts it, and a candidate that fails any check is refused with nothing stored."""
@@ -103,7 +110,7 @@ class ReleaseActivationService:
             raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, "first start release is engine only")
         if self.has_active(uow):
             raise ProblemError(ErrorCode.INVALID_TRANSITION, "a release is already active")
-        return self._install(uow, candidate, note)
+        return self._install(uow, candidate, note, checked)
 
     def missing_documents(self, view: ReadSnapshot) -> tuple[str, ...]:
         """Documents the active release does not pin, e.g. unit-mapping in a release from before D12."""
@@ -132,8 +139,19 @@ class ReleaseActivationService:
         }
         return self._install(uow, CandidateRelease(additions.release_id, documents), note)
 
-    def _install(self, uow: UnitOfWork, candidate: CandidateRelease, note: str) -> ReleaseRevision:
-        validation = self.loader.validate(candidate, origin=self.origin(uow), uow=uow)
+    def check(self, view: ReadSnapshot, candidate: CandidateRelease) -> ValidationResult:
+        """The candidate's document checks, without the activation guards: `install(checked=...)` completes them
+        inside its transaction."""
+        return self.loader.validate(candidate, origin=self.origin(view))
+
+    def _install(
+        self, uow: UnitOfWork, candidate: CandidateRelease, note: str, checked: ValidationResult | None = None
+    ) -> ReleaseRevision:
+        validation = (
+            self.loader.validate(candidate, origin=self.origin(uow), uow=uow)
+            if checked is None
+            else self.loader.guarded(candidate, checked, uow)
+        )
         self._live_example(candidate, self.origin(uow))
         if not validation.passed:
             raise ConfigInvalid("engine release failed validation")

@@ -72,8 +72,9 @@ class TaskService:
         registrations: Sequence[TaskRegistration],
         authorize: Callable[[ReadSnapshot | UnitOfWork, SessionContext, TaskInput], bool],
         authorize_completion: Callable[[UnitOfWork, TaskInput], bool],
-        capture: Callable[[datetime], TimeInput],
         elapsed: Callable[[ReadSnapshot, TimeInput, TimeInput], timedelta | None],
+        capture: Callable[[datetime], TimeInput] | None = None,
+        capture_in_view: Callable[[ReadSnapshot], TimeInput] | None = None,
         public_payload: Callable[[TaskStatus, str], bytes] | None = None,
     ) -> None:
         self.settings, self.ids = settings, ids
@@ -83,6 +84,9 @@ class TaskService:
             capture,
             elapsed,
         )
+        if (capture is None) == (capture_in_view is None):
+            raise fail(ErrorCode.CONFIG_INVALID)
+        self.capture_in_view = capture_in_view
         self.registrations = {(r.name, r.version): r for r in registrations}
         self.repository, self.public_payload = repository, public_payload
         if len(self.registrations) != len(registrations) or len(registrations) > settings.integer(
@@ -101,6 +105,13 @@ class TaskService:
                 or (registration.public_kind is None and registration.result_projector is not None)
             ):
                 raise fail(ErrorCode.CONFIG_INVALID)
+
+    def _capture(self, view: ReadSnapshot) -> TimeInput:
+        if self.capture_in_view is not None:
+            return self.capture_in_view(view)
+        if self.capture is None:
+            raise fail(ErrorCode.CONFIG_INVALID)
+        return self.capture(view.now)
 
     def submit(self, uow: UnitOfWork, task: TaskInput) -> TaskStatus:
         require_id(task.task_id)
@@ -180,8 +191,11 @@ class TaskService:
                     continue
                 if row.attempts >= self.settings.integer("tasks.max_attempts"):
                     continue
+                anchor = self._capture(uow)
+                if anchor.source_clock_version < 1:
+                    continue
                 deadline = ElapsedDeadline(
-                    self.capture(uow.now), timedelta(milliseconds=self.settings.integer("tasks.lease_ms"))
+                    anchor, timedelta(milliseconds=self.settings.integer("tasks.lease_ms"))
                 )
                 running = replace(
                     row,
@@ -203,14 +217,14 @@ class TaskService:
     def _ready(self, view: ReadSnapshot, row: TaskRow) -> bool:
         if row.deadline is None:
             return True
-        duration = self.elapsed(view, row.deadline.anchor, self.capture(view.now))
+        duration = self.elapsed(view, row.deadline.anchor, self._capture(view))
         return duration is not None and duration >= row.deadline.duration
 
     def _live(self, view: ReadSnapshot, lease: TaskLease) -> TaskRow | None:
         row = self.repository.get(view, lease.task.task_id)
         if row is None or row.lease() != lease:
             return None
-        interval = self.elapsed(view, lease.expires.anchor, self.capture(view.now))
+        interval = self.elapsed(view, lease.expires.anchor, self._capture(view))
         if interval is None or interval < timedelta(0) or interval >= lease.expires.duration:
             return None
         return row
@@ -260,6 +274,48 @@ class TaskService:
         self._effects(uow, completed, "task.succeeded")
         return True
 
+    def fail_with_result(
+        self, uow: UnitOfWork, lease: TaskLease, result: TaskResult, *, code: ErrorCode
+    ) -> bool:
+        row = self._live(uow, lease)
+        if row is None or result.task_id != lease.task.task_id or result.generation != lease.generation:
+            return False
+        if not self.authorize_completion(uow, row.task):
+            self._cancel(uow, row)
+            return False
+        require_id(result.result_ref)
+        if not re.fullmatch(r"[a-f0-9]{64}", result.result_fingerprint):
+            raise fail(ErrorCode.INVALID_VALUE)
+        if self.repository.result_size(result) > self.settings.integer("tasks.max_result_bytes"):
+            raise fail(ErrorCode.PAYLOAD_TOO_LARGE)
+        self._registration(row.task).handler.apply(uow, lease, result)
+        failed = replace(
+            row,
+            generation=row.generation + 1,
+            worker_id=None,
+            deadline=None,
+            status=replace(
+                row.status,
+                state="failed",
+                result_ref=result.result_ref,
+                error_code=code,
+                updated_at=uow.now,
+            ),
+        )
+        self.repository.update(uow, row, failed)
+        self._effects(uow, failed, "task.failed")
+        return True
+
+    def fail_pending(self, uow: UnitOfWork, task_id: str, *, code: ErrorCode) -> bool:
+        row = self.repository.get(uow, require_id(task_id))
+        if row is None or row.status.state != "queued":
+            return False
+        if not self.authorize_completion(uow, row.task):
+            self._cancel(uow, row)
+            return False
+        self._retry(uow, row, code=code, retryable=False)
+        return True
+
     def fail(self, uow: UnitOfWork, lease: TaskLease, *, code: ErrorCode, retryable: bool) -> bool:
         row = self._live(uow, lease)
         if row is None:
@@ -271,7 +327,7 @@ class TaskService:
         retry = retryable and row.attempts < self.settings.integer("tasks.max_attempts")
         deadline = (
             ElapsedDeadline(
-                self.capture(uow.now), timedelta(milliseconds=self.settings.integer("tasks.retry_backoff_ms"))
+                self._capture(uow), timedelta(milliseconds=self.settings.integer("tasks.retry_backoff_ms"))
             )
             if retry
             else None

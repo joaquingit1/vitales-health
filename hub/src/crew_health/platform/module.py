@@ -5,6 +5,7 @@ from crew_health.kernel.scheduler import HealthState, Scheduler
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.units import UnitRegistry
 from crew_health.kernel.uow import DomainEventBus, ReadSnapshotFactory, UnitOfWorkFactory
+from crew_health.platform.adapters.fingerprint import KeyedCommandFingerprint
 from crew_health.platform.adapters.intents import IntentRepository
 from crew_health.platform.adapters.ledger import CommandLedger
 from crew_health.platform.adapters.units import UcumUnitRegistry
@@ -67,6 +68,11 @@ def register(registry: ModuleRegistry) -> None:
             max_cached=resolver.require(HubSettings).integer("units.max_cached")  # type: ignore[type-abstract]
         ),
         requires=(HubSettings,),
+    )
+    registry.provide(
+        KeyedCommandFingerprint,
+        lambda resolver: KeyedCommandFingerprint.beside(resolver.require(SQLiteDatabase).path),
+        requires=(SQLiteDatabase,),
     )
     for spec in specifications():
         registry.setting(spec)

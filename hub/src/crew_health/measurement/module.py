@@ -11,12 +11,13 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Protocol, runtime_checkable
+from typing import Protocol, get_args, runtime_checkable
 
 from fastapi import APIRouter
 
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.contracts_gen.schemas.measurement_request_schema import MeasurementRequest
+from crew_health.kernel.audit import AuditPolicy
 from crew_health.kernel.commands import CommandReceipts, IdempotencyStore, canonical_json
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import IdFactory
@@ -71,6 +72,7 @@ from crew_health.measurement.application.queries import (
     MeasurementAudienceRule,
     MeasurementQueries,
 )
+from crew_health.measurement.domain.model import Action, Disposition, GapReason, RequestState
 from crew_health.plans.application import ports as plans_ports
 
 _BASIS = "E05 design 11 bounded work table"
@@ -118,6 +120,7 @@ class Registry(Protocol):
     def local_projection(self, registration: LocalProjectionRegistration) -> None: ...
     def id_prefix(self, *, record_type: str, prefix: str) -> None: ...
     def setting(self, spec: SettingSpec) -> None: ...
+    def audit_policy(self, policy: AuditPolicy) -> None: ...
 
 
 @dataclass
@@ -271,6 +274,41 @@ def _bind(live: _Live, api: MeasurementApi, gap_plans: _GapPlansAdapter) -> Call
     return bind
 
 
+def audit_policies() -> tuple[AuditPolicy, ...]:
+    """SYSTEM 6: every audit event type `MeasurementService._changed` writes for a request transition, keyed by
+    the replicated request it names. An attempt event also names its attempt; a gap a request opened names the request, a gap a controller proposed
+    (GapProposalPort) names only its gap and episode."""
+    states = frozenset[str | int | bool](get_args(RequestState.__value__))
+    reasons = frozenset[str | int | bool](get_args(GapReason.__value__))
+    causes = (
+        "created",
+        *get_args(Action.__value__),
+        *("gate_" + reason for reason in get_args(GapReason.__value__)),
+    )
+    request = {"request_id": frozenset({"measurement_request"})}
+    attempt = {**request, "attempt_id": frozenset({"measurement_attempt"})}
+    policies = [
+        AuditPolicy("measurement.request_" + c, {"state": states}, frozenset(request), request)
+        for c in causes
+    ]
+    policies += [
+        AuditPolicy("measurement.request_attempt_" + d, {"state": states}, frozenset(attempt), attempt)
+        for d in get_args(Disposition.__value__)
+    ]
+    policies.append(
+        AuditPolicy(
+            "measurement.gap_not_opened", {"reason": frozenset({"no_episode"})}, frozenset(request), request
+        )
+    )
+    gap = {**request, "gap_id": frozenset({"capability_gap"}), "episode_id": frozenset({"episode"})}
+    policies.append(AuditPolicy("measurement.gap_opened", {"reason": reasons}, frozenset(gap), gap))
+    proposed = {"gap_id": frozenset({"capability_gap"}), "episode_id": frozenset({"episode"})}
+    policies.append(
+        AuditPolicy("measurement.gap_proposed", {"reason": reasons}, frozenset(proposed), proposed)
+    )
+    return tuple(policies)
+
+
 def register(registry: Registry) -> None:
     live = _Live()
     api = MeasurementApi()
@@ -280,6 +318,8 @@ def register(registry: Registry) -> None:
         registry.setting(SettingSpec(key, "integer", None, Decimal(low), Decimal(high), None, _BASIS))
     for record_type, prefix in _PREFIXES:
         registry.id_prefix(record_type=record_type, prefix=prefix)
+    for policy in audit_policies():
+        registry.audit_policy(policy)
     registry.audience_rule(AUDIENCE_RULE, audience)
     registry.local_projection(
         LocalProjectionRegistration(

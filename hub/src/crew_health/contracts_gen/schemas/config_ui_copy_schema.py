@@ -708,6 +708,75 @@ class CatchUpWords(BaseModel):
     )
 
 
+class ReviewRoleWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    crew_medical_officer: str = Field(..., min_length=1)
+    acting_medical_officer: str = Field(..., min_length=1)
+    ground: str = Field(..., min_length=1)
+
+
+class State(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    draft: str = Field(..., min_length=1)
+    open: str = Field(..., min_length=1)
+    awaiting_information: str = Field(..., min_length=1)
+    awaiting_review: str = Field(..., min_length=1)
+    followup: str = Field(..., min_length=1)
+    resolved: str = Field(..., min_length=1)
+
+
+class EpisodeWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    state: State
+
+
+class ResolutionReasonWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    measurement_anomaly_not_reproduced: str = Field(..., min_length=1)
+    symptoms_reported_resolved: str = Field(..., min_length=1)
+    clinician_assessed: str = Field(..., min_length=1)
+
+
+class ReopenReasonWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    symptoms_recurred: str = Field(..., min_length=1)
+    evidence_changed: str = Field(..., min_length=1)
+    recorded_in_error: str = Field(..., min_length=1)
+    answer_after_resolution: str = Field(..., min_length=1)
+    urgency_raised: str = Field(..., min_length=1)
+    new_activity: str = Field(..., min_length=1)
+    review_unresolved: str = Field(..., min_length=1)
+
+
+class TaskKindWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    review: str = Field(..., min_length=1)
+    review_item: str = Field(..., min_length=1)
+    custom: str = Field(..., min_length=1)
+
+
+class ReviewDecisionWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    agree: str = Field(..., min_length=1)
+    disagree: str = Field(..., min_length=1)
+    needs_more: str = Field(..., min_length=1)
+    not_assessed: str = Field(..., min_length=1)
+
+
 class UiCopyJson(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -746,3 +815,9 @@ class UiCopyJson(BaseModel):
         None,
         description="Headings and line templates of the catch-up a late reader sees (CONTRACTS section 26).",
     )
+    review_role_words: ReviewRoleWords | None = None
+    episode_words: EpisodeWords | None = None
+    resolution_reason_words: ResolutionReasonWords | None = None
+    reopen_reason_words: ReopenReasonWords | None = None
+    task_kind_words: TaskKindWords | None = None
+    review_decision_words: ReviewDecisionWords | None = None

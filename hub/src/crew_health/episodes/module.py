@@ -197,6 +197,7 @@ def _bind(live: Live, api: EpisodeApi, words_check: EpisodeWordsCheck) -> Callab
             resolver.optional(ports.CommandFingerprint),  # type: ignore[type-abstract]
             resolver.require(IdFactory),  # type: ignore[type-abstract]
         )
+        api.mission = resolver.optional(ports.CurrentMission)  # type: ignore[type-abstract]
 
     return bind
 

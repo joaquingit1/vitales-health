@@ -1091,6 +1091,193 @@
       ],
       "additionalProperties": false,
       "description": "Headings and line templates of the catch-up a late reader sees (CONTRACTS section 26)."
+    },
+    "review_role_words": {
+      "type": "object",
+      "properties": {
+        "crew_medical_officer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "acting_medical_officer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ground": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "crew_medical_officer",
+        "acting_medical_officer",
+        "ground"
+      ],
+      "additionalProperties": false
+    },
+    "episode_words": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "type": "object",
+          "properties": {
+            "draft": {
+              "type": "string",
+              "minLength": 1
+            },
+            "open": {
+              "type": "string",
+              "minLength": 1
+            },
+            "awaiting_information": {
+              "type": "string",
+              "minLength": 1
+            },
+            "awaiting_review": {
+              "type": "string",
+              "minLength": 1
+            },
+            "followup": {
+              "type": "string",
+              "minLength": 1
+            },
+            "resolved": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "draft",
+            "open",
+            "awaiting_information",
+            "awaiting_review",
+            "followup",
+            "resolved"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "resolution_reason_words": {
+      "type": "object",
+      "properties": {
+        "measurement_anomaly_not_reproduced": {
+          "type": "string",
+          "minLength": 1
+        },
+        "symptoms_reported_resolved": {
+          "type": "string",
+          "minLength": 1
+        },
+        "clinician_assessed": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "measurement_anomaly_not_reproduced",
+        "symptoms_reported_resolved",
+        "clinician_assessed"
+      ],
+      "additionalProperties": false
+    },
+    "reopen_reason_words": {
+      "type": "object",
+      "properties": {
+        "symptoms_recurred": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_changed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recorded_in_error": {
+          "type": "string",
+          "minLength": 1
+        },
+        "answer_after_resolution": {
+          "type": "string",
+          "minLength": 1
+        },
+        "urgency_raised": {
+          "type": "string",
+          "minLength": 1
+        },
+        "new_activity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_unresolved": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "symptoms_recurred",
+        "evidence_changed",
+        "recorded_in_error",
+        "answer_after_resolution",
+        "urgency_raised",
+        "new_activity",
+        "review_unresolved"
+      ],
+      "additionalProperties": false
+    },
+    "task_kind_words": {
+      "type": "object",
+      "properties": {
+        "review": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_item": {
+          "type": "string",
+          "minLength": 1
+        },
+        "custom": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "review",
+        "review_item",
+        "custom"
+      ],
+      "additionalProperties": false
+    },
+    "review_decision_words": {
+      "type": "object",
+      "properties": {
+        "agree": {
+          "type": "string",
+          "minLength": 1
+        },
+        "disagree": {
+          "type": "string",
+          "minLength": 1
+        },
+        "needs_more": {
+          "type": "string",
+          "minLength": 1
+        },
+        "not_assessed": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "agree",
+        "disagree",
+        "needs_more",
+        "not_assessed"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [

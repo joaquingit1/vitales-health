@@ -56,6 +56,7 @@ from crew_health.kernel.uow import (
     OutboxEvent,
     ReadSnapshot,
     ReadSnapshotFactory,
+    ReplicationChange,
     SessionContext,
     UnitOfWork,
     UnitOfWorkFactory,
@@ -268,9 +269,39 @@ def replayed_rejection(stored: StoredResult) -> HelpError | None:
     return HelpError(code, "this command was refused when it was first sent")
 
 
+# The record type each audit reference field names (help/module.py audit_policies). The platform's audit trail
+# admits a reference only to a declared record (SYSTEM 5.7, 5.8), so each referenced help object is declared once as
+# a local-only reference: no payload, no export projection, no recipient.
+AUDIT_REFERENCE_TYPES: dict[str, str] = {
+    "help_session_id": "help_session",
+    "help_turn_id": "help_turn",
+    "ground_message_id": "ground_message",
+    "target": "help_command_target",
+}
+LOCAL_AUDIENCE = "help.local"
+REFERENCE_PROJECTION = AudienceProjectionKey("help", "reference", 1)
+
+
+def _declare(uow: UnitOfWork, record_type: str, record_id: str) -> None:
+    uow.replicate(
+        ReplicationChange(
+            None,
+            record_type,
+            record_id,
+            "append",
+            canonical_json({"record_id": record_id}),
+            (),
+            uow.release.release_id,
+            Audience(LOCAL_AUDIENCE, record_id, REFERENCE_PROJECTION, "1"),
+        )
+    )
+
+
 def audit(
     deps: HelpDeps, uow: UnitOfWork, event_type: str, refs: dict[str, str], meta: dict[str, str | int | bool]
 ) -> None:
+    for field_name, record_id in sorted(refs.items()):
+        _declare(uow, AUDIT_REFERENCE_TYPES[field_name], record_id)
     uow.audit(AuditEntry(deps.ids.new("hla"), event_type, 1, uow.actor, refs, uow.correlation_id, None, meta))
 
 

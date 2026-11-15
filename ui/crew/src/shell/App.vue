@@ -1,17 +1,29 @@
 <script setup lang="ts">
+import { provide } from "vue";
 import { RouterView } from "vue-router";
 import { useSession } from "./session";
+import StageLayout from "./StageLayout.vue";
+import { STAGE, createStage } from "./stage";
 
 const state = useSession().state;
+provide(STAGE, createStage());
 </script>
 
 <template>
   <RouterView v-slot="{ Component, route }">
-    <component
-      :is="Component"
-      v-if="Component && (route.meta.private !== true || state.session !== null)"
-      :key="state.epoch"
-    />
+    <template v-if="Component && (route.meta.private !== true || state.session !== null)">
+      <StageLayout
+        v-if="(route.meta.private === true && route.meta.stage !== false) || route.meta.stage === true"
+        :key="state.epoch"
+      >
+        <component :is="Component" />
+      </StageLayout>
+      <component
+        :is="Component"
+        v-else
+        :key="state.epoch"
+      />
+    </template>
   </RouterView>
 </template>
 
