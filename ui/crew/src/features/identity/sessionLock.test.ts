@@ -4,6 +4,7 @@ import { createApp, nextTick, type App as VueApp } from "vue";
 import { createMemoryHistory } from "vue-router";
 import {
   ApiProblem,
+  CREW_API,
   ConnectionLost,
   CrewApi,
   NotSignedIn,
@@ -637,7 +638,7 @@ describe("T-E02-011 the shell", () => {
       },
     });
     router = createCrewRouter(r.session, () => r.lock.check(), createMemoryHistory());
-    const app = createApp(App).provide(SESSION, r.session).use(router);
+    const app = createApp(App).provide(SESSION, r.session).provide(CREW_API, r.api).use(router);
     mounted.push(app);
     app.mount(host);
     await router.push("/");
