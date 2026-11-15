@@ -582,6 +582,18 @@ class GuidedCheckWords(BaseModel):
         min_length=1,
         pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
+    your_count: str | None = Field(
+        None,
+        description="The helper's count as a rate, {n} per minute, beside its source word. Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+        min_length=1,
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
+    )
+    not_compared_origin: str | None = Field(
+        None,
+        description="Why a camera on another source (Live, Sim, Replay) than the count is not compared with it (E30 3.6). Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
+        min_length=1,
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
+    )
 
 
 class FreshnessWords(BaseModel):

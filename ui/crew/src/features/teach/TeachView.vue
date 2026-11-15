@@ -41,11 +41,12 @@ const ROLE_POLL_MS = 750;
 
 const doneNos = computed(() => new Set((check.value?.steps_done ?? []).map((s) => s.step_no)));
 const counted = computed(() => (check.value?.beat_count ?? 0) > 0 || check.value?.state === "counting");
-const windowOver = computed(() => {
+/** The pad's window ends no later than the hub's: it opens when start_count is sent, before the hub opens its own. */
+function ended(at: number): boolean {
   const c = check.value;
-  if (!c || c.state !== "counting" || !c.count_seconds) return false;
-  return now.value - countStart >= c.count_seconds * 1000;
-});
+  return !!c && c.state === "counting" && !!c.count_seconds && at - countStart >= c.count_seconds * 1000;
+}
+const windowOver = computed(() => ended(now.value));
 /** The step on screen: the first not done; the count stays until its window ends; then the question. */
 const current = computed(() => {
   const all = steps.value?.teach_steps ?? [];
@@ -79,6 +80,11 @@ const officer = computed(() => helper.value?.context_reasons.find((r) => r.reaso
 const landmark = computed(() => current.value?.landmark_label ?? shown.value.map((s) => s.landmark_label).find(Boolean) ?? null);
 const region = computed(() => current.value?.body_region ?? null);
 const ref0 = computed(() => check.value?.camera_reference ?? null);
+/** A question step shows the helper's answer after it, as one line. */
+function stepLine(s: TeachSteps["teach_steps"][number]): string {
+  const said = s.kind === "question" ? s.choices.find((x) => x.answer === check.value?.helper_answer)?.label : undefined;
+  return said ? `${s.text} ${said}` : s.text;
+}
 const anotherWay = ref<string | null>(null);
 /* The plan view's own step availability (getPlan): when no available crewmate holds the step's skill, the hub
    renders why from ui-copy plan_lines.needs_skill_holder ("Needs a crewmate with Pulse check practice"). */
@@ -216,11 +222,12 @@ const nextStep = (): Promise<void> =>
 /** One tap is one Beat event; the hub stamps its own receive time and the tick is drawn from it. */
 async function beat(): Promise<void> {
   const c = check.value;
-  if (!c) return;
+  if (!c || ended(performance.now())) return;
   try {
     if (c.state === "teaching") {
+      const sent = performance.now();
       await act({ action: "start_count" });
-      countStart = performance.now();
+      countStart = sent;
       tapped = 0;
     }
     tapped += 1;
@@ -230,7 +237,8 @@ async function beat(): Promise<void> {
       client_time: new Date().toISOString(),
     });
   } catch (failure) {
-    problem.value = refusal(failure);
+    /* a tap still in flight when the count ends is late, not a problem: the hub keeps the count it has */
+    if (!ended(performance.now())) problem.value = refusal(failure);
   }
 }
 
@@ -357,7 +365,7 @@ onBeforeUnmount(() => {
             :class="s === current ? 'now' : 'done'"
             data-test="step"
           >
-            <span class="what">{{ s.text }}<template v-if="s.kind === 'question' && check.helper_answer"> {{ s.choices.find((x) => x.answer === check?.helper_answer)?.label }}</template></span>
+            <span class="what">{{ stepLine(s) }}</span>
           </div>
         </div>
 
@@ -379,6 +387,7 @@ onBeforeUnmount(() => {
           <button
             class="pill do beat"
             type="button"
+            :disabled="windowOver || left === 0"
             data-test="beat"
             @click="beat"
           >
@@ -415,6 +424,14 @@ onBeforeUnmount(() => {
             :style="{ color: check.result === 'agree' ? 'var(--green-2)' : 'var(--ink-2)' }"
           >
             {{ check.result === "disagree" ? copy("guided_check_words.result_disagree") + " " : "" }}{{ check.result_text }}
+          </p>
+          <p
+            v-if="check.count_per_minute !== null"
+            class="note"
+            data-test="count-line"
+          >
+            {{ copy("guided_check_words.your_count", { n: check.count_per_minute }) }}
+            <SourceWord :origin="check.origin_mode" />
           </p>
           <p
             class="note"
