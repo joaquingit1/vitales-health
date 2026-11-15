@@ -1,8 +1,8 @@
 """The dose engine (E32 3.5 and 3.6): pure, deterministic, one amount per proposal with a trace for every number.
 
 Every limit is enforced on the final amount through the accounting amount `Acc_i(a) = a * S_i * max(1, u_i)`
-(INV-M1); an excluded lot never reaches a proposal (INV-M3); compensation needs a fresh `adjust` assessment, every gate
-check passing and, in LIVE, an authorization entry (INV-M2). A refusal is a closed code, never overridable here."""
+(INV-M1); an excluded lot never reaches a proposal (INV-M3); compensation needs a fresh `adjust` assessment and every
+gate check passing, in every mode (INV-M2, Q11). A refusal is a closed code, never overridable here."""
 
 from __future__ import annotations
 
