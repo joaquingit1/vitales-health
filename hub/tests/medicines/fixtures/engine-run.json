@@ -1,0 +1,1843 @@
+{
+ "inputs": {
+  "as_of_utc": "2027-11-01T00:00:00Z",
+  "assays": [],
+  "inspections": [],
+  "schema": "pharmacy/inputs.schema.json",
+  "sensor_series": []
+ },
+ "note": "Recorded output of pharmacy.pipeline.assess_inventory over config/pharmacy with lots lot-pmz-tab-001 and lot-apap-001 only and empty sensor inputs; regenerate with the root venv.",
+ "result": {
+  "as_of_utc": "2027-11-01T00:00:00Z",
+  "assessments": [
+   {
+    "as_of_utc": "2027-11-01T00:00:00Z",
+    "decision": {
+     "adjustment": {
+      "assay_ids_used": [],
+      "checks": [
+       {
+        "detail": "the product allows potency adjustment",
+        "name": "adjustment_not_allowed_by_product",
+        "passed": true
+       },
+       {
+        "detail": "not a fixed-dose device",
+        "name": "fixed_dose_device",
+        "passed": true
+       },
+       {
+        "detail": "toxic degradants: 4_aminophenol",
+        "name": "toxic_degradant",
+        "passed": false
+       },
+       {
+        "detail": "every estimate inside the range",
+        "name": "estimate_outside_validated_range",
+        "passed": true
+       },
+       {
+        "detail": "sensor coverage adequate",
+        "name": "estimate_coverage_low",
+        "passed": true
+       },
+       {
+        "detail": "Inspect the lot or assay degradants: 4_aminophenol",
+        "name": "degradant_unidentified_above_limit",
+        "passed": false
+       }
+      ],
+      "degradant_profile_reviewed": false,
+      "eligible": false,
+      "estimate_bases": [
+       [
+        "acetaminophen",
+        "class_prior"
+       ]
+      ]
+     },
+     "alternative_lot_ids": [],
+     "alternative_product_ids": [],
+     "as_of_s": 1825027200.0,
+     "as_of_utc": "2027-11-01T00:00:00Z",
+     "decision_id": "lot-apap-001:2027-11-01T00:00:00Z:decision",
+     "estimate_ids": [
+      "lot-apap-001:acetaminophen:2027-11-01T00:00:00Z"
+     ],
+     "forecast_ids": [
+      "lot-apap-001:acetaminophen:2027-11-01T00:00:00Z:forecast"
+     ],
+     "lot_id": "lot-apap-001",
+     "ordering_key": {
+      "lot_id": "lot-apap-001",
+      "primary": 1831655424.8327136,
+      "state_rank": 0
+     },
+     "past_labeled_expiry": false,
+     "pins": {
+      "computed_cache_keys": [],
+      "config": [
+       {
+        "document_id": "engine-settings",
+        "sha256": "dec4990d5e7059289c13186dc4933a7043656ab81153a342aaefadf922a15355",
+        "version": "0.3.0"
+       },
+       {
+        "document_id": "environment-profiles",
+        "sha256": "197e935ad7fe4c7c3e6ab86c008fb599a525c281237cca15d592dfb00b5f058d",
+        "version": "0.1.0"
+       },
+       {
+        "document_id": "formulary",
+        "sha256": "4ab28e5e2e1cd878b9bda5b45de1d50acb54925d3f4568f44f814ebd86c3fdfe",
+        "version": "0.1.0"
+       },
+       {
+        "document_id": "lfer-constants",
+        "sha256": "90a614b7494d8cf8e1e09ccfc760480e47db893477c1fcd603d36da1215ed480",
+        "version": "0.2.0"
+       },
+       {
+        "document_id": "lots",
+        "sha256": "060e5cc645d341be92b2b02275dbff25fbb57239eaec9e7d1597e56b24606b9d",
+        "version": "0.1.0"
+       },
+       {
+        "document_id": "packages",
+        "sha256": "33207711c49c789a73adf525de5149953e6a59e723be1b8390218ff366e422f2",
+        "version": "0.1.0"
+       },
+       {
+        "document_id": "radiation-chemistry",
+        "sha256": "e990ce06909e812281578265c94865f7ff94db25311fcb851010f979035a66f9",
+        "version": "0.1.0"
+       },
+       {
+        "document_id": "reaction-classes",
+        "sha256": "b7780e6577be02e6830e5f9fd1dd24f51e3274ab2952c645bc2c00a11e2549d3",
+        "version": "0.5.0"
+       },
+       {
+        "document_id": "sources",
+        "sha256": "26cda63a92b5c6d0d5e68dd5e3c7710254c4f8eb0a44d9dcb45afbdd9d0bb3a0",
+        "version": "0.1.0"
+       },
+       {
+        "document_id": "stability-models",
+        "sha256": "3424311262202e8b87324919abc635c4ffe3f01c1ae941ddea8af0e89477c281",
+        "version": "0.2.0"
+       },
+       {
+        "document_id": "storage-zones",
+        "sha256": "96a9ec703a6ba54fa13636da9ed8f83c5f75f671bce75ff38c096cc76547db00",
+        "version": "0.5.0"
+       }
+      ],
+      "engine_version": "0.1.0",
+      "numpy_version": "2.5.4",
+      "observations_sha256": "2bedd452bdb1fb1cf6d8bd598fc38933b6cdcac0472920e1957c2fb29fc3e658",
+      "rdkit_version": "2026.9.2",
+      "rng": "numpy.PCG64",
+      "seed_hex": "411dbcb11d8799c0037ffe44793f49e9",
+      "sensor_series": [],
+      "tblite_version": "0.8.0"
+     },
+     "product_id": "acetaminophen_325_tab",
+     "reasons": [
+      {
+       "code": "degradant_unidentified_above_limit",
+       "ingredient_id": "acetaminophen",
+       "message": "Unidentified degradant 4_aminophenol may exceed its limit (probability 0.998). Inspect the lot or assay the degradant; potency adjustment is not allowed.",
+       "severity": "warning"
+      },
+      {
+       "code": "within_specification",
+       "ingredient_id": "acetaminophen",
+       "message": "The 0.05 to 0.95 quantiles lie within 90% to 110%.",
+       "severity": "info"
+      },
+      {
+       "code": "computed_only",
+       "ingredient_id": "acetaminophen",
+       "message": "No measured model contributes and no assay was used.",
+       "severity": "info"
+      },
+      {
+       "code": "degradant_profile_not_reviewed",
+       "ingredient_id": "acetaminophen",
+       "message": "The product's degradant profile has not been reviewed.",
+       "severity": "info"
+      }
+     ],
+     "state": "in_specification"
+    },
+    "estimates": [
+     {
+      "as_of_s": 1825027200.0,
+      "as_of_utc": "2027-11-01T00:00:00Z",
+      "assay_ids_used": [],
+      "coverage_interval": {
+       "high": 100.59548750627336,
+       "kind": "probabilistically_symmetric",
+       "low": 93.2694795467437,
+       "probability": 0.9
+      },
+      "degradants": [
+       {
+        "degradant_id": "4_aminophenol",
+        "identification": {
+         "evidence_id": null,
+         "evidence_kind": null,
+         "identified": false,
+         "source_ids": []
+        },
+        "limit_percent": 0.15,
+        "mean": 1.0207348627697335,
+        "name": "4-Aminophenol",
+        "p_above_limit": 0.998109090909091,
+        "pathway_id": "acetaminophen:amide_hydrolysis",
+        "product_specific": true,
+        "quantiles": [
+         {
+          "probability": 0.025,
+          "value": 0.2682413663521529
+         },
+         {
+          "probability": 0.05,
+          "value": 0.32453087096840677
+         },
+         {
+          "probability": 0.25,
+          "value": 0.5763861602587221
+         },
+         {
+          "probability": 0.5,
+          "value": 0.8579166049871106
+         },
+         {
+          "probability": 0.75,
+          "value": 1.2791062312285655
+         },
+         {
+          "probability": 0.95,
+          "value": 2.257537411933708
+         },
+         {
+          "probability": 0.975,
+          "value": 2.721410649008429
+         }
+        ],
+        "toxicity_flag": "toxic",
+        "unit": "percent_of_label_api_mass"
+       },
+       {
+        "degradant_id": "quinone_species",
+        "identification": {
+         "evidence_id": null,
+         "evidence_kind": null,
+         "identified": false,
+         "source_ids": []
+        },
+        "limit_percent": null,
+        "mean": 1.2610976930382738,
+        "name": "Quinone-type oxidation products",
+        "p_above_limit": null,
+        "pathway_id": "acetaminophen:phenol_autoxidation",
+        "product_specific": false,
+        "quantiles": [
+         {
+          "probability": 0.025,
+          "value": 0.2478948307331303
+         },
+         {
+          "probability": 0.05,
+          "value": 0.3102990937493464
+         },
+         {
+          "probability": 0.25,
+          "value": 0.6129732177936269
+         },
+         {
+          "probability": 0.5,
+          "value": 0.9861678525691231
+         },
+         {
+          "probability": 0.75,
+          "value": 1.5926011131084334
+         },
+         {
+          "probability": 0.95,
+          "value": 3.134329554950537
+         },
+         {
+          "probability": 0.975,
+          "value": 3.901726103739448
+         }
+        ],
+        "toxicity_flag": "unknown",
+        "unit": "percent_of_label_api_mass"
+       }
+      ],
+      "estimate_basis": "class_prior",
+      "estimate_id": "lot-apap-001:acetaminophen:2027-11-01T00:00:00Z",
+      "exposure": {
+       "coverage": [
+        {
+         "coverage_fraction": 1.0,
+         "declared_s": 11232000.0,
+         "gap_s": 0.0,
+         "held_s": 0.0,
+         "longest_gap_s": 0.0,
+         "measured_s": 0.0,
+         "not_applicable_s": 0.0,
+         "quantity": "temperature_k",
+         "zone_id": "ground_storage"
+        },
+        {
+         "coverage_fraction": 1.0,
+         "declared_s": 11232000.0,
+         "gap_s": 0.0,
+         "held_s": 0.0,
+         "longest_gap_s": 0.0,
+         "measured_s": 0.0,
+         "not_applicable_s": 0.0,
+         "quantity": "relative_humidity",
+         "zone_id": "ground_storage"
+        },
+        {
+         "coverage_fraction": 1.0,
+         "declared_s": 11232000.0,
+         "gap_s": 0.0,
+         "held_s": 0.0,
+         "longest_gap_s": 0.0,
+         "measured_s": 0.0,
+         "not_applicable_s": 0.0,
+         "quantity": "dose_rate_gy_per_s",
+         "zone_id": "ground_storage"
+        },
+        {
+         "coverage_fraction": 1.0,
+         "declared_s": 0.0,
+         "gap_s": 0.0,
+         "held_s": 0.0,
+         "longest_gap_s": 0.0,
+         "measured_s": 0.0,
+         "not_applicable_s": 11232000.0,
+         "quantity": "illuminance_lux",
+         "zone_id": "ground_storage"
+        },
+        {
+         "coverage_fraction": 1.0,
+         "declared_s": 0.0,
+         "gap_s": 0.0,
+         "held_s": 0.0,
+         "longest_gap_s": 0.0,
+         "measured_s": 0.0,
+         "not_applicable_s": 11232000.0,
+         "quantity": "uv_w_per_m2",
+         "zone_id": "ground_storage"
+        }
+       ],
+       "cumulative_absorbed_dose_gy": 0.0002248994592,
+       "duration_s": 11232000.0,
+       "longest_gap_s": 0.0,
+       "max_temperature_k": 298.15,
+       "mean_temperature_k": 298.15,
+       "min_temperature_k": 298.15,
+       "mkt_activation_energy_j_per_mol": 83144.0,
+       "mkt_k": 298.15,
+       "mkt_windows": [
+        {
+         "duration_s": 2592000.0,
+         "mkt_k": 298.15,
+         "window_id": "crt_30_days"
+        },
+        {
+         "duration_s": 86400.0,
+         "mkt_k": 298.15,
+         "window_id": "cold_chain_24_hours"
+        }
+       ],
+       "t_end_utc": "2027-11-01T00:00:00.000000Z",
+       "t_start_utc": "2027-06-24T00:00:00.000000Z",
+       "time_above": [
+        {
+         "seconds": 0.0,
+         "threshold_k": 298.15
+        },
+        {
+         "seconds": 0.0,
+         "threshold_k": 303.15
+        },
+        {
+         "seconds": 0.0,
+         "threshold_k": 313.15
+        }
+       ],
+       "uv_dose_w_h_per_m2": 0.0,
+       "visible_dose_lux_h": 0.0
+      },
+      "flags": [
+       "computed_only",
+       "degradant_profile_not_reviewed"
+      ],
+      "ingredient_id": "acetaminophen",
+      "inspection_ids_used": [],
+      "inspection_override": null,
+      "lot_id": "lot-apap-001",
+      "mean": 97.3220743419403,
+      "monte_carlo": {
+       "batch_size": 10000,
+       "converged": true,
+       "coverage_probability": 0.9,
+       "effective_sample_size": null,
+       "n_batches": 11,
+       "n_dig": 2,
+       "n_draws": 110000,
+       "numerical_tolerance": 0.05,
+       "seed_hex": "0c70d704c108f1735f9102e3afcafc74"
+      },
+      "p_above_upper": 0.0,
+      "p_below_lower": 0.008363636363636363,
+      "p_within_spec": 0.9916363636363636,
+      "pathway_contributions": [
+       {
+        "contributes": true,
+        "driver": "thermal",
+        "layer": "computed",
+        "parameter_layers": [
+         {
+          "layer": "computed",
+          "method": "computed:anchor_only",
+          "name": "ln_k_ref_per_s"
+         },
+         {
+          "layer": "class_prior",
+          "method": "class_prior",
+          "name": "ea_j_per_mol"
+         },
+         {
+          "layer": "class_prior",
+          "method": "class_prior",
+          "name": "b_per_percent_rh"
+         }
+        ],
+        "pathway_id": "acetaminophen:amide_hydrolysis",
+        "reaction_class_id": "amide_hydrolysis",
+        "role": "destructive",
+        "share_nominal": 0.5459708723629283
+       },
+       {
+        "contributes": true,
+        "driver": "thermal",
+        "layer": "class_prior",
+        "parameter_layers": [
+         {
+          "layer": "class_prior",
+          "method": "total_rate_split",
+          "name": "ln_k_ref_per_s"
+         },
+         {
+          "layer": "class_prior",
+          "method": "class_prior",
+          "name": "ea_j_per_mol"
+         },
+         {
+          "layer": "class_prior",
+          "method": "class_prior",
+          "name": "b_per_percent_rh"
+         }
+        ],
+        "pathway_id": "acetaminophen:phenol_autoxidation",
+        "reaction_class_id": "phenol_autoxidation",
+        "role": "destructive",
+        "share_nominal": 0.4540291276370718
+       },
+       {
+        "contributes": false,
+        "driver": "radiation",
+        "layer": "class_prior",
+        "parameter_layers": [
+         {
+          "layer": "class_prior",
+          "method": "g_value_direct",
+          "name": "ln_k_dose_per_gy"
+         }
+        ],
+        "pathway_id": "acetaminophen:radiolysis",
+        "reaction_class_id": "radiolysis",
+        "role": "destructive",
+        "share_nominal": 0.0
+       }
+      ],
+      "pins": {
+       "computed_cache_keys": [],
+       "config": [
+        {
+         "document_id": "engine-settings",
+         "sha256": "dec4990d5e7059289c13186dc4933a7043656ab81153a342aaefadf922a15355",
+         "version": "0.3.0"
+        },
+        {
+         "document_id": "environment-profiles",
+         "sha256": "197e935ad7fe4c7c3e6ab86c008fb599a525c281237cca15d592dfb00b5f058d",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "formulary",
+         "sha256": "4ab28e5e2e1cd878b9bda5b45de1d50acb54925d3f4568f44f814ebd86c3fdfe",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "lfer-constants",
+         "sha256": "90a614b7494d8cf8e1e09ccfc760480e47db893477c1fcd603d36da1215ed480",
+         "version": "0.2.0"
+        },
+        {
+         "document_id": "lots",
+         "sha256": "060e5cc645d341be92b2b02275dbff25fbb57239eaec9e7d1597e56b24606b9d",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "packages",
+         "sha256": "33207711c49c789a73adf525de5149953e6a59e723be1b8390218ff366e422f2",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "radiation-chemistry",
+         "sha256": "e990ce06909e812281578265c94865f7ff94db25311fcb851010f979035a66f9",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "reaction-classes",
+         "sha256": "b7780e6577be02e6830e5f9fd1dd24f51e3274ab2952c645bc2c00a11e2549d3",
+         "version": "0.5.0"
+        },
+        {
+         "document_id": "sources",
+         "sha256": "26cda63a92b5c6d0d5e68dd5e3c7710254c4f8eb0a44d9dcb45afbdd9d0bb3a0",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "stability-models",
+         "sha256": "3424311262202e8b87324919abc635c4ffe3f01c1ae941ddea8af0e89477c281",
+         "version": "0.2.0"
+        },
+        {
+         "document_id": "storage-zones",
+         "sha256": "96a9ec703a6ba54fa13636da9ed8f83c5f75f671bce75ff38c096cc76547db00",
+         "version": "0.5.0"
+        }
+       ],
+       "engine_version": "0.1.0",
+       "numpy_version": "2.5.4",
+       "observations_sha256": "2bedd452bdb1fb1cf6d8bd598fc38933b6cdcac0472920e1957c2fb29fc3e658",
+       "rdkit_version": "2026.9.2",
+       "rng": "numpy.PCG64",
+       "seed_hex": "0c70d704c108f1735f9102e3afcafc74",
+       "sensor_series": [],
+       "tblite_version": "0.8.0"
+      },
+      "placards": [],
+      "prior_basis": "class_prior",
+      "product_id": "acetaminophen_325_tab",
+      "quantiles": [
+       {
+        "probability": 0.025,
+        "value": 92.08164519366497
+       },
+       {
+        "probability": 0.05,
+        "value": 93.2694795467437
+       },
+       {
+        "probability": 0.25,
+        "value": 96.08434192700281
+       },
+       {
+        "probability": 0.5,
+        "value": 97.55451791314192
+       },
+       {
+        "probability": 0.75,
+        "value": 98.8611443754322
+       },
+       {
+        "probability": 0.95,
+        "value": 100.59548750627336
+       },
+       {
+        "probability": 0.975,
+        "value": 101.12914117073439
+       }
+      ],
+      "radiation": {
+       "central_loss_fraction_median": 3.388410818086018e-12,
+       "cumulative_absorbed_dose_gy": 0.0002248994592,
+       "dose_rate_safety_factor": 10.0,
+       "included_in_potency": false,
+       "method": "g_value_direct",
+       "radiosensitive": false,
+       "radiosensitive_threshold_gy": 0.9,
+       "threshold_exceeded": false,
+       "upper_bound_k_per_gy": 1.5e-06,
+       "upper_bound_loss_fraction": 3.3734918823097763e-09
+      },
+      "specification": {
+       "lower_percent": 90.0,
+       "upper_percent": 110.0
+      },
+      "standard_uncertainty": 2.3116634224295187,
+      "total_quantiles": null,
+      "trace": [
+       {
+        "note": "Certificate of analysis not available; release at label claim assumed.",
+        "origin": "config/pharmacy/lots.json#/lots/0",
+        "quantity": "initial_assay_mean_percent",
+        "source_ids": [],
+        "unit": "percent",
+        "value": 100.0
+       },
+       {
+        "note": "Release assay standard uncertainty.",
+        "origin": "config/pharmacy/lots.json#/lots/0",
+        "quantity": "initial_assay_sd_percent",
+        "source_ids": [],
+        "unit": "percent",
+        "value": 1.5
+       },
+       {
+        "note": "ICH Q1A(R2) long-term storage temperature, 25 C.",
+        "origin": "config/pharmacy/engine-settings.json#/reference_conditions/temperature_k",
+        "quantity": "reference_temperature_k",
+        "source_ids": [
+         "MDS01"
+        ],
+        "unit": "K",
+        "value": 298.15
+       },
+       {
+        "note": "Midpoint of the Du 2011 ground-control chamber (36 to 44 %RH). Calibration integrates internal package RH before conversion to this reference.",
+        "origin": "config/pharmacy/engine-settings.json#/reference_conditions/relative_humidity_percent",
+        "quantity": "reference_rh_percent",
+        "source_ids": [
+         "MDP01",
+         "MDP02"
+        ],
+        "unit": "percent",
+        "value": 40.0
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "stability_model_id",
+        "source_ids": [],
+        "unit": "text",
+        "value": "acetaminophen_325_tab:acetaminophen:original_bottle"
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "rate_law_kind",
+        "source_ids": [],
+        "unit": "text",
+        "value": "F1"
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "current_zone_id",
+        "source_ids": [],
+        "unit": "text",
+        "value": "ground_storage"
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "current_package_id",
+        "source_ids": [],
+        "unit": "text",
+        "value": "original_bottle"
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "segments",
+        "source_ids": [],
+        "unit": "1",
+        "value": 1.0
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "history_evaluator",
+        "source_ids": [],
+        "unit": "text",
+        "value": "exact"
+       },
+       {
+        "note": "Maximum over every batch and assay prefix.",
+        "origin": "computed",
+        "quantity": "compression_probe_relative_error",
+        "source_ids": [],
+        "unit": "1",
+        "value": 0.0
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "compression_fell_back",
+        "source_ids": [],
+        "unit": "1",
+        "value": 0.0
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "numerical_tolerance",
+        "source_ids": [],
+        "unit": "percent",
+        "value": 0.05
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "degradant_mass_ratio:4_aminophenol",
+        "source_ids": [],
+        "unit": "1",
+        "value": 0.7219502513892564
+       },
+       {
+        "note": "No evidence specific to this degradant's forming pathway.",
+        "origin": "computed",
+        "quantity": "degradant_identification:4_aminophenol",
+        "source_ids": [],
+        "unit": "text",
+        "value": "unidentified"
+       },
+       {
+        "note": "degradant molar mass unknown: reported on a molar basis (docs/requests/B1.md R-08)",
+        "origin": "computed",
+        "quantity": "degradant_mass_ratio:quinone_species",
+        "source_ids": [],
+        "unit": "1",
+        "value": 1.0
+       },
+       {
+        "note": "No evidence specific to this degradant's forming pathway.",
+        "origin": "computed",
+        "quantity": "degradant_identification:quinone_species",
+        "source_ids": [],
+        "unit": "text",
+        "value": "unidentified"
+       }
+      ],
+      "unit": "percent_label_claim"
+     }
+    ],
+    "forecasts": [
+     {
+      "as_of_s": 1825027200.0,
+      "as_of_utc": "2027-11-01T00:00:00Z",
+      "crossing_delay_quantiles_s": [
+       {
+        "probability": 0.025,
+        "value": 3515488.821566105
+       },
+       {
+        "probability": 0.05,
+        "value": 6628224.832713604
+       },
+       {
+        "probability": 0.25,
+        "value": 21134861.810803413
+       },
+       {
+        "probability": 0.5,
+        "value": 36907926.05370283
+       },
+       {
+        "probability": 0.75,
+        "value": 59115393.03034544
+       },
+       {
+        "probability": 0.95,
+        "value": 106708896.86018229
+       },
+       {
+        "probability": 0.975,
+        "value": 127758862.37829924
+       }
+      ],
+      "crossing_s": 1831655424.8327136,
+      "crossing_utc": "2028-01-16T17:10:24.832714Z",
+      "forecast_id": "lot-apap-001:acetaminophen:2027-11-01T00:00:00Z:forecast",
+      "horizon_s": 315360000.0,
+      "ingredient_id": "acetaminophen",
+      "lot_id": "lot-apap-001",
+      "lower_limit_percent": 90.0,
+      "pins": {
+       "computed_cache_keys": [],
+       "config": [
+        {
+         "document_id": "engine-settings",
+         "sha256": "dec4990d5e7059289c13186dc4933a7043656ab81153a342aaefadf922a15355",
+         "version": "0.3.0"
+        },
+        {
+         "document_id": "environment-profiles",
+         "sha256": "197e935ad7fe4c7c3e6ab86c008fb599a525c281237cca15d592dfb00b5f058d",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "formulary",
+         "sha256": "4ab28e5e2e1cd878b9bda5b45de1d50acb54925d3f4568f44f814ebd86c3fdfe",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "lfer-constants",
+         "sha256": "90a614b7494d8cf8e1e09ccfc760480e47db893477c1fcd603d36da1215ed480",
+         "version": "0.2.0"
+        },
+        {
+         "document_id": "lots",
+         "sha256": "060e5cc645d341be92b2b02275dbff25fbb57239eaec9e7d1597e56b24606b9d",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "packages",
+         "sha256": "33207711c49c789a73adf525de5149953e6a59e723be1b8390218ff366e422f2",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "radiation-chemistry",
+         "sha256": "e990ce06909e812281578265c94865f7ff94db25311fcb851010f979035a66f9",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "reaction-classes",
+         "sha256": "b7780e6577be02e6830e5f9fd1dd24f51e3274ab2952c645bc2c00a11e2549d3",
+         "version": "0.5.0"
+        },
+        {
+         "document_id": "sources",
+         "sha256": "26cda63a92b5c6d0d5e68dd5e3c7710254c4f8eb0a44d9dcb45afbdd9d0bb3a0",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "stability-models",
+         "sha256": "3424311262202e8b87324919abc635c4ffe3f01c1ae941ddea8af0e89477c281",
+         "version": "0.2.0"
+        },
+        {
+         "document_id": "storage-zones",
+         "sha256": "96a9ec703a6ba54fa13636da9ed8f83c5f75f671bce75ff38c096cc76547db00",
+         "version": "0.5.0"
+        }
+       ],
+       "engine_version": "0.1.0",
+       "numpy_version": "2.5.4",
+       "observations_sha256": "2bedd452bdb1fb1cf6d8bd598fc38933b6cdcac0472920e1957c2fb29fc3e658",
+       "rdkit_version": "2026.9.2",
+       "rng": "numpy.PCG64",
+       "seed_hex": "0c70d704c108f1735f9102e3afcafc74",
+       "sensor_series": [],
+       "tblite_version": "0.8.0"
+      },
+      "projection": {
+       "kind": "declared_constant",
+       "package_id": "original_bottle",
+       "window_s": null,
+       "zone_id": "ground_storage"
+      },
+      "quantile_probability": 0.05,
+      "status": "within_horizon"
+     }
+    ],
+    "lot_id": "lot-apap-001"
+   },
+   {
+    "as_of_utc": "2027-11-01T00:00:00Z",
+    "decision": {
+     "adjustment": {
+      "assay_ids_used": [],
+      "checks": [
+       {
+        "detail": "the product allows potency adjustment",
+        "name": "adjustment_not_allowed_by_product",
+        "passed": true
+       },
+       {
+        "detail": "not a fixed-dose device",
+        "name": "fixed_dose_device",
+        "passed": true
+       },
+       {
+        "detail": "no toxic degradant",
+        "name": "toxic_degradant",
+        "passed": true
+       },
+       {
+        "detail": "every estimate inside the range",
+        "name": "estimate_outside_validated_range",
+        "passed": true
+       },
+       {
+        "detail": "sensor coverage adequate",
+        "name": "estimate_coverage_low",
+        "passed": true
+       }
+      ],
+      "degradant_profile_reviewed": false,
+      "eligible": true,
+      "estimate_bases": [
+       [
+        "promethazine",
+        "class_prior"
+       ]
+      ]
+     },
+     "alternative_lot_ids": [],
+     "alternative_product_ids": [
+      "promethazine_25mg_ml_inj"
+     ],
+     "as_of_s": 1825027200.0,
+     "as_of_utc": "2027-11-01T00:00:00Z",
+     "decision_id": "lot-pmz-tab-001:2027-11-01T00:00:00Z:decision",
+     "estimate_ids": [
+      "lot-pmz-tab-001:promethazine:2027-11-01T00:00:00Z"
+     ],
+     "forecast_ids": [
+      "lot-pmz-tab-001:promethazine:2027-11-01T00:00:00Z:forecast"
+     ],
+     "lot_id": "lot-pmz-tab-001",
+     "ordering_key": {
+      "lot_id": "lot-pmz-tab-001",
+      "primary": -92.346044787609,
+      "state_rank": 1
+     },
+     "past_labeled_expiry": false,
+     "pins": {
+      "computed_cache_keys": [
+       "d5e0956be0ec66c24e24009df4d9be14a3d9fa0e6a77063470846c215ff816c5",
+       "eef0245b8d5042002506c04fc85d732395206fac045690d2bd1a4bb8036990a9",
+       "f0429f6536ac6c514284d3040ea56f09d4ed0523bf57473bba7014242f68ec4d"
+      ],
+      "config": [
+       {
+        "document_id": "engine-settings",
+        "sha256": "dec4990d5e7059289c13186dc4933a7043656ab81153a342aaefadf922a15355",
+        "version": "0.3.0"
+       },
+       {
+        "document_id": "environment-profiles",
+        "sha256": "197e935ad7fe4c7c3e6ab86c008fb599a525c281237cca15d592dfb00b5f058d",
+        "version": "0.1.0"
+       },
+       {
+        "document_id": "formulary",
+        "sha256": "4ab28e5e2e1cd878b9bda5b45de1d50acb54925d3f4568f44f814ebd86c3fdfe",
+        "version": "0.1.0"
+       },
+       {
+        "document_id": "lfer-constants",
+        "sha256": "90a614b7494d8cf8e1e09ccfc760480e47db893477c1fcd603d36da1215ed480",
+        "version": "0.2.0"
+       },
+       {
+        "document_id": "lots",
+        "sha256": "060e5cc645d341be92b2b02275dbff25fbb57239eaec9e7d1597e56b24606b9d",
+        "version": "0.1.0"
+       },
+       {
+        "document_id": "packages",
+        "sha256": "33207711c49c789a73adf525de5149953e6a59e723be1b8390218ff366e422f2",
+        "version": "0.1.0"
+       },
+       {
+        "document_id": "radiation-chemistry",
+        "sha256": "e990ce06909e812281578265c94865f7ff94db25311fcb851010f979035a66f9",
+        "version": "0.1.0"
+       },
+       {
+        "document_id": "reaction-classes",
+        "sha256": "b7780e6577be02e6830e5f9fd1dd24f51e3274ab2952c645bc2c00a11e2549d3",
+        "version": "0.5.0"
+       },
+       {
+        "document_id": "sources",
+        "sha256": "26cda63a92b5c6d0d5e68dd5e3c7710254c4f8eb0a44d9dcb45afbdd9d0bb3a0",
+        "version": "0.1.0"
+       },
+       {
+        "document_id": "stability-models",
+        "sha256": "3424311262202e8b87324919abc635c4ffe3f01c1ae941ddea8af0e89477c281",
+        "version": "0.2.0"
+       },
+       {
+        "document_id": "storage-zones",
+        "sha256": "96a9ec703a6ba54fa13636da9ed8f83c5f75f671bce75ff38c096cc76547db00",
+        "version": "0.5.0"
+       }
+      ],
+      "engine_version": "0.1.0",
+      "numpy_version": "2.5.4",
+      "observations_sha256": "2bedd452bdb1fb1cf6d8bd598fc38933b6cdcac0472920e1957c2fb29fc3e658",
+      "rdkit_version": "2026.9.2",
+      "rng": "numpy.PCG64",
+      "seed_hex": "bb93b242c5f56992b92356e4c6a23a04",
+      "sensor_series": [],
+      "tblite_version": "0.8.0"
+     },
+     "product_id": "promethazine_25_tab",
+     "reasons": [
+      {
+       "code": "below_lower_limit",
+       "ingredient_id": "promethazine",
+       "message": "The 0.05 quantile 92.35% is below the lower limit 95%. A dose adjustment is allowed.",
+       "severity": "blocking"
+      },
+      {
+       "code": "computed_only",
+       "ingredient_id": "promethazine",
+       "message": "No measured model contributes and no assay was used.",
+       "severity": "info"
+      },
+      {
+       "code": "degradant_profile_not_reviewed",
+       "ingredient_id": "promethazine",
+       "message": "The product's degradant profile has not been reviewed.",
+       "severity": "info"
+      }
+     ],
+     "state": "adjust"
+    },
+    "estimates": [
+     {
+      "as_of_s": 1825027200.0,
+      "as_of_utc": "2027-11-01T00:00:00Z",
+      "assay_ids_used": [],
+      "coverage_interval": {
+       "high": 100.6533981681095,
+       "kind": "probabilistically_symmetric",
+       "low": 92.346044787609,
+       "probability": 0.9
+      },
+      "degradants": [
+       {
+        "degradant_id": "n_dealkylation_n_oxide",
+        "identification": {
+         "evidence_id": null,
+         "evidence_kind": null,
+         "identified": false,
+         "source_ids": []
+        },
+        "limit_percent": null,
+        "mean": 2.584730526083166,
+        "name": "N-oxide and N-dealkylation products",
+        "p_above_limit": null,
+        "pathway_id": "promethazine:amine_alpha_oxidation",
+        "product_specific": false,
+        "quantiles": [
+         {
+          "probability": 0.025,
+          "value": 0.3509599527280638
+         },
+         {
+          "probability": 0.05,
+          "value": 0.5133996642745791
+         },
+         {
+          "probability": 0.25,
+          "value": 1.1989043474606866
+         },
+         {
+          "probability": 0.5,
+          "value": 2.0210907227816572
+         },
+         {
+          "probability": 0.75,
+          "value": 3.3040347542911546
+         },
+         {
+          "probability": 0.95,
+          "value": 6.6111234044988
+         },
+         {
+          "probability": 0.975,
+          "value": 8.193288269668201
+         }
+        ],
+        "toxicity_flag": "unknown",
+        "unit": "percent_of_label_api_mass"
+       },
+       {
+        "degradant_id": "photoproducts",
+        "identification": {
+         "evidence_id": null,
+         "evidence_kind": null,
+         "identified": false,
+         "source_ids": []
+        },
+        "limit_percent": null,
+        "mean": 0.0,
+        "name": "Photoproducts",
+        "p_above_limit": null,
+        "pathway_id": "promethazine:photolysis_conjugated",
+        "product_specific": false,
+        "quantiles": [
+         {
+          "probability": 0.025,
+          "value": 0.0
+         },
+         {
+          "probability": 0.05,
+          "value": 0.0
+         },
+         {
+          "probability": 0.25,
+          "value": 0.0
+         },
+         {
+          "probability": 0.5,
+          "value": 0.0
+         },
+         {
+          "probability": 0.75,
+          "value": 0.0
+         },
+         {
+          "probability": 0.95,
+          "value": 0.0
+         },
+         {
+          "probability": 0.975,
+          "value": 0.0
+         }
+        ],
+        "toxicity_flag": "unknown",
+        "unit": "percent_of_label_api_mass"
+       },
+       {
+        "degradant_id": "promethazine_sulfoxide",
+        "identification": {
+         "evidence_id": null,
+         "evidence_kind": null,
+         "identified": false,
+         "source_ids": []
+        },
+        "limit_percent": null,
+        "mean": 0.34149628414331606,
+        "name": "Promethazine sulfoxide",
+        "p_above_limit": null,
+        "pathway_id": "promethazine:thioether_s_oxidation",
+        "product_specific": true,
+        "quantiles": [
+         {
+          "probability": 0.025,
+          "value": 0.0006389488632396108
+         },
+         {
+          "probability": 0.05,
+          "value": 0.0013529540582565423
+         },
+         {
+          "probability": 0.25,
+          "value": 0.013773817108966028
+         },
+         {
+          "probability": 0.5,
+          "value": 0.06829583291208054
+         },
+         {
+          "probability": 0.75,
+          "value": 0.3076408682345059
+         },
+         {
+          "probability": 0.95,
+          "value": 1.6370095756716496
+         },
+         {
+          "probability": 0.975,
+          "value": 2.411423870651999
+         }
+        ],
+        "toxicity_flag": "unknown",
+        "unit": "percent_of_label_api_mass"
+       }
+      ],
+      "estimate_basis": "class_prior",
+      "estimate_id": "lot-pmz-tab-001:promethazine:2027-11-01T00:00:00Z",
+      "exposure": {
+       "coverage": [
+        {
+         "coverage_fraction": 1.0,
+         "declared_s": 12960000.0,
+         "gap_s": 0.0,
+         "held_s": 0.0,
+         "longest_gap_s": 0.0,
+         "measured_s": 0.0,
+         "not_applicable_s": 0.0,
+         "quantity": "temperature_k",
+         "zone_id": "ground_storage"
+        },
+        {
+         "coverage_fraction": 1.0,
+         "declared_s": 12960000.0,
+         "gap_s": 0.0,
+         "held_s": 0.0,
+         "longest_gap_s": 0.0,
+         "measured_s": 0.0,
+         "not_applicable_s": 0.0,
+         "quantity": "relative_humidity",
+         "zone_id": "ground_storage"
+        },
+        {
+         "coverage_fraction": 1.0,
+         "declared_s": 12960000.0,
+         "gap_s": 0.0,
+         "held_s": 0.0,
+         "longest_gap_s": 0.0,
+         "measured_s": 0.0,
+         "not_applicable_s": 0.0,
+         "quantity": "dose_rate_gy_per_s",
+         "zone_id": "ground_storage"
+        },
+        {
+         "coverage_fraction": 1.0,
+         "declared_s": 0.0,
+         "gap_s": 0.0,
+         "held_s": 0.0,
+         "longest_gap_s": 0.0,
+         "measured_s": 0.0,
+         "not_applicable_s": 12960000.0,
+         "quantity": "illuminance_lux",
+         "zone_id": "ground_storage"
+        },
+        {
+         "coverage_fraction": 1.0,
+         "declared_s": 0.0,
+         "gap_s": 0.0,
+         "held_s": 0.0,
+         "longest_gap_s": 0.0,
+         "measured_s": 0.0,
+         "not_applicable_s": 12960000.0,
+         "quantity": "uv_w_per_m2",
+         "zone_id": "ground_storage"
+        }
+       ],
+       "cumulative_absorbed_dose_gy": 0.00025949937599999996,
+       "duration_s": 12960000.0,
+       "longest_gap_s": 0.0,
+       "max_temperature_k": 298.15,
+       "mean_temperature_k": 298.15,
+       "min_temperature_k": 298.15,
+       "mkt_activation_energy_j_per_mol": 83144.0,
+       "mkt_k": 298.15,
+       "mkt_windows": [
+        {
+         "duration_s": 2592000.0,
+         "mkt_k": 298.15,
+         "window_id": "crt_30_days"
+        },
+        {
+         "duration_s": 86400.0,
+         "mkt_k": 298.15,
+         "window_id": "cold_chain_24_hours"
+        }
+       ],
+       "t_end_utc": "2027-11-01T00:00:00.000000Z",
+       "t_start_utc": "2027-06-04T00:00:00.000000Z",
+       "time_above": [
+        {
+         "seconds": 0.0,
+         "threshold_k": 298.15
+        },
+        {
+         "seconds": 0.0,
+         "threshold_k": 303.15
+        },
+        {
+         "seconds": 0.0,
+         "threshold_k": 313.15
+        }
+       ],
+       "uv_dose_w_h_per_m2": 0.0,
+       "visible_dose_lux_h": 0.0
+      },
+      "flags": [
+       "computed_only",
+       "degradant_profile_not_reviewed"
+      ],
+      "ingredient_id": "promethazine",
+      "inspection_ids_used": [],
+      "inspection_override": null,
+      "lot_id": "lot-pmz-tab-001",
+      "mean": 97.08907236891474,
+      "monte_carlo": {
+       "batch_size": 10000,
+       "converged": true,
+       "coverage_probability": 0.9,
+       "effective_sample_size": null,
+       "n_batches": 2,
+       "n_dig": 2,
+       "n_draws": 20000,
+       "numerical_tolerance": 0.05,
+       "seed_hex": "9e8389616c4ceab83708554edaaf8f30"
+      },
+      "p_above_upper": 0.0,
+      "p_below_lower": 0.1705,
+      "p_within_spec": 0.8295,
+      "pathway_contributions": [
+       {
+        "contributes": true,
+        "driver": "thermal",
+        "layer": "class_prior",
+        "parameter_layers": [
+         {
+          "layer": "class_prior",
+          "method": "total_rate_split+evans_polanyi_bde",
+          "name": "ln_k_ref_per_s"
+         },
+         {
+          "layer": "class_prior",
+          "method": "class_prior",
+          "name": "ea_j_per_mol"
+         },
+         {
+          "layer": "class_prior",
+          "method": "class_prior",
+          "name": "b_per_percent_rh"
+         }
+        ],
+        "pathway_id": "promethazine:amine_alpha_oxidation",
+        "reaction_class_id": "amine_alpha_oxidation",
+        "role": "destructive",
+        "share_nominal": 0.9693220472483355
+       },
+       {
+        "contributes": false,
+        "driver": "light",
+        "layer": "class_prior",
+        "parameter_layers": [
+         {
+          "layer": "class_prior",
+          "method": "light_prior",
+          "name": "ln_k_vis_per_lux_h"
+         },
+         {
+          "layer": "class_prior",
+          "method": "light_prior",
+          "name": "ln_k_uv_per_w_h_per_m2"
+         }
+        ],
+        "pathway_id": "promethazine:photolysis_conjugated",
+        "reaction_class_id": "photolysis_conjugated",
+        "role": "destructive",
+        "share_nominal": 0.0
+       },
+       {
+        "contributes": false,
+        "driver": "radiation",
+        "layer": "class_prior",
+        "parameter_layers": [
+         {
+          "layer": "class_prior",
+          "method": "g_value_direct",
+          "name": "ln_k_dose_per_gy"
+         }
+        ],
+        "pathway_id": "promethazine:radiolysis",
+        "reaction_class_id": "radiolysis",
+        "role": "destructive",
+        "share_nominal": 0.0
+       },
+       {
+        "contributes": true,
+        "driver": "thermal",
+        "layer": "class_prior",
+        "parameter_layers": [
+         {
+          "layer": "class_prior",
+          "method": "total_rate_split+evans_polanyi_bde",
+          "name": "ln_k_ref_per_s"
+         },
+         {
+          "layer": "class_prior",
+          "method": "class_prior",
+          "name": "ea_j_per_mol"
+         },
+         {
+          "layer": "class_prior",
+          "method": "class_prior",
+          "name": "b_per_percent_rh"
+         }
+        ],
+        "pathway_id": "promethazine:thioether_s_oxidation",
+        "reaction_class_id": "thioether_s_oxidation",
+        "role": "destructive",
+        "share_nominal": 0.030677952751664492
+       }
+      ],
+      "pins": {
+       "computed_cache_keys": [
+        "d5e0956be0ec66c24e24009df4d9be14a3d9fa0e6a77063470846c215ff816c5",
+        "eef0245b8d5042002506c04fc85d732395206fac045690d2bd1a4bb8036990a9",
+        "f0429f6536ac6c514284d3040ea56f09d4ed0523bf57473bba7014242f68ec4d"
+       ],
+       "config": [
+        {
+         "document_id": "engine-settings",
+         "sha256": "dec4990d5e7059289c13186dc4933a7043656ab81153a342aaefadf922a15355",
+         "version": "0.3.0"
+        },
+        {
+         "document_id": "environment-profiles",
+         "sha256": "197e935ad7fe4c7c3e6ab86c008fb599a525c281237cca15d592dfb00b5f058d",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "formulary",
+         "sha256": "4ab28e5e2e1cd878b9bda5b45de1d50acb54925d3f4568f44f814ebd86c3fdfe",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "lfer-constants",
+         "sha256": "90a614b7494d8cf8e1e09ccfc760480e47db893477c1fcd603d36da1215ed480",
+         "version": "0.2.0"
+        },
+        {
+         "document_id": "lots",
+         "sha256": "060e5cc645d341be92b2b02275dbff25fbb57239eaec9e7d1597e56b24606b9d",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "packages",
+         "sha256": "33207711c49c789a73adf525de5149953e6a59e723be1b8390218ff366e422f2",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "radiation-chemistry",
+         "sha256": "e990ce06909e812281578265c94865f7ff94db25311fcb851010f979035a66f9",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "reaction-classes",
+         "sha256": "b7780e6577be02e6830e5f9fd1dd24f51e3274ab2952c645bc2c00a11e2549d3",
+         "version": "0.5.0"
+        },
+        {
+         "document_id": "sources",
+         "sha256": "26cda63a92b5c6d0d5e68dd5e3c7710254c4f8eb0a44d9dcb45afbdd9d0bb3a0",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "stability-models",
+         "sha256": "3424311262202e8b87324919abc635c4ffe3f01c1ae941ddea8af0e89477c281",
+         "version": "0.2.0"
+        },
+        {
+         "document_id": "storage-zones",
+         "sha256": "96a9ec703a6ba54fa13636da9ed8f83c5f75f671bce75ff38c096cc76547db00",
+         "version": "0.5.0"
+        }
+       ],
+       "engine_version": "0.1.0",
+       "numpy_version": "2.5.4",
+       "observations_sha256": "2bedd452bdb1fb1cf6d8bd598fc38933b6cdcac0472920e1957c2fb29fc3e658",
+       "rdkit_version": "2026.9.2",
+       "rng": "numpy.PCG64",
+       "seed_hex": "9e8389616c4ceab83708554edaaf8f30",
+       "sensor_series": [],
+       "tblite_version": "0.8.0"
+      },
+      "placards": [],
+      "prior_basis": "class_prior",
+      "product_id": "promethazine_25_tab",
+      "quantiles": [
+       {
+        "probability": 0.025,
+        "value": 90.63372292562256
+       },
+       {
+        "probability": 0.05,
+        "value": 92.346044787609
+       },
+       {
+        "probability": 0.25,
+        "value": 95.79761005905726
+       },
+       {
+        "probability": 0.5,
+        "value": 97.44991411448264
+       },
+       {
+        "probability": 0.75,
+        "value": 98.85517430570158
+       },
+       {
+        "probability": 0.95,
+        "value": 100.6533981681095
+       },
+       {
+        "probability": 0.975,
+        "value": 101.17349817805086
+       }
+      ],
+      "radiation": {
+       "central_loss_fraction_median": 7.45334147403675e-12,
+       "cumulative_absorbed_dose_gy": 0.00025949937599999996,
+       "dose_rate_safety_factor": 10.0,
+       "included_in_potency": false,
+       "method": "g_value_direct",
+       "radiosensitive": false,
+       "radiosensitive_threshold_gy": 0.9,
+       "threshold_exceeded": false,
+       "upper_bound_k_per_gy": 1.5e-06,
+       "upper_bound_loss_fraction": 3.892490632424258e-09
+      },
+      "specification": {
+       "lower_percent": 95.0,
+       "upper_percent": 110.0
+      },
+      "standard_uncertainty": 2.6722076462121027,
+      "total_quantiles": null,
+      "trace": [
+       {
+        "note": "Certificate of analysis not available; release at label claim assumed.",
+        "origin": "config/pharmacy/lots.json#/lots/1",
+        "quantity": "initial_assay_mean_percent",
+        "source_ids": [],
+        "unit": "percent",
+        "value": 100.0
+       },
+       {
+        "note": "Release assay standard uncertainty.",
+        "origin": "config/pharmacy/lots.json#/lots/1",
+        "quantity": "initial_assay_sd_percent",
+        "source_ids": [],
+        "unit": "percent",
+        "value": 1.5
+       },
+       {
+        "note": "ICH Q1A(R2) long-term storage temperature, 25 C.",
+        "origin": "config/pharmacy/engine-settings.json#/reference_conditions/temperature_k",
+        "quantity": "reference_temperature_k",
+        "source_ids": [
+         "MDS01"
+        ],
+        "unit": "K",
+        "value": 298.15
+       },
+       {
+        "note": "Midpoint of the Du 2011 ground-control chamber (36 to 44 %RH). Calibration integrates internal package RH before conversion to this reference.",
+        "origin": "config/pharmacy/engine-settings.json#/reference_conditions/relative_humidity_percent",
+        "quantity": "reference_rh_percent",
+        "source_ids": [
+         "MDP01",
+         "MDP02"
+        ],
+        "unit": "percent",
+        "value": 40.0
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "stability_model_id",
+        "source_ids": [],
+        "unit": "text",
+        "value": "promethazine_25_tab:promethazine:original_bottle"
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "rate_law_kind",
+        "source_ids": [],
+        "unit": "text",
+        "value": "F1"
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "current_zone_id",
+        "source_ids": [],
+        "unit": "text",
+        "value": "ground_storage"
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "current_package_id",
+        "source_ids": [],
+        "unit": "text",
+        "value": "original_bottle"
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "segments",
+        "source_ids": [],
+        "unit": "1",
+        "value": 1.0
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "history_evaluator",
+        "source_ids": [],
+        "unit": "text",
+        "value": "exact"
+       },
+       {
+        "note": "Maximum over every batch and assay prefix.",
+        "origin": "computed",
+        "quantity": "compression_probe_relative_error",
+        "source_ids": [],
+        "unit": "1",
+        "value": 0.0
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "compression_fell_back",
+        "source_ids": [],
+        "unit": "1",
+        "value": 0.0
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "numerical_tolerance",
+        "source_ids": [],
+        "unit": "percent",
+        "value": 0.05
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "free_share_delta_ln:promethazine:amine_alpha_oxidation",
+        "source_ids": [],
+        "unit": "1",
+        "value": 3.4530526615888677
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "free_share_method_sd_ln:promethazine:amine_alpha_oxidation",
+        "source_ids": [],
+        "unit": "1",
+        "value": 2.302585092994046
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "free_share_pi:promethazine:amine_alpha_oxidation",
+        "source_ids": [],
+        "unit": "1",
+        "value": 0.9693220472483356
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "free_share_delta_ln:promethazine:thioether_s_oxidation",
+        "source_ids": [],
+        "unit": "1",
+        "value": 0.0
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "free_share_method_sd_ln:promethazine:thioether_s_oxidation",
+        "source_ids": [],
+        "unit": "1",
+        "value": 0.0
+       },
+       {
+        "note": "",
+        "origin": "computed",
+        "quantity": "free_share_pi:promethazine:thioether_s_oxidation",
+        "source_ids": [],
+        "unit": "1",
+        "value": 0.03067795275166446
+       },
+       {
+        "note": "degradant molar mass unknown: reported on a molar basis (docs/requests/B1.md R-08)",
+        "origin": "computed",
+        "quantity": "degradant_mass_ratio:n_dealkylation_n_oxide",
+        "source_ids": [],
+        "unit": "1",
+        "value": 1.0
+       },
+       {
+        "note": "No evidence specific to this degradant's forming pathway.",
+        "origin": "computed",
+        "quantity": "degradant_identification:n_dealkylation_n_oxide",
+        "source_ids": [],
+        "unit": "text",
+        "value": "unidentified"
+       },
+       {
+        "note": "degradant molar mass unknown: reported on a molar basis (docs/requests/B1.md R-08)",
+        "origin": "computed",
+        "quantity": "degradant_mass_ratio:photoproducts",
+        "source_ids": [],
+        "unit": "1",
+        "value": 1.0
+       },
+       {
+        "note": "No evidence specific to this degradant's forming pathway.",
+        "origin": "computed",
+        "quantity": "degradant_identification:photoproducts",
+        "source_ids": [],
+        "unit": "text",
+        "value": "unidentified"
+       },
+       {
+        "note": "degradant molar mass unknown: reported on a molar basis (docs/requests/B1.md R-08)",
+        "origin": "computed",
+        "quantity": "degradant_mass_ratio:promethazine_sulfoxide",
+        "source_ids": [],
+        "unit": "1",
+        "value": 1.0
+       },
+       {
+        "note": "No evidence specific to this degradant's forming pathway.",
+        "origin": "computed",
+        "quantity": "degradant_identification:promethazine_sulfoxide",
+        "source_ids": [],
+        "unit": "text",
+        "value": "unidentified"
+       }
+      ],
+      "unit": "percent_label_claim"
+     }
+    ],
+    "forecasts": [
+     {
+      "as_of_s": 1825027200.0,
+      "as_of_utc": "2027-11-01T00:00:00Z",
+      "crossing_delay_quantiles_s": [
+       {
+        "probability": 0.025,
+        "value": 0.0
+       },
+       {
+        "probability": 0.05,
+        "value": 0.0
+       },
+       {
+        "probability": 0.25,
+        "value": 3074168.8415408134
+       },
+       {
+        "probability": 0.5,
+        "value": 13596029.54953909
+       },
+       {
+        "probability": 0.75,
+        "value": 30001924.437582493
+       },
+       {
+        "probability": 0.95,
+        "value": 70036581.98475838
+       },
+       {
+        "probability": 0.975,
+        "value": 87928260.67864895
+       }
+      ],
+      "crossing_s": 1825027200.0,
+      "crossing_utc": "2027-11-01T00:00:00.000000Z",
+      "forecast_id": "lot-pmz-tab-001:promethazine:2027-11-01T00:00:00Z:forecast",
+      "horizon_s": 315360000.0,
+      "ingredient_id": "promethazine",
+      "lot_id": "lot-pmz-tab-001",
+      "lower_limit_percent": 95.0,
+      "pins": {
+       "computed_cache_keys": [
+        "d5e0956be0ec66c24e24009df4d9be14a3d9fa0e6a77063470846c215ff816c5",
+        "eef0245b8d5042002506c04fc85d732395206fac045690d2bd1a4bb8036990a9",
+        "f0429f6536ac6c514284d3040ea56f09d4ed0523bf57473bba7014242f68ec4d"
+       ],
+       "config": [
+        {
+         "document_id": "engine-settings",
+         "sha256": "dec4990d5e7059289c13186dc4933a7043656ab81153a342aaefadf922a15355",
+         "version": "0.3.0"
+        },
+        {
+         "document_id": "environment-profiles",
+         "sha256": "197e935ad7fe4c7c3e6ab86c008fb599a525c281237cca15d592dfb00b5f058d",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "formulary",
+         "sha256": "4ab28e5e2e1cd878b9bda5b45de1d50acb54925d3f4568f44f814ebd86c3fdfe",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "lfer-constants",
+         "sha256": "90a614b7494d8cf8e1e09ccfc760480e47db893477c1fcd603d36da1215ed480",
+         "version": "0.2.0"
+        },
+        {
+         "document_id": "lots",
+         "sha256": "060e5cc645d341be92b2b02275dbff25fbb57239eaec9e7d1597e56b24606b9d",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "packages",
+         "sha256": "33207711c49c789a73adf525de5149953e6a59e723be1b8390218ff366e422f2",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "radiation-chemistry",
+         "sha256": "e990ce06909e812281578265c94865f7ff94db25311fcb851010f979035a66f9",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "reaction-classes",
+         "sha256": "b7780e6577be02e6830e5f9fd1dd24f51e3274ab2952c645bc2c00a11e2549d3",
+         "version": "0.5.0"
+        },
+        {
+         "document_id": "sources",
+         "sha256": "26cda63a92b5c6d0d5e68dd5e3c7710254c4f8eb0a44d9dcb45afbdd9d0bb3a0",
+         "version": "0.1.0"
+        },
+        {
+         "document_id": "stability-models",
+         "sha256": "3424311262202e8b87324919abc635c4ffe3f01c1ae941ddea8af0e89477c281",
+         "version": "0.2.0"
+        },
+        {
+         "document_id": "storage-zones",
+         "sha256": "96a9ec703a6ba54fa13636da9ed8f83c5f75f671bce75ff38c096cc76547db00",
+         "version": "0.5.0"
+        }
+       ],
+       "engine_version": "0.1.0",
+       "numpy_version": "2.5.4",
+       "observations_sha256": "2bedd452bdb1fb1cf6d8bd598fc38933b6cdcac0472920e1957c2fb29fc3e658",
+       "rdkit_version": "2026.9.2",
+       "rng": "numpy.PCG64",
+       "seed_hex": "9e8389616c4ceab83708554edaaf8f30",
+       "sensor_series": [],
+       "tblite_version": "0.8.0"
+      },
+      "projection": {
+       "kind": "declared_constant",
+       "package_id": "original_bottle",
+       "window_s": null,
+       "zone_id": "ground_storage"
+      },
+      "quantile_probability": 0.05,
+      "status": "already_crossed"
+     }
+    ],
+    "lot_id": "lot-pmz-tab-001"
+   }
+  ]
+ },
+ "seconds": 2.1
+}
