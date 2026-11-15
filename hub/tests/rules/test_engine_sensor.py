@@ -123,6 +123,20 @@ def test_t024_a_stale_channel_raises_quiet_and_leaves_the_co2_warning_open(world
     assert world.dwell == {}
 
 
+@pytest.mark.trace("T-E24-024", "T-E24-120", "INV-E24-07")
+def test_a_stale_channel_with_no_known_instant_breaks_the_dwell_and_never_clears(world: h.World) -> None:
+    """E23 serves stale with stale_since null when it cannot place the instant (DE23-13). The input is accepted, so
+    the producer's ingest keeps the real reading (found by E23's served plausibility test, 84b6810); it resets the
+    dwell, clears nothing and raises no sensor_quiet, whose trigger is that instant."""
+    co2_raise(world)
+    (w,) = world.by_definition("co2_above_limit")
+    holding(world, 60)
+    assert w.warning_id in world.dwell
+    world.feed(world.freshness_input("stale", since=None))
+    assert world.dwell == {} and world.warnings[w.warning_id] == w
+    assert world.by_definition("sensor_quiet") == []
+
+
 @pytest.mark.trace("T-E24-029", "INV-E24-14")
 def test_t029_never_reported_raises_nothing(world: h.World) -> None:
     assert world.feed(world.freshness_input("never_reported")) == ()

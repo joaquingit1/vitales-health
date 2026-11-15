@@ -65,3 +65,36 @@ def post(st: base.Station, rows: list[Any], key: str) -> Any:
 
 def seconds(st: base.Station, n: int) -> Any:
     return st.clock.at - timedelta(seconds=n)
+
+
+def restart(st: base.Station) -> None:
+    """A new hub process over the same SQLite file: a fresh database object (its own bus, scheduler, guards and
+    caches), a fresh event repository and release reader, and a new `create_app`. Nothing in memory survives except
+    the injected test clock and settings, which a real restart reads again from the same sources."""
+    from fastapi.testclient import TestClient
+
+    from crew_health.config.adapters.repository import ConfigRepository, SQLiteConfigReader
+    from crew_health.events.adapters.repository import EventRepository, EventValidator
+    from crew_health.kernel.testing import MemoryIds
+    from crew_health.platform.testing.sqlite import database
+
+    generation = len(list(st.tmp.glob("restart_*"))) + 1
+    old = st.db
+    old.close()
+    db = database(old.path.parent, clock=old.clock, initialize=False)
+    db.settings = old.settings
+    db.ids = MemoryIds(identifiers=tuple(f"{generation}{n:05d}" for n in range(10000)))  # never reuses an id
+    events = EventRepository(
+        settings=db.settings,
+        ids=db.ids,
+        validator=EventValidator(schema_directory=base.ROOT / "contracts/api/schemas"),
+    )
+    db.event_sink = events.append
+    repository = ConfigRepository()
+    db.set_release_reader(lambda view: SQLiteConfigReader(view, repository).active())
+    base._allow_sensor_inputs(db)
+    build_dir = st.tmp / f"restart_{generation}"
+    build_dir.mkdir()
+    st.db = db
+    st.app = base._app(db, st.security, base.config_artifacts(base._resources()), build_dir)
+    st.client = TestClient(st.app, raise_server_exceptions=False)

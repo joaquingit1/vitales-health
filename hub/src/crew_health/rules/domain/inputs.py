@@ -140,10 +140,10 @@ class FreshnessInput:
     observed: ObservedTime | None
     receive_reference: datetime | None
     channel: ChannelRenderFacts
-
-    def __post_init__(self) -> None:
-        if self.state == "stale" and self.stale_since is None:
-            raise InvalidInput("a stale channel names the instant it went stale")
+    # stale_since is null when E23 cannot place the instant (DE23-13, no_time_reference; SensorStatus allows null).
+    # Such a stale input still breaks every dwell on the channel and never clears; it raises no sensor_quiet,
+    # whose trigger and evidence time are that instant (3.9). Refusing it here aborted the producer's ingest and
+    # lost the real reading (AGENTS 6: never discard a real reading).
 
 
 @dataclass(frozen=True, slots=True)

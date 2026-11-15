@@ -601,10 +601,6 @@ def test_inputs_reject_invalid_values_with_a_typed_error(world: h.World) -> None
         LimitResult("l", True, False, None, Decimal("1.5"), None, facts)
     with pytest.raises(InvalidInput):
         replace(world.sensor(results=[]), stale_after_seconds=0)
-    with pytest.raises(InvalidInput):
-        world.freshness_input("stale", since=None).__class__(
-            "r", "c", "t", "stale", None, None, OriginMode.LIVE, None, None, h.channel_facts()
-        )
     unknown = h.observed(h.T0, state="unknown")
     assert unknown.axis() is None and unknown.interval() is None
     assert unknown.display_at() == h.T0
