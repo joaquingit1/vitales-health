@@ -8,6 +8,27 @@ from pydantic import BaseModel, ConfigDict, Field
 from . import common_schema
 
 
+class WithinUsual(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    band: str = Field(
+        ...,
+        description="Largest absolute difference from the usual value, in the indicator's unit, that still reads as within usual. Decimal text with at most decimals places; 0 means equal at display precision. The release check rejects a finer band.",
+        pattern='^(0|[1-9][0-9]{0,5})(\\.[0-9]{1,3})?$',
+    )
+    basis: common_schema.Basis
+    source_ids: common_schema.SourceIds = Field(
+        ...,
+        description='Sources that give this band. Required when basis is sourced; empty while the band is a team default.',
+    )
+    nasa_checked: common_schema.SourceIds = Field(
+        ...,
+        description='NASA catalog IDs (NASA-SOURCES.md) read before the band was set, kept when none of them gives a band.',
+    )
+    to_be_set_by: common_schema.ToBeSetBy | None
+
+
 class Baseline(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
@@ -16,6 +37,10 @@ class Baseline(BaseModel):
     window_days: int = Field(..., ge=1)
     min_samples: int = Field(..., ge=1)
     basis: common_schema.Basis
+    within_usual: WithinUsual = Field(
+        ...,
+        description="How far today's value may sit from the usual value and still read as within usual. A value further away reads as above or below usual. Both values are compared at the indicator's display precision (decimals).",
+    )
 
 
 class Indicator(BaseModel):

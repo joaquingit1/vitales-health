@@ -1,6 +1,6 @@
 {
   "summary": "REPLAY GET /v1/sensors/rad/series?aggregation=latest&bucket=1800",
-  "description": "DosTel1 dose rate in Columbus, 1 to 2 Apr 2022, from nasa-data/radlab_dostel_sample.csv, in 30 minute buckets. An instrument's dose rate, not a person's dose. Illustrative only: not seed data.",
+  "description": "DosTel1 dose rate in Columbus, 1 to 2 Apr 2022, from nasa-data/radiation/radlab_dostel_sample.csv, in 30 minute buckets. An instrument's dose rate, not a person's dose. Illustrative only: not seed data.",
   "x-schema": "sensor-series.schema.json",
   "value": {
     "sensor_type_id": "rad",

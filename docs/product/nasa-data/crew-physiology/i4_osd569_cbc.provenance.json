@@ -1,0 +1,79 @@
+{
+  "file": "i4_osd569_cbc.csv",
+  "title": "Inspiration4 crew complete blood count, four crew members, seven timepoints (L-92 to R+194)",
+  "catalog_id": "N34",
+  "source_url": "https://osdr.nasa.gov/geode-py/ws/studies/OSD-569/download?source=datamanager&file=LSDS-7_Complete_Blood_Count_CBC.upload_SUBMITTED.csv",
+  "documentation": [
+    "https://osdr.nasa.gov/bio/repo/data/studies/OSD-569",
+    "https://osdr.nasa.gov/bio/repo/data/missions/SpaceX%20Inspiration4",
+    "https://www.nasa.gov/osdr-latest-news-i4-mission-datasets/",
+    "Overbey EG et al., 'Collection of biospecimens from the Inspiration4 mission establishes the standards for the Space Omics and Medical Atlas (SOMA)', Nature Communications 2024; data access described in https://pmc.ncbi.nlm.nih.gov/articles/PMC11094041/",
+    "Timepoints: L = days before launch, R = days after return; the mission flew 15 to 18 September 2021 (three days)"
+  ],
+  "retrieved_at_utc": "2026-11-15T01:53:52+00:00",
+  "bytes": 26138,
+  "sha256": "10a878b009eb2ea11a13fe92ad698098858639e8ed02f5ee849431313b9457d3",
+  "mission": "SpaceX Inspiration4 (commercial, three days in orbit, September 2021); subjects C001 to C004",
+  "instrument": "CBC with differential, 23 analytes; clinical laboratory results submitted to OSDR (OSD-569, ALSDA organization, file subdirectory 'Original Submitted')",
+  "rows": 553,
+  "cadence": "Seven blood draws per person: L-92, L-44, L-3, R+1, R+45, R+82, R+194 (no in-flight draw)",
+  "columns": {
+    "ANALYTE": {
+      "unit": null,
+      "description": "Test name as reported"
+    },
+    "VALUE": {
+      "unit": null,
+      "description": "Result in UNITS; 'NA' where not reported"
+    },
+    "RANGE_MIN": {
+      "unit": null,
+      "description": "Laboratory reference range low, same unit"
+    },
+    "RANGE_MAX": {
+      "unit": null,
+      "description": "Laboratory reference range high, same unit"
+    },
+    "UNITS": {
+      "unit": null,
+      "description": "Unit as reported; UCUM mapping: Thousand/uL = 10*3/uL, Million/uL = 10*6/uL, g/dL = g/dL, % = %, cells/uL = /uL, pg = pg, fL = fL"
+    },
+    "TEST_TYPE": {
+      "unit": null,
+      "description": "CBC or CMP"
+    },
+    "SUBJECT_ID": {
+      "unit": null,
+      "description": "Coded crew member ID"
+    },
+    "SEX": {
+      "unit": null,
+      "description": "As reported"
+    },
+    "TEST_DATE": {
+      "unit": null,
+      "description": "Timepoint relative to launch (L) or return (R), in days"
+    }
+  },
+  "preprocessing": "None; the OSDR file LSDS-7_Complete_Blood_Count_CBC.upload_SUBMITTED.csv saved as supplied and renamed to i4_osd569_cbc.csv.",
+  "license": "NASA Open Science Data Repository, open-access file (the OSDR file listing marks it restricted: false). OSDR terms: https://science.nasa.gov/reference/osdr-help-terms-and-conditions/. US Government work. NASA material is generally not subject to copyright in the United States (NASA media usage guidelines, https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA as the source; no NASA logo or insignia is used (NASA-SOURCES.md section 4).",
+  "provenance": "REPLAY",
+  "provenance_note": "REPLAY of real crew laboratory results, coded IDs only; never shown as a crew member of this product.",
+  "is_not": [
+    "Not astronaut (NASA career) data: Inspiration4 was a commercial civilian crew on a three-day flight.",
+    "No in-flight sample, so it cannot show an in-flight trend; it shows a personal baseline before flight and the change after return.",
+    "Laboratory reference ranges are the lab's population ranges, not a personal usual value."
+  ],
+  "consumers": [
+    {
+      "epic": "E14",
+      "component": "personal baselines (usual values) for laboratory indicators",
+      "use": "Real per-person series: three preflight draws build each person's usual value for cbc, electrolytes, renal_function, liver_chemistry and glucose (input-dictionary.json); R+1 to R+194 test the deviation and return-to-baseline logic against real numbers."
+    },
+    {
+      "epic": "E21",
+      "component": "eval/scenarios",
+      "use": "Laboratory record entry with units and reference ranges as a lab reports them, including 'NA' cells that must stay missing (AGENTS rule 5)."
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "version": "1",
+  "basis": "E14 team default pending coordinator request R3; operational forecast settings, not clinical limits",
+  "model": {
+    "id": "amazon/chronos-2",
+    "revision": "29ec3766d36d6f73f0696f85560a422f50e8498c",
+    "sha256": "72326900057133f25ff29b055a1b9bce17d6c205d787865b0b79f331d1bd4357"
+  },
+  "cadence": "mission_day",
+  "min_context_days": 14,
+  "max_context_days": 512,
+  "horizon_days": 3,
+  "interval": {
+    "low": "0.1",
+    "high": "0.9"
+  },
+  "comparators": {
+    "rolling_window_days": 7
+  },
+  "max_series_points": 512,
+  "provenance": {
+    "model": {
+      "basis": "sourced",
+      "nasa_checked": [
+        "NASA-SOURCES.md section 1 (C09, C14, C15, C23, N03)",
+        "NASA-SOURCES.md section 3 (CHP-IDA, CHP-IDSP)"
+      ],
+      "package": [
+        "PRD.md:431",
+        "PRD.md:580",
+        "LLM-ARCHITECTURE.md:13",
+        "https://huggingface.co/amazon/chronos-2/tree/29ec3766d36d6f73f0696f85560a422f50e8498c (commit of 2026-06-05)",
+        "sha256 is weights_sha256 over config.json and model.safetensors; model.safetensors LFS sha256 ddcda3c7508bf2528087723e98a20707cc04b7f370ae275a9fd88078ddba4f42 (477930472 bytes)"
+      ],
+      "to_be_set_by": "R3 (PLAN.md:70): pinned 2026-11-14 to the newest upstream revision; a new revision is a policy change"
+    },
+    "min_context_days": {
+      "basis": "team default",
+      "nasa_checked": [
+        "NASA-SOURCES.md section 1 (C09, C14, C15, C23, N03)",
+        "NASA-SOURCES.md section 3 (CHP-IDA, CHP-IDSP)"
+      ],
+      "package": [
+        "PRD.md:431 sufficient suitable history"
+      ],
+      "to_be_set_by": "R3 (PLAN.md:70)"
+    },
+    "max_context_days": {
+      "basis": "team default",
+      "nasa_checked": [
+        "NASA-SOURCES.md section 1 (C09, C14, C15, C23, N03)",
+        "NASA-SOURCES.md section 3 (CHP-IDA, CHP-IDSP)"
+      ],
+      "package": [],
+      "to_be_set_by": "R3 (PLAN.md:70)"
+    },
+    "horizon_days": {
+      "basis": "team default",
+      "nasa_checked": [
+        "NASA-SOURCES.md section 1 (C09, C14, C15, C23, N03)",
+        "NASA-SOURCES.md section 3 (CHP-IDA, CHP-IDSP)"
+      ],
+      "package": [
+        "VALIDATION.md:233 report horizon"
+      ],
+      "to_be_set_by": "R3 (PLAN.md:70)"
+    },
+    "interval": {
+      "basis": "team default",
+      "nasa_checked": [
+        "NASA-SOURCES.md section 1 (C09, C14, C15, C23, N03)",
+        "NASA-SOURCES.md section 3 (CHP-IDA, CHP-IDSP)"
+      ],
+      "package": [
+        "VALIDATION.md:233 prediction-interval coverage",
+        "PRD.md:580 intervals are not safety limits"
+      ],
+      "to_be_set_by": "R3 (PLAN.md:70)"
+    },
+    "comparators": {
+      "basis": "team default",
+      "nasa_checked": [
+        "NASA-SOURCES.md section 1 (C09, C14, C15, C23, N03)",
+        "NASA-SOURCES.md section 3 (CHP-IDA, CHP-IDSP)"
+      ],
+      "package": [
+        "VALIDATION.md:233 persistence and rolling baselines",
+        "PRD.md:580"
+      ],
+      "to_be_set_by": "R3 (PLAN.md:70)"
+    },
+    "max_series_points": {
+      "basis": "team default",
+      "nasa_checked": [
+        "NASA-SOURCES.md section 1 (C09, C14, C15, C23, N03)",
+        "NASA-SOURCES.md section 3 (CHP-IDA, CHP-IDSP)"
+      ],
+      "package": [],
+      "to_be_set_by": "R3 (PLAN.md:70)"
+    }
+  }
+}
