@@ -26,7 +26,7 @@ from crew_health.kernel.scheduler import HealthState
 from crew_health.kernel.uow import Actor, Audience, AudienceProjectionKey, EventScope, StoredEvent
 from crew_health.mission.application.ports import MissionEventRecorded
 from crew_health.rules.application import core
-from crew_health.rules.application.ports import InsightWarningPort
+from crew_health.rules.application.ports import InsightWarningPort, WarningQueries
 from crew_health.rules.domain.inputs import EvidenceKey, InsightDraft, RecordFacts
 from crew_health.rules.domain.vocabulary import Level, OriginMode
 
@@ -285,6 +285,26 @@ def test_an_activation_never_clears_or_lowers_an_active_warning(
     deliver(st, "rules.activation", stored(kind, {}, at=st.clock.at, seq=7))
     deliver(st, "rules.activation", stored(kind, {}, at=st.clock.at, seq=8))  # at least once: repeated
     assert warnings_of(st, "radiation_storm_shelter") == before
+
+
+@pytest.mark.trace("T-E24-073", "INV-E24-16")
+def test_an_activation_whose_documents_cannot_be_read_degrades_health_and_never_blocks_the_stream(
+    patched: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from crew_health.rules.application import facts as release_facts
+    from crew_health.rules.domain.errors import DefinitionInvalid
+
+    st = station(tmp_path)
+
+    def unreadable(*args: object) -> object:
+        raise DefinitionInvalid("document unavailable: warning-rules")
+
+    monkeypatch.setattr(release_facts, "build", unreadable)
+    live = st.resolver().require(WarningQueries)._live  # type: ignore[attr-defined]  # a new release id is a cache miss
+    live.runtime.cache.clear()
+    deliver(st, "rules.activation", stored(EventType.CONFIG_RELEASE_ACTIVATED, {}, at=st.clock.at, seq=3))
+    components = {c.component: c.code for c in st.resolver().require(HealthState).snapshot().components}
+    assert components.get("rules") == core.FAULT_CODE
 
 
 @pytest.mark.trace("T-E24-073")

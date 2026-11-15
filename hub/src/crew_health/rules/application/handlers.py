@@ -23,6 +23,7 @@ from crew_health.mission.application.ports import MissionEventRecorded, StateFac
 from crew_health.records.application.ports import AnswerAcceptedFact
 from crew_health.rules.application import core, input_codec
 from crew_health.rules.application.core import Runtime
+from crew_health.rules.domain.errors import RulesDomainError
 from crew_health.rules.domain.inputs import (
     AnswerInput,
     ChannelRenderFacts,
@@ -128,15 +129,20 @@ def on_activation(rt: Runtime, uow: UnitOfWork, event: StoredEvent) -> None:
     """`config.release_activated` and `environment.activated` (3.8, C12, D1). An activation never clears, lowers or
     re-pins an active warning: the active ones keep their pinned definition and clear by it. What it does:
 
-    - the release facts of the new release are built now, so a document that cannot be read fails here and not at the
-      next input (the old facts stay in the cache until this succeeds);
+    - the release facts of the new release are built now; a document that cannot be read marks the engine degraded
+      and stops here (never a stuck event stream): every following input then becomes a pending evaluation, loudly;
     - rows the evaluator gave up on are retried (`stuck` back to `pending`), and recovery runs at once;
     - the stored link state is re-evaluated under the new release, which may raise a new ground silence.
 
     Sensor, mission and answer state is re-evaluated by its producers after activation (an input computed under
     another release is refused), so E24 holds no copy of it.
     """
-    rt.facts(uow)
+    try:
+        rt.facts(uow)
+    except RulesDomainError:
+        if rt.health is not None:
+            rt.health.mark_degraded(core.HEALTH_COMPONENT, core.FAULT_CODE, uow.now)
+        return
     c = uow.connection
     if rt.pending.release_stuck(c, uow.now):
         core.record_recovery_due(rt, uow)

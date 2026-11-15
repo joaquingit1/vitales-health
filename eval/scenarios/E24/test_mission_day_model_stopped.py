@@ -71,7 +71,9 @@ def test_a_mission_day_without_the_model_raises_clears_and_expires_by_rule(
     assert clear["dwell_seconds"] == DWELL_S
 
     key = EvidenceKey("observation", "obs_day")
-    RECORD_FACTS.rows[key] = RecordFacts(True, "per_a", OriginMode.SIM, False, "ok", "accepted", st.clock.at, "pulse")
+    RECORD_FACTS.rows[key] = RecordFacts(
+        True, "per_a", OriginMode.SIM, False, "ok", "accepted", st.clock.at, "pulse"
+    )
     draft = InsightDraft(
         "ins_day", "per_a", "sleep_reaction", Level.WATCH, "Short sleep", "You slept less.", "From your records.",
         "Short sleep", ("Go to bed earlier.",), "eyes", (key,), (), False, (), OriginMode.SIM, st.clock.at, "model_1",
@@ -102,5 +104,7 @@ def test_a_mission_day_without_the_model_raises_clears_and_expires_by_rule(
     st.advance(seconds=DAY_S - (st.clock.at - started).total_seconds() + 10)  # the day ends
     st.dispatch()
     assert states(st)["assistant_pattern"] == ("cleared", "expired")
-    assert rows(st, "SELECT count(*) FROM rules_warning WHERE raised_by = 'assistant'") == [(1,)]  # no new insight
+    assert rows(st, "SELECT count(*) FROM rules_warning WHERE raised_by = 'assistant'") == [
+        (1,)
+    ]  # no new insight
     assert rows(st, "SELECT count(*) FROM rules_pending") == [(0,)]

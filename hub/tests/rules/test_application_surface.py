@@ -62,18 +62,27 @@ def publish(st: base.Station, *events: object) -> None:
 
 def landing(st: base.Station) -> MissionEventRecorded:
     at = st.clock.at - timedelta(hours=1)
-    return MissionEventRecorded("evt_land", "landing", "Landing", at, None, at, "SIM", "lunar_surface", ("per_a",), None)
+    return MissionEventRecorded(
+        "evt_land", "landing", "Landing", at, None, at, "SIM", "lunar_surface", ("per_a",), None
+    )
 
 
 def dizzy(st: base.Station, answer_id: str = "ans_1") -> AnswerAcceptedFact:
-    return AnswerAcceptedFact(
-        answer_id, "per_a", "dizzy_standing", "present", st.clock.at, "SIM", "mis_1"
-    )
+    return AnswerAcceptedFact(answer_id, "per_a", "dizzy_standing", "present", st.clock.at, "SIM", "mis_1")
 
 
 def storm(st: base.Station, environment: str = "lunar_surface") -> MissionEventRecorded:
     return MissionEventRecorded(
-        "evt_storm", "space_weather_alert", "Alert", st.clock.at, None, st.clock.at, "SIM", environment, (), None
+        "evt_storm",
+        "space_weather_alert",
+        "Alert",
+        st.clock.at,
+        None,
+        st.clock.at,
+        "SIM",
+        environment,
+        (),
+        None,
     )
 
 
@@ -108,8 +117,12 @@ def test_a_person_warning_is_that_persons_alone_and_a_habitat_warning_is_every_c
     mine = one(st, "dizzy_after_landing")
     theirs = st.client.get("/v1/warnings", headers=st.headers("crew_b")).json()["items"]
     assert {i["definition_id"] for i in theirs} == {"radiation_storm_shelter"}  # crew scope reaches everyone
-    assert st.client.get(f"/v1/warnings/{mine['warning_id']}", headers=st.headers("crew_b")).status_code == 404
-    assert st.client.get(f"/v1/warnings/{mine['warning_id']}", headers=st.headers("crew_a")).status_code == 200
+    assert (
+        st.client.get(f"/v1/warnings/{mine['warning_id']}", headers=st.headers("crew_b")).status_code == 404
+    )
+    assert (
+        st.client.get(f"/v1/warnings/{mine['warning_id']}", headers=st.headers("crew_a")).status_code == 200
+    )
     station = st.client.get("/v1/warnings", headers=st.headers("operator")).json()["items"]
     assert [i["definition_id"] for i in station] == ["radiation_storm_shelter"]
     assert station[0]["allowed_actions"] == []  # a role without crew actions sees no action (3.10)
@@ -122,7 +135,9 @@ def test_resolve_note_and_the_documented_failures(patched: None, tmp_path: Path)
     w = one(st, "dizzy_after_landing")
     wid = w["warning_id"]
     assert set(w["allowed_actions"]) == {"acknowledge", "add_note", "resolve"}
-    assert w["headline"]["fragment"] == "day 1: getting used to gravity"  # `{day_short}` from the mission's labels
+    assert (
+        w["headline"]["fragment"] == "day 1: getting used to gravity"
+    )  # `{day_short}` from the mission's labels
     etag = '"1"'
     assert act(st, "crew_a", wid, b"not json", "k1", **{"If-Match": etag}).status_code == 400
     assert act(st, "crew_a", wid, {"action": "explode"}, "k2", **{"If-Match": etag}).status_code == 422
@@ -130,16 +145,22 @@ def test_resolve_note_and_the_documented_failures(patched: None, tmp_path: Path)
     too_long = {"action": "add_note", "note": "x" * 2001}
     assert act(st, "crew_a", wid, too_long, "k4", **{"If-Match": etag}).status_code == 422
     assert act(st, "crew_a", wid, {"action": "acknowledge"}, "k5", **{"If-Match": "nope"}).status_code == 400
-    noted = act(st, "crew_a", wid, {"action": "add_note", "note": "feeling better"}, "k6", **{"If-Match": etag})
+    noted = act(
+        st, "crew_a", wid, {"action": "add_note", "note": "feeling better"}, "k6", **{"If-Match": etag}
+    )
     assert noted.status_code == 200 and noted.json()["notes"][0]["text"] == "feeling better"
     assert noted.headers["ETag"] == '"2"'
     stale_release = act(
         st, "crew_a", wid, {"action": "resolve", "reason": "ok"}, "k7", **{"If-Match": '"2"', "Config-Release": "rel_old"}
     )  # fmt: skip
     assert stale_release.status_code == 409 and stale_release.json()["code"] == "CONFIG_VERSION_MISMATCH"
-    ack = act(st, "crew_a", wid, {"action": "acknowledge"}, "k8", **{"If-Match": '"2"', "Config-Release": "rel_old"})
+    ack = act(
+        st, "crew_a", wid, {"action": "acknowledge"}, "k8", **{"If-Match": '"2"', "Config-Release": "rel_old"}
+    )
     assert ack.status_code == 200  # acknowledge reads no configuration (4.1 step 7)
-    done = act(st, "crew_a", wid, {"action": "resolve", "reason": "stood up, fine"}, "k9", **{"If-Match": '"3"'})
+    done = act(
+        st, "crew_a", wid, {"action": "resolve", "reason": "stood up, fine"}, "k9", **{"If-Match": '"3"'}
+    )
     assert done.status_code == 200 and done.json()["state"] == "resolved"
     assert done.json()["resolved"]["reason"] == "stood up, fine"
     again = act(st, "crew_a", wid, {"action": "add_note", "note": "late"}, "k10", **{"If-Match": '"4"'})
@@ -187,7 +208,9 @@ class Overlays:
     def active(self, person_ids: Any, at: Any) -> Any:
         return {}
 
-    def intervals(self, person_id: str, kinds: Any, since: Any, until: Any, limit: int) -> Sequence[OverlayFact]:
+    def intervals(
+        self, person_id: str, kinds: Any, since: Any, until: Any, limit: int
+    ) -> Sequence[OverlayFact]:
         assert "sleep" in kinds and "eva" in kinds  # the suppressed overlays come from routine-rules
         if isinstance(self.found, Exception):
             raise self.found
@@ -196,7 +219,11 @@ class Overlays:
 
 def presenter(st: base.Station, overlays: OverlayPort | None) -> Presenter:
     rt = core.Runtime(
-        settings=st.db.settings, ids=st.db.ids, mission=st.resolver().optional(MissionStatePort), binding=None, health=None
+        settings=st.db.settings,
+        ids=st.db.ids,
+        mission=st.resolver().optional(MissionStatePort),
+        binding=None,
+        health=None,
     )
     return Presenter(rt, st.resolver().require(ReadSnapshotFactory), overlays)
 
@@ -234,17 +261,23 @@ def test_a_sleeper_holds_the_act_warning_but_the_storm_still_interrupts_and_the_
 
 
 @pytest.mark.trace("T-E24-081")
-def test_too_many_overlays_hold_nothing_and_other_faults_are_not_hidden(patched: None, tmp_path: Path) -> None:
+def test_too_many_overlays_hold_nothing_and_other_faults_are_not_hidden(
+    patched: None, tmp_path: Path
+) -> None:
     st = lunar(tmp_path, "station_leo")
     oxygen_high(st)
     big = ProblemError(ErrorCode.PAYLOAD_TOO_LARGE, "overlay rows above the bound")
     assert presenter(st, Overlays(big)).for_session(session(st, "crew_a")).held == {}
     with pytest.raises(ProblemError):
-        presenter(st, Overlays(ProblemError(ErrorCode.INTERNAL_ERROR, "boom"))).for_session(session(st, "crew_a"))
+        presenter(st, Overlays(ProblemError(ErrorCode.INTERNAL_ERROR, "boom"))).for_session(
+            session(st, "crew_a")
+        )
 
 
 @pytest.mark.trace("T-E24-080")
-def test_acknowledging_removes_the_act_warning_from_this_persons_banner_only(patched: None, tmp_path: Path) -> None:
+def test_acknowledging_removes_the_act_warning_from_this_persons_banner_only(
+    patched: None, tmp_path: Path
+) -> None:
     st = lunar(tmp_path, "station_leo")
     oxygen_high(st)
     wid = one(st, "oxygen_high_act")["warning_id"]
@@ -265,24 +298,40 @@ def test_a_replica_is_listed_with_its_origin_and_age_and_never_touched_by_the_en
     st = lunar(tmp_path, "station_leo")
     oxygen_high(st)
     local_before = rows(st, "SELECT warning_id, state, revision FROM rules_warning")
-    rt = core.Runtime(settings=st.db.settings, ids=st.db.ids, mission=st.resolver().optional(MissionStatePort), binding=None, health=None)
+    rt = core.Runtime(
+        settings=st.db.settings,
+        ids=st.db.ids,
+        mission=st.resolver().optional(MissionStatePort),
+        binding=None,
+        health=None,
+    )
     origin_at = st.clock.at - timedelta(minutes=5)
-    crew = ReplicatedWarning("wrn_rover_1", "node_rover", origin_at, 1, "crew", None, json.dumps({"title": "Storm"}))
-    mine = ReplicatedWarning("wrn_rover_2", "node_rover", origin_at, 1, "person", "per_a", json.dumps({"title": "x"}))
+    crew = ReplicatedWarning(
+        "wrn_rover_1", "node_rover", origin_at, 1, "crew", None, json.dumps({"title": "Storm"})
+    )
+    mine = ReplicatedWarning(
+        "wrn_rover_2", "node_rover", origin_at, 1, "person", "per_a", json.dumps({"title": "x"})
+    )
     with st.begin() as uow:
         assert apply_replica(rt, uow, crew) and apply_replica(rt, uow, mine)
         assert not apply_replica(rt, uow, crew)  # a repeated delivery changes nothing
         old = ReplicatedWarning("wrn_rover_1", "node_rover", origin_at, 0, "crew", None, "{}")
         assert not apply_replica(rt, uow, old)  # an older version never replaces a newer one
         with pytest.raises(InvariantViolation):
-            apply_replica(rt, uow, ReplicatedWarning("w", "node_1", origin_at, 1, "crew", None, "{}"))  # own node
+            apply_replica(
+                rt, uow, ReplicatedWarning("w", "node_1", origin_at, 1, "crew", None, "{}")
+            )  # own node
         with pytest.raises(InvariantViolation):
             apply_replica(rt, uow, ReplicatedWarning("w", "node_rover", origin_at, 1, "person", None, "{}"))
     shown = presenter(st, None).replicas(session(st, "crew_b"))
-    assert [(r.warning_id, r.origin_node_id, r.age_seconds) for r in shown] == [("wrn_rover_1", "node_rover", 300)]
+    assert [(r.warning_id, r.origin_node_id, r.age_seconds) for r in shown] == [
+        ("wrn_rover_1", "node_rover", 300)
+    ]
     own = presenter(st, None).replicas(session(st, "crew_a"))
     assert {r.warning_id for r in own} == {"wrn_rover_1", "wrn_rover_2"}  # the person's own replica is theirs
-    assert rows(st, "SELECT warning_id, state, revision FROM rules_warning") == local_before  # engine untouched
+    assert (
+        rows(st, "SELECT warning_id, state, revision FROM rules_warning") == local_before
+    )  # engine untouched
 
 
 # --- the operator console (5.5) ---------------------------------------------------------------------
@@ -310,7 +359,9 @@ def test_pending_lists_rows_and_quarantine_needs_a_stuck_row_and_is_audited(
     [line] = [json.loads(x) for x in out.getvalue().splitlines()]
     assert (line["pending_id"], line["state"], line["attempts"]) == (pending_id, "pending", 0)
     cons, out, err = console()
-    assert rules_cli.run(["pending", "--quarantine", pending_id], st.db, st.db.ids, cons, limit=100) == 1  # not stuck yet
+    assert (
+        rules_cli.run(["pending", "--quarantine", pending_id], st.db, st.db.ids, cons, limit=100) == 1
+    )  # not stuck yet
     assert json.loads(err.getvalue()) == {"refused": "not_a_stuck_row"}
     with st.begin() as uow:
         PendingStore().failed(uow.connection, pending_id, "RuntimeError", None, stuck=True)
@@ -320,7 +371,10 @@ def test_pending_lists_rows_and_quarantine_needs_a_stuck_row_and_is_audited(
     assert json.loads(out.getvalue().splitlines()[0])["state"] == "quarantined"  # the row stays
     with st.begin() as uow:
         assert not PendingStore().blocking(uow.connection)  # clears resume
-    assert rows(st, "SELECT count(*) FROM platform_audit WHERE instr(CAST(envelope AS TEXT), 'rules.pending_quarantined') > 0") == [(1,)]
+    assert rows(
+        st,
+        "SELECT count(*) FROM platform_audit WHERE instr(CAST(envelope AS TEXT), 'rules.pending_quarantined') > 0",
+    ) == [(1,)]
 
 
 @pytest.mark.trace("T-E24-122")
@@ -331,4 +385,3 @@ def test_console_usage_errors_exit_two_and_change_nothing(patched: None, tmp_pat
     assert rules_cli.run(["pending", "--bogus"], st.db, st.db.ids, cons, limit=100) == 2
     assert "usage" in err.getvalue() and out.getvalue() == ""
     assert hub_main(["rules"]) == 2  # `crew-health rules` without a database is unusable input
-

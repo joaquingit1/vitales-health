@@ -26,7 +26,11 @@ TARGET_DEFINITIONS = 50
 def fifty_definitions() -> dict[str, object]:
     raw = h.deployment_rules()
     definitions = list(raw["definitions"])  # type: ignore[call-overload]
-    sensor = [d for d in definitions if d["raised_by"] == "sensor_limit" and d["condition"]["kind"] == "sensor_limit"]
+    sensor = [
+        d
+        for d in definitions
+        if d["raised_by"] == "sensor_limit" and d["condition"]["kind"] == "sensor_limit"
+    ]
     n = 0
     while len(definitions) < TARGET_DEFINITIONS:
         clone = copy.deepcopy(sensor[n % len(sensor)])

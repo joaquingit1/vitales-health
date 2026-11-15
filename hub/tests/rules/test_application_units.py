@@ -228,7 +228,9 @@ def test_a_corrupt_stored_warning_is_refused(mutate) -> None:  # type: ignore[no
 @pytest.mark.trace("INV-E24-11")
 def test_a_corrupt_pending_input_is_refused_and_an_unsupported_one_is_never_written() -> None:
     w, _ = raised()
-    kind, text = input_codec.dumps(w.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]))
+    kind, text = input_codec.dumps(
+        w.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)])
+    )
     body = json.loads(text)
     for bad in (
         {**body, "results": "nope"},  # a list expected
@@ -266,3 +268,69 @@ def test_the_loader_check_names_a_missing_or_unreadable_document_and_never_passe
     array = dict(views)
     array[ConfigName.WARNING_RULES] = ConfigDocumentView(ConfigName.WARNING_RULES, "x", b"[]")
     assert WarningRulesCheck(500).check(CandidateRelease("rel_a", array))
+
+
+@pytest.mark.trace("INV-E24-11")
+def test_every_input_kind_survives_the_pending_row_unchanged() -> None:
+    """A pending row re-runs the input as recorded (5.5): nothing, units and decimals included, may change in it."""
+    from decimal import Decimal
+
+    from crew_health.kernel.units import Quantity, Unit
+    from crew_health.rules.domain.inputs import (
+        ActivationInput,
+        AnswerInput,
+        DeadlineInput,
+        GroundLinkInput,
+        InsightExpiredInput,
+        StateFactInput,
+        SupplyCoverInput,
+        SupplyCoverRow,
+    )
+    from crew_health.rules.domain.vocabulary import OriginMode
+
+    row = SupplyCoverRow(
+        "sup_1", "Bandage", 3, "part_1", 7, "rel_1", ("src_1",), Quantity(Decimal("12.50"), Unit("1")),
+        Quantity(Decimal("4"), Unit("1")), "use_1", T0,
+    )  # fmt: skip
+    inputs = (
+        GroundLinkInput("down", T0, "measured", "station_leo", False, T0),
+        GroundLinkInput("up", None, "schedule", "station_leo", True, T0),
+        StateFactInput("local_water_untested", True, "mars_surface", T0, "evt_1", OriginMode.SIM),
+        StateFactInput("some_count", 3, "mars_surface", T0, "evt_2", OriginMode.LIVE),
+        AnswerInput(
+            "ans_1", "per_a", "dizzy_standing", "present", T0, None, OriginMode.SIM, "day 1", "09:00"
+        ),
+        AnswerInput(
+            "ans_2", "per_a", "q", "absent", T0, T0 + timedelta(seconds=5), OriginMode.LIVE, "d", "t"
+        ),
+        SupplyCoverInput("station_leo", "use", "use_1", T0, OriginMode.SIM, (row,)),
+        SupplyCoverInput("station_leo", "release", None, T0, OriginMode.LIVE, ()),
+        InsightExpiredInput("ins_1", 86400),
+        ActivationInput("release", "rel_a", "rel_b", "station_leo"),
+        DeadlineInput("expire:wrn_1", T0),
+    )
+    for inp in inputs:
+        kind, text = input_codec.dumps(inp)
+        assert input_codec.loads(kind, text) == inp, kind
+
+
+@pytest.mark.trace("INV-E24-12")
+def test_a_release_document_that_is_not_an_object_is_a_typed_failure_not_a_guess() -> None:
+    docs = {
+        ConfigName.WARNING_RULES: h.deployment_rules(),
+        ConfigName.SENSOR_LIMITS: h.example_value("sensor-limits"),
+        ConfigName.SENSOR_CATALOG: h.example_value("sensor-catalog"),
+    }
+    raw = {n: json.dumps(v).encode() for n, v in docs.items()}
+    views = {n: ConfigDocumentView(n, hashlib.sha256(b).hexdigest(), b) for n, b in raw.items()}
+    listed = b"[1, 2]"
+    views[ConfigName.UI_COPY] = ConfigDocumentView(
+        ConfigName.UI_COPY, hashlib.sha256(listed).hexdigest(), listed
+    )
+    from crew_health.rules.domain.errors import DefinitionInvalid
+
+    with pytest.raises(DefinitionInvalid):
+        facts.build(MemoryRelease("rel_list", views))
+    odd = b'{"origin_words": 5}'
+    views[ConfigName.UI_COPY] = ConfigDocumentView(ConfigName.UI_COPY, hashlib.sha256(odd).hexdigest(), odd)
+    assert facts.build(MemoryRelease("rel_words", views)).origin_words == {}  # absent words stay absent
