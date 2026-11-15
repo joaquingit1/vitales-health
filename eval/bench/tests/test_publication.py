@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.units import Quantity, Unit
+
 from crew_health_bench.adapters.artifacts import ArtifactSchemas
 from crew_health_bench.adapters.documents import load_document
 from crew_health_bench.application.publication import publishable_artifacts

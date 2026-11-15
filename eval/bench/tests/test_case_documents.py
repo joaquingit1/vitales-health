@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from crew_health.kernel.testing import MemoryIds
+
 from crew_health_bench.adapters.case_documents import CaseDocuments
 from crew_health_bench.domain.errors import BenchError
 

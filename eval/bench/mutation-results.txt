@@ -33,6 +33,26 @@
     crew_health_bench.application.gate.x_validate_gate_configuration__mutmut_26: survived
     crew_health_bench.domain.labels.x_check_preconditions__mutmut_1: survived
     crew_health_bench.domain.labels.x_check_preconditions__mutmut_13: survived
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_1: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_2: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_3: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_4: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_5: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_6: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_7: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_8: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_9: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_10: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_11: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_12: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_13: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_14: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_15: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_16: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_17: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_18: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_19: no tests
+    crew_health_bench.domain.labels.x_require_independent_labels__mutmut_20: no tests
     crew_health_bench.domain.partition.xǁPartitionPolicyǁfrom_document__mutmut_8: survived
     crew_health_bench.domain.partition.xǁPartitionPolicyǁ__post_init____mutmut_1: survived
     crew_health_bench.domain.partition.xǁPartitionPolicyǁ__post_init____mutmut_14: survived
@@ -67,19 +87,22 @@
     crew_health_bench.domain.partition.x__near_pairs__mutmut_25: survived
     crew_health_bench.domain.partition.x__near_pairs__mutmut_26: survived
     crew_health_bench.domain.partition.x__near_pairs__mutmut_37: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_5: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_63: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_65: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_74: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_75: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_76: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_81: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_88: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_89: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_90: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_95: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_96: survived
-    crew_health_bench.domain.partition.x_partition__mutmut_98: survived
+    crew_health_bench.domain.partition.x_partition__mutmut_4: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_3: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_4: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_5: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_16: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_18: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_27: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_28: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_29: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_34: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_41: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_42: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_43: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_48: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_49: survived
+    crew_health_bench.domain.partition.x_assign_groups__mutmut_51: survived
     crew_health_bench.domain.checks.xǁNoFabricatedResultǁevaluate__mutmut_5: survived
     crew_health_bench.domain.checks.xǁNoFabricatedResultǁevaluate__mutmut_17: survived
     crew_health_bench.domain.checks.xǁNoFabricatedResultǁevaluate__mutmut_26: survived

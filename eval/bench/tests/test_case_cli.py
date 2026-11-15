@@ -5,8 +5,9 @@ import shutil
 from pathlib import Path
 
 import pytest
-from crew_health_bench.api.cli import run
 from pyrage import x25519
+
+from crew_health_bench.api.cli import run
 
 pytestmark = [pytest.mark.e18, pytest.mark.trace("R23", "T-E18-07", "T-E18-17", "T-E18-31")]
 ROOT = Path(__file__).parents[1]

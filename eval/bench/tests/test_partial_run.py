@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 from crew_health.kernel.units import Quantity, Unit
+
 from crew_health_bench.adapters.store import FileArtifactStore
 
 from .test_lifecycle import Generator, Grader, Inputs, engine

@@ -7,6 +7,9 @@ from decimal import Decimal
 import pytest
 from crew_health.kernel.testing import MemoryClock
 from crew_health.kernel.units import Quantity, Unit
+from hypothesis import given
+from hypothesis import strategies as st
+
 from crew_health_bench.application.ports import Simulator
 from crew_health_bench.domain.cases import (
     CapabilityMatch,
@@ -19,8 +22,6 @@ from crew_health_bench.domain.errors import BenchError
 from crew_health_bench.domain.labels import check_preconditions
 from crew_health_bench.domain.simulator import LookupSimulator
 from crew_health_bench.domain.timing import elapsed
-from hypothesis import given
-from hypothesis import strategies as st
 
 pytestmark = [pytest.mark.e18, pytest.mark.trace("R05", "R22", "V34")]
 

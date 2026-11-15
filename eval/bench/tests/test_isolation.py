@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from crew_health.contracts_gen.schemas.context_schema import Context
+
 from crew_health_bench.adapters.isolation import generation_environment, require_evaluation_hub, vault_path
 from crew_health_bench.domain.errors import BenchError
 

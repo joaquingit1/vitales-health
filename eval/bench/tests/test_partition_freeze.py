@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 from crew_health.kernel.testing import MemoryIds
+
 from crew_health_bench.adapters.case_documents import CaseDocuments
 from crew_health_bench.adapters.documents import load_document, read_json
 from crew_health_bench.adapters.partitions import verify_partitions

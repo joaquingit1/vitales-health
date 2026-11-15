@@ -3,13 +3,14 @@ from pathlib import Path
 
 import pytest
 from crew_health.kernel.units import Quantity, Unit
+from hypothesis import given
+from hypothesis import strategies as st
+
 from crew_health_bench.adapters.store import FileArtifactStore
 from crew_health_bench.application.preregistration import PreRegister
 from crew_health_bench.domain.errors import BenchError
 from crew_health_bench.domain.preregistration import preregistration
 from crew_health_bench.domain.sample import eligible_order
-from hypothesis import given
-from hypothesis import strategies as st
 
 
 class Owner:

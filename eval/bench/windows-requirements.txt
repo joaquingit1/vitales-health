@@ -9,6 +9,9 @@ annotated-types==0.8.0
 anyio==4.16.0
     # via
     #   fastapi
+    #   httpx
+    #   httpx2
+    #   openai
     #   starlette
 ast-serialize==0.13.1
     # via mypy
@@ -16,59 +19,118 @@ attrs==26.1.0
     # via
     #   jsonschema
     #   referencing
+blobfile==3.3.0
+    # via simple-evals
+certifi==2026.10.23
+    # via
+    #   httpcore
+    #   httpx
+    #   requests
+charset-normalizer==3.5.2
+    # via requests
 click==8.5.1
     # via
     #   import-linter
     #   uvicorn
 colorama==0.4.6
-    # via pytest
+    # via
+    #   pytest
+    #   tqdm
 coverage==7.17.3
     # via pytest-cov
 fastapi==0.163.0
     # via crew-health
+filelock==4.2.10
+    # via blobfile
+flexcache==0.3
+    # via pint
+flexparser==0.4
+    # via pint
 grimp==3.20
     # via import-linter
 h11==0.16.0
-    # via uvicorn
+    # via
+    #   httpcore
+    #   httpcore2
+    #   uvicorn
+httpcore==1.0.9
+    # via httpx
+httpcore2==2.16.0
+    # via httpx2
+httpx==0.28.1
+    # via crew-health-bench (eval/bench/pyproject.toml)
+httpx2==2.16.0
+    # via openai
 hypothesis==6.170.15
     # via crew-health-bench (eval/bench/pyproject.toml:dev)
 idna==3.20
-    # via anyio
+    # via
+    #   anyio
+    #   httpx
+    #   httpx2
+    #   requests
 import-linter==2.16
     # via crew-health-bench (eval/bench/pyproject.toml:dev)
 iniconfig==2.3.1
     # via pytest
+jinja2==3.1.6
+    # via simple-evals
+jiter==0.19.0
+    # via openai
 jsonschema==4.26.0
     # via
     #   crew-health-bench (eval/bench/pyproject.toml)
     #   crew-health
 jsonschema-specifications==2025.9.1
     # via jsonschema
+lark==1.3.1
+    # via ucumvert
 librt==0.16.0
     # via mypy
+lxml==6.1.3
+    # via blobfile
 markdown-it-py==4.3.0
     # via rich
+markupsafe==3.0.4
+    # via jinja2
 mdurl==0.1.2
     # via markdown-it-py
 mypy==2.4.1
     # via crew-health-bench (eval/bench/pyproject.toml:dev)
 mypy-extensions==1.2.0
     # via mypy
+numpy==2.5.4
+    # via
+    #   pandas
+    #   simple-evals
+openai==3.51.0
+    # via simple-evals
 opentelemetry-api==1.45.2
     # via fastapi
 packaging==26.3
     # via pytest
+pandas==3.1.1
+    # via simple-evals
 pathspec==1.1.1
     # via mypy
+pint==0.26.2
+    # via
+    #   crew-health
+    #   ucumvert
+platformdirs==4.14.5
+    # via pint
 pluggy==1.7.0
     # via
     #   pytest
     #   pytest-cov
+pycryptodomex==3.24.2
+    # via blobfile
 pydantic==2.14.3
     # via
     #   crew-health-bench (eval/bench/pyproject.toml)
     #   crew-health
     #   fastapi
+    #   openai
 pydantic-core==2.50.4
     # via pydantic
 pygments==2.21.0
@@ -87,12 +149,18 @@ pytest==9.2.0
     #   pytest-cov
 pytest-cov==7.1.0
     # via crew-health-bench (eval/bench/pyproject.toml:dev)
+python-dateutil==4.0.0
+    # via pandas
+pyyaml==6.0.3
+    # via crew-health
 referencing==0.37.0
     # via
     #   crew-health
     #   jsonschema
     #   jsonschema-specifications
     #   types-jsonschema
+requests==2.34.2
+    # via simple-evals
 rich==15.0.0
     # via import-linter
 rpds-py==2026.9.1
@@ -101,18 +169,32 @@ rpds-py==2026.9.1
     #   referencing
 ruff==0.17.5
     # via crew-health-bench (eval/bench/pyproject.toml:dev)
+vendor/simple_evals-0.0.0+652c89d0-py314-none-any.whl
+    # via crew-health-bench (eval/bench/pyproject.toml)
+sniffio==1.3.1
+    # via openai
 sortedcontainers==2.4.0
     # via hypothesis
 starlette==1.10.0
     # via fastapi
+tqdm==4.70.1
+    # via simple-evals
+truststore==0.10.5
+    # via
+    #   httpcore2
+    #   httpx2
 types-jsonschema==4.26.0.20261006
     # via crew-health-bench (eval/bench/pyproject.toml:dev)
 typing-extensions==4.16.0
     # via
     #   anyio
     #   fastapi
+    #   flexcache
+    #   flexparser
     #   mypy
+    #   openai
     #   opentelemetry-api
+    #   pint
     #   pydantic
     #   pydantic-core
     #   typing-inspection
@@ -120,5 +202,15 @@ typing-inspection==0.4.5
     # via
     #   fastapi
     #   pydantic
+tzdata==2026.6
+    # via
+    #   pandas
+    #   python-dateutil
+ucumvert==0.3.3
+    # via crew-health
+urllib3==2.8.0
+    # via
+    #   blobfile
+    #   requests
 uvicorn==0.54.0
     # via crew-health

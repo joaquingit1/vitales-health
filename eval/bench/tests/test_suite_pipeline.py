@@ -9,6 +9,7 @@ import pytest
 from crew_health.kernel.ids import KernelIdFactory
 from crew_health.kernel.testing import MemoryClock
 from crew_health.kernel.units import Quantity, Unit
+
 from crew_health_bench.adapters.case_documents import CaseDocuments
 from crew_health_bench.adapters.store import FileArtifactStore
 from crew_health_bench.adapters.suite_grader import SuiteGrader
@@ -116,6 +117,7 @@ def test_missing_recorder_evidence_and_rules_track_model_calls_never_pass(
 @pytest.mark.trace("E18-03", "R46", "INV-E18-05")
 def test_without_harness_or_providers_every_case_is_not_run_with_its_reason(tmp_path: Path) -> None:
     from crew_health.kernel.commands import canonical_json
+
     from crew_health_bench.domain.readiness import DRIVER_OPERATIONS, product_suite_readiness
 
     ids = KernelIdFactory(new_uuid_hex=lambda: "0" * 32)

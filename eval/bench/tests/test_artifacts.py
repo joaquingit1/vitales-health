@@ -6,9 +6,10 @@ from pathlib import Path
 
 import pytest
 from crew_health.kernel.commands import canonical_json
+from jsonschema import Draft202012Validator
+
 from crew_health_bench.application.gate import CRITICAL_CHECKS, GateRun, gate
 from crew_health_bench.domain.metrics import compare
-from jsonschema import Draft202012Validator
 
 pytestmark = [pytest.mark.e18, pytest.mark.trace("R22", "INV-E18-12")]
 SCHEMAS = Path(__file__).parents[1] / "schemas"

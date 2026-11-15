@@ -1,57 +1,57 @@
-# E18 evaluation tooling
+# E18 evaluation tooling (`crew_health_bench`)
 
-E18 is incomplete. No clinical result, HealthBench score, holdout run or promotion evidence has been produced.
-The crew hub never imports this package. E18 owns no user interface.
+Offline evaluation for Crew Health Check: HealthBench on the pinned official harness and the product suites. The crew
+hub never imports this package and it never runs on a crew hub. It owns no user interface.
 
-The package provides grouping and sampling, fingerprints and file leak checks, deterministic reveal-table simulation,
-rubric mechanisms, metrics, comparisons, claims checks, release gates, configuration validation and byte freezing.
-The `Case.visible` string remains a grouping projection rather than a complete authored case/seed document.
+No HealthBench score, clinical result, holdout run or gate verdict exists yet. Every result needs inputs only the
+evaluation owner can supply (below).
 
-`FileArtifactStore` implements the E18-owned `ArtifactStore` port. It uses a process lock, bounded hash-chained JSONL,
-fsync, torn-tail recovery and atomic replacement. The hash covers sequence, record and predecessor digest. Both
-`max_line_bytes` and the frozen record count must be supplied by composition. Storage faults escape as typed failures.
-The current writer has POSIX directory barriers. It refuses Windows before creating the root because a verified
-native directory persistence barrier is missing. Read-only tooling remains available; native Windows writes and
-power-loss acceptance are unfinished, not silently accepted without a barrier.
+## What runs today
 
-`RunLifecycle` implements planning, generation, grading, invalidation and report publication over injected ports.
-Inputs are verified before generation and grading; drift aborts. Resume uses the frozen case/repeat order and only
-skips committed records. Grading checks the committed generation digest and a distinct process epoch. The report
-manifest is written last, and `reported` is recorded after all artifacts. This library is not a complete runner
-composition, model-exclusion mechanism or operating-system sandbox.
+- HealthBench, model-only track: `chc-bench healthbench fetch | fingerprints | preregister | plan | generate | grade |
+  report`. Generation runs in a separate worker process with the grader key and vault identity stripped; grading
+  runs in a later process with the pinned simple-evals scorer (`HEALTHBENCH-SOURCE.md`). Without the grader
+  credential `grade` refuses with `grader_credential_missing` before recording anything. `tests/test_healthbench_cli.py`
+  drives every command on a synthetic dataset; `tests/run_real_sample.py` drives them on the real files.
+- HealthBench, system-assisted track: until E13 provides `BenchmarkAnswerPort`, every case is `not_run` with
+  `no_evaluation_entry_point`.
+- Case format, validation, partition freeze and verify, fingerprints and canaries, the age vault, the leak scanner,
+  claims lint, typed rubric checks, metrics, the release gate and the freeze library, as libraries and the
+  `cases`, `partitions`, `vault`, `leak` and `lint` commands.
+- Product suites: `SuiteGenerator` records `not_run` with `harness_unavailable` (E21's `eval/runner` is not on main) or
+  `provider_missing` and the missing hub operations (`domain/readiness.py`). The hub scenario
+  `eval/scenarios/E18/test_real_stack.py` checks that rule against the real composition.
+- Run storage: `FileArtifactStore`, hash-chained, fsynced JSONL with torn-tail recovery and atomic files. It refuses
+  writes on native Windows until a verified directory persistence barrier exists.
 
-`publishable_artifacts` builds schema-validated, labeled run manifests, case rows and category aggregates. It retains
-the full input manifest, salts case references, removes private trace/evidence text and scans for supplied secrets.
-Unrun cases remain in the denominator with null durations. Missing grades stay missing. A caller must supply the
-actual case plan, complete secret/canary inventory and check/category mapping; no production composition is supplied.
+## What a real run needs from the owner
 
-`AgeVault` uses the design's pyrage dependency for actual age encryption. Sources must be outside the repository;
-only ciphertext and hash receipts are written to the vault. Repeated sealing verifies prior bytes. Grader decryption
-requires an identity and distinct injected generation/grader epochs, uses a temporary plaintext directory and cleans
-it in `finally`. This epoch guard does not establish process isolation or independent-owner authorization by itself.
-The current vault reader returns parsed JSON, not a complete validated HiddenPart/rubric document.
+1. Q-E18-1: a grader API key with a spending limit, exported as `OPENAI_API_KEY` in the grading shell only.
+2. Q-E18-2: the evaluation owner. Their age public key goes in `config/partition-policy.json` `vault.recipients`; their
+   identity file path in `CHC_EVAL_IDENTITY` for `preregister`, `report` and holdout grading; a 32-byte case salt
+   kept outside the repository (or `eval/vault/salt.age`). They author and adjudicate the holdout labels; E18 invents
+   none.
+3. An E17 model release file (`model/releases/<release_id>.json`, mode `live`) and its `llama-server` on loopback.
+4. The local datasets: `healthbench fetch` (see `HEALTHBENCH-SOURCE.md`).
 
-Implemented CLI commands are `lint claims`, file `leak scan`, `vault seal` and `vault verify`.
-Vault commands read recipients from `partition-policy.json` and never read a private identity. Empty recipients refuse
-sealing. The remaining commands in E18 section 6.2, directory scanning, full case schemas, partition publication,
-preregistration, the official harness adapter and the experiment runner remain unfinished.
+Then, from the repository root (`--corpus` and `--root` stay outside git):
 
-`config/healthbench-plan.json` records inspected official source and measured dataset hashes. See
-`HEALTHBENCH-SOURCE.md` for source URLs and integration findings. Source/dataset inspection happened during external
-preparation, not in product code or tests. No dataset was retained. The plan is not evidence of a completed run.
+```
+B="uv run --frozen --project eval/bench chc-bench --config-dir eval/bench/config healthbench"
+C="--root eval/bench/runs --corpus eval/vault/healthbench --model-release model/releases/<release_id>.json"
+$B preregister $C --base-url http://127.0.0.1:<port>          # owner identity; times warm-up, freezes n per variant
+$B plan $C --manifest <plan input>                              # suite, track, variant, case_set_sha256 of the sample
+$B generate $C --run-id <run_id> --base-url http://127.0.0.1:<port>
+OPENAI_API_KEY=... $B grade $C --run-id <run_id> --grader-url https://api.openai.com
+$B report $C --run-id <run_id> --grader-url https://api.openai.com --salt <salt> --published eval/bench/results
+```
 
-Run the exact commands in `docs/build/E18/T1.gates`. Real-stack scenarios instantiate the actual composition root and
-SQLite. They prove unconfigured refusal and deliberately expose absent provider operations. They do not substitute
-passing unit evidence for V33, V34 or R46. Protected provider files are unchanged.
+Main runs first; Hard and Consensus are separate runs. The plan input holds `suite`, `track`, `partition`, `variant`,
+`case_set_sha256` (of the preregistered `case_ids`), `prompt_sha256`, `tool_catalog_sha256`, `evidence_release_id`,
+`evidence_sha256`, `registry_version`, `config_release_id`, `seed`, `repeats`, `hardware` and `software`; `plan` measures
+and adds the release, decoding, harness, grader, integrity, dataset, preregistration and document hashes.
 
-Development rules:
+## Gates
 
-- E18 owns the shared ArtifactStore implementation in design sections 4.4 and 5.1. Reuse it rather than creating
-  another transaction, lock or recovery algorithm. The user brief authorizes building an unanswered shared seam.
-- Preserve evidence kind with its identity, and distinguish a selected file from the complete selected inventory.
-- Validate cross-platform paths before mutation, including ciphertext receipts and temporary paths.
-- Validate frozen case order and generation commit identity before a resumed command returns success.
-- A serialized public artifact must preserve every input pin and every planned case, including unmeasured durations.
-
-- Persist a completed tool process's exit status before clearing its session token. Store absent tokens as null;
-  an undefined value loses the completion evidence and forces an unnecessary repeat.
+`docs/build/E18/T1.gates`. Run the bench tests from inside the project (`uv run --frozen --project eval/bench ...`);
+the hub scenario runs under the hub project.

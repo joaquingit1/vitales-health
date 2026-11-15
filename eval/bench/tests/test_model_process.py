@@ -13,6 +13,7 @@ import pytest
 from crew_health.kernel.ids import KernelIdFactory
 from crew_health.kernel.testing import MemoryClock
 from crew_health.kernel.units import Quantity, Unit
+
 from crew_health_bench.adapters.documents import BenchSettings, read_json
 from crew_health_bench.adapters.model_generator import IsolatedModelGenerator
 from crew_health_bench.adapters.model_release import load_release

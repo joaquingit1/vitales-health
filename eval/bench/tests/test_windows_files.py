@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pytest
+
 from crew_health_bench.adapters.windows_files import WindowsFiles
 
 pytestmark = [pytest.mark.e18, pytest.mark.trace("R22", "T-E18-19")]

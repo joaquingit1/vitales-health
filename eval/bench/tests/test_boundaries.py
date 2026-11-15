@@ -4,6 +4,9 @@ from decimal import Decimal
 from pathlib import Path
 
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
+
 from crew_health_bench.adapters.documents import BenchSettings, load_document, read_json
 from crew_health_bench.application.gate import validate_gate_configuration
 from crew_health_bench.domain.cases import ConfigPrecondition, validate_cases
@@ -17,8 +20,6 @@ from crew_health_bench.domain.partition import PartitionPolicy
 from crew_health_bench.domain.results import benchmark_labels, scenario_outcome, status
 from crew_health_bench.domain.sample import eligible_order, sample_size
 from crew_health_bench.domain.text import jaccard, shingles
-from hypothesis import given
-from hypothesis import strategies as st
 
 pytestmark = [pytest.mark.e18, pytest.mark.trace("R22", "R23", "R30", "INV-E18-12")]
 CONFIG = Path(__file__).parents[1] / "config"

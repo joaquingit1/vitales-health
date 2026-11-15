@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 from crew_health.kernel.units import Quantity, Unit
+
 from crew_health_bench.adapters.documents import BenchSettings, read_json
 from crew_health_bench.adapters.healthbench import HealthBenchCorpus, OfficialGrader, PreparedGrader
 from crew_health_bench.domain.errors import BenchError

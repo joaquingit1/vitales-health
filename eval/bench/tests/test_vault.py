@@ -4,10 +4,11 @@ import json
 from pathlib import Path
 
 import pytest
+from pyrage import x25519
+
 from crew_health_bench.adapters.store import FileArtifactStore
 from crew_health_bench.adapters.vault import AgeVault
 from crew_health_bench.domain.errors import BenchError
-from pyrage import x25519
 
 pytestmark = [pytest.mark.e18, pytest.mark.trace("R23", "V33", "INV-E18-03", "T-E18-07")]
 

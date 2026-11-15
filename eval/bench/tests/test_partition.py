@@ -5,12 +5,13 @@ from decimal import Decimal
 from pathlib import Path
 
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
+
 from crew_health_bench.adapters.documents import load_document
 from crew_health_bench.domain.cases import Case, CaseKey, CaseReview, Partition, Suite, validate_cases
 from crew_health_bench.domain.errors import BenchError
 from crew_health_bench.domain.partition import PartitionPolicy, partition
-from hypothesis import given
-from hypothesis import strategies as st
 
 pytestmark = [pytest.mark.e18, pytest.mark.trace("R23", "INV-E18-01", "INV-E18-04")]
 

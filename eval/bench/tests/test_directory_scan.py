@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pytest
+
 from crew_health_bench.adapters.leak_scanner import LeakScanner
 from crew_health_bench.domain.errors import BenchError
 from crew_health_bench.domain.leak import Fingerprint

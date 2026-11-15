@@ -6,6 +6,7 @@ from decimal import Decimal
 
 import pytest
 from crew_health.kernel.units import Quantity, Unit
+
 from crew_health_bench.domain.errors import BenchError
 from crew_health_bench.domain.runs import Generation, Grade, require_transition
 

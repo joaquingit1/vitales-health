@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from crew_health_bench.api.cli import run
 
 pytestmark = [pytest.mark.e18, pytest.mark.trace("R23", "R30")]

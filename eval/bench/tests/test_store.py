@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from crew_health_bench.adapters.store import FileArtifactStore
 from crew_health_bench.domain.errors import BenchError
 

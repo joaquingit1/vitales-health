@@ -1,27 +1,60 @@
-# HealthBench source inspection
+# HealthBench source and local inputs
 
-Preparation inspected the official source at
-https://github.com/openai/simple-evals/tree/652c89d0ca9df547706735883097e9537d40dc47.
-`config/healthbench-plan.json` records the measured module digest and dataset hashes. Dataset bytes were streamed
-through SHA-256 during preparation, outside product code and tests, and discarded. No example or answer is committed.
-These measurements are provenance, not a benchmark result or clinical review.
+Harness: https://github.com/openai/simple-evals at commit `652c89d0ca9df547706735883097e9537d40dc47` (catalog L02,
+`sources/P03-healthbench.txt`). `vendor/` keeps the upstream bytes of `healthbench_eval.py`, `common.py`, `types.py`,
+`sampler/chat_completion_sampler.py` and the MIT license, their SHA-256 values in `vendor/SOURCE.json`, and a wheel
+built from those bytes without edits (`vendor/build_wheel.py`). Upstream has no packaging metadata at that commit,
+so E18 design 5.2's direct Git dependency cannot install; the wheel is the packaging boundary. Every grading command
+checks the installed module's SHA-256 against `config/healthbench-plan.json` before it grades.
 
-The inspected adapter surface is `HealthBenchEval(grader_model, ..., n_threads, input_path)`;
-`grade_sample(prompt, response_text, example_tags, rubric_items)` returns metrics, private explanation and private
-rubric rows. `calculate_score` and `_aggregate_get_clipped_mean` are the actual upstream scoring and aggregation
-functions. The normal grader in `simple_evals.py:333` is `gpt-4.1-2025-04-14`. The grader template hash was measured
-from the literal AST without importing or executing the module.
+## Datasets
 
-Design corrections requiring review:
+The pinned module names three files. Their URLs, byte counts, example counts and SHA-256 values are in
+`config/healthbench-plan.json`:
 
-- The source repository has no `pyproject.toml` or package initializer at its root. E18 design 5.2's direct Git
-  dependency cannot be installed as specified. A source packaging boundary must preserve upstream bytes and license.
-- `healthbench_eval.py:415` retries malformed grades without a bound. Its sampler also retries without a bound.
-  E18 must supply a bounded sampler and a process deadline while leaving scoring unchanged. An exhausted grader
-  remains blocked and ungraded; no replacement score is allowed.
-- Main is 60,258,154 bytes and Consensus is 36,921,504 bytes. E18's 16 MiBy leak-file limit cannot load them whole.
-  Preparation and fingerprinting need bounded JSONL streaming, not a larger safety tolerance.
+| Variant | File | Examples | Bytes | SHA-256 |
+|---|---|---|---|---|
+| main | `2025-05-07-06-14-12_oss_eval.jsonl` | 5000 | 60258154 | `e99dd3c6...ecd2f` |
+| Hard | `hard_2025-05-08-21-00-10.jsonl` | 1000 | 12581564 | `b0320430...74e9` |
+| Consensus | `consensus_2025-05-09-20-00-46.jsonl` | 3671 | 36921504 | `fabe3755...69d6` |
 
-No official scorer adapter, vendor bundle, grader call, generation, preregistration or measured score is claimed here.
-The missing grader credential and independent holdout owner remain external inputs. Dataset/network preparation never
-runs in tests. Annex integration is left for the package owner because this task cannot edit `docs/product/`.
+Every Hard and Consensus `prompt_id` is also a main `prompt_id` (measured on 2026-11-15: main adds 5000 IDs, Hard and
+Consensus add none). The variants are still separate runs and never pooled (VALIDATION section 5).
+
+The files are the hidden evaluation input. They live only in the ignored `eval/vault/healthbench/` (about 110 MB, plus
+the prepared copies) and are never committed. To get them:
+
+```
+uv run --frozen --project eval/bench chc-bench --config-dir eval/bench/config \
+  healthbench fetch --root eval/vault/healthbench --variant main     # then Hard, then Consensus
+```
+
+Without a file argument `fetch` streams the pinned URL, refuses any byte past the pinned size, checks the SHA-256 and
+only then prepares `<variant>.jsonl`, the generation-side projection `<variant>.visible.jsonl` (prompt ID and
+messages only) and a receipt. With a file argument it verifies and prepares a local copy. On 2026-11-15 the three
+files were fetched from the URLs above and all three hashes matched the plan.
+
+## Fingerprints
+
+`healthbench fingerprints --root eval/vault/healthbench --corpus eval/vault/healthbench` writes
+`eval/bench/fingerprints/healthbench.fp.json`: for each example, salted 8-gram hashes of the prompt messages, rubric
+lines and ideal completions, with the public `fp_salt` of `partition-policy.json`, plus the HealthBench canary. A hash
+is kept when its value is a multiple of `fingerprint_sample_modulus` (16): the full set is about 2.3 million shingles
+(over 40 MB as JSON), while containment measured against a target's full shingle set stays an unbiased estimate with the
+sample (202,663 hashes, 4.4 MB). Case references are salted; no text is written. The leak scan gate checks
+`model/` and `config/` against it.
+
+## Grader
+
+The grader is the pinned module's normal grader, `gpt-4.1-2025-04-14`, called with the module's template and the
+sampler values recorded in the plan. Its key comes only from the environment variable named by
+`grader.api_key_env` (`OPENAI_API_KEY`) in the grading process; generation strips it. Without it, `healthbench grade`
+refuses with `grader_credential_missing` (exit 6) before recording anything (Q-E18-1). Upstream retries a malformed
+grade without a bound (`healthbench_eval.py:415`); E18 wraps the grader in a sampler bounded to
+`rubric items x (1 + bench.grader.max_retries)` calls. An exhausted grader leaves the example ungraded, never zero.
+
+## What exists and what does not
+
+No HealthBench score exists. No generation of any real model and no grader call has run. The plumbing was exercised
+end to end on the real files with loopback stand-ins (`tests/run_real_sample.py`); that run produces no number about
+any model and its outputs are deleted.

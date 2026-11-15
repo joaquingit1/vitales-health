@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pytest
+
 from crew_health_bench.adapters.documents import load_document
 from crew_health_bench.domain.claims import ClaimsPolicy, lint_claims
 from crew_health_bench.domain.errors import BenchError

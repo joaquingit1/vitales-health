@@ -9,6 +9,7 @@ import pytest
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.testing import MemoryClock, MemoryIds
 from crew_health.kernel.units import Quantity, Unit
+
 from crew_health_bench.adapters.store import FileArtifactStore
 from crew_health_bench.application.lifecycle import RunLifecycle
 from crew_health_bench.domain.errors import BenchError

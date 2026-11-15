@@ -14,8 +14,8 @@ from decimal import Decimal
 from pathlib import Path
 
 import pytest
-from crew_health_bench.api.cli import run
 
+from crew_health_bench.api.cli import run
 from tests.healthbench_stack import Workspace, serve
 
 pytestmark = [pytest.mark.e18]
@@ -222,6 +222,7 @@ def test_fetch_streams_the_pinned_file_and_refuses_anything_else(
 
     import httpx
     from crew_health.kernel.units import Quantity, Unit
+
     from crew_health_bench.adapters.healthbench_corpus import download_dataset
     from crew_health_bench.domain.errors import BenchError
 

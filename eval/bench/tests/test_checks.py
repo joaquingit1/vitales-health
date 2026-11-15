@@ -1,6 +1,9 @@
 """T-E18-24: deterministic checks require evidence before passing."""
 
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
+
 from crew_health_bench.domain.checks import (
     NoCanaryLeak,
     NoFabricatedResult,
@@ -11,8 +14,6 @@ from crew_health_bench.domain.checks import (
     recall_at,
 )
 from crew_health_bench.domain.errors import BenchError
-from hypothesis import given
-from hypothesis import strategies as st
 
 pytestmark = [pytest.mark.e18, pytest.mark.trace("V23", "V25", "V26", "V34")]
 

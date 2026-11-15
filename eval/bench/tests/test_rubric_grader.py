@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 from crew_health.kernel.ids import KernelIdFactory
+
 from crew_health_bench.adapters.case_documents import CaseDocuments
 from crew_health_bench.adapters.documents import read_json
 from crew_health_bench.adapters.rubric_grader import evaluate_rubric

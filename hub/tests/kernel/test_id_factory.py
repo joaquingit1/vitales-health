@@ -3,10 +3,12 @@
 from hashlib import sha256
 
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
+
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import KernelIdFactory
-from hypothesis import given, strategies as st
 
 pytestmark = [pytest.mark.E01, pytest.mark.trace("SYSTEM-5.1", "R22")]
 

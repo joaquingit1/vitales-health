@@ -4,6 +4,7 @@ from pathlib import Path
 import httpx
 import pytest
 from crew_health.kernel.units import Quantity
+
 from crew_health_bench.adapters.documents import BenchSettings, load_document
 from crew_health_bench.adapters.grader_http import GraderHTTP
 from crew_health_bench.domain.documents import object_map

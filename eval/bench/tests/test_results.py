@@ -1,6 +1,7 @@
 """T-E18-10, 28, 30: honest public labels and scenario projection."""
 
 import pytest
+
 from crew_health_bench.domain.errors import BenchError
 from crew_health_bench.domain.results import benchmark_labels, scenario_outcome, status
 

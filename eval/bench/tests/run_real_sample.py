@@ -24,7 +24,6 @@ from collections import Counter
 from pathlib import Path
 
 from crew_health_bench.api.cli import run
-
 from tests.healthbench_stack import BENCH, REPOSITORY, Workspace, serve
 
 

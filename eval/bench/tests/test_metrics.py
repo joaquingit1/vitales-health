@@ -3,6 +3,7 @@
 from dataclasses import replace
 
 import pytest
+
 from crew_health_bench.application.gate import GateRun, gate
 from crew_health_bench.domain.errors import BenchError
 from crew_health_bench.domain.metrics import category_metrics, compare

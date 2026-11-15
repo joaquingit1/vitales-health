@@ -1,6 +1,7 @@
 """T-E18-24: engineering oracles for the remaining deterministic rubric types."""
 
 import pytest
+
 from crew_health_bench.domain.errors import BenchError
 from crew_health_bench.domain.rubrics import (
     AbstainsWhen,

@@ -10,10 +10,10 @@ from uuid import uuid7
 import httpx
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.ids import KernelIdFactory
-from crew_health.kernel.process_clock import ProcessClock
 from crew_health.kernel.units import Quantity, Unit
 
 from crew_health_bench.adapters.artifacts import ArtifactSchemas
+from crew_health_bench.adapters.clock import ProcessClock
 from crew_health_bench.adapters.documents import BenchSettings, load_document, read_json
 from crew_health_bench.adapters.files import bounded_files
 from crew_health_bench.adapters.grader_http import GraderHTTP, credential_missing

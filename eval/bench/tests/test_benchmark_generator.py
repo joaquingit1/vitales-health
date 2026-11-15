@@ -11,6 +11,7 @@ import pytest
 from crew_health.kernel.ids import KernelIdFactory
 from crew_health.kernel.testing import MemoryClock
 from crew_health.kernel.units import Quantity, Unit
+
 from crew_health_bench.adapters.store import FileArtifactStore
 from crew_health_bench.application.benchmark import BenchmarkGenerator
 from crew_health_bench.domain.errors import BenchError

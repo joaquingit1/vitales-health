@@ -62,7 +62,8 @@ def test_unconfigured_real_hub_is_unavailable_and_refuses_evaluation_writes(tmp_
                 response = await client.post("/v1/observations", content=b"{}", timeout=timeout)
                 assert response.status_code == 401
                 error = ErrorEnvelope.model_validate_json(response.content)
-                assert error.code == "UNAUTHENTICATED" and error.current_state is None
+                assert error.code == "UNAUTHENTICATED"
+                assert error.current_state is None
 
         asyncio.run(check())
         assert (tmp_path / "hub.sqlite").is_file()

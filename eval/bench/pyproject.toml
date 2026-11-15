@@ -89,3 +89,7 @@ pytest_add_cli_args_test_selection = [
     "tests/test_boundaries.py",
 ]
 use_git_change_detection = false
+
+[tool.ruff.lint.isort]
+# Fixed here so isort agrees whether ruff runs from eval/bench, from the root with --config, or hierarchically.
+known-first-party = ["crew_health_bench"]
