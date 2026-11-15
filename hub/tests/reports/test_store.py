@@ -8,13 +8,15 @@ from __future__ import annotations
 import threading
 from pathlib import Path
 
-import builders
 import pytest
-from real_station import OTHER, OWNER, Rig, build, person
+from httpx import Response
 
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.kernel.errors import ProblemError, StorageUnavailable
 from crew_health.reports.domain.confirmation import ConfirmationCommand, Decision, ReportVersion
+
+from . import builders
+from .real_station import OTHER, OWNER, Rig, build, person
 
 pytestmark = [pytest.mark.trace("R14", "V16", "V35")]
 LINES = [["Pulse at rest 72 bpm", "Blood oxygen 98 %"]]
@@ -34,7 +36,7 @@ def extracted(rig: Rig, key: str = "up1") -> tuple[str, dict[str, object], str]:
     report_id = upload(rig, key)
     assert rig.runner.drain() == 1
     response = rig.get(OWNER, f"/v1/reports/{report_id}")
-    return report_id, response.json(), response.headers["ETag"]  # type: ignore[attr-defined]
+    return report_id, response.json(), response.headers["ETag"]
 
 
 def rows(rig: Rig, table: str) -> int:
@@ -44,10 +46,12 @@ def rows(rig: Rig, table: str) -> int:
 
 def confirm_all(
     rig: Rig, report_id: str, body: dict[str, object], etag: str, key: str = "c1", who: str = OWNER
-):  # type: ignore[no-untyped-def]
+) -> Response:
     drafts = body["extraction_drafts"]
     assert isinstance(drafts, list)
-    payload = {"confirmations": [{"draft_id": d["draft_id"], "decision": "confirm"} for d in drafts]}
+    payload: dict[str, object] = {
+        "confirmations": [{"draft_id": d["draft_id"], "decision": "confirm"} for d in drafts]
+    }
     return rig.confirm(who, report_id, payload, key=key, etag=etag)
 
 
@@ -112,7 +116,7 @@ def test_a_crash_after_the_seal_before_the_hub_commit_leaves_no_report_and_recov
     rig = build(tmp_path)
 
     def crash(reference: object) -> None:
-        raise StorageUnavailable("crash")
+        raise StorageUnavailable("io_error")
 
     rig.store_faults.after_seal = crash
     assert rig.upload(builders.pdf(LINES), key="up1").status_code >= 500
@@ -131,7 +135,7 @@ def test_a_crash_after_the_hub_commit_before_the_ack_still_yields_exactly_one_re
     assert rig.crash_and_restart() >= 1  # recovery completes the acknowledgment
     again = rig.upload(builders.pdf(LINES), key="up1")
     assert again.status_code == 201 and rows(rig, "reports_report") == 1
-    assert rig.get(OWNER, f"/v1/reports/{again.json()['report_id']}").status_code == 200  # type: ignore[attr-defined]
+    assert rig.get(OWNER, f"/v1/reports/{again.json()['report_id']}").status_code == 200
 
 
 def test_an_upload_rejected_inside_the_hub_transaction_leaves_nothing_behind(
@@ -185,7 +189,7 @@ def test_a_key_reused_on_another_report_is_a_conflict(tmp_path: Path) -> None:
     second = upload(rig, "up2", builders.pdf([["Pulse at rest 60 bpm"]]))
     assert rig.runner.drain() == 1
     fresh = rig.get(OWNER, f"/v1/reports/{second}")
-    clash = confirm_all(rig, second, fresh.json(), fresh.headers["ETag"], key="shared")  # type: ignore[attr-defined]
+    clash = confirm_all(rig, second, fresh.json(), fresh.headers["ETag"], key="shared")
     assert clash.status_code == 409 and clash.json()["code"] == "DUPLICATE_COMMAND"
     assert rows(rig, "reports_finding") == 2
 
@@ -247,7 +251,7 @@ def test_deleting_a_report_wins_over_a_late_extraction(tmp_path: Path) -> None:
     report_id = upload(rig)
     rig.workflows.delete_report(person(), key="del1", report_id=report_id)
     assert rig.runner.drain() == 0  # the claimed task finds nothing to extract and fails
-    assert rig.get(OWNER, f"/v1/reports/{report_id}").status_code == 404  # type: ignore[attr-defined]
+    assert rig.get(OWNER, f"/v1/reports/{report_id}").status_code == 404
     assert rig.store.read_source(person(), report_id) is None
     with rig.db.snapshot() as view:
         states = view.connection.rows("SELECT deleted FROM reports_version", (), limit=10)

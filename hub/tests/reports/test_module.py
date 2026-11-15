@@ -9,7 +9,6 @@ from typing import cast
 import pytest
 from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
-from real_station import OWNER, build, parse_in_process
 
 from crew_health.app.registry import DeclarationRegistry
 from crew_health.kernel.audit import AuditPolicy
@@ -27,6 +26,8 @@ from crew_health.kernel.uow import ReadSnapshotFactory, UnitOfWorkFactory
 from crew_health.reports.adapters.store import PrivateReader
 from crew_health.reports.application.ports import RecordOrigin
 from crew_health.reports.module import Registry, register, setting_specs
+
+from .real_station import OWNER, build, parse_in_process
 
 pytestmark = [pytest.mark.trace("SYSTEM.5.12", "R25")]
 
@@ -84,8 +85,9 @@ def test_without_the_private_store_every_report_operation_is_unavailable_and_not
     registry.resolve()  # binding leaves the api unbound: no coordinator, store or reader
     (router,) = [r for r in registry.declarations["routers"].values() if isinstance(r, APIRouter)]
     app = FastAPI()
-    from real_station import person
     from starlette.requests import Request
+
+    from .real_station import person
 
     @app.middleware("http")
     async def session(request: Request, call_next):  # type: ignore[no-untyped-def]
@@ -114,9 +116,8 @@ def test_without_the_private_store_every_report_operation_is_unavailable_and_not
         assert view.connection.rows("SELECT count(*) FROM reports_report", (), limit=1) == ((0,),)
 
 
-def test_with_every_provider_the_late_binding_composes_the_workflows(tmp_path: Path) -> None:
-    rig = build(tmp_path)
-    registry = declared()
+def provide_all(registry: DeclarationRegistry, rig, health: MemoryHealth) -> None:  # type: ignore[no-untyped-def]
+    """Every provider the late binding needs, backed by the real rig."""
     provided: dict[type, object] = {
         HubSettings: rig.settings,
         IdFactory: rig.db.ids,
@@ -134,15 +135,22 @@ def test_with_every_provider_the_late_binding_composes_the_workflows(tmp_path: P
         RecordOrigin: _Routing(),
         TaskRunner: rig.tasks,
         TaskQueue: rig.tasks,
-        HealthState: MemoryHealth(maximum=8),
+        HealthState: health,
     }
     for port, value in provided.items():
         registry.provide(port, lambda _, value=value: value)  # type: ignore[misc]
+
+
+def test_with_every_provider_the_late_binding_composes_the_workflows(tmp_path: Path) -> None:
+    rig = build(tmp_path)
+    registry = declared()
+    provide_all(registry, rig, MemoryHealth(maximum=8))
     registry.resolve()
     (router,) = [r for r in registry.declarations["routers"].values() if isinstance(r, APIRouter)]
     app = FastAPI()
-    from real_station import person
     from starlette.requests import Request
+
+    from .real_station import person
 
     @app.middleware("http")
     async def session(request: Request, call_next):  # type: ignore[no-untyped-def]
@@ -150,7 +158,7 @@ def test_with_every_provider_the_late_binding_composes_the_workflows(tmp_path: P
         return await call_next(request)
 
     app.include_router(router)
-    import builders
+    from . import builders
 
     created = TestClient(app).post(
         "/v1/reports",
@@ -158,7 +166,9 @@ def test_with_every_provider_the_late_binding_composes_the_workflows(tmp_path: P
         files={"file": ("a.pdf", builders.pdf([["Pulse at rest 72 bpm"]]), "application/pdf")},
     )
     assert created.status_code == 201 and created.json()["patient_id"] == OWNER
-    assert parse_in_process  # the composed runner uses the contained parser; covered by test_parsing
+    assert callable(
+        parse_in_process
+    )  # the composed runner uses the contained parser; covered by test_parsing
 
 
 class _Routing:

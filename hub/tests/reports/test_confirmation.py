@@ -10,7 +10,6 @@ from typing import cast
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
-from reports_harness import AT, OWNER, UNITS, numeric, station, text
 
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.testing import MemoryIds
@@ -28,6 +27,8 @@ from crew_health.reports.domain.extraction import (
     publish_extraction,
 )
 from crew_health.reports.domain.model import Report, ReportState, SourceSpan
+
+from .reports_harness import AT, OWNER, UNITS, numeric, station, text
 
 pytestmark = pytest.mark.trace("T-E09-02", "R14", "R16", "V21", "V15", "E09-02")
 

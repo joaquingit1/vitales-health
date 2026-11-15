@@ -5,17 +5,20 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-import builders
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
-from real_station import OWNER, Rig, build, person
 
 from crew_health.reports.adapters import parsing as P
 from crew_health.reports.adapters.contained import ContainedParser, ParserBounds, ParserUnavailable
 
+from . import builders
+from .real_station import OWNER, Rig, build, person
+
 LIMITS = P.ParseLimits(10, 1000000, 100000, 1000000, 1000)
-VOCAB = {"pulse at rest": {"code": "pulse", "units": {"bpm": "/min", "/min": "/min"}}}
+VOCAB: dict[str, dict[str, object]] = {
+    "pulse at rest": {"code": "pulse", "units": {"bpm": "/min", "/min": "/min"}}
+}
 pytestmark = [pytest.mark.trace("R14", "V21", "V22", "V69")]
 
 

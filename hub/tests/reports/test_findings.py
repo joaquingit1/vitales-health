@@ -13,16 +13,6 @@ from decimal import Decimal
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
-from reports_harness import (
-    AT,
-    OWNER,
-    UNITS,
-    dictionary_row,
-    form_from_dictionary,
-    numeric,
-    required_attributes,
-    text,
-)
 
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.testing import MemoryIds
@@ -32,6 +22,17 @@ from crew_health.reports.domain.findings import (
     Provenance,
     SpecialistEntry,
     validate_entry,
+)
+
+from .reports_harness import (
+    AT,
+    OWNER,
+    UNITS,
+    dictionary_row,
+    form_from_dictionary,
+    numeric,
+    required_attributes,
+    text,
 )
 
 pytestmark = pytest.mark.trace("T-E09-03", "E09-03", "V38", "R14", "R16")
