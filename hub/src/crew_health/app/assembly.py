@@ -416,10 +416,12 @@ def _configuration(runtime: Runtime, bootstrap: Bootstrap | None) -> ReleaseActi
             active = service.has_active(view)
         if not active:
             candidate, note = bootstrap(db.ids)
+            with db.snapshot() as view:
+                checked = service.check(view, candidate)
             with db.begin(
                 actor=Actor("engine", "engine_config"), correlation_id=db.ids.new("startup")
             ) as uow:
-                service.install(uow, candidate, note=note)
+                service.install(uow, candidate, note=note, checked=checked)
             runtime.bootstrapped = candidate.release_id
         else:
             _upgrade(runtime, service, bootstrap)

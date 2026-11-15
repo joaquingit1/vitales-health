@@ -15,9 +15,13 @@ from datetime import datetime
 from functools import partial
 from importlib.resources import files
 from pathlib import Path
-from typing import Literal, NoReturn, cast
+from typing import TYPE_CHECKING, Literal, NoReturn, cast
 
 from crew_health.app.registry import ModuleRegistry
+
+if TYPE_CHECKING:
+    from crew_health.app.demo_mission import DemoMission
+    from crew_health.app.privacy import DemoOperatorRecord
 from crew_health.config.adapters.verification import ConfigArtifacts
 from crew_health.config.domain.package_checks import saved_form_pages
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode
@@ -288,7 +292,39 @@ class StationMetadata:
         return self.origin
 
 
-def production(resources: HubResources, *, origin: Origin) -> Callable[[ModuleRegistry], None]:
+def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
+    """The demo profile's mission facts under every consumer's MissionStatePort class (app/demo_mission.py)."""
+    from dataclasses import replace
+
+    from crew_health.camera.application.ports import MissionStatePort as CameraMission
+    from crew_health.clock.application.clock import ClockIdentity
+    from crew_health.groundlink.application.ports import MissionStatePort as GroundMission
+    from crew_health.help.application.ports import MissionStatePort as HelpMission
+    from crew_health.measurement.application.ports import MissionStatePort as MeasurementMission
+    from crew_health.records.application.seams import MissionStatePort as RecordsMission
+
+    def bound(resolver: object) -> object:
+        return replace(mission, site_node_id=resolver.require(ClockIdentity).node_id)  # type: ignore[attr-defined]
+
+    for port in (
+        CameraMission,
+        GroundMission,
+        HelpMission,
+        MeasurementMission,
+        RecordsMission,
+        KitMission,
+        MissionStatePort,
+    ):
+        registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))  # type: ignore[arg-type]
+
+
+def production(
+    resources: HubResources,
+    *,
+    origin: Origin,
+    demo: DemoOperatorRecord | None = None,
+    mission: DemoMission | None = None,
+) -> Callable[[ModuleRegistry], None]:
     """The `configure` hook of a served hub: the offline artifacts and HTTP metadata from the resources, closed
     event sessions and fail-closed stand-ins for every pending port no installed module provides."""
     from crew_health.app import privacy
@@ -305,8 +341,13 @@ def production(resources: HubResources, *, origin: Origin) -> Callable[[ModuleRe
     def configure(registry: ModuleRegistry) -> None:
         provided = getattr(registry, "providers", {})
         registry.provide(ConfigArtifacts, partial(_constant, artifacts))  # type: ignore[arg-type]
+        if mission is not None:
+            _demo_mission(registry, mission)
+            provided = getattr(registry, "providers", {})
         # E02 sessions, consent and their consumer adapters first (app/privacy.py); stand-ins fill the rest.
-        privacy.compose(registry, contract=resources.contracts / "api/openapi.yaml", metadata=e02_metadata)
+        privacy.compose(
+            registry, contract=resources.contracts / "api/openapi.yaml", metadata=e02_metadata, demo=demo
+        )
         if ConfigHttpMetadata not in provided:
             registry.provide(
                 ConfigHttpMetadata,
@@ -322,7 +363,8 @@ def production(resources: HubResources, *, origin: Origin) -> Callable[[ModuleRe
         if SessionAuthorizer not in provided:
             registry.provide(SessionAuthorizer, partial(_constant, ClosedSessions()))  # type: ignore[type-abstract,arg-type]
         registry.provide(ConditionRegistryPort, partial(_constant, conditions))  # type: ignore[type-abstract,arg-type]
-        registry.provide(KitMission, partial(_constant, StationMission(origin)))  # type: ignore[type-abstract,arg-type]
+        if KitMission not in provided:
+            registry.provide(KitMission, partial(_constant, StationMission(origin)))  # type: ignore[type-abstract,arg-type]
         if MissionStatePort not in provided:
             registry.provide(MissionStatePort, partial(_constant, NoMissionFacts()))  # type: ignore[type-abstract,arg-type]
         for port in PENDING_PORTS:

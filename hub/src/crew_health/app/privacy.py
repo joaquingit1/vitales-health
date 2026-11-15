@@ -220,11 +220,24 @@ class PeopleAdapter:
 
 
 @dataclass(frozen=True, slots=True)
+class DemoOperatorRecord:
+    """A demo hub's separate record for the presenter's LIVE readings (VALIDATION 3, DEMO-PLAN 5 point 1): while
+    `persona_person_id` is the subject, a reading of origin `origin` goes to `record_id`, never to the persona's
+    roster record. Only a demo profile provides it; a station hub has none."""
+
+    persona_person_id: str
+    record_id: str
+    origin: TeachOrigin
+
+
+@dataclass(frozen=True, slots=True)
 class RoutingAdapter:
-    """teach RecordRouting (E30 X10): a current member's record lives in the roster's origin namespace. E02 has
-    no demo-operator record, so any other origin is refused as unavailable (docs/requests/E02.md R-E02-33)."""
+    """teach RecordRouting (E30 X10): a current member's record lives in the roster's origin namespace. Another
+    origin routes only to a demo hub's demo-operator record for that persona; anything else is refused as
+    unavailable (docs/requests/E02.md R-E02-33)."""
 
     identity: IdentityService
+    demo: DemoOperatorRecord | None = None
 
     def _origin(self, person_id: str) -> TeachOrigin:
         with self.identity.deps.snapshots.snapshot() as view:
@@ -238,9 +251,12 @@ class RoutingAdapter:
         return self._origin(person_id)
 
     def record_for(self, person_id: str, origin: TeachOrigin) -> str:
-        if self._origin(person_id) != origin:
-            raise _unavailable()
-        return person_id
+        if self._origin(person_id) == origin:
+            return person_id
+        demo = self.demo
+        if demo is not None and demo.persona_person_id == person_id and demo.origin == origin:
+            return demo.record_id
+        raise _unavailable()
 
 
 # Consent -----------------------------------------------------------------------------------------------------
@@ -295,6 +311,7 @@ def compose(
     *,
     contract: Path,
     metadata: Callable[[IdentityService], ConfigHttpMetadata],
+    demo: DemoOperatorRecord | None = None,
 ) -> None:
     """Registers every E02 adapter under its consumer's real port class. Call it from `configure`, after the
     modules registered and before any fail-closed stand-in; it does nothing when identity or consent is absent."""
@@ -332,7 +349,7 @@ def compose(
         (RolesRoster, lambda r: RolesRosterAdapter(identity(r)), on_identity),
         (KitmapRoster, lambda r: KitmapRosterAdapter(identity(r)), on_identity),
         (PersonDirectory, lambda r: PeopleAdapter(identity(r)), on_identity),
-        (RecordRouting, lambda r: RoutingAdapter(identity(r)), on_identity),
+        (RecordRouting, lambda r: RoutingAdapter(identity(r), demo), on_identity),
         (CatchupConsent, consent, (ConsentService,)),
         (MeasurementConsent, consent, (ConsentService,)),
         (

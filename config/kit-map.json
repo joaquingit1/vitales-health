@@ -509,7 +509,20 @@
  ],
  "candidate_supplies": [],
  "candidate_skills": [],
- "supplies": [],
+ "supplies": [
+  {
+   "supply_id": "eye_rinse_water",
+   "name": "Clean water for an eye rinse",
+   "unit": "rinse",
+   "consumable": true
+  },
+  {
+   "supply_id": "cpr_manikin",
+   "name": "CPR practice manikin",
+   "unit": "manikin",
+   "consumable": false
+  }
+ ],
  "stock": {
   "station_leo": [],
   "transit": [],
@@ -536,7 +549,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/abdominal-wall-hernia-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl1",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -563,7 +576,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/abnormal-uterine-bleeding-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl2",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -596,7 +609,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/acute-coronary-syndrome-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl3",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -621,7 +634,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/acute-radiation-syndrome-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl4",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -646,7 +659,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/allergic-reaction-mild-to-moderate-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl5",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -673,7 +686,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/altitude-sickness-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl6",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -702,7 +715,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/anaphylaxis-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl7",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -726,7 +739,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/appendicitis-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl8",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -748,7 +761,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/arthritis-acute-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl9",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -780,7 +793,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/atrial-fibrillation-atrial-flutter-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl10",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -804,7 +817,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/barotrauma-ear-sinus-block-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl11",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -826,7 +839,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/benzodiazapine-or-opioid-overdose-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl12",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -851,7 +864,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-adjustment-disorder-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl13",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -876,7 +889,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-anxiety-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl14",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -901,7 +914,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-depression-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl15",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -926,7 +939,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-grief-reaction-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl16",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -951,7 +964,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-psychosis-secondary-to-depression-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl17",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -976,7 +989,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-sleep-disturbance-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl18",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1000,7 +1013,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/burn-chemical-eye-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl19",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1022,7 +1035,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/burn-chemical-skin-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl20",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1044,7 +1057,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/burn-mild-thermal-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl21",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1066,7 +1079,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/burn-moderate-to-severe-thermal-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl22",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1097,7 +1110,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/cerebrovascular-accident-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl23",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1123,7 +1136,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/cerumen-impaction-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl24",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1145,7 +1158,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/choking-obstructed-airway-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl25",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1173,7 +1186,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/cholelithiasis-biliary-colic-acute-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl26",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1202,7 +1215,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dental-abscess-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl28",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1224,7 +1237,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dental-crown-loss-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl29",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1246,7 +1259,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dental-filling-loss-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl30",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1268,7 +1281,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dental-fracture-exposed-pulp-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl31",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1290,7 +1303,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dental-luxation-avulsion-tooth-loss-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl32",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1314,7 +1327,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dislocation-finger-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl33",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1338,7 +1351,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dislocation-shoulder-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl34",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1364,7 +1377,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/diverticulitis-acute-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl35",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1389,7 +1402,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dust-exposure-lunar-surface-eva-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl36a",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1414,7 +1427,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dust-exposure-lunar-eva-habitat-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl36b",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1438,7 +1451,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/ebullism-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl37",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1462,7 +1475,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/epistaxis-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl38",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1487,7 +1500,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-decompression-sickness-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl39",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1512,7 +1525,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-dehydration-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl40",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1536,7 +1549,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-fingernail-delamination-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl41",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1560,7 +1573,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-hand-injury-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl42",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1582,7 +1595,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-heat-illness-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl43",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1604,7 +1617,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-paresthesia-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl44",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1628,7 +1641,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-shoulder-injury-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl45",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1650,7 +1663,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-suit-contact-injury-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl46",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1676,7 +1689,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eye-retinal-injury-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl47",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1702,7 +1715,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eye-foreign-body-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl48",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1726,7 +1739,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eye-irritation-corneal-abrasion-ulceration-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl49",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1750,7 +1763,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eyelid-and-anterior-eye-infection-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl50",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1772,7 +1785,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-arm-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl51",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1800,7 +1813,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-cervical-spine-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl52",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1824,7 +1837,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-distal-leg-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl53",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1846,7 +1859,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-femur-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl54",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1870,7 +1883,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-hand-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl55",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1894,7 +1907,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-wrist-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl56",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1922,7 +1935,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-thoracic-lumbar-spine-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl57",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1944,7 +1957,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/gastritis-reflux-esophagitis-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl58",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1966,7 +1979,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/gastroenteritis-acute-diarrhea-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl59",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -1993,7 +2006,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/glaucoma-acute-angle-closure-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl60",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2015,7 +2028,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/gravity-well-entry-sensorimotor-neurovestibular-disturbance-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl61",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2037,7 +2050,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/gravity-well-orthostatic-intolerance-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl62",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2059,7 +2072,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/headache-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl63",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2081,7 +2094,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/headache-co2-induced-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl64",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2107,7 +2120,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/hearing-loss-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl65",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2133,7 +2146,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/hearing-loss-noise-related.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl66",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2155,7 +2168,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/hemorrhoids-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl67",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2179,7 +2192,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/herpes-zoster-reactivation-shingles-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl68",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2203,7 +2216,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/mouth-ulcer-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl70",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2231,7 +2244,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/nephrolithiasis-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl71",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2256,7 +2269,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/neuropathy-central-impingement-related-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl72",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2280,7 +2293,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/otitis-externa-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl73",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2312,7 +2325,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/otitis-media-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl74",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2340,7 +2353,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/pancreatitis-acute-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl75",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2364,7 +2377,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/pregnancy-risk-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl76",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2394,7 +2407,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/prostatitis-acute-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl77",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2416,7 +2429,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/rash-spaceflight-associated-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl78",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2447,7 +2460,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/respiratory-failure-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl80",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2475,7 +2488,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/respiratory-tract-infection-lower-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl81",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2497,7 +2510,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/respiratory-tract-infection-upper-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl82",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2521,7 +2534,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/seizures-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl83",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2549,7 +2562,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/sepsis-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl84",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2585,7 +2598,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/shock-cardiogenic-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl85",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2607,7 +2620,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/skin-abrasion-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl86",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2629,7 +2642,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/skin-infection-bacterial-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl87",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2651,7 +2664,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/skin-infection-cliff.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl88",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2673,7 +2686,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/skin-laceration-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl89",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2697,7 +2710,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/small-bowel-obstruction-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl90",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2721,7 +2734,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-back-pain-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl91",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2745,7 +2758,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-constipation-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl92",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2769,7 +2782,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-epistaxis-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl93",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2791,7 +2804,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-headache-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl94",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2816,7 +2829,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-insomnia-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl95",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2840,7 +2853,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-nasal-congestion-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl96",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2862,7 +2875,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-space-motion-sickness-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl97",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2888,7 +2901,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-urinary-retention-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl98",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2914,7 +2927,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-urinary-incontinence-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl99",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2943,7 +2956,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-flight-associated-neuro-ocular-syndrome-sans-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl100",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2967,7 +2980,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/sprain-strain-back-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl101",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -2992,7 +3005,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/sprain-strain-lower-extremity-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl102",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3016,7 +3029,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/sprain-strain-neck-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl103",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3041,7 +3054,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/sprain-strain-upper-extremity-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl104",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3069,7 +3082,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/streptococcal-pharyngitis-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl105",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3093,7 +3106,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/sudden-cardiac-arrest-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl106",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3117,7 +3130,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/tendinopathy-enthesopathy-bursitis-over-use-injuries-lower-extremity-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl107",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3139,7 +3152,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/tendinopathy-enthesopathy-bursitis-over-use-injuries-upper-extremity-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl108",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3161,7 +3174,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/toxic-dermal-exposure-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl109",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3185,7 +3198,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/toxic-inhalation-exposure-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl110",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3209,7 +3222,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/toxic-inhalation-exposure-combustion-products-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl111",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3238,7 +3251,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/trauma-abdominal-injury-blunt-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl112",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3266,7 +3279,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/trauma-chest-injury-blunt-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl113",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3294,7 +3307,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/trauma-minor-head.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl114",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3320,7 +3333,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/trauma-severe-head-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl115",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3347,7 +3360,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/traumatic-hypovolemic-shock-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl116",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3373,7 +3386,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/urinary-tract-infection-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl117",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3395,7 +3408,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/vaginal-yeast-infection-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl118",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3426,7 +3439,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/venous-thromboembolism-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl119",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3448,7 +3461,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/gravity-well-entry-motion-sickness-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl122",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,
@@ -3478,7 +3491,7 @@
     }
    ],
    "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/pregnancy-cliff-2023.pdf",
-   "plan_id": null,
+   "plan_id": "plan_icl123",
    "ground_needs": null,
    "treatment_scope": null,
    "rtdc": null,

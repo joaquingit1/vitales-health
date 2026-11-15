@@ -1,0 +1,106 @@
+{
+  "fixture_id": "demo-mara-fd19",
+  "notice": "Demo fixture, SIM except the presenter's demo-operator record (LIVE). Loads only through `crew-health demo reset`. Every value is read from the file it cites; nothing here is seed data for a real mission.",
+  "basis": "docs/product/VALIDATION.md section 3 (frozen start state) and docs/product/DEMO-PLAN.md sections 3 and 5",
+  "namespace": "SIM",
+  "mission_id": {
+    "file": "contracts/api/examples/session/create-crew.json",
+    "pointer": "/value/mission_id"
+  },
+  "members": {
+    "file": "contracts/api/examples/crew/list.json",
+    "pointer": "/value/items"
+  },
+  "station": {
+    "file": "contracts/api/examples/session/station-screen.json",
+    "pointer": "/value/actor"
+  },
+  "operator": {
+    "principal_id": "operator_demo",
+    "display_name": "Demo operator",
+    "basis": "DEMO-PLAN 5: the operator, off camera with the operator role, resets the fixture and runs the cues"
+  },
+  "mission_day": {
+    "day": 19,
+    "basis": "VALIDATION 3: Mara Okafor, SIM, flight day 19 of 30",
+    "day_label_template": {
+      "file": "config/environment-profiles.json",
+      "environment_id": "station_leo",
+      "field": "short_template"
+    }
+  },
+  "presenter": {
+    "persona_person_id": "mara",
+    "record_id": "demo_operator",
+    "origin": "LIVE",
+    "basis": "VALIDATION 3: a separate LIVE demo-operator record for the presenter; DEMO-PLAN 5 point 1"
+  },
+  "helper_person_id": "tomas",
+  "surface_walk": {
+    "person_ids": [
+      "ilya",
+      "sofia"
+    ],
+    "overlay": "eva",
+    "until_local": "11:40",
+    "utc_offset": "-03:00",
+    "basis": "VALIDATION 3 act 3: Ilya Brandt and Sofia Reyes are in an eva overlay on surface walk 1 until 11:40; DEMO-PLAN times are UTC-3"
+  },
+  "release": {
+    "kit_map": {
+      "file": "contracts/api/examples/kit-map.example.json"
+    },
+    "onboard_plans": {
+      "file": "contracts/api/examples/config/onboard-plans.example.json",
+      "pointer": "/value"
+    },
+    "basis": "Until D22's condition ID pattern lands, config/kit-map.json (119 rows) fails loader check 1 on ICL36A and ICL36B, so the demo serves the package's paired kit-map and onboard-plans examples, as hub/tests/app/conftest.py does"
+  },
+  "time_confirmation": {
+    "uncertainty_ms": 500,
+    "basis": "operator confirmation against the demo laptop's clock, as the E01 serve tests confirm it"
+  },
+  "cues": {
+    "ground-link-down": {
+      "request": {
+        "file": "docs/product/api/examples/requests/ground-link-demo-down.json",
+        "pointer": "/value"
+      },
+      "next_contact_after_hours": 26,
+      "basis": "VALIDATION 3 act 3: GroundLink down, next_contact_at 26 hours ahead, gap_planned true, planned_line_of_sight, demo_switch"
+    },
+    "ground-link-schedule": {
+      "request": {
+        "value": {
+          "use_schedule": true
+        }
+      },
+      "basis": "requests.schema.json GroundLinkDemoSwitch: return to the profile's schedule"
+    },
+    "model-stop": {
+      "request": {
+        "value": {
+          "action": "stop"
+        }
+      },
+      "basis": "VALIDATION 3 act 6: the presenter stops the model"
+    },
+    "model-start": {
+      "request": {
+        "value": {
+          "action": "start"
+        }
+      },
+      "basis": "VALIDATION 3 act 6: the model is started again"
+    },
+    "environment-lunar-surface": {
+      "environment_id": "lunar_surface",
+      "basis": "VALIDATION 3 act 3: a second EnvironmentProfile, lunar_surface, SIM, entered through the demo control"
+    }
+  },
+  "environment": {
+    "initial": "station_leo",
+    "planned_length_days": 30,
+    "basis": "VALIDATION 3: environment for acts 1 and 2 is station_leo, SIM; flight day 19 of 30"
+  }
+}
