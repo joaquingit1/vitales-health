@@ -13,11 +13,12 @@ import pytest
 from e02_station import OPERATOR, START, E02Station, Running, credential, mission_id, serve, station
 
 from crew_health.consent.domain.grants import Grant, GrantRequest
+from crew_health.identity.application.ports import OwnerProof
 from crew_health.identity.domain.session import SignInRequest
 from crew_health.kernel.clock import ClockCorrection
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.scheduler import AbsoluteDeadline, ScheduledJob
-from crew_health.kernel.uow import Actor, SessionContext
+from crew_health.kernel.uow import Actor
 
 MINUTE_NS = 60 * 1_000_000_000
 LISTENER = "127.0.0.1:8000"
@@ -27,7 +28,7 @@ SCHEDULER = Actor("engine", "engine_scheduler")
 MEASUREMENT, CAPABILITY = "measurement", "heart_rate"
 
 
-def owner(running: Running, person_id: str = "mara") -> SessionContext:
+def owner(running: Running, person_id: str = "mara") -> OwnerProof:
     return running.identity.verify_owner(
         person_id, credential(person_id), client="console", correlation_id="c"
     )

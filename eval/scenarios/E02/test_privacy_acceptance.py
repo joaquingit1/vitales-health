@@ -35,11 +35,13 @@ from crew_health.kernel.uow import Actor
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "hub" / "tests" / "privacy"))
 
 from e02_station import (
+    OPERATOR,
     START,
     E02Station,
     Running,
     credential,
     mission_id,
+    release_id,
     seed_roster,
     serve,
     sim_bootstrap,
@@ -102,7 +104,7 @@ async def capture(client: AsyncClient, token: str, patient: str, key: str) -> Re
         "origin_mode": "SIM",
         "acquisition_method": "self_report",
     }
-    headers = bearer(token, **{"Idempotency-Key": key, "Config-Release": "release_explicit_sim"})
+    headers = bearer(token, **{"Idempotency-Key": key, "Config-Release": release_id()})
     return await client.post("/v1/observations", headers=headers, json=body)
 
 
@@ -238,8 +240,13 @@ def test_time_ends_finite_grants_and_neither_correction_nor_restart_revives_them
             await client.get("/v1/observations/" + observations[1], headers=bearer(officer))
         ).status_code == 200
         hub.clock.at -= timedelta(hours=1)
-        with hub.database.begin(actor=Actor("engine", "engine_clock"), correlation_id="regress") as uow:
-            assert running.clocks.check_regression(uow) is not None
+        # E01's write guard checks the durable high water when any write begins: this one detects the
+        # regression, freezes clearing and fences finite grants in its own transaction.
+        with hub.database.begin(actor=Actor("engine", "engine_clock"), correlation_id="regress"):
+            pass
+        with hub.database.snapshot() as view:
+            frozen = running.clocks.repository.state(view.connection)
+        assert frozen is not None and frozen.frozen
         hub.clock.at += timedelta(hours=1)
         refused(
             await client.get("/v1/observations/" + observations[1], headers=bearer(officer)),
@@ -247,6 +254,21 @@ def test_time_ends_finite_grants_and_neither_correction_nor_restart_revives_them
             "UNAUTHORIZED_SCOPE",
         )
         assert mara.states()[regressed] == "fenced"
+        # R-E02-21: a frozen clock admits no finite grant, even one issued after the regression.
+        frozen_grant = mara.grant("ilya", observations[2], "--until", "2026-11-14T10:00:00Z")
+        refused(
+            await client.get("/v1/observations/" + observations[2], headers=bearer(officer)),
+            403,
+            "UNAUTHORIZED_SCOPE",
+        )
+        # The operator confirms hub time and the sweep lifts the freeze; the confirmation is a correction, so it
+        # fences the grant issued while frozen, and only a grant issued afterwards is admitted.
+        with hub.database.begin(actor=OPERATOR, correlation_id="time_confirmed") as uow:
+            running.clocks.confirm_hub_time(
+                uow, correction_id=hub.database.ids.new("correction"), offset_ms=0, uncertainty_ms=0
+            )
+        running.app.state.runtime.supervisor.run_once()
+        assert mara.states()[frozen_grant] == "fenced"
         mara.grant("ilya", observations[2], "--until", "2026-11-14T10:00:00Z")
         assert (
             await client.get("/v1/observations/" + observations[2], headers=bearer(officer))
@@ -266,6 +288,7 @@ def test_time_ends_finite_grants_and_neither_correction_nor_restart_revives_them
             )
         assert sorted(map(str, Owner(restarted, after, "mara").states().values())) == [
             "expired",
+            "fenced",
             "fenced",
             "fenced",
         ]

@@ -37,7 +37,7 @@ from crew_health.consent.application.service import ConsentService
 from crew_health.consent.domain.grants import Grant, GrantRequest
 from crew_health.consent.module import build_deps as consent_deps
 from crew_health.identity.application.admin import IdentityAdmin
-from crew_health.identity.application.ports import IdentityPorts
+from crew_health.identity.application.ports import IdentityPorts, OwnerProof
 from crew_health.identity.application.service import IdentityService
 from crew_health.identity.application.support import GroundSignIn
 from crew_health.identity.domain.roster import ProvisionedPrincipal
@@ -60,7 +60,6 @@ from crew_health.kernel.uow import (
     ReadSnapshotFactory,
     ReplicationChange,
     ReplicationRef,
-    SessionContext,
     StoredEvent,
     UnitOfWork,
     UnitOfWorkFactory,
@@ -341,7 +340,7 @@ def unended_sessions(db: SQLiteDatabase) -> int:
     return value
 
 
-def owner(hub: Faulty, person_id: str, secret: str | None = None) -> SessionContext:
+def owner(hub: Faulty, person_id: str, secret: str | None = None) -> OwnerProof:
     return hub.base.identity.verify_owner(
         person_id, secret or credential(person_id), client="console", correlation_id="c"
     )

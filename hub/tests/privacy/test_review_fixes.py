@@ -10,9 +10,11 @@ from __future__ import annotations
 from collections.abc import Callable, Iterator
 from dataclasses import replace
 from datetime import timedelta
+from functools import partial
 from pathlib import Path
 
 import pytest
+from e02_http import bearer, problem, record, run, sign_in
 from e02_station import (
     MISSION_EPOCH,
     START,
@@ -28,7 +30,6 @@ from e02_station import (
     station,
 )
 from httpx import AsyncClient
-from test_http import bearer, problem, record, run, sign_in
 
 from crew_health.app.privacy import ConsentAdapter, ReplayVisibility
 from crew_health.catchup.application.ports import GROUND_LOG_SCOPE
@@ -291,9 +292,9 @@ def test_an_owner_proof_dies_with_the_credential_it_verified(services: Light) ->
 
 
 @pytest.fixture
-def pause(monkeypatch: pytest.MonkeyPatch) -> Iterator[Callable[[Callable[[], None]], None]]:
+def pause(monkeypatch: pytest.MonkeyPatch) -> Iterator[Callable[[Callable[[], object]], None]]:
     """Pauses the next record read inside the GET's own snapshot and runs `during` there, committed separately."""
-    armed: list[Callable[[], None]] = []
+    armed: list[Callable[[], object]] = []
     original = RecordRepository.observation
 
     def observation(self: RecordRepository, view: object, observation_id: str) -> object:
@@ -309,7 +310,7 @@ def pause(monkeypatch: pytest.MonkeyPatch) -> Iterator[Callable[[Callable[[], No
 
 @pytest.mark.trace("T-E02-013", "T-E02-015", "E02-03")
 def test_a_revocation_or_credential_change_committed_during_a_read_refuses_that_read(
-    tmp_path: Path, pause: Callable[[Callable[[], None]], None]
+    tmp_path: Path, pause: Callable[[Callable[[], object]], None]
 ) -> None:
     running = serve(station(tmp_path))
     owner = running.identity.verify_owner("mara", credential("mara"), client="console", correlation_id="c")
@@ -474,7 +475,7 @@ def test_a_grant_must_name_its_object_partition_and_releases_only_inside_it(serv
         record_grant("ilya", "obs_missing"),
     ):
         refused(
-            lambda value=wrong: services.consent.grant(owner, value, correlation_id="c"),
+            partial(services.consent.grant, owner, wrong, correlation_id="c"),
             ErrorCode.INVALID_VALUE,
         )
     other = replace(
@@ -506,7 +507,7 @@ def test_roster_days_bound_sign_in_sessions_consent_and_capture(tmp_path: Path) 
     )
     seed_roster(services, sim_bootstrap(members=members))
     for person in ("ilya", "sofia"):
-        refused(lambda person=person: signed_in(services, person), ErrorCode.IDENTITY_MISMATCH)
+        refused(partial(signed_in, services, person), ErrorCode.IDENTITY_MISMATCH)
     tomas = signed_in(services, "tomas")
     with services.database.snapshot() as view:
         assert services.identity.member(view, "ilya") is None
@@ -537,7 +538,7 @@ def test_catchups_exact_scope_is_a_valid_consent_object(services: Light) -> None
     assert GROUND_LOG_SCOPE == ("ground_log", "catchup/approved/1")
     assert require_object_ref("catchup/approved/1") == "catchup/approved/1"
     for bad in ("catchup//1", "/catchup", "catchup/", "a/b/c/d/e/f/g/h/i", "catchup/approved/1 ", "x" * 256):
-        refused(lambda bad=bad: require_object_ref(bad), ErrorCode.INVALID_VALUE)
+        refused(partial(require_object_ref, bad), ErrorCode.INVALID_VALUE)
     owner = services.identity.verify_owner("mara", credential("mara"), client="console", correlation_id="c")
     purpose, object_ref = GROUND_LOG_SCOPE
     services.consent.grant(

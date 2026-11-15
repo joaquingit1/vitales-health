@@ -9,8 +9,10 @@ reached the consumer, whose own answer (200, 404, or its own unavailable input o
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 import pytest
+from e02_http import bearer, problem, run, sign_in
 from e02_station import (
     CONSOLE,
     START,
@@ -28,7 +30,6 @@ from e02_station import (
 )
 from fastapi import Request
 from httpx import AsyncClient, Response
-from test_http import bearer, problem, run, sign_in
 
 from crew_health.app import privacy
 from crew_health.app.assembly import ConfigHttpMetadata, HttpSecurity
@@ -90,7 +91,7 @@ def composed(hub: E02Station) -> Running:
 
 
 def resolver(running: Running) -> Resolver:
-    value = running.app.state.runtime.resolver
+    value: Resolver | None = running.app.state.runtime.resolver
     assert value is not None
     return value
 
@@ -109,9 +110,9 @@ async def tokens(client: AsyncClient) -> dict[str, str]:
 @pytest.mark.trace("T-E02-019", "E02-01", "R-E02-9")
 def test_production_registers_every_e02_adapter_under_its_consumers_port_class(hub: E02Station) -> None:
     ports = resolver(composed(hub))
-    security = ports.require(HttpSecurity)
+    security = ports.require(HttpSecurity)  # type: ignore[type-abstract]
     assert isinstance(security, IdentitySecurity), "production still serves DenySecurity"
-    assert isinstance(ports.require(SessionAuthorizer), privacy.LiveSessions), (
+    assert isinstance(ports.require(SessionAuthorizer), privacy.LiveSessions), (  # type: ignore[type-abstract]
         "production still serves ClosedSessions"
     )
     assert isinstance(ports.require(ConfigHttpMetadata).visibility, privacy.ReplayVisibility)
@@ -135,7 +136,7 @@ def test_production_registers_every_e02_adapter_under_its_consumers_port_class(h
         TimeAdmission: privacy.ClockAdmissionAdapter,
     }
     for port, adapter in expected.items():
-        assert isinstance(ports.require(port), adapter), port  # type: ignore[call-overload]
+        assert isinstance(ports.require(cast(type[object], port)), adapter), port
 
 
 @pytest.mark.trace("T-E02-019", "T-E02-009", "E02-01")
@@ -400,7 +401,7 @@ def test_each_consumer_gate_checks_the_contract_roles_itself_without_the_middlew
         return issued.token
 
     mara, ilya = token("mara"), token("ilya")
-    gate = ports.require(RolesAuthenticator)
+    gate = ports.require(RolesAuthenticator)  # type: ignore[type-abstract]
     assert gate.session(_request(ilya), "getCrewReadiness").person_id == "ilya"
     for who, operation in ((mara, "getCrewReadiness"), (ilya, "getGroundLog"), (ilya, "noSuchOperation")):
         with pytest.raises(ProblemError) as refused:

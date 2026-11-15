@@ -6,17 +6,15 @@ which E02 offers through its owner CLI path, not HTTP (R-E02-1).
 
 from __future__ import annotations
 
-import asyncio
-from collections.abc import Awaitable, Callable
 from datetime import timedelta
 from pathlib import Path
 
 import pytest
+from e02_http import bearer, problem, record, run, sign_in
 from e02_station import (
     CONSOLE,
     START,
     E02Station,
-    Running,
     credential,
     mission_id,
     release_id,
@@ -25,64 +23,12 @@ from e02_station import (
     sim_members,
     station,
 )
-from httpx import ASGITransport, AsyncClient, Response
+from httpx import AsyncClient
 
 from crew_health.consent.application.records import RECORD_PURPOSE
 from crew_health.consent.domain.grants import GrantRequest
 from crew_health.contracts_gen.schemas.crew_member_schema import CrewMember
-from crew_health.contracts_gen.schemas.error_schema import ErrorEnvelope
 from crew_health.contracts_gen.schemas.session_schema import Session
-
-type Journey = Callable[[AsyncClient], Awaitable[None]]
-
-
-def run(running: Running, journey: Journey) -> None:
-    async def main() -> None:
-        async with AsyncClient(transport=ASGITransport(app=running.app), base_url="http://station") as client:
-            await journey(client)
-
-    asyncio.run(main())
-
-
-async def sign_in(
-    client: AsyncClient, person: str | None, *, kind: str = "crew", secret: str | None = None
-) -> str:
-    body: dict[str, object] = {"kind": kind, "credential": secret or credential(person or "stn_galley")}
-    if person is not None:
-        body["person_id"] = person
-    response = await client.post("/v1/sessions", json=body)
-    assert response.status_code == 201, response.text
-    token = Session.model_validate(response.json()).token
-    assert token is not None
-    return token
-
-
-def bearer(token: str, **headers: str) -> dict[str, str]:
-    return {"Authorization": "Bearer " + token, **headers}
-
-
-def problem(response: Response, status: int, code: str) -> ErrorEnvelope:
-    assert response.status_code == status, response.text
-    error = ErrorEnvelope.model_validate(response.json())
-    assert error.code == code
-    return error
-
-
-def observation(patient: str, value: int = 50) -> dict[str, object]:
-    return {
-        "patient_id": patient,
-        "code": "indicator",
-        "value": value,
-        "unit": "1",
-        "observed_at": START.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "origin_mode": "SIM",
-        "acquisition_method": "self_report",
-    }
-
-
-async def record(client: AsyncClient, token: str, patient: str, key: str) -> Response:
-    headers = bearer(token, **{"Idempotency-Key": key, "Config-Release": release_id()})
-    return await client.post("/v1/observations", headers=headers, json=observation(patient))
 
 
 @pytest.fixture
