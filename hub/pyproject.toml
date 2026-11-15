@@ -6,17 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "crew-health"
 version = "0.1.0"
 requires-python = ">=3.14,<3.15"
-dependencies = [
-    "pydantic>=2",
-    "fastapi",
-    "uvicorn",
-    "jsonschema",
-    "referencing",
-    "cryptography>=50.0.2",
-    "ucumvert>=0.3.3",
-    "pint>=0.26",
-    "pyyaml",
-]
+dependencies = ["pydantic>=2", "fastapi", "uvicorn", "jsonschema", "referencing", "ucumvert>=0.3.3", "pint>=0.26", "pyyaml"]
 
 [project.scripts]
 crew-health = "crew_health.app.cli:main"
