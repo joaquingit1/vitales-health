@@ -48,7 +48,7 @@ from crew_health.kernel.commands import (
 )
 from crew_health.kernel.config import ActivationGuard, CandidateRelease, ReleaseCheck
 from crew_health.kernel.errors import ProblemError
-from crew_health.kernel.evaluation import EvaluatorRegistration
+from crew_health.kernel.evaluation import EvaluationIsolation, EvaluatorRegistration
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.private import PrivateRecordCoordinator
 from crew_health.kernel.replication import ProjectionKey, ReplicatedTable, ReplicationAllowlist
@@ -543,6 +543,11 @@ def _completion_open(uow: UnitOfWork, task: TaskInput) -> bool:
     return True
 
 
+# SYSTEM 5.10.2: the allowlisted computation failure codes an evaluator may raise as EvaluatorComputationFailure.
+# E23 sensors raise NON_FINITE_COMPUTATION for a non-finite or overflowing aggregate; nothing else is isolated.
+COMPUTATION_FAULT_CODES = frozenset({"NON_FINITE_COMPUTATION"})
+
+
 def platform_services(registry: DeclarationRegistry, runtime: Runtime) -> None:
     """EvaluationService and TaskService over every declared evaluator and task (SYSTEM 5.10.1, 5.10.2), so the
     supervisor always drives evaluation retry and task lease recovery."""
@@ -562,6 +567,7 @@ def platform_services(registry: DeclarationRegistry, runtime: Runtime) -> None:
             db.ids,
             repository=EvaluationRepository(),
             capture=_hub_time(clocks, metadata.origin),
+            fault_codes=COMPUTATION_FAULT_CODES,
         )
 
     def tasks(resolver: Resolver) -> TaskService:
@@ -597,6 +603,12 @@ def platform_services(registry: DeclarationRegistry, runtime: Runtime) -> None:
         )
 
     registry.provide(EvaluationService, evaluation, requires=(PersistentClocks, ConfigHttpMetadata))
+    # SYSTEM 5.10.2: the one EvaluationIsolation implementation is this service; consumers (E23 sensors) ask the port.
+    registry.provide(
+        EvaluationIsolation,  # type: ignore[type-abstract]
+        lambda resolver: resolver.require(EvaluationService),
+        requires=(EvaluationService,),
+    )
     registry.provide(TaskService, tasks, requires=(PersistentClocks, ConfigHttpMetadata))
 
 
