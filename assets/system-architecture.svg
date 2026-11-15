@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="740" viewBox="0 0 1440 740" role="img" aria-label="Crew Health Check offline system architecture">
+<rect width="1440" height="740" rx="18" fill="#07173F"/>
+<rect x="48" y="36" width="28" height="4" fill="#EAFE07"/>
+<text x="88" y="52" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#FFFFFF" letter-spacing="0.8">SYSTEM ARCHITECTURE</text>
+<text x="48" y="95" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#CAD9F3">The deterministic hub works offline. Optional workers add features without controlling safety state.</text>
+<rect x="44" y="146" width="282" height="391" rx="12" fill="#0D265A" stroke="#406AA8" stroke-width="1.6"/>
+<text x="68" y="191" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#FFFFFF" letter-spacing="0.6">INPUTS</text>
+<text x="68" y="229" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">Camera</text>
+<text x="68" y="254" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#CAD9F3">Pulse and breathing estimates</text>
+<text x="68" y="287" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">Manual entry</text>
+<text x="68" y="312" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#CAD9F3">Always available</text>
+<text x="68" y="345" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">Medical kit</text>
+<text x="68" y="370" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#CAD9F3">Capability map</text>
+<text x="68" y="403" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">Habitat + devices</text>
+<text x="68" y="428" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#CAD9F3">Optional sensor feeds</text>
+<text x="68" y="461" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">Records + plans</text>
+<text x="68" y="486" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#CAD9F3">Local reference data</text>
+<rect x="388" y="146" width="374" height="391" rx="12" fill="#0042A6" stroke="#2E96F5" stroke-width="2.2"/>
+<text x="413" y="191" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#FFFFFF">CREW HEALTH HUB</text>
+<text x="413" y="222" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#CAD9F3">Python / FastAPI / SQLite</text>
+<rect x="412" y="257" width="325" height="51" rx="7" fill="#1457B7" stroke="#3672CC" stroke-width="1"/>
+<text x="428" y="278" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">01  API</text>
+<text x="428" y="297" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#E5EDFF">Local endpoints</text>
+<rect x="412" y="320" width="325" height="51" rx="7" fill="#1457B7" stroke="#3672CC" stroke-width="1"/>
+<text x="428" y="341" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">02  ADAPTERS</text>
+<text x="428" y="360" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#E5EDFF">Data + device integrations</text>
+<rect x="412" y="383" width="325" height="51" rx="7" fill="#1457B7" stroke="#3672CC" stroke-width="1"/>
+<text x="428" y="404" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">03  APPLICATION</text>
+<text x="428" y="423" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#E5EDFF">Use cases and ports</text>
+<rect x="412" y="446" width="325" height="51" rx="7" fill="#1457B7" stroke="#3672CC" stroke-width="1"/>
+<text x="428" y="467" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">04  DOMAIN</text>
+<text x="428" y="486" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#E5EDFF">Deterministic safety rules</text>
+<rect x="826" y="146" width="570" height="178" rx="12" fill="#0D265A" stroke="#406AA8" stroke-width="1.6"/>
+<text x="851" y="190" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#FFFFFF">CREW INTERFACE</text>
+<text x="851" y="227" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#CAD9F3">Vue 3 app + browser, installable offline</text>
+<text x="851" y="257" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#CAD9F3">Ground / habitat views: NASA Open MCT</text>
+<text x="851" y="287" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#CAD9F3">No cloud account required for local operation</text>
+<rect x="826" y="349" width="570" height="188" rx="12" fill="#0D265A" stroke="#406AA8" stroke-width="1.6"/>
+<text x="851" y="391" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#FFFFFF">OPTIONAL, ISOLATED WORKERS</text>
+<text x="851" y="426" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#CAD9F3">Camera processing · local medical LLM</text>
+<text x="851" y="455" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#CAD9F3">Forecasting · device adapters · ground link</text>
+<text x="851" y="492" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#CAD9F3">Health checks and timeouts; failures stay contained</text>
+<path d="M329 336H373m-9-8 9 8-9 8" stroke="#2E96F5" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M766 241H811m-9-8 9 8-9 8" stroke="#2E96F5" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M766 430H811m-9-8 9 8-9 8" stroke="#2E96F5" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="44" y="573" width="1352" height="118" rx="12" fill="#0B2458" stroke="#406AA8" stroke-width="1.2"/>
+<text x="69" y="610" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#EAFE07" letter-spacing="0.5">BOUNDARY</text>
+<text x="69" y="642" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF">The AI can explain or draft. It cannot raise warnings, lower warnings, or invent a measurement.</text>
+<text x="69" y="670" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#CAD9F3">LIVE, REPLAY, and SIM are labeled. Missing or unreliable readings remain not measured.</text>
+</svg>
