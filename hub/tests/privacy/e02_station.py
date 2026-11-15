@@ -9,10 +9,12 @@ threshold. Credentials are test secrets generated here, never content.
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import shutil
-from collections.abc import Callable
+import tempfile
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -20,6 +22,7 @@ from functools import cache
 from pathlib import Path
 from typing import Protocol
 
+import uvicorn
 from fastapi import FastAPI, Request
 
 from crew_health.app.assembly import BuildCatalog, ConfigHttpMetadata, RecordHttpServices, create_app
@@ -644,3 +647,20 @@ def light(
     if seed:
         seed_roster(services)
     return services
+
+
+def main(argv: Sequence[str] | None = None) -> None:
+    """Serves a seeded SIM station on 127.0.0.1 until stopped: the crew app's browser tests run against it."""
+    parser = argparse.ArgumentParser(prog="e02_station")
+    parser.add_argument("--port", type=int, required=True)
+    port: int = parser.parse_args(argv).port
+    with tempfile.TemporaryDirectory(prefix="e02-station-", ignore_cleanup_errors=True) as directory:
+        hub = station(Path(directory))
+        try:
+            uvicorn.run(serve(hub).app, host="127.0.0.1", port=port, log_level="warning")
+        finally:
+            hub.database.close()
+
+
+if __name__ == "__main__":
+    main()
