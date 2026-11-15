@@ -1,0 +1,97 @@
+{
+  "type": "object",
+  "properties": {
+    "gate_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "release_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "verdict": {
+      "enum": [
+        "pass",
+        "fail"
+      ]
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "gate": {
+            "enum": [
+              "unauthorized_execution",
+              "fabricated_accepted_result",
+              "cross_person_leak",
+              "journal_or_vault_exposure"
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "case_refs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "gate",
+          "count",
+          "case_refs"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "gate_id",
+    "release_id",
+    "run_ids",
+    "verdict",
+    "failures"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "verdict": {
+            "const": "pass"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "failures": {
+            "maxItems": 0
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "failures": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

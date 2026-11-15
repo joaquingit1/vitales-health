@@ -1,0 +1,12 @@
+uv run --frozen --project eval/bench python scripts/validate_contracts.py
+HYPOTHESIS_STORAGE_DIRECTORY=eval/bench/.hypothesis uv run --frozen --project eval/bench pytest -c eval/bench/pyproject.toml -q eval/bench/tests --cov=crew_health_bench.domain --cov=crew_health_bench.application --cov-branch --cov-config=eval/bench/pyproject.toml --cov-report=term-missing --cov-report=json:eval/bench/coverage.json
+uv run --frozen --project eval/bench python eval/bench/check_branch_coverage.py eval/bench/config eval/bench/coverage.json
+uv run --frozen --project eval/bench ruff check --config eval/bench/pyproject.toml eval/bench eval/scenarios/E18
+uv run --frozen --project eval/bench ruff format --check --config eval/bench/pyproject.toml eval/bench eval/scenarios/E18
+uv run --frozen --project eval/bench mypy --config-file eval/bench/pyproject.toml --strict eval/bench/src eval/bench/check_branch_coverage.py
+uv run --frozen --project eval/bench lint-imports --config eval/bench/.importlinter --cache-dir eval/bench/.import_linter_cache
+uv run --frozen --project hub pytest -c eval/bench/pyproject.toml --confcutdir eval/scenarios/E18 -q eval/scenarios/E18
+uv run --frozen --project eval/bench chc-bench --config-dir eval/bench/config leak scan --fingerprints eval/bench/fingerprints/holdout.fp.json --target prompts model/ --target tools model/ --target config config/
+uv pip compile --project eval/bench eval/bench/pyproject.toml --all-extras --group dev --python-version 3.14 --python-platform x86_64-pc-windows-msvc --only-binary :all: --output-file eval/bench/windows-requirements.txt
+uv run --frozen --directory eval/bench --project . mutmut run --max-children 1
+uv run --frozen --directory eval/bench --project . mutmut results

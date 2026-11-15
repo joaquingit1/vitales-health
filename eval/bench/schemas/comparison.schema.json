@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "properties": {
+    "mean_difference": {
+      "type": "number"
+    },
+    "interval": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "prefer": {
+      "enum": [
+        "baseline",
+        "candidate"
+      ]
+    }
+  },
+  "required": [
+    "mean_difference",
+    "interval",
+    "prefer"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

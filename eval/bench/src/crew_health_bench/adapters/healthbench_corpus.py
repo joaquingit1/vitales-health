@@ -1,0 +1,80 @@
+from hashlib import sha256
+from pathlib import Path
+
+from crew_health.kernel.commands import canonical_json
+
+from crew_health_bench.adapters.documents import BenchSettings, decode_json, read_json
+from crew_health_bench.adapters.healthbench import HealthBenchCorpus
+from crew_health_bench.adapters.isolation import vault_path
+from crew_health_bench.adapters.store import FileArtifactStore
+from crew_health_bench.domain.documents import integer, object_map, text
+from crew_health_bench.domain.errors import BenchError
+from crew_health_bench.domain.healthbench import HealthBenchVisible
+
+
+def prepare_corpus(source: Path, dataset: dict[str, object], *, variant: str, root: Path,
+                   settings: BenchSettings) -> None:
+    size, examples = integer(dataset["bytes"]), integer(dataset["examples"])
+    digest = text(dataset["sha256"])
+    corpus = HealthBenchCorpus(source, digest, size, examples, settings)
+    visible = b"".join(canonical_json({"prompt_id": case.prompt_id,
+                                      "prompt": [{"role": role, "content": content}
+                                                 for role, content in case.messages]}) + b"\n"
+                       for case in (corpus.visible(key) for key in corpus.prompt_ids))
+    with source.open("rb") as stream:
+        original = stream.read(size + 1)
+    if len(original) != size or sha256(original).hexdigest() != digest:
+        raise BenchError("dataset_hash_mismatch")
+    receipt = {"variant": variant, "dataset_sha256": digest,
+               "visible_sha256": sha256(visible).hexdigest(), "examples": examples}
+    with FileArtifactStore(root, max_line_bytes=size, max_records=examples) as store:
+        store.write_atomic(Path(variant + ".jsonl"), original)
+        store.write_atomic(Path(variant + ".visible.jsonl"), visible)
+        store.write_atomic(Path(variant + ".receipt.json"), canonical_json(receipt))
+
+
+class VisibleCorpus:
+    def __init__(self, root: Path, variant: str, dataset: dict[str, object], settings: BenchSettings) -> None:
+        maximum = settings.integer("bench.store.max_line_bytes")
+        receipt = read_json(vault_path(root, variant + ".receipt.json"), max_file_bytes=maximum)
+        if (receipt.get("variant") != variant or receipt.get("dataset_sha256") != dataset.get("sha256")
+                or receipt.get("examples") != dataset.get("examples")):
+            raise BenchError("dataset_hash_mismatch")
+        self._cases: dict[str, HealthBenchVisible] = {}
+        checksum = sha256()
+        try:
+            with vault_path(root, variant + ".visible.jsonl").open("rb") as source:
+                for _ in range(integer(dataset["examples"])):
+                    raw = source.readline(maximum + 1)
+                    if not raw or len(raw) > maximum:
+                        raise BenchError("dataset_hash_mismatch")
+                    checksum.update(raw)
+                    row = decode_json(raw)
+                    if set(row) != {"prompt_id", "prompt"} or not isinstance(row["prompt"], list):
+                        raise BenchError("case_invalid")
+                    messages = tuple(self._message(item) for item in row["prompt"])
+                    key = text(row["prompt_id"])
+                    if not messages or not key or key in self._cases:
+                        raise BenchError("case_invalid")
+                    self._cases[key] = HealthBenchVisible(key, messages)
+                if source.read(1) or checksum.hexdigest() != receipt.get("visible_sha256"):
+                    raise BenchError("dataset_hash_mismatch")
+        except OSError as error:
+            raise BenchError("target_unreadable", exit_code=6) from error
+        self.sha256 = checksum.hexdigest()
+
+    @staticmethod
+    def _message(value: object) -> tuple[str, str]:
+        row = object_map(value)
+        if set(row) != {"role", "content"}:
+            raise BenchError("case_invalid")
+        return text(row["role"]), text(row["content"])
+
+    @property
+    def prompt_ids(self) -> tuple[str, ...]:
+        return tuple(sorted(self._cases))
+
+    def visible(self, prompt_id: str) -> HealthBenchVisible:
+        if prompt_id not in self._cases:
+            raise BenchError("case_invalid")
+        return self._cases[prompt_id]

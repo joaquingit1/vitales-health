@@ -1,0 +1,57 @@
+{
+  "group_by": [
+    "family_id",
+    "source_vignette_id",
+    "patient_id",
+    "episode_id"
+  ],
+  "minhash": {
+    "permutations": 128,
+    "bands": 32,
+    "seed": 18
+  },
+  "near_duplicate_jaccard": 0.5,
+  "leak_jaccard": 0.2,
+  "holdout_fraction": 0.3,
+  "min_groups_for_split": 2,
+  "vault": {
+    "recipients": []
+  },
+  "provenance": {
+    "group_by": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "minhash": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "near_duplicate_jaccard": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "leak_jaccard": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "holdout_fraction": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "min_groups_for_split": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "vault": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    }
+  }
+}

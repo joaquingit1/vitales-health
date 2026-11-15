@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "repository",
+    "commit",
+    "files",
+    "harness",
+    "datasets",
+    "grader"
+  ],
+  "properties": {
+    "repository": {
+      "type": "string",
+      "minLength": 1
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "files": {
+      "type": "object",
+      "minProperties": 5,
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    },
+    "harness": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "const": "https://github.com/openai/simple-evals"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "module": {
+          "const": "healthbench_eval"
+        },
+        "module_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "loading": {
+          "type": "string",
+          "minLength": 1
+        },
+        "grading": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scoring": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aggregation": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "repository",
+        "commit",
+        "module",
+        "module_sha256",
+        "loading",
+        "grading",
+        "scoring",
+        "aggregation"
+      ],
+      "additionalProperties": false
+    },
+    "datasets": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "properties": {
+          "variant": {
+            "enum": [
+              "main",
+              "Hard",
+              "Consensus"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^https://openaipublic[.]blob[.]core[.]windows[.]net/simple-evals/healthbench/"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "examples": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "variant",
+          "url",
+          "sha256",
+          "bytes",
+          "examples"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "grader": {
+      "type": "object",
+      "properties": {
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "api_key_env": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "prompt_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0
+        },
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "system_message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "model",
+        "version",
+        "api_key_env",
+        "prompt_sha256",
+        "temperature",
+        "max_tokens",
+        "system_message"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
