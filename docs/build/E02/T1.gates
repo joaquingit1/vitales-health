@@ -1,0 +1,23 @@
+uv run --project hub python -m crew_health.contracts_gen.build
+pnpm -C packages/contracts-ts generate
+uv run --project hub python scripts/validate_hub.py generated interfaces
+uv pip compile hub/pyproject.toml --group hub/pyproject.toml:dev --python-version 3.14 --python-platform x86_64-pc-windows-msvc --only-binary :all: --quiet --output-file "${TMPDIR:-/tmp}/e02-t1-windows.txt"
+uv run --project hub pytest -c hub/pyproject.toml -q hub/tests/identity hub/tests/consent hub/tests/privacy eval/scenarios/E02/test_privacy_acceptance.py
+uv run --project hub pytest -c hub/pyproject.toml -q hub/tests/identity hub/tests/consent hub/tests/privacy --cov=crew_health.identity.domain --cov=crew_health.identity.application --cov=crew_health.consent.domain --cov=crew_health.consent.application --cov-branch --cov-fail-under=95
+uv run --project hub pytest -c hub/pyproject.toml -q hub/tests
+uv run --project hub ruff check --config hub/pyproject.toml hub/src/crew_health/identity hub/src/crew_health/consent hub/tests/identity hub/tests/consent hub/tests/privacy eval/scenarios/E02
+uv run --project hub ruff format --check --config hub/pyproject.toml hub/src/crew_health/identity hub/src/crew_health/consent hub/tests/identity hub/tests/consent hub/tests/privacy eval/scenarios/E02
+uv run --project hub mypy --config-file hub/pyproject.toml --strict hub/src/crew_health/identity hub/src/crew_health/consent
+MYPYPATH=hub/tests/privacy uv run --project hub mypy --config-file hub/pyproject.toml --strict hub/tests/privacy
+MYPYPATH=hub/tests/privacy uv run --project hub mypy --config-file hub/pyproject.toml --strict hub/tests/identity
+MYPYPATH=hub/tests/privacy uv run --project hub mypy --config-file hub/pyproject.toml --strict hub/tests/consent
+MYPYPATH=hub/tests/privacy uv run --project hub mypy --config-file hub/pyproject.toml --strict eval/scenarios/E02
+uv run --project hub python -m crew_health.app.import_contracts --output "${TMPDIR:-/tmp}/e02-t1-imports.ini"
+uv run --project hub lint-imports --config "${TMPDIR:-/tmp}/e02-t1-imports.ini"
+pnpm install --frozen-lockfile
+pnpm -C ui/crew typecheck
+pnpm -C ui/crew lint
+pnpm -C ui/crew test
+pnpm -C ui/crew build
+pnpm -C ui/crew exec playwright install chromium
+pnpm -C ui/crew exec playwright test src/features/identity/sessionLock.spec.ts
