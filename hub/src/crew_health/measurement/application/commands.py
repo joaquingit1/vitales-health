@@ -943,10 +943,6 @@ class MeasurementService:
             ),
             request,
         )
-        refs = {"request_id": request.request_id}
-        if attempt_id is not None:
-            refs["attempt_id"] = attempt_id
-        self._audit(uow, "request_" + cause, refs, {"state": request.state, "revision": request.revision})
         audience = Audience(AUDIENCE_RULE, request.request_id, PROJECTION, POLICY_VERSION)
         uow.emit(
             OutboxEvent(
@@ -973,6 +969,12 @@ class MeasurementService:
                 audience=audience,
             )
         )
+        # The audit names the request after replication registers its reference (platform_reference), and carries
+        # only enumerable safe metadata: the revision lives in the transition row, never in an audit policy.
+        refs = {"request_id": request.request_id}
+        if attempt_id is not None:
+            refs["attempt_id"] = attempt_id
+        self._audit(uow, "request_" + cause, refs, {"state": request.state})
 
     def _audit(
         self, uow: UnitOfWork, event: str, refs: dict[str, str], meta: dict[str, str | int | bool]
