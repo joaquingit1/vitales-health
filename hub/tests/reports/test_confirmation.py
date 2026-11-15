@@ -54,7 +54,7 @@ def proposals() -> tuple[DraftProposal, ...]:
 def drafted(*extra: DraftProposal) -> Report:
     report = station().upload()
     result = ExtractionResult(report.source_version_id, "extract-1", (100,), proposals() + extra)
-    return publish_extraction(report, result, generation=1, ids=ids(), limits=LIMITS)
+    return publish_extraction(report, result, generation=1, release_id="release", ids=ids(), limits=LIMITS)
 
 
 def command(report: Report, *decisions: Decision, **changes: object) -> ConfirmationCommand:
@@ -279,7 +279,12 @@ def test_state_machine_property_terminal_states_and_findings_match_a_reference_m
     )
     result = ExtractionResult("ver", "extract-1", (100,), extra)
     report = publish_extraction(
-        replace(station().upload(), source_version_id="ver"), result, generation=1, ids=ids(), limits=LIMITS
+        replace(station().upload(), source_version_id="ver"),
+        result,
+        generation=1,
+        release_id="release",
+        ids=ids(),
+        limits=LIMITS,
     )
     model = {d.draft_id: "proposed" for d in report.extraction_drafts}
     order = [d.draft_id for d in report.extraction_drafts]

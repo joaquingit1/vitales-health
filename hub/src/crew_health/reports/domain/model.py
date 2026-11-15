@@ -140,11 +140,14 @@ class Report:
     quarantine_reason: str | None
     page_text_lengths: tuple[int, ...]
     extraction_generation: int | None
+    extraction_release_id: str | None = None
 
     def __post_init__(self) -> None:
         require_id(self.report_id)
         require_id(self.patient_id)
         require_id(self.source_version_id)
+        if self.extraction_release_id is not None:
+            require_id(self.extraction_release_id)
         require_utc(self.uploaded_at)
         if _SHA256.fullmatch(self.file_sha256) is None:
             raise invalid_value("sha256")

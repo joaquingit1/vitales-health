@@ -244,9 +244,10 @@ class FakeStore:
 class FakePolicies:
     def __init__(self, policies: Mapping[str, FindingPolicy]) -> None:
         self.policies = dict(policies)
+        self.by_release: dict[str, dict[str, FindingPolicy]] = {}
 
     def for_code(self, release: ReleaseHandle, code: str) -> FindingPolicy | None:
-        return self.policies.get(code)
+        return self.by_release.get(release.release_id, self.policies).get(code)
 
 
 class FakeForms:
@@ -316,7 +317,9 @@ class Station:
         args.update(kw)
         return self.workflows.upload(who or session(), key=key, **args)  # type: ignore[arg-type]
 
-    def lease(self, report: Report, *, handler_version: str = "extract-1") -> TaskLease:
+    def lease(
+        self, report: Report, *, handler_version: str = "extract-1", release_id: str = "release"
+    ) -> TaskLease:
         """Submit and claim one report_extraction task pinned to the report source version."""
         from crew_health.reports.domain.extraction import pin_ref
 
@@ -337,7 +340,7 @@ class Station:
             handler_version,
             pin_ref(report.report_id, report.source_version_id),
             "2" * 64,
-            "release",
+            release_id,
             None,
             Actor("person", report.patient_id),
             Audience("owner", report.report_id, AudienceProjectionKey("reports", "report", 1), "policy"),
@@ -349,6 +352,12 @@ class Station:
             return self.tasks.claim(
                 uow, worker_id="worker", handlers=frozenset({"report_extraction"}), limit=1
             )[0]
+
+    def activate_release(self, release_id: str, policies: Mapping[str, FindingPolicy]) -> None:
+        """A new configuration release becomes active; earlier releases stay resolvable."""
+        self.ports.releases.releases[release_id] = MemoryRelease(release_id, {})  # type: ignore[attr-defined]
+        self.ports.releases.active_id = release_id  # type: ignore[attr-defined]
+        self.policies.by_release[release_id] = dict(policies)
 
     def cancel(self, lease: TaskLease) -> None:
         with self.factory.begin(actor=Actor("person", OWNER), correlation_id="cancel") as uow:

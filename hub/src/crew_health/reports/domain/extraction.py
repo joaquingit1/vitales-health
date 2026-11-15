@@ -88,10 +88,12 @@ def publish_extraction(
     result: ExtractionResult,
     *,
     generation: int,
+    release_id: str,
     ids: IdFactory,
     limits: ReportLimits,
 ) -> Report:
-    """The report with its new proposed drafts and a new revision. Confirmed and rejected drafts are kept."""
+    """The report with its new proposed drafts and a new revision. Confirmed and rejected drafts are kept.
+    The config release the extraction ran under is pinned on the report (AGENTS 6 configuration activation)."""
     if report.state == "deleted":
         raise not_found()
     if report.state != "accepted":
@@ -129,5 +131,6 @@ def publish_extraction(
         extraction_drafts=kept + fresh,
         page_text_lengths=lengths,
         extraction_generation=generation,
+        extraction_release_id=require_id(release_id),
         revision=report.revision + 1,
     )
