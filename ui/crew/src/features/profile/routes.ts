@@ -4,6 +4,6 @@ import ProfileView from "./ProfileView.vue";
 import SignIn from "./SignIn.vue";
 
 export const routes: RouteRecordRaw[] = [
-  { path: "/", name: STATION_ROUTE, component: SignIn },
+  { path: "/", name: STATION_ROUTE, component: SignIn, meta: { stage: true } },
   { path: "/profile", name: "profile", component: ProfileView, meta: { private: true, stage: false } },
 ];

@@ -11,6 +11,8 @@ import { todayCards } from "../../shell/todaySlots";
 import { KIT_STATES, STATE_MK, loadKitMap, type KitMapView } from "../kit/kitMap";
 import { linkLine, linkOrigin, type GroundLink } from "./groundLink";
 import { placeOf } from "./place";
+import { ASSISTANT_TITLE } from "../help/labels";
+import { assistantWords } from "../help/helpModel";
 
 const api = useCrewApi();
 const stage = useStage();
@@ -23,6 +25,12 @@ const link = ref<GroundLink | null>(null);
 const linkFailed = ref(false);
 const hubNow = ref<number>(Number.NaN);
 const place = ref<string | null>(null);
+/* a place name opens the habitat line, so it takes a capital as the reference writes it ("Space station") */
+function sentence(text: string): string {
+  return text === "" ? text : (text[0] ?? "").toUpperCase() + text.slice(1);
+}
+const assistantState = ref<string | null>(null);
+const assistant = computed(() => (assistantState.value === null ? null : assistantWords(assistantState.value)));
 const LINK_POLL_MS = 2000;
 let poll = 0;
 
@@ -32,8 +40,10 @@ const name = computed(() => {
 });
 const line = computed(() => (link.value === null ? "" : linkLine(link.value, hubNow.value)));
 
-/* Slot positions in the reference grid: the prototype's How you are, Daily check and Assistant places. */
-const SLOT_AREAS = ["11 / span 14 | 1", "9 / span 7 | 3", "16 / span 9 | 3", "11 / span 14 | 3"];
+/* Slot positions in the reference grid: the prototype's How you are and Daily check places. The Assistant place
+   holds the assistant card. A reading about you takes the How you are card's sun gradient (UX-DESIGN 1.5). */
+const SLOT_AREAS = ["11 / span 14 | 1", "9 / span 7 | 3"];
+const SLOT_KIND = ["g g-sun", "paper"];
 function slotStyle(index: number): Record<string, string> {
   const [column = "auto", row = "auto"] = (SLOT_AREAS[index] ?? "auto | auto").split(" | ");
   return { gridColumn: column, gridRow: row };
@@ -42,8 +52,9 @@ function slotStyle(index: number): Record<string, string> {
 function setStage(): void {
   stage.marks = [];
   stage.focus = null;
+  /* the person; the stage adds the place to the who-line. The headline names the view. */
   stage.subline = name.value;
-  stage.headline = place.value ?? "";
+  stage.headline = copy("display_group_labels.today");
 }
 
 onMounted(async () => {
@@ -63,6 +74,7 @@ onMounted(async () => {
   const health = api.get<Health>("/v1/health").then(
     (value) => {
       hubNow.value = Date.parse(value.server_time ?? "");
+      assistantState.value = value.assistant_state ?? null;
     },
     () => undefined,
   );
@@ -110,11 +122,12 @@ onBeforeUnmount(() => {
           {{ CHROME.todo }}
         </h2>
       </div>
-      <div class="split">
-        <div class="big word">
-          {{ copy("designed_states.not_available_here") }}
-        </div>
-      </div>
+      <p
+        class="sub"
+        data-testid="todo-state"
+      >
+        {{ copy("designed_states.not_available_here") }}
+      </p>
     </article>
 
     <article
@@ -132,7 +145,7 @@ onBeforeUnmount(() => {
         data-testid="habitat-line"
       >
         <template v-if="place">
-          {{ place }}.
+          {{ sentence(place) }}.
         </template>
         {{ line }}
         <SourceWord :origin="linkOrigin(link)" />
@@ -197,11 +210,27 @@ onBeforeUnmount(() => {
     <article
       v-for="(slot, index) in slots"
       :key="slot.id"
-      class="card paper slot-card"
+      class="card slot-card"
+      :class="SLOT_KIND[index] ?? 'paper'"
       :style="slotStyle(index)"
       :data-slot="slot.id"
     >
       <component :is="slot.component" />
+    </article>
+
+    <article
+      v-if="assistant"
+      class="card g g-deep assistant"
+      data-testid="assistant-card"
+    >
+      <div class="card-head">
+        <h2 class="card-title">
+          {{ ASSISTANT_TITLE }}
+        </h2>
+      </div>
+      <p class="say">
+        {{ assistant.line }}
+      </p>
     </article>
   </section>
 </template>
@@ -211,12 +240,15 @@ onBeforeUnmount(() => {
   color: inherit;
   text-decoration: none;
 }
-.big.word {
-  font-size: 28px;
-  line-height: 34px;
-  white-space: normal;
-}
 .env-line .src {
   margin-left: 6px;
+}
+/* a feature card with nothing to show today leaves its place empty, never an empty frame */
+.slot-card:empty {
+  display: none;
+}
+/* with the Daily check place empty, the assistant closes the row up to This kit */
+.cards:not(:has(.slot-card[data-slot="teach"]:not(:empty))) .assistant {
+  grid-column: 9 / span 16;
 }
 </style>

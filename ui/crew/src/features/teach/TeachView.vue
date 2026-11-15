@@ -26,6 +26,8 @@ const runId = computed(() => String(route.params["id"] ?? ""));
 
 const run = ref<PlanRun | null>(null);
 const helper = ref<RoleAssignment | null>(null);
+/* the plan's stage label ("Check it another way"): the card's title until a helper or the check names it */
+const anotherLabel = ref("");
 const check = ref<GuidedCheck | null>(null);
 const steps = ref<TeachSteps | null>(null);
 const problem = ref("");
@@ -89,10 +91,12 @@ async function load(): Promise<void> {
   run.value = await api.get<PlanRun>(`/v1/plan-runs/${runId.value}`);
   const roles = await api.get<{ items: RoleAssignment[] }>(`/v1/plan-runs/${runId.value}/roles`);
   helper.value = roles.items.find((r) => r.skill_id !== null && r.state !== "changed") ?? roles.items[0] ?? null;
-  const plan = await api.get<{ stages: { stage_id: string; steps: { cannot_replace_text: string | null }[] }[] }>(
+  const plan = await api.get<{ stages: { stage_id: string; label?: string; steps: { cannot_replace_text: string | null }[] }[] }>(
     `/v1/plans/${run.value.plan_id}`,
   );
-  anotherWay.value = plan.stages.find((s) => s.stage_id === "check_another_way")?.steps[0]?.cannot_replace_text ?? null;
+  const another = plan.stages.find((s) => s.stage_id === "check_another_way");
+  anotherWay.value = another?.steps[0]?.cannot_replace_text ?? null;
+  anotherLabel.value = another?.label ?? "";
   const existing = run.value.steps.find((s) => s.stage_id === "check_another_way" && s.guided_check_id)?.guided_check_id;
   if (existing) await open(existing);
 }
@@ -213,7 +217,7 @@ onMounted(() => {
 const stage = useStage();
 watchEffect(() => {
   const at = region.value ?? shown.value.map((s) => s.body_region).find(Boolean) ?? null;
-  stage.headline = landmark.value ?? steps.value?.card_title_text ?? helper.value?.task_text ?? "";
+  stage.headline = landmark.value ?? steps.value?.card_title_text ?? helper.value?.task_text ?? anotherLabel.value;
   stage.focus = at;
   stage.marks = at ? [{ region: at, kind: "dot" }] : [];
 });
@@ -234,12 +238,29 @@ onBeforeUnmount(() => {
     >
       <div class="card-head">
         <h2 class="card-title">
-          {{ steps?.card_title_text ?? helper?.task_text ?? "" }}
+          {{ steps?.card_title_text ?? helper?.task_text ?? anotherLabel }}
         </h2>
         <span
           v-if="steps"
           class="tag"
         >{{ steps.notice }}</span>
+      </div>
+      <div
+        v-if="problem"
+        class="result"
+      >
+        <span
+          class="r-num word"
+          data-test="problem"
+        >{{ problem }}</span>
+      </div>
+
+      <div
+        v-if="!problem && !check && run && !helper"
+        class="result"
+        data-test="no-helper"
+      >
+        <span class="r-num word">{{ copy("designed_states.not_available_here") }}</span>
       </div>
 
       <template v-if="!check">
@@ -375,13 +396,6 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </template>
-      <p
-        v-if="problem"
-        class="note"
-        data-test="problem"
-      >
-        {{ problem }}
-      </p>
     </article>
 
     <article

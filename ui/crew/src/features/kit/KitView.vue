@@ -6,7 +6,6 @@ import { copy } from "../../design/copy";
 import { useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
 import { useStage } from "../../shell/stage";
-import { placeOf } from "../today/place";
 import { KIT_STATES, STATE_MK, figureMarks, instrumentNames, loadKitMap, type KitMapView, type KitState } from "./kitMap";
 
 const api = useCrewApi();
@@ -48,6 +47,20 @@ function endText(row: KitMapView["conditions"][number]): string {
   return copy(`kit_map_state_words.${row.state}`);
 }
 
+/* What would close the most gaps: each instrument the hub lists as not aboard, with the conditions it would
+   bring within reach, counted from the same kit map. Most first. */
+const closers = computed(() =>
+  (kit.value?.candidates ?? [])
+    .filter((item) => !item.aboard)
+    .map((item) => ({
+      id: item.instrument_id,
+      name: cap(item.name),
+      closes: (kit.value?.conditions ?? []).filter((row) => row.missing_instruments.includes(item.instrument_id))
+        .length,
+    }))
+    .sort((a, b) => b.closes - a.closes || a.name.localeCompare(b.name)),
+);
+
 function regionLabel(region: string): string {
   const label = copy(`body_region_labels.${region}`);
   return label.startsWith("body_region_labels.") ? region : label.toLowerCase();
@@ -68,10 +81,6 @@ onMounted(async () => {
     instrumentName.value = await instrumentNames(api, view);
     kit.value = view;
     stage.marks = figureMarks(kit.value);
-    const place = await placeOf(api, kit.value.environment_id).catch(() => null);
-    if (place !== null && stage.subline !== "") {
-      stage.subline = `${stage.subline}, ${place}`;
-    }
   } catch {
     failed.value = true;
   }
@@ -207,15 +216,39 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </article>
+    <article
+      v-if="kit && closers.length > 0"
+      class="card g g-deep k-close"
+      data-testid="kit-close"
+    >
+      <div class="card-head">
+        <h2 class="card-title">
+          {{ CHROME.closeGaps }}
+        </h2>
+      </div>
+      <div class="pills">
+        <span
+          v-for="item in closers"
+          :key="item.id"
+          class="pill"
+        >+ {{ item.name }}<small>{{ fill(CHROME.closes, { n: item.closes }) }}</small></span>
+      </div>
+    </article>
   </section>
 </template>
 
 <style scoped>
-.f-kit .k-main {
-  grid-row: 1 / span 3;
-}
+/* the reference's kit grid (02-kit): the list over two rows, the kit aboard beside it, the planning card below.
+   The hub serves no build note, so the kit aboard keeps both rows on the right. */
 .f-kit .k-aboard {
   grid-row: 1 / span 2;
+}
+.go {
+  color: inherit;
+}
+.k-close .pill {
+  display: inline-flex;
+  align-items: center;
 }
 .flow-body {
   display: flex;

@@ -55,9 +55,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+/* the shared parts (app.css .card-title, .sub, .pill.do) dress it, on paper or on a gradient */
 .pulse-card { display: flex; flex-direction: column; gap: 8px; }
-.card-title { font-size: 17px; line-height: 22px; font-weight: 500; }
-.sub { font-size: 15px; line-height: 22px; color: var(--ink-2); }
-.pill { align-self: flex-start; height: 30px; padding: 0 14px; border-radius: 15px; border: 1px solid var(--ink); background: var(--ink); color: #fff; font-size: 13px; cursor: pointer; }
-.pill[disabled] { opacity: 0.4; cursor: not-allowed; }
+.pill { align-self: flex-start; }
 </style>

@@ -16,6 +16,8 @@ export const CHROME = {
   all: "All {total}",
   form: "Form",
   kitAboard: "The kit aboard",
+  closeGaps: "What would close the most gaps",
+  closes: "{n} closed",
   signIn: "Sign in",
   person: "Crew member",
   credential: "PIN or passphrase",

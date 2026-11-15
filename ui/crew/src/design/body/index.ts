@@ -33,7 +33,8 @@ export interface BodyRenderApi {
     },
   ): BodyHandle;
   project(point: number[]): Projected;
-  point(name: string): number[];
+  /** null when the figure has no point for the name (an unmapped region). */
+  point(name: string): number[] | null;
   regionAt(x: number, y: number, names?: string[]): string | null;
 }
 

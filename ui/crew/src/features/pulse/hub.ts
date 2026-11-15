@@ -1,7 +1,7 @@
+import { refusalText } from "../../design/refusal";
 import type { components } from "@crew-health/contracts";
 import { ApiProblem, StaleEpoch } from "../../shell/api/client";
 import type { SessionStore } from "../../shell/session";
-import { copy } from "../../design/copy";
 
 type S = components["schemas"];
 export type MeasurementRequest = S["measurement-request.schema"];
@@ -90,17 +90,15 @@ export async function command<T>(session: SessionStore, path: string, body: unkn
   return parsed as T;
 }
 
-/** The refused state's words: ui-copy error_messages by code, or the code itself so the gap is visible. */
+/** The refused state's words: the designed state, never the raw code (design/refusal.ts). */
 export function refusal(failure: unknown): string {
   if (failure instanceof ApiProblem) {
-    const key = `error_messages.${failure.code ?? "INTERNAL_ERROR"}`;
-    const text = copy(key);
-    return text === key ? (failure.code ?? `status ${String(failure.status)}`) : text;
+    return refusalText(failure.code);
   }
   if (failure instanceof StaleEpoch) {
     return "";
   }
-  return copy("error_messages.INTERNAL_ERROR");
+  return refusalText(null);
 }
 
 export const FINISHED = new Set(["completed", "unavailable", "declined", "cancelled", "failed"]);

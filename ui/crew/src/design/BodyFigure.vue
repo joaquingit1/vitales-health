@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { bodyRender, type BodyHandle, type FigureMark } from "./body";
 
 const props = defineProps<{ marks: readonly FigureMark[]; focus?: string | null; stageEl?: HTMLElement | null }>();
+
+/* Only a region the figure has a point for gets a mark ("whole_body" has none): an unmapped mark is skipped,
+   never drawn at the canvas origin. */
+const shown = computed(() => {
+  const api = bodyRender();
+  return api === null ? [] : props.marks.filter((mark) => api.point(mark.region) !== null);
+});
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const spots = ref<HTMLElement[]>([]);
@@ -20,7 +27,11 @@ function place(): void {
     if (region === undefined) {
       continue;
     }
-    const p = api.project(api.point(region));
+    const at = api.point(region);
+    if (at === null) {
+      continue;
+    }
+    const p = api.project(at);
     el.style.transform = `translate(${p.x.toFixed(1)}px,${p.y.toFixed(1)}px)`;
   }
 }
@@ -76,7 +87,7 @@ watch(() => props.marks, () => requestAnimationFrame(place), { deep: true });
   />
   <template v-if="!failed">
     <i
-      v-for="(mark, index) in props.marks"
+      v-for="(mark, index) in shown"
       :key="`${mark.region}-${mark.kind}-${index}`"
       ref="spots"
       class="spot rest kit-spot"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, watchEffect } from "vue";
+import { refusalText } from "../../design/refusal";
+import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { ApiProblem, useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
@@ -7,6 +8,7 @@ import { useStage } from "../../shell/stage";
 import { PLAN_CARD_TITLE, START_PLAN } from "../help/labels";
 import { groundLine, planCountLine, shownStages, startedAt, type KitMapView, type PlanRun, type PlanView } from "./planModel";
 import { copy } from "../../design/copy";
+import { CHROME } from "../../design/chrome";
 
 const api = useCrewApi();
 const session = useSession();
@@ -29,11 +31,9 @@ const episodeId = computed(() => {
 
 function refused(failure: unknown): string {
   if (failure instanceof ApiProblem) {
-    const code = failure.code ?? "INTERNAL_ERROR";
-    const message = copy(`error_messages.${code}`);
-    return message.startsWith("error_messages.") ? code : message;
+    return refusalText(failure.code);
   }
-  return copy("error_messages.INTERNAL_ERROR");
+  return refusalText(null);
 }
 
 async function loadPlan(): Promise<void> {
@@ -116,6 +116,12 @@ watchEffect(() => {
   stage.subline = who.value;
   stage.headline = plan.value?.title ?? "";
   stage.focus = null;
+  /* the body is the index (UX-DESIGN 1.6): the plan's condition lights its first region, as 11-assess does */
+  const condition = kitMap.value?.conditions.find((c) => c.condition_id === plan.value?.condition_id);
+  const region = condition?.body_regions[0];
+  stage.marks = region === undefined ? [] : [{ region, kind: "dot" }];
+});
+onBeforeUnmount(() => {
   stage.marks = [];
 });
 const canStart = computed(() => run.value === null && episodeId.value !== null && session.current?.person != null);
@@ -247,10 +253,10 @@ const canStart = computed(() => run.value === null && episodeId.value !== null &
         {{ kitMap.plans_to_write.join(", ") }}
       </p>
       <p
-        v-if="kitMap"
+        v-if="kitMap?.example"
         class="fine"
       >
-        {{ kitMap.kit_map_label }}
+        {{ CHROME.exampleRows }}
       </p>
     </article>
   </section>
@@ -265,10 +271,10 @@ const canStart = computed(() => run.value === null && episodeId.value !== null &
 .f-plan .card:hover { transform: none; }
 .plan-acts { margin: 0; flex-wrap: nowrap; }
 .plan-steps { flex: 1; min-height: 0; margin-top: 28px; }
-.plan-steps.nsteps.across .what { font-size: 20px; line-height: 27px; font-weight: 300; }
-.plan-steps.nsteps.across .what b { font-size: 15px; font-weight: 500; }
+/* the reference's plan stages (11-assess .a-next): stage word at 13 px, the step at the assistant's .say size
+   (17/24, light) because this card has two rows for it, the note at the row's 13/18 */
+.plan-steps.nsteps.across .what { font-size: 17px; line-height: 24px; font-weight: 300; }
 .plan-steps.nsteps.across .what .t { -webkit-line-clamp: 6; }
-.plan-steps.nsteps.across .what small { -webkit-line-clamp: 4; font-size: 14px; line-height: 19px; }
+.plan-steps.nsteps.across .what small { -webkit-line-clamp: 4; font-size: 13px; line-height: 18px; }
 .plan-steps .li.done::before { background: #fff; color: var(--green); }
-.plan-fine { margin-top: 6px; color: rgba(255, 255, 255, 0.82); font-size: 15px; line-height: 22px; }
 </style>
