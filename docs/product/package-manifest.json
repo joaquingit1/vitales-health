@@ -385,8 +385,8 @@
     },
     {
       "path": "api/examples/config/indicator-catalog.example.json",
-      "bytes": 3795,
-      "sha256": "0e4f0a88d85e80e3c5484d886ff0158f72d93205fdd31f2c269f31108648218a"
+      "bytes": 6419,
+      "sha256": "dc4a5bdd21838631fafb81eae42cf92ee332330faa7547a0daf8077a0d1fa2f1"
     },
     {
       "path": "api/examples/config/onboard-plans.example.json",
@@ -1515,8 +1515,8 @@
     },
     {
       "path": "api/schemas/config-indicator-catalog.schema.json",
-      "bytes": 3145,
-      "sha256": "14d366a5735851512c90608954b1af92fca5ed36f504a91f33fc061ad7171ef0"
+      "bytes": 4985,
+      "sha256": "3a03eb8efcb0ed700fe53bc315a110fcb29410ae26bacff25f52f28e72a04e42"
     },
     {
       "path": "api/schemas/config-kit-map.schema.json",
