@@ -49,17 +49,16 @@ class SensorProviders:
             kind = rt.config_of(view.release).sensor_type(channel.facts.sensor_type_id)
             if kind is None:
                 raise InvalidValue("unknown sensor type")
-            records = [
-                r
-                for r in rt.store.readings_since(
-                    view, channel_id, since=None, up_to_rev=None, limit=rt.limits.window_scan_max_readings
-                )
-                if r.quality_status == "accepted"
-                and r.time_state in ("known", "replay")
-                and r.observed_at <= until
-            ]
-        records.sort(key=lambda r: (r.observed_at, r.rev or 0))
-        chosen = records[-limit:]
+            newest = rt.store.newest_readings(
+                view,
+                channel_id,
+                until=until,
+                statuses=("accepted",),
+                time_states=("known", "replay"),
+                limit=limit + 1,
+            )  # the newest window, so trends never read a frozen old slice; one more row tells truncation
+        chosen = list(reversed(newest[:limit]))  # ascending for consumers
+        records = newest
         points = tuple(
             SeriesPoint(
                 r.observed_at, Quantity(r.canonical, Unit(kind.unit)), r.quality_status, r.origin_mode

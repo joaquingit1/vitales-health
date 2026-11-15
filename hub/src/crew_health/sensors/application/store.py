@@ -174,6 +174,22 @@ class SensorStore(Protocol):
         """The `limit` newest readings observed strictly before `before`, newest first (plausibility history)."""
         ...
 
+    def newest_readings(
+        self,
+        view: View,
+        channel_id: str,
+        *,
+        until: datetime | None,
+        statuses: tuple[QualityStatus, ...],
+        time_states: tuple[TimeState, ...],
+        limit: int,
+        activated_at: datetime | None = None,
+    ) -> Sequence[ReadingRecord]:
+        """The `limit` newest readings observed at or before `until` (any time when None) with one of `statuses`
+        and `time_states`, newest first by observed time then revision. Bounded, and never an old slice. With
+        `activated_at`, only readings that belong to the active place (DE23-13: REPLAY by receive time)."""
+        ...
+
     def instant_peers(
         self, view: View, channel_id: str, corrected_at: datetime, origin: Origin, dataset: str | None
     ) -> Sequence[ReadingRecord]: ...
