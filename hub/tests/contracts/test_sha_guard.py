@@ -113,9 +113,22 @@ def test_repeated_python_generation_is_byte_identical(tmp_path: Path) -> None:
     assert left == right
     import json
 
+    from crew_health.contracts_gen.build import verify_overlay
+
     manifest = json.loads((first / "manifest.json").read_bytes())
-    assert manifest["overlay"] is None
-    assert manifest["effective"] == manifest["base"]
+    overlay = verify_overlay(ROOT, verify_base(ROOT))
+    assert overlay is not None
+    # D19 base-only interim ended when the D12 overlay landed: effective is base plus traced additions.
+    assert manifest["base"] == verify_base(ROOT)
+    assert manifest["overlay"] == overlay.record()
+    assert manifest["effective"] == overlay.effective(manifest["base"])
+    assert set(manifest["effective"]) - set(manifest["base"]) == {
+        "api/schemas/config-unit-mapping.schema.json"
+    }
+    assert {key: value for key, value in manifest["effective"].items() if key in manifest["base"]} == (
+        manifest["base"]
+    )
+    assert "schemas/config_unit_mapping_schema.py" in manifest["outputs"]
     assert set(manifest["outputs"]) == {str(p) for p in left if str(p) != "manifest.json"}
 
 
@@ -178,6 +191,86 @@ def test_overlay_cannot_enter_without_the_shared_binding(tmp_path: Path) -> None
     (tmp_path / "contracts/decision-overlay").mkdir()
     with pytest.raises(ValueError, match="manifest binding"):
         build(tmp_path)
+
+
+def _overlay_root(tmp_path: Path) -> Path:
+    root = tmp_path / "root"
+    (root / "contracts").mkdir(parents=True)
+    (root / "docs/requests").mkdir(parents=True)
+    shutil.copy(ROOT / "contracts/SHA256SUMS", root / "contracts/SHA256SUMS")
+    shutil.copytree(ROOT / "contracts/decision-overlay", root / "contracts/decision-overlay")
+    shutil.copy(
+        ROOT / "docs/requests/COORDINATOR-DECISIONS.md", root / "docs/requests/COORDINATOR-DECISIONS.md"
+    )
+    return root
+
+
+def _rehash_overlay(root: Path) -> None:
+    import hashlib
+    import json
+
+    directory = root / "contracts/decision-overlay"
+    manifest = object_map(json.loads((directory / "manifest.json").read_bytes()))
+    manifest["files"] = {
+        p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+        for p in sorted(directory.iterdir())
+        if p.is_file() and p.name != "manifest.json"
+    }
+    (directory / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+
+def test_verified_overlay_traces_every_edit_to_an_accepted_a3_row(tmp_path: Path) -> None:
+    from crew_health.contracts_gen.build import accepted_traces, verify_overlay
+
+    base = verify_base(ROOT)
+    overlay = verify_overlay(_overlay_root(tmp_path), base)
+    assert overlay is not None
+    decisions, rows = accepted_traces(ROOT)
+    assert overlay.traces
+    for trace in overlay.traces:
+        assert trace["decision"] in decisions
+        lines = trace["a3"]
+        assert isinstance(lines, list) and lines
+        assert all(trace["decision"] in rows[line] for line in lines)
+    assert set(overlay.effective(base)) - set(base) == set(overlay.additions)
+
+
+@pytest.mark.parametrize(
+    "fault", ["untraced", "pending", "tampered", "unlisted", "unbound", "rebased", "operation"]
+)
+def test_overlay_fault_is_rejected_before_effective_generation(tmp_path: Path, fault: str) -> None:
+    import json
+
+    from crew_health.contracts_gen.build import verify_overlay
+
+    root = _overlay_root(tmp_path)
+    directory = root / "contracts/decision-overlay"
+    edits = object_map(json.loads((directory / "part-a.json").read_bytes()))
+    items = edits["edits"]
+    assert isinstance(items, list) and items
+    edit = object_map(items[0])
+    if fault == "untraced":
+        edit["a3"] = ["CONTRACTS.md:1"]
+    elif fault == "pending":
+        edit["decision"] = "D999"
+    elif fault == "operation":
+        edit["op"] = "replace_file"
+    if fault in {"untraced", "pending", "operation"}:
+        edits["edits"] = [edit]
+        (directory / "part-a.json").write_text(json.dumps(edits), encoding="utf-8")
+        _rehash_overlay(root)
+    elif fault == "tampered":
+        schema = directory / "config-unit-mapping.schema.json"
+        schema.write_bytes(schema.read_bytes().replace(b'"const": 4', b'"const": 3'))
+    elif fault == "unlisted":
+        (directory / "manifest.sig").write_bytes(b"unverified")
+    elif fault == "unbound":
+        (directory / "extra.schema.json").write_text("{}", encoding="utf-8")
+        _rehash_overlay(root)
+    else:
+        (root / "contracts/SHA256SUMS").write_bytes(b"")
+    with pytest.raises(ValueError):
+        verify_overlay(root, verify_base(ROOT))
 
 
 def test_duplicate_inventory_and_missing_manifest_fail(tmp_path: Path) -> None:
@@ -245,7 +338,7 @@ def test_enum_status_source_must_match_package_inventory(tmp_path: Path) -> None
         source.replace("| `INTERNAL_ERROR` | 500 |", "| `INTERNAL_ERROR` | 200 |")
     )
     with pytest.raises(ValueError):
-        enum_source(tmp_path)
+        enum_source(tmp_path, tmp_path / "contracts/api/schemas")
 
 
 def apply_operator(name: str, target: object, key: object, value: object) -> None:

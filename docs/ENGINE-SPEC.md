@@ -780,7 +780,9 @@ spin-polarization scale, optimizer gradient tolerance and maximum steps, tblite 
 goes into `Pins.computed_cache_keys`. Entries live in
 `data/pharmacy/xtb-cache/<cache_key>.json` (canonical JSON of `BdeResult`), committed by CX-C for every formulary site
 and every Evans-Polanyi reference molecule, so estimates and replays never depend on running xTB and are identical
-across machines. A miss computes and writes the entry. Recomputing an entry on the same platform and versions must
+across machines. A miss computes and writes the entry. Where tblite is not installed (it has no Windows build), the tblite
+version in the key and in `Pins` is `xtb_cache_tblite_version` of the engine settings, the version that computed
+the committed cache: committed entries are read and a miss raises `XtbError`. Recomputing an entry on the same platform and versions must
 give an identical value.
 
 `PHARMACY_XTB_CACHE_DIR` overrides the cache location for a run; an explicit `cache_dir` takes precedence,

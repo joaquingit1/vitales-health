@@ -48,7 +48,7 @@ def verify_modules(root: Path, expected: dict[str, str], *, max_modules: int) ->
 
 
 def _imports(path: Path, root: Path, *, pure: bool = True) -> tuple[str, ...]:
-    source = ast.parse(path.read_text(), filename=str(path))
+    source = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     if pure:
         _check_pure_access(source)
     names: list[str] = []
@@ -199,6 +199,10 @@ def _feature_edge(module: str, layer: str, target: str) -> None:
             raise ValueError("domain-pure: " + target)
     if parts[0] != "crew_health" or len(parts) < 2 or parts[1] in {module, "kernel", "contracts_gen"}:
         return
+    # SYSTEM 5.12: module.py types register(registry: ModuleRegistry) from app/registry.py;
+    # SYSTEM 5.5: routers map ProblemError through app/errors.py. app is the root, not a module.
+    if (layer, target) in {("", "crew_health.app.registry"), ("api", "crew_health.app.errors")}:
+        return
     if parts[-1] == "module":
         raise ValueError("app-only-assembles")
     if len(parts) < 4 or parts[2:4] != ["application", "ports"]:
@@ -222,7 +226,7 @@ def _feature_edge(module: str, layer: str, target: str) -> None:
 
 
 def _check_registration_source(path: Path) -> None:
-    tree = ast.parse(path.read_text())
+    tree = ast.parse(path.read_text(encoding="utf-8"))
     for node in tree.body:
         if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant):
             continue

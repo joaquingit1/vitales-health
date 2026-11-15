@@ -1,0 +1,3 @@
+# Text files are checked out with LF on every OS: contract copies are SHA-256 guarded and generated files must
+# be byte-identical, so line-ending conversion on Windows would break both.
+* text=auto eol=lf

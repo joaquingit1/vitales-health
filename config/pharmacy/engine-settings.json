@@ -331,6 +331,7 @@
       "note": "ETKDGv3 random seed for every conformer embedding."
     },
     "xtb_method": "GFN2-xTB",
+    "xtb_cache_tblite_version": "0.8.0",
     "xtb_accuracy": {
       "value": 1.0,
       "unit": "1",

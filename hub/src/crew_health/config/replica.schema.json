@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config.replica.schema.json",
+  "title": "Local configuration release recovery projection",
+  "type": "object",
+  "required": ["release_id", "state", "pins", "created_at", "created_by", "activated_at", "activated_by", "superseded_at", "validation", "note"],
+  "properties": {
+    "release_id": {"type": "string", "minLength": 1},
+    "state": {"enum": ["draft", "active", "superseded", "rejected"]},
+    "pins": {"type": "array", "minItems": 1, "maxItems": 18},
+    "created_at": {"type": "string"},
+    "created_by": {"type": "object"},
+    "activated_at": {"type": ["string", "null"]},
+    "activated_by": {"type": ["object", "null"]},
+    "superseded_at": {"type": ["string", "null"]},
+    "validation": {"type": "object"},
+    "note": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}

@@ -342,6 +342,9 @@ def register(registry):
         ("first/application/value.py", "from crew_health.groundlink.application.ports import Reader"),
         ("rules/application/value.py", "from crew_health.assistant.application.ports import Model"),
         ("first/module.py", "open('side-effect')"),
+        ("first/application/value.py", "from crew_health.app.registry import ModuleRegistry"),
+        ("first/module.py", "from crew_health.app.assembly import create_app"),
+        ("first/application/value.py", "from crew_health.app.errors import to_envelope"),
     ],
 )
 def test_feature_architecture_rejects_forbidden_ingress(tmp_path: Path, path: str, source: str) -> None:
@@ -355,6 +358,22 @@ def test_feature_architecture_rejects_forbidden_ingress(tmp_path: Path, path: st
     target.write_text(source)
     with pytest.raises(ValueError):
         generate_contracts(tmp_path, max_modules=8)
+
+
+def test_feature_registration_and_router_errors_may_use_the_composition_root(tmp_path: Path) -> None:
+    module = tmp_path / "first"
+    (module / "api").mkdir(parents=True)
+    (module / "__init__.py").write_text("", encoding="utf-8")
+    (module / "api/__init__.py").write_text("", encoding="utf-8")
+    (module / "module.py").write_text(
+        "from crew_health.app.registry import ModuleRegistry\n"
+        "def register(registry: ModuleRegistry) -> None:\n    pass\n",
+        encoding="utf-8",
+    )
+    (module / "api/router.py").write_text(
+        "from crew_health.app.errors import to_envelope\n", encoding="utf-8"
+    )
+    assert "first" in generate_contracts(tmp_path, max_modules=8)
 
 
 def test_runtime_signature_parameter_kinds_and_defaults() -> None:

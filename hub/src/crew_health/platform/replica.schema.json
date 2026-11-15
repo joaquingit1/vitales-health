@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:crew-health:platform:replica:1",
+  "$defs": {
+    "revocation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["control_id", "recipient_id", "stream_id", "old_policy_epoch", "new_policy_epoch", "authority_ref", "signature"],
+      "properties": {
+        "control_id": {"type": "string", "minLength": 1},
+        "recipient_id": {"type": "string", "minLength": 1},
+        "stream_id": {"type": "string", "minLength": 1},
+        "old_policy_epoch": {"type": "integer", "minimum": 1},
+        "new_policy_epoch": {"type": "integer", "minimum": 2},
+        "authority_ref": {"type": "string", "minLength": 1},
+        "signature": {"type": "string", "pattern": "^(?:[0-9a-f]{2})+$"}
+      }
+    },
+    "receipt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stream_id", "delivery_seq", "envelope_sha256", "checkpoint"],
+      "properties": {
+        "stream_id": {"type": "string", "minLength": 1},
+        "delivery_seq": {"type": "integer", "minimum": 1},
+        "envelope_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "checkpoint": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "oneOf": [{"$ref": "#/$defs/revocation"}, {"$ref": "#/$defs/receipt"}]
+}

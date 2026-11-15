@@ -82,9 +82,14 @@ class XtbResult:
 # =========================================================================================
 
 
-def tblite_version() -> str:
-    """Installed tblite version (``Pins.tblite_version``, cache key)."""
-    return importlib.metadata.version("tblite")
+def tblite_version(settings: ComputedLayerSettings) -> str:
+    """tblite version of the cache key and ``Pins.tblite_version``: the installed one, or, where tblite
+    is not installed (it has no Windows build), ``xtb_cache_tblite_version``, the version that computed
+    the committed cache, so those entries are found and nothing is computed."""
+    try:
+        return importlib.metadata.version("tblite")
+    except importlib.metadata.PackageNotFoundError:
+        return settings["xtb_cache_tblite_version"]
 
 
 def rdkit_version() -> str:
@@ -192,8 +197,14 @@ def _check_spin(numbers: tuple[int, ...], charge: int, uhf: int) -> None:
 def _calculator(
     numbers: tuple[int, ...], positions: FloatArray, charge: int, uhf: int, settings: ComputedLayerSettings
 ) -> Any:
-    _pin_tblite_threads()
-    from tblite.interface import Calculator  # noqa: PLC0415  (heavy native import, xTB paths only)
+    try:
+        _pin_tblite_threads()
+        from tblite.interface import Calculator  # noqa: PLC0415  (heavy native import, xTB paths only)
+    except ImportError as exc:
+        raise XtbError(
+            "tblite is not installed (it has no Windows build); this value is not in the xtb cache, "
+            "so compute it on Linux or macOS and add the cache entry"
+        ) from exc
 
     _check_spin(numbers, charge, uhf)
     scale = _spin_polarization_scale(settings)
@@ -405,7 +416,7 @@ def cache_key_material(
         "spin_polarization_scale": _spin_polarization_scale(settings),
         "optimizer_gtol_eh_per_bohr": float(settings["optimizer_gtol_eh_per_bohr"]["value"]),
         "optimizer_max_steps": _max_steps(settings),
-        "tblite_version": tblite_version(),
+        "tblite_version": tblite_version(settings),
         "rdkit_version": rdkit_version(),
     }
 
@@ -418,7 +429,7 @@ def bde_cache_key(smiles: str, site_atom: int, bond: str, settings: ComputedLaye
 
 def _method_label(settings: ComputedLayerSettings) -> str:
     return (
-        f"{settings['xtb_method']} (tblite {tblite_version()}), accuracy "
+        f"{settings['xtb_method']} (tblite {tblite_version(settings)}), accuracy "
         f"{settings['xtb_accuracy']['value']}, electronic temperature "
         f"{settings['xtb_electronic_temperature_k']['value']} K, spin polarization scale "
         f"{_spin_polarization_scale(settings)} for open-shell species; "
