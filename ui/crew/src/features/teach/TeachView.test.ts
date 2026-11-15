@@ -12,6 +12,7 @@ import run from "../../../../../contracts/api/examples/plans/run-icl10-opened.js
 import roles from "../../../../../contracts/api/examples/roles/plan-run-roles.json";
 import plan from "../../../../../contracts/api/examples/plans/view-icl10-lunar.json";
 import catalog from "../../../../../config/skills-catalog.json";
+import uiCopy from "../../../../../config/ui-copy.json";
 
 /**
  * The teach screen renders what the hub sends: the contract's own examples stand in for the hub's answers
@@ -75,6 +76,20 @@ describe("teach and check", () => {
     expect(text(host, "officer")).toBe("Ilya Brandt, medical officer, is on a surface walk until 11:40.");
     expect(text(host, "teach")).toBe("Teach Tomas");
   });
+
+  it("says why nobody is proposed: the plan's needs_skill_holder line, not the bare state (E31, plan_lines)", async () => {
+    const reason = uiCopy.plan_lines.needs_skill_holder.replace("{skill_short}", skill?.short_name ?? "");
+    const unheld = structuredClone(plan).value;
+    const stage = unheld.stages.find((s) => s.stage_id === "check_another_way");
+    Object.assign(stage?.steps?.[0] ?? {}, { availability: "needs_skill_holder", availability_text: reason });
+    const host = await mount("prn_icl10_mara_1", {
+      "/v1/plan-runs/prn_icl10_mara_1": run.value,
+      "/v1/plan-runs/prn_icl10_mara_1/roles": { items: [], page: { next_cursor: null, total: 0 } },
+      "/v1/plans/plan_icl10": unheld,
+    });
+    await vi.waitFor(() => expect(text(host, "no-helper")).toBe(reason), { timeout: 10000, interval: 100 });
+    expect(text(host, "teach")).toBe("");
+  }, 15000);
 
   it("lands the hub's agree verdict and keeps the ring line (T30-01)", async () => {
     const id = agree.value.guided_check_id;
