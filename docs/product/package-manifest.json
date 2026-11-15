@@ -410,8 +410,8 @@
     },
     {
       "path": "api/examples/config/routine-rules.example.json",
-      "bytes": 10720,
-      "sha256": "eedfd2c556e778727775db5cbf27248d8d5961e504202c7fc51c3857621d2f7f"
+      "bytes": 10678,
+      "sha256": "c3a9dd7457a21865613659a2aced3e6783c3b2e64443b0624f0658f1dae77f6b"
     },
     {
       "path": "api/examples/config/sensor-catalog.example.json",

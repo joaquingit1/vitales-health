@@ -57,6 +57,9 @@ from crew_health.records.domain.observations import ObservationInput, RecordCont
 from crew_health.roles.api.router import RequestAuthenticator as RolesAuthenticator
 from crew_health.roles.application.ports import RosterMember as RolesMember
 from crew_health.roles.application.ports import RosterPort as RolesRoster
+from crew_health.routine.application.ports import RequestAuthenticator as RoutineAuthenticator
+from crew_health.routine.application.ports import RosterMember as RoutineMember
+from crew_health.routine.application.ports import RosterPort as RoutineRoster
 from crew_health.teach.application.ports import OriginMode as TeachOrigin
 from crew_health.teach.application.ports import PersonDirectory, PersonRef, RecordRouting
 from crew_health.teach.application.ports import RequestAuthenticator as TeachAuthenticator
@@ -206,6 +209,29 @@ class RolesRosterAdapter:
             RolesMember(entry.person_id, entry.display_name, entry.roster_index, entry.medical_officer_rank)
             for entry in self.identity.crew_at(at)
         )
+
+
+@dataclass(frozen=True, slots=True)
+class RoutineRosterAdapter:
+    """routine RosterPort (E02 design seam table: crew(at), members(), person_ids()): the current roster on the
+    mission day of `at`, or of now; an unknown mission day is an empty roster, so routine materializes nothing."""
+
+    identity: IdentityService
+
+    @staticmethod
+    def _member(entry: RosterEntry) -> RoutineMember:
+        return RoutineMember(
+            entry.person_id, entry.display_name, entry.roster_index, entry.medical_officer_rank
+        )
+
+    def crew(self, at: datetime) -> Sequence[RoutineMember]:
+        return tuple(self._member(entry) for entry in self.identity.crew_at(at))
+
+    def members(self) -> Sequence[RoutineMember]:
+        return tuple(self._member(entry) for entry in self.identity.crew_at())
+
+    def person_ids(self) -> frozenset[str]:
+        return frozenset(entry.person_id for entry in self.identity.crew_at())
 
 
 @dataclass(frozen=True, slots=True)
@@ -396,11 +422,13 @@ def compose(
         (PlansAuthenticator, gate, on_security),
         (RolesAuthenticator, gate, on_security),
         (TeachAuthenticator, headers, on_security),
+        (RoutineAuthenticator, headers, on_security),
         (MeasurementAuthenticator, lambda r: MeasurementGate(headers(r)), on_security),
         (EpisodesAuthenticator, lambda r: MeasurementGate(headers(r)), on_security),
         (HelpRoster, lambda r: HelpRosterAdapter(identity(r)), on_identity),
         (RolesRoster, lambda r: RolesRosterAdapter(identity(r)), on_identity),
         (KitmapRoster, lambda r: KitmapRosterAdapter(identity(r)), on_identity),
+        (RoutineRoster, lambda r: RoutineRosterAdapter(identity(r)), on_identity),
         (PersonDirectory, lambda r: PeopleAdapter(identity(r)), on_identity),
         (RecordRouting, lambda r: RoutingAdapter(identity(r), demo), on_identity),
         (CatchupConsent, consent, (ConsentService,)),
