@@ -269,7 +269,7 @@ def test_sessions_and_roles(
         (b'{"add_instruments": ["oct", "oct"]}', "application/json", 422, "INVALID_VALUE"),
         (b'{"add_instruments": ["oct"], "extra": 1}', "application/json", 422, "INVALID_VALUE"),
         (
-            b'{"add_supplies": [{"supply_id": "eye_shield", "quantity": 2}]}',
+            b'{"add_supplies": [{"supply_id": "not_in_the_catalog", "quantity": 2}]}',
             "application/json",
             422,
             "INVALID_VALUE",

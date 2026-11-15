@@ -9,7 +9,9 @@ Deterministic: the same inputs give the same bytes. Inputs, all already in the r
 - docs/product/sources.csv: the source registry (S13, NASA's Integrated Medical Model documentation);
 - contracts/api/examples/kit-map.example.json: the instrument catalog, capabilities, kits and candidates;
 - authoring/kitmap/kit.json: the head (label, notice, defaults for added instruments);
-- authoring/kitmap/adjudication/draft.json (drafting model) and check.json (checking model).
+- authoring/kitmap/adjudication/draft.json (drafting model) and check.json (checking model);
+- authoring/supplies/kit-map-supplies.json: supplies, stock, candidate_supplies and candidate_skills, owned
+  by E32 (R-E32-01), each supply with its sources under `provenance`.
 
 A row whose check is not `agrees`, or that the drafter marked undecided, keeps `checked_by: null`
 (unchecked) and is listed in the provenance file; nothing is invented to fill it. Conditions whose ID the
@@ -31,6 +33,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "config/kit-map.json"
 PROVENANCE = ROOT / "authoring/kitmap/provenance.json"
+SUPPLIES = ROOT / "authoring/supplies/kit-map-supplies.json"
 ENVIRONMENTS = ("station_leo", "transit", "lunar_surface", "mars_surface")
 CAMERA_ESTIMATE = "camera_estimate"
 # Coordinator decision D22: condition IDs may carry one capital suffix (ICL36A, ICL36B). The package
@@ -263,10 +266,7 @@ def build() -> tuple[bytes, bytes]:
         "capabilities": capabilities,
         "kits": {e: list(_list(kits[e])) for e in ENVIRONMENTS},
         "candidates": list(_list(example["candidates"])),
-        "candidate_supplies": [],
-        "candidate_skills": [],
-        "supplies": [],
-        "stock": {e: [] for e in ENVIRONMENTS},
+        **_supply_keys(),
         "conditions": rows,
     }
     side_file = {
@@ -279,6 +279,23 @@ def build() -> tuple[bytes, bytes]:
         "rows": provenance,
     }
     return _dump(document), _dump(side_file)
+
+
+def _supply_keys() -> Obj:
+    """E32's four keys in the kit map's key order; every catalogued supply must cite at least one source."""
+    owned = _obj(_load(SUPPLIES))
+    supplies = [_obj(s) for s in _list(owned["supplies"])]
+    cited = _obj(owned["provenance"])
+    for supply in supplies:
+        if not _list(cited.get(_str(supply["supply_id"]), [])):
+            raise BuildError(f"supply {supply['supply_id']} has no provenance in {SUPPLIES.name}")
+    stock = _obj(owned["stock"])
+    return {
+        "candidate_supplies": list(_list(owned["candidate_supplies"])),
+        "candidate_skills": list(_list(owned["candidate_skills"])),
+        "supplies": supplies,
+        "stock": {e: list(_list(stock[e])) for e in ENVIRONMENTS},
+    }
 
 
 def _dump(value: object) -> bytes:
