@@ -301,11 +301,18 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
     from crew_health.clock.application.clock import ClockIdentity
     from crew_health.groundlink.application.ports import MissionStatePort as GroundMission
     from crew_health.help.application.ports import MissionStatePort as HelpMission
+    from crew_health.kernel.met import MissionClock
     from crew_health.measurement.application.ports import MissionStatePort as MeasurementMission
     from crew_health.records.application.seams import MissionStatePort as RecordsMission
 
+    clock = cast(type[object], MissionClock)
+
     def bound(resolver: object) -> object:
-        return replace(mission, site_node_id=resolver.require(ClockIdentity).node_id)  # type: ignore[attr-defined]
+        return replace(
+            mission,
+            site_node_id=resolver.require(ClockIdentity).node_id,  # type: ignore[attr-defined]
+            clock=resolver.require(MissionClock),  # type: ignore[attr-defined]
+        )
 
     for port in (
         CameraMission,
@@ -316,8 +323,8 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
         KitMission,
         MissionStatePort,
     ):
-        registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))
-    registry.provide(cast(type[object], OverlayPort), bound, requires=(ClockIdentity,))
+        registry.provide(cast(type[object], port), bound, requires=(ClockIdentity, clock))
+    registry.provide(cast(type[object], OverlayPort), bound, requires=(ClockIdentity, clock))
 
 
 def _camera_f1(registry: ModuleRegistry, provided: Mapping[object, object], reports: object | None) -> None:

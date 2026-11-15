@@ -212,6 +212,11 @@ class Uow:
         return stored
 
     def audit(self, entry: AuditEntry) -> None:
+        # SYSTEM 5.8 as the platform audit adapter applies it: a registered policy and enumerated metadata.
+        from crew_health.teach.module import audit_policies
+
+        policies = {policy.event_type: policy for policy in audit_policies()}
+        policies[entry.event_type].validate(entry)
         self.audits.append(entry)
 
     def schedule(self, job: ScheduledJob, *, expected_generation: int | None) -> int:
@@ -221,7 +226,10 @@ class Uow:
         raise ProblemError(ErrorCode.INTERNAL_ERROR, "teach schedules nothing")
 
     def replicate(self, change: ReplicationChange) -> ReplicationRef:
-        raise ProblemError(ErrorCode.INTERNAL_ERROR, "teach replicates nothing")
+        # Teach registers only a new check's reference (SYSTEM 5.7), never a payload for export.
+        if change.record_type != "guided_check" or change.export_projection is not None:
+            raise ProblemError(ErrorCode.INTERNAL_ERROR, "teach replicates only check references")
+        return ReplicationRef("node_test", "inc_test", 1)
 
     @contextmanager
     def savepoint(self, name: str) -> Iterator[None]:

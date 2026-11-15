@@ -94,6 +94,22 @@
     "environment-lunar-surface": {
       "environment_id": "lunar_surface",
       "basis": "VALIDATION 3 act 3: a second EnvironmentProfile, lunar_surface, SIM, entered through the demo control"
+    },
+    "drill-tomas-pulse": {
+      "person_id": "tomas",
+      "request": {
+        "value": {
+          "scenario_id": "drill_pulse_crewmate",
+          "skill_ids": [
+            "pulse_check_wrist"
+          ],
+          "participant_ids": [
+            "tomas"
+          ],
+          "origin_mode": "SIM"
+        }
+      },
+      "basis": "DEMO-PLAN 3 (0:13) and contracts/api/examples/drills/drill-pulse-completed.json: Tomas Lind practiced the pulse check on a crewmate's wrist in a drill (scenario drill_pulse_crewmate of skills-catalog.json), so E31 proposes him as the freshest holder on the ICL10 run"
     }
   },
   "environment": {

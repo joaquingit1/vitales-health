@@ -68,6 +68,7 @@ class StartGuidedCheck(TeachCore):
             r = self.reading()
             check = self._new(meta.session, data, context, skill, measured, r)
             self.p.repository.add(uow, check)
+            self.register(uow, check)
             self.audit(uow, meta.session, "guided_check_started", check)
             self.remember(uow, identity, check, 201)
             return self.response(check, meta.session, 201, r)

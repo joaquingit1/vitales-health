@@ -579,6 +579,39 @@ class Hub:
             return error.code, json.loads(raw) if raw else None
 
 
+def run_drill(
+    hub: Hub,
+    fixture: Fixture,
+    credentials: dict[str, str],
+    spec: dict[str, object],
+    release: str,
+    at: datetime,
+) -> tuple[int, object]:
+    """A practice drill through E31's own commands, as the participant: start the fixture's drill, then complete it.
+    Completion writes the participant's SIM practice, which makes them a holder of the drill's skills."""
+    person_id = str(spec["person_id"])
+    status, session = hub.call(
+        "POST",
+        "/v1/sessions",
+        body={"kind": "crew", "person_id": person_id, "credential": credentials[person_id]},
+    )
+    if status != 201 or not isinstance(session, dict):
+        raise DemoError("crew sign in refused: " + json.dumps(session))
+    token = str(session["token"])
+    body = fixture.cited(spec["request"])
+    status, drill = hub.call("POST", "/v1/drills", token=token, body=body, release=release)
+    if status != 201 or not isinstance(drill, dict):
+        return status, drill
+    return hub.call(
+        "POST",
+        "/v1/drills/" + str(drill["drill_id"]) + "/complete",
+        token=token,
+        body={"client_time": at.strftime("%Y-%m-%dT%H:%M:%SZ")},
+        release=release,
+        if_match=int(str(drill["revision"])),
+    )
+
+
 def start_walk(directory: Path, fixture: Fixture, person_id: str, at: datetime) -> dict[str, object]:
     """E23's createOverlay is not on main: the demo control records the fixture's surface walk overlay for one of
     its people as an E23 ActivityOverlay, started now (I-O1: at most one active overlay of a kind per person)."""
@@ -645,6 +678,8 @@ def cue(directory: Path, name: str, *, base_url: str, now: datetime | None = Non
     if name.startswith("model-"):
         body = dict(cast(dict[str, object], fixture.cited(spec["request"])))
         return hub.call("POST", "/v1/assistant/runtime", token=token, body=body, release=release)
+    if name.startswith("drill-"):
+        return run_drill(hub, fixture, credentials, spec, release, now or datetime.now(UTC))
     if name.startswith("eva-"):
         return 201, start_walk(directory, fixture, str(spec["person_id"]), now or datetime.now(UTC))
     if name.startswith("environment-"):

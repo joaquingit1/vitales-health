@@ -13,6 +13,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import cast
 
 import pytest
 import uvicorn
@@ -269,7 +270,9 @@ def test_the_icl10_plan_shows_real_availability_and_the_ground_line(served: Serv
     assert isinstance(review["who_can"], list) and "ilya" in {p["person_id"] for p in review["who_can"]}
     # Nobody has a recorded pulse check practice yet: the step waits for a skill holder, it is not "Unknown".
     assert steps["icl10_pulse_by_crewmate"]["availability"] == "needs_skill_holder"
-    ground = next(s for s in plan["stages"] if s["stage_id"] == "ground_log")  # type: ignore[union-attr]
+    stages = plan["stages"]
+    assert isinstance(stages, list)
+    ground = next(s for s in stages if s["stage_id"] == "ground_log")
     assert ground["link_text"]
 
 
@@ -288,17 +291,13 @@ def test_shot_d_eva_ilya_puts_the_medical_officer_on_a_surface_walk(served: Serv
         assert isinstance(who, list) and who and "ilya" not in {p["person_id"] for p in who}
 
 
-def test_shot_d_the_icl10_plan_runs_from_help_and_the_guided_check_refuses_without_a_skill_holder(
-    served: Served,
-) -> None:
-    """Shot D on the served hub: Mara presses Someone needs help, the ICL10 plan run starts from that help session
-    (E28: a help session in place of an episode, since E04 is not merged) and lists its pulse_check_wrist step.
-    Guidance now has its content, environment and operator facts, so what still refuses is the plan itself: the
-    step's operator is skill:pulse_check_wrist and nobody holds a fresh or due practice record, so the step is
-    needs_skill_holder, not runnable, and teach refuses the guided check (run_closed, CONTEXT_INAPPLICABLE). Roles
-    proposes nobody: its recompute pass writes the roles.proposed audit entry, which has no registered AuditPolicy
-    (SYSTEM 5.8), so the pass fails with INVALID_VALUE before any proposal is stored."""
-    mara = served.sign_in("mara")
+def test_shot_d_roles_propose_tomas_on_the_icl10_run_and_his_guided_check_starts(served: Served) -> None:
+    """Shot D on the served hub. `demo cue drill-tomas-pulse` runs E31's own drill commands as Tomas, so his SIM
+    practice makes him a pulse_check_wrist holder, and Ilya is on her walk (the eva-ilya shot above). Mara presses
+    Someone needs help, the ICL10 run starts from that help session, E31 proposes Tomas as its helper (freshest
+    holder, with Ilya named as the officer on the walk), Tomas accepts, and the guided check starts for that run."""
+    assert served.cue("drill-tomas-pulse") == 0
+    mara, tomas = served.sign_in("mara"), served.sign_in("tomas")
     opened_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     status, session = served.post(
         "/v1/help-sessions",
@@ -320,9 +319,43 @@ def test_shot_d_the_icl10_plan_runs_from_help_and_the_guided_check_refuses_witho
     steps = run["steps"]
     assert isinstance(steps, list)
     assert {"step_id": "icl10_pulse_by_crewmate", "state": "open"}.items() <= steps[0].items()
-    status, roles = served.get(f"/v1/plan-runs/{run['plan_run_id']}/roles", mara)
-    assert status == 200 and roles["items"] == []
-    status, refused = served.post(
+    path = f"/v1/plan-runs/{run['plan_run_id']}/roles"
+    deadline = time.monotonic() + 60
+    items: list[dict[str, object]] = []
+    while not items and time.monotonic() < deadline:
+        status, roles = served.get(path, mara)
+        assert status == 200, roles
+        items = cast(list[dict[str, object]], roles["items"])
+        if not items:
+            time.sleep(0.5)
+    assert len(items) == 1, items
+    helper = items[0]
+    assert (helper["role_id"], helper["skill_id"], helper["state"]) == (
+        "lead_helper",
+        "pulse_check_wrist",
+        "proposed",
+    )
+    assert helper["person"] == {"person_id": "tomas", "display_name": "Tomas Lind"}
+    assert helper["reason_code"] == "freshest_skill"
+    reasons = cast(list[dict[str, object]], helper["context_reasons"])
+    assert [r["reason_code"] for r in reasons] == ["officer_on_eva"]
+    revision = helper["revision"]
+    assert isinstance(revision, int)
+    status, accepted = served.hub.call(
+        "POST",
+        path,
+        token=tomas,
+        body={
+            "action": "accept",
+            "role_assignment_id": helper["role_assignment_id"],
+            "client_time": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        },
+        release=served.release(),
+        if_match=revision,
+    )
+    assert status == 200 and isinstance(accepted, dict), accepted
+    assert accepted["state"] == "accepted"
+    status, check = served.post(
         "/v1/guided-checks",
         mara,
         {
@@ -330,9 +363,12 @@ def test_shot_d_the_icl10_plan_runs_from_help_and_the_guided_check_refuses_witho
             "helper_person_id": "tomas",
             "subject_person_id": "mara",
             "plan_run_id": run["plan_run_id"],
+            "role_assignment_id": helper["role_assignment_id"],
         },
     )
-    assert (status, refused["code"]) == (422, "CONTEXT_INAPPLICABLE"), refused
+    assert status == 201, check
+    assert (check["state"], check["teach_step_no"]) == ("teaching", 1)
+    assert check["helper"] == {"person_id": "tomas", "display_name": "Tomas Lind"}
 
 
 def test_shot_e_help_opens_with_the_model_stopped(served: Served) -> None:

@@ -120,14 +120,25 @@ class RoleActions:
                 if problem.code == ErrorCode.DUPLICATE_COMMAND:
                     raise KeyReused(cmd.key) from problem
                 raise
-            if stored is not None and stored.safe_body is not None:
-                return stored.status, stored.safe_body
+            if stored is not None:
+                # SYSTEM 5.8: the ledger keeps the receipt and the assignment it named, not the response body.
+                done = (
+                    None
+                    if stored.resource_ref is None
+                    else self.deps.repository(uow.connection).get(stored.resource_ref)
+                )
+                if done is None:
+                    raise RoleNotFound(cmd.role_assignment_id)
+                view = wire.assignment(
+                    done, allowed_actions(done, session_person_id=session.person_id, context_open=True)
+                )
+                return stored.status, json.dumps(view, sort_keys=True).encode()
             body = self._apply(uow, session, cmd, world)
             receipt = AcceptedReceipt(
                 cmd.key, identity.operation, cmd.context_id, self.deps.ids.new("rcp"), uow.now
             )
             self.deps.idempotency.record(
-                uow, identity, StoredResult(receipt, 200, cmd.role_assignment_id, "ok", body)
+                uow, identity, StoredResult(receipt, 200, cmd.role_assignment_id, "accepted", None)
             )
             return 200, body
 
@@ -170,7 +181,7 @@ class RoleActions:
             self.deps,
             "roles." + cmd.action,
             {"role_assignment_id": a.role_assignment_id, "person_id": updated.person_id},
-            {"revision": updated.revision},
+            {},
         )
         view = wire.assignment(
             updated, allowed_actions(updated, session_person_id=session.person_id, context_open=True)
