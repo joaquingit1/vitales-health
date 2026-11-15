@@ -368,6 +368,21 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 4000
+        },
+        "waiting_time": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "seconds": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "open": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
         }
       },
       "required": [
@@ -420,7 +435,10 @@
         "reload",
         "message",
         "progress",
-        "missing_value"
+        "missing_value",
+        "waiting_time",
+        "seconds",
+        "open"
       ],
       "additionalProperties": false
     },

@@ -70,7 +70,10 @@
     "reload": "Reload",
     "message": "Message",
     "progress": "Progress",
-    "missing_value": "Not recorded"
+    "missing_value": "Not recorded",
+    "waiting_time": "Waiting on this screen",
+    "seconds": "s",
+    "open": "Open"
   },
   "states": {
     "stopped": "Assistant stopped. Fixed help, records and measurement cards still work.",

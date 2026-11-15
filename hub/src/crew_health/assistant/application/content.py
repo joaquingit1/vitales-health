@@ -101,6 +101,9 @@ _COPY_KEYS = {
     ),
     "labels": frozenset(
         {
+            "waiting_time",
+            "seconds",
+            "open",
             "conversation",
             "person",
             "notice",
