@@ -1,0 +1,13 @@
+{
+  "origin": "SIM",
+  "provenance": "SIM frames synthesized from the GATT Specification Supplement byte layouts; not a device recording.",
+  "frames": [
+    {
+      "characteristic": "plx_continuous",
+      "payload_hex": "0061004800"
+    },
+    {
+      "event": "disconnect"
+    }
+  ]
+}

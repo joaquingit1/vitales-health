@@ -1,0 +1,52 @@
+{
+  "profile_id": "thermometer-sim",
+  "version": "2",
+  "family": "thermometer",
+  "device_label": "Kit thermometer (simulated input)",
+  "model": null,
+  "calibration": "unknown",
+  "hardware_evidence": "unmeasured",
+  "evidence_ref": null,
+  "provenance": [
+    {
+      "path": "eval/scenarios/E07",
+      "note": "SIM scenario profile, not a device specification. No paired model, no hardware evidence, calibration unknown. No catalog source (NASA-SOURCES.md, sources.csv, nasa-data) and no repository source sets a device range or rate limit for this family, so range_min, range_max and max_rate_per_second stay null: missing stays missing (AGENTS.md section 1 rule 5). Each reading then carries unchecked:range:<code> and unchecked:rate:<code> quality notes, and a real profile sets them from the paired device's instructions for use (evidence_ref)."
+    },
+    {
+      "path": "Bluetooth SIG Health Thermometer Service 0x1809, Temperature Measurement 0x2A1C",
+      "note": "completion measurement: each Temperature Measurement (0x2A1C) indication is one complete measurement (Bluetooth SIG Health Thermometer Service specification), so the device ending its connection after it is the normal end of a reading, not a lost one. A source that never delivered a measurement still fails."
+    },
+    {
+      "path": "docs/product/NASA-SOURCES.md RT17; docs/product/ROUTINE.md:172",
+      "note": "NASA CHP-IDSP Project Updates (HRP IWS 2025, NTRS 20250000330): heart rate, blood pressure, temperature and blood oxygen levels are collected data packaged as the crew member's patient file. Why the kit reading is kept as attributed device data."
+    },
+    {
+      "path": "contracts/reference/input-dictionary.json",
+      "note": "Bounds are data checks, not clinical thresholds (validation text of the measurement fields)."
+    },
+    {
+      "path": "Bluetooth SIG Health Thermometer Service and GATT Specification Supplement",
+      "note": "Protocol units of the decoded fields. non-NASA: no NASA catalog document defines a device protocol."
+    }
+  ],
+  "components": [
+    {
+      "field": "temperature",
+      "indicator_code": "temperature",
+      "units": {
+        "degree_celsius": "Cel"
+      },
+      "range_min": null,
+      "range_max": null,
+      "saturation_low": null,
+      "saturation_high": null,
+      "max_rate_per_second": null
+    }
+  ],
+  "min_samples": 1,
+  "rejecting_status": [],
+  "noted_status": [
+    "reserved_bits"
+  ],
+  "completion": "measurement"
+}

@@ -65,8 +65,8 @@
     },
     {
       "path": "NASA-SOURCES.md",
-      "bytes": 119739,
-      "sha256": "80f94c9abe1e3400974f453e936b76451ef5816954696a1ede55238fa6c93f21"
+      "bytes": 123387,
+      "sha256": "d092389d58cf36cf254a8c2ef43ff8ca99853052a62b8fd43a5e30c3ee43f417"
     },
     {
       "path": "PACKAGE-CHECKS.html",
@@ -820,8 +820,8 @@
     },
     {
       "path": "api/examples/kit-map.example.json",
-      "bytes": 14726,
-      "sha256": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b"
+      "bytes": 14803,
+      "sha256": "3f98f1855025d41ad54b162dd98eea66acab250b4fd9c1acf29ebf7c20ed0850"
     },
     {
       "path": "api/examples/kit-map/view-mars.json",
@@ -1520,8 +1520,8 @@
     },
     {
       "path": "api/schemas/config-kit-map.schema.json",
-      "bytes": 16427,
-      "sha256": "d9dcdc2d269e3682f5294cbd7b4fdd39ddf7df6c94132051e91453311a77e379"
+      "bytes": 16916,
+      "sha256": "3961e6fd22467e40e1075df84584e9a6d09cf3a4589071a063aefab8ca446f8c"
     },
     {
       "path": "api/schemas/config-medicines.schema.json",

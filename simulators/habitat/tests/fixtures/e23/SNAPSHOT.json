@@ -1,0 +1,29 @@
+{
+  "source_branch": "origin/e23-build",
+  "commit": "843619b8ede96e4bcf8ccb95a9547a01a454fc5e",
+  "read_with": "git show <commit>:<path>; contracts/api/** and config/sensor-*.json",
+  "note": "Snapshot of E23's ingest contract and sensor configuration (PR #5, open). Refresh it by rerunning the git show commands at a newer commit; tests validate every emitted payload against these files.",
+  "paths": {
+    "schemas/*.schema.json": "contracts/api/schemas/",
+    "config/*.json": "config/",
+    "examples/adapter-batch.json": "contracts/api/examples/requests/adapter-batch.json",
+    "examples/*": "contracts/api/examples/sensors/",
+    "openapi-ingestReadings.yaml": "contracts/api/openapi.yaml, path /v1/adapters/{adapter_id}/readings"
+  },
+  "sha256": {
+    "config/sensor-catalog.json": "424f266e3fc638be8c0764d6035e0c642f3a198f3e84c5c485617fb4e3f67de8",
+    "config/sensor-limits.json": "1cb23bb092e9a45eba1d562f6fac05e27c00d8f3b5b85101fa45b38881f690ed",
+    "examples/adapter-batch.json": "a4b9663dd809404127fb93dda705e2874bc584bb1329f34d22130b012fd50058",
+    "examples/channels-station.json": "899bec4a391c9405719b33b802f3d2964873e9a1fc7f06dd48f43cd7c455ab6d",
+    "examples/ingest-result-rejected.json": "4e61b8394e17fb9795be00b67a9ab81fca719d026c907e7a6b9507dc01e3d26f",
+    "examples/ingest-result.json": "f2cfe12f32f76ba3b3163aa7987bc316fe3820e455eaf01afd3d1a428981cb5d",
+    "examples/reading-co2-replay.json": "a39f19638edec4a460fccc5c24006522418c199bfc02d81677600453fd254b50",
+    "openapi-ingestReadings.yaml": "ba018eedb9f217c88a379a53add6b89b13c41362348431c3b57e3609d50575fb",
+    "schemas/common.schema.json": "7ec449438be4775762e1734503516efd3e95906e0b7d73ed7a7e61b42cbe3593",
+    "schemas/error.schema.json": "4e89721ee0092d27504dc0d08e58724501d906afbf8bc3c2a4c4119f5f6fb718",
+    "schemas/ingest-result.schema.json": "4f136a62af770bf85f9b49cb05742f06abe68306a8a5493b47b9ef7455f3fb2a",
+    "schemas/requests.schema.json": "447c5d00bc7fe4c50c560bf1bf7a0435cfee7373478d5ed1c03958d95f7e0c91",
+    "schemas/sensor-channel.schema.json": "2a26d839d8daaa2ccdcc6727a6eae59d45129a6920c5dc93e7bba97600e7b62e",
+    "schemas/sensor-reading.schema.json": "a49bcdc3a849056d4c3499d6d88e4a00c80ec2e0308d7a3f6491a72a9d0ea4ab"
+  }
+}

@@ -43,6 +43,11 @@ class Capability(BaseModel):
     )
     expected_duration_seconds: ExpectedDurationSeconds | None
     basis: common_schema.Basis
+    components: list[common_schema.ConfigId] | None = Field(
+        None,
+        description='A panel capability: the indicator codes one attempt records together, all or none (SYSTEM 7.3: 85354-9 blood pressure panel with 8480-6 and 8462-4). Absent for a single-value capability, whose observation code is the capability code.',
+        min_length=2,
+    )
 
 
 class Kits(BaseModel):
