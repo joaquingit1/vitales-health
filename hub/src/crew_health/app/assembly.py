@@ -13,6 +13,7 @@ from fastapi import APIRouter, FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from crew_health.app import plans_seams
 from crew_health.app.errors import to_envelope
 from crew_health.app.import_contracts import module_digest, module_migrations, verify_modules
 from crew_health.app.installed_modules import REGISTRATIONS
@@ -31,6 +32,7 @@ from crew_health.config.module import register as register_config
 from crew_health.contracts_gen.build import load_json, object_map, verify_base
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode, EventType
 from crew_health.contracts_gen.schemas.health_schema import Health
+from crew_health.episodes.application.ports import CommandFingerprint as EpisodeFingerprint
 from crew_health.events.adapters.notifier import BoundedNotifier
 from crew_health.events.adapters.repository import EventRepository, EventValidator
 from crew_health.events.application.delivery import SessionAuthorizer
@@ -66,7 +68,9 @@ from crew_health.kernel.uow import (
     StoredEvent,
     UnitOfWork,
 )
+from crew_health.measurement.application.ports import CommandFingerprint as MeasurementFingerprint
 from crew_health.platform.adapters.evaluation import EvaluationRepository
+from crew_health.platform.adapters.fingerprint import KeyedCommandFingerprint
 from crew_health.platform.adapters.ledger import CommandLedger
 from crew_health.platform.adapters.migrations import require_expansion
 from crew_health.platform.adapters.tasks import TaskRepository
@@ -627,6 +631,15 @@ def _startup(
     for register in sorted(build.registrations, key=lambda fn: fn.__module__):
         register(registry)
     configure(registry)
+    plans_seams.compose(registry)
+    # SYSTEM 5.8: one keyed body fingerprint (platform) under every module's CommandFingerprint port.
+    for port in (MeasurementFingerprint, EpisodeFingerprint):
+        if port not in registry.providers:
+            registry.provide(
+                port,  # type: ignore[type-abstract]
+                lambda r: r.require(KeyedCommandFingerprint),
+                requires=(KeyedCommandFingerprint,),
+            )
     _event_access(registry)
     platform_services(registry, runtime)
     allowlist = _storage_declarations(registry, db)
