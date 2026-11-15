@@ -50,7 +50,9 @@ def station(
     tmp_path: Path,
 ) -> tuple[SQLiteDatabase, ConfigRepository, ReleaseActivationService, LoaderChecks]:
     db = database(tmp_path)
-    db.migrate((ROOT / "hub/src/crew_health/config/adapters/migrations/0001_config.sql").read_text())
+    db.migrate(
+        (ROOT / "hub/src/crew_health/config/adapters/migrations/0001_config.sql").read_text(encoding="utf-8")
+    )
     checks = LoaderChecks(maximum=64)
     # These fakes isolate the activation protocol. Core/clinical validation executes in separate tests.
     for check_id in sorted(required_contributors()):
@@ -148,7 +150,9 @@ def install_events(db: SQLiteDatabase) -> None:
     from crew_health.contracts_gen.build import effective_tree, verify_base, verify_overlay
     from crew_health.events.adapters.repository import EventRepository, EventValidator
 
-    db.migrate((ROOT / "hub/src/crew_health/events/adapters/migrations/0001_events.sql").read_text())
+    db.migrate(
+        (ROOT / "hub/src/crew_health/events/adapters/migrations/0001_events.sql").read_text(encoding="utf-8")
+    )
     base = verify_base(ROOT)
     overlay = verify_overlay(ROOT, base)
     assert overlay is not None

@@ -20,8 +20,9 @@ export function episodeEditor(host: HTMLElement, words: EditorWords, choices: ()
     return new Promise(resolve => {
       const dialog = document.createElement('dialog');
       const form = document.createElement('form');
-      const title = document.createElement('h2'); title.textContent = words.actions[action];
-      if (!title.textContent) { resolve(null); return; }
+      const titleText = words.actions[action];
+      if (!titleText) { resolve(null); return; }
+      const title = document.createElement('h2'); title.textContent = titleText;
       dialog.append(title, form); host.append(dialog);
       const values = new Map<string, HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>();
       const labelFor = (key: string, control: HTMLElement, parent: HTMLElement = form): void => {
@@ -78,7 +79,7 @@ export function episodeEditor(host: HTMLElement, words: EditorWords, choices: ()
           const add = document.createElement('button'); add.type = 'button'; add.textContent = words.addDecision;
           add.addEventListener('click', () => { if (rows.length < current.maxReviewDecisions) addRow(); add.disabled = rows.length >= current.maxReviewDecisions; }); form.append(add); input('unresolved', false, true);
         } else if (action !== 'acknowledge') { finish(null); return; }
-      } catch (error) { finish(null); return; }
+      } catch { finish(null); return; }
       const submit = document.createElement('button'); submit.type = 'submit'; submit.textContent = words.submit;
       const cancel = document.createElement('button'); cancel.type = 'button'; cancel.textContent = words.cancel;
       cancel.addEventListener('click', () => finish(null)); form.append(submit, cancel);
