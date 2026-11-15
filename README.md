@@ -57,9 +57,8 @@ that emits the real device's protocol bytes, so the same adapter code runs with 
 **6. The AI is optional and fenced.** A local medical model (HuatuoGPT-3-9B on llama.cpp) explains plans and asks the
 next question. Its runtime is pinned to a verified build, it listens on loopback only, its tools have closed schemas
 and its output is schema checked. The rule that it never changes safety state is enforced in the domain layer and
-never in a prompt. Someone needs help already refuses every command from the assistant, and the warnings engine being
-built today holds it to the same rule: it never raises "Act now" or "Emergency" and never lowers a warning that a rule
-or a sensor raised. A hub started with no model reports
+never in a prompt. Someone needs help refuses every command from the assistant, and the design holds the warnings engine to the same
+rule: the assistant never raises "Act now" or "Emergency" and never lowers a warning that a rule or a sensor raised. A hub started with no model reports
 `"assistant_state": "unavailable"` and keeps serving.
 
 **7. Every reading says where it came from.** Live, Replay or Sim travels with each value from the adapter to the
@@ -85,7 +84,7 @@ flowchart LR
     end
     CFG["Configuration release: kit map, plans, flows, skills, limits, with sources"]
     subgraph Hub["Hub on the laptop, SQLite, offline"]
-        ENG["Deterministic engines: kit map, plans, warnings, Someone needs help, teach and check, roles"]
+        ENG["Deterministic engines: kit map, plans, Someone needs help, teach and check, roles"]
         REC["Records: idempotent, hash chained audit"]
     end
     LLM["Local model, optional"]
@@ -112,7 +111,8 @@ the 33 planned epics merged, 2,245 hub and end-to-end tests collected, 23 config
 | Status | Parts |
 |---|---|
 | Merged on `main` | Hub platform and composition (`crew-health serve`); identity, consent and the crew app shell; measurement workflow; camera pulse and breathing with a camera twin; clinical device adapters with twins; habitat sensor twins and NASA replay feeds; kit map and guidance eligibility; onboard plans with printed cards; Someone needs help; teach and check; who helps; episode lifecycle; trends with habitat context; ground link and ground log; pinned model runtime |
-| In flight today | Crew app screens; the live assistant (assistant foundations, retrieval and the typed tool gateway); warnings engine; routine scheduler; mission and habitat adapter; CI on Ubuntu, macOS and Windows |
+| In flight today | Crew app screens; the live assistant (assistant foundations, retrieval and the typed tool gateway) |
+| Partly built, not merged | Warnings engine; routine scheduler; mission and habitat adapter; guided complaint intake; CI on Ubuntu, macOS and Windows |
 | Designed, not built | The remaining epics, each with a design in [docs/tdd/](docs/tdd/) |
 | Medicine potency engine (`pharmacy/`) | Built. An independent oracle agrees with it to 1e-9 on the checked quantities. The full validation studies have not run yet and one published-data vector still fails; [docs/VALIDATION-REPORT.md](docs/VALIDATION-REPORT.md) reports both |
 
