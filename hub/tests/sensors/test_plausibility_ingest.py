@@ -119,7 +119,7 @@ def test_the_rr1_co2_replay_is_assessed_and_the_held_stretch_is_rejected_not_dis
 
 @pytest.mark.parametrize(
     ("value", "check"),
-    [(3.0, None), (800.0, "out_of_range"), (-1.0, "out_of_range"), (0.0, "saturated")],
+    [(2.5, None), (800.0, "out_of_range"), (-1.0, "out_of_range"), (0.0, "saturated")],
 )
 def test_range_and_saturation_faults_are_stored_rejected_with_their_check(
     station: Station, value: float, check: str | None

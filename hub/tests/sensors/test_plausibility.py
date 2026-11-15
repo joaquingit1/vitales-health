@@ -256,18 +256,40 @@ def test_golden_rr5_longest_natural_run_of_37_samples_is_not_stuck(config: Senso
         assert verdict(kind, facts[i], facts[max(0, i - BOUND) : i])[0] == "passed"
 
 
-def test_golden_rr5_largest_real_step_passes_and_one_ppm_more_fails(config: SensorConfig) -> None:
+def held_indexes(data: list[tuple[datetime, Decimal]]) -> set[int]:
+    """The file's one held stretch: its longest run, read here (1,837 samples in RR-1, 2,666 in RR-5)."""
+    start, length = longest_run(data)
+    return set(range(start, start + length))
+
+
+def test_golden_largest_real_step_passes_and_one_ppm_more_fails(config: SensorConfig) -> None:
+    """The largest step between two samples outside the held stretches. RR-5's 673 ppm step (3,000 to 2,327 ppm,
+    2017-06-10 11:05) leaves its 2,666 sample hold, so it measures the sensor resuming, not the cabin."""
     kind = sensor(config, "co2")
-    data = rows(RR5)
-    steps = [(abs(b[1] - a[1]), a, b) for a, b in zip(data, data[1:], strict=False)]
+    steps = []
+    for data in (rows(RR1), rows(RR5)):
+        held = held_indexes(data)
+        steps += [
+            (abs(data[i + 1][1] - data[i][1]), data[i], data[i + 1])
+            for i in range(len(data) - 1)
+            if i not in held and i + 1 not in held and data[i + 1][0] - data[i][0] == timedelta(seconds=300)
+        ]
     biggest, before, after = max(steps, key=lambda s: s[0])
-    assert biggest == 673 and (before[1], after[1]) == (3000, 2327)  # 2017-06-10 11:05 to 11:10, 300 s
-    low = ppm_to_mmhg(Decimal(2327))
-    prior = fact(before[0], low, 1)
-    real = fact(after[0], ppm_to_mmhg(Decimal(2327) + Decimal(673)), 2)  # the step upward, same size
+    assert biggest == 542 and (before[1], after[1]) == (3965, 4507)  # RR-1, 2014-10-25 18:41 to 18:46
+    prior = fact(before[0], ppm_to_mmhg(before[1]), 1)
+    real = fact(after[0], ppm_to_mmhg(after[1]), 2)
     assert verdict(kind, real, [prior])[1] != RATE_EXCEEDED
-    beyond = fact(after[0], ppm_to_mmhg(Decimal(2327) + Decimal(674)), 2)
+    beyond = fact(after[0], ppm_to_mmhg(after[1] + 1), 2)
     assert verdict(kind, beyond, [prior]) == ("failed", RATE_EXCEEDED)
+
+
+def test_golden_the_step_out_of_the_rr5_hold_is_flagged_as_a_rate_jump(config: SensorConfig) -> None:
+    kind, data = sensor(config, "co2"), rows(RR5)
+    last = max(held_indexes(data))
+    assert (data[last][1], data[last + 1][1]) == (3000, 2327)
+    prior = fact(data[last][0], ppm_to_mmhg(data[last][1]), 1)
+    resumed = fact(data[last + 1][0], ppm_to_mmhg(data[last + 1][1]), 2)
+    assert verdict(kind, resumed, [prior]) == ("failed", RATE_EXCEEDED)
 
 
 def test_golden_rr1_cabin_values_are_in_range_and_the_ceiling_is_the_nasa_total_pressure(
