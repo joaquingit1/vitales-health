@@ -18,7 +18,7 @@ from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import ID_PATTERN
 from crew_health.kernel.uow import SessionContext
 from crew_health.supplies.api.errors import envelope, malformed, to_problem
-from crew_health.supplies.application.use_cases import UseRequest, UseResult
+from crew_health.supplies.application.use_cases import CoverResult, UseRequest, UseResult
 from crew_health.supplies.application.wire import encode
 from crew_health.supplies.domain.errors import SuppliesError
 
@@ -33,9 +33,8 @@ type Authenticate = Callable[[Request, str], SessionContext]
 
 
 class SuppliesApi(Protocol):
-    def cover(self, environment_id: str | None) -> bytes: ...
+    def cover(self, environment_id: str | None) -> CoverResult: ...
     def record(self, session: SessionContext, request: UseRequest) -> UseResult: ...
-    def release_id(self) -> str: ...
     def correlation(self) -> str: ...
 
 
@@ -118,8 +117,9 @@ def build_router(api: SuppliesApi, authenticate: Authenticate) -> APIRouter:
     def problem(correlation: str, error: SuppliesError | ProblemError) -> Response:
         return envelope(to_problem(error) if isinstance(error, SuppliesError) else error, correlation)
 
-    def headers(correlation: str) -> dict[str, str]:
-        return {"Config-Release": api.release_id(), "X-Correlation-Id": correlation}
+    def headers(correlation: str, release_id: str) -> dict[str, str]:
+        """Config-Release names the release the body was computed from, read in the same snapshot (DD8)."""
+        return {"Config-Release": release_id, "X-Correlation-Id": correlation}
 
     @router.get("/v1/supplies", operation_id="getSupplyCover")
     def get_supply_cover(request: Request) -> Response:
@@ -129,9 +129,12 @@ def build_router(api: SuppliesApi, authenticate: Authenticate) -> APIRouter:
             environment_id = request.query_params.get("environment_id")
             if environment_id is not None and environment_id not in ENVIRONMENTS:
                 raise malformed("environment_id is not an environment", "/environment_id")
-            body = api.cover(environment_id)
+            shown = api.cover(environment_id)
             return Response(
-                body, status_code=200, media_type="application/json", headers=headers(correlation)
+                shown.body,
+                status_code=200,
+                media_type="application/json",
+                headers=headers(correlation, shown.release_id),
             )
         except (SuppliesError, ProblemError) as error:
             return problem(correlation, error)
@@ -159,7 +162,7 @@ def build_router(api: SuppliesApi, authenticate: Authenticate) -> APIRouter:
             result = api.record(session, use)
         except (SuppliesError, ProblemError) as error:
             return problem(correlation, error)
-        out = headers(correlation)
+        out = headers(correlation, result.release_id)
         out["Location"] = f"/v1/supplies/{supply_id}/uses/{result.supply_use_id}"
         return Response(result.body, status_code=result.status, media_type="application/json", headers=out)
 

@@ -26,15 +26,17 @@ from crew_health.supplies.application.events import (
     publish_use,
     use_body,
 )
-from crew_health.supplies.application.ports import SupplyCoverChanged
+from crew_health.supplies.application.ports import MissionFacts, SupplyCoverChanged
 from crew_health.supplies.application.references import Reference, check_reference, read_reference
 from crew_health.supplies.application.repository import StoredRefusal, StoredUse
 from crew_health.supplies.application.wire import Json, encode, instant, supply_entry
 from crew_health.supplies.domain.errors import (
     FieldIssue,
     ReleaseMismatch,
+    SuppliesError,
     SupplyBelowZero,
     SupplyNotFound,
+    UnitMismatch,
     UseInvalid,
 )
 from crew_health.supplies.domain.ledger import admit
@@ -63,9 +65,24 @@ class UseResult:
     status: int
     supply_use_id: str
     body: bytes
+    release_id: str  # the release of the transaction that wrote or replayed it (the Config-Release header)
 
 
-def cover_view(deps: Deps, environment_id: str | None) -> bytes:
+@dataclass(frozen=True, slots=True)
+class CoverResult:
+    body: bytes
+    release_id: str  # the release of the snapshot the body was computed from
+
+
+class MissionChanged(SuppliesError):
+    """The mission or its mode changed between the command identity and the write: the client retries under the
+    new one (the use is never written to a partition its identity does not name)."""
+
+    def __init__(self) -> None:
+        super().__init__("mission changed")
+
+
+def cover_view(deps: Deps, environment_id: str | None) -> CoverResult:
     with deps.snapshots.snapshot() as view:
         facts = current_mission(deps, view)
         env = environment_id or facts.active_environment_id
@@ -77,7 +94,7 @@ def cover_view(deps: Deps, environment_id: str | None) -> bytes:
             "supplies": [supply_entry(row, env, index.words) for row in rows],
             "as_of": instant(view.now),
         }
-        return encode(body)
+        return CoverResult(encode(body), view.release.release_id)
 
 
 def _command_key(identity: CommandIdentity) -> str:
@@ -125,6 +142,15 @@ def record_use(deps: Deps, session: SessionContext, request: UseRequest) -> UseR
     with deps.snapshots.snapshot() as view:
         facts = current_mission(deps, view)
     identity = _identity(session, request, facts.mission_id, facts.mission_mode)
+    if request.plan_run_id is not None or request.help_session_id is not None:
+        # PLAN.md rows 62 and 63: identity precedes the mutable reference check, so an identical late retry gets
+        # its original result even after the session closed or its provider went away.
+        with deps.uow.begin(
+            actor=session.actor, command=identity, correlation_id=request.correlation_id
+        ) as uow:
+            stored = deps.idempotency.lookup(uow, identity)
+            if stored is not None:
+                return _replay(deps, uow, identity, stored)
     reference = read_reference(deps, session, request.plan_run_id, request.help_session_id)
     try:
         with deps.uow.begin(
@@ -133,11 +159,16 @@ def record_use(deps: Deps, session: SessionContext, request: UseRequest) -> UseR
             stored = deps.idempotency.lookup(uow, identity)
             if stored is not None:
                 return _replay(deps, uow, identity, stored)
-            return _apply(deps, uow, identity, request, reference, facts.mission_id)
-    except SupplyBelowZero as refused:
+            return _apply(deps, uow, identity, request, reference, facts)
+    except (SupplyBelowZero, UseInvalid, UnitMismatch) as refused:
         if request.help_session_id is not None:
-            _refusal_evidence(deps, session, identity, request, refused)
+            _refusal_evidence(deps, session, identity, request, _refusal_code(refused))
         raise
+
+
+def _refusal_code(refused: SuppliesError) -> ErrorCode:
+    """The contract code of a 422 refusal (api/errors maps the same way)."""
+    return ErrorCode.SUPPLY_BELOW_ZERO if isinstance(refused, SupplyBelowZero) else ErrorCode.INVALID_VALUE
 
 
 def _replay(deps: Deps, uow: UnitOfWork, identity: CommandIdentity, stored: StoredResult) -> UseResult:
@@ -145,7 +176,7 @@ def _replay(deps: Deps, uow: UnitOfWork, identity: CommandIdentity, stored: Stor
         use = deps.repository.by_command_key(uow, _command_key(identity))
         if use is None:
             raise ProblemError(ErrorCode.INTERNAL_ERROR, "stored use missing", retryable=False)
-        return UseResult(201, use.supply_use_id, encode(use_body(use)))
+        return UseResult(201, use.supply_use_id, encode(use_body(use)), uow.release.release_id)
     code = ErrorCode(stored.result_code)
     raise ProblemError(
         code, code.value, field_errors=(FieldError("/quantity", code.value, "refused before"),)
@@ -168,7 +199,7 @@ def _apply(
     identity: CommandIdentity,
     request: UseRequest,
     reference: Reference,
-    mission_id: str,
+    expected: MissionFacts,
 ) -> UseResult:
     if (
         request.config_release is not None
@@ -177,10 +208,8 @@ def _apply(
     ):
         raise ReleaseMismatch(uow.release.release_id)
     facts = current_mission(deps, uow)
-    if (
-        facts.mission_id != mission_id
-    ):  # the mission changed between the key and the write: retry under the new
-        raise ProblemError(ErrorCode.INTERNAL_ERROR, "mission changed", retryable=True)
+    if (facts.mission_id, facts.mission_mode) != (expected.mission_id, expected.mission_mode):
+        raise MissionChanged()
     supply = _supply(deps, uow, request)
     check_reference(reference, facts, request.supply_id, request.step_id)
     where = partition(facts, facts.active_environment_id)
@@ -194,7 +223,7 @@ def _apply(
         identity.key, identity.operation, identity.target, deps.ids.new("receipt"), uow.now
     )
     deps.idempotency.record(uow, identity, StoredResult(receipt, 201, use.supply_use_id, "accepted", None))
-    return UseResult(201, use.supply_use_id, encode(body))
+    return UseResult(201, use.supply_use_id, encode(body), uow.release.release_id)
 
 
 def observed(client_time: datetime, now: datetime) -> datetime:
@@ -261,11 +290,10 @@ def _refusal_evidence(
     session: SessionContext,
     identity: CommandIdentity,
     request: UseRequest,
-    refused: SupplyBelowZero,
+    code: ErrorCode,
 ) -> None:
-    """HZ14: a refused use that names a help session leaves one evidence row and one audit entry, in a second
-    unit of work, and the same key replays the refusal (the ledger records 422 SUPPLY_BELOW_ZERO)."""
-    del refused
+    """HZ14: every 422 refusal of a use that names a help session leaves one evidence row and one audit entry, in a
+    second unit of work, and the same key replays the refusal (the ledger records 422 with its code)."""
     with deps.uow.begin(actor=session.actor, command=identity, correlation_id=request.correlation_id) as uow:
         if deps.idempotency.lookup(uow, identity) is not None:
             return
@@ -281,7 +309,7 @@ def _refusal_evidence(
             quantity=Quantity(request.quantity, supply.unit),
             help_session_id=request.help_session_id,
             step_id=request.step_id,
-            code=ErrorCode.SUPPLY_BELOW_ZERO.value,
+            code=code.value,
             command_key=_command_key(identity),
             at=uow.now,
             observed_at=observed(request.client_time, uow.now),
@@ -291,5 +319,5 @@ def _refusal_evidence(
         receipt = AcceptedReceipt(
             identity.key, identity.operation, identity.target, deps.ids.new("receipt"), uow.now
         )
-        result = StoredResult(receipt, 422, refusal.refusal_id, ErrorCode.SUPPLY_BELOW_ZERO.value, None)
+        result = StoredResult(receipt, 422, refusal.refusal_id, code.value, None)
         deps.idempotency.record(uow, identity, result)

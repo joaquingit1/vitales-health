@@ -52,16 +52,17 @@ def _issue(pointer: str, message: str) -> UseInvalid:
 
 
 def check_reference(reference: Reference, facts: MissionFacts, supply_id: str, step_id: str | None) -> None:
-    """Origin mode and environment equal the mission's (INVALID_VALUE until R-E32-23 and R-E32-26); a plan run's
+    """Origin mode and environment are known and equal the mission's (INVALID_VALUE until R-E32-23 and R-E32-26;
+    an unknown one is never a match, AGENTS rule 2); a plan run's
     step is in its pinned plan and the supply's pinned need there has no per-use amount (that one is debited
     when the step is done, so a direct use would count it twice)."""
     if reference.kind == "none":
         return
     pointer = "/plan_run_id" if reference.kind == "plan_run" else "/help_session_id"
-    if reference.origin_mode is not None and reference.origin_mode != facts.mission_mode:
-        raise _issue(pointer, "the reference belongs to another origin mode")
-    if reference.environment_id is not None and reference.environment_id != facts.active_environment_id:
-        raise _issue(pointer, "the reference belongs to another environment")
+    if reference.origin_mode is None or reference.origin_mode != facts.mission_mode:
+        raise _issue(pointer, "the reference's origin mode is unknown or another one")
+    if reference.environment_id is None or reference.environment_id != facts.active_environment_id:
+        raise _issue(pointer, "the reference's environment is unknown or another one")
     if reference.kind != "plan_run":
         return
     needs = reference.pinned_needs or {}

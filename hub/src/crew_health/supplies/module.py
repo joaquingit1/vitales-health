@@ -63,7 +63,13 @@ from crew_health.supplies.application.release_index import (
 )
 from crew_health.supplies.application.settings import SuppliesLimits, specs
 from crew_health.supplies.application.step_uses import record_step_uses
-from crew_health.supplies.application.use_cases import UseRequest, UseResult, cover_view, record_use
+from crew_health.supplies.application.use_cases import (
+    CoverResult,
+    UseRequest,
+    UseResult,
+    cover_view,
+    record_use,
+)
 
 _LOGGER = "crew_health.supplies"
 
@@ -129,15 +135,11 @@ class SuppliesRuntime:
         return self.deps
 
     # SuppliesApi
-    def cover(self, environment_id: str | None) -> bytes:
+    def cover(self, environment_id: str | None) -> CoverResult:
         return cover_view(self.need(), environment_id)
 
     def record(self, session: SessionContext, request: UseRequest) -> UseResult:
         return record_use(self.need(), session, request)
-
-    def release_id(self) -> str:
-        with self.need().snapshots.snapshot() as view:
-            return view.release.release_id
 
     def correlation(self) -> str:
         if self.deps is None:  # unbound: a fixed ID, so the envelope still carries one

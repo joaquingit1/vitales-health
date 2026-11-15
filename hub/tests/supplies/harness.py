@@ -205,7 +205,7 @@ def audit_policies() -> tuple[AuditPolicy, ...]:
         ),
         AuditPolicy(
             "supplies.use_refused",
-            {"code": frozenset({"SUPPLY_BELOW_ZERO"})},
+            {"code": frozenset({"SUPPLY_BELOW_ZERO", "INVALID_VALUE"})},
             frozenset({"supply_use_refusal"}),
             {"supply_use_refusal": frozenset({"supply_use_refusal"})},
         ),

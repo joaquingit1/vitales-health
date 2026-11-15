@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from crew_health.contracts_gen.enums import ERROR_STATUS, ErrorCode
 from crew_health.kernel.errors import FieldError, ProblemError
 from crew_health.supplies.application.context import MissionUnknown
+from crew_health.supplies.application.use_cases import MissionChanged
 from crew_health.supplies.domain.errors import (
     DocumentInvalid,
     FieldIssue,
@@ -49,6 +50,8 @@ def to_problem(error: SuppliesError) -> ProblemError:
         return ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
     if isinstance(error, MissionUnknown):
         return ProblemError(ErrorCode.INTERNAL_ERROR, "no current mission", retryable=True)
+    if isinstance(error, MissionChanged):
+        return ProblemError(ErrorCode.INTERNAL_ERROR, "mission changed: retry", retryable=True)
     if isinstance(error, DocumentInvalid | LedgerCorrupt):
         return ProblemError(ErrorCode.INTERNAL_ERROR, "supplies unreadable", retryable=False)
     return ProblemError(ErrorCode.INTERNAL_ERROR, ErrorCode.INTERNAL_ERROR.value)
