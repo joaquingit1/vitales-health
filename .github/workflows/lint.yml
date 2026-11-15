@@ -1,9 +1,10 @@
 # Lint job of docs/DEPLOYMENT.md section 8: any warning fails (AGENTS.md code rule 10).
-# Scope today: the hub (hub/) and the generated TypeScript contracts package. The crew and ground apps join when
-# E03 and E16 create them. The potency engine is not covered yet: its dev tools are not installed by a plain sync and
-# its contract script flags the verbatim form quotes that decision Q26 allows (filed for the engine team).
-# Generated contract code under hub/src/crew_health/contracts_gen/ is excluded from ruff and from mypy file discovery,
-# as in E01's own gates; its generator build.py and __init__.py are checked.
+# Scope today: the hub (hub/), scripts/ and the generated TypeScript contracts package. The crew and ground apps join
+# when E03 and E16 create them. Not covered yet, each reported on PR #7: eval/ (19 import order findings under the hub
+# ruff configuration, in scenario files their epics are still building), adapters/, workers/ and simulators/ (they need
+# per-project jobs), and the potency engine (its dev tools are not installed by a plain sync).
+# Generated contract code under hub/src/crew_health/contracts_gen/ is excluded from ruff and from mypy file discovery
+# until its generator emits strict-clean output; its generator build.py and __init__.py are checked.
 name: lint
 
 on:
@@ -15,12 +16,18 @@ on:
 permissions:
   contents: read
 
+# A newer push to a pull request replaces its older run; runs on main are kept as each commit's evidence.
 concurrency:
   group: lint-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   GENERATED: hub/src/crew_health/contracts_gen/schemas,hub/src/crew_health/contracts_gen/enums.py
+  # Python comes only from uv's managed builds, at the version pinned in .python-version and hub/.python-version.
+  UV_PYTHON_PREFERENCE: only-managed
+  # Ratchet for mypy --strict on hub/tests: the job fails when the error count rises above this number. Lower it
+  # whenever annotations bring the count down; the gate is complete at 0. Count on 15 Nov 2026: 763 errors in 37 files.
+  MYPY_TESTS_BASELINE: "763"
 
 jobs:
   lint:
@@ -31,7 +38,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 30
     defaults:
       run:
         shell: bash
@@ -46,16 +53,56 @@ jobs:
           uv sync --project hub --locked
           pnpm install --frozen-lockfile
       - name: ruff check
-        run: uv run --project hub --locked ruff check --extend-exclude "$GENERATED" hub
+        run: |
+          uv run --project hub --locked ruff check --extend-exclude "$GENERATED" hub
+          uv run --project hub --locked ruff check --config hub/pyproject.toml scripts
       - name: ruff format
-        run: uv run --project hub --locked ruff format --check --extend-exclude "$GENERATED" hub
-      # Source only, as in E01's gates. hub/tests is not yet fully annotated (about 430 strict errors after E01 T2,
-      # reported on PR #7); add hub/tests back here once its owners annotate it.
-      - name: mypy strict
+        run: |
+          uv run --project hub --locked ruff format --check --extend-exclude "$GENERATED" hub
+          uv run --project hub --locked ruff format --check --config hub/pyproject.toml scripts
+      - name: mypy strict (hub/src)
         run: uv run --project hub --locked mypy --config-file hub/pyproject.toml --strict --exclude 'contracts_gen/schemas/' hub/src
+      - name: mypy strict (hub/tests, ratchet)
+        run: |
+          set +e
+          uv run --project hub --locked mypy --config-file hub/pyproject.toml --strict --explicit-package-bases hub/tests > "$RUNNER_TEMP/mypy-tests.txt" 2>&1
+          status=$?
+          set -e
+          tail -n 1 "$RUNNER_TEMP/mypy-tests.txt"
+          # mypy exits 0 when clean, 1 when it found type errors, 2 when it could not run: 2 always fails.
+          if [ "$status" -gt 1 ]; then cat "$RUNNER_TEMP/mypy-tests.txt"; exit "$status"; fi
+          count=$(grep -c ': error:' "$RUNNER_TEMP/mypy-tests.txt" || true)
+          echo "mypy strict errors in hub/tests: $count (baseline $MYPY_TESTS_BASELINE)"
+          if [ "$count" -gt "$MYPY_TESTS_BASELINE" ]; then
+            grep ': error:' "$RUNNER_TEMP/mypy-tests.txt"
+            echo "::error::hub/tests mypy errors rose from $MYPY_TESTS_BASELINE to $count; annotate the new tests"
+            exit 1
+          fi
+          if [ "$count" -lt "$MYPY_TESTS_BASELINE" ]; then
+            echo "::notice::hub/tests mypy errors fell to $count; lower MYPY_TESTS_BASELINE in lint.yml"
+          fi
       - name: import contracts
         run: |
           uv run --project hub --locked python -m crew_health.app.import_contracts --output "$RUNNER_TEMP/imports.ini"
           uv run --project hub --locked lint-imports --config "$RUNNER_TEMP/imports.ini"
       - name: TypeScript contracts typecheck
         run: pnpm -C packages/contracts-ts typecheck
+
+  # AGENTS.md section 5 rule 5: every dependency of every Python project, extras included, installs on Windows from
+  # wheels. One Linux job resolves each project for the Windows platform.
+  windows-wheels:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.12.19"
+      - name: Resolve every project for Windows, wheels only
+        run: |
+          shopt -s nullglob
+          for project in pyproject.toml hub/pyproject.toml adapters/*/pyproject.toml simulators/*/pyproject.toml workers/*/pyproject.toml; do
+            echo "== $project"
+            uv pip compile "$project" --all-extras --python-version 3.14 \
+              --python-platform x86_64-pc-windows-msvc --only-binary :all: --quiet --output-file "$RUNNER_TEMP/requirements.txt"
+          done
