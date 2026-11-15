@@ -121,5 +121,26 @@
       }
     ]
   },
-  "hub_port": 8080
+  "hub_port": 8080,
+  "habitat": {
+    "registry": "eval/scenarios/e23/demo/sensor-channels.json",
+    "feeds_file": "eval/scenarios/e23/demo/feeds.json",
+    "feeds": [
+      {
+        "feed_id": "feed_rr1_co2_replay",
+        "kind": "replay",
+        "adapter_principal_id": "adp_replay_osdr",
+        "adapter_display_name": "Habitat replay adapter",
+        "health_port": 8101
+      },
+      {
+        "feed_id": "feed_co2_cabin_sim",
+        "kind": "sim",
+        "adapter_principal_id": "adp_sim",
+        "adapter_display_name": "Habitat sim adapter",
+        "health_port": 8102
+      }
+    ],
+    "basis": "E23 5.2 and 5.3: the NASA OSDR RR-1 ISS CO2 replay (N02) and the habitat packet twin's SIM CO2, each through the real habitat adapter and ingestReadings on the channel registry's channel; the registry names each adapter and its health URL port"
+  }
 }

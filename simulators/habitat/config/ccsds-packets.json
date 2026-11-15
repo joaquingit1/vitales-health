@@ -1,0 +1,51 @@
+{
+  "notice": "CCSDS space packet twin of cabin sensors that report over a telemetry link. Not a NASA mission interface: the APIDs and parameter names are the twin's own. NASA does not publish a habitat sensor packet layout read here, so the byte layout comes from the CCSDS Space Packet Protocol and the XTCE schema named in provenance, and only for what they say.",
+  "description": "The XTCE parameters and the CCSDS space packets of the simulated cabin devices, read only. E23's xtce adapter (E23 design 5.2) is the consumer. Each stream reads one output of one simulated device.",
+  "provenance": {
+    "is_nasa": false,
+    "why_not_nasa": "The packet layout of a habitat sensor is not defined in a NASA document read here. The CCSDS Space Packet Protocol (a standard NASA missions use) defines the primary header, and the OMG XTCE standard defines the document that describes the parameters.",
+    "sources": [
+      {
+        "id": "SPP",
+        "title": "CCSDS 133.0-B, Space Packet Protocol",
+        "used_for": "The six octet primary header: version 0, telemetry type, no secondary header, unsegmented, an 11 bit APID, a 14 bit sequence count and a length field equal to the data octets minus one. Cited from memory of the standard; the document was not read here, so a reviewer checks the header against it."
+      },
+      {
+        "id": "XTCE",
+        "title": "OMG, XML Telemetric and Command Exchange (XTCE), namespace http://www.omg.org/spec/XTCE/20180204",
+        "used_for": "FloatParameterType with FloatDataEncoding, ParameterSet, and SequenceContainer restricted by an APID comparison. Cited from memory of the schema; the document was not read here."
+      }
+    ]
+  },
+  "twin_id": "sim_ccsds_cabin",
+  "space_system": "HabitatTwin",
+  "device_name": "CCSDS cabin telemetry twin",
+  "device_serial": "SIM-CCSDS-1",
+  "encoding": {
+    "kind": "float32",
+    "byte_order": "mostSignificantByteFirst",
+    "basis": "CCSDS 133.0-B transmits fields most significant octet first (big endian); IEEE 754 binary32 is the twin's choice for a parameter value."
+  },
+  "streams": [
+    {
+      "name": "co2_ppm",
+      "apid": 513,
+      "unit": "ppm",
+      "source": {
+        "device_id": "sim_ndir_co2_cabin",
+        "output": "co2"
+      },
+      "basis": "Team assumption: APID 513 is the twin's own number, not a mission APID. The value is the NDIR CO2 module's output in its own unit."
+    },
+    {
+      "name": "dose_rate",
+      "apid": 514,
+      "unit": "µGy/h",
+      "source": {
+        "device_id": "sim_area_dosimeter_cabin",
+        "output": "dose_rate"
+      },
+      "basis": "Team assumption: APID 514 is the twin's own number, not a mission APID. The value is the area dosimeter's output in its own unit."
+    }
+  ]
+}

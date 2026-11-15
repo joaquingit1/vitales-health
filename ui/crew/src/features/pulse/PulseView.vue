@@ -18,6 +18,7 @@ import {
   type Observation,
 } from "./hub";
 import { WORDS } from "./words";
+import { rememberPulseRequest } from "../today/cards/pulseReadings";
 
 type Phase = "idle" | "starting" | "reading" | "failed" | "done" | "refused";
 interface Tried {
@@ -97,6 +98,7 @@ async function startRequest(): Promise<MeasurementRequest> {
     ...(episodeId.value ? { episode_id: episodeId.value } : {}),
   });
   request.value = current;
+  rememberPulseRequest(current.request_id);
   for (let step = 0; step < 3 && current.state !== "in_progress"; step += 1) {
     const action = ["submit", "accept", "start"].find((a) => current.allowed_actions.includes(a as never));
     if (!action) break;

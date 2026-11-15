@@ -298,6 +298,7 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
     """The demo profile's mission facts under every consumer's MissionStatePort class (app/demo_mission.py)."""
     from dataclasses import replace
 
+    from crew_health.app.registry import DeclarationRegistry
     from crew_health.camera.application.ports import MissionStatePort as CameraMission
     from crew_health.clock.application.clock import ClockIdentity
     from crew_health.groundlink.application.ports import MissionStatePort as GroundMission
@@ -316,9 +317,14 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
         RecordsMission,
         KitMission,
         MissionStatePort,
+        OverlayPort,
     ):
-        registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))
-    registry.provide(cast(type[object], OverlayPort), bound, requires=(ClockIdentity,))
+        # E22/E23's mission module declares some of these consumer ports too. The demo profile keeps its own
+        # mission facts there (its cues write the environment and the surface walk overlays), so it replaces them.
+        if isinstance(registry, DeclarationRegistry) and cast(type[object], port) in registry.providers:
+            registry.replace(cast(type[object], port), bound, requires=(ClockIdentity,))
+        else:
+            registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))
 
 
 def _camera_f1(registry: ModuleRegistry, provided: Mapping[object, object], reports: object | None) -> None:
@@ -386,7 +392,7 @@ def production(
 ) -> Callable[[ModuleRegistry], None]:
     """The `configure` hook of a served hub: the offline artifacts and HTTP metadata from the resources, closed
     event sessions and fail-closed stand-ins for every pending port no installed module provides."""
-    from crew_health.app import privacy
+    from crew_health.app import privacy, trends_inputs
     from crew_health.app.assembly import ConfigHttpMetadata
     from crew_health.identity.application.service import IdentityService
 
@@ -413,6 +419,8 @@ def production(
         privacy.compose(
             registry, contract=resources.contracts / "api/openapi.yaml", metadata=e02_metadata, demo=demo
         )
+        # E14's inputs: records' accepted observations and E23's accepted sensor series (app/trends_inputs.py).
+        trends_inputs.compose(registry)
         if ConfigHttpMetadata not in provided:
             registry.provide(
                 ConfigHttpMetadata,

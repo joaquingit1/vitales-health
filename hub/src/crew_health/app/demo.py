@@ -46,7 +46,14 @@ from crew_health.kernel.uow import Actor
 from crew_health.model.application.ports import ModelInstallation
 
 FIXTURE = "fixtures/demo-mara-fd19/fixture.json"
-COPIED = ("contracts", "config", "docs/product", "docs/requests")
+COPIED = (
+    "contracts",
+    "config",
+    "docs/product",
+    "docs/requests",
+    "eval/scenarios/e23/demo",
+    "simulators/habitat/config",
+)
 CREDENTIALS = "credentials.json"
 STATE = "demo.json"
 
@@ -125,10 +132,17 @@ class Fixture:
         if not isinstance(station, dict):
             raise DemoError("station actor is not an object")
         camera = self.section("camera")
+        habitat = self.section("habitat")
         return (
             ProvisionedPrincipal(str(station["id"]), "station", str(station["display_name"])),
             ProvisionedPrincipal(
                 str(camera["adapter_principal_id"]), "adapter", str(camera["adapter_display_name"])
+            ),
+            *(
+                ProvisionedPrincipal(
+                    str(feed["adapter_principal_id"]), "adapter", str(feed["adapter_display_name"])
+                )
+                for feed in cast(list[dict[str, object]], habitat["feeds"])
             ),
             ProvisionedPrincipal(str(operator["principal_id"]), "operator", str(operator["display_name"])),
         )
@@ -208,10 +222,12 @@ def settings_document(path: Path, camera: dict[str, object] | None = None) -> Pa
     from crew_health.app.cli import registered_settings
     from crew_health.consent.application.settings import defaults as consent_defaults
     from crew_health.identity.application.settings import defaults as identity_defaults
+    from crew_health.sensors.settings import DEFAULTS as sensor_defaults
 
     chosen: dict[str, object] = {
         **identity_defaults(),
         **consent_defaults(),
+        **sensor_defaults,
         "supervisor.poll_ms": 250,
         **E28_PLANS,
         **(camera or {}),
@@ -263,6 +279,30 @@ def _first_start(runtime: Runtime, fixture: Fixture, credentials: dict[str, str]
             client="console",
             correlation_id="demo_reset_credential",
         )
+    _initialize_mission(runtime, fixture)
+
+
+def _initialize_mission(runtime: Runtime, fixture: Fixture) -> None:
+    """UC-M0 on E22/E23's mission module when it is installed: the fixture's mission mode, length and initial
+    environment, so sensor channels registered for that environment accept readings (E23 5.3)."""
+    from crew_health.clock.application.clock import ClockIdentity
+    from crew_health.mission.application.ports import MissionInitializer
+
+    if runtime.resolver is None:
+        raise DemoError("hub not resolved")
+    initializer = cast(
+        "MissionInitializer | None", runtime.resolver.optional(cast(type[object], MissionInitializer))
+    )
+    if initializer is None:
+        return
+    length = fixture.section("environment").get("planned_length_days")
+    initializer.initialize(
+        operator_id=fixture.operator_id,
+        mission_mode="SIM",
+        planned_length_days=None if length is None else int(str(length)),
+        site_node_id=runtime.resolver.require(ClockIdentity).node_id,
+        environment_id=fixture.initial_environment,
+    )
 
 
 def reset(
@@ -272,6 +312,7 @@ def reset(
     fixture_path: Path | None = None,
     camera_port: int | None = None,
     twin_port: int | None = None,
+    habitat_ports: Sequence[int] | None = None,
 ) -> dict[str, object]:
     from crew_health.app.cli import SOURCE, _read_settings, open_database
 
@@ -300,6 +341,12 @@ def reset(
             "workers.camera.health_ms": 5000,
             # The stop budget for the hub's workers and the demo's camera companions together.
             "workers.shutdown_timeout_ms": 10000,
+            # E23 5.3: the habitat channel registry the replay companion posts into, and the freshness sweep.
+            "sensors.channel_registry_path": str(
+                directory / "resources" / str(fixture.section("habitat")["registry"])
+            ),
+            "sensors.deployment_profile": "demo",
+            "sensors.sweep_timer_enabled": True,
         },
     )
     write_environment(directory, fixture.initial_environment, source="demo_reset", at=datetime.now(UTC))
@@ -336,6 +383,13 @@ def reset(
         "operator": fixture.operator_id,
         "camera_port": worker_port,
         "twin_port": twin_listen,
+        # Each habitat feed's adapter health port, in the fixture's feed order; tests pick free ones.
+        "habitat_ports": list(habitat_ports)
+        if habitat_ports is not None
+        else [
+            int(str(f["health_port"]))
+            for f in cast(list[dict[str, object]], fixture.section("habitat")["feeds"])
+        ],
     }
     (directory / STATE).write_text(json.dumps(state, indent=1), encoding="utf-8")
     return state
@@ -385,6 +439,66 @@ def _require_free(port: int, what: str) -> None:
             raise DemoError(
                 f"{what} port {port} is in use; stop what holds it or reset with another port"
             ) from None
+
+
+def habitat_replay(
+    directory: Path,
+    fixture: Fixture,
+    admin: IdentityAdmin,
+    proof: OperatorProof,
+    *,
+    host: str,
+    port: int,
+    health_ports: Sequence[int],
+) -> list[subprocess.Popen[str]]:
+    """The habitat adapter replaying the fixture's NASA feeds (E23 5.2) into this hub's ingestReadings, under an
+    adapter token issued for this listener. Each reading carries REPLAY from its registered channel."""
+    section = fixture.section("habitat")
+    habitat = directory / "habitat"
+    habitat.mkdir(exist_ok=True)
+    feeds = directory / "resources" / str(section["feeds_file"])
+    adapters = Path(str(fixture.root)) / "adapters/habitat"
+    started: list[subprocess.Popen[str]] = []
+    feeds_listed = cast(list[dict[str, object]], section["feeds"])
+    if len(health_ports) != len(feeds_listed):
+        raise DemoError("one habitat health port per feed")
+    for feed, health_port in zip(feeds_listed, health_ports, strict=True):
+        view = admin.issue_adapter_token(
+            str(feed["adapter_principal_id"]),
+            listener=f"{host}:{port}",
+            operator=proof,
+            correlation_id="demo_serve_habitat",
+        )
+        _require_free(health_port, "habitat adapter health")
+        feed_id = str(feed["feed_id"])
+        started.append(
+            subprocess.Popen(
+                [
+                    _uv(),
+                    "run",
+                    "--project",
+                    str(adapters),
+                    "crew-health-adapters",
+                    str(feed["kind"]),
+                    "--feed",
+                    str(feeds),
+                    "--feed-id",
+                    feed_id,
+                    "--hub-url",
+                    f"http://{host}:{port}",
+                    "--queue-file",
+                    str(habitat / f"{feed_id}.queue"),
+                    "--profile",
+                    "demo",
+                    "--health-port",
+                    str(health_port),
+                ],
+                env={**os.environ, "CREW_HEALTH_ADAPTER_TOKEN": str(view.token)},
+                text=True,
+                encoding="utf-8",
+            )  # fmt: skip
+        )
+    return started
 
 
 def camera_companions(
@@ -492,6 +606,17 @@ def camera_companions(
                     text=True,
                     encoding="utf-8",
                 )  # fmt: skip
+            )
+            processes.extend(
+                habitat_replay(
+                    directory,
+                    fixture,
+                    admin,
+                    proof,
+                    host=host,
+                    port=port,
+                    health_ports=[int(p) for p in cast(list[int], state["habitat_ports"])],
+                )
             )
         except BaseException:
             stop()

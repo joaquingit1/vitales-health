@@ -1,0 +1,876 @@
+{
+  "notice": "Unreviewed draft: needs clinician review before live guidance.",
+  "headline": {
+    "max_fragments": 2,
+    "separator": ", ",
+    "none_text": "Nothing needs attention today"
+  },
+  "definitions": [
+    {
+      "id": "co2_above_limit",
+      "raised_by": "sensor_limit",
+      "level": "act",
+      "hazard_id": "co2",
+      "hazard_level_index": 2,
+      "sensor_type_id": "co2",
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_limit",
+        "limit_id": "co2_1h_act"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "CO2 above the habitat limit",
+        "what": "The {aggregation_label} CO2 is {value} {unit}. The habitat limit is {limit_value} {unit}.",
+        "why": "High CO2 can cause headaches, shortness of breath and tiredness, and can disturb sleep. It is a limit for the cabin air, not a diagnosis.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "head"
+        ],
+        "headline": {
+          "fragment": "CO2 above the limit",
+          "rank": 20,
+          "solo": false
+        },
+        "citation_template": "{sensor_name} sensor, {source_label}.",
+        "source_ids": [
+          "EV01"
+        ]
+      }
+    },
+    {
+      "id": "co2_week_high",
+      "raised_by": "sensor_limit",
+      "level": "watch",
+      "hazard_id": "co2",
+      "hazard_level_index": 1,
+      "sensor_type_id": "co2",
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_limit",
+        "limit_id": "co2_7d_watch"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "CO2 high this week",
+        "what": "The {aggregation_label} is {value} {unit_display}. The limit is {limit_value} {unit_display}.",
+        "why": "CO2 is the gas you breathe out. In a closed cabin it builds up unless machines remove it.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "head"
+        ],
+        "headline": {
+          "fragment": "CO2 high this week",
+          "rank": 40,
+          "solo": false
+        },
+        "citation_template": "{sensor_name} sensor, {source_label}.",
+        "source_ids": [
+          "C25"
+        ]
+      }
+    },
+    {
+      "id": "oxygen_low_watch",
+      "raised_by": "sensor_limit",
+      "level": "watch",
+      "hazard_id": "oxygen",
+      "hazard_level_index": 1,
+      "sensor_type_id": "o2",
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_limit",
+        "limit_id": "o2_low_watch"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Oxygen below the usual range",
+        "what": "The {aggregation_label} is {value} {unit_display}. The limit is {limit_value} {unit_display}.",
+        "why": "Too little oxygen dulls your thinking and vision, often without you noticing. Too much oxygen helps fires burn and can injure the lungs.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "head"
+        ],
+        "headline": {
+          "fragment": "Oxygen low",
+          "rank": 30,
+          "solo": false
+        },
+        "citation_template": "{sensor_name} sensor, {source_label}.",
+        "source_ids": [
+          "EV01"
+        ]
+      }
+    },
+    {
+      "id": "oxygen_low_act",
+      "raised_by": "sensor_limit",
+      "level": "act",
+      "hazard_id": "oxygen",
+      "hazard_level_index": 3,
+      "sensor_type_id": "o2",
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_limit",
+        "limit_id": "o2_low_act"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Oxygen below the limit",
+        "what": "The {aggregation_label} is {value} {unit_display}. The limit is {limit_value} {unit_display}.",
+        "why": "Too little oxygen dulls your thinking and vision, often without you noticing. Too much oxygen helps fires burn and can injure the lungs.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "head"
+        ],
+        "headline": {
+          "fragment": "Oxygen below the limit",
+          "rank": 15,
+          "solo": false
+        },
+        "citation_template": "{sensor_name} sensor, {source_label}.",
+        "source_ids": [
+          "EV01"
+        ]
+      }
+    },
+    {
+      "id": "oxygen_low_emergency",
+      "raised_by": "sensor_limit",
+      "level": "emergency",
+      "hazard_id": "oxygen",
+      "hazard_level_index": 5,
+      "sensor_type_id": "o2",
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_limit",
+        "limit_id": "o2_low_emergency"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Oxygen dangerously low",
+        "what": "The {aggregation_label} is {value} {unit_display}. The limit is {limit_value} {unit_display}.",
+        "why": "Too little oxygen dulls your thinking and vision, often without you noticing. Too much oxygen helps fires burn and can injure the lungs.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "head"
+        ],
+        "headline": {
+          "fragment": "Oxygen dangerously low",
+          "rank": 0,
+          "solo": true
+        },
+        "citation_template": "{sensor_name} sensor, {source_label}.",
+        "source_ids": [
+          "EV01",
+          "EV06"
+        ]
+      }
+    },
+    {
+      "id": "oxygen_high_act",
+      "raised_by": "sensor_limit",
+      "level": "act",
+      "hazard_id": "oxygen",
+      "hazard_level_index": 4,
+      "sensor_type_id": "o2",
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_limit",
+        "limit_id": "o2_high_act"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Oxygen above the limit",
+        "what": "The {aggregation_label} is {value} {unit_display}. The limit is {limit_value} {unit_display}.",
+        "why": "Too little oxygen dulls your thinking and vision, often without you noticing. Too much oxygen helps fires burn and can injure the lungs.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "lungs"
+        ],
+        "headline": {
+          "fragment": "Oxygen above the limit",
+          "rank": 15,
+          "solo": false
+        },
+        "citation_template": "{sensor_name} sensor, {source_label}.",
+        "source_ids": [
+          "EV01"
+        ]
+      }
+    },
+    {
+      "id": "noise_day_act",
+      "raised_by": "sensor_limit",
+      "level": "act",
+      "hazard_id": "noise",
+      "hazard_level_index": 2,
+      "sensor_type_id": "noise",
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_limit",
+        "limit_id": "noise_24h_act"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Noise above the daily limit",
+        "what": "The {aggregation_label} is {value} {unit_display}. The limit is {limit_value} {unit_display}.",
+        "why": "Fans, pumps and machines run all the time. Long exposure can damage hearing and disturb sleep.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "ear"
+        ],
+        "headline": {
+          "fragment": "Noise above the limit",
+          "rank": 25,
+          "solo": false
+        },
+        "citation_template": "{sensor_name} sensor, {source_label}.",
+        "source_ids": [
+          "EV01"
+        ]
+      }
+    },
+    {
+      "id": "noise_peak_emergency",
+      "raised_by": "sensor_limit",
+      "level": "emergency",
+      "hazard_id": "noise",
+      "hazard_level_index": 3,
+      "sensor_type_id": "noise",
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_limit",
+        "limit_id": "noise_peak_emergency"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Very loud noise",
+        "what": "The {aggregation_label} is {value} {unit_display}. The limit is {limit_value} {unit_display}.",
+        "why": "Fans, pumps and machines run all the time. Long exposure can damage hearing and disturb sleep.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "ear"
+        ],
+        "headline": {
+          "fragment": "Very loud noise",
+          "rank": 0,
+          "solo": true
+        },
+        "citation_template": "{sensor_name} sensor, {source_label}.",
+        "source_ids": [
+          "EV01"
+        ]
+      }
+    },
+    {
+      "id": "air_index_watch",
+      "raised_by": "sensor_limit",
+      "level": "watch",
+      "hazard_id": "toxic_vocs",
+      "hazard_level_index": 1,
+      "sensor_type_id": "air",
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_limit",
+        "limit_id": "air_index_watch"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Air contaminants rising",
+        "what": "The {aggregation_label} is {value} {unit_display}. The limit is {limit_value} {unit_display}.",
+        "why": "Plastics, glues, cleaning products, experiments and people slowly release chemical vapors. In a sealed cabin they add up.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "lungs"
+        ],
+        "headline": {
+          "fragment": "Air contaminants rising",
+          "rank": 30,
+          "solo": false
+        },
+        "citation_template": "{sensor_name} sensor, {source_label}.",
+        "source_ids": [
+          "EV24"
+        ]
+      }
+    },
+    {
+      "id": "dust_lunar_act",
+      "raised_by": "sensor_limit",
+      "level": "act",
+      "hazard_id": "dust",
+      "hazard_level_index": 2,
+      "sensor_type_id": "dust",
+      "environments": [
+        "lunar_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_limit",
+        "limit_id": "dust_lunar_act"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Dust rising after the {eva_word}",
+        "what": "Dust in the {location} is rising after the walk: the time-weighted average is {value} {unit_display}. The lunar limit is {limit_value} {unit_display}.",
+        "why": "Lunar dust is fine and sharp. It irritates the eyes and skin and can harm the lungs.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "lungs"
+        ],
+        "headline": {
+          "fragment": "Dust after the {eva_word}",
+          "rank": 20,
+          "solo": false
+        },
+        "citation_template": "{sensor_name} sensor, {source_label}.",
+        "source_ids": [
+          "EV01"
+        ]
+      }
+    },
+    {
+      "id": "dust_mars_act",
+      "raised_by": "sensor_limit",
+      "level": "act",
+      "hazard_id": "dust",
+      "hazard_level_index": 3,
+      "sensor_type_id": "dust",
+      "environments": [
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_limit",
+        "limit_id": "dust_mars_act"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Dust above the Mars limit",
+        "what": "Dust in the {location}: the time-weighted average is {value} {unit_display}. The Mars limit is {limit_value} {unit_display}.",
+        "why": "Tiny particles in the air. On the Moon and Mars the dust is very fine and sharp, and it comes inside on suits.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "lungs"
+        ],
+        "headline": {
+          "fragment": "Dust above the limit",
+          "rank": 20,
+          "solo": false
+        },
+        "citation_template": "{sensor_name} sensor, {source_label}.",
+        "source_ids": [
+          "EV01"
+        ]
+      }
+    },
+    {
+      "id": "dust_mars_peak",
+      "raised_by": "sensor_limit",
+      "level": "emergency",
+      "hazard_id": "dust",
+      "hazard_level_index": 4,
+      "sensor_type_id": "dust",
+      "environments": [
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_limit",
+        "limit_id": "dust_mars_peak_emergency"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Dust peak",
+        "what": "The {aggregation_label} is {value} {unit_display}. The limit is {limit_value} {unit_display}.",
+        "why": "Tiny particles in the air. On the Moon and Mars the dust is very fine and sharp, and it comes inside on suits.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "lungs"
+        ],
+        "headline": {
+          "fragment": "Dust peak",
+          "rank": 0,
+          "solo": true
+        },
+        "citation_template": "{sensor_name} sensor, {source_label}.",
+        "source_ids": [
+          "EV01"
+        ]
+      }
+    },
+    {
+      "id": "sensor_quiet",
+      "raised_by": "sensor_limit",
+      "level": "watch",
+      "hazard_id": null,
+      "hazard_level_index": null,
+      "sensor_type_id": null,
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "sensor_quiet",
+        "sensor_type_ids": []
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "{sensor_name} sensor quiet",
+        "what": "No data since {last_received_time}. The last value is not shown as current.",
+        "why": "A quiet sensor cannot tell you the air is safe.",
+        "steps": {
+          "from": "listed",
+          "items": [
+            "Check the sensor's power and connection.",
+            "Use the manual check if this task has one."
+          ],
+          "basis": "team default"
+        },
+        "body_regions": [],
+        "headline": {
+          "fragment": "{sensor_name} sensor quiet",
+          "rank": 50,
+          "solo": false
+        },
+        "citation_template": "{sensor_name} sensor.",
+        "source_ids": []
+      }
+    },
+    {
+      "id": "radiation_storm_shelter",
+      "raised_by": "rule",
+      "level": "emergency",
+      "hazard_id": "radiation",
+      "hazard_level_index": null,
+      "sensor_type_id": "rad",
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "crew",
+      "condition": {
+        "kind": "mission_event",
+        "event_types": [
+          "space_weather_alert"
+        ],
+        "clear_event_types": [
+          "space_weather_all_clear"
+        ]
+      },
+      "clear": {
+        "by_engine": "clear_event",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Solar storm: go to the shelter",
+        "what": "A solar storm alert is active.",
+        "why": "A large solar event can give a big dose in hours. Shielding stops most solar particles, and the shelter has the most.",
+        "steps": {
+          "from": "listed",
+          "items": [
+            "Go to the storm shelter now.",
+            "If you are outside, end the walk and come back in.",
+            "Stay in the shelter until the all clear."
+          ],
+          "basis": "team default"
+        },
+        "body_regions": [],
+        "headline": {
+          "fragment": "Solar storm: go to the shelter",
+          "rank": 1,
+          "solo": true
+        },
+        "citation_template": "{source_label}. Alert dose rates are set by the program.",
+        "source_ids": [
+          "EV01"
+        ]
+      }
+    },
+    {
+      "id": "dizzy_after_landing",
+      "raised_by": "rule",
+      "level": "watch",
+      "hazard_id": "partial_gravity",
+      "hazard_level_index": 1,
+      "sensor_type_id": null,
+      "environments": [
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "person",
+      "condition": {
+        "kind": "answer",
+        "question_id": "dizzy_standing",
+        "presence": [
+          "present"
+        ],
+        "within_days_after_event": {
+          "event_type": "landing",
+          "days": 5,
+          "basis": "team default"
+        }
+      },
+      "clear": {
+        "by_engine": "never",
+        "person_may_resolve": true,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Dizzy when standing",
+        "what": "You reported dizziness after standing up, on {answer_day_label} in gravity.",
+        "why": "After months weightless, the body needs time to keep blood pressure up when you stand.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "heart"
+        ],
+        "headline": {
+          "fragment": "{day_short}: getting used to gravity",
+          "rank": 5,
+          "solo": true
+        },
+        "citation_template": "Your report {answer_time}. Rule: dizziness when standing after landing.",
+        "source_ids": [
+          "C09"
+        ]
+      }
+    },
+    {
+      "id": "local_water_untested",
+      "raised_by": "rule",
+      "level": "watch",
+      "hazard_id": "perchlorate",
+      "hazard_level_index": 1,
+      "sensor_type_id": "water",
+      "environments": [
+        "mars_surface"
+      ],
+      "scope": "habitat",
+      "condition": {
+        "kind": "state_fact",
+        "fact": "local_water_untested",
+        "equals": true
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Local water not yet tested",
+        "what": "The new water from local ice has not been tested for perchlorate.",
+        "why": "Perchlorate can stop the thyroid taking up iodine. Martian dust and soil carry it.",
+        "steps": {
+          "from": "hazard_what_to_do"
+        },
+        "body_regions": [
+          "neck"
+        ],
+        "headline": {
+          "fragment": "Local water untested",
+          "rank": 30,
+          "solo": false
+        },
+        "citation_template": "Rule: local water is tested before first use.",
+        "source_ids": [
+          "EV01"
+        ]
+      }
+    },
+    {
+      "id": "ground_silence",
+      "raised_by": "rule",
+      "level": "watch",
+      "hazard_id": null,
+      "hazard_level_index": null,
+      "sensor_type_id": null,
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "crew",
+      "condition": {
+        "kind": "ground_silence",
+        "after_next_contact_seconds": null,
+        "basis": "team default",
+        "to_be_set_by": "clinical review"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "Ground out of contact longer than planned",
+        "what": "The ground link is still down {silence_text} after the planned contact at {next_contact_time}.",
+        "why": "Nothing aboard waits for the ground. Every plan and help flow runs here.",
+        "steps": {
+          "from": "listed",
+          "items": [
+            "Carry on: every plan, help flow and routine task runs aboard.",
+            "Check the contact schedule with the commander."
+          ],
+          "basis": "team default"
+        },
+        "body_regions": [],
+        "headline": {
+          "fragment": "Ground out of contact",
+          "rank": 60,
+          "solo": false
+        },
+        "citation_template": "Ground link, {source_label}. Rule: silence past the planned contact.",
+        "source_ids": []
+      }
+    },
+    {
+      "id": "supply_cover_low",
+      "raised_by": "rule",
+      "level": "watch",
+      "hazard_id": null,
+      "hazard_level_index": null,
+      "sensor_type_id": null,
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "crew",
+      "condition": {
+        "kind": "supply_cover_low",
+        "below_uses": null,
+        "basis": "team default",
+        "to_be_set_by": "the flight surgeon"
+      },
+      "clear": {
+        "by_engine": "condition_false",
+        "person_may_resolve": false,
+        "expires_after_seconds": null,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "{supply_name}: cover for {uses} more uses",
+        "what": "{supply_name} aboard: {quantity}. The plans that use it need {per_use} each time.",
+        "why": "When a supply runs out, the steps that need it show Not aboard and use their substitute.",
+        "steps": {
+          "from": "listed",
+          "items": [
+            "Tell the medical officer.",
+            "Look at the plans that use it in the kit view."
+          ],
+          "basis": "team default"
+        },
+        "body_regions": [],
+        "headline": {
+          "fragment": "{supply_name} running low",
+          "rank": 55,
+          "solo": false
+        },
+        "citation_template": "Supply ledger, {source_label}. Rule: cover below the set number of uses.",
+        "source_ids": []
+      }
+    },
+    {
+      "id": "assistant_pattern",
+      "raised_by": "assistant",
+      "level": "watch",
+      "hazard_id": null,
+      "hazard_level_index": null,
+      "sensor_type_id": null,
+      "environments": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "scope": "person",
+      "condition": {
+        "kind": "assistant_insight",
+        "topic_ids": [
+          "sleep_reaction",
+          "gravity_adjustment"
+        ]
+      },
+      "clear": {
+        "by_engine": "never",
+        "person_may_resolve": false,
+        "expires_after_seconds": 86400,
+        "basis": "team default"
+      },
+      "content": {
+        "title": "{insight_title}",
+        "what": "{insight_text}",
+        "why": "{insight_why}",
+        "steps": {
+          "from": "assistant"
+        },
+        "body_regions": [],
+        "headline": {
+          "fragment": "{insight_fragment}",
+          "rank": 10,
+          "solo": false
+        },
+        "citation_template": "The assistant, from your own records. A pattern, not a diagnosis.",
+        "source_ids": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+# Independent golden cases for the pure warnings domain (AGENTS.md 1, E24 12 T-E24-131).
+#
+# Each case was written by hand from the cited source, not derived from the configuration under test. The
+# `quote` is checked to occur verbatim in the cited document, so a case cannot drift from its source. A
+# mismatch between a case and the configured release is a finding to report; this file is never edited to
+# make a test pass. Passing proves numerical verification only, never clinical approval.
+#
+# Review state: written by the E24 domain coder; checked case by case against the cited source text (not the
+# configuration) by a second reviewer, the E24 safety-core builder run of 2026-11-15 started by joaquingit1. Each
+# case's `check` records what was read and the outcome: `agrees`, `agrees_with_assumption` (the assumption is
+# stated), `corrected` (the case was wrong against its source and was fixed here, never the code to match it) or
+# `needs_decision` (the source is silent; the case keeps the fail safe reading and the build report raises it).
+# No case cites a NASA catalog ID: these quote the product package and the coordinator decisions, which carry
+# their NASA provenance themselves (the CO2 and oxygen limits cite EV01 in config/sensor-limits.json).
+checked_by: "E24 safety-core builder run, 2026-11-15 (started by joaquingit1); not the author"
+cases:
+  - id: G-HEADLINE-STATION
+    kind: headline
+    check: "agrees: CONTRACTS.md lines 788 to 796 and 1124; list-station.json ranks 10 and 20, neither solo, separator ', '"
+    source:
+      document: docs/product/CONTRACTS.md
+      section: "14 Headline"
+      quote: 'With the example documents this gives "Short sleep, CO2 above the limit" on the station'
+    input: {list: station}
+    expected: {text: "Short sleep, CO2 above the limit"}
+
+  - id: G-HEADLINE-TRANSIT
+    kind: headline
+    check: "agrees: one solo item of rank 1; D2 changes the storm level, not its fragment"
+    source:
+      document: docs/product/CONTRACTS.md
+      section: "14 Headline"
+      quote: '"Solar storm: go to the shelter" on the transit'
+    input: {list: transit}
+    expected: {text: "Solar storm: go to the shelter"}
+
+  - id: G-HEADLINE-LUNAR
+    kind: headline
+    check: "agrees: one item, not solo"
+    source:
+      document: docs/product/CONTRACTS.md
+      section: "14 Headline"
+      quote: '"Dust after the surface walk" on the Moon base'
+    input: {list: lunar}
+    expected: {text: "Dust after the surface walk"}
+
+  - id: G-HEADLINE-MARS
+    kind: headline
+    check: "agrees: rank 5 solo wins over rank 30"
+    source:
+      document: docs/product/CONTRACTS.md
+      section: "14 Headline"
+      quote: '"Sol 3: getting used to gravity" on the Mars base'
+    input: {list: mars}
+    expected: {text: "Sol 3: getting used to gravity"}
+
+  - id: G-STORM-EMERGENCY
+    kind: storm_level
+    check: "agrees: USE-CASES.md line 144, confirmed by D2 and its A3 line for warning-rules.example.json:594 (the example file still says act; D2 overrides it)"
+    source:
+      document: docs/product/USE-CASES.md
+      section: "UC05 step 1"
+      quote: 'Emergency: "Go to the storm shelter." The fixed shelter steps appear at once on every crew screen.'
+    expected: {level: emergency}
+
+  - id: G-SENSOR-CLEAR-DWELL-600
+    kind: dwell
+    check: "agrees_with_assumption: CONTRACTS.md line 706; 600 s is the co2_1h_act clear dwell (sensor-limits.example.json, team default). The hold starts at the first safe reading after the raise (D3: only readings observed after the raise count) and clears when 660 minus 60 reaches 600, at evaluation 11; a hold counted from the raise itself would clear at 10, so the case takes the later, fail safe reading"
+    source:
+      document: docs/product/CONTRACTS.md
+      section: "13 Raising and clearing sensor warnings"
+      quote: "must hold continuously for `dwell_seconds` of `observed_at` time"
+    # The CO2 one-hour limit clears after 600 seconds of the safe side (sensor-limits example `dwell_seconds`).
+    # Evaluations every 60 seconds after the raise, all on the safe side: the first counts as time zero.
+    input: {limit: co2_1h_act, step_seconds: 60, evaluations: 12}
+    expected: {cleared_at_evaluation: 11, clear_reason: condition_false}
+
+  - id: G-SENSOR-CLEAR-ONE-SHORT
+    kind: dwell
+    check: "corrected: the quote was 'Stale data never clears a warning.', unrelated to a case where every reading is current; it now quotes the dwell sentence (line 706). Arithmetic: 600 minus 60 is 540 s held, below 600, so no clear"
+    source:
+      document: docs/product/CONTRACTS.md
+      section: "13 Raising and clearing sensor warnings"
+      quote: "must hold continuously for `dwell_seconds` of `observed_at` time"
+    input: {limit: co2_1h_act, step_seconds: 60, evaluations: 10}
+    expected: {cleared_at_evaluation: null, clear_reason: null}
+
+  - id: G-ESCALATION-HIGHEST-ONLY
+    kind: escalation
+    check: "corrected: CONTRACTS.md lines 704 and 705 do not say which records a simultaneous crossing of watch, act and emergency writes (read literally, all three raise and the two lower ones are superseded at once); 'raise only the highest' was E24.md 3.7 step 5, the design under test. The case now asserts only what the source fixes: afterwards the emergency is the one active warning of the group and no lower warning is active. The record trail difference is raised in the build report"
+    source:
+      document: docs/product/CONTRACTS.md
+      section: "13 Raising and clearing sensor warnings"
+      quote: "active lower-level warnings for that sensor type and channel clear with `clear_reason` `superseded`"
+    input: {crossed: [o2_low_watch, o2_low_act, o2_low_emergency]}
+    expected: {active_after: [oxygen_low_emergency]}
+
+  - id: G-ESCALATION-EQUAL-LEVELS
+    kind: escalation
+    check: "agrees: lines 704 and 705 supersede only a higher level; o2_low_act (twa_1h) and o2_high_act (latest) can cross together"
+    source:
+      document: docs/product/CONTRACTS.md
+      section: "13 Raising and clearing sensor warnings"
+      quote: "once per definition and channel, unless that warning is already active"
+    input: {crossed: [o2_low_act, o2_high_act]}
+    expected: {raised: [oxygen_high_act, oxygen_low_act], superseded: []}
+
+  - id: G-ESCALATION-SUPERSEDES-LOWER
+    kind: escalation
+    check: "agrees: line 704 (the active watch is not raised again) and line 705 (it is superseded)"
+    source:
+      document: docs/product/CONTRACTS.md
+      section: "13 Raising and clearing sensor warnings"
+      quote: "active lower-level warnings for that sensor type and channel clear with `clear_reason` `superseded`"
+    input: {active: [o2_low_watch], crossed: [o2_low_watch, o2_low_act]}
+    expected: {raised: [oxygen_low_act], superseded: [oxygen_low_watch]}
+
+  - id: G-OCCURRENCES-WORKED
+    kind: occurrences
+    check: "corrected: the case cited docs/tdd/E24.md 3.9, the design of the code under test, not an independent source. CONTRACTS.md line 754 alone would clear on any clear event; the binding rule is AGENTS.md section 6 Time (line 263) and the task's non-negotiable: a delayed event never clears a newer state. The 10:10 all-clear delivered after the 10:20 alert is such a delayed event, so W stays; the 10:30 all-clear clears it. Expected values unchanged"
+    source:
+      document: AGENTS.md
+      section: "6 Time"
+      quote: "A delayed, duplicated or replayed event never clears or overwrites a newer state."
+    # Minutes after 10:00. Order of delivery: alert 0, alert 20, all-clear 10, all-clear 30.
+    input: {delivery: [[alert, 0], [alert, 20], [clear, 10], [clear, 30]]}
+    expected: {active_after: [true, true, true, false]}
+
+  - id: G-Q9-NOBODY-AWAKE
+    kind: act_routing
+    check: "needs_decision: Q9 and its A3 line for PRD.md:278 ('wake the sleeper only after configured unacknowledged interval') do not cover a crew with nobody awake. Read literally, the sleeper would wait the full 300 s for an acknowledgement nobody can give. The case keeps the fail safe reading (wake at once, matching hold.py) and the build report asks the coordinator"
+    source:
+      document: docs/requests/COORDINATOR-DECISIONS.md
+      section: "Q9"
+      quote: "Goes at once to someone awake (medical officer or crew member on duty); the sleeper is woken only if nobody awake acknowledges within a configured time."
+    input: {sleepers: [p3], awake: [], acknowledged_by: [], elapsed: 0, wake_after: 300, may_receive: true}
+    expected: {notify_now: [], wake_now: [p3], wake_after: null}
+
+  - id: G-Q9-WAIT-FOR-ACK
+    kind: act_routing
+    check: "agrees: 300 minus 10 elapsed is 290 s; may_receive is an input the decision does not mention"
+    source:
+      document: docs/requests/COORDINATOR-DECISIONS.md
+      section: "Q9"
+      quote: "Goes at once to someone awake (medical officer or crew member on duty); the sleeper is woken only if nobody awake acknowledges within a configured time."
+    input: {sleepers: [p3], awake: [p1], acknowledged_by: [], elapsed: 10, wake_after: 300, may_receive: true}
+    expected: {notify_now: [p1], wake_now: [], wake_after: 290}  # seconds from now: 300 configured minus 10 elapsed
+
+  - id: G-Q9-ACKNOWLEDGED
+    kind: act_routing
+    check: "agrees_with_assumption: no wake holds only if p1 acknowledged within the 300 s; the input does not carry the acknowledgement time, so the case assumes it did"
+    source:
+      document: docs/requests/COORDINATOR-DECISIONS.md
+      section: "Q9"
+      quote: "the sleeper is woken only if nobody awake acknowledges within a configured time."
+    input: {sleepers: [p3], awake: [p1], acknowledged_by: [p1], elapsed: 999, wake_after: 300, may_receive: true}
+    expected: {notify_now: [p1], wake_now: [], wake_after: null}
+
+  - id: G-D3-ONLY-AFTER-RAISE
+    kind: evidence_after_raise
+    check: "agrees_with_assumption: D3 line 17; 'after' is strict, so [0, 0] is false; [1, 5] is true only with a stale bound of at least 4 s (the test channel uses 300 s); [200, 100] is an observation dated after the hub time, outside the window (E24.md 3.6 item 2)"
+    source:
+      document: docs/requests/COORDINATOR-DECISIONS.md
+      section: "D3"
+      quote: "Only readings observed after a warning was raised, and fresh by that rule, can count toward clearing it."
+    # Seconds relative to the raise: observed time of the evaluation and the evaluation (hub) time.
+    input: {cases: [[-30, 0], [0, 0], [1, 5], [100, 100], [200, 100]]}
+    expected: {eligible: [false, false, true, true, false]}
