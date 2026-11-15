@@ -198,6 +198,10 @@ class RoutineHarness:
         self._events()
         sql = migration_sql()
         self.db.migrate_tracked("routine.0001", sha256(sql.encode()).hexdigest(), sql)
+        sql = (REPO / "hub/src/crew_health/routine/adapters/migrations/0002_versions.sql").read_text(
+            encoding="utf-8"
+        )
+        self.db.migrate_tracked("routine.0002", sha256(sql.encode()).hexdigest(), sql)
         for event_type in audit_event_types():
             self.db.register_audit_policy(
                 AuditPolicy(

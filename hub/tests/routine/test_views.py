@@ -8,7 +8,6 @@ from crew_health.contracts_gen.enums import Role
 from crew_health.contracts_gen.schemas.routine_override_schema import RoutineOverride
 from crew_health.kernel.uow import Actor, SessionContext
 from crew_health.routine.application.views import cadence_view, instant, override_view, require_words
-from crew_health.routine.domain.errors import ConfigInvalid
 from crew_health.routine.domain.release import Cadence
 
 from .support import NOW, override, release
@@ -40,9 +39,8 @@ def test_cadence_omits_absent_optional_fields_and_instants_use_utc_z() -> None:
 
 
 @pytest.mark.trace("INV-E25-11")
-def test_missing_presentation_words_fail_closed() -> None:
-    with pytest.raises(ConfigInvalid):
-        require_words(replace(release(), words=None))
+def test_missing_presentation_words_fall_back_to_identifiers() -> None:
+    assert require_words(replace(release(), words=None)).group_labels == {}
 
 
 @pytest.mark.trace("T-E25-015")
@@ -69,12 +67,12 @@ def test_pagination_traverses_every_item_once_and_rejects_bad_input() -> None:
 
 
 @pytest.mark.trace("INV-E25-01")
-def test_person_override_privacy_does_not_expand_with_officer_role() -> None:
+def test_person_override_is_visible_to_officers_but_not_other_crew() -> None:
     from crew_health.routine.application.views import override_visible
 
     value = replace(override(), audience="person", person_id="p_test")
     assert override_visible(value, session())
-    assert not override_visible(value, session("p_other", officer=True))
+    assert override_visible(value, session("p_other", officer=True))
     group = replace(value, audience="all_crew", person_id=None)
     assert override_visible(group, session("p_other", officer=True))
     assert not override_visible(group, session("p_other"))

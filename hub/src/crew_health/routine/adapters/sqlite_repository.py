@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Literal, cast
@@ -159,6 +160,34 @@ def _update(uow: UnitOfWork, table: str, values: tuple[SqlValue, ...], expected:
 
 
 class SqliteRoutineStore:
+    def remember(
+        self, uow: UnitOfWork, actor_ref: str, key: str, value: Occurrence | Override, body: dict[str, object]
+    ) -> None:
+        kind = "occurrence" if isinstance(value, Occurrence) else "override"
+        identifier = value.occurrence_id if isinstance(value, Occurrence) else value.override_id
+        raw = codec.dump(body).encode("utf-8")
+        uow.connection.execute(
+            "INSERT OR IGNORE INTO routine_record_version VALUES (?,?,?,?)",
+            (kind, identifier, value.revision, raw),
+        )
+        uow.connection.execute(
+            "INSERT INTO routine_command_version VALUES (?,?,?,?,?)",
+            (actor_ref, key, kind, identifier, value.revision),
+        )
+
+    def remembered(self, view: View, actor_ref: str, key: str) -> dict[str, object] | None:
+        rows = view.connection.rows(
+            "SELECT v.kind,v.record FROM routine_command_version c JOIN routine_record_version v USING(kind,record_id,revision) WHERE c.actor_ref=? AND c.command_key=?",
+            (actor_ref, key),
+            limit=1,
+        )
+        if not rows:
+            return None
+        _, raw = rows[0]
+        if not isinstance(raw, bytes):
+            raise StorageUnavailable("corrupt")
+        return codec.mapping(json.loads(raw))
+
     def get(self, view: View, occurrence_id: str) -> Occurrence | None:
         rows = _rows(view, "routine_occurrence", "occurrence_id=?", (occurrence_id,), 1)
         return codec.read_occurrence(rows[0]) if rows else None

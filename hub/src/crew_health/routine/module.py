@@ -6,6 +6,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from datetime import datetime
 
+from fastapi import Request
 from pydantic import ValidationError
 
 from crew_health.app.registry import ModuleRegistry, Resolver, StartupPhase
@@ -31,6 +32,7 @@ from crew_health.kernel.uow import (
 from crew_health.routine.adapters.config_reader import ReleaseCache, RoutineReleaseCheck
 from crew_health.routine.adapters.sqlite_repository import SqliteRoutineStore
 from crew_health.routine.adapters.wire_inputs import parse_input
+from crew_health.routine.api.router import build_router
 from crew_health.routine.application.actions import RoutineActions
 from crew_health.routine.application.audit import audit
 from crew_health.routine.application.deps import RoutineDeps
@@ -48,6 +50,7 @@ from crew_health.routine.application.ports import (
     OccurrenceView,
     OverrideCreateBody,
     OverrideView,
+    RequestAuthenticator,
     RosterPort,
     RoutineCommands,
     RoutineCompletionPort,
@@ -95,6 +98,8 @@ class RoutineAudience:
         override = self.store.get_override(snapshot, audience.object_ref)
         if override is None:
             return False
+        if session.roles & {Role.CREW_MEDICAL_OFFICER, Role.GROUND}:
+            return True
         if override.audience == "person":
             return session.person_id is not None and session.person_id == override.person_id
         return session.person_id in override.member_ids or bool(
@@ -107,6 +112,8 @@ class RoutineRuntime:
 
     def __init__(self) -> None:
         self.startup_phase = StartupPhase.STATE_SWEEP
+        self._bound = False
+        self.authenticator: RequestAuthenticator | None = None
         self._engine: RoutineEngine | None = None
         self._queries: RoutineQueryService | None = None
         self._commands: RoutineActions | None = None
@@ -136,6 +143,17 @@ class RoutineRuntime:
         self._completion, self._assistant = RoutineCompletion(deps, engine), AssistantRechecks(deps, engine)
         self._subscriptions = RoutineSubscriptions(deps, engine)
         engine.startup_sweep()
+        self._bound = True
+
+    def authenticate(self, request: Request, operation_id: str) -> SessionContext:
+        if not self._bound:
+            raise ProblemError(ErrorCode.INTERNAL_ERROR, "routine is not bound", retryable=True)
+        if self.authenticator is None:
+            raise ProblemError(ErrorCode.UNAUTHENTICATED, ErrorCode.UNAUTHENTICATED.value)
+        return self.authenticator.authenticate(request.headers, operation_id)
+
+    def active_release_id(self) -> str:
+        return self.queries.active_release_id()
 
     def schedule(self, session: SessionContext, range_: str) -> dict[str, object]:
         return self.queries.schedule(session, range_)
@@ -189,10 +207,22 @@ class RoutineRuntime:
         )
 
     def end_override(
-        self, session: SessionContext, override_id: str, *, if_match: int | None, idempotency_key: str
+        self,
+        session: SessionContext,
+        override_id: str,
+        *,
+        if_match: int | None,
+        idempotency_key: str,
+        config_release: str | None = None,
+        note: str | None = None,
     ) -> tuple[int, OverrideView]:
         return self.commands.end_override(
-            session, override_id, if_match=if_match, idempotency_key=idempotency_key
+            session,
+            override_id,
+            if_match=if_match,
+            idempotency_key=idempotency_key,
+            config_release=config_release,
+            note=note,
         )
 
     def due_today(self, person_id: str, at: datetime) -> Sequence[OccurrenceRef]:
@@ -277,6 +307,7 @@ def _deps(resolver: Resolver) -> RoutineDeps:
 
 def register(registry: ModuleRegistry) -> None:
     runtime = RoutineRuntime()
+    registry.router(build_router(runtime, runtime, runtime.authenticate))
     for spec in specs():
         registry.setting(spec)
     for record_type, prefix in (
@@ -326,6 +357,7 @@ def register(registry: ModuleRegistry) -> None:
     registry.provide(AssistantRoutinePort, lambda _: runtime)
 
     def bind(resolver: Resolver) -> None:
+        runtime.authenticator = resolver.optional(RequestAuthenticator)
         runtime.assemble(_deps(resolver))
 
     registry.bind("routine", bind)

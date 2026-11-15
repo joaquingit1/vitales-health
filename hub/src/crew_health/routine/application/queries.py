@@ -80,6 +80,10 @@ class RoutineQueryService:
     def __init__(self, deps: RoutineDeps, engine: RoutineEngine) -> None:
         self.deps, self.engine = deps, engine
 
+    def active_release_id(self) -> str:
+        with self.deps.snapshots.snapshot() as view:
+            return view.release.release_id
+
     def schedule(self, session: SessionContext, range_: str) -> dict[str, object]:
         person = person_id(session)
         self._range(range_)
@@ -100,7 +104,7 @@ class RoutineQueryService:
                         groups.append(
                             {
                                 "group_id": group_id,
-                                "label": words.group_labels.get(group_id, words.unknown),
+                                "label": words.group_labels.get(group_id, group_id),
                                 "occurrences": group_rows,
                             }
                         )
@@ -138,7 +142,7 @@ class RoutineQueryService:
             rows = self._rows(view, session, view.now)
             if state is not None:
                 rows = [row for row in rows if row["state"] == state]
-            return page(rows, cursor, limit, self.deps.settings.page_limit)
+            return page(rows, cursor, limit, 200)
 
     def occurrence(self, session: SessionContext, occurrence_id: str) -> dict[str, object]:
         person = person_id(session)
@@ -153,6 +157,13 @@ class RoutineQueryService:
                     ),
                     None,
                 )
+            if occ is None:
+                projected = next(
+                    (r for r in self._rows(view, session, view.now) if r["occurrence_id"] == occurrence_id),
+                    None,
+                )
+                if projected is not None:
+                    return projected
             if occ is None or occ.person_id != person:
                 raise NotFound()
             return occurrence_view(self.deps, self.engine, view, occ, session, view.now)
@@ -164,7 +175,7 @@ class RoutineQueryService:
             rows = [
                 task_view(self.deps, self.engine, view, item, session, view.now) for item in release.items
             ]
-            return page(rows, cursor, limit, self.deps.settings.page_limit)
+            return page(rows, cursor, limit, 200)
 
     def task(self, session: SessionContext, item_id: str) -> dict[str, object]:
         person_id(session)
@@ -188,7 +199,7 @@ class RoutineQueryService:
                 batch = self.deps.store.active_overrides(view, settings.page_limit, offset=offset)
                 found.extend(self._override(view, o, session) for o in batch if override_visible(o, session))
                 if len(batch) < settings.page_limit:
-                    return page(found, cursor, limit, settings.page_limit)
+                    return page(found, cursor, limit, 200)
             raise ConfigInvalid((Finding("error", "/overrides", "Routine override query capacity exceeded"),))
 
     def _override(self, view: ReadSnapshot, override: Override, session: SessionContext) -> dict[str, object]:

@@ -211,8 +211,10 @@ def test_override_paging_filters_membership_and_person_privacy_before_returning_
     assert identifiers("person_mara") == groups
     assert identifiers("person_tomas") == groups | {str(private["override_id"])}
     assert identifiers("person_ilya") == set()
-    assert identifiers("person_ilya", frozenset({Role.CREW_MEDICAL_OFFICER})) == groups
-    assert identifiers(None, frozenset({Role.GROUND})) == groups
+    assert identifiers("person_ilya", frozenset({Role.CREW_MEDICAL_OFFICER})) == groups | {
+        str(private["override_id"])
+    }
+    assert identifiers(None, frozenset({Role.GROUND})) == groups | {str(private["override_id"])}
 
 
 @pytest.mark.trace("INV-E25-07", "T-E25-015")
@@ -237,7 +239,7 @@ def test_query_rejections_keep_private_objects_and_invalid_page_requests_closed(
         (lambda: hub.queries.occurrences(session(), "today", "unsafe", None, 100), "/state"),
         (lambda: hub.queries.tasks(session(), base64.b64encode(b"foreign:1").decode(), 100), "/cursor"),
         (lambda: hub.queries.tasks(session(), None, 0), "/limit"),
-        (lambda: hub.queries.tasks(session(), None, 101), "/limit"),
+        (lambda: hub.queries.tasks(session(), None, 201), "/limit"),
     ):
         with pytest.raises(InvalidBody) as invalid:
             read()

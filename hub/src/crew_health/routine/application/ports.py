@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from typing import ClassVar, Literal, Protocol
@@ -71,6 +71,11 @@ class AnswerAccepted:
     mission_id: str
 
 
+# Provided by E02 (crew_health.identity); structural copy until it is on main.
+class RequestAuthenticator(Protocol):
+    def authenticate(self, headers: Mapping[str, str], operation_id: str) -> SessionContext: ...
+
+
 type OccurrenceView = dict[str, object]
 type OverrideView = dict[str, object]
 
@@ -136,6 +141,7 @@ class DrillOccurrence:
 
 
 class RoutineQueries(Protocol):
+    def active_release_id(self) -> str: ...
     def schedule(self, session: SessionContext, range_: str) -> dict[str, object]: ...
     def occurrences(
         self, session: SessionContext, range_: str, state: str | None, cursor: str | None, limit: int
@@ -166,7 +172,14 @@ class RoutineCommands(Protocol):
         config_release: str | None,
     ) -> tuple[int, OverrideView]: ...
     def end_override(
-        self, session: SessionContext, override_id: str, *, if_match: int | None, idempotency_key: str
+        self,
+        session: SessionContext,
+        override_id: str,
+        *,
+        if_match: int | None,
+        idempotency_key: str,
+        config_release: str | None = None,
+        note: str | None = None,
     ) -> tuple[int, OverrideView]: ...
 
 

@@ -62,7 +62,7 @@ def test_register_declares_all_runtime_seams() -> None:
         AssistantRoutinePort,
     }
     assert set(registry.bindings) == {"routine"}
-    assert "routers" not in registry.declarations
+    assert len(registry.declarations["routers"]) == 1
 
 
 @pytest.mark.trace("T-E25-015", "INV-E25-16")

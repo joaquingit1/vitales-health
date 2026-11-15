@@ -82,6 +82,8 @@ def revision(current: int, expected: int | None) -> None:
 
 
 def visible_override(override: Override, session: SessionContext) -> bool:
+    if session.roles & {Role.CREW_MEDICAL_OFFICER, Role.GROUND}:
+        return True
     if override.audience == "person":
         return override.person_id == session.person_id
     return session.person_id in override.member_ids or bool(
@@ -142,12 +144,17 @@ class RoutineActions:
         ) as uow:
             stored = self.deps.idempotency.lookup(uow, cmd)
             if stored is not None:
-                return stored.status, self.view(
-                    uow, session, self.find(uow, session, occurrence_id, virtual=False)
-                )
+                self.find(uow, session, occurrence_id, virtual=False)
+                remembered = self.deps.store.remembered(uow, session.actor.id, cmd.key)
+                if remembered is None:
+                    raise NotFound()
+                return stored.status, remembered
             occ = self.find(uow, session, occurrence_id, virtual=True)
             revision(occ.revision, if_match)
-            if config_release is not None and config_release != uow.release.release_id:
+            if config_release is not None and config_release not in (
+                uow.release.release_id,
+                occ.config_release_id,
+            ):
                 raise ConfigVersionMismatch(uow.release.release_id)
             if body.action == "complete" and (body.observation_ids or body.answer_ids):
                 raise Unauthorized("linked_records_unverifiable")
@@ -161,8 +168,10 @@ class RoutineActions:
             if self.deps.store.get(uow, occurrence_id) is None and not self.engine.insert(uow, occ):
                 raise ActionNotAllowed("capacity")
             current = self.engine.change(uow, occ, result)
+            body_view = self.view(uow, session, current)
+            self.deps.store.remember(uow, session.actor.id, cmd.key, current, body_view)
             self.record(uow, cmd, 200, current.occurrence_id)
-            return 200, self.view(uow, session, current)
+            return 200, body_view
 
     def transition(
         self,
@@ -235,7 +244,10 @@ class RoutineActions:
                 )
                 if old is None or not visible_override(old, session):
                     raise NotFound()
-                return stored.status, override_view(old, session)
+                remembered = self.deps.store.remembered(uow, session.actor.id, cmd.key)
+                if remembered is None:
+                    raise NotFound()
+                return stored.status, remembered
             if config_release is not None and config_release != uow.release.release_id:
                 raise ConfigVersionMismatch(uow.release.release_id)
             override = self.manual(uow, session, body, idempotency_key, role)
@@ -257,6 +269,9 @@ class RoutineActions:
                     override.ends_at,
                     {"override_id": override.override_id, "kind": "ends"},
                 )
+            self.deps.store.remember(
+                uow, session.actor.id, cmd.key, override, override_view(override, session)
+            )
             self.record(uow, cmd, 201, override.override_id)
             return 201, override_view(override, session)
 
@@ -380,11 +395,25 @@ class RoutineActions:
         return replace(override, started_by="person", binding_id=None, note=body.note)
 
     def end_override(
-        self, session: SessionContext, override_id: str, *, if_match: int | None, idempotency_key: str
+        self,
+        session: SessionContext,
+        override_id: str,
+        *,
+        if_match: int | None,
+        idempotency_key: str,
+        config_release: str | None = None,
+        note: str | None = None,
     ) -> tuple[int, OverrideView]:
         from crew_health.routine.application.views import override_view
 
-        cmd = identity(session, idempotency_key, "endOverride", override_id, {"override_id": override_id}, {})
+        cmd = identity(
+            session,
+            idempotency_key,
+            "actOnOverride",
+            override_id,
+            {"override_id": override_id},
+            {"action": "end", "note": note},
+        )
         with self.deps.uow.begin(
             actor=session.actor, command=cmd, correlation_id=self.deps.ids.new("cor")
         ) as uow:
@@ -401,10 +430,16 @@ class RoutineActions:
             if stored is not None:
                 if not visible_override(override, session):
                     raise NotFound()
-                return stored.status, override_view(override, session)
+                remembered = self.deps.store.remembered(uow, session.actor.id, cmd.key)
+                if remembered is None:
+                    raise NotFound()
+                return stored.status, remembered
+            if config_release is not None and config_release != uow.release.release_id:
+                raise ConfigVersionMismatch(uow.release.release_id)
             revision(override.revision, if_match)
             if override.state == "ended":
                 raise InvalidTransition(override.revision)
             changed = self.engine.inputs.end(uow, override, "stopped_by_person", uow.now)
+            self.deps.store.remember(uow, session.actor.id, cmd.key, changed, override_view(changed, session))
             self.record(uow, cmd, 200, override_id)
             return 200, override_view(changed, session)

@@ -13,7 +13,7 @@ from crew_health.kernel.errors import StorageUnavailable
 from crew_health.kernel.testing import MemoryRelease
 from crew_health.kernel.uow import SessionContext, UnitOfWork
 from crew_health.routine.application.ports import OccurrenceActionBody
-from crew_health.routine.domain.errors import ActionNotAllowed, ConfigInvalid, NotFound
+from crew_health.routine.domain.errors import ActionNotAllowed
 
 from .harness import session
 from .test_commands_provided import manual_body, morning, occurrence_id, officer
@@ -64,10 +64,12 @@ def test_override_replay_rechecks_person_and_current_stop_role(tmp_path: Path) -
     )
     identifier = cast(str, created["override_id"])
     changed_person: SessionContext = replace(officer(), person_id="person_tomas")
-    with pytest.raises(NotFound):
+    assert (
         h.runtime.create_override(
             changed_person, manual_body(), idempotency_key="cmd_replay_create", config_release=None
-        )
+        )[1]
+        == created
+    )
     _, ended = h.runtime.end_override(officer(), identifier, if_match=1, idempotency_key="cmd_replay_end")
     assert ended["state"] == "ended"
     with pytest.raises(ActionNotAllowed):
@@ -77,8 +79,10 @@ def test_override_replay_rechecks_person_and_current_stop_role(tmp_path: Path) -
             if_match=None,
             idempotency_key="cmd_replay_end",
         )
-    with pytest.raises(NotFound):
-        h.runtime.end_override(changed_person, identifier, if_match=None, idempotency_key="cmd_replay_end")
+    assert (
+        h.runtime.end_override(changed_person, identifier, if_match=None, idempotency_key="cmd_replay_end")[1]
+        == ended
+    )
     assert h.rows("SELECT revision,state FROM routine_override WHERE override_id=?", (identifier,)) == (
         (2, "ended"),
     )
@@ -142,6 +146,8 @@ def test_storage_fault_after_real_receipt_rolls_back_the_whole_command_then_retr
         == history
     )
     assert h.rows("SELECT count(*) FROM platform_command_ledger WHERE command_key='cmd_disk_full'") == ((0,),)
+    assert h.rows("SELECT count(*) FROM routine_record_version") == ((0,),)
+    assert h.rows("SELECT count(*) FROM routine_command_version") == ((0,),)
     h.runtime.assemble(deps)
     status, accepted = h.runtime.act(
         session(),
@@ -156,7 +162,7 @@ def test_storage_fault_after_real_receipt_rolls_back_the_whole_command_then_retr
 
 
 @pytest.mark.trace("INV-E25-11", "T-E25-014")
-def test_missing_ui_copy_rejects_views_but_scheduler_miss_commits(tmp_path: Path) -> None:
+def test_missing_ui_copy_serves_ids_and_scheduler_miss_commits(tmp_path: Path) -> None:
     h = morning(tmp_path)
     documents = dict(h.release.documents) if isinstance(h.release, MemoryRelease) else {}
     documents.pop(ConfigName.UI_COPY)
@@ -165,8 +171,7 @@ def test_missing_ui_copy_rejects_views_but_scheduler_miss_commits(tmp_path: Path
     h.advance(h.clock.now() + timedelta(days=1))
     h.runtime.assemble(h.engine.deps)
     identifier = h.ids.derived("ro", "person_mara", "exercise_log", "2", "cadence")
-    with pytest.raises(ConfigInvalid):
-        h.runtime.occurrence(session(), identifier)
+    assert h.runtime.occurrence(session(), identifier)["occurrence_id"] == identifier
     h.advance(h.clock.now().replace(hour=17))
     for _ in range(10):
         if h.dispatch() == 0:

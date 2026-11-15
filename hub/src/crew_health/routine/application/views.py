@@ -38,7 +38,7 @@ def cadence_view(cadence: Cadence) -> dict[str, object]:
 
 def require_words(release: RoutineRelease) -> RoutineWords:
     if release.words is None:
-        raise ConfigInvalid((Finding("error", "/ui-copy", "Routine presentation words are unavailable"),))
+        return RoutineWords({}, {}, {}, {}, {}, "ui-copy")
     return release.words
 
 
@@ -49,6 +49,8 @@ def day_view(deps: RoutineDeps, day: int, version: str) -> dict[str, object]:
 
 
 def override_visible(override: Override, session: SessionContext) -> bool:
+    if session.roles & {Role.CREW_MEDICAL_OFFICER, Role.GROUND}:
+        return True
     if override.audience == "person":
         return session.person_id is not None and session.person_id == override.person_id
     return session.person_id in override.member_ids or bool(

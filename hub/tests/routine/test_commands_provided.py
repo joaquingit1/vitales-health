@@ -60,7 +60,7 @@ def manual_body(*, days: int | None = None) -> OverrideCreateBody:
 
 
 @pytest.mark.trace("T-E25-002", "T-E25-022", "INV-E25-01", "INV-E25-07")
-def test_command_ledger_replays_current_private_view_after_cache_lifetime(tmp_path: Path) -> None:
+def test_command_ledger_replays_recorded_private_view_after_cache_lifetime(tmp_path: Path) -> None:
     h = morning(tmp_path)
     identifier = occurrence_id(h, "daily_check")
     body = OccurrenceActionBody("complete", note="private completion note")
@@ -71,7 +71,7 @@ def test_command_ledger_replays_current_private_view_after_cache_lifetime(tmp_pa
     status, replay = h.commands.act(
         session(), identifier, body, if_match=None, idempotency_key="cmd_complete", config_release="rel_stale"
     )
-    assert status == 200 and replay == h.queries.occurrence(session(), identifier)
+    assert status == 200 and replay == accepted
     assert replay["revision"] == accepted["revision"] and replay["outcome"] == accepted["outcome"]
     assert (
         h.rows("SELECT count(*) FROM routine_occurrence_transition WHERE occurrence_id=?", (identifier,))

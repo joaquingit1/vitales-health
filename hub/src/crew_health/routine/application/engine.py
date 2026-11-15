@@ -55,7 +55,10 @@ class RoutineEngine:
         self.inputs = RoutineInputs(self)
 
     def release(self, view: UnitOfWork | ReadSnapshot) -> RoutineRelease:
-        return self.deps.releases.release(view.release)
+        release = self.deps.releases.release(view.release)
+        if release.words is None:
+            self.deps.health.mark_degraded("routine", "CONFIG_INVALID", view.now)
+        return release
 
     def release_for(self, view: UnitOfWork | ReadSnapshot, release_id: str) -> RoutineRelease:
         if view.release.release_id == release_id:
@@ -431,17 +434,30 @@ class RoutineEngine:
         self.offer_barrier(uow, person_id)
 
     def change(
-        self, uow: UnitOfWork, old: Occurrence, result: tuple[Occurrence, TransitionRecord]
+        self,
+        uow: UnitOfWork,
+        old: Occurrence,
+        result: tuple[Occurrence, TransitionRecord],
+        *,
+        deadline: bool = False,
     ) -> Occurrence:
         new, transition = result
         self.deps.store.update(uow, new, expected_revision=old.revision)
         self.deps.store.append_transition(uow, transition)
-        self.emit_occurrence(uow, new)
+        self.emit_occurrence(uow, new, cached_only=deadline)
         self.reschedule(uow, new)
         if new.state in FINAL_STATES:
             self.inputs.effect_complete(uow, new.occurrence_id)
             if new.state == "missed":
-                self.offer_barrier(uow, new.person_id)
+                try:
+                    if deadline:
+                        release = self.deps.releases.cached(uow.release.release_id)
+                        if release is not None:
+                            self.offer_barrier(uow, new.person_id, release=release)
+                    else:
+                        self.offer_barrier(uow, new.person_id)
+                except ConfigInvalid:
+                    self.deps.health.mark_degraded("routine", "CONFIG_INVALID", uow.now)
         return new
 
     def counted(self, uow: UnitOfWork, until: datetime) -> bool:
@@ -453,12 +469,18 @@ class RoutineEngine:
         occ = self.deps.store.get(uow, job.payload["occurrence_id"])
         if occ is None or occ.state in FINAL_STATES:
             return
-        self.reschedule(uow, occ)
-        occ = self.deps.store.get(uow, occ.occurrence_id)
-        if occ is None or occ.due_until is None:
+        # Overlay handling persists each hold and wake deadline in its own transaction.
+        # The durable deadline is sufficient even after a cold restart with invalid config.
+        if occ.due_until is None:
             return
-        _, held = self.hold(uow, occ, self.release_for_deadline(uow, occ.config_release_id), uow.now)
-        if held is not None or uow.now < occ.due_until:
+        if uow.now < occ.due_until:
+            self.schedule(
+                uow,
+                "routine.occ." + occ.occurrence_id,
+                "routine.occurrence",
+                occ.due_until,
+                {"occurrence_id": occ.occurrence_id},
+            )
             return
         self.change(
             uow,
@@ -470,11 +492,21 @@ class RoutineEngine:
                 reason="deadline",
                 actor_id=uow.actor.id,
             ),
+            deadline=True,
         )
 
     def day_job(self, uow: UnitOfWork, job: ScheduledJob) -> None:
         person = job.payload["person_id"]
-        self.materialize(uow, person, self.day(uow.now)[0])
+        try:
+            self.materialize(uow, person, self.day(uow.now)[0])
+        except (ConfigInvalid, MissionUnavailable) as error:
+            # Unavailable inputs prevent new work, but must not abort the shared
+            # scheduler transaction that records already accepted deadlines.
+            self.deps.health.mark_degraded(
+                "routine",
+                "CONFIG_INVALID" if isinstance(error, ConfigInvalid) else "MISSION_UNAVAILABLE",
+                uow.now,
+            )
         self.ensure_day_job(uow, person)
 
     def miss_summary(
@@ -496,17 +528,21 @@ class RoutineEngine:
             self.deps.store.latest_barrier_day(view, person_id),
         )
 
-    def offer_barrier(self, uow: UnitOfWork, person_id: str) -> None:
-        release = self.release(uow)
+    def offer_barrier(
+        self, uow: UnitOfWork, person_id: str, *, release: RoutineRelease | None = None
+    ) -> None:
+        release = self.release(uow) if release is None else release
         summary = self.miss_summary(uow, person_id, release, uow.now)
         day = self.day(uow.now)[0]
         if summary.barrier_question_due and self.deps.store.get_barrier_ask(uow, person_id, day) is None:
             self.deps.store.put_barrier_ask(uow, person_id, day, summary.item_ids, "pending", None, uow.now)
 
-    def emit_occurrence(self, uow: UnitOfWork, occ: Occurrence) -> None:
+    def emit_occurrence(self, uow: UnitOfWork, occ: Occurrence, *, cached_only: bool = False) -> None:
         from crew_health.routine.application.views import occurrence_view
 
         try:
+            if cached_only and self.deps.releases.cached(occ.config_release_id) is None:
+                raise ConfigInvalid(())
             release = self.release_for(uow, occ.config_release_id)
             if release.words is None:
                 raise ConfigInvalid(())
@@ -517,6 +553,10 @@ class RoutineEngine:
         except ConfigInvalid:
             self.deps.health.mark_degraded("routine", "CONFIG_INVALID", uow.now)
             return
+        for field in ("skip", "outcome"):
+            value = body.get(field)
+            if isinstance(value, dict):
+                value["note"] = None
         self.emit(
             uow,
             EventType.ROUTINE_OCCURRENCE_CHANGED,
@@ -531,7 +571,8 @@ class RoutineEngine:
         from crew_health.routine.application.views import override_view
 
         try:
-            if self.release_for(uow, override.config_release_id).words is None:
+            release = self.deps.releases.cached(override.config_release_id)
+            if release is None or release.words is None:
                 raise ConfigInvalid(())
         except ConfigInvalid:
             self.deps.health.mark_degraded("routine", "CONFIG_INVALID", uow.now)
