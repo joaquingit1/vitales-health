@@ -101,6 +101,8 @@ _COPY_KEYS = {
     ),
     "labels": frozenset(
         {
+            "observed_at",
+            "more_insights",
             "waiting_time",
             "seconds",
             "open",

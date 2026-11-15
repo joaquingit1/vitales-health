@@ -190,13 +190,38 @@ class Store:
     def set_runtime(self, uow: UnitOfWork, value: RuntimeRecord) -> None:
         raw = self._bounded(_RUNTIME.dump_json(value))
         uow.connection.execute(
-            "INSERT INTO assistant_runtime_state VALUES (1,?) ON CONFLICT(id) DO UPDATE SET body=excluded.body",
+            "INSERT INTO assistant_runtime_state(id,body) VALUES (1,?) ON CONFLICT(id) DO UPDATE SET body=excluded.body,version=version+1",
             (raw,),
         )
+        self._runtime_history(uow, value, raw)
+
+    def _runtime_history(self, uow: UnitOfWork, value: RuntimeRecord, raw: bytes) -> None:
         uow.connection.execute(
             "INSERT INTO assistant_runtime_history SELECT coalesce(max(seq),0)+1,?,?,? FROM assistant_runtime_history",
             (value.runtime.state.value, uow.now.isoformat(), raw),
         )
+
+    def runtime_version(self, view: View) -> int:
+        rows = view.connection.rows("SELECT version FROM assistant_runtime_state WHERE id=1", (), limit=1)
+        if not rows:
+            return 0
+        value = rows[0][0]
+        if type(value) is not int or value < 1:
+            raise StorageUnavailable("corrupt")
+        return value
+
+    def replace_runtime(self, uow: UnitOfWork, value: RuntimeRecord, *, expected_version: int) -> bool:
+        if type(expected_version) is not int or expected_version < 1:
+            raise ProblemError(ErrorCode.INVALID_VALUE, "runtime revision invalid")
+        raw = self._bounded(_RUNTIME.dump_json(value))
+        changed = uow.connection.execute(
+            "UPDATE assistant_runtime_state SET body=?,version=version+1 WHERE id=1 AND version=?",
+            (raw, expected_version),
+        )
+        if changed.affected_rows == 0:
+            return False
+        self._runtime_history(uow, value, raw)
+        return True
 
     def create_assessment(
         self, uow: UnitOfWork, value: Assessment, refs: Sequence[tuple[str, int, str, str]]

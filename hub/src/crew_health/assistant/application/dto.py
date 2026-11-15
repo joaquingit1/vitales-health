@@ -57,7 +57,7 @@ class Work:
 class RuntimeRecord:
     runtime: Runtime
     model_release_id: str | None
-    mode: Literal["stub", "live"]
+    mode: Literal["stub", "live"] | None
     since: datetime
     error_code: ErrorCode | None = None
 

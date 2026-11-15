@@ -171,6 +171,28 @@ def test_runtime_desire_and_each_transition_survive_independently(db: SQLiteData
         ) == (("loading",), ("running",), ("loading",))
 
 
+@pytest.mark.trace("T-E13-075", "T-E13-024", "SYSTEM.8.6")
+def test_late_probe_cannot_undo_stop_then_restart_even_if_visible_state_matches(db: SQLiteDatabase) -> None:
+    loading = RuntimeRecord(Runtime(True, RuntimeState.LOADING), "model_A", "stub", AT)
+    stopped = replace(loading, runtime=Runtime(False, RuntimeState.STOPPED))
+    running = replace(loading, runtime=Runtime(True, RuntimeState.RUNNING))
+    with db.begin(actor=ACTOR, correlation_id="correlation_one") as uow:
+        assert STORE.runtime_version(uow) == 0
+        STORE.set_runtime(uow, loading)
+        old = STORE.runtime_version(uow)
+        assert old == 1
+        STORE.set_runtime(uow, stopped)
+        STORE.set_runtime(uow, loading)
+        current = STORE.runtime_version(uow)
+        assert current == 3
+        assert not STORE.replace_runtime(uow, running, expected_version=old)
+        assert STORE.runtime(uow) == loading and STORE.runtime_version(uow) == current
+        assert STORE.replace_runtime(uow, running, expected_version=current)
+        assert STORE.runtime(uow) == running and STORE.runtime_version(uow) == 4
+        states = uow.connection.rows("SELECT state FROM assistant_runtime_history ORDER BY seq", (), limit=10)
+        assert states == (("loading",), ("stopped",), ("loading",), ("running",))
+
+
 def assessment() -> Assessment:
     return Assessment(
         "assessment_own",

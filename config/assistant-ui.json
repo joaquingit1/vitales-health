@@ -73,7 +73,9 @@
     "missing_value": "Not recorded",
     "waiting_time": "Waiting on this screen",
     "seconds": "s",
-    "open": "Open"
+    "open": "Open",
+    "more_insights": "More insights",
+    "observed_at": "Observed"
   },
   "states": {
     "stopped": "Assistant stopped. Fixed help, records and measurement cards still work.",

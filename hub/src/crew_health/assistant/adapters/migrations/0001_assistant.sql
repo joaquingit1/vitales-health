@@ -24,7 +24,7 @@ CREATE TABLE assistant_turn_history (
  turn_id TEXT NOT NULL REFERENCES assistant_turn(turn_id), seq INTEGER NOT NULL CHECK(seq>=1),
  state TEXT NOT NULL, at TEXT NOT NULL, body BLOB NOT NULL CHECK(json_valid(body)), PRIMARY KEY(turn_id,seq)
 ) STRICT;
-CREATE TABLE assistant_runtime_state (id INTEGER PRIMARY KEY CHECK(id=1), body BLOB NOT NULL CHECK(json_valid(body))) STRICT;
+CREATE TABLE assistant_runtime_state (id INTEGER PRIMARY KEY CHECK(id=1), body BLOB NOT NULL CHECK(json_valid(body)), version INTEGER NOT NULL DEFAULT 1 CHECK(version>=1)) STRICT;
 CREATE TABLE assistant_runtime_history (seq INTEGER PRIMARY KEY, state TEXT NOT NULL, at TEXT NOT NULL, body BLOB NOT NULL CHECK(json_valid(body))) STRICT;
 CREATE TABLE assistant_assessment (
  assessment_id TEXT PRIMARY KEY, episode_id TEXT NOT NULL, person_id TEXT NOT NULL,
@@ -68,6 +68,8 @@ CREATE TRIGGER assistant_turn_history_no_update BEFORE UPDATE ON assistant_turn_
 CREATE TRIGGER assistant_turn_history_no_delete BEFORE DELETE ON assistant_turn_history BEGIN SELECT RAISE(ABORT,'immutable assistant history'); END;
 CREATE TRIGGER assistant_runtime_history_no_update BEFORE UPDATE ON assistant_runtime_history BEGIN SELECT RAISE(ABORT,'immutable assistant history'); END;
 CREATE TRIGGER assistant_runtime_history_no_delete BEFORE DELETE ON assistant_runtime_history BEGIN SELECT RAISE(ABORT,'immutable assistant history'); END;
+CREATE TRIGGER assistant_runtime_revision BEFORE UPDATE ON assistant_runtime_state WHEN NEW.version != OLD.version+1 BEGIN SELECT RAISE(ABORT,'invalid runtime revision'); END;
+CREATE TRIGGER assistant_runtime_no_delete BEFORE DELETE ON assistant_runtime_state BEGIN SELECT RAISE(ABORT,'immutable runtime state'); END;
 CREATE TRIGGER assistant_assessment_history_no_update BEFORE UPDATE ON assistant_assessment_history BEGIN SELECT RAISE(ABORT,'immutable assistant history'); END;
 CREATE TRIGGER assistant_assessment_history_no_delete BEFORE DELETE ON assistant_assessment_history BEGIN SELECT RAISE(ABORT,'immutable assistant history'); END;
 CREATE TRIGGER assistant_assessment_no_delete BEFORE DELETE ON assistant_assessment BEGIN SELECT RAISE(ABORT,'immutable assistant assessment'); END;
