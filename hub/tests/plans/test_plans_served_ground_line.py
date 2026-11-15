@@ -1,5 +1,5 @@
 """Served demo hub: the plans ground_log line reads E29's link state through app/plans_seams.py, and step
-availability stays fail closed while guidance has no content provider (R-E10-17)."""
+step availability comes from guidance's facts bound in app/guidance_seams.py, not the unknown state."""
 
 from __future__ import annotations
 
@@ -64,4 +64,6 @@ def test_served_icl10_plan_ground_line_follows_the_ground_link(tmp_path: Path) -
     assert ground["leaves_at"] is None
     unknown = copy["designed_states"]["unknown"]
     steps = [step for stage in stages.values() for step in stage.get("steps") or ()]
-    assert steps and all(step["availability_text"] == unknown for step in steps)
+    by_id = {step["step_id"]: step for step in steps}
+    assert steps and by_id["icl10_note_episodes"]["availability"] == "aboard"
+    assert by_id["icl10_note_episodes"]["availability_text"] != unknown

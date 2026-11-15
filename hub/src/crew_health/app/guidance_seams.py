@@ -53,6 +53,7 @@ from crew_health.plans.application.release import (
     read_document,
 )
 from crew_health.plans.application.settings import PlansSettings
+from crew_health.plans.application.tools import PlanTools
 from crew_health.plans.domain.model import Plan, PlansDocument, Step, all_steps
 from crew_health.roles.application.ports import MissionStatePort
 
@@ -256,6 +257,8 @@ def compose(registry: ModuleRegistry) -> None:
 
     providers: Mapping[type[object], object] = getattr(registry, "providers", {})
     settings, mission = cast(type[object], HubSettings), cast(type[object], MissionStatePort)
+    # Plans' settings and onboard plans exist only where the plans module is composed (its PlanTools port).
+    plans = cast(type[object], PlanTools)
     snapshots = cast(type[object], ReadSnapshotFactory)
 
     def content(resolver: Resolver) -> PlanContentFacts:
@@ -274,7 +277,7 @@ def compose(registry: ModuleRegistry) -> None:
         return KitStockReader(resolver.require(ReadSnapshotFactory))  # type: ignore[type-abstract]
 
     entries = (
-        (cast(type[object], ContentFacts), content, (settings, ConfigArtifacts)),
+        (cast(type[object], ContentFacts), content, (settings, ConfigArtifacts, plans)),
         (cast(type[object], EnvironmentFacts), environment, (mission,)),
         (cast(type[object], StockFacts), stock, (mission,)),
         (cast(type[object], StockReader), reader, (snapshots,)),
