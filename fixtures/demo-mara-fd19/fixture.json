@@ -87,6 +87,10 @@
       },
       "basis": "VALIDATION 3 act 6: the model is started again"
     },
+    "eva-ilya": {
+      "person_id": "ilya",
+      "basis": "VALIDATION 3 act 3 and DEMO-PLAN 3 (0:13): Ilya Brandt, medical officer, is on a surface walk; the surface_walk section names who and which overlay"
+    },
     "environment-lunar-surface": {
       "environment_id": "lunar_surface",
       "basis": "VALIDATION 3 act 3: a second EnvironmentProfile, lunar_surface, SIM, entered through the demo control"

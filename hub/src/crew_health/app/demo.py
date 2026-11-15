@@ -36,7 +36,7 @@ from crew_health.app.assembly import BuildCatalog, Runtime, create_app
 if TYPE_CHECKING:
     from crew_health.app.cli import Server
 from crew_health.app.camera_reports import HubReports
-from crew_health.app.demo_mission import DemoMission, write_environment, write_overlays
+from crew_health.app.demo_mission import DemoMission, read_overlays, write_environment, write_overlays
 from crew_health.app.privacy import DemoOperatorRecord
 from crew_health.app.station import HubResources, Origin, bootstrap_release, production
 from crew_health.identity.application.admin import IdentityAdmin
@@ -579,6 +579,41 @@ class Hub:
             return error.code, json.loads(raw) if raw else None
 
 
+def start_walk(directory: Path, fixture: Fixture, person_id: str, at: datetime) -> dict[str, object]:
+    """E23's createOverlay is not on main: the demo control records the fixture's surface walk overlay for one of
+    its people as an E23 ActivityOverlay, started now (I-O1: at most one active overlay of a kind per person)."""
+    walk = fixture.section("surface_walk")
+    people = walk["person_ids"]
+    if not isinstance(people, list) or person_id not in people:
+        raise DemoError("not on the fixture's surface walk: " + person_id)
+    kind = str(walk["overlay"])
+    overlays = read_overlays(directory)
+    active = next(
+        (
+            o
+            for o in overlays
+            if o["person_id"] == person_id and o["overlay"] == kind and o["state"] == "active"
+        ),
+        None,
+    )
+    if active is not None:
+        return active
+    record: dict[str, object] = {
+        "overlay_id": "ovl_" + kind + "_" + person_id + "_" + uuid.uuid4().hex[:12],
+        "revision": 1,
+        "person_id": person_id,
+        "overlay": kind,
+        "state": "active",
+        "planned_start": None,
+        "started_at": at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "ended_at": None,
+        "source": {"kind": "operator", "ref_id": None},
+        "location": None,
+    }
+    write_overlays(directory, [*overlays, record])
+    return record
+
+
 def cue(directory: Path, name: str, *, base_url: str, now: datetime | None = None) -> tuple[int, object]:
     state = json.loads((directory / STATE).read_text(encoding="utf-8"))
     fixture = Fixture.load(Path(state["root"]))
@@ -610,6 +645,8 @@ def cue(directory: Path, name: str, *, base_url: str, now: datetime | None = Non
     if name.startswith("model-"):
         body = dict(cast(dict[str, object], fixture.cited(spec["request"])))
         return hub.call("POST", "/v1/assistant/runtime", token=token, body=body, release=release)
+    if name.startswith("eva-"):
+        return 201, start_walk(directory, fixture, str(spec["person_id"]), now or datetime.now(UTC))
     if name.startswith("environment-"):
         # E23's proposeEnvironmentChange is not on main: the demo control sets the demo mission's environment.
         environment_id = str(spec["environment_id"])
