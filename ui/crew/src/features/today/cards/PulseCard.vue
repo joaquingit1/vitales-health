@@ -26,45 +26,50 @@ onMounted(async () => {
 </script>
 
 <template>
-  <RequestCard v-if="latest === null" />
-  <div
-    v-else
-    class="pulse-read"
-    data-testid="pulse-reading"
+  <article
+    class="card g g-sun pulse-today"
+    data-slot="pulse"
   >
-    <div class="card-head">
-      <h2 class="card-title">
-        {{ WORDS.pulseTitle }}
-      </h2>
-      <RouterLink
-        class="go"
-        :to="{ name: 'pulse' }"
-        :aria-label="WORDS.pulseTitle"
-      >
-        <svg
-          class="icon"
-          viewBox="0 0 24 24"
-        ><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
-      </RouterLink>
+    <RequestCard v-if="latest === null" />
+    <div
+      v-else
+      class="pulse-read"
+      data-testid="pulse-reading"
+    >
+      <div class="card-head">
+        <h2 class="card-title">
+          {{ WORDS.pulseTitle }}
+        </h2>
+        <RouterLink
+          class="go"
+          :to="{ name: 'pulse' }"
+          :aria-label="WORDS.pulseTitle"
+        >
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+          ><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
+        </RouterLink>
+      </div>
+      <div class="big">
+        {{ latest.original_value }}<small>{{ latest.original_unit }}</small>
+      </div>
+      <div class="pulse-line">
+        <SparkLine
+          :values="values"
+          :range="null"
+          :width="240"
+          :height="64"
+          :label="WORDS.pulseTitle"
+        />
+      </div>
+      <p class="pulse-meta">
+        <span>{{ WORDS.taken }} {{ taken }}</span>
+        <span>{{ WORDS.quality }} {{ latest.quality_status }}</span>
+        <SourceWord :origin="latest.origin_mode" />
+      </p>
     </div>
-    <div class="big">
-      {{ latest.original_value }}<small>{{ latest.original_unit }}</small>
-    </div>
-    <div class="pulse-line">
-      <SparkLine
-        :values="values"
-        :range="null"
-        :width="240"
-        :height="64"
-        :label="WORDS.pulseTitle"
-      />
-    </div>
-    <p class="pulse-meta">
-      <span>{{ WORDS.taken }} {{ taken }}</span>
-      <span>{{ WORDS.quality }} {{ latest.quality_status }}</span>
-      <SourceWord :origin="latest.origin_mode" />
-    </p>
-  </div>
+  </article>
 </template>
 
 <style scoped>

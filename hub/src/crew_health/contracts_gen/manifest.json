@@ -281,7 +281,7 @@
     "api/schemas/config-sensor-catalog.schema.json": "03cb21d375522aa2a7b3745069adfadb57e0d64233130ce3595c41a8ab00cb89",
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
-    "api/schemas/config-ui-copy.schema.json": "8716b4a7bef0997f6bdbf165c92f43bc4b8ca7244e3cbe0a7b9ea80f07e633f2",
+    "api/schemas/config-ui-copy.schema.json": "3017911a7ad011f8548da40bbc19724900c6b97b025211dc1ed209535550fa50",
     "api/schemas/config-warning-rules.schema.json": "a237eac14f8cc5b2bc1d3d19019847a56d07261d84e59cbec0df1eee3ac522b3",
     "api/schemas/context.schema.json": "0fd66549c0b915548ec3f89b9650f3c84e3fe72e8f5c98c1671349cf53494a2b",
     "api/schemas/conversation.schema.json": "ac49ee869418d9b553264ef66207c29f40dd954500c9bbf433ddfde1e00d876b",
@@ -639,7 +639,7 @@
     "api/schemas/config-sensor-catalog.schema.json": "03cb21d375522aa2a7b3745069adfadb57e0d64233130ce3595c41a8ab00cb89",
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
-    "api/schemas/config-ui-copy.schema.json": "8716b4a7bef0997f6bdbf165c92f43bc4b8ca7244e3cbe0a7b9ea80f07e633f2",
+    "api/schemas/config-ui-copy.schema.json": "3017911a7ad011f8548da40bbc19724900c6b97b025211dc1ed209535550fa50",
     "api/schemas/config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
     "api/schemas/config-warning-rules.schema.json": "a237eac14f8cc5b2bc1d3d19019847a56d07261d84e59cbec0df1eee3ac522b3",
     "api/schemas/context.schema.json": "0fd66549c0b915548ec3f89b9650f3c84e3fe72e8f5c98c1671349cf53494a2b",
@@ -774,7 +774,7 @@
     "schemas/config_sensor_catalog_schema.py": "fd71d7a6e33954a75b0ba7da6b0347b6ce20d1cc07896059738c7ce676fafc95",
     "schemas/config_sensor_limits_schema.py": "0451ad24cc75bbf3c9db7835a6cdcae06069713d164559fb1349638cf0bb04f6",
     "schemas/config_skills_catalog_schema.py": "d536801fa30c7e445542e51a81e76816ddfee3bcb0b4ecd3cb7450d7a031e754",
-    "schemas/config_ui_copy_schema.py": "290c812c98d4c796b45433e3667a13448333eb3df58b94a094441879f99415e5",
+    "schemas/config_ui_copy_schema.py": "e1dec8cbf0fcfe4e6b351fbc661ce67905a8bd1794e68aa047ee01aaf23ae3c9",
     "schemas/config_unit_mapping_schema.py": "afd84d656eeb8909fb4dde45c40d5524929daf8e985ccd52d2b6acccfa3e37e9",
     "schemas/config_warning_rules_schema.py": "0f64c4e1b941b83fb6068f2765713383520ee2e13697d71e388a7f2390071f1c",
     "schemas/context_schema.py": "3e2337645a5733c7677fbf9c383f3293807b142e5518ab272ce48584cfe41db0",
@@ -851,7 +851,7 @@
       "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
       "part-a.json": "35de455967b4a02825bdaaaac5a641cd7247cf763f89c8f1a09ce0a56aed246c"
     },
-    "manifest_sha256": "821b20b324762620928cadf0a7841e9d469bd2fabc5c3a89cb7b9f1e3ff7ba94",
+    "manifest_sha256": "33f1e9ee4f81ac91159a5f9357726df276243e97261df6b7d621b253bb8eb390",
     "traces": [
       {
         "a3": [
