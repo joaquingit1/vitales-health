@@ -211,12 +211,12 @@ def test_a_saturated_floor_is_kept_flagged_and_never_clears_an_active_warning(
 def test_a_stuck_feed_is_flagged_from_the_sourced_count_and_stops_advancing_the_window(
     with_rules: None, tmp_path: Path
 ) -> None:
-    """Ten moving readings, then the sensor holds 2.5 mmHg for 45 readings 300 s apart. The NASA RR-1/RR-5 files'
+    """Ten moving readings, then the sensor holds 2.3 mmHg for 45 readings 300 s apart. The NASA RR-1/RR-5 files'
     longest natural run is 37 samples (recomputed from the CSVs in test_plausibility), so the 38th identical sample
     onward is flagged."""
     st = _station(tmp_path)
     moving = _baseline(st, 2.0, 55)[:10]
-    held = [_sim(st, 11 + i, 2.5, 60 + CADENCE * (44 - i)) for i in range(45)]
+    held = [_sim(st, 11 + i, 2.3, 60 + CADENCE * (44 - i)) for i in range(45)]
     _post(st, moving + held, "stuck")
     found = _stored(st, "ch_co2_sim")
     assert [s for _, s, q, t in found if (q, t) == ("rejected", "stuck_value")] == list(range(48, 56))
