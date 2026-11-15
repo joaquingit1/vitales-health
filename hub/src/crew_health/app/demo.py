@@ -188,9 +188,9 @@ def _resources(fixture: Fixture, target: Path) -> HubResources:
 
 
 def settings_document(path: Path, camera: dict[str, object] | None = None) -> Path:
-    """Every registered setting: the E02 module defaults, the supervisor polling at 50 ms, the camera worker's
-    address, token file and adapter (`camera`), and every other integer at its registered maximum, switches off and
-    text empty (the E01 serve tests' profile)."""
+    """Every registered setting: the E02 module defaults, the supervisor polling at 250 ms (an idle demo hub at
+    50 ms used half a core), the camera worker's address, token file and adapter (`camera`), and every other integer
+    at its registered maximum, switches off and text empty (the E01 serve tests' profile)."""
     from crew_health.app.cli import registered_settings
     from crew_health.consent.application.settings import defaults as consent_defaults
     from crew_health.identity.application.settings import defaults as identity_defaults
@@ -198,7 +198,7 @@ def settings_document(path: Path, camera: dict[str, object] | None = None) -> Pa
     chosen: dict[str, object] = {
         **identity_defaults(),
         **consent_defaults(),
-        "supervisor.poll_ms": 50,
+        "supervisor.poll_ms": 250,
         **(camera or {}),
     }
     entries = []
