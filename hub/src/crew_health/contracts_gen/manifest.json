@@ -731,14 +731,15 @@
     "crew_health.groundlink.module": "1f0e316dbed1202f9f7c06b18dd62e767b9c4995f56cb32f787464bb7d4af890",
     "crew_health.guidance.module": "28a6a6a2803c18244d6eb215fe1293ed5f45a30768bf724ade2ec52532e0d553",
     "crew_health.help.module": "692862df7d46b36f28ee4b2a154da3a0fd4de73baff63df64de95ff047636769",
-    "crew_health.kitmap.module": "fad25a19a8d8fc95999e318a0bac786f85dd66bb931bfb04e48bd678a747f3b4",
-    "crew_health.measurement.module": "36ab7ad93d857cb2d70b5786b156deb7d0da5f456f620b500e212e289a656240",
+    "crew_health.kitmap.module": "74db20ea7b6fd9d9c7e9a022d491bb52edca54df64d9957c40d6b78abbbbffa2",
+    "crew_health.measurement.module": "08950be7ca3636307d0b7bc911f26ffe1b0d1a3d55cff09ec04c461b3ba6cf92",
     "crew_health.medicines.module": "dd05bd098ddf8e51a8b9ca692925b5ad4c3c5aaedebccc147c000077452c94a1",
+    "crew_health.plans.module": "30171a39bb5952444b787cab7f82b655c77042760b21a6ae74848f61706b62cb",
     "crew_health.platform.module": "f2d69c33296054e2783b5604edf4bac3211cb8da2bb3dfb4b2334ed757ac141a",
     "crew_health.records.module": "f37574d7a5e0ac1230ed584945df40420960c81274145b7f571247bdc2ea41c3",
     "crew_health.roles.module": "047c43e318ee3cd0021e50e309adab0f95a1764f0b940bc3e0a855663bf80ee2",
     "crew_health.supplies.module": "ed524cdf10be2ad0064fc456c8118933ffec4be3edecdb924c604a6ec86db6d1",
-    "crew_health.teach.module": "a3128ce8c4401c08f34960e9b3efee89b606a58051e01ea2ca37c2fd163256d3",
+    "crew_health.teach.module": "bef10e2c559982f29b379918662e9db6b9a4def9229506dd8e33c51d280a5129",
     "crew_health.trends.module": "657f6588850fba8722cc447298e69f513b0092931c08d4e0b820c96b80dd6591"
   },
   "outputs": {

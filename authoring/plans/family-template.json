@@ -1,0 +1,177 @@
+{
+  "template_id": "family_first_steps",
+  "written_by": "model:claude-opus-5-5",
+  "basis_note": "Two variants of one template for every assessment family. Its fixed words are a team default. The note step quotes the package's assessment-families.json verbatim (optional_inputs, limitations) and cites that family's sources where the registry marks them as clinical support. The medical officer step names the confirming tests of the row's NASA Clinical Finding Form as config/kit-map.json carries them (E27, cited S13 with the form URL on the row). No step asks the crew to use an instrument, supply or skill, names a dose or threshold, or waits for the ground.",
+  "mode": "stabilize",
+  "environments": [
+    "station_leo",
+    "transit",
+    "lunar_surface",
+    "mars_surface"
+  ],
+  "urgent_when": {
+    "fields": [
+      "row.clinical_assessment",
+      "row.limitations",
+      "family.exam"
+    ],
+    "words": [
+      "urgent",
+      "urgently",
+      "immediate",
+      "immediately",
+      "emergency",
+      "prompt",
+      "promptly",
+      "without delay",
+      "at once"
+    ],
+    "basis": "team default: a row whose package assessment asks for urgent or immediate assessment gets the urgent variant, which puts Someone needs help first; added after the checking model found the standard variant let 30 urgent rows be watched before help (adjudication/check.json, first pass)."
+  },
+  "variants": {
+    "standard": [
+      {
+        "stage_id": "do_now",
+        "steps": [
+          {
+            "key": "note",
+            "text": "Write down what you notice, when it started and what you were doing. Useful details: {optional_inputs}.",
+            "who": "any_crew",
+            "cannot_replace_text": "{limitations}.",
+            "basis": "team default",
+            "sources": "family"
+          }
+        ]
+      },
+      {
+        "stage_id": "watch",
+        "steps": [
+          {
+            "key": "watch",
+            "text": "Watch for changes and note each one with the time. Tell the medical officer if it keeps coming back, does not settle or gets worse.",
+            "who": "any_crew",
+            "cannot_replace_text": null,
+            "basis": "team default",
+            "sources": "none",
+            "recheck": {
+              "cadence": null,
+              "n": null,
+              "interval_seconds": null,
+              "basis": "team default",
+              "to_be_set_by": "clinical review"
+            }
+          }
+        ]
+      },
+      {
+        "stage_id": "if_worse",
+        "steps": [
+          {
+            "key": "worse",
+            "text": "It gets worse quickly, a new symptom appears, or you are worried: press Someone needs help now.",
+            "who": "any_crew",
+            "cannot_replace_text": null,
+            "basis": "team default",
+            "sources": "none",
+            "opens_help": true
+          }
+        ]
+      },
+      {
+        "stage_id": "medical_officer",
+        "steps": [
+          {
+            "key": "mo_review",
+            "text": "The medical officer assesses it in person, with what is aboard. Tests NASA's clinical finding form names for it, some of which may need equipment that is not aboard: {confirming_tests}.",
+            "who": "crew_medical_officer",
+            "cannot_replace_text": null,
+            "basis": "team default",
+            "sources": "row",
+            "text_without_tests": "The medical officer assesses it in person, with what is aboard."
+          }
+        ]
+      },
+      {
+        "stage_id": "ground_log",
+        "blocking": false,
+        "items": []
+      }
+    ],
+    "urgent": [
+      {
+        "stage_id": "do_now",
+        "steps": [
+          {
+            "key": "help_now",
+            "text": "This can need help quickly. Press Someone needs help now, then stay with the person.",
+            "who": "any_crew",
+            "cannot_replace_text": null,
+            "basis": "team default",
+            "sources": "none"
+          },
+          {
+            "key": "note",
+            "text": "Once help is on the way, write down what you notice, when it started and what you were doing. Useful details: {optional_inputs}.",
+            "who": "any_crew",
+            "cannot_replace_text": "{limitations}.",
+            "basis": "team default",
+            "sources": "family"
+          }
+        ]
+      },
+      {
+        "stage_id": "watch",
+        "steps": [
+          {
+            "key": "watch",
+            "text": "While you wait, watch for changes and note each one with the time.",
+            "who": "any_crew",
+            "cannot_replace_text": null,
+            "basis": "team default",
+            "sources": "none",
+            "recheck": {
+              "cadence": null,
+              "n": null,
+              "interval_seconds": null,
+              "basis": "team default",
+              "to_be_set_by": "clinical review"
+            }
+          }
+        ]
+      },
+      {
+        "stage_id": "if_worse",
+        "steps": [
+          {
+            "key": "worse",
+            "text": "Press Someone needs help now if nobody has yet, and again if it gets worse or a new symptom appears.",
+            "who": "any_crew",
+            "cannot_replace_text": null,
+            "basis": "team default",
+            "sources": "none",
+            "opens_help": true
+          }
+        ]
+      },
+      {
+        "stage_id": "medical_officer",
+        "steps": [
+          {
+            "key": "mo_review",
+            "text": "The medical officer assesses it in person as soon as possible, with what is aboard. Tests NASA's clinical finding form names for it, some of which may need equipment that is not aboard: {confirming_tests}.",
+            "who": "crew_medical_officer",
+            "cannot_replace_text": null,
+            "basis": "team default",
+            "sources": "row",
+            "text_without_tests": "The medical officer assesses it in person as soon as possible, with what is aboard."
+          }
+        ]
+      },
+      {
+        "stage_id": "ground_log",
+        "blocking": false,
+        "items": []
+      }
+    ]
+  }
+}
