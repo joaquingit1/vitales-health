@@ -307,6 +307,37 @@ def _initialize_mission(runtime: Runtime, fixture: Fixture) -> None:
     )
 
 
+def _bind_hub_clock(settings: Path, runtime: Runtime) -> None:
+    """sensors.hub_source_clock_id names the hub's own capture stream (SYSTEM 5.2), which first start generates. Its
+    registered default never matches it, so every loopback SIM stamp and every REPLAY receive reference normalized to
+    unknown time and each habitat channel read stale: the demo profile records the id this hub generated."""
+    from crew_health.clock.application.clock import ClockIdentity
+
+    if runtime.resolver is None:
+        raise DemoError("hub not resolved")
+    clock_id = runtime.resolver.require(ClockIdentity).hub_source_clock_id
+    document = json.loads(settings.read_text(encoding="utf-8"))
+    for entry in document["settings"]:
+        if entry["key"] == "sensors.hub_source_clock_id":
+            entry["value"] = clock_id
+            entry["basis"] = "demo-mara-fd19 profile: this hub's own capture stream, generated at first start"
+    settings.write_text(json.dumps(document), encoding="utf-8")
+
+
+def _bind_habitat_ports(registry: Path, feeds: Sequence[Mapping[str, object]], ports: Sequence[int]) -> None:
+    """Each channel's health_url follows the health port its feed's adapter listens on in this demo directory, so a
+    demo reset with its own ports needs no edit of the copied registry."""
+    if len(ports) != len(feeds):
+        raise DemoError("one habitat health port per feed")
+    port_of = {str(f["adapter_principal_id"]): port for f, port in zip(feeds, ports, strict=True)}
+    document = json.loads(registry.read_text(encoding="utf-8"))
+    for channel in document["channels"]:
+        port = port_of.get(str(channel["adapter_id"]))
+        if port is not None:
+            channel["health_url"] = f"http://127.0.0.1:{port}/health"
+    registry.write_text(json.dumps(document, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 def reset(
     directory: Path,
     *,
@@ -324,6 +355,10 @@ def reset(
         shutil.rmtree(directory)
     directory.mkdir(parents=True)
     resources = _resources(fixture, directory / "resources")
+    feeds = cast(list[dict[str, object]], fixture.section("habitat")["feeds"])
+    if habitat_ports is not None:
+        registry = directory / "resources" / str(fixture.section("habitat")["registry"])
+        _bind_habitat_ports(registry, feeds, habitat_ports)
     camera = directory / "camera"
     camera.mkdir()
     worker_token = camera / "worker.token"
@@ -372,6 +407,7 @@ def reset(
         runtime = cast(Runtime, app.state.runtime)
         try:
             _first_start(runtime, fixture, credentials)
+            _bind_hub_clock(settings, runtime)
         finally:
             runtime.shutdown()
     finally:
@@ -388,10 +424,7 @@ def reset(
         # Each habitat feed's adapter health port, in the fixture's feed order; tests pick free ones.
         "habitat_ports": list(habitat_ports)
         if habitat_ports is not None
-        else [
-            int(str(f["health_port"]))
-            for f in cast(list[dict[str, object]], fixture.section("habitat")["feeds"])
-        ],
+        else [int(str(f["health_port"])) for f in feeds],
     }
     (directory / STATE).write_text(json.dumps(state, indent=1), encoding="utf-8")
     return state
@@ -892,6 +925,12 @@ def main(argv: Sequence[str]) -> int:
     reset_parser.add_argument("--fixture", type=Path, default=None)
     reset_parser.add_argument("--camera-port", type=int, default=None)
     reset_parser.add_argument("--twin-port", type=int, default=None)
+    reset_parser.add_argument(
+        "--habitat-ports",
+        type=lambda text: [int(part) for part in text.split(",")],
+        default=None,
+        help="comma separated habitat adapter health ports, one per fixture feed in its order",
+    )
     serve_parser = commands.add_parser("serve")
     serve_parser.add_argument("--dir", type=Path, required=True)
     serve_parser.add_argument("--host", default="127.0.0.1")
@@ -914,6 +953,7 @@ def main(argv: Sequence[str]) -> int:
                         fixture_path=args.fixture,
                         camera_port=args.camera_port,
                         twin_port=args.twin_port,
+                        habitat_ports=args.habitat_ports,
                     ),
                     sort_keys=True,
                 )

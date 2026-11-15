@@ -46,6 +46,16 @@
         "output": "dose_rate"
       },
       "basis": "Team assumption: APID 514 is the twin's own number, not a mission APID. The value is the area dosimeter's output in its own unit."
+    },
+    {
+      "name": "laeq",
+      "apid": 515,
+      "unit": "dBA",
+      "source": {
+        "device_id": "sim_sound_cabin",
+        "output": "laeq"
+      },
+      "basis": "Team assumption: APID 515 is the twin's own number, not a mission APID. The value is the sound level meter's A-weighted equivalent level in its own unit."
     }
   ]
 }

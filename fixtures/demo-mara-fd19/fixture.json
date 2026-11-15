@@ -155,8 +155,30 @@
         "adapter_principal_id": "adp_sim",
         "adapter_display_name": "Habitat sim adapter",
         "health_port": 8102
+      },
+      {
+        "feed_id": "feed_dostel1_rad_replay",
+        "kind": "replay",
+        "adapter_principal_id": "adp_replay_radlab",
+        "adapter_display_name": "Habitat radiation replay adapter",
+        "health_port": 8103
+      },
+      {
+        "feed_id": "feed_noise_cabin_sim",
+        "kind": "sim",
+        "adapter_principal_id": "adp_sim_noise",
+        "adapter_display_name": "Habitat noise sim adapter",
+        "health_port": 8104
+      },
+      {
+        "feed_id": "feed_rad_cabin_sim",
+        "kind": "sim",
+        "adapter_principal_id": "adp_sim_rad",
+        "adapter_display_name": "Habitat radiation sim adapter",
+        "health_port": 8105
       }
     ],
+    "feeds_basis": "One adapter process and principal per feed, so no two feeds share an adapter sequence: the RR-1 CO2 and DosTel1 radiation replays (N02, N20) for station_leo, and the packet twin's SIM CO2, noise and dose rate, which also serve lunar_surface. Oxygen has no feed: the simulated oxygen cell reports kPa ppO2 and the o2 sensor type accepts only mmHg until E23 configures ppo2_to_pio2 with a sourced water vapor pressure.",
     "adapter_settings": {"sensors.batch_max_readings": 25},
     "adapter_settings_basis": "Hub setting bound, not content (AGENTS 1.1): one ingestReadings body is one write transaction, which storage.transaction_timeout_ms caps at 2000 ms; a 1000 row replay batch measured past it on the demo hub, and a 100 row batch also did once the replay history grew, so the adapter sends at most 25 readings per batch (E23 section 11 allows 1 to 1000)",
     "basis": "E23 5.2 and 5.3: the NASA OSDR RR-1 ISS CO2 replay (N02) and the habitat packet twin's SIM CO2, each through the real habitat adapter and ingestReadings on the channel registry's channel; the registry names each adapter and its health URL port"

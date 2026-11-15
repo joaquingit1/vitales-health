@@ -770,12 +770,13 @@ def test_the_cli_replays_through_the_client_and_exits_nonzero_when_the_hub_stays
     argv = cli_args(tmp_path) + ["--profile", "demo"]
     assert main(argv, client_factory=lambda url: hub.client(), clock=clock, sleeper=FakeSleeper(clock)) == 0
     assert sum(len(batch_rows(q)) for q in hub.requests) == 84
-    down = FakeHub(script=[lambda r: httpx.ConnectError("down")] * 100)
+    # The demo feed is paced at its recorded spacing, so the run flushes many times: the hub stays down for all.
+    down = FakeHub(script=[lambda r: httpx.ConnectError("down")] * 1000)
     argv = cli_args(tmp_path / "second", feed_id="feed_dostel1_rad_replay") + ["--profile", "demo"]
     (tmp_path / "second").mkdir()
     assert main(argv, client_factory=lambda url: down.client(), clock=clock, sleeper=FakeSleeper(clock)) == 3
     assert (
-        DurableQueue(tmp_path / "second" / "q.db", Settings(), "adp_replay_osdr").depth() == 84
+        DurableQueue(tmp_path / "second" / "q.db", Settings(), "adp_replay_radlab").depth() == 84
     )  # nothing lost
 
 

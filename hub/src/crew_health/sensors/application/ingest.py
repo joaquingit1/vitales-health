@@ -191,7 +191,10 @@ def _receive(rt: Runtime, uow: UnitOfWork) -> TimeFacts:
         "LIVE",
     )
     n = rt.corrections.normalize(uow, stamp)
-    return TimeFacts(n.state, n.corrected_at, n.uncertainty_ms)
+    # Freshness compares this reference with `now` read from the same hub clock and correction, so the correction's
+    # uncertainty cancels between them. Carrying it made every reading stale on arrival (its interval reaches past
+    # now) and, stale being sticky, a REPLAY channel on a hub confirmed with any uncertainty never became current.
+    return TimeFacts(n.state, n.corrected_at, None if n.uncertainty_ms is None else 0)
 
 
 def _quality(sent: QualityStatus, verdict: PlausibilityResult) -> QualityStatus:
