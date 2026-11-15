@@ -82,6 +82,20 @@ class StepUseConflict(SupplyPortError):
         self.command_key = command_key
 
 
+class PinnedSupplyMissing(SupplyPortError):
+    """A step need names a supply the run's pinned kit map does not list (a stale or wrong pin): reported, never
+    dropped (AGENTS rule 2, INV-S14)."""
+
+    code = ErrorCode.INVALID_VALUE
+
+    def __init__(self, index: int, supply_id: str, pinned_release_id: str) -> None:
+        field = FieldError(
+            f"/uses/{index}/supply_id", ErrorCode.INVALID_VALUE.value, "not in the pinned release's kit map"
+        )
+        super().__init__("pinned supply missing", field_errors=(field,))
+        self.supply_id, self.pinned_release_id = supply_id, pinned_release_id
+
+
 class SupplyUnavailable(SupplyPortError):
     """Supplies cannot answer: no current mission (retryable), or its ledger or release cannot be read."""
 
@@ -173,7 +187,8 @@ class SupplyLedgerPort(Protocol):
 def with_added(
     stock: Mapping[str, StockLevel], additions: Sequence[tuple[str, Quantity]]
 ) -> Mapping[str, StockLevel]:
-    """The hypothetical stock of a planning what-if (E32 3.3 INV-S11), pure: a set quantity grows by the addition,
+    """The hypothetical stock of a planning what-if (E32 3.3 INV-S11), pure: a set quantity grows by the addition
+    (the bare kit-map unit word and its annotation `{word}` are one unit, as at every other port),
     a null quantity stays null, a supply with no stock gets the added amount. Nothing is ever lowered.
     The added supply is aboard afterwards only when its resulting quantity is above zero or still unset."""
     out = dict(stock)
@@ -186,6 +201,8 @@ def with_added(
             if level is None:
                 out[supply_id] = StockLevel(supply_id, True, amount, amount.unit)
                 continue
+            if amount.unit != level.unit and level.unit.code == "{" + amount.unit.code + "}":
+                amount = Quantity(amount.value, level.unit)  # the bare kit-map word is the same unit
             if level.unit != amount.unit:
                 raise StockUnitMismatch(level.unit, amount.unit, supply_id)
             if level.quantity_now is None and level.aboard:

@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+from crew_health.kernel.units import Quantity
 from crew_health.supplies.domain.document import (
     Issue,
+    KitSupplies,
     read_kit_supplies,
     read_plans,
     read_threshold,
     read_words,
     resolve_needs,
 )
+from crew_health.supplies.domain.model import Need
+from crew_health.supplies.domain.quantity import MAX_COVER, floor_ratio
 
 _DRILLS = "drill_scenarios"
 
@@ -31,6 +35,29 @@ def _skills(skills_catalog: object) -> tuple[frozenset[str], tuple[tuple[str, st
     return ids, tuple(needs)
 
 
+def _cover_bounds(kit: KitSupplies, needs: list[Need]) -> list[Issue]:
+    """A set packed quantity whose cover over the smallest set per-use amount of its supply passes 2^53 uses, the
+    exact integer range of a JSON number (E32-T-22): refused here, so no cover read ever overflows."""
+    smallest: dict[str, Quantity] = {}
+    for need in needs:
+        best = smallest.get(need.supply_id)
+        if (
+            need.per_use is not None
+            and need.per_use.value > 0
+            and (best is None or need.per_use.value < best.value)
+        ):
+            smallest[need.supply_id] = need.per_use
+    issues: list[Issue] = []
+    for environment_id in sorted(kit.stock):
+        for supply_id, row in sorted(kit.stock[environment_id].items()):
+            per_use = smallest.get(supply_id)
+            if row.packed is None or per_use is None or per_use.unit != row.packed.unit:
+                continue
+            if floor_ratio(row.packed, per_use) > MAX_COVER:
+                issues.append(Issue("S-DOC", "kit-map", row.pointer + "/quantity", "cover past 2^53 uses"))
+    return issues
+
+
 def release_findings(
     kit_map: object,
     onboard_plans: object | None,
@@ -45,7 +72,9 @@ def release_findings(
     if onboard_plans is not None:
         plans, plan_issues = read_plans(onboard_plans)
         found.extend(plan_issues)
-        found.extend(resolve_needs(plans, supplies)[1])
+        steps, need_issues = resolve_needs(plans, supplies)
+        found.extend(need_issues)
+        found.extend(_cover_bounds(kit, [n for _, _, needs in steps for n in needs]))
     if warning_rules is not None:
         found.extend(read_threshold(warning_rules)[1])
     if kit.supplies:

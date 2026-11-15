@@ -139,14 +139,9 @@ def cover_rows(
             raise LedgerCorrupt(where.environment_id)
         if row is not None and deps.corrupt.has(where, supply.supply_id):
             row = replace(row, packed=None)
-        rows.append(
-            compute_row(
-                supply,
-                row,
-                head,
-                needs.get(supply.supply_id, ()),
-                index.threshold,
-                where.environment_id,
-            )
-        )
+        args = (head, needs.get(supply.supply_id, ()), index.threshold, where.environment_id)
+        try:
+            rows.append(compute_row(supply, row, *args))
+        except OverflowError:  # a release from before the S-DOC bound: this cover is unknown, never a crash
+            rows.append(compute_row(supply, None if row is None else replace(row, packed=None), *args))
     return tuple(rows)

@@ -14,7 +14,7 @@ from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import Actor, UnitOfWork
 from crew_health.supplies.application.context import Deps, current_mission, partition
 from crew_health.supplies.application.events import publish_use, use_body
-from crew_health.supplies.application.ports import StepUseConflict, SupplyNeed
+from crew_health.supplies.application.ports import PinnedSupplyMissing, StepUseConflict, SupplyNeed
 from crew_health.supplies.application.release_index import ReleaseIndex
 from crew_health.supplies.application.repository import StoredUse
 from crew_health.supplies.application.use_cases import publish_cover
@@ -56,14 +56,17 @@ def step_amounts(
     pinned: ReleaseIndex, active: ReleaseIndex, uses: Sequence[SupplyNeed], max_uses: int
 ) -> tuple[StepUse, ...]:
     """One amount per supply: two needs of one supply in one step add up under one occurrence key. A supply the
-    active kit map no longer lists is refused below zero by admission (no stock row)."""
+    pinned kit map does not list is reported (PinnedSupplyMissing); one the active kit map no longer lists is
+    refused below zero by admission (no stock row)."""
     if len(uses) > max_uses:
         raise UseInvalid((FieldIssue("/uses", "INVALID_VALUE", "more needs than supplies.max_step_uses"),))
     totals: dict[str, Quantity] = {}
     defs: dict[str, SupplyDef] = {}
-    for need in uses:
+    for i, need in enumerate(uses):
         supply = pinned.supplies.get(need.supply_id)
-        if need.per_use is None or supply is None or not supply.consumable:
+        if supply is None:
+            raise PinnedSupplyMissing(i, need.supply_id, pinned.release_id)
+        if need.per_use is None or not supply.consumable:
             continue
         current = active.supplies.get(need.supply_id, supply)
         if current.unit != supply.unit:

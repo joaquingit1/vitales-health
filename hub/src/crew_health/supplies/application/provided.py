@@ -167,7 +167,7 @@ def uses_after_one(
         amounts = [
             a for n in needs if n.supply_id == need.supply_id and (a := _amount(n, supply)) is not None
         ]
-        now, mine = level.quantity_now, _amount(need, supply)
+        now, mine = _boundary(level.quantity_now, supply), _amount(need, supply)
         if now is None or not amounts or any(a.unit != now.unit for a in amounts):
             out[key] = None
             continue
@@ -177,9 +177,14 @@ def uses_after_one(
 
 
 def _amount(need: SupplyNeed, supply: SupplyDef) -> Quantity | None:
-    if need.per_use is None:
+    return _boundary(need.per_use, supply)
+
+
+def _boundary(amount: Quantity | None, supply: SupplyDef) -> Quantity | None:
+    """A caller's quantity in the supply's unit when it names the bare kit-map word (E32 3 boundary rule)."""
+    if amount is None:
         return None
-    return Quantity(need.per_use.value, boundary_unit(need.per_use.unit, supply.unit_word, supply.unit))
+    return Quantity(amount.value, boundary_unit(amount.unit, supply.unit_word, supply.unit))
 
 
 def cover_changed(
