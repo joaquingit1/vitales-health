@@ -392,7 +392,7 @@ def production(
 ) -> Callable[[ModuleRegistry], None]:
     """The `configure` hook of a served hub: the offline artifacts and HTTP metadata from the resources, closed
     event sessions and fail-closed stand-ins for every pending port no installed module provides."""
-    from crew_health.app import privacy
+    from crew_health.app import privacy, trends_inputs
     from crew_health.app.assembly import ConfigHttpMetadata
     from crew_health.identity.application.service import IdentityService
 
@@ -419,6 +419,8 @@ def production(
         privacy.compose(
             registry, contract=resources.contracts / "api/openapi.yaml", metadata=e02_metadata, demo=demo
         )
+        # E14's inputs: records' accepted observations and E23's accepted sensor series (app/trends_inputs.py).
+        trends_inputs.compose(registry)
         if ConfigHttpMetadata not in provided:
             registry.provide(
                 ConfigHttpMetadata,
