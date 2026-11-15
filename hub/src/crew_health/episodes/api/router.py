@@ -17,7 +17,7 @@ from crew_health.episodes.application.codec import obj, text
 from crew_health.episodes.application.queries import EpisodeQueries
 from crew_health.episodes.application.use_cases import EpisodeService
 from crew_health.kernel.commands import canonical_json, command_identity
-from crew_health.kernel.errors import ErrorCode, ProblemError
+from crew_health.kernel.errors import ErrorCode, ProblemError, TargetBusy
 from crew_health.kernel.ids import IdFactory, require_id
 from crew_health.kernel.uow import ReadSnapshotFactory, SessionContext, UnitOfWorkFactory
 
@@ -109,6 +109,10 @@ def build_router(api: EpisodeApi) -> APIRouter:
             response = call()
             response.headers["X-Correlation-Id"] = correlation
             return response
+        except TargetBusy:
+            # Another command on this episode held the writer past storage.busy_timeout_ms: a concurrent edit that
+            # supersedes the If-Match revision, so the loser gets the contract conflict, never a 500 (T-E15-025).
+            return _error(ProblemError(ErrorCode.STALE_VERSION, "episode changed concurrently"), correlation)
         except ProblemError as exc:
             return _error(exc, correlation)
         except ValueError, ValidationError:
