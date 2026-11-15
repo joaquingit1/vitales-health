@@ -301,7 +301,7 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
     from crew_health.app.registry import DeclarationRegistry
     from crew_health.camera.application.ports import MissionStatePort as CameraMission
     from crew_health.clock.application.clock import ClockIdentity
-    from crew_health.groundlink.application.ports import MissionStatePort as GroundMission
+    from crew_health.groundlink.module import provide_mission as ground_mission
     from crew_health.help.application.ports import MissionStatePort as HelpMission
     from crew_health.measurement.application.ports import MissionStatePort as MeasurementMission
     from crew_health.records.application.seams import MissionStatePort as RecordsMission
@@ -311,7 +311,6 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
 
     for port in (
         CameraMission,
-        GroundMission,
         HelpMission,
         MeasurementMission,
         RecordsMission,
@@ -325,6 +324,7 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
             registry.replace(cast(type[object], port), bound, requires=(ClockIdentity,))
         else:
             registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))
+    ground_mission(registry, bound, requires=(ClockIdentity,))
 
 
 def _camera_f1(registry: ModuleRegistry, provided: Mapping[object, object], reports: object | None) -> None:

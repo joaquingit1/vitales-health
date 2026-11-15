@@ -1,9 +1,10 @@
 """Composition adapters for the plans module's consumer-owned ground link ports (E28 ground_log, SYSTEM 5.12).
 
 Plans declares `GroundLinkReader` and `InTimeWords` as its own Protocol classes; the registry is keyed by class
-object, so E29's `GroundLinkQuery` never resolves under them by structure. This module registers adapters under the
-plans classes, reading E29's local link state in a fresh snapshot. A port is provided only when it is still absent
-and its source is installed; otherwise plans keeps its fail-closed Unknown line.
+object, so no provider resolves under them by structure. This module registers adapters under the plans classes.
+The link comes from E29's catch-up composer (`PlanGroundLink`), never from the ground link's own ports: only the
+link's readers reach it (EI1, D43). A port is provided only when it is still absent and its source is installed;
+otherwise plans keeps its fail-closed Unknown line.
 
 Plan step availability is not bound here: it rests on guidance eligibility, whose content facts (E10, R-E10-17),
 environment facts (E23) and stock facts (E32) have no installed provider, and R-E10-17 forbids a permissive fake.
@@ -17,7 +18,7 @@ from datetime import datetime, timedelta
 from typing import cast
 
 from crew_health.app.registry import ModuleRegistry, Resolver
-from crew_health.groundlink.application.ports import GroundLinkQuery
+from crew_health.catchup.application.ports import PlanGroundLink
 from crew_health.kernel.uow import ReadSnapshotFactory
 from crew_health.plans.application.ground_log import GroundLinkReader, InTimeWords, LinkSnapshot
 from crew_health.plans.application.release import UiCopy
@@ -25,24 +26,19 @@ from crew_health.plans.application.release import UiCopy
 
 @dataclass(frozen=True, slots=True)
 class PlansGroundLink:
-    """plans GroundLinkReader from E29's GroundLinkQuery. Only a measured link reads as LIVE; a schedule or demo
-    switch state is simulated. An unknown environment raises, which plans renders as its Unknown line."""
+    """plans GroundLinkReader from E29's PlanGroundLink. Only a measured link reads as LIVE; a schedule or demo
+    switch state is simulated. An unknown link raises, which plans renders as its Unknown line."""
 
-    query: GroundLinkQuery
-    snapshots: ReadSnapshotFactory
+    source: PlanGroundLink
 
     def current(self) -> LinkSnapshot:
-        with self.snapshots.snapshot() as view:
-            link = self.query.current(view)
-            observed_at = view.now
-        if link is None:
-            raise LookupError("ground link state unknown")
+        link = self.source.current()
         return LinkSnapshot(
             status=link.status,
             next_contact_at=link.next_contact_at,
             one_way_delay=None if link.one_way_delay_s is None else timedelta(seconds=link.one_way_delay_s),
-            simulated=link.source != "measured",
-            observed_at=observed_at,
+            simulated=link.simulated,
+            observed_at=link.observed_at,
         )
 
 
@@ -65,10 +61,7 @@ class PlansInTime:
 
 
 def _ground_link(resolver: Resolver) -> PlansGroundLink:
-    return PlansGroundLink(
-        resolver.require(GroundLinkQuery),  # type: ignore[type-abstract]
-        resolver.require(ReadSnapshotFactory),  # type: ignore[type-abstract]
-    )
+    return PlansGroundLink(resolver.require(PlanGroundLink))  # type: ignore[type-abstract]
 
 
 def _in_time(resolver: Resolver) -> PlansInTime:
@@ -78,9 +71,9 @@ def _in_time(resolver: Resolver) -> PlansInTime:
 def compose(registry: ModuleRegistry) -> None:
     """Call from assembly right after `configure`: a port another composer bound keeps its provider, and a missing
     source leaves plans fail closed."""
-    query, snapshots = cast(type[object], GroundLinkQuery), cast(type[object], ReadSnapshotFactory)
+    link, snapshots = cast(type[object], PlanGroundLink), cast(type[object], ReadSnapshotFactory)
     entries = (
-        (cast(type[object], GroundLinkReader), _ground_link, (query, snapshots)),
+        (cast(type[object], GroundLinkReader), _ground_link, (link,)),
         (cast(type[object], InTimeWords), _in_time, (snapshots,)),
     )
     providers: Mapping[type[object], object] = getattr(registry, "providers", {})

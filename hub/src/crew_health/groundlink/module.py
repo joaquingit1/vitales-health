@@ -1,8 +1,9 @@
 # mypy: disable-error-code="type-abstract"
 """SYSTEM 5.12: declarations only at registration; late binding creates the services."""
 
+from collections.abc import Callable
 from datetime import datetime
-from typing import Literal
+from typing import Literal, cast
 
 from crew_health.app.registry import ModuleRegistry, Resolver
 from crew_health.contracts_gen.enums import EventType
@@ -49,6 +50,14 @@ from crew_health.kernel.uow import (
     UnitOfWork,
     UnitOfWorkFactory,
 )
+
+
+def provide_mission(
+    registry: ModuleRegistry, factory: Callable[[Resolver], object], *, requires: tuple[type[object], ...]
+) -> None:
+    """E23's side of the MissionStatePort the ground link requires (SYSTEM 4). A mission provider binds here, so
+    nothing outside the link's readers imports its ports (EI1, D43); this hook gives no access to link state."""
+    registry.provide(cast(type[object], MissionStatePort), factory, requires=requires)
 
 
 class GroundLinkRuntime:

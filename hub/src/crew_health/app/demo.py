@@ -24,6 +24,7 @@ import time
 import urllib.error
 import urllib.request
 import uuid
+from collections import deque
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -216,9 +217,9 @@ E28_PLANS: dict[str, object] = {
 
 
 def settings_document(path: Path, camera: dict[str, object] | None = None) -> Path:
-    """Every registered setting: the E02 module defaults, the supervisor polling at 250 ms (an idle demo hub at 50 ms used half a core), the camera worker's
-    address, token file and adapter (`camera`), and every other integer at its registered maximum, switches off and
-    text empty (the E01 serve tests' profile)."""
+    """Every registered setting: the E02 module defaults, the supervisor polling at 250 ms (an idle demo hub at
+    50 ms used half a core), the camera worker's address, token file and adapter (`camera`), and every other integer
+    at its registered maximum, switches off and text empty (the E01 serve tests' profile)."""
     from crew_health.app.cli import registered_settings
     from crew_health.consent.application.settings import defaults as consent_defaults
     from crew_health.identity.application.settings import defaults as identity_defaults
@@ -407,17 +408,23 @@ def _uv() -> str:
 
 # First `uv run` of the twin syncs its environment; a bound on that one start, not a hub operational setting.
 TWIN_START_S = 180
+# A companion that fails to start is reported with at most this many of its last output lines.
+START_OUTPUT_LINES = 20
 
 
 def _wait_line(process: subprocess.Popen[str], marker: str, seconds: float, what: str) -> str:
     """The first output line containing `marker`, within `seconds`; the process is left running. A process that
-    exits first, or stays silent, fails loudly with `what` named."""
+    exits first, or stays silent, fails loudly with `what` named and its last output lines quoted."""
     found: list[str] = []
+    tail: deque[str] = deque(maxlen=START_OUTPUT_LINES)
+    lock = threading.Lock()
     event = threading.Event()
 
     def watch() -> None:
         if process.stdout is not None:
             for line in process.stdout:
+                with lock:
+                    tail.append(line.rstrip())
                 if marker in line and not found:
                     found.append(line.strip())
                     event.set()
@@ -426,7 +433,11 @@ def _wait_line(process: subprocess.Popen[str], marker: str, seconds: float, what
     threading.Thread(target=watch, daemon=True).start()
     event.wait(seconds)
     if not found:
-        raise DemoError(f"{what} did not start (exit code {process.poll()})")
+        with lock:
+            output = "\n".join(tail)
+        raise DemoError(
+            f"{what} did not start (exit code {process.poll()})" + (f":\n{output}" if output else "")
+        )
     return found[0]
 
 
