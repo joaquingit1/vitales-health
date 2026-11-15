@@ -91,3 +91,8 @@ test('paged history appends once and a changed revision disables further actions
     await panel.more('timeline');assert.match(text(root),/Stale/);
   } finally {globalThis.document=oldDocument;}
 });
+
+test('missing required unknown words refuse the episode surface instead of rendering a blank fallback', async () => {
+  const { EpisodePanel } = await import('./episode-panel.ts');
+  assert.throws(() => new EpisodePanel(new NodeStub(), {get: async () => fullEpisode, command: async () => fullEpisode}, {...fullWords,errors:{}}, () => 'command_words', async () => ({})), /episode words unavailable/);
+});

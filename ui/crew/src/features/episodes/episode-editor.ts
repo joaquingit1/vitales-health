@@ -20,8 +20,9 @@ export function episodeEditor(host: HTMLElement, words: EditorWords, choices: ()
     return new Promise(resolve => {
       const dialog = document.createElement('dialog');
       const form = document.createElement('form');
-      const title = document.createElement('h2'); title.textContent = words.actions[action];
-      if (!title.textContent) { resolve(null); return; }
+      const titleText = words.actions[action];
+      if (!titleText) { resolve(null); return; }
+      const title = document.createElement('h2'); title.textContent = titleText;
       dialog.append(title, form); host.append(dialog);
       const values = new Map<string, HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>();
       const labelFor = (key: string, control: HTMLElement, parent: HTMLElement = form): void => {

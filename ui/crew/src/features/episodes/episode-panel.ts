@@ -12,7 +12,7 @@ export type Episode = {
 };
 export type Words = {
   states: Record<string, string>; origins: Record<string, string>; taskStates: Record<string, string>;
-  actions: Record<string, string>; errors: Record<string, string>; overdue: string; duePending: string;
+  actions: Record<string, string>; errors: Record<string, string> & { unknown: string }; overdue: string; duePending: string;
   stale: string; offline: string; withheld: string; timeline: string; concern: string; lateEntry?: string;
   timelineKinds?: Record<string,string>; reviewDecisions?: Record<string,string>; reviewRoles?: Record<string,string>; groundAdvice?: string;
 };
@@ -55,6 +55,7 @@ export class EpisodePanel {
   private edit: EpisodeEdit;
   constructor(root: HTMLElement, transport: Transport, words: Words, key: () => string,
     edit: EpisodeEdit) {
+    if (!words.errors.unknown?.trim()) throw new Error('episode words unavailable');
     this.root = root; this.transport = transport; this.words = words; this.key = key; this.edit = edit;
   }
   clear(): void {
