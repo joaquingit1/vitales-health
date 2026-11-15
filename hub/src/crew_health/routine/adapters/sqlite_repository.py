@@ -183,6 +183,42 @@ def _update(uow: UnitOfWork, table: str, values: tuple[SqlValue, ...], expected:
 
 
 class SqliteRoutineStore:
+    def record_occurrence_mission(self, uow: UnitOfWork, occurrence_id: str, mission_id: str) -> None:
+        if (
+            uow.connection.execute(
+                "INSERT INTO routine_occurrence_mission VALUES (?,?)", (occurrence_id, mission_id)
+            ).affected_rows
+            != 1
+        ):
+            raise StorageUnavailable("corrupt")
+
+    def occurrence_mission(self, view: View, occurrence_id: str) -> str | None:
+        rows = view.connection.rows(
+            "SELECT mission_id FROM routine_occurrence_mission WHERE occurrence_id=?",
+            (occurrence_id,),
+            limit=1,
+        )
+        return None if not rows else codec.text(rows[0][0])
+
+    def record_environment_day(
+        self, uow: UnitOfWork, environment_id: str, activated_at: datetime, mission_day: int
+    ) -> bool:
+        return (
+            uow.connection.execute(
+                "INSERT INTO routine_environment_day VALUES (?,?,?) ON CONFLICT DO NOTHING",
+                (environment_id, codec.instant(activated_at), mission_day),
+            ).affected_rows
+            == 1
+        )
+
+    def environment_day(self, view: View, environment_id: str) -> int | None:
+        rows = view.connection.rows(
+            "SELECT mission_day FROM routine_environment_day WHERE environment_id=? AND activated_at<=? ORDER BY activated_at DESC LIMIT 1",
+            (environment_id, codec.instant(view.now)),
+            limit=1,
+        )
+        return None if not rows else int(str(rows[0][0]))
+
     def activation_from_source(
         self, view: View, binding_id: str, source_kind: str, source_ref: str, person_id: str
     ) -> CadenceActivation | None:

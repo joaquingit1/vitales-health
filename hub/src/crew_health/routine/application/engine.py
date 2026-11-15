@@ -30,7 +30,12 @@ from crew_health.routine.domain.cadence import (
     next_periodic_day,
     period_days,
 )
-from crew_health.routine.domain.errors import ConfigInvalid, Finding, MissionUnavailable
+from crew_health.routine.domain.errors import (
+    ConfigInvalid,
+    EnvironmentAnchorUnavailable,
+    Finding,
+    MissionUnavailable,
+)
 from crew_health.routine.domain.hold import Interval, held_kind_at, held_until
 from crew_health.routine.domain.instances import QuestionInstance
 from crew_health.routine.domain.misses import MissesSummary, MissFact, summarize
@@ -282,14 +287,9 @@ class RoutineEngine:
         release: RoutineRelease,
         mission: MissionFacts,
     ) -> tuple[Occurrence, ...]:
-        if release.calendar.anchor != "mission_start":
-            raise ConfigInvalid(
-                (
-                    Finding(
-                        "error", "/calendar/anchor", "environment_start requires E23 environment start day"
-                    ),
-                )
-            )
+        anchor = self.anchor_day(view, release, mission.active_environment_id)
+        if anchor is None:
+            raise EnvironmentAnchorUnavailable()
         _, version = self.day(view.now)
         start, end = self.bounds(day, version)
         result: list[Occurrence] = []
@@ -304,7 +304,7 @@ class RoutineEngine:
             last = self.deps.store.latest_periodic_final_day(view, person_id, item.item_id)
             if (
                 next_periodic_day(
-                    period=period, anchor_day=1, last_final_day=last, today=day, today_has_periodic=False
+                    period=period, anchor_day=anchor, last_final_day=last, today=day, today_has_periodic=False
                 )
                 != day
             ):
@@ -332,6 +332,16 @@ class RoutineEngine:
                     )
                 )
         return tuple(result)
+
+    def anchor_day(
+        self, view: UnitOfWork | ReadSnapshot, release: RoutineRelease, environment_id: str
+    ) -> int | None:
+        if release.calendar.anchor == "mission_start":
+            return 1
+        day = self.deps.store.environment_day(view, environment_id)
+        if day is None:
+            self.deps.health.mark_degraded("routine", "ENVIRONMENT_ANCHOR_UNAVAILABLE", view.now)
+        return day
 
     def make_occurrence(
         self,
@@ -398,7 +408,10 @@ class RoutineEngine:
             maximum=self.deps.settings.max_open_per_person * self.deps.settings.history_days,
         )
         open_ = self.open_occurrences(view, person_id)
-        projected = self.periodic(view, person_id, day, self.release(view), self.mission(view))
+        try:
+            projected = self.periodic(view, person_id, day, self.release(view), self.mission(view))
+        except EnvironmentAnchorUnavailable:
+            projected = ()
         return tuple({o.occurrence_id: o for o in (*stored, *open_, *projected)}.values())
 
     def insert(self, uow: UnitOfWork, occ: Occurrence) -> bool:
@@ -414,6 +427,7 @@ class RoutineEngine:
             return False
         if not self.deps.store.insert(uow, occ):
             return False
+        self.deps.store.record_occurrence_mission(uow, occ.occurrence_id, self.mission(uow).mission_id)
         self.deps.store.append_transition(
             uow,
             TransitionRecord(
@@ -435,7 +449,11 @@ class RoutineEngine:
 
     def materialize(self, uow: UnitOfWork, person_id: str, day: int) -> None:
         mission, release = self.mission(uow), self.release(uow)
-        for occ in self.periodic(uow, person_id, day, release, mission):
+        try:
+            periodic = self.periodic(uow, person_id, day, release, mission)
+        except EnvironmentAnchorUnavailable:
+            periodic = ()
+        for occ in periodic:
             for older in self.earlier_periodic(uow, person_id, occ.item_id, day):
                 self.change(
                     uow,

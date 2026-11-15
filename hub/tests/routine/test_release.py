@@ -87,6 +87,7 @@ def test_release_has_no_loader_errors_and_copy_has_only_authorized_edits() -> No
     ],
 )
 @pytest.mark.trace("R37", "T-E25-025")
+@pytest.mark.trace("T-E25-036", "CONTRACTS 11", "E25-03")
 def test_loader_rejects_golden_configuration_failures(mutation: str, pointer: str) -> None:
     # CONTRACTS 15: "the loader rejects any drift". Amounts are forbidden by E25 3.12.3 G5.
     schedule, rules = document("routine-schedule"), document("routine-rules")
@@ -160,6 +161,7 @@ def test_random_json_shapes_raise_only_configuration_error(value: object) -> Non
 
 
 @pytest.mark.trace("R37")
+@pytest.mark.trace("T-E25-036", "CONTRACTS 11", "E25-03")
 def test_reference_bounds_and_guidance_checks_reject_invalid_release() -> None:
     r = release()
     checks = check_release(r, Bounds(0, 0, 0), frozenset(), frozenset())

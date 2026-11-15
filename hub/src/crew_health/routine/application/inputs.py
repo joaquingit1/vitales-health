@@ -85,6 +85,11 @@ class RoutineInputs:
             audit(self.deps, uow, "assistant_input_ignored", "warning")
             return
         release = self.engine.release(uow)
+        if isinstance(inp, EnvironmentInput):
+            if not self.deps.store.record_environment_day(
+                uow, inp.environment_id, inp.activated_at, self.engine.day(inp.activated_at)[0]
+            ):
+                return
         if isinstance(inp, ObservationInput) and inp.quality_status == "accepted":
             for binding in release.bindings:
                 if (
@@ -678,6 +683,7 @@ class RoutineInputs:
                 override,
                 mission,
                 release,
+                repeat=True,
             )
 
     def end(self, uow: UnitOfWork, override: Override, reason: EndReason, at: datetime) -> Override:

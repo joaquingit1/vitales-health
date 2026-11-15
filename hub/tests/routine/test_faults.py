@@ -122,6 +122,7 @@ def test_audience_rules_recheck_person_and_projection_on_each_snapshot(tmp_path:
 
 
 @pytest.mark.trace("T-E25-029", "INV-E25-01")
+@pytest.mark.trace("T-E25-039", "INV-09")
 def test_person_override_is_private_while_group_override_admits_members_and_officers(tmp_path: Path) -> None:
     hub = station(tmp_path, at=at(9))
     hub.overlay("ovl_person_ended", kind="eva", state="ended", revision=2, started_at=at(7), ended_at=at(9))

@@ -66,6 +66,7 @@ def deadline(hub: HttpHarness, engine: RoutineEngine, identifier: str, at: datet
 
 
 @pytest.mark.trace("T-E25-025", "T-E25-018", "R-E25-B2")
+@pytest.mark.trace("T-E25-103", "3.12.3")
 def test_config_edits_change_new_work_and_keep_open_work_pinned(tmp_path: Path) -> None:
     hub = HttpHarness(tmp_path)
     body = hub.manual_body()

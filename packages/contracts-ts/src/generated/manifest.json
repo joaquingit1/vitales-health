@@ -721,7 +721,7 @@
     "crew_health.platform.module": "f2d69c33296054e2783b5604edf4bac3211cb8da2bb3dfb4b2334ed757ac141a",
     "crew_health.records.module": "f37574d7a5e0ac1230ed584945df40420960c81274145b7f571247bdc2ea41c3",
     "crew_health.roles.module": "047c43e318ee3cd0021e50e309adab0f95a1764f0b940bc3e0a855663bf80ee2",
-    "crew_health.routine.module": "cf2912a42f4d8f65a95e686491e35639164dbd597e75906ad7cd933ba1785ac8",
+    "crew_health.routine.module": "2deec7c70fabde494e8baea0b9479f1974a35bd729fe6b170974b0c9e21fc0e1",
     "crew_health.teach.module": "a3128ce8c4401c08f34960e9b3efee89b606a58051e01ea2ca37c2fd163256d3",
     "crew_health.trends.module": "657f6588850fba8722cc447298e69f513b0092931c08d4e0b820c96b80dd6591"
   },

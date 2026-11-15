@@ -75,6 +75,7 @@ def test_complete_is_idempotent_and_replays_after_thirty_days(tmp_path: Path) ->
 
 
 @pytest.mark.trace("T-E25-027", "T-E25-101")
+@pytest.mark.trace("T-E25-028", "INV-09", "H9")
 def test_foreign_occurrences_are_hidden_and_skip_notes_stay_private(tmp_path: Path) -> None:
     hub = HttpHarness(tmp_path)
     row = hub.occurrence()
@@ -107,6 +108,7 @@ def test_foreign_occurrences_are_hidden_and_skip_notes_stay_private(tmp_path: Pa
 
 
 @pytest.mark.trace("T-E25-024", "T-E25-027", "T-E25-101")
+@pytest.mark.trace("T-E25-030", "UC03", "CONTRACTS 15")
 def test_manual_override_roles_visibility_duplicate_replay_and_stop(tmp_path: Path) -> None:
     hub = HttpHarness(tmp_path)
     path = "/v1/routine/overrides"

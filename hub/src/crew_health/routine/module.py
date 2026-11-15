@@ -11,8 +11,10 @@ from pydantic import ValidationError
 
 from crew_health.app.registry import ModuleRegistry, Resolver, StartupPhase
 from crew_health.contracts_gen.enums import ErrorCode, EventType
+from crew_health.contracts_gen.schemas.routine_occurrence_schema import RoutineOccurrence
+from crew_health.contracts_gen.schemas.routine_override_schema import RoutineOverride
 from crew_health.kernel.clock import Clock, ClockCorrected, ClockRegressed
-from crew_health.kernel.commands import CommandReceipts, IdempotencyStore
+from crew_health.kernel.commands import CommandReceipts, IdempotencyStore, canonical_json
 from crew_health.kernel.config import ConfigReleaseReader
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.evaluation import EvaluationInput, EvaluatorRegistration
@@ -23,6 +25,8 @@ from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.uow import (
     Actor,
     Audience,
+    AudienceProjectionKey,
+    LocalProjectionRegistration,
     ReadSnapshot,
     ReadSnapshotFactory,
     SessionContext,
@@ -362,8 +366,25 @@ def register(registry: ModuleRegistry) -> None:
             )
         )
     )
-    registry.audience_rule("routine.occurrence", RoutineAudience(override=False, runtime=runtime))
-    registry.audience_rule("routine.override", RoutineAudience(override=True, runtime=runtime))
+    for name, model, pointers, override in (
+        ("occurrence", RoutineOccurrence, ("/occurrence_id", "/revision", "/person_id", "/state"), False),
+        (
+            "override",
+            RoutineOverride,
+            ("/override_id", "/revision", "/audience", "/person_id", "/state"),
+            True,
+        ),
+    ):
+        rule = RoutineAudience(override=override, runtime=runtime)
+        registry.audience_rule("routine." + name, rule)
+        registry.local_projection(
+            LocalProjectionRegistration(
+                AudienceProjectionKey("routine", "routine." + name + "_changed", 1),
+                canonical_json(model.model_json_schema()),
+                pointers,
+                rule,
+            )
+        )
     registry.scheduler_handler("routine.occurrence", runtime.occurrence_job)
     registry.scheduler_handler("routine.day", runtime.day_job)
     registry.scheduler_handler("routine.override", runtime.override_job)

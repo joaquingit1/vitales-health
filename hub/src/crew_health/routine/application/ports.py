@@ -165,7 +165,7 @@ class DrillOccurrence:
     person_id: str
     item_id: str
     skill_ids: tuple[str, ...]
-    state: OccurrenceState
+    state: Literal["due", "later", "done", "missed", "skipped"]
 
 
 class RoutineQueries(Protocol):
@@ -256,7 +256,7 @@ class DailyCheckSubmitted:
     daily_check_id: str
     person_id: str
     mission_day: int
-    origin_mode: str
+    origin_mode: OriginMode
     submitted_at: datetime
 
 

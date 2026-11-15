@@ -182,12 +182,20 @@ class RoutineQueryService:
             return page(rows, cursor, limit, 200)
 
     def task(self, session: SessionContext, item_id: str) -> dict[str, object]:
-        person_id(session)
+        person = person_id(session)
         with self.deps.snapshots.snapshot() as view:
-            item = self.engine.release(view).item(item_id)
+            release = self.engine.release(view)
+            item = release.item(item_id)
+            if item is None:
+                pinned = next(
+                    (o for o in self.engine.open_occurrences(view, person) if o.item_id == item_id), None
+                )
+                if pinned is not None:
+                    release = self.engine.release_for(view, pinned.config_release_id)
+                    item = release.item(item_id)
             if item is None:
                 raise NotFound()
-            return task_view(self.deps, self.engine, view, item, session, view.now)
+            return task_view(self.deps, self.engine, view, item, session, view.now, release=release)
 
     def overrides(self, session: SessionContext, cursor: str | None, limit: int) -> dict[str, object]:
         if session.person_id is None and not any(
@@ -271,14 +279,21 @@ class RoutineQueryService:
             default=None,
         )
         if period is not None:
-            if latest is not None and (latest.mission_day - 1) // period == (today - 1) // period:
+            anchor = self.engine.anchor_day(view, release, env)
+            if anchor is None:
+                return
+            if (
+                latest is not None
+                and latest.mission_day >= anchor
+                and (latest.mission_day - anchor) // period == (today - anchor) // period
+            ):
                 result[latest.occurrence_id] = occurrence_view(
                     self.deps, self.engine, view, latest, session, now
                 )
                 return
             day = next_periodic_day(
                 period=period,
-                anchor_day=1,
+                anchor_day=anchor,
                 last_final_day=self.deps.store.latest_periodic_final_day(view, person, item.item_id),
                 today=today,
                 today_has_periodic=False,

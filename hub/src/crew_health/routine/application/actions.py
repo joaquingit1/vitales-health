@@ -12,7 +12,9 @@ from crew_health.kernel.commands import (
     canonical_json,
     command_identity,
 )
+from crew_health.kernel.errors import StorageUnavailable
 from crew_health.kernel.uow import SessionContext, UnitOfWork
+from crew_health.routine.application.audit import audit
 from crew_health.routine.application.deps import RoutineDeps
 from crew_health.routine.application.engine import RoutineEngine
 from crew_health.routine.application.ports import (
@@ -121,6 +123,33 @@ class RoutineActions:
         idempotency_key: str,
         config_release: str | None = None,
     ) -> tuple[int, OccurrenceView]:
+        try:
+            return self._act(
+                session,
+                occurrence_id,
+                body,
+                if_match=if_match,
+                idempotency_key=idempotency_key,
+                config_release=config_release,
+            )
+        except Unauthorized:
+            with self.deps.uow.begin(actor=session.actor, correlation_id=self.deps.ids.new("cor")) as uow:
+                audit(self.deps, uow, "unauthorized")
+            raise
+        except StorageUnavailable as error:
+            self.deps.health.mark_degraded("routine", error.cause, self.deps.clock.now())
+            raise
+
+    def _act(
+        self,
+        session: SessionContext,
+        occurrence_id: str,
+        body: OccurrenceActionBody,
+        *,
+        if_match: int | None,
+        idempotency_key: str,
+        config_release: str | None = None,
+    ) -> tuple[int, OccurrenceView]:
         if session.person_id is None or session.actor.kind == "assistant":
             raise Unauthorized("person_required")
         cmd = identity(
@@ -134,22 +163,27 @@ class RoutineActions:
         with self.deps.uow.begin(
             actor=session.actor, command=cmd, correlation_id=self.deps.ids.new("cor")
         ) as uow:
+            mission = self.engine.mission(uow)
+            if self.deps.roster is None or session.person_id not in self.deps.roster.person_ids():
+                raise Unauthorized("not_on_roster")
             stored = self.deps.idempotency.lookup(uow, cmd)
             if stored is not None:
-                self.find(uow, session, occurrence_id, virtual=False)
+                old = self.find(uow, session, occurrence_id, virtual=False)
+                self.check_scope(uow, old, mission.mission_id, mission.mission_mode)
                 remembered = self.deps.store.remembered(uow, session.actor.id, cmd.key)
                 if remembered is None:
                     raise NotFound()
                 return stored.status, remembered
             occ = self.find(uow, session, occurrence_id, virtual=True)
+            if body.action == "complete" and (body.observation_ids or body.answer_ids):
+                self.linked_records(uow, occ, body)
+            self.check_scope(uow, occ, mission.mission_id, mission.mission_mode)
             revision(occ.revision, if_match)
             if config_release is not None and config_release not in (
                 uow.release.release_id,
                 occ.config_release_id,
             ):
                 raise ConfigVersionMismatch(uow.release.release_id)
-            if body.action == "complete" and (body.observation_ids or body.answer_ids):
-                self.linked_records(uow, occ, body)
             until, held = self.engine.hold(
                 uow, occ, self.engine.release_for(uow, occ.config_release_id), uow.now
             )
@@ -164,6 +198,17 @@ class RoutineActions:
             self.deps.store.remember(uow, session.actor.id, cmd.key, current, body_view)
             self.record(uow, cmd, 200, current.occurrence_id)
             return 200, body_view
+
+    def check_scope(self, uow: UnitOfWork, occ: Occurrence, mission_id: str, mode: OriginMode) -> None:
+        if (
+            self.deps.store.get(uow, occ.occurrence_id) is not None
+            and self.deps.store.occurrence_mission(uow, occ.occurrence_id) != mission_id
+        ):
+            raise Unauthorized("foreign_mission")
+        if not admissible(
+            mission_mode=mode, input_origin=occ.origin_mode, group_audience=False, on_roster=True
+        ).ok:
+            raise Unauthorized("origin_rejected")
 
     def linked_records(self, uow: UnitOfWork, occ: Occurrence, body: OccurrenceActionBody) -> None:
         store = self.deps.records

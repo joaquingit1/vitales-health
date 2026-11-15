@@ -1,6 +1,12 @@
 -- Routine (E25 layer B; SYSTEM 4.2 routine-owned tables).
 -- STRICT tables; instants are RFC 3339 UTC text with Z; transitions are append only.
 
+CREATE TABLE routine_environment_day (
+    environment_id TEXT NOT NULL, activated_at TEXT NOT NULL,
+    mission_day INTEGER NOT NULL CHECK (mission_day>=1),
+    PRIMARY KEY (environment_id,activated_at)
+) STRICT;
+
 CREATE TABLE routine_occurrence (
     occurrence_id TEXT PRIMARY KEY, revision INTEGER NOT NULL CHECK (revision >= 1),
     person_id TEXT NOT NULL, item_id TEXT NOT NULL, environment_id TEXT NOT NULL,
@@ -30,6 +36,13 @@ CREATE TABLE routine_occurrence (
 CREATE INDEX routine_occ_open ON routine_occurrence(person_id,state) WHERE state IN ('not_due','due','later');
 CREATE INDEX routine_occ_day ON routine_occurrence(person_id,mission_day);
 CREATE INDEX routine_occ_periodic ON routine_occurrence(person_id,item_id,mission_day);
+CREATE TABLE routine_occurrence_mission (
+    occurrence_id TEXT PRIMARY KEY REFERENCES routine_occurrence(occurrence_id), mission_id TEXT NOT NULL
+) STRICT;
+CREATE TRIGGER routine_occ_mission_no_update BEFORE UPDATE ON routine_occurrence_mission
+BEGIN SELECT RAISE(ABORT,'routine occurrence mission is immutable'); END;
+CREATE TRIGGER routine_occ_mission_no_delete BEFORE DELETE ON routine_occurrence_mission
+BEGIN SELECT RAISE(ABORT,'routine occurrence mission is never deleted'); END;
 CREATE UNIQUE INDEX routine_occ_insight ON routine_occurrence(insight_id) WHERE cause_kind='assistant';
 CREATE TRIGGER routine_occ_final BEFORE UPDATE ON routine_occurrence
 WHEN OLD.state IN ('done','skipped','missed') OR NEW.revision<>OLD.revision+1

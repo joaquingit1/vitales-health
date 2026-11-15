@@ -58,6 +58,17 @@ class ConfigInvalid(RoutineError):
         super().__init__("config_invalid")
 
 
+class EnvironmentAnchorUnavailable(ConfigInvalid):
+    def __init__(self) -> None:
+        super().__init__(
+            (
+                Finding(
+                    "error", "/calendar/anchor", "environment_start requires E23's recorded activation day"
+                ),
+            )
+        )
+
+
 class DuplicateOverride(RoutineError):
     def __init__(self, override_id: str) -> None:
         self.override_id = override_id

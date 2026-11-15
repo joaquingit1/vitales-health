@@ -37,6 +37,8 @@ def _guidance(item: RoutineItem, pointer: str) -> list[Finding]:
         findings.append(Finding("error", pointer + "/steps", "G2: at least one nonblank step is required"))
     if not item.instrument.strip():
         findings.append(Finding("error", pointer + "/instrument", "G3: instrument is required"))
+    if item.minutes < 0:
+        findings.append(Finding("error", pointer + "/minutes", "G3: minutes must be nonnegative"))
     regions = frozenset(
         (
             "head",
@@ -68,6 +70,11 @@ def _guidance(item: RoutineItem, pointer: str) -> list[Finding]:
 
 def _item_checks(item: RoutineItem, release: RoutineRelease, pointer: str) -> list[Finding]:
     findings = _guidance(item, pointer)
+    environments = frozenset(environment for entry in release.items for environment in entry.by_environment)
+    if not environments or environments - item.by_environment.keys():
+        findings.append(
+            Finding("error", pointer + "/cadence/by_environment", "G7: every environment needs a cadence")
+        )
     for i, source in enumerate(item.source_ids):
         if source not in release.sources:
             findings.append(Finding("error", f"{pointer}/source_ids/{i}", "Unknown source"))

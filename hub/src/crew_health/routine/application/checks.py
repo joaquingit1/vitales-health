@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import datetime
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from crew_health.kernel.uow import UnitOfWork
 from crew_health.routine.application.ports import DailyCheckSubmitted, ReactionTestRecorded
 from crew_health.routine.domain.admission import admissible
 from crew_health.routine.domain.occurrence import Outcome, complete
-from crew_health.routine.domain.vocabulary import OPEN_STATES, OriginMode
+from crew_health.routine.domain.vocabulary import OPEN_STATES
 
 if TYPE_CHECKING:
     from crew_health.routine.application.engine import RoutineEngine
@@ -27,7 +27,7 @@ class CheckNotifications:
             event.origin_mode not in ("LIVE", "REPLAY", "SIM")
             or not admissible(
                 mission_mode=mission.mission_mode,
-                input_origin=cast(OriginMode, event.origin_mode),
+                input_origin=event.origin_mode,
                 group_audience=False,
                 on_roster=None
                 if self.deps.roster is None

@@ -102,7 +102,7 @@ class RoutineCompletion:
     def drill_occurrence(self, occurrence_id: str) -> DrillOccurrence | None:
         with self.deps.snapshots.snapshot() as view:
             occ = self.deps.store.get(view, occurrence_id)
-            if occ is None:
+            if occ is None or occ.state == "not_due":
                 return None
             item = self.engine.release_for(view, occ.config_release_id).item(occ.item_id)
             if item is None:

@@ -221,7 +221,15 @@ def _match(binding: Binding, inp: TriggerInput) -> Firing | None:
         and inp.environment_id in on.environments
     ):
         # Environment activations are cadence activations, never override source records.
-        return Firing(binding, "mission_event", inp.environment_id, inp.activated_at, None, (), None)
+        return Firing(
+            binding,
+            "mission_event",
+            inp.environment_id + ":" + inp.activated_at.isoformat(),
+            inp.activated_at,
+            None,
+            (),
+            None,
+        )
     return None
 
 

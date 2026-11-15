@@ -242,8 +242,10 @@ def task_view(
     item: RoutineItem,
     session: SessionContext,
     now: datetime,
+    *,
+    release: RoutineRelease | None = None,
 ) -> dict[str, object]:
-    release = engine.release(view)
+    release = engine.release(view) if release is None else release
     words = require_words(release)
     env = environment(deps, view)
     person = session.person_id
@@ -253,6 +255,15 @@ def task_view(
         raise Unauthorized("person_required")
     effective = engine.effective(view, person, item, release, env)
     overrides = deps.store.active_overrides_for(view, person, deps.settings.max_active_overrides_per_person)
+    additive = max(
+        (o for o in overrides if o.item_id == item.item_id and o.new_cadence.word == "as_needed"),
+        key=lambda o: (o.started_at, o.override_id),
+        default=None,
+    )
+    if additive is not None:
+        effective = EffectiveCadence(
+            additive.new_cadence, additive.override_id, additive.basis, additive.source_ids
+        )
     next_occ = min(
         (
             o
@@ -270,6 +281,8 @@ def task_view(
         "who": list(item.who),
         "instrument": item.instrument,
         "minutes": item.minutes,
+        # A8: routine serves its own configured steps with provenance and never calls guidance; clinical review
+        # absence is the release notice label, never a runtime gate (PLAN row 29).
         "steps": list(item.steps),
         "body_region": item.body_region,
         "environment_id": env,

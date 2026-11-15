@@ -99,6 +99,7 @@ def evaluation(record: ObservationRecord) -> EvaluationInput:
         ("5.5", "h", "rejected", 0, 0),
     ],
 )
+@pytest.mark.trace("T-E25-034", "D17")
 def test_real_observation_reaches_binding(
     hub_path: Path, value: str, unit: str, quality: QualityStatus, count: int, mismatch: int
 ) -> None:
@@ -165,6 +166,7 @@ def test_real_platform_isolates_only_calculation_failure(
 
 
 @pytest.mark.trace("T-E25-018", "INV-E25-07")
+@pytest.mark.trace("T-E25-028", "INV-09", "H9")
 def test_linked_records_authorize_person_without_existence_oracle(tmp_path: Path) -> None:
     hub = HttpHarness(tmp_path)
     for record in (observation(hub), observation(hub, identifier="obs_other", person="person_tomas")):
@@ -236,6 +238,7 @@ def test_person_override_care_requires_grant_and_ground_only_reads_own_start(tmp
 
 
 @pytest.mark.trace("T-E25-027", "INV-E25-07")
+@pytest.mark.trace("T-E25-110", "3.14")
 def test_occurrence_care_grant_controls_read_and_audit(tmp_path: Path) -> None:
     hub = station(tmp_path)
     ref = str(
@@ -278,6 +281,7 @@ def test_warning_attachments_share_creating_and_repointing_transaction(tmp_path:
 
 
 @pytest.mark.trace("T-E25-032", "T-E25-042")
+@pytest.mark.trace("T-E25-099", "3.11")
 def test_daily_and_reaction_notifications_do_not_change_question_instances(tmp_path: Path) -> None:
     hub = station(tmp_path)
     hub.raise_warning()
@@ -337,6 +341,7 @@ def test_future_submission_leaves_occurrence_and_barrier_pending(tmp_path: Path)
 
 
 @pytest.mark.trace("T-E25-027", "INV-E25-07")
+@pytest.mark.trace("T-E25-039", "INV-09")
 def test_event_audiences_recheck_care_grants_and_audit(tmp_path: Path) -> None:
     from typing import cast
 
