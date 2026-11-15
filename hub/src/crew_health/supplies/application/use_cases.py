@@ -49,6 +49,7 @@ class UseRequest:
     key: str
     config_release: str | None
     body_sha256: str
+    correlation_id: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -121,7 +122,9 @@ def record_use(deps: Deps, session: SessionContext, request: UseRequest) -> UseR
     identity = _identity(session, request, facts.mission_id, facts.mission_mode)
     reference = read_reference(deps, session, request.plan_run_id, request.help_session_id)
     try:
-        with deps.uow.begin(actor=session.actor, command=identity, correlation_id=deps.ids.new("cor")) as uow:
+        with deps.uow.begin(
+            actor=session.actor, command=identity, correlation_id=request.correlation_id
+        ) as uow:
             stored = deps.idempotency.lookup(uow, identity)
             if stored is not None:
                 return _replay(deps, uow, identity, stored)
@@ -255,7 +258,7 @@ def _refusal_evidence(
     """HZ14: a refused use that names a help session leaves one evidence row and one audit entry, in a second
     unit of work, and the same key replays the refusal (the ledger records 422 SUPPLY_BELOW_ZERO)."""
     del refused
-    with deps.uow.begin(actor=session.actor, command=identity, correlation_id=deps.ids.new("cor")) as uow:
+    with deps.uow.begin(actor=session.actor, command=identity, correlation_id=request.correlation_id) as uow:
         if deps.idempotency.lookup(uow, identity) is not None:
             return
         facts = current_mission(deps, uow)

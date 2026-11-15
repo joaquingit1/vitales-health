@@ -139,6 +139,11 @@ class SuppliesRuntime:
         with self.need().snapshots.snapshot() as view:
             return view.release.release_id
 
+    def correlation(self) -> str:
+        if self.deps is None:  # unbound: a fixed ID, so the envelope still carries one
+            return "cor-supplies-unbound"
+        return self.deps.ids.new("cor")
+
     def authenticate(self, request: Request, operation_id: str) -> SessionContext:
         if self.authenticator is None:  # E02 absent: nobody is signed in (fail closed)
             raise ProblemError(ErrorCode.UNAUTHENTICATED, ErrorCode.UNAUTHENTICATED.value)

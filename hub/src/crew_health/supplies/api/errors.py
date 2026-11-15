@@ -54,7 +54,7 @@ def to_problem(error: SuppliesError) -> ProblemError:
     return ProblemError(ErrorCode.INTERNAL_ERROR, ErrorCode.INTERNAL_ERROR.value)
 
 
-def envelope(problem: ProblemError, correlation_id: str | None) -> JSONResponse:
+def envelope(problem: ProblemError, correlation_id: str) -> JSONResponse:
     body: dict[str, object] = {
         "code": problem.code.value,
         "message": str(problem) or problem.code.value,
@@ -66,8 +66,9 @@ def envelope(problem: ProblemError, correlation_id: str | None) -> JSONResponse:
         "current_state": problem.current_state,
         "supported_alternative": problem.supported_alternative,
     }
-    headers = {} if correlation_id is None else {"X-Correlation-Id": correlation_id}
-    return JSONResponse(body, status_code=ERROR_STATUS[problem.code], headers=headers)
+    return JSONResponse(
+        body, status_code=ERROR_STATUS[problem.code], headers={"X-Correlation-Id": correlation_id}
+    )
 
 
 def malformed(message: str, field: str) -> ProblemError:
