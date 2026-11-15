@@ -29,13 +29,13 @@ CREATE TRIGGER supplies_use_no_update BEFORE UPDATE ON supplies_use BEGIN SELECT
 CREATE TRIGGER supplies_use_no_delete BEFORE DELETE ON supplies_use BEGIN SELECT RAISE(ABORT, 'append-only'); END;
 
 -- The unit each supply's uses are counted in, registered by its first use (INV-S13, guard S-A1).
-CREATE TABLE supplies_stock (
+CREATE TABLE supplies_unit_registry (
   supply_id TEXT PRIMARY KEY,
   unit_ucum TEXT NOT NULL,
   first_use_id TEXT NOT NULL
 ) STRICT;
-CREATE TRIGGER supplies_stock_no_update BEFORE UPDATE ON supplies_stock BEGIN SELECT RAISE(ABORT, 'append-only'); END;
-CREATE TRIGGER supplies_stock_no_delete BEFORE DELETE ON supplies_stock BEGIN SELECT RAISE(ABORT, 'append-only'); END;
+CREATE TRIGGER supplies_unit_registry_no_update BEFORE UPDATE ON supplies_unit_registry BEGIN SELECT RAISE(ABORT, 'append-only'); END;
+CREATE TRIGGER supplies_unit_registry_no_delete BEFORE DELETE ON supplies_unit_registry BEGIN SELECT RAISE(ABORT, 'append-only'); END;
 
 -- Evidence of a help-session use the ledger refused (E32 4.1, HZ14): one row per command key.
 CREATE TABLE supplies_use_refused (

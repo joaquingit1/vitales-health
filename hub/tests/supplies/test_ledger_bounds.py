@@ -120,3 +120,15 @@ def test_restart_with_a_stored_row_in_another_unit_marks_that_partition_unknown(
     assert refused.status_code == 500 and refused.json()["retryable"] is False
     restarted.mission.facts = lunar_mission("LIVE")
     assert rinse_stock(restarted)["quantity_now"] == 6  # another partition is untouched
+
+
+@pytest.mark.trace("m12", "SYSTEM 4.2 module map", "R-SYS-6")
+def test_the_unit_registry_does_not_take_the_name_reserved_for_stock(tmp_path: Path) -> None:
+    station = build_station(tmp_path)
+    station.sessions.by_token["crew"] = crew_session()
+    assert station.client.post(USES, headers=headers(), json=use_body(1)).status_code == 201
+    tables = {r[0] for r in station.rows("SELECT name FROM sqlite_master WHERE type='table'")}
+    assert "supplies_stock" not in tables  # SYSTEM reserves it for the stock and custody edits table
+    assert station.rows("SELECT supply_id, unit_ucum FROM supplies_unit_registry") == [
+        ("eye_rinse_water", "{rinse}")
+    ]

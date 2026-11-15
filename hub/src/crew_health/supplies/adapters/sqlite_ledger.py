@@ -68,7 +68,7 @@ def _mode(value: SqlValue) -> OriginMode:
 
 
 class SqliteLedger:
-    """LedgerRepository over supplies_use, supplies_stock and supplies_use_refused."""
+    """LedgerRepository over supplies_use, supplies_unit_registry and supplies_use_refused."""
 
     def head(self, view: View, partition: Partition, supply_id: str) -> Head | None:
         rows = view.connection.rows(
@@ -166,7 +166,7 @@ class SqliteLedger:
 
     def registered_units(self, view: View, *, after_supply_id: str, limit: int) -> Mapping[str, str]:
         rows = view.connection.rows(
-            "SELECT supply_id, unit_ucum FROM supplies_stock WHERE supply_id > ? ORDER BY supply_id LIMIT ?",
+            "SELECT supply_id, unit_ucum FROM supplies_unit_registry WHERE supply_id > ? ORDER BY supply_id LIMIT ?",
             (after_supply_id, limit),
             limit=limit,
         )
@@ -174,11 +174,11 @@ class SqliteLedger:
 
     def register_unit(self, uow: UnitOfWork, supply_id: str, unit_code: str, *, first_use_id: str) -> None:
         rows = uow.connection.rows(
-            "SELECT unit_ucum FROM supplies_stock WHERE supply_id=?", (supply_id,), limit=1
+            "SELECT unit_ucum FROM supplies_unit_registry WHERE supply_id=?", (supply_id,), limit=1
         )
         if not rows:
             uow.connection.execute(
-                "INSERT INTO supplies_stock VALUES (?,?,?)", (supply_id, unit_code, first_use_id)
+                "INSERT INTO supplies_unit_registry VALUES (?,?,?)", (supply_id, unit_code, first_use_id)
             )
         elif rows[0][0] != unit_code:
             raise LedgerCorrupt("registered unit differs")
