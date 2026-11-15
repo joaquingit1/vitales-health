@@ -244,6 +244,12 @@ def _open_clocks(db: SQLiteDatabase) -> PersistentClocks:
                     "cor_" + source, source, source + "_seg", version, datetime(1990, 1, 1, tzinfo=UTC), None, 0, 0, uow.now, "operator"
                 ),
             )
+        from crew_health.kernel.met import MissionClockVersion
+
+        clocks.repository.append_mission_version(
+            uow.connection,
+            MissionClockVersion("clock_v1", 1, datetime(2026, 11, 1, tzinfo=UTC), datetime(2026, 11, 1, tzinfo=UTC), None, "Day {day}"),
+        )
     return clocks
 
 
