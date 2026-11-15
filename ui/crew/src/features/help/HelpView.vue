@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { components } from "@crew-health/contracts";
-import { computed, onMounted, onUnmounted, ref, shallowRef, watchEffect } from "vue";
+import { computed, onMounted, ref, shallowRef, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import { useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
@@ -65,10 +65,6 @@ watchEffect(() => {
   stage.focus = null;
   stage.marks = [];
 });
-onUnmounted(() => {
-  stage.headline = "";
-  stage.subline = "";
-});
 
 function problem(failure: unknown): string {
   const code = typeof failure === "object" && failure !== null && "code" in failure ? String(failure.code) : "INTERNAL_ERROR";
@@ -126,14 +122,15 @@ async function open(): Promise<void> {
 
 onMounted(() => {
   void open();
+  /* both at once: the assistant route when the hub has one, else the health document's model state */
   void api
     .get<AssistantStatus>("/v1/assistant/status")
     .then((value) => (status.value = value))
-    .catch(async () => {
-      /* no assistant route on this hub: the health document still says what state the model is in */
-      const health = await api.getHealth().catch(() => null);
-      fallbackState.value = health === null ? null : health.assistant_state;
-    });
+    .catch(() => (status.value = null));
+  void api
+    .getHealth()
+    .then((health) => (fallbackState.value = health.assistant_state))
+    .catch(() => (fallbackState.value = null));
   void api
     .get<GroundLink>("/v1/ground-link")
     .then((value) => (link.value = value))
@@ -166,7 +163,10 @@ onMounted(() => {
           :aria-label="HELP_NAME"
           @click="router.back()"
         >
-          <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" /></svg>
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+          ><path d="M18 6 6 18M6 6l12 12" /></svg>
         </button>
       </div>
       <div
@@ -242,6 +242,13 @@ onMounted(() => {
           v-if="refused"
           class="route"
           data-test="help-refused"
+        >
+          {{ copy("designed_states.not_available_here") }}
+        </p>
+        <p
+          v-if="refused"
+          class="fine"
+          data-test="help-refused-code"
         >
           {{ refused }}
         </p>

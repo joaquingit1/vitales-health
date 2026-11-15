@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from "vue";
+import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { ApiProblem, useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
@@ -118,10 +118,6 @@ watchEffect(() => {
   stage.focus = null;
   stage.marks = [];
 });
-onUnmounted(() => {
-  stage.headline = "";
-  stage.subline = "";
-});
 const canStart = computed(() => run.value === null && episodeId.value !== null && session.current?.person != null);
 </script>
 
@@ -166,6 +162,12 @@ const canStart = computed(() => run.value === null && episodeId.value !== null &
         v-if="planError"
         class="say"
         data-test="plan-refused"
+      >
+        {{ copy("designed_states.not_available_here") }}
+      </p>
+      <p
+        v-if="planError"
+        class="fine"
       >
         {{ planError }}
       </p>
