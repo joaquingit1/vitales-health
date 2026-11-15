@@ -32,6 +32,8 @@ from crew_health.platform.cli import main as platform_main
 from crew_health.platform.domain.errors import fail
 from crew_health.platform.settings import ValidatedSettings, specifications
 from crew_health.platform.storage import SQLiteDatabase, SystemIds, stored_identity
+from crew_health.rules.cli import Console as RulesConsole
+from crew_health.rules.cli import run as rules_run
 
 SOURCE = Path(__file__).resolve().parents[1]
 DEFAULT_HOST = "127.0.0.1"  # SYSTEM 3 and DEPLOYMENT 7.1: loopback only by default
@@ -171,8 +173,32 @@ def serve(
         db.close()
 
 
+def rules_command(arguments: Sequence[str]) -> int:
+    """`crew-health rules ...`: the warnings engine's operator console (E24 5.5) over the hub database."""
+    parser = _Parser(prog="crew-health rules")
+    parser.add_argument("--database", type=Path, required=True)
+    parser.add_argument("--settings", type=Path, required=True)
+    parser.add_argument("--operator", default="operator_station")
+    try:
+        known, rest = parser.parse_known_args(list(arguments))
+        db = open_database(known.database, _read_settings(known.settings))
+    except ProblemError as error:
+        print(json.dumps({"code": error.code.value, "retryable": error.retryable}, sort_keys=True))
+        return 2
+    try:
+        console = RulesConsole(sys.stdout, sys.stderr, known.operator, db.ids.new("correlation"))
+        bound = min(
+            db.settings.integer("rules.pending_max_rows") + 1, db.settings.integer("storage.max_rows")
+        )
+        return rules_run(rest, db, db.ids, console, limit=bound)
+    finally:
+        db.close()
+
+
 def main(argv: Sequence[str] | None = None, *, server: Server = _uvicorn) -> int:
     arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments[:1] == ["rules"]:
+        return rules_command(arguments[1:])
     if arguments[:1] != ["serve"]:
         return platform_main(arguments)
     parser = _Parser(prog="crew-health")

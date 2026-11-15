@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import timedelta
+from typing import cast
 
 import pytest
 import rules_harness as h
@@ -56,13 +57,13 @@ def person_warning(world: h.World) -> Warning:
         AnswerInput("ans_1", "p1", "dizzy_standing", "present", h.T0, h.T0, OriginMode.LIVE, "day 3", "09:10")
     )
     (found,) = w.by_definition("dizzy_after_landing")
-    return found
+    return cast(Warning, found)
 
 
 def habitat_warning(world: h.World) -> Warning:
     world.feed(world.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]))
     (found,) = world.by_definition("co2_above_limit")
-    return found
+    return cast(Warning, found)
 
 
 def crew(

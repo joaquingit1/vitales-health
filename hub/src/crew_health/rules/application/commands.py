@@ -15,10 +15,10 @@ from crew_health.contracts_gen.enums import ErrorCode, EventType
 from crew_health.kernel.commands import CommandIdentity, CommandReceipts, IdempotencyStore, StoredResult
 from crew_health.kernel.errors import FieldError, ProblemError
 from crew_health.kernel.uow import SessionContext, UnitOfWork, UnitOfWorkFactory
+from crew_health.rules.application import core
 from crew_health.rules.application.core import Runtime, note_audit, replicate_local
-from crew_health.rules.application.ports import WarningCleared
 from crew_health.rules.application.queries import context_of, project, requester_of, viewer_of
-from crew_health.rules.application.wire import emit, fact_of
+from crew_health.rules.application.wire import emit
 from crew_health.rules.domain import actions
 from crew_health.rules.domain.errors import ActionNotAllowed, InvalidTransition, NotVisible, RulesDomainError
 from crew_health.rules.domain.visibility import can_see
@@ -94,12 +94,16 @@ class WarningActions:
     ) -> tuple[dict[str, object], int]:
         stored = self.rt.results.get(uow.connection, identity.actor_ref, identity.key)
         window = timedelta(hours=self.rt.settings.integer("rules.action_replay_hours"))
-        if stored is not None and uow.now - stored[2] <= window:
-            body = json.loads(stored[1])
-            return body, int(body["revision"])
         w = self.rt.warnings.get(uow.connection, warning_id)
+        visible = w is not None and can_see(w, viewer_of(session)).full
+        # The cache holds only the revision (AGENTS 6: no private text): an unchanged warning is re-projected under
+        # the current grant; a later revision gets the accepted-command receipt instead.
+        if stored is not None and uow.now - stored[2] <= window and w is not None and visible:
+            revision = int(json.loads(stored[1])["revision"])
+            if w.revision == revision:
+                return project(self.rt, uow, self.rt.facts(uow), w, session), revision
         state = None
-        if w is not None and can_see(w, viewer_of(session)).full:
+        if w is not None and visible:
             state = project(self.rt, uow, self.rt.facts(uow), w, session)
         raise ProblemError(
             ErrorCode.DUPLICATE_COMMAND, ErrorCode.DUPLICATE_COMMAND.value, current_state=state
@@ -134,19 +138,20 @@ class WarningActions:
         self, uow: UnitOfWork, session: SessionContext, before: Warning, done: Warning, identity: CommandIdentity
     ) -> tuple[dict[str, object], int]:  # fmt: skip
         rt, c = self.rt, uow.connection
-        if not rt.warnings.update(c, done, expected_revision=before.revision):
-            raise ProblemError(ErrorCode.STALE_VERSION, ErrorCode.STALE_VERSION.value)
-        replicate_local(uow, done.warning_id, "version")
         final = done.state in (WarningState.RESOLVED, WarningState.DISMISSED)
         if final:
-            rt.dwell.delete(c, done.warning_id)
-        emit(uow, EventType.WARNING_CLEARED if final else EventType.WARNING_UPDATED, done)
-        note_audit(rt, uow, "warning.updated", {"warning": done.warning_id}, {})
-        if final:
-            uow.publish(WarningCleared(fact_of(done)))
+            core.commit_final(rt, uow, before, done)
+        else:
+            if not rt.warnings.update(c, done, expected_revision=before.revision):
+                raise ProblemError(ErrorCode.STALE_VERSION, ErrorCode.STALE_VERSION.value)
+            replicate_local(uow, done.warning_id, "version")
+            emit(uow, EventType.WARNING_UPDATED, done)
+            note_audit(rt, uow, "warning.updated", {"warning": done.warning_id}, {})
         body = project(rt, uow, rt.facts(uow), done, session)
-        text = json.dumps(body, sort_keys=True)
-        rt.results.put(c, identity.actor_ref, identity.key, done.warning_id, text, uow.now)
+        reference = json.dumps(
+            {"revision": done.revision}, sort_keys=True
+        )  # a reference, never the projection
+        rt.results.put(c, identity.actor_ref, identity.key, done.warning_id, reference, uow.now)
         receipt = self.platform.receipts.accepted(uow, identity)
         self.platform.ledger.record(
             uow, identity,

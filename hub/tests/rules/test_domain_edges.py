@@ -12,6 +12,7 @@ from collections.abc import Callable
 from dataclasses import replace
 from datetime import datetime, timedelta
 from decimal import Decimal
+from typing import cast
 
 import pytest
 import rules_harness as h
@@ -20,7 +21,6 @@ from crew_health.kernel.units import Quantity, Unit
 from crew_health.rules.domain import clear_evidence, dwell, hold, origin, time_policy
 from crew_health.rules.domain.decisions import Clear, Refuse
 from crew_health.rules.domain.definitions import (
-    DefinitionInvalid,
     RulesDocument,
     parse_definition,
     parse_rules_document,
@@ -28,6 +28,7 @@ from crew_health.rules.domain.definitions import (
 from crew_health.rules.domain.engine import evaluate, reconcile_clear_events
 from crew_health.rules.domain.errors import (
     ActionNotAllowed,
+    DefinitionInvalid,
     InvalidInput,
     InvariantViolation,
     LevelNotAllowed,
@@ -70,7 +71,7 @@ CROSSED = {"crossed": True, "clear_holds": False}
 
 
 def at(minutes: int) -> datetime:
-    return h.T0 + timedelta(minutes=minutes)
+    return cast(datetime, h.T0 + timedelta(minutes=minutes))
 
 
 def scratch(
@@ -194,7 +195,7 @@ def test_a_quiet_warning_clears_only_on_fresh_evidence_after_the_raise_of_its_ow
     world.now = at(10)
 
     def attempt(**kw: object) -> tuple[object, ...]:
-        return evaluate(world.freshness_input("current", **kw), world.view())  # type: ignore[arg-type]
+        return evaluate(world.freshness_input("current", **kw), world.view())
 
     assert attempt() == ()  # no observed time at all
     assert attempt(obs=h.observed(at(9), state="unknown")) == ()  # an unknown time never clears
@@ -204,7 +205,7 @@ def test_a_quiet_warning_clears_only_on_fresh_evidence_after_the_raise_of_its_ow
         attempt(origin=OriginMode.SIM, obs=h.observed(at(9), origin=OriginMode.SIM)) == ()
     )  # another origin
     ok = attempt(obs=h.observed(at(9)))
-    assert [type(s) for s in ok] == [Clear] and ok[0].warning_id == quiet.warning_id  # type: ignore[union-attr]
+    assert [type(s) for s in ok] == [Clear] and cast(Clear, ok[0]).warning_id == quiet.warning_id
     world.frozen = True
     assert attempt(obs=h.observed(at(9))) == ()
     world.frozen = False
@@ -222,7 +223,7 @@ def test_a_stale_channel_without_a_last_reading_raises_with_no_evidence_and_a_sp
     assert quiet.evidence == ()
     world.apply((Clear(quiet.warning_id, ClearReason.CONDITION_FALSE),))
     again = world.feed(inp)
-    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"  # type: ignore[union-attr]
+    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"
 
 
 def test_a_replay_quiet_warning_clears_only_on_a_receive_reference_after_the_raise(world: h.World) -> None:
@@ -250,7 +251,7 @@ def test_a_person_scope_event_keys_by_person_and_refuses_a_foreign_origin(
     assert all(x.person_id == x.scope_key for x in w.warnings.values())
     assert w.feed(w.event("evt_none", "space_weather_alert", at(1))) == ()  # names nobody: nothing to key
     sim = w.feed(w.event("evt_sim", "space_weather_alert", at(2), origin=OriginMode.SIM, persons=("p3",)))
-    assert [type(s) for s in sim] == [Refuse] and sim[0].code == "origin_mismatch"  # type: ignore[union-attr]
+    assert [type(s) for s in sim] == [Refuse] and sim[0].code == "origin_mismatch"
     w.now = at(30)
     w.feed(w.event("evt_c", "space_weather_all_clear", at(30), persons=("p1",)))
     assert [x.scope_key for x in w.warnings.values() if x.active] == [
@@ -288,7 +289,7 @@ def test_a_state_fact_on_a_crew_scope_and_an_unscoped_person_fact(make_world: Ca
     spent = w.feed(
         StateFactInput("local_water_untested", True, "mars_surface", h.T0, "evt_1", OriginMode.LIVE)
     )
-    assert [type(s) for s in spent] == [Refuse] and spent[0].code == "trigger_spent"  # type: ignore[union-attr]
+    assert [type(s) for s in spent] == [Refuse] and spent[0].code == "trigger_spent"
     person = scratch(
         make_world,
         edit_definition("local_water_untested", scope="person"),
@@ -329,7 +330,7 @@ def test_an_answer_for_another_question_or_presence_raises_nothing(
     declined = AnswerInput("a2", "p1", "dizzy_standing", "declined", h.T0, h.T0, OriginMode.LIVE, "d", "t")
     assert w.feed(other) == () and w.feed(declined) == ()
     named = replace(w.answer_events[0], person_ids=("p9",))  # an event naming someone else does not count
-    w.answer_events = (named,)  # type: ignore[assignment]
+    w.answer_events = (named,)
     assert (
         w.feed(AnswerInput("a3", "p1", "dizzy_standing", "present", h.T0, h.T0, OriginMode.LIVE, "d", "t"))
         == ()
@@ -356,7 +357,7 @@ def test_ground_silence_spent_trigger_and_an_unreadable_pinned_contact_never_cle
     w.warnings[g.warning_id] = g
     w.apply((Clear(g.warning_id, ClearReason.CONDITION_FALSE),))
     again = w.feed(link)
-    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"  # type: ignore[union-attr]
+    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"
 
 
 def test_ground_silence_without_a_contact_time_schedules_nothing(make_world: Callable[..., h.World]) -> None:
@@ -388,7 +389,7 @@ def test_supply_quantities_and_the_release_trigger_when_no_use_is_named(
     assert "12.5 g" in s.what and "2 g" in s.what
     w.apply((Clear(s.warning_id, ClearReason.CONDITION_FALSE),))
     again = w.feed(SupplyCoverInput("station_leo", "release", None, at(2), OriginMode.LIVE, (row,)))
-    assert [type(x) for x in again] == [Refuse] and again[0].code == "trigger_spent"  # type: ignore[union-attr]
+    assert [type(x) for x in again] == [Refuse] and again[0].code == "trigger_spent"
     unrelated = SupplyCoverRow("zz", "x", 9, "p", 1, "r", (), None, None, None, None)
     assert w.feed(SupplyCoverInput("station_leo", "use", "u", at(3), OriginMode.LIVE, (unrelated,))) == ()
 
@@ -413,12 +414,12 @@ def test_insight_edges_unlisted_definition_policy_level_and_spent_trigger() -> N
     rejected = w.feed(
         InsightInput(h.insight_draft(level=Level.INFO), ((h.OBS_KEY, h.good_record()),), narrow)
     )
-    assert rejected[0].codes == ("level_not_allowed",)  # type: ignore[union-attr]
+    assert rejected[0].codes == ("level_not_allowed",)
     w.feed(h.insight_input())
     (first,) = w.by_definition("assistant_pattern")
     w.apply((Clear(first.warning_id, ClearReason.EXPIRED),))
     again = w.feed(h.insight_input())
-    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"  # type: ignore[union-attr]
+    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"
 
 
 # --- entity invariants and transitions ---------------------------------------------------------------
@@ -445,7 +446,7 @@ def test_every_inconsistent_warning_value_is_refused(world: h.World) -> None:
     ]
     for error, change in bad:
         with pytest.raises(error):
-            replace(w, **change)  # type: ignore[arg-type]
+            replace(w, **change)
     with pytest.raises(InvariantViolation):
         replace(ack, acknowledgements=())  # acknowledged needs an acknowledgement
     with pytest.raises(ActionNotAllowed):  # an assistant warning is never resolved
@@ -601,10 +602,6 @@ def test_inputs_reject_invalid_values_with_a_typed_error(world: h.World) -> None
         LimitResult("l", True, False, None, Decimal("1.5"), None, facts)
     with pytest.raises(InvalidInput):
         replace(world.sensor(results=[]), stale_after_seconds=0)
-    with pytest.raises(InvalidInput):
-        world.freshness_input("stale", since=None).__class__(
-            "r", "c", "t", "stale", None, None, OriginMode.LIVE, None, None, h.channel_facts()
-        )
     unknown = h.observed(h.T0, state="unknown")
     assert unknown.axis() is None and unknown.interval() is None
     assert unknown.display_at() == h.T0
@@ -624,7 +621,7 @@ def test_level_comparison_with_a_foreign_value_is_not_implemented() -> None:
 
 
 def base_raw() -> dict[str, object]:
-    return copy.deepcopy(next(d for d in h.deployment_rules()["definitions"] if d["id"] == "co2_above_limit"))  # type: ignore[attr-defined,no-any-return]
+    return copy.deepcopy(next(d for d in h.deployment_rules()["definitions"] if d["id"] == "co2_above_limit"))
 
 
 @pytest.mark.parametrize(
@@ -696,14 +693,15 @@ def test_parse_definition_rejects_malformed_conditions_and_scopes(
 def test_parse_rules_document_rejects_empty_duplicate_and_non_object_documents() -> None:
     good = copy.deepcopy(h.deployment_rules())
     empty = {**good, "definitions": []}
-    duplicate = {**good, "definitions": [good["definitions"][0], good["definitions"][0]]}  # type: ignore[index]
-    for bad in (
+    duplicate = {**good, "definitions": [good["definitions"][0], good["definitions"][0]]}
+    bad_documents: tuple[object, ...] = (
         empty,
         duplicate,
         [],
         {**good, "headline": {"max_fragments": 0, "separator": ",", "none_text": "x"}},
         {**good, "headline": {"max_fragments": 1, "separator": 3, "none_text": "x"}},
-    ):
+    )
+    for bad in bad_documents:
         with pytest.raises(DefinitionInvalid):
             parse_rules_document(bad)
 

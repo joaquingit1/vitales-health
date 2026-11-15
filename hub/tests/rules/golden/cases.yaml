@@ -5,12 +5,18 @@
 # mismatch between a case and the configured release is a finding to report; this file is never edited to
 # make a test pass. Passing proves numerical verification only, never clinical approval.
 #
-# Review state: written by the E24 domain coder. The second-person check against the sources that
-# AGENTS.md 1 requires is NOT yet done (`checked_by: null`); the run reports it as pending.
-checked_by: null
+# Review state: written by the E24 domain coder; checked case by case against the cited source text (not the
+# configuration) by a second reviewer, the E24 safety-core builder run of 2026-11-15 started by joaquingit1. Each
+# case's `check` records what was read and the outcome: `agrees`, `agrees_with_assumption` (the assumption is
+# stated), `corrected` (the case was wrong against its source and was fixed here, never the code to match it) or
+# `needs_decision` (the source is silent; the case keeps the fail safe reading and the build report raises it).
+# No case cites a NASA catalog ID: these quote the product package and the coordinator decisions, which carry
+# their NASA provenance themselves (the CO2 and oxygen limits cite EV01 in config/sensor-limits.json).
+checked_by: "E24 safety-core builder run, 2026-11-15 (started by joaquingit1); not the author"
 cases:
   - id: G-HEADLINE-STATION
     kind: headline
+    check: "agrees: CONTRACTS.md lines 788 to 796 and 1124; list-station.json ranks 10 and 20, neither solo, separator ', '"
     source:
       document: docs/product/CONTRACTS.md
       section: "14 Headline"
@@ -20,6 +26,7 @@ cases:
 
   - id: G-HEADLINE-TRANSIT
     kind: headline
+    check: "agrees: one solo item of rank 1; D2 changes the storm level, not its fragment"
     source:
       document: docs/product/CONTRACTS.md
       section: "14 Headline"
@@ -29,6 +36,7 @@ cases:
 
   - id: G-HEADLINE-LUNAR
     kind: headline
+    check: "agrees: one item, not solo"
     source:
       document: docs/product/CONTRACTS.md
       section: "14 Headline"
@@ -38,6 +46,7 @@ cases:
 
   - id: G-HEADLINE-MARS
     kind: headline
+    check: "agrees: rank 5 solo wins over rank 30"
     source:
       document: docs/product/CONTRACTS.md
       section: "14 Headline"
@@ -47,6 +56,7 @@ cases:
 
   - id: G-STORM-EMERGENCY
     kind: storm_level
+    check: "agrees: USE-CASES.md line 144, confirmed by D2 and its A3 line for warning-rules.example.json:594 (the example file still says act; D2 overrides it)"
     source:
       document: docs/product/USE-CASES.md
       section: "UC05 step 1"
@@ -55,6 +65,7 @@ cases:
 
   - id: G-SENSOR-CLEAR-DWELL-600
     kind: dwell
+    check: "agrees_with_assumption: CONTRACTS.md line 706; 600 s is the co2_1h_act clear dwell (sensor-limits.example.json, team default). The hold starts at the first safe reading after the raise (D3: only readings observed after the raise count) and clears when 660 minus 60 reaches 600, at evaluation 11; a hold counted from the raise itself would clear at 10, so the case takes the later, fail safe reading"
     source:
       document: docs/product/CONTRACTS.md
       section: "13 Raising and clearing sensor warnings"
@@ -66,24 +77,27 @@ cases:
 
   - id: G-SENSOR-CLEAR-ONE-SHORT
     kind: dwell
+    check: "corrected: the quote was 'Stale data never clears a warning.', unrelated to a case where every reading is current; it now quotes the dwell sentence (line 706). Arithmetic: 600 minus 60 is 540 s held, below 600, so no clear"
     source:
       document: docs/product/CONTRACTS.md
       section: "13 Raising and clearing sensor warnings"
-      quote: "Stale data never clears a warning."
+      quote: "must hold continuously for `dwell_seconds` of `observed_at` time"
     input: {limit: co2_1h_act, step_seconds: 60, evaluations: 10}
     expected: {cleared_at_evaluation: null, clear_reason: null}
 
   - id: G-ESCALATION-HIGHEST-ONLY
     kind: escalation
+    check: "corrected: CONTRACTS.md lines 704 and 705 do not say which records a simultaneous crossing of watch, act and emergency writes (read literally, all three raise and the two lower ones are superseded at once); 'raise only the highest' was E24.md 3.7 step 5, the design under test. The case now asserts only what the source fixes: afterwards the emergency is the one active warning of the group and no lower warning is active. The record trail difference is raised in the build report"
     source:
       document: docs/product/CONTRACTS.md
       section: "13 Raising and clearing sensor warnings"
       quote: "active lower-level warnings for that sensor type and channel clear with `clear_reason` `superseded`"
     input: {crossed: [o2_low_watch, o2_low_act, o2_low_emergency]}
-    expected: {raised: [oxygen_low_emergency], superseded: []}
+    expected: {active_after: [oxygen_low_emergency]}
 
   - id: G-ESCALATION-EQUAL-LEVELS
     kind: escalation
+    check: "agrees: lines 704 and 705 supersede only a higher level; o2_low_act (twa_1h) and o2_high_act (latest) can cross together"
     source:
       document: docs/product/CONTRACTS.md
       section: "13 Raising and clearing sensor warnings"
@@ -93,6 +107,7 @@ cases:
 
   - id: G-ESCALATION-SUPERSEDES-LOWER
     kind: escalation
+    check: "agrees: line 704 (the active watch is not raised again) and line 705 (it is superseded)"
     source:
       document: docs/product/CONTRACTS.md
       section: "13 Raising and clearing sensor warnings"
@@ -102,16 +117,18 @@ cases:
 
   - id: G-OCCURRENCES-WORKED
     kind: occurrences
+    check: "corrected: the case cited docs/tdd/E24.md 3.9, the design of the code under test, not an independent source. CONTRACTS.md line 754 alone would clear on any clear event; the binding rule is AGENTS.md section 6 Time (line 263) and the task's non-negotiable: a delayed event never clears a newer state. The 10:10 all-clear delivered after the 10:20 alert is such a delayed event, so W stays; the 10:30 all-clear clears it. Expected values unchanged"
     source:
-      document: docs/tdd/E24.md
-      section: "3.9 worked sequence"
-      quote: "alert A at 10:00 raises W; alert B at 10:20 attaches; all-clear C that occurred at 10:10"
+      document: AGENTS.md
+      section: "6 Time"
+      quote: "A delayed, duplicated or replayed event never clears or overwrites a newer state."
     # Minutes after 10:00. Order of delivery: alert 0, alert 20, all-clear 10, all-clear 30.
     input: {delivery: [[alert, 0], [alert, 20], [clear, 10], [clear, 30]]}
     expected: {active_after: [true, true, true, false]}
 
   - id: G-Q9-NOBODY-AWAKE
     kind: act_routing
+    check: "needs_decision: Q9 and its A3 line for PRD.md:278 ('wake the sleeper only after configured unacknowledged interval') do not cover a crew with nobody awake. Read literally, the sleeper would wait the full 300 s for an acknowledgement nobody can give. The case keeps the fail safe reading (wake at once, matching hold.py) and the build report asks the coordinator"
     source:
       document: docs/requests/COORDINATOR-DECISIONS.md
       section: "Q9"
@@ -121,6 +138,7 @@ cases:
 
   - id: G-Q9-WAIT-FOR-ACK
     kind: act_routing
+    check: "agrees: 300 minus 10 elapsed is 290 s; may_receive is an input the decision does not mention"
     source:
       document: docs/requests/COORDINATOR-DECISIONS.md
       section: "Q9"
@@ -130,6 +148,7 @@ cases:
 
   - id: G-Q9-ACKNOWLEDGED
     kind: act_routing
+    check: "agrees_with_assumption: no wake holds only if p1 acknowledged within the 300 s; the input does not carry the acknowledgement time, so the case assumes it did"
     source:
       document: docs/requests/COORDINATOR-DECISIONS.md
       section: "Q9"
@@ -139,6 +158,7 @@ cases:
 
   - id: G-D3-ONLY-AFTER-RAISE
     kind: evidence_after_raise
+    check: "agrees_with_assumption: D3 line 17; 'after' is strict, so [0, 0] is false; [1, 5] is true only with a stale bound of at least 4 s (the test channel uses 300 s); [200, 100] is an observation dated after the hub time, outside the window (E24.md 3.6 item 2)"
     source:
       document: docs/requests/COORDINATOR-DECISIONS.md
       section: "D3"

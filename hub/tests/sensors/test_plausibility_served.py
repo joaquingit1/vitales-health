@@ -258,16 +258,6 @@ def test_a_disconnect_goes_stale_keeps_the_warning_and_the_next_reading_is_reass
     assert (quality, trace) == ("accepted", None)  # 2 mmHg over two hours is well inside the sourced rate
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Finding for E24: a reading observed before the active environment's activation is never current "
-        "(DE23-13), so the channel turns stale with stale_since null (sensors/application/queries.py decide_now, "
-        "reason no_time_reference; sensor-status.schema.json allows null). rules/domain/inputs.py FreshnessInput "
-        "raises InvalidInput on that inside the ingest unit of work, so the whole batch answers 500 INTERNAL_ERROR "
-        "instead of keeping the reading. Passes with E24 absent."
-    ),
-)
 def test_a_reading_from_before_activation_is_kept_and_the_batch_still_succeeds_with_warnings_composed(
     with_rules: None, tmp_path: Path
 ) -> None:

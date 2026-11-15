@@ -6,8 +6,10 @@ T-E24-001, 002, 004, 005, 008, 009, 021, 022 and the immutability half of 006; I
 from __future__ import annotations
 
 import copy
+from collections.abc import Callable
 from dataclasses import fields, replace
 from datetime import timedelta
+from typing import cast
 
 import pytest
 import rules_harness as h
@@ -62,7 +64,7 @@ def co2_warning(world: h.World) -> Warning:
     world.feed(world.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]))
     assert limit.level is Level.ACT
     (w,) = world.by_definition("co2_above_limit")
-    return w
+    return cast(Warning, w)
 
 
 @pytest.mark.trace("T-E24-001")
@@ -90,7 +92,7 @@ def test_t001_a_warning_without_steps_or_citation_cannot_exist(world: h.World) -
 @pytest.mark.trace("T-E24-002")
 def test_t002_an_assistant_definition_at_act_fails_construction(example_doc: RulesDocument) -> None:
     raw = copy.deepcopy(h.example_value("warning-rules"))
-    for d in raw["definitions"]:  # type: ignore[attr-defined]
+    for d in raw["definitions"]:
         if d["id"] == "assistant_pattern":
             d["level"] = "act"
     with pytest.raises(DefinitionInvalid):
@@ -120,7 +122,7 @@ def test_t004_no_transition_accepts_an_assistant_actor(world: h.World) -> None:
     with pytest.raises(ActionNotAllowed):
         dismiss(w, bot, at, None)
     with pytest.raises(ActionNotAllowed):
-        clear(w, bot, ClearReason.CONDITION_FALSE, at)  # type: ignore[arg-type]
+        clear(w, bot, ClearReason.CONDITION_FALSE, at)
 
 
 @pytest.mark.trace("T-E24-004", "T-E24-005", "INV-E24-03")
@@ -137,7 +139,7 @@ def test_clear_needs_the_origin_nodes_engine_actor(world: h.World) -> None:
     w = co2_warning(world)
     for actor in (PersonActor("p1"), SessionActor("operator", "op1")):
         with pytest.raises(ActionNotAllowed):
-            clear(w, actor, ClearReason.CONDITION_FALSE, h.T0)  # type: ignore[arg-type]
+            clear(w, actor, ClearReason.CONDITION_FALSE, h.T0)
     with pytest.raises(OriginMismatch):
         engine_actor("node_b", origin_node_id=w.origin_node_id)
     with pytest.raises(ActionNotAllowed):
@@ -169,13 +171,14 @@ def test_t009_final_states_reject_every_action(world: h.World) -> None:
     assert cleared.state is WarningState.CLEARED and cleared.clear_reason is ClearReason.CONDITION_FALSE
     person = PersonActor("p1")
     at = h.T0 + timedelta(minutes=21)
-    for call in (
+    calls: tuple[Callable[[], object], ...] = (
         lambda: acknowledge(cleared, person, at),
         lambda: add_note(cleared, person, at, "x", max_notes=5),
         lambda: resolve(cleared, person, at, "why", role=None),
         lambda: clear(cleared, engine, ClearReason.SUPERSEDED, at),
         lambda: attach_overrides(cleared, ("ovr_1",)),
-    ):
+    )
+    for call in calls:
         with pytest.raises(InvalidTransition):
             call()
 

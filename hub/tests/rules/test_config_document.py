@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import copy
 import json
+from typing import Any
 
 import pytest
 import rules_harness as h
@@ -36,10 +37,10 @@ EXPECTED_DIFFERENCES = {
 }
 
 
-def _differences(a: dict[str, object], b: dict[str, object]) -> set[tuple[str, str]]:
+def _differences(a: dict[str, Any], b: dict[str, Any]) -> set[tuple[str, str]]:
     out: set[tuple[str, str]] = set()
-    assert [d["id"] for d in a["definitions"]] == [d["id"] for d in b["definitions"]]  # type: ignore[attr-defined,index]
-    for da, db in zip(a["definitions"], b["definitions"], strict=True):  # type: ignore[arg-type]
+    assert [d["id"] for d in a["definitions"]] == [d["id"] for d in b["definitions"]]
+    for da, db in zip(a["definitions"], b["definitions"], strict=True):
         for key in da:
             if isinstance(da[key], dict):
                 for sub in da[key]:
@@ -97,7 +98,7 @@ def test_null_thresholds_stay_null(deployment_doc: RulesDocument) -> None:
 
 def test_every_definition_round_trips(deployment_doc: RulesDocument) -> None:
     raw = h.deployment_rules()
-    assert [definition_to_raw(d) for d in deployment_doc.definitions] == raw["definitions"]  # type: ignore[index]
+    assert [definition_to_raw(d) for d in deployment_doc.definitions] == raw["definitions"]
 
 
 # --- T-E24-090 to 092: a configuration edit changes content with no code change ---------------------
@@ -115,7 +116,7 @@ def test_t090_a_threshold_edit_changes_the_rule_fingerprint(
 ) -> None:
     """Scratch copy edit of a sourced limit value (D15): the fingerprint of the definition moves."""
     limits = copy.deepcopy(dict(release_docs.sensor_limits))
-    for entry in limits["limits"]:  # type: ignore[attr-defined,index]
+    for entry in limits["limits"]:  # type: ignore[attr-defined]
         if entry["limit_id"] == "co2_1h_act":
             entry["value"] = 4
     edited = ReleaseDocuments(
@@ -168,7 +169,7 @@ def test_t092_the_environment_switch_changes_the_evaluated_definitions(deploymen
 def test_no_definition_changes_a_safety_mapping_when_content_is_edited(deployment_doc: RulesDocument) -> None:
     """A content-only edit never touches level, raiser or kind (AGENTS.md 1)."""
     raw = copy.deepcopy(h.deployment_rules())
-    for d in raw["definitions"]:  # type: ignore[attr-defined]
+    for d in raw["definitions"]:
         d["content"]["title"] = d["content"]["title"] + " edited"
     edited = parse_rules_document(raw)
     assert [(d.id, d.level, d.raised_by, d.condition.kind) for d in edited.definitions] == [

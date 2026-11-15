@@ -20,7 +20,7 @@ pytestmark = [pytest.mark.E24, pytest.mark.trace("R43", "INV-E24-12", "INV-E24-1
 
 
 def context() -> dict[str, Any]:
-    limits = {e["limit_id"]: e for e in h.example_value("sensor-limits")["limits"]}  # type: ignore[attr-defined]
+    limits = {e["limit_id"]: e for e in h.example_value("sensor-limits")["limits"]}
     return {
         "max_definitions": 500,
         "limits": limits,
@@ -36,7 +36,7 @@ def run(raw: object, **override: Any) -> tuple[str, ...]:
 
 
 def edit(mutate: Callable[[dict[str, Any]], None]) -> dict[str, Any]:
-    raw = copy.deepcopy(h.deployment_rules())
+    raw: dict[str, Any] = copy.deepcopy(h.deployment_rules())
     mutate(raw)
     return raw
 

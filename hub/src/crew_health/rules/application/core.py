@@ -20,12 +20,12 @@ from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.scheduler import AbsoluteDeadline, HealthState, ScheduledJob
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.uow import ReadSnapshot, ReplicationChange, UnitOfWork
-from crew_health.mission.application.ports import MissionStatePort
+from crew_health.mission.application.ports import DayLabelPort, MissionStatePort
 from crew_health.rules.application import facts as release_facts
 from crew_health.rules.application import input_codec
 from crew_health.rules.application.codec import dumps as warning_json
 from crew_health.rules.application.facts import ReleaseFacts
-from crew_health.rules.application.ports import WarningCleared, WarningRaised
+from crew_health.rules.application.ports import RecordFactsPort, WarningCleared, WarningRaised
 from crew_health.rules.application.stores import (
     ActionResultStore,
     DeadlineStore,
@@ -101,6 +101,8 @@ class Runtime:
     mission: MissionStatePort | None
     binding: ConfigBinding | None
     health: HealthState | None
+    record_facts: RecordFactsPort | None = None
+    day_labels: DayLabelPort | None = None
     warnings: WarningStore = field(default_factory=WarningStore)
     occurrences: OccurrenceStore = field(default_factory=OccurrenceStore)
     dwell: DwellStore = field(default_factory=DwellStore)
@@ -141,6 +143,15 @@ class Runtime:
         if current is None or not current.site_node_id:
             raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, "rules_node_unknown", retryable=True)
         return current.site_node_id
+
+    def day_label(self, instant: datetime) -> str | None:
+        """The mission's short day label at an instant (`{day_short}`, `{answer_day_label}`); absent stays absent."""
+        if self.day_labels is None:
+            return None
+        try:
+            return self.day_labels.inline_label_at(instant) or None
+        except ProblemError:
+            return None
 
     def renderer(self, uow: UnitOfWork) -> TemplateRenderer:
         if self.binding is None:
@@ -250,7 +261,17 @@ def build_view(rt: Runtime, uow: UnitOfWork, facts: ReleaseFacts, inp: RuleInput
         ),
         clock_regressed=bool(regressed and regressed.get("on")),
         origin_words=facts.origin_words,
+        duration_words=facts.duration_words,
+        context_placeholders=_context(rt, uow, inp),
     )
+
+
+def _context(rt: Runtime, uow: UnitOfWork, inp: RuleInput) -> dict[str, str]:
+    """Placeholders about "today" that only an answer's warning words use; looked up for no other input."""
+    if not isinstance(inp, AnswerInput):
+        return {}
+    today = rt.day_label(uow.now)
+    return {} if today is None else {"day_short": today}
 
 
 _FIELDS = {
@@ -351,6 +372,20 @@ def apply_clear(rt: Runtime, uow: UnitOfWork, step: Clear) -> None:
     uow.publish(WarningCleared(fact_of(done)))
 
 
+def commit_final(rt: Runtime, uow: UnitOfWork, before: Warning, done: Warning) -> None:
+    """A warning that a person ended (resolve, dismiss): the one writer of the final transition, so the action
+    endpoint and the insight dismissal leave the same records (update, replication, deadline, outbox, audit, bus)."""
+    c = uow.connection
+    if not rt.warnings.update(c, done, expected_revision=before.revision):
+        raise ProblemError(ErrorCode.STALE_VERSION, ErrorCode.STALE_VERSION.value)
+    replicate_local(uow, done.warning_id, "version")
+    rt.dwell.delete(c, done.warning_id)
+    cancel(rt, uow, EXPIRE_PREFIX + done.warning_id)
+    emit(uow, EventType.WARNING_CLEARED, done)
+    note_audit(rt, uow, "warning.updated", {"warning": done.warning_id}, {})
+    uow.publish(WarningCleared(fact_of(done)))
+
+
 def schedule(
     rt: Runtime, uow: UnitOfWork, key: str, kind: str, due: datetime | None, elapsed: int | None
 ) -> None:
@@ -439,8 +474,8 @@ def scope_keys(scope: Scope, inp: MissionEventInput) -> list[str]:
     return [inp.location if inp.location else f"environment:{inp.environment_id}"]
 
 
-def apply_input(rt: Runtime, uow: UnitOfWork, inp: RuleInput) -> Decision:
-    facts = rt.facts(uow)
+def apply_input(rt: Runtime, uow: UnitOfWork, inp: RuleInput, facts: ReleaseFacts | None = None) -> Decision:
+    facts = rt.facts(uow) if facts is None else facts
     if isinstance(inp, MissionEventInput):
         rt.mission_events.add(uow.connection, inp)
     view = build_view(rt, uow, facts, inp)
@@ -514,8 +549,19 @@ def run_input(rt: Runtime, uow: UnitOfWork, inp: RuleInput) -> None:
 def recover_one(rt: Runtime, uow: UnitOfWork, pending_id: str, kind: str, text: str) -> None:
     """Re-run one recorded input as recorded; clears obey the dwell rules, so a backlog never clears (3.6)."""
     inp = input_codec.loads(kind, text)
-    apply_input(rt, uow, inp)
+    apply_input(rt, uow, inp, recorded_facts(rt, uow, inp))
     rt.pending.done(uow.connection, pending_id)
+
+
+def recorded_facts(rt: Runtime, uow: UnitOfWork, inp: RuleInput) -> ReleaseFacts:
+    """The facts of the release an input was evaluated under (D13: recovery re-evaluates under the original
+    release). An activation between the fault and the recovery never turns a recorded crossing into a stale one;
+    the active release's cache is left as it is."""
+    active = rt.facts(uow)
+    recorded = getattr(inp, "config_release_id", None)
+    if not isinstance(recorded, str) or recorded == active.release_id or rt.binding is None:
+        return active
+    return release_facts.build(rt.binding.bind(uow).release(recorded))
 
 
 def ids_of(items: Sequence[Warning]) -> list[str]:

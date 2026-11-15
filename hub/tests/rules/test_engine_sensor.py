@@ -5,6 +5,7 @@ T-E24-018 to 022, 024 to 029, 045, 046, 047, 049, 120 and the D1, D3, D14 regres
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import timedelta
 
 import pytest
@@ -15,6 +16,7 @@ from hypothesis import strategies as st
 from crew_health.rules.domain import clear_evidence
 from crew_health.rules.domain.decisions import Clear, Raise, Refuse
 from crew_health.rules.domain.definitions import RulesDocument
+from crew_health.rules.domain.errors import InvalidInput
 from crew_health.rules.domain.inputs import LimitRenderFacts
 from crew_health.rules.domain.vocabulary import ClearReason, Level, OriginMode, WarningState
 
@@ -30,7 +32,7 @@ def co2_raise(world: h.World) -> None:
 
 def holding(world: h.World, offset: int, *, limit: str = "co2_1h_act", **kw: object) -> None:
     world.now = h.T0 + timedelta(seconds=offset)
-    world.feed(world.sensor(results=[h.result(limit, **HOLDING)], **kw))  # type: ignore[arg-type]
+    world.feed(world.sensor(results=[h.result(limit, **HOLDING)], **kw))
 
 
 @pytest.mark.trace("T-E24-019")
@@ -86,14 +88,14 @@ def test_t018_a_lower_crossing_under_a_higher_active_warning_raises_nothing_then
     world: h.World,
 ) -> None:
     kw = {"sensor_type": "o2", "channel": "ch_o2"}
-    world.feed(world.sensor(results=[h.result("o2_low_emergency", **CROSSED)], **kw))  # type: ignore[arg-type]
+    world.feed(world.sensor(results=[h.result("o2_low_emergency", **CROSSED)], **kw))
     (top,) = world.by_definition("oxygen_low_emergency")
     world.advance(10)
     world.feed(
         world.sensor(
             results=[h.result("o2_low_act", **CROSSED), h.result("o2_low_emergency", **CROSSED)], **kw
         )
-    )  # type: ignore[arg-type]
+    )
     assert world.by_definition("oxygen_low_act") == []
     # The emergency clears by its own dwell while the act limit is still crossed: the lower one raises, linked.
     for offset in (70, 130, 190, 250, 310, 370, 430, 490, 550, 610, 670, 730):
@@ -101,7 +103,7 @@ def test_t018_a_lower_crossing_under_a_higher_active_warning_raises_nothing_then
         world.feed(
             world.sensor(
                 results=[h.result("o2_low_act", **CROSSED), h.result("o2_low_emergency", **HOLDING)],
-                **kw,  # type: ignore[arg-type]
+                **kw,
             )
         )
         if world.warnings[top.warning_id].state is WarningState.CLEARED:
@@ -121,6 +123,41 @@ def test_t024_a_stale_channel_raises_quiet_and_leaves_the_co2_warning_open(world
     (quiet,) = world.by_definition("sensor_quiet")
     assert quiet.level is Level.WATCH and quiet.channel_id == "ch_co2"
     assert world.dwell == {}
+
+
+@pytest.mark.trace("T-E24-024", "T-E24-120", "INV-E24-07")
+def test_a_stale_channel_with_no_known_instant_breaks_the_dwell_and_never_clears(world: h.World) -> None:
+    """E23 serves stale with stale_since null when it cannot place the instant (DE23-13). The input is accepted, so
+    the producer's ingest keeps the real reading (found by E23's served plausibility test, 84b6810); it resets the
+    dwell, clears nothing and raises no sensor_quiet, whose trigger is that instant."""
+    co2_raise(world)
+    (w,) = world.by_definition("co2_above_limit")
+    holding(world, 60)
+    assert w.warning_id in world.dwell
+    world.feed(world.freshness_input("stale", since=None))
+    assert world.dwell == {} and world.warnings[w.warning_id] == w
+    assert world.by_definition("sensor_quiet") == []
+
+
+@pytest.mark.trace("T-E24-072", "T-E24-122", "INV-E24-16")
+def test_evidence_without_an_origin_is_refused_with_a_typed_error_raising_and_clearing_nothing(
+    world: h.World,
+) -> None:
+    """Fail closed and loud (AGENTS 2, D13): the typed error is what the isolation boundary turns into a pending
+    evaluation and degraded health; the served half is test_fail_closed_served.py."""
+    co2_raise(world)
+    (w,) = world.by_definition("co2_above_limit")
+    holding = world.sensor(results=[h.result("co2_1h_act", crossed=False, clear_holds=True)])
+    for inp in (
+        replace(holding, origin_mode=None),
+        replace(world.freshness_input("current"), origin_mode=None),
+        replace(
+            world.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]), origin_mode=None
+        ),
+    ):
+        with pytest.raises(InvalidInput):
+            world.feed(inp)
+    assert world.warnings[w.warning_id] == w and len(world.warnings) == 1
 
 
 @pytest.mark.trace("T-E24-029", "INV-E24-14")
@@ -288,7 +325,7 @@ def test_replay_clears_on_data_time_but_only_replay_evidence_clears_a_replay_war
                 at=e,
                 origin=OriginMode.REPLAY,
                 receive_reference=world.now,
-                results=[h.result("co2_1h_act", **kw)],  # type: ignore[arg-type]
+                results=[h.result("co2_1h_act", **kw)],
                 reading=f"rdg_r_{offset}",
             )
         )
@@ -404,7 +441,7 @@ def test_a_pending_evaluation_freezes_every_clear_and_every_supersession_but_not
     world: h.World,
 ) -> None:
     kw = {"sensor_type": "o2", "channel": "ch_o2"}
-    world.feed(world.sensor(results=[h.result("o2_low_watch", **CROSSED)], **kw))  # type: ignore[arg-type]
+    world.feed(world.sensor(results=[h.result("o2_low_watch", **CROSSED)], **kw))
     (watch,) = world.by_definition("oxygen_low_watch")
     world.frozen = True
     world.advance(10)
@@ -412,7 +449,7 @@ def test_a_pending_evaluation_freezes_every_clear_and_every_supersession_but_not
         world.sensor(
             results=[h.result("o2_low_watch", **CROSSED), h.result("o2_low_emergency", **CROSSED)], **kw
         )
-    )  # type: ignore[arg-type]
+    )
     assert world.warnings[watch.warning_id].active  # not superseded while frozen
     assert world.by_definition("oxygen_low_emergency")  # raises continue
     for offset in range(100, 1500, 60):
@@ -421,7 +458,7 @@ def test_a_pending_evaluation_freezes_every_clear_and_every_supersession_but_not
             world.sensor(
                 results=[h.result("o2_low_watch", **HOLDING), h.result("o2_low_emergency", **HOLDING)], **kw
             )
-        )  # type: ignore[arg-type]
+        )
     assert all(w.active for w in world.warnings.values())
     assert world.dwell == {}
     world.frozen = False
@@ -430,14 +467,14 @@ def test_a_pending_evaluation_freezes_every_clear_and_every_supersession_but_not
         world.sensor(
             results=[h.result("o2_low_watch", **CROSSED), h.result("o2_low_emergency", **CROSSED)], **kw
         )
-    )  # type: ignore[arg-type]
+    )
     assert world.warnings[watch.warning_id].clear_reason is ClearReason.SUPERSEDED  # cleaned up once unfrozen
 
 
 def test_a_stale_release_input_raises_nothing_and_is_refused(world: h.World) -> None:
     decision = world.feed(world.sensor(release="rel_other", results=[h.result("co2_1h_act", **CROSSED)]))
     assert [type(s) for s in decision] == [Refuse]
-    assert decision[0].code == "stale_release"  # type: ignore[union-attr]
+    assert decision[0].code == "stale_release"
     assert not world.warnings
 
 
@@ -451,7 +488,7 @@ def test_two_identical_inputs_give_one_active_warning_and_a_spent_trigger_never_
     (w,) = world.by_definition("co2_above_limit")
     world.apply((Clear(w.warning_id, ClearReason.CONDITION_FALSE),))
     again = world.feed(inp)
-    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"  # type: ignore[union-attr]
+    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"
     assert not world.by_definition("co2_above_limit")
 
 
@@ -488,7 +525,7 @@ def test_t026_a_warning_never_clears_before_a_full_eligible_dwell(steps: list[tu
         world.now = h.T0 + timedelta(seconds=offset)
         e = world.now
         kwargs: dict[str, object] = {}
-        flags = HOLDING
+        flags: dict[str, bool | None] = dict(HOLDING)
         if kind == "false":
             flags = {"crossed": False, "clear_holds": False}
         elif kind == "none":
@@ -499,7 +536,7 @@ def test_t026_a_warning_never_clears_before_a_full_eligible_dwell(steps: list[tu
             kwargs["freshness"] = "stale"
         elif kind == "gap_future":
             kwargs["at"] = e + timedelta(seconds=30)
-        world.feed(world.sensor(results=[h.result("co2_1h_act", **flags)], **kwargs))  # type: ignore[arg-type]
+        world.feed(world.sensor(results=[h.result("co2_1h_act", **flags)], **kwargs))
         eligible = kind == "holding"
         if eligible:
             if last_eligible is None or offset - last_eligible > 300 or run_start is None:

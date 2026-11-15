@@ -1,8 +1,8 @@
 """E24 on a real station (real SQLite, E01 mechanisms, real mission and sensors modules, real HTTP).
 
 T-E24-023 CO2 raise end to end, 050 acknowledge, 054 headers, 056/124 durable replay, 072 evaluator fault, 106
-storage fault, 060/062 assistant guard, 051 privacy. The E23 plausibility gate is answered "passed" in the test only
-(R-E23-2: no sourced criteria exist), see e24_station.
+storage fault, 060/062 assistant guard, 051 privacy. Every reading passes E23's real sourced plausibility checks
+(R-E23-2), with nothing patched.
 """
 
 from __future__ import annotations
@@ -13,19 +13,20 @@ from typing import Any
 
 import e23_station as base
 import pytest
-from e24_station import build, patched, post, seconds  # noqa: F401
+from e24_station import build, post, seconds, wobble
 
 from crew_health.kernel.errors import StorageUnavailable
 from crew_health.kernel.scheduler import HealthState
-from crew_health.rules.application import core
 from crew_health.rules.application.ports import AssistantContext, AssistantWarningGuard
+from crew_health.rules.domain import engine
 
 pytestmark = pytest.mark.E24
 
 
 def _rows(st: base.Station, value: float, start: int, count: int) -> list[Any]:
     return [
-        base.reading("ch_co2", start + n, value, "mmHg", seconds(st, (count - n) * 5)) for n in range(count)
+        base.reading("ch_co2", start + n, value + wobble("co2", 5, n), "mmHg", seconds(st, (count - n) * 5))
+        for n in range(count)
     ]
 
 
@@ -63,7 +64,7 @@ def act(
 
 
 @pytest.mark.trace("T-E24-023")
-def test_limit_crossing_raises_one_act_warning_visible_to_crew(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_limit_crossing_raises_one_act_warning_visible_to_crew(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     items = st.client.get("/v1/warnings", headers=st.headers("crew_a")).json()["items"]
     by_definition = {i["definition_id"]: i for i in items}
@@ -83,7 +84,7 @@ def test_limit_crossing_raises_one_act_warning_visible_to_crew(patched: None, tm
     }  # habitat scope: every crew screen
 
 
-def test_more_readings_never_duplicate_the_active_warning(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_more_readings_never_duplicate_the_active_warning(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     st.advance(seconds=3600)
     feed(st, 4.0, 721)
@@ -92,7 +93,7 @@ def test_more_readings_never_duplicate_the_active_warning(patched: None, tmp_pat
 
 
 @pytest.mark.trace("T-E24-050", "T-E24-054", "T-E24-056", "T-E24-124")
-def test_acknowledge_headers_replay_and_conflicts(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_acknowledge_headers_replay_and_conflicts(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     wid = next(
         i["warning_id"]
@@ -120,7 +121,7 @@ def test_acknowledge_headers_replay_and_conflicts(patched: None, tmp_path: Path)
     assert late.json()["current_state"]["warning_id"] == wid
 
 
-def test_unknown_warning_is_not_found(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_unknown_warning_is_not_found(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path, send=False)
     assert st.client.get("/v1/warnings/wrn_none", headers=st.headers("crew_a")).status_code == 404
     assert act(st, "crew_a", "wrn_none", {"action": "acknowledge"}, "n1", '"1"').status_code == 404
@@ -128,7 +129,7 @@ def test_unknown_warning_is_not_found(patched: None, tmp_path: Path) -> None:  #
 
 @pytest.mark.trace("T-E24-072")
 def test_evaluator_fault_keeps_the_reading_and_freezes_clears(
-    patched: None,  # noqa: F811
+    patched: None,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -138,7 +139,7 @@ def test_evaluator_fault_keeps_the_reading_and_freezes_clears(
     def broken(*args: object, **kwargs: object) -> object:
         raise RuntimeError("injected evaluator fault")
 
-    monkeypatch.setattr(core.engine, "evaluate", broken)
+    monkeypatch.setattr(engine, "evaluate", broken)
     st.advance(seconds=3600)
     feed(st, 2.0, 721)  # every reading is accepted although the evaluator is down
     assert table(st, "SELECT count(*) FROM sensors_reading")[0][0] == 1440
@@ -150,7 +151,7 @@ def test_evaluator_fault_keeps_the_reading_and_freezes_clears(
 
 @pytest.mark.trace("T-E24-106", "T-E24-123")
 def test_storage_fault_commits_nothing_and_is_never_converted(
-    patched: None,  # noqa: F811
+    patched: None,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -159,7 +160,7 @@ def test_storage_fault_commits_nothing_and_is_never_converted(
     def full(*args: object, **kwargs: object) -> object:
         raise StorageUnavailable("disk_full")
 
-    monkeypatch.setattr(core.engine, "evaluate", full)
+    monkeypatch.setattr(engine, "evaluate", full)
     rows = _rows(st, 4.0, 1, 200)
     sent = post(st, rows, "f1")
     assert sent.status_code == 500 and sent.json()["retryable"] is True
@@ -168,16 +169,16 @@ def test_storage_fault_commits_nothing_and_is_never_converted(
 
 
 @pytest.mark.trace("T-E24-062", "T-E24-003")
-def test_the_assistant_cannot_raise_act_or_touch_a_warning(patched: None, tmp_path: Path) -> None:  # noqa: F811
+def test_the_assistant_cannot_raise_act_or_touch_a_warning(patched: None, tmp_path: Path) -> None:
     st = station(tmp_path)
     guard = st.resolver().require(AssistantWarningGuard)
     wid = table(st, "SELECT warning_id FROM rules_warning WHERE definition_id = 'co2_above_limit'")[0][0]
     ctx = AssistantContext("assistant_stub", "per_a")
     with st.begin() as uow:
-        assert guard.propose_level(uow, ctx, "act", "sleep_reaction").code == "LEVEL_NOT_ALLOWED"  # type: ignore[union-attr]
-        assert guard.propose_level(uow, ctx, "emergency", None).code == "LEVEL_NOT_ALLOWED"  # type: ignore[union-attr]
+        assert guard.propose_level(uow, ctx, "act", "sleep_reaction").code == "LEVEL_NOT_ALLOWED"
+        assert guard.propose_level(uow, ctx, "emergency", None).code == "LEVEL_NOT_ALLOWED"
         assert guard.propose_action(uow, ctx, wid, "clear").code == "ACTION_NOT_ALLOWED"
-        assert guard.propose_level(uow, ctx, "watch", "sleep_reaction").level == "watch"  # type: ignore[union-attr]
+        assert guard.propose_level(uow, ctx, "watch", "sleep_reaction").level == "watch"
     assert table(st, f"SELECT revision, state FROM rules_warning WHERE warning_id = '{wid}'") == [
         (1, "raised")
     ]

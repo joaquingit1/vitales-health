@@ -27,7 +27,7 @@ HOLDING = {"crossed": False, "clear_holds": True}
 
 def edited_rules(definition_id: str, **changes: object) -> object:
     raw = copy.deepcopy(h.deployment_rules())
-    for d in raw["definitions"]:  # type: ignore[attr-defined]
+    for d in raw["definitions"]:
         if d["id"] == definition_id:
             d.update(changes)
     return parse_rules_document(raw)
@@ -35,7 +35,7 @@ def edited_rules(definition_id: str, **changes: object) -> object:
 
 def content_edited() -> object:
     raw = copy.deepcopy(h.deployment_rules())
-    for d in raw["definitions"]:  # type: ignore[attr-defined]
+    for d in raw["definitions"]:
         d["content"]["title"] += " (edited)"
         d["content"]["why"] += " Edited."
     return parse_rules_document(raw)
@@ -47,7 +47,7 @@ def test_t013_a_content_edit_while_acknowledged_changes_nothing_of_the_warning(w
     (w,) = world.by_definition("co2_above_limit")
     acked = acknowledge(w, PersonActor("p1"), h.T0)
     world.warnings[w.warning_id] = acked
-    world.reload(content_edited())  # type: ignore[arg-type]
+    world.reload(content_edited())
     decision = world.feed(ActivationInput("release", "rel_a", "rel_b", "station_leo"))
     assert decision == ()
     kept = world.warnings[w.warning_id]
@@ -63,7 +63,7 @@ def test_t016_activation_and_environment_change_never_clear_lower_or_repin_an_ac
     (w,) = world.by_definition("co2_above_limit")
     before = dict(world.warnings)
     gone = copy.deepcopy(h.deployment_rules())
-    gone["definitions"] = [d for d in gone["definitions"] if d["id"] != "co2_above_limit"]  # type: ignore[attr-defined,index]
+    gone["definitions"] = [d for d in gone["definitions"] if d["id"] != "co2_above_limit"]
     for new_doc, env in (
         (parse_rules_document(gone), EnvironmentId.STATION_LEO),
         (parse_rules_document(h.deployment_rules()), EnvironmentId.LUNAR_SURFACE),
@@ -71,7 +71,7 @@ def test_t016_activation_and_environment_change_never_clear_lower_or_repin_an_ac
         world.reload(new_doc)
         world.environment = env
         for kind in ("release", "environment"):
-            assert world.feed(ActivationInput(kind, "rel_a", "rel_b", env.value)) == ()  # type: ignore[arg-type]
+            assert world.feed(ActivationInput(kind, "rel_a", "rel_b", env.value)) == ()
     assert world.warnings == before and world.warnings[w.warning_id].pin.definition.level is Level.ACT
     assert world.warnings[w.warning_id].config_release_id == "rel_a"
 
@@ -82,7 +82,7 @@ def test_t017_a_level_raised_by_a_release_supersedes_the_old_warning_when_the_co
 ) -> None:
     world.feed(world.sensor(results=[h.result("co2_1h_act", **CROSSED)]))
     (old,) = world.by_definition("co2_above_limit")
-    world.reload(edited_rules("co2_above_limit", level="emergency"))  # type: ignore[arg-type]
+    world.reload(edited_rules("co2_above_limit", level="emergency"))
     world.advance(10)
     world.feed(world.sensor(release="rel_b", results=[h.result("co2_1h_act", **CROSSED)], reading="rdg_new"))
     (new,) = world.by_definition("co2_above_limit")
@@ -101,7 +101,7 @@ def test_t017_a_level_lowered_by_a_release_keeps_the_old_until_it_clears_by_its_
 ) -> None:
     world.feed(world.sensor(results=[h.result("co2_1h_act", **CROSSED)]))
     (old,) = world.by_definition("co2_above_limit")
-    world.reload(edited_rules("co2_above_limit", level="watch"))  # type: ignore[arg-type]
+    world.reload(edited_rules("co2_above_limit", level="watch"))
     world.advance(10)
     assert (
         world.feed(
@@ -110,7 +110,7 @@ def test_t017_a_level_lowered_by_a_release_keeps_the_old_until_it_clears_by_its_
         == ()
     )
     assert world.warnings[old.warning_id].level is Level.ACT and world.warnings[old.warning_id].active
-    fingerprint = old.pin.limit.limit_fingerprint  # type: ignore[union-attr]
+    fingerprint = old.pin.limit.limit_fingerprint
     for offset in range(70, 740, 60):  # the pinned dwell, on results evaluated under the pinned limit
         world.now = h.T0 + timedelta(seconds=offset)
         world.feed(
@@ -143,7 +143,7 @@ def test_a_threshold_edit_leaves_the_pinned_dwell_and_never_clears_on_the_new_th
     pinned = w.pin.limit
     assert pinned is not None
     limits = copy.deepcopy(dict(release_docs.sensor_limits))
-    for entry in limits["limits"]:  # type: ignore[attr-defined,index]
+    for entry in limits["limits"]:  # type: ignore[attr-defined]
         if entry["limit_id"] == "co2_1h_act":
             entry["value"] = 4
             entry["clear"]["value"] = 4
@@ -175,7 +175,7 @@ def test_t038_a_superseded_warning_leaves_its_trigger_reusable_and_a_resolved_on
     world: h.World,
 ) -> None:
     kw = {"sensor_type": "o2", "channel": "ch_o2"}
-    world.feed(world.sensor(results=[h.result("o2_low_watch", **CROSSED)], reading="rdg_a", **kw))  # type: ignore[arg-type]
+    world.feed(world.sensor(results=[h.result("o2_low_watch", **CROSSED)], reading="rdg_a", **kw))
     (watch,) = world.by_definition("oxygen_low_watch")
     world.advance(5)
     world.feed(
@@ -184,13 +184,13 @@ def test_t038_a_superseded_warning_leaves_its_trigger_reusable_and_a_resolved_on
             reading="rdg_b",
             **kw,
         )
-    )  # type: ignore[arg-type]
+    )
     assert world.warnings[watch.warning_id].clear_reason is ClearReason.SUPERSEDED
     assert (watch.definition_id, watch.scope_key, watch.trigger) not in world.spent
     (top,) = world.by_definition("oxygen_low_emergency")
     world.finish(top.warning_id, WarningState.RESOLVED)
     assert (top.definition_id, top.scope_key, top.trigger) in world.spent
-    again = world.feed(world.sensor(results=[h.result("o2_low_emergency", **CROSSED)], reading="rdg_b", **kw))  # type: ignore[arg-type]
+    again = world.feed(world.sensor(results=[h.result("o2_low_emergency", **CROSSED)], reading="rdg_b", **kw))
     assert [type(s) for s in again] == [Refuse]
 
 
@@ -203,7 +203,7 @@ def test_t034_the_link_state_changes_nothing_but_ground_silence(world: h.World) 
         world.advance(60)
         decision = world.feed(
             GroundLinkInput(status, h.T0 - timedelta(hours=1), "adapter", "station_leo", False, world.now)
-        )  # type: ignore[arg-type]
+        )
         assert not any(isinstance(s, Clear) for s in decision)
     assert world.warnings == before  # the shipped threshold is null: the link raises and clears nothing
 
@@ -221,7 +221,7 @@ def test_t087_stored_words_and_time_labels_are_never_rewritten_by_any_transition
     assert stable
     for name in stable:
         assert getattr(acked, name) == getattr(w, name)
-    world.reload(content_edited())  # type: ignore[arg-type]
+    world.reload(content_edited())
     world.feed(ActivationInput("release", "rel_a", "rel_b", "station_leo"))
     for name in stable:
         assert getattr(world.warnings[w.warning_id], name) == getattr(w, name)

@@ -46,6 +46,7 @@ from crew_health.rules.domain.definitions import (
     WarningDefinition,
     WithinDays,
 )
+from crew_health.rules.domain.errors import InvalidInput
 from crew_health.rules.domain.inputs import (
     ActivationInput,
     AnswerInput,
@@ -87,9 +88,26 @@ from crew_health.rules.domain.warning import (
     Warning,
 )
 
+_PLACED = (
+    SensorEvaluatedInput,
+    FreshnessInput,
+    MissionEventInput,
+    StateFactInput,
+    AnswerInput,
+    SupplyCoverInput,
+)
+
+
+def _require_origin(inp: RuleInput) -> None:
+    """Evidence the engine cannot place by origin (LIVE, REPLAY, SIM) is refused with a typed error, never evaluated:
+    the isolation boundary records it as a pending evaluation, clears freeze and health degrades (AGENTS 2, D13)."""
+    if isinstance(inp, _PLACED) and not isinstance(inp.origin_mode, OriginMode):
+        raise InvalidInput("an input without an origin mode is never evaluated")
+
 
 def evaluate(inp: RuleInput, view: EngineView) -> Decision:
     """The decision for one input under one view."""
+    _require_origin(inp)
     match inp:
         case SensorEvaluatedInput():
             return _sensor(inp, view)
@@ -766,6 +784,29 @@ def _ground_clears(inp: GroundLinkInput, view: EngineView) -> list[Step]:
     return steps
 
 
+def silence_text(seconds: int, words: Mapping[str, str] | None) -> str | None:
+    """CONTRACTS 26 `{in_time}` rounding applied to the time past the planned contact: whole hours rounded down from
+    one hour, else whole minutes rounded down, else seconds (a sub-minute silence is never worded as 0 minutes).
+    Without the configured `duration_words` there is no text, and the renderer shows the designed unknown."""
+    if words is None or seconds < 0:
+        return None
+    unit, n = ("hours", seconds // 3600) if seconds >= 3600 else ("minutes", seconds // 60)
+    if unit == "minutes" and seconds < 60:
+        unit, n = "seconds", seconds
+    template = words.get(unit)
+    return None if template is None else template.replace("{n}", str(n))
+
+
+def _ground_values(inp: GroundLinkInput, view: EngineView) -> dict[str, str]:
+    values: dict[str, str] = {}
+    if inp.next_contact_at is not None:
+        values["next_contact_time"] = f"{inp.next_contact_at:%H:%M}"
+        text = silence_text(int((view.now - inp.next_contact_at).total_seconds()), view.duration_words)
+        if text is not None:
+            values["silence_text"] = text
+    return values
+
+
 def _ground_key(definition_id: str) -> str:
     return f"ground_silence:{definition_id}"
 
@@ -801,7 +842,9 @@ def _ground_raises(inp: GroundLinkInput, view: EngineView) -> list[Step]:
             origin_mode=link_origin,
             evidence=(),
             evidence_time=due,
-            render=_render(view, {}, origin_mode=link_origin, evidence_time=due, summaries=()),
+            render=_render(
+                view, _ground_values(inp, view), origin_mode=link_origin, evidence_time=due, summaries=()
+            ),
         )
         built = _raise(d, view, fields)
         if built is not None:
