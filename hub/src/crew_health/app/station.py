@@ -33,6 +33,7 @@ from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.uow import ReadSnapshot, SessionContext
 from crew_health.kitmap.application.ports import ConditionRegistryPort
 from crew_health.kitmap.application.ports import MissionStatePort as KitMission
+from crew_health.model.application.ports import ModelInstallation, StubInstallation
 from crew_health.roles.api.router import RequestAuthenticator as RolesAuthenticator
 from crew_health.roles.application.ports import DayLabelPort, MissionStatePort, OverlayPort, RosterPort
 from crew_health.teach.application.ports import PersonDirectory, RecordRouting
@@ -324,6 +325,8 @@ def production(
     origin: Origin,
     demo: DemoOperatorRecord | None = None,
     mission: DemoMission | None = None,
+    model: ModelInstallation | None = None,
+    stub: StubInstallation | None = None,
 ) -> Callable[[ModuleRegistry], None]:
     """The `configure` hook of a served hub: the offline artifacts and HTTP metadata from the resources, closed
     event sessions and fail-closed stand-ins for every pending port no installed module provides."""
@@ -341,6 +344,11 @@ def production(
     def configure(registry: ModuleRegistry) -> None:
         provided = getattr(registry, "providers", {})
         registry.provide(ConfigArtifacts, partial(_constant, artifacts))  # type: ignore[arg-type]
+        # E17: a node with installed model artifacts names them; a demo or eval profile may name a pinned stub script.
+        if model is not None:
+            registry.provide(ModelInstallation, partial(_constant, model))  # type: ignore[arg-type]
+        if stub is not None:
+            registry.provide(StubInstallation, partial(_constant, stub))  # type: ignore[arg-type]
         if mission is not None:
             _demo_mission(registry, mission)
             provided = getattr(registry, "providers", {})

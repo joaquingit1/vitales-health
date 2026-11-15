@@ -32,6 +32,7 @@ from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.met import MissionClock, MissionClockVersion
 from crew_health.kernel.settings import SettingSpec
 from crew_health.kernel.uow import Actor, UnitOfWork
+from crew_health.model.application.ports import ModelInstallation, StubInstallation
 from crew_health.platform.cli import main as platform_main
 from crew_health.platform.domain.errors import fail
 from crew_health.platform.settings import ValidatedSettings, specifications
@@ -181,6 +182,8 @@ def serve(
     server: Server = _uvicorn,
     demo: DemoOperatorRecord | None = None,
     mission: DemoMission | None = None,
+    model: ModelInstallation | None = None,
+    stub: StubInstallation | None = None,
 ) -> int:
     db = open_database(database, _read_settings(settings))
     try:
@@ -189,7 +192,9 @@ def serve(
             build=BuildCatalog.installed(SOURCE),
             contract_path=resources.contracts / "api/openapi.yaml",
             schema_directory=resources.contracts / "api/schemas",
-            configure=production(resources, origin=origin, demo=demo, mission=mission),
+            configure=production(
+                resources, origin=origin, demo=demo, mission=mission, model=model, stub=stub
+            ),
             bootstrap=partial(bootstrap_release, resources),
         )
         runtime = cast(Runtime, app.state.runtime)
