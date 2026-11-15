@@ -181,7 +181,8 @@ def test_step_uses_are_all_or_nothing_and_reentrant_by_occurrence(station: Stati
     ]
     assert seen[-1].partition == SupplyPartition("mission_1", "lunar_surface", "lunar_surface", "SIM")
     row = next(r for r in seen[-1].rows if r.supply_id == "eye_rinse_water")
-    assert row.cover_uses == 4 and row.stock_revision == 2 and row.quantity_text == "4 rinse"
+    assert row.cover_uses == 4 and row.quantity_text == "4 rinse"
+    assert row.stock_revision == (6 + 2) * 10**12  # packed plus used
 
 
 @pytest.mark.trace("SYSTEM 8.1", "E24 rows")

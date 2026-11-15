@@ -238,18 +238,22 @@ def _admit(
 
 
 def publish_cover(deps: Deps, uow: UnitOfWork, where: Partition, cause_ref: str, at: datetime) -> None:
-    """The in-transaction SupplyCoverChanged of a use for E24 (SYSTEM 8.1): every supply row of the partition."""
+    """The in-transaction SupplyCoverChanged of a use for E24 (SYSTEM 8.1): every supply row of the partition,
+    sorted by supply ID, in batches of at most supplies.cover_batch_rows rows."""
     index = deps.indexes.get(uow.release)
     rows = cover_rows(deps, uow, index, where, read_heads(deps, uow, where))
-    uow.publish(
-        SupplyCoverChanged(
-            partition=partition_of(where),
-            cause="use",
-            cause_ref=cause_ref,
-            observed_at=at,
-            rows=tuple(cover_fact(row, index) for row in rows),
+    facts = sorted((cover_fact(row, index) for row in rows), key=lambda fact: fact.supply_id)
+    size = deps.limits.cover_batch_rows
+    for start in range(0, len(facts), size):
+        uow.publish(
+            SupplyCoverChanged(
+                partition=partition_of(where),
+                cause="use",
+                cause_ref=cause_ref,
+                observed_at=at,
+                rows=tuple(facts[start : start + size]),
+            )
         )
-    )
 
 
 def _refusal_evidence(

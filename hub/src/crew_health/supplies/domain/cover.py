@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from decimal import Decimal
+from decimal import ROUND_FLOOR, Decimal, localcontext
 
 from crew_health.kernel.units import Quantity
 from crew_health.supplies.domain.errors import UnitMismatch
@@ -17,7 +17,9 @@ from crew_health.supplies.domain.model import (
     SupplyWords,
     Threshold,
 )
-from crew_health.supplies.domain.quantity import MAX_COVER, floor_ratio, same_unit, subtract, zero
+from crew_health.supplies.domain.quantity import MAX_COVER, PRECISION, floor_ratio, same_unit, subtract, zero
+
+REVISION_SCALE = Decimal(10) ** 12  # the ceiling of supplies.max_quantity_scale: every use moves the revision
 
 
 def quantity_now(row: StockRow | None, used: Quantity) -> Quantity | None:
@@ -119,3 +121,15 @@ def compute_row(
         low=is_low(uses, threshold, environment_id),
         head=head,
     )
+
+
+def stock_revision(row: CoverRow) -> int:
+    """Orders the stock facts of one supply in one partition (SYSTEM 8.1 stock_revision): packed plus used, in units
+    of 10^-12. Packed is cumulative, the initial load plus every resupply (E32 3.3), and used only grows, so every
+    use and every resupply release raises it and a later batch never carries an older revision. A release that
+    corrects packed downwards lowers it, which can only delay a clear of a low warning (fail safe)."""
+    packed = row.row.packed.value if row.row is not None and row.row.packed is not None else Decimal(0)
+    with localcontext() as ctx:
+        ctx.prec = PRECISION
+        total = (packed + row.used.value) * REVISION_SCALE
+        return int(total.to_integral_value(rounding=ROUND_FLOOR))

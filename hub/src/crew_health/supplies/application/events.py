@@ -21,6 +21,7 @@ from crew_health.supplies.application.ports import CoverFact, SupplyPartition
 from crew_health.supplies.application.release_index import ReleaseIndex
 from crew_health.supplies.application.repository import StoredRefusal, StoredUse
 from crew_health.supplies.application.wire import Json, encode, instant
+from crew_health.supplies.domain.cover import stock_revision
 from crew_health.supplies.domain.model import CoverRow, Partition
 from crew_health.supplies.domain.quantity import decimal_text
 
@@ -71,7 +72,7 @@ def cover_fact(row: CoverRow, index: ReleaseIndex) -> CoverFact:
         last_use_id=None if row.head is None else row.head.last_use_id,
         last_use_at=None if row.head is None else row.head.last_use_at,
         release_id=index.release_id,
-        stock_revision=0 if row.head is None else row.head.seq,
+        stock_revision=stock_revision(row),
         source_refs=tuple(refs),
     )
 
