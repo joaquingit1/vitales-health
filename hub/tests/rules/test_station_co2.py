@@ -11,14 +11,15 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-import e23_station as base
 import pytest
-from e24_station import build, post, seconds, wobble
 
 from crew_health.kernel.errors import StorageUnavailable
 from crew_health.kernel.scheduler import HealthState
 from crew_health.rules.application.ports import AssistantContext, AssistantWarningGuard
 from crew_health.rules.domain import engine
+
+from . import rules_station as base
+from .e24_station import build, post, seconds, wobble
 
 pytestmark = pytest.mark.E24
 

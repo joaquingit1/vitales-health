@@ -9,12 +9,11 @@ from dataclasses import replace
 from datetime import timedelta
 
 import pytest
-import rules_harness as h
 from hypothesis import given
 from hypothesis import strategies as st
 
 from crew_health.rules.domain import insight_bounds
-from crew_health.rules.domain.decisions import Clear, Raise, RejectInsight
+from crew_health.rules.domain.decisions import Clear, Raise, Refuse, RejectInsight
 from crew_health.rules.domain.definitions import parse_rules_document
 from crew_health.rules.domain.errors import ActionNotAllowed
 from crew_health.rules.domain.inputs import (
@@ -27,6 +26,8 @@ from crew_health.rules.domain.inputs import (
 )
 from crew_health.rules.domain.vocabulary import ASSISTANT_LEVELS, ClearReason, Level, OriginMode, WarningState
 from crew_health.rules.domain.warning import PersonActor, dismiss
+
+from . import rules_harness as h
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R40", "V10", "V65", "D17", "INV-E24-02", "INV-E24-03")]
 
@@ -69,7 +70,11 @@ def test_a_valid_insight_has_no_violation() -> None:
         ({"level": Level.EMERGENCY}, [(OBS, good())], "level_not_allowed"),
         ({"topic_id": "unlisted"}, [(OBS, good())], "topic_unknown"),
         ({"evidence": ()}, [], "evidence_empty"),
-        ({"evidence": (EvidenceKey("reading", "r1"),)}, [], "evidence_kind"),  # type: ignore[arg-type]
+        (
+            {"evidence": (h.replace_unchecked(EvidenceKey("observation", "r1"), kind="reading"),)},
+            [],
+            "evidence_kind",
+        ),
         ({}, [], "evidence_not_found"),
         ({}, [(OBS, RecordFacts(False, None, None, False, None, None, None, None))], "evidence_not_found"),
         ({}, [(OBS, replace(good(), owner_person_id="p2"))], "evidence_other_person"),
@@ -122,7 +127,9 @@ def test_t061_a_pinned_act_proposal_is_rejected_and_a_clear_attempt_changes_noth
     (co2,) = world.by_definition("co2_above_limit")
     for level in (Level.ACT, Level.EMERGENCY):
         decision = world.feed(InsightInput(draft(level=level), facts((OBS, good())), policy_from_config()))
-        assert [type(s) for s in decision] == [RejectInsight] and decision[0].codes == ("level_not_allowed",)
+        assert [type(s) for s in decision] == [RejectInsight] and h.as_type(
+            decision[0], RejectInsight
+        ).codes == ("level_not_allowed",)
     assert world.warnings[co2.warning_id] == co2
     assert not any(
         isinstance(s, Clear)
@@ -164,7 +171,9 @@ def test_an_insight_in_a_live_mission_never_raises_from_sim_or_replay_origin() -
     decision = world.feed(
         InsightInput(sim, facts((OBS, replace(good(), origin_mode=OriginMode.SIM))), policy_from_config())
     )
-    assert [type(s).__name__ for s in decision] == ["Refuse"] and decision[0].code == "origin_mismatch"
+    assert [type(s).__name__ for s in decision] == ["Refuse"] and h.as_type(
+        decision[0], Refuse
+    ).code == "origin_mismatch"
     assert not world.warnings
 
 
@@ -195,7 +204,9 @@ def test_expiry_runs_on_elapsed_time_and_is_suspended_while_the_clock_is_regress
     )  # no clear while an evaluation is pending
     world.frozen = False
     decision = world.feed(InsightExpiredInput("ins_1", expires))
-    assert [type(s) for s in decision] == [Clear] and decision[0].reason is ClearReason.EXPIRED
+    assert [type(s) for s in decision] == [Clear] and h.as_type(
+        decision[0], Clear
+    ).reason is ClearReason.EXPIRED
     assert world.warnings[w.warning_id].state is WarningState.CLEARED
 
 

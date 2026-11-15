@@ -8,13 +8,12 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import timedelta
-from typing import cast
 
 import pytest
-import rules_harness as h
 
 from crew_health.rules.domain.actions import (
     ActionContext,
+    Authority,
     Requester,
     allowed_actions,
     apply_action,
@@ -41,6 +40,8 @@ from crew_health.rules.domain.vocabulary import (
 )
 from crew_health.rules.domain.warning import PersonActor, SessionActor, Warning
 
+from . import rules_harness as h
+
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R36", "INV-E24-13", "INV-E24-15", "D1", "D21")]
 
 CTX = ActionContext(node_id=h.NODE, definition_status="current", max_notes=3, replica=False)
@@ -57,19 +58,19 @@ def person_warning(world: h.World) -> Warning:
         AnswerInput("ans_1", "p1", "dizzy_standing", "present", h.T0, h.T0, OriginMode.LIVE, "day 3", "09:10")
     )
     (found,) = w.by_definition("dizzy_after_landing")
-    return cast(Warning, found)
+    return found
 
 
 def habitat_warning(world: h.World) -> Warning:
     world.feed(world.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]))
     (found,) = world.by_definition("co2_above_limit")
-    return cast(Warning, found)
+    return found
 
 
 def crew(
-    person: str, *, authority: str = "none", grant: ReadGrant | None = None, resolve_access: bool = True
+    person: str, *, authority: Authority = "none", grant: ReadGrant | None = None, resolve_access: bool = True
 ) -> Requester:
-    return Requester(Viewer("crew", person), PersonActor(person), authority, grant, resolve_access)  # type: ignore[arg-type]
+    return Requester(Viewer("crew", person), PersonActor(person), authority, grant, resolve_access)
 
 
 @pytest.mark.trace("T-E24-051", "T-E24-053", "INV-E24-13")
@@ -181,11 +182,13 @@ def test_an_officer_or_the_acting_officer_resolves_an_edited_or_withdrawn_defini
     world: h.World,
 ) -> None:
     w = habitat_warning(world)  # a sensor warning: nobody may resolve it while its definition is current
-    for who in ("none", "crew_medical_officer", "acting_medical_officer"):
+    everyone: tuple[Authority, ...] = ("none", "crew_medical_officer", "acting_medical_officer")
+    officers: tuple[Authority, ...] = ("crew_medical_officer", "acting_medical_officer")
+    for who in everyone:
         assert resolve_role(w, crew("p2", authority=who), "current") is None
     for status in ("content_changed", "rule_changed", "withdrawn"):
         assert resolve_role(w, crew("p2"), status) is None  # authority is required
-        for who in ("crew_medical_officer", "acting_medical_officer"):
+        for who in officers:
             assert resolve_role(w, crew("p2", authority=who), status) == who
     r = crew("p2", authority="acting_medical_officer")
     ctx = replace(CTX, definition_status="withdrawn")

@@ -10,17 +10,20 @@ import json
 from typing import Any
 
 import pytest
-import rules_harness as h
 
 from crew_health.rules.domain.definitions import (
+    GroundSilenceCondition,
     MissionEventCondition,
     RulesDocument,
+    SupplyCoverLowCondition,
     definition_to_raw,
     parse_rules_document,
 )
 from crew_health.rules.domain.fingerprint import ReleaseDocuments, rule_fingerprint
 from crew_health.rules.domain.rendering import sentences
 from crew_health.rules.domain.vocabulary import EnvironmentId, Level, StepsFrom
+
+from . import rules_harness as h
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R36", "R43", "INV-E24-12", "INV-E24-15")]
 
@@ -92,8 +95,10 @@ def test_dizzy_has_no_expiry_and_stays_resolvable_by_the_person(deployment_doc: 
 
 def test_null_thresholds_stay_null(deployment_doc: RulesDocument) -> None:
     by_id = deployment_doc.by_id()
-    assert by_id["ground_silence"].condition.after_next_contact_seconds is None  # type: ignore[union-attr]
-    assert by_id["supply_cover_low"].condition.below_uses is None  # type: ignore[union-attr]
+    silence = by_id["ground_silence"].condition
+    cover = by_id["supply_cover_low"].condition
+    assert isinstance(silence, GroundSilenceCondition) and silence.after_next_contact_seconds is None
+    assert isinstance(cover, SupplyCoverLowCondition) and cover.below_uses is None
 
 
 def test_every_definition_round_trips(deployment_doc: RulesDocument) -> None:
@@ -116,7 +121,7 @@ def test_t090_a_threshold_edit_changes_the_rule_fingerprint(
 ) -> None:
     """Scratch copy edit of a sourced limit value (D15): the fingerprint of the definition moves."""
     limits = copy.deepcopy(dict(release_docs.sensor_limits))
-    for entry in limits["limits"]:  # type: ignore[attr-defined]
+    for entry in h.list_of(limits, "limits"):
         if entry["limit_id"] == "co2_1h_act":
             entry["value"] = 4
     edited = ReleaseDocuments(
@@ -130,7 +135,7 @@ def test_t090_a_threshold_edit_changes_the_rule_fingerprint(
 
 def test_t091_a_listed_step_edit_reaches_the_next_warning(release_docs: ReleaseDocuments) -> None:
     def edit(raw: dict[str, object]) -> None:
-        for d in raw["definitions"]:  # type: ignore[attr-defined]
+        for d in h.definitions_of(raw):
             if d["id"] == "radiation_storm_shelter":
                 d["content"]["steps"]["items"][0] = "Edited first step."
 
@@ -169,7 +174,7 @@ def test_t092_the_environment_switch_changes_the_evaluated_definitions(deploymen
 def test_no_definition_changes_a_safety_mapping_when_content_is_edited(deployment_doc: RulesDocument) -> None:
     """A content-only edit never touches level, raiser or kind (AGENTS.md 1)."""
     raw = copy.deepcopy(h.deployment_rules())
-    for d in raw["definitions"]:
+    for d in h.definitions_of(raw):
         d["content"]["title"] = d["content"]["title"] + " edited"
     edited = parse_rules_document(raw)
     assert [(d.id, d.level, d.raised_by, d.condition.kind) for d in edited.definitions] == [

@@ -3,13 +3,11 @@
 import sys
 from pathlib import Path
 
-_TESTS = Path(__file__).resolve().parents[3] / "hub/tests"
-for _name in ("sensors", "rules"):
-    _path = str(_TESTS / _name)
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_TESTS = str(Path(__file__).resolve().parents[3] / "hub/tests")
+if _TESTS not in sys.path:
+    sys.path.insert(0, _TESTS)  # the hub/tests/rules package: its station helpers import package-relatively
 
-from e24_station import patched  # noqa: E402, F401  (the station fixture)
+from rules.e24_station import patched  # noqa: E402, F401  (the station fixture)
 
 
 def pytest_configure(config: object) -> None:

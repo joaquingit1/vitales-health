@@ -17,7 +17,6 @@ from dataclasses import replace
 from datetime import timedelta
 
 import pytest
-import rules_harness as h
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -31,6 +30,7 @@ from crew_health.rules.domain.errors import (
     NotVisible,
     RulesDomainError,
 )
+from crew_health.rules.domain.views import DefinitionStatus
 from crew_health.rules.domain.visibility import WIRE_FIELDS, ReadGrant, Viewer
 from crew_health.rules.domain.vocabulary import (
     ACTIVE,
@@ -53,6 +53,8 @@ from crew_health.rules.domain.warning import (
     dismiss,
     resolve,
 )
+
+from . import rules_harness as h
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("INV-E24-02", "INV-E24-03", "H1", "H2")]
 
@@ -159,7 +161,7 @@ def test_no_transition_accepts_the_assistant_at_any_level_or_kind(
 @h.PROP
 def test_the_assistant_gets_no_action_even_with_every_grant_and_authority(
     level: Level, raiser: RaisedBy, scope: Scope, state: WarningState, action: WarningAction,
-    authority: actions.Authority, status: str, replica: bool,
+    authority: actions.Authority, status: DefinitionStatus, replica: bool,
 ) -> None:  # fmt: skip
     if raiser is RaisedBy.ASSISTANT and level not in ASSISTANT_LEVELS:
         return
@@ -168,9 +170,9 @@ def test_the_assistant_gets_no_action_even_with_every_grant_and_authority(
         Viewer("crew", "p1"), AssistantActor("assistant_1"), authority,
         ReadGrant(w.warning_id, WIRE_FIELDS), True,
     )  # fmt: skip
-    ctx = actions.ActionContext(w.origin_node_id, status, 10, replica)  # type: ignore[arg-type]
+    ctx = actions.ActionContext(w.origin_node_id, status, 10, replica)
     assert actions.allowed_actions(w, requester, ctx) == ()
-    assert actions.resolve_role(w, requester, status) is None  # type: ignore[arg-type]
+    assert actions.resolve_role(w, requester, status) is None
     with pytest.raises((ActionNotAllowed, InvalidTransition, NotVisible)) as raised:
         actions.apply_action(w, requester, ctx, action, at=h.T0, reason="reason", note="note")
     assert isinstance(raised.value, RulesDomainError)
