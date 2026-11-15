@@ -80,7 +80,8 @@ def station(tmp_path):
     from crew_health.records.domain.observations import RecordContext
 
     db = database(tmp_path)
-    db.migrate(Path("hub/src/crew_health/records/adapters/migrations/0001_records.sql").read_text())
+    for migration in sorted(Path("hub/src/crew_health/records/adapters/migrations").glob("*_records.sql")):
+        db.migrate(migration.read_text(encoding="utf-8"))
     db.migrate(Path("hub/src/crew_health/clock/adapters/migrations/0001_clock.sql").read_text())
     clocks = PersistentClocks(
         repository=SqlClockRepository(
@@ -400,3 +401,258 @@ def test_http_observation_parser_rejects_duplicate_keys_and_preserves_decimal():
     assert observation_input(raw).original.value == Decimal("0.1234567890123456789")
     with pytest.raises(ProblemError):
         observation_input(raw.replace(b'"value":', b'"value":99,"value":'))
+
+
+@pytest.mark.trace("T-E01-05", "R06")
+@pytest.mark.parametrize(
+    "other_source", [{"device_id": "device_b"}, {"acquisition_method": "manual_instrument"}]
+)
+def test_interleaved_sources_cannot_hide_stuck_value(tmp_path, other_source):
+    from dataclasses import replace
+    from datetime import timedelta
+
+    db, repo, service, session = station(tmp_path)
+
+    class Policies:
+        def for_code(self, release, code):
+            return replace(policy(), methods=frozenset({"self_report", "manual_instrument"}))
+
+    service.policies = Policies()
+    values = [({}, 50), ({}, 50), (other_source, 10), (other_source, 20), (other_source, 30), ({}, 50)]
+    with db.begin(actor=session.actor, correlation_id="capture") as uow:
+        for index, (source, value) in enumerate(values):
+            reading = service.record_observation(
+                uow,
+                session,
+                observation_input(
+                    db,
+                    original=WireQuantity(Decimal(value), "1"),
+                    observed_at=db.clock.now() - timedelta(minutes=len(values) - index),
+                    **({"device_id": "device_a"} | source),
+                ),
+            )
+    assert reading.quality_status == "rejected"
+    assert reading.quality_reasons == ("stuck_value",)
+    with db.snapshot() as view:
+        assert repo.observation(view, reading.observation_id) == reading
+
+
+@pytest.mark.trace("T-E01-05", "R06")
+def test_changed_canonical_unit_between_releases_is_rejected_and_retains_both_readings(tmp_path):
+    from dataclasses import replace
+    from datetime import timedelta
+
+    from crew_health.kernel.testing import MemoryRelease
+
+    db, repo, service, session = station(tmp_path)
+    with db.begin(actor=session.actor, correlation_id="old_release") as uow:
+        old = service.record_observation(
+            uow, session, observation_input(db, observed_at=db.clock.now() - timedelta(seconds=1))
+        )
+
+    class ChangedPolicy:
+        def for_code(self, release, code):
+            return replace(policy(), version="changed", canonical_unit=Unit("h"))
+
+    service.policies = ChangedPolicy()
+    db.set_release_provider(lambda: MemoryRelease("release_changed", {}))
+    with db.begin(actor=session.actor, correlation_id="new_release") as uow:
+        new = service.record_observation(
+            uow, session, observation_input(db, original=WireQuantity(Decimal(1), "1"))
+        )
+    assert new.quality_status == "rejected"
+    assert "history_unit_mismatch" in new.quality_reasons
+    assert "rate_of_change" not in new.quality_reasons
+    assert old.release_id != new.release_id
+    with db.snapshot() as view:
+        assert repo.observation(view, old.observation_id) == old
+        assert repo.observation(view, new.observation_id) == new
+
+
+@pytest.mark.trace("T-E01-05", "R06")
+def test_quality_never_subtracts_mixed_historical_units():
+    from datetime import timedelta
+
+    now = datetime(2026, 1, 1, tzinfo=UTC)
+    result = assess_quality(
+        policy(),
+        Quantity(Decimal(50), Unit("1")),
+        now,
+        ((now - timedelta(seconds=1), Quantity(Decimal(1), Unit("h"))),),
+    )
+    assert result.status == "rejected"
+    assert result.reasons == ("history_unit_mismatch",)
+
+
+@pytest.mark.trace("T-E01-05", "R06")
+def test_unit_mismatch_never_downgrades_a_saturated_reading():
+    """Review N9: a saturated reading after a unit change stays rejected with its saturation reason."""
+    from datetime import timedelta
+
+    now = datetime(2026, 1, 1, tzinfo=UTC)
+    history = ((now - timedelta(seconds=5), Quantity(Decimal(1), Unit("h"))),)
+    result = assess_quality(policy(), Quantity(Decimal(100), Unit("1")), now, history)
+    assert result.status == "rejected"
+    assert "saturation" in result.reasons and "history_unit_mismatch" in result.reasons
+
+
+@pytest.mark.trace("T-E01-05", "R06")
+def test_interleaved_sources_do_not_hide_rate_change_or_use_later_readings(tmp_path):
+    from datetime import timedelta
+
+    db, _, service, session = station(tmp_path)
+    now = db.clock.now()
+    with db.begin(actor=session.actor, correlation_id="capture") as uow:
+        for device, offset, value in [
+            (None, -2, 1),
+            ("other", -1, 30),
+            ("other", -1, 40),
+            ("other", -1, 50),
+            (None, 0, 90),
+            (None, -1, 50),
+        ]:
+            record = service.record_observation(
+                uow,
+                session,
+                observation_input(
+                    db,
+                    device_id=device,
+                    observed_at=now + timedelta(seconds=offset),
+                    original=WireQuantity(Decimal(value), "1"),
+                ),
+            )
+    assert record.quality_status == "rejected"
+    assert record.quality_reasons == ("rate_of_change",)
+
+
+def test_history_filters_before_the_limit_and_signals_more(tmp_path):
+    """R-E14-2: rows the history excludes (an unknown time) never use up the page, and has_more says whether
+    older matching history exists, so a short page is never mistaken for complete history."""
+    from dataclasses import replace
+    from datetime import timedelta
+
+    from crew_health.records.application.queries import RecordsQueries
+    from crew_health.records.application.visibility import OwnerAuthorization
+
+    db, repo, service, session = station(tmp_path)
+    with db.begin(actor=session.actor, correlation_id="capture") as uow:
+        known = service.record_observation(uow, session, observation_input(db))
+        assert known.normalized.state == "known" and known.quality_status == "accepted"
+        for index in range(5):  # newer than `known` and more of them than the page holds
+            later = known.normalized.corrected_at + timedelta(minutes=index + 1)
+            repo.add_observation(
+                uow,
+                replace(
+                    known,
+                    observation_id=f"obs_unknown_{index}",
+                    normalized=replace(known.normalized, corrected_at=later, state="unknown"),
+                ),
+            )
+    queries = RecordsQueries(repo, OwnerAuthorization(), db.settings)
+    scope = {"mission_id": known.mission_id, "origin_mode": known.origin_mode}
+    with db.snapshot() as view:
+        page = queries.accepted(view, session, known.patient_id, known.code, limit=2, **scope)
+    assert page.items == (known,) and page.has_more is False
+    with db.begin(actor=session.actor, correlation_id="more") as uow:
+        for index in range(2):
+            earlier = known.normalized.corrected_at - timedelta(minutes=index + 1)
+            repo.add_observation(
+                uow,
+                replace(
+                    known,
+                    observation_id=f"obs_known_{index}",
+                    normalized=replace(known.normalized, corrected_at=earlier),
+                ),
+            )
+    with db.snapshot() as view:
+        first = queries.accepted(view, session, known.patient_id, known.code, limit=2, **scope)
+        whole = queries.accepted(view, session, known.patient_id, known.code, limit=3, **scope)
+    assert [r.observation_id for r in first.items] == [known.observation_id, "obs_known_0"]
+    assert first.has_more is True
+    assert len(whole.items) == 3 and whole.has_more is False
+
+
+@pytest.mark.trace("T-E01-05", "R06")
+def test_rare_source_stuck_history_is_indexed_and_bounded_by_its_limit(tmp_path):
+    """AGENTS 1.3 and 2: the stuck value history of a rare source (a manual reading after a long 1 Hz device run in
+    the same partition) reads only its own last rows through records_observation_source_history, so a large
+    partition never exhausts storage.max_vm_steps and the reading is still recorded."""
+    import hashlib
+    import json
+    import sqlite3
+    from datetime import timedelta
+
+    db, repo, service, session = station(tmp_path)
+    start = db.clock.now() - timedelta(days=4)
+    rows = []
+    for index in range(250_000):  # under three days of one 1 Hz device, all corrected and in the source index
+        at = (start + timedelta(seconds=index)).isoformat()
+        payload = json.dumps(
+            {
+                "acquisition_method": "self_report",
+                "device_id": "device_bulk",
+                "normalized": {"corrected_at": at},
+            }
+        ).encode()
+        rows.append(
+            (
+                f"obs_bulk_{index}",
+                "person",
+                "mission",
+                "SIM",
+                "indicator",
+                at,
+                "accepted",
+                payload,
+                hashlib.sha256(payload).hexdigest(),
+            )
+        )
+    raw = sqlite3.connect(db.path)
+    raw.executemany(
+        "INSERT INTO records_observation(observation_id,patient_id,mission_id,origin_mode,code,observed_at,"
+        "quality_status,payload,digest) VALUES (?,?,?,?,?,?,?,?,?)",
+        rows,
+    )
+    raw.commit()
+    raw.close()
+    readings = []
+    with db.begin(actor=session.actor, correlation_id="rare") as uow:
+        for minutes in (3, 2, 1):
+            readings.append(
+                service.record_observation(
+                    uow,
+                    session,
+                    observation_input(
+                        db,
+                        observed_at=db.clock.now() - timedelta(minutes=minutes),
+                        device_id="device_rare",
+                    ),
+                )
+            )
+    assert readings[-1].quality_reasons == ("stuck_value",)
+    with db.snapshot() as view:
+        history = repo.observations(
+            view,
+            person_id="person",
+            mission_id="mission",
+            origin_mode="SIM",
+            code="indicator",
+            limit=3,
+            accepted_only=False,
+            before=db.clock.now(),
+            source=("self_report", "device_rare"),
+            corrected_only=True,
+        )
+        assert [r.observation_id for r in history] == [r.observation_id for r in reversed(readings)]
+        for unbounded in ({"corrected_only": False}, {"corrected_only": True, "accepted_only": True}):
+            with pytest.raises(ProblemError):
+                repo.observations(
+                    view,
+                    person_id="person",
+                    mission_id="mission",
+                    origin_mode="SIM",
+                    code="indicator",
+                    limit=3,
+                    source=("self_report", "device_rare"),
+                    **({"accepted_only": False} | unbounded),
+                )

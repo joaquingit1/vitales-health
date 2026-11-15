@@ -14,19 +14,19 @@ class State(RootModel[str]):
 
 class Item(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     kind: Literal[
-        'observation',
-        'daily_check',
-        'episode',
-        'report',
-        'assessment',
-        'handoff',
-        'help_session',
-        'warning',
-        'plan_run',
-        'guided_check',
+        "observation",
+        "daily_check",
+        "episode",
+        "report",
+        "assessment",
+        "handoff",
+        "help_session",
+        "warning",
+        "plan_run",
+        "guided_check",
     ]
     ref_id: common_schema.Id
     title: str = Field(..., min_length=1)
@@ -38,7 +38,7 @@ class Item(BaseModel):
 
 class RecordsView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person_id: common_schema.Id
     items: list[Item]

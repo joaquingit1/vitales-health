@@ -10,7 +10,7 @@ from . import common_schema
 
 class Error(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     document: common_schema.ConfigName
     pointer: str = Field(..., min_length=1)
@@ -19,7 +19,7 @@ class Error(BaseModel):
 
 class Warning(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     document: common_schema.ConfigName
     pointer: str = Field(..., min_length=1)
@@ -28,13 +28,13 @@ class Warning(BaseModel):
 
 class Validation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     passed: bool
     errors: list[Error]
     warnings: list[Warning] = Field(
         ...,
-        description='Non-blocking findings, for example routine triggers with no binding (they stay manual).',
+        description="Non-blocking findings, for example routine triggers with no binding (they stay manual).",
     )
 
 
@@ -44,10 +44,10 @@ class Note(RootModel[str]):
 
 class ConfigRelease(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     release_id: common_schema.Id
-    state: Literal['draft', 'active', 'superseded', 'rejected']
+    state: Literal["draft", "active", "superseded", "rejected"]
     pins: list[common_schema.ConfigPin] = Field(..., min_length=1)
     created_at: common_schema.Instant
     created_by: common_schema.Actor

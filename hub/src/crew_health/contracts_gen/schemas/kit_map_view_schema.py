@@ -10,7 +10,7 @@ from . import common_schema
 
 class KitItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     instrument_id: common_schema.ConfigId
     name: str = Field(..., min_length=1)
@@ -18,7 +18,7 @@ class KitItem(BaseModel):
 
 class Candidate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     instrument_id: common_schema.ConfigId
     name: str = Field(..., min_length=1)
@@ -27,7 +27,7 @@ class Candidate(BaseModel):
 
 class Counts(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     measured_here: int = Field(..., ge=0)
     report_only: int = Field(..., ge=0)
@@ -37,21 +37,19 @@ class Counts(BaseModel):
 
 class Region(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    region: common_schema.BodyRegion | Literal['whole_body']
+    region: common_schema.BodyRegion | Literal["whole_body"]
     counts: Counts
-    marks: list[Literal['measured_here', 'report_only', 'needs_test_not_aboard']] = (
-        Field(
-            ...,
-            description='States present in this region, in the fixed order measured_here, report_only, needs_test_not_aboard. The client draws one glyph per entry.',
-        )
+    marks: list[Literal["measured_here", "report_only", "needs_test_not_aboard"]] = Field(
+        ...,
+        description="States present in this region, in the fixed order measured_here, report_only, needs_test_not_aboard. The client draws one glyph per entry.",
     )
 
 
 class Test(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     index: int = Field(..., ge=0)
     name: str = Field(..., min_length=1)
@@ -76,30 +74,30 @@ class ReportOnlyFinding(RootModel[str]):
 class PlanId(RootModel[str]):
     root: str = Field(
         ...,
-        description='Copied from the kit-map.json row: the onboard-plans.json plan for this condition (CONTRACTS section 22).',
-        pattern='^plan_[a-z0-9_]{1,59}$',
+        description="Copied from the kit-map.json row: the onboard-plans.json plan for this condition (CONTRACTS section 22).",
+        pattern="^plan_[a-z0-9_]{1,59}$",
     )
 
 
 class Condition(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    condition_id: str = Field(..., pattern='^ICL[1-9][0-9]{0,2}$')
+    condition_id: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
     name: str = Field(..., min_length=1)
-    state: Literal['measured_here', 'report_only', 'needs_test_not_aboard']
+    state: Literal["measured_here", "report_only", "needs_test_not_aboard"]
     body_regions: common_schema.BodyRegions
     tests: list[Test] = Field(..., min_length=1)
     missing_instruments: list[common_schema.ConfigId] = Field(
         ...,
-        description='The smallest missing set among tests that need instruments (ties: the first test in order). Empty for measured_here and when no test needs an instrument.',
+        description="The smallest missing set among tests that need instruments (ties: the first test in order). Empty for measured_here and when no test needs an instrument.",
     )
     missing_text: MissingText | None
     report_only_findings: list[ReportOnlyFinding]
     cliff_url: AnyUrl
-    review_state: Literal['unreviewed', 'reviewed']
+    review_state: Literal["unreviewed", "reviewed"]
     plan_id: PlanId | None
-    plan_written_for: Literal['condition', 'family', 'flow'] | None
+    plan_written_for: Literal["condition", "family", "flow"] | None
     plan_aboard: bool = Field(
         ...,
         description="True when the row's plan, in this environment, has an any_crew step in check_another_way, do_now or watch that can run with this kit and stock, and a watch or check_another_way step (EI3).",
@@ -110,12 +108,12 @@ class Condition(BaseModel):
 
 
 class PlansToWriteItem(RootModel[str]):
-    root: str = Field(..., pattern='^ICL[1-9][0-9]{0,2}$')
+    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
 
 
 class KitMapView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     environment_id: common_schema.EnvironmentId
     kit_map_version: common_schema.Sha256
@@ -126,21 +124,19 @@ class KitMapView(BaseModel):
     counts: Counts
     regions: list[Region]
     conditions: list[Condition]
-    plans_aboard: int = Field(
-        ..., description='Rows with plan_aboard true in this environment.', ge=0
-    )
+    plans_aboard: int = Field(..., description="Rows with plan_aboard true in this environment.", ge=0)
     plans_written_for_condition: int = Field(
         ...,
-        description='Rows whose plan is written for the condition (written_for condition).',
+        description="Rows whose plan is written for the condition (written_for condition).",
         ge=0,
     )
     plans_from_family: int = Field(
         ...,
-        description='Rows whose plan comes from its family (written_for family).',
+        description="Rows whose plan comes from its family (written_for family).",
         ge=0,
     )
     plans_to_write: list[PlansToWriteItem] = Field(
         ...,
-        description='Rows without a plan aboard here, named so the release validator and the This kit card can show them (EI3).',
+        description="Rows without a plan aboard here, named so the release validator and the This kit card can show them (EI3).",
     )
     as_of: common_schema.Instant

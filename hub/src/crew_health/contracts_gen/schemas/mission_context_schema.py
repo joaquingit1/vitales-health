@@ -16,7 +16,7 @@ class EnvironmentDay(RootModel[int]):
 
 class Today(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     mission_day: common_schema.MissionDay
     environment_day: EnvironmentDay | None
@@ -26,7 +26,7 @@ class Today(BaseModel):
 
 class MissionContext(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     mission_id: common_schema.Id
     mission_mode: common_schema.OriginMode

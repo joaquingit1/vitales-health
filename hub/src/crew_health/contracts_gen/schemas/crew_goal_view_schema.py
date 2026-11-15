@@ -10,10 +10,10 @@ from . import common_schema
 
 class CrewGoalView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     mission_id: common_schema.Id
-    origin_mode: Literal['LIVE', 'SIM']
+    origin_mode: Literal["LIVE", "SIM"]
     window_first_mission_day: common_schema.MissionDay
     window_last_mission_day: common_schema.MissionDay
     completed_total: int = Field(..., ge=0)

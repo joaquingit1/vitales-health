@@ -10,10 +10,10 @@ from . import common_schema
 
 class Decision(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     item: str = Field(..., min_length=1)
-    decision: Literal['agree', 'disagree', 'needs_more', 'not_assessed']
+    decision: Literal["agree", "disagree", "needs_more", "not_assessed"]
     rationale: str = Field(..., min_length=1)
 
 
@@ -23,12 +23,12 @@ class UnresolvedItem(RootModel[str]):
 
 class ClinicalReview(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     review_id: common_schema.Id
     episode_id: common_schema.Id
     reviewer: common_schema.Actor
-    role: Literal['crew_medical_officer', 'ground']
+    role: Literal["crew_medical_officer", "ground"]
     assessment_id: common_schema.Id | None
     decisions: list[Decision]
     unresolved: list[UnresolvedItem]

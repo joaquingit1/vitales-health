@@ -8,7 +8,7 @@ from . import common_schema
 
 class SupplyUse(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_use_id: common_schema.Id
     supply_id: common_schema.ConfigId

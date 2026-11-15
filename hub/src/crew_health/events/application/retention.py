@@ -1,11 +1,16 @@
-from collections.abc import Callable, Sequence
+from collections.abc import Callable
 from datetime import timedelta
+from typing import Protocol
 
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.events.application.delivery import EventStore
 from crew_health.events.domain.errors import failure
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.uow import UnitOfWork
+
+
+class SubscriberRegistry(Protocol):
+    def subscribers(self) -> tuple[str, ...]: ...
 
 
 class EventRetention:
@@ -15,18 +20,11 @@ class EventRetention:
         repository: EventStore,
         settings: HubSettings,
         advance: Callable[[UnitOfWork, int], None],
-        subscribers: Sequence[str],
+        registry: SubscriberRegistry,
     ) -> None:
-        if len(subscribers) > settings.integer("events.max_subscribers") or len(set(subscribers)) != len(
-            subscribers
-        ):
-            raise failure(ErrorCode.CONFIG_INVALID)
-        self.repository, self.settings, self.advance, self.subscribers = (
-            repository,
-            settings,
-            advance,
-            tuple(subscribers),
-        )
+        """Retention reads the durable subscriber registry itself, so it waits for exactly the registered
+        subscribers; a registered subscriber without a cursor holds retention at the current watermark."""
+        self.repository, self.settings, self.advance, self.registry = repository, settings, advance, registry
 
     def prune(self, uow: UnitOfWork) -> int:
         cutoff = uow.now - timedelta(hours=self.settings.integer("events.retention_hours"))
@@ -39,8 +37,12 @@ class EventRetention:
             if event.emitted_at > cutoff:
                 break
             through = event.seq
-        for subscriber in self.subscribers:
-            through = min(through, self.repository.cursor(uow.connection, subscriber))
+        subscribers = self.registry.subscribers()
+        if len(subscribers) > self.settings.integer("events.max_subscribers"):
+            raise failure(ErrorCode.CONFIG_INVALID)
+        for subscriber in subscribers:
+            position = self.repository.cursor(uow.connection, subscriber)
+            through = min(through, watermark if position is None else position)
         if through <= self.repository.watermark(uow.connection):
             return 0
         self.advance(uow, through)

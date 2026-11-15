@@ -8,7 +8,7 @@ from . import event_schema
 
 class EventPage(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     events: list[event_schema.Event]
     next_cursor: str = Field(..., min_length=1)

@@ -15,10 +15,32 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal, cast
 
+import yaml
+from jsonschema import Draft202012Validator
+from jsonschema.exceptions import SchemaError
+from referencing import Registry, Resource
+from referencing.exceptions import Unresolvable
+from referencing.jsonschema import DRAFT202012, Schema
+
+# isort: split
+from crew_health.app.import_contracts import check_features, check_kernel, discover
+from crew_health.app.installed_modules import REGISTRATIONS
+from crew_health.app.registry import DeclarationRegistry
+from crew_health.config.adapters.verification import ConfigArtifacts
+from crew_health.config.application.activation import ReleaseActivationService
 from crew_health.config.application.loader import ConfigLoader, LoaderChecks
 from crew_health.config.domain.checks import parse_document, walk
+from crew_health.config.domain.errors import ConfigInvalid
+from crew_health.contracts_gen.build import (
+    OVERLAY_DIRECTORY,
+    build,
+    effective_schemas,
+    verify_base,
+    verify_overlay,
+)
 from crew_health.contracts_gen.enums import ConfigName
-from crew_health.kernel.config import CandidateRelease, ConfigDocumentView
+from crew_health.kernel.commands import canonical_json
+from crew_health.kernel.config import CandidateRelease, ConfigDocumentView, ReleaseCheck
 from crew_health.kernel.errors import ProblemError
 
 
@@ -82,7 +104,7 @@ def coverage_layers() -> tuple[tuple[str, str], ...]:
 
 
 def executable(path: Path) -> bool:
-    tree = ast.parse(path.read_text(), filename=str(path))
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     return any(
         not isinstance(node, ast.Pass)
         and not (
@@ -119,7 +141,7 @@ def _file_coverage(path: Path, item: dict[str, object]) -> tuple[bool, str]:
     return count * 100 >= denominator * 95, f"{count}/{denominator} {'branches' if total else 'lines'}"
 
 
-def coverage_check(root: Path, report: Path) -> CheckResult:
+def coverage_check(root: Path, report: Path, *, report_only: bool = False) -> CheckResult:
     errors, details = [], []
     try:
         data = json_document(report)
@@ -142,12 +164,14 @@ def coverage_check(root: Path, report: Path) -> CheckResult:
             try:
                 ok, detail = _file_coverage(path, object_map(value))
                 details.append(name + ": " + ("PASS " if ok else "FAIL ") + detail)
-                if not ok:
+                if not ok and not report_only:
                     errors.append(name + ": per-file threshold below 95%")
             except ValueError as error:
                 errors.append(name + ": " + str(error))
     except (OSError, ValueError) as error:
         errors.append(str(error))
+    if report_only:
+        details.append("95% per-file target is advisory by coordinator decision; evidence errors still fail")
     return CheckResult("coverage", tuple(errors), tuple(details))
 
 
@@ -184,7 +208,9 @@ def candidate_check(
 
 def _system_declarations(root: Path) -> dict[str, list[ast.stmt]]:
     definitions: dict[str, list[str]] = {}
-    for block in re.findall(r"```python\n(.*?)```", (root / "docs/SYSTEM.md").read_text(), re.S):
+    for block in re.findall(
+        r"```python\n(.*?)```", (root / "docs/SYSTEM.md").read_text(encoding="utf-8"), re.S
+    ):
         current = ""
         for line in block.splitlines():
             match = re.match(r"# crew_health/(kernel/\w+|app/registry)\.py", line)
@@ -232,12 +258,10 @@ def _declaration_comparison(expected: ast.stmt, actual: ast.stmt) -> bool:
 
 
 def interfaces_check(root: Path) -> CheckResult:
-    from crew_health.app.import_contracts import check_features, check_kernel, discover
-
     errors, details = [], []
     for name, nodes in _system_declarations(root).items():
         path = root / "hub/src/crew_health" / (name + ".py")
-        actual_nodes = ast.parse(path.read_text()).body
+        actual_nodes = ast.parse(path.read_text(encoding="utf-8")).body
         actual = {
             node.name.id if isinstance(node, ast.TypeAlias) else node.name: node
             for node in actual_nodes
@@ -262,8 +286,6 @@ def interfaces_check(root: Path) -> CheckResult:
 
 
 def installed_outputs_check(root: Path, directory: str, base: Mapping[str, str]) -> CheckResult:
-    from crew_health.contracts_gen.build import verify_overlay
-
     target = root / directory
     manifest = json_document(target / "manifest.json")
     outputs = object_map(manifest.get("outputs"))
@@ -295,8 +317,6 @@ def installed_outputs_check(root: Path, directory: str, base: Mapping[str, str])
 
 
 def generated_check(root: Path) -> CheckResult:
-    from crew_health.contracts_gen.build import build, verify_base
-
     errors: list[str] = []
     details: list[str] = []
     try:
@@ -328,9 +348,13 @@ def generated_check(root: Path) -> CheckResult:
 
 
 def _test_paths(root: Path) -> tuple[Path, ...]:
-    directories = tuple(
-        "hub/tests/" + name for name in ("kernel", "platform", "config", "clock", "events", "records", "app")
-    ) + ("eval/scenarios/E01",)
+    directories = (
+        *tuple(
+            "hub/tests/" + name
+            for name in ("kernel", "platform", "config", "clock", "events", "records", "app")
+        ),
+        "eval/scenarios/E01",
+    )
     paths = {path for directory in directories for path in (root / directory).rglob("test_*.py")}
     paths.update(
         path
@@ -341,12 +365,12 @@ def _test_paths(root: Path) -> tuple[Path, ...]:
 
 
 def trace_check(root: Path) -> CheckResult:
-    design = (root / "docs/tdd/E01.md").read_text()
+    design = (root / "docs/tdd/E01.md").read_text(encoding="utf-8")
     promised = set(re.findall(r"\| (T-E01-\d{2}) \|", design))
     errors, details, traced = [], [], set()
     paths = _test_paths(root)
     for path in paths:
-        tree = ast.parse(path.read_text())
+        tree = ast.parse(path.read_text(encoding="utf-8"))
         ids = {
             argument.value
             for node in ast.walk(tree)
@@ -389,7 +413,7 @@ def mutation_inventory(root: Path) -> tuple[dict[str, str], ...]:
     mutations = []
     for path in owned_paths(root, mutation_layers()):
         name = path.relative_to(root).as_posix()
-        for node in ast.walk(ast.parse(path.read_text())):
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             kinds: tuple[str, ...] = ()
             if isinstance(node, ast.Compare):
                 kinds = tuple(
@@ -404,7 +428,9 @@ def mutation_inventory(root: Path) -> tuple[dict[str, str], ...]:
             for kind in kinds:
                 mutations.append(
                     {
-                        "id": f"{name}:{cast(ast.expr, node).lineno}:{cast(ast.expr, node).col_offset}:{kind}",
+                        "id": (
+                            f"{name}:{cast(ast.expr, node).lineno}:{cast(ast.expr, node).col_offset}:{kind}"
+                        ),
                         "source_sha256": digest(path),
                     }
                 )
@@ -466,7 +492,7 @@ def condition_inventory(root: Path) -> tuple[dict[str, str], ...]:
     for path in owned_paths(root, coverage_layers()):
         name = path.relative_to(root).as_posix()
         source_hash = digest(path)
-        for node in ast.walk(ast.parse(path.read_text())):
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             operands: list[ast.expr] = []
             if isinstance(node, ast.If | ast.While | ast.IfExp | ast.Assert):
                 operands = [node.test]
@@ -501,7 +527,7 @@ def function_nodes(function: ast.FunctionDef | ast.AsyncFunctionDef) -> tuple[as
 def safety_check(root: Path, report: Path | None) -> CheckResult:
     errors, details = [], []
     for path in owned_paths(root, coverage_layers()):
-        tree = ast.parse(path.read_text())
+        tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, ast.Assert):
                 errors.append(str(path.relative_to(root)) + ": runtime assert in safety module")
@@ -592,16 +618,14 @@ def _package_artifacts(root: Path) -> CheckResult:
 
 
 def _schema_catalog(root: Path) -> tuple[object, dict[str, dict[str, object]], tuple[str, ...]]:
-    from jsonschema import Draft202012Validator
-    from jsonschema.exceptions import SchemaError
-    from referencing import Registry, Resource
-    from referencing.exceptions import Unresolvable
-    from referencing.jsonschema import DRAFT202012, Schema
-
-    schemas = {
-        path.name: json_document(path)
-        for path in sorted((root / "contracts/api/schemas").glob("*.schema.json"))
-    }
+    # The runtime set (D12): the guarded base schemas plus the verified decision overlay, so an example bound
+    # to an overlay schema such as config-unit-mapping.schema.json is checked like every other.
+    # A fixture tree without the guarded inventory is read as given; corpus_check verifies the base first.
+    directory = root / "contracts/api/schemas"
+    paths = tuple(sorted(directory.glob("*.schema.json")))
+    guarded = (root / "contracts/SHA256SUMS").is_file()
+    effective = effective_schemas(directory, paths) if guarded else {p.name: p.read_bytes() for p in paths}
+    schemas = {name: object_map(json.loads(raw)) for name, raw in sorted(effective.items())}
     resources: list[tuple[str, Resource[Schema]]] = []
     errors = []
     for name, schema in schemas.items():
@@ -623,11 +647,6 @@ def _schema_catalog(root: Path) -> tuple[object, dict[str, dict[str, object]], t
 
 
 def _validate_example(path: Path, registry: object) -> tuple[str, ...]:
-    from jsonschema import Draft202012Validator
-    from referencing import Registry
-    from referencing.exceptions import Unresolvable
-    from referencing.jsonschema import Schema
-
     wrapped = json_document(path)
     reference: object
     value: object
@@ -685,8 +704,6 @@ def _raw_release(root: Path, *, deployment: bool) -> tuple[CandidateRelease | No
                 "responder-flows",
                 "kit-map",
             }:
-                from crew_health.kernel.commands import canonical_json
-
                 raw = canonical_json(json_document(path)["value"])
             documents[name] = ConfigDocumentView(name, hashlib.sha256(raw).hexdigest(), raw)
         except (OSError, ValueError) as error:
@@ -697,9 +714,6 @@ def _raw_release(root: Path, *, deployment: bool) -> tuple[CandidateRelease | No
 
 
 def _core_loader(root: Path) -> ConfigLoader:
-    from crew_health.config.adapters.verification import ConfigArtifacts
-    from crew_health.config.domain.templates import TemplateCheck
-
     names = (
         "input-dictionary.json",
         "sources.csv",
@@ -732,16 +746,17 @@ def _core_loader(root: Path) -> ConfigLoader:
         source_documents=source_documents,
     )
     checks = LoaderChecks(maximum=1024)
-    for check in (verified.schemas, verified.sources, verified.indicators, TemplateCheck()):
-        checks.register(check)
+    registry = DeclarationRegistry(max_ports=1024, max_hooks=1024)
+    for register in REGISTRATIONS:
+        register(registry)
+    core = {check.check_id: check for check in (verified.schemas, verified.sources, verified.indicators)}
+    for value in registry.declarations.get("loader_checks", {}).values():
+        declared = cast(ReleaseCheck, value)
+        checks.register(core.get(declared.check_id, declared))
     return ConfigLoader(checks, max_document_bytes=8388608)
 
 
 def corpus_check(root: Path, *, loader: ConfigLoader | None = None) -> CheckResult:
-    from crew_health.config.application.activation import ReleaseActivationService
-    from crew_health.config.domain.errors import ConfigInvalid
-    from crew_health.contracts_gen.build import verify_base
-
     errors: list[str] = []
     details: list[str] = []
     try:
@@ -789,11 +804,6 @@ def corpus_check(root: Path, *, loader: ConfigLoader | None = None) -> CheckResu
 
 
 def _openapi_references(root: Path, catalog: object) -> tuple[str, ...]:
-    import yaml
-    from referencing import Registry, Resource
-    from referencing.exceptions import Unresolvable
-    from referencing.jsonschema import DRAFT202012, Schema
-
     registry = cast(Registry[Schema], catalog)
     openapi = object_map(yaml.safe_load((root / "contracts/api/openapi.yaml").read_bytes()))
     members = [("openapi.yaml", Resource.from_contents(openapi, default_specification=DRAFT202012))]
@@ -812,8 +822,6 @@ def _openapi_references(root: Path, catalog: object) -> tuple[str, ...]:
 
 
 def unit_mapping_check(root: Path) -> CheckResult:
-    from jsonschema import Draft202012Validator
-
     schema_path = root / "contracts/decision-overlay/config-unit-mapping.schema.json"
     document_path = root / "config/unit-mapping.json"
     try:
@@ -835,8 +843,6 @@ def unit_mapping_check(root: Path) -> CheckResult:
 
 
 def overlay_check(root: Path) -> CheckResult:
-    from crew_health.contracts_gen.build import OVERLAY_DIRECTORY, verify_base, verify_overlay
-
     if not (root / OVERLAY_DIRECTORY).exists():
         return CheckResult(
             "overlay", (), ("D19: effective contract equals guarded base; external bundles disabled",)
@@ -870,6 +876,11 @@ def main() -> int:
     )
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--report", type=Path)
+    parser.add_argument(
+        "--coverage-report-only",
+        action="store_true",
+        help="report the unchanged 95%% target without blocking on shortfalls",
+    )
     parser.add_argument("--condition-report", type=Path)
     parser.add_argument("--mutation-report", type=Path)
     parser.add_argument("--output", type=Path)
@@ -880,7 +891,7 @@ def main() -> int:
         try:
             if name == "coverage":
                 result = (
-                    coverage_check(root, args.report)
+                    coverage_check(root, args.report, report_only=args.coverage_report_only)
                     if args.report is not None
                     else CheckResult(name, ("--report is required",))
                 )
@@ -902,7 +913,7 @@ def main() -> int:
     rendered = json.dumps([asdict(result) | {"ok": result.ok} for result in results], indent=2) + "\n"
     if args.output is not None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(rendered)
+        args.output.write_text(rendered, encoding="utf-8")
     else:
         print(rendered, end="")
     return 0 if all(result.ok for result in results) else 1

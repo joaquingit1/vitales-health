@@ -18,9 +18,9 @@ class Choice(RootModel[str]):
 
 class ModelAction1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['ask']
+    action: Literal["ask"]
     reason: str = Field(..., min_length=1)
     decision_affected: DecisionAffected | None
     state_snapshot_version: int = Field(..., ge=1)
@@ -29,14 +29,14 @@ class ModelAction1(BaseModel):
 
 
 class ConditionId(RootModel[str]):
-    root: str = Field(..., pattern='^ICL[1-9][0-9]{0,2}$')
+    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
 
 
 class ModelAction2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['request_measurement']
+    action: Literal["request_measurement"]
     reason: str = Field(..., min_length=1)
     decision_affected: DecisionAffected | None
     state_snapshot_version: int = Field(..., ge=1)
@@ -48,9 +48,9 @@ class ModelAction2(BaseModel):
 
 class ModelAction3(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['retrieve_evidence']
+    action: Literal["retrieve_evidence"]
     reason: str = Field(..., min_length=1)
     decision_affected: DecisionAffected | None
     state_snapshot_version: int = Field(..., ge=1)
@@ -60,9 +60,9 @@ class ModelAction3(BaseModel):
 
 class ModelAction4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['assessment']
+    action: Literal["assessment"]
     reason: str = Field(..., min_length=1)
     decision_affected: DecisionAffected | None
     state_snapshot_version: int = Field(..., ge=1)
@@ -71,19 +71,19 @@ class ModelAction4(BaseModel):
 
 class ModelAction5(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['request_review']
+    action: Literal["request_review"]
     reason: str = Field(..., min_length=1)
     decision_affected: DecisionAffected | None
     state_snapshot_version: int = Field(..., ge=1)
-    to: Literal['crew_medical_officer'] = Field(
-        ..., description='Review happens on board. Nothing waits for the ground.'
+    to: Literal["crew_medical_officer"] = Field(
+        ..., description="Review happens on board. Nothing waits for the ground."
     )
     note: str = Field(..., min_length=1)
     also_tell_ground: bool | None = Field(
         None,
-        description='Side effect: also queue a ground message. Nothing waits for it to be sent, acknowledged or answered.',
+        description="Side effect: also queue a ground message. Nothing waits for it to be sent, acknowledged or answered.",
     )
 
 
@@ -93,9 +93,9 @@ class MissingItem(RootModel[str]):
 
 class ModelAction6(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['stop_incomplete']
+    action: Literal["stop_incomplete"]
     reason: str = Field(..., min_length=1)
     decision_affected: DecisionAffected | None
     state_snapshot_version: int = Field(..., ge=1)
@@ -103,24 +103,10 @@ class ModelAction6(BaseModel):
 
 
 class ModelAction(
-    RootModel[
-        ModelAction1
-        | ModelAction2
-        | ModelAction3
-        | ModelAction4
-        | ModelAction5
-        | ModelAction6
-    ]
+    RootModel[ModelAction1 | ModelAction2 | ModelAction3 | ModelAction4 | ModelAction5 | ModelAction6]
 ):
-    root: (
-        ModelAction1
-        | ModelAction2
-        | ModelAction3
-        | ModelAction4
-        | ModelAction5
-        | ModelAction6
-    ) = Field(
+    root: ModelAction1 | ModelAction2 | ModelAction3 | ModelAction4 | ModelAction5 | ModelAction6 = Field(
         ...,
-        description='One structured action proposed by the model per turn (CONTRACTS section 6). The controller validates it before anything happens.',
-        title='ModelAction',
+        description="One structured action proposed by the model per turn (CONTRACTS section 6). The controller validates it before anything happens.",
+        title="ModelAction",
     )

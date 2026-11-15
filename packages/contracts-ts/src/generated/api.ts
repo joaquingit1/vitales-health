@@ -2644,7 +2644,7 @@ export interface components {
          * @description Configuration document name; the file is <name>.json.
          * @enum {unknown}
          */
-        config_name: "environment-hazards" | "routine-schedule" | "responder-flows" | "sensor-catalog" | "sensor-limits" | "warning-rules" | "routine-rules" | "environment-profiles" | "questionnaires" | "indicator-catalog" | "help-presentation" | "assistant-policy" | "ui-copy" | "participation-rules" | "kit-map" | "onboard-plans" | "skills-catalog" | "role-rules";
+        config_name: "environment-hazards" | "routine-schedule" | "responder-flows" | "sensor-catalog" | "sensor-limits" | "warning-rules" | "routine-rules" | "environment-profiles" | "questionnaires" | "indicator-catalog" | "help-presentation" | "assistant-policy" | "ui-copy" | "participation-rules" | "kit-map" | "onboard-plans" | "skills-catalog" | "role-rules" | "unit-mapping";
         sha256: string;
         /** @description One document version pinned by a release. */
         config_pin: {

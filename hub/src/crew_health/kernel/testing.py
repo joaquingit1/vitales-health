@@ -38,6 +38,7 @@ from crew_health.kernel.config import (
     ReleaseCheck,
     ReleaseHandle,
     ReleaseRevision,
+    TemplateRenderer,
     _FrozenMapping,
 )
 from crew_health.kernel.errors import ProblemError
@@ -300,6 +301,44 @@ class MemoryTemplateRenderer:
             return template.format_map(selected)
         except (KeyError, ValueError) as error:
             raise _fail(ErrorCode.CONFIG_INVALID) from error
+
+
+@dataclass(frozen=True)
+class MemoryBoundConfig:
+    """Readers bound to one view: the active release is the view's own. Pinned reads go to `config`, and fail closed
+    when the fake was built without one; rendering delegates to `renderer`."""
+
+    view: ReadSnapshot | UnitOfWork
+    renderer: TemplateRenderer
+    config: MemoryConfig | None = None
+
+    def _pinned(self) -> MemoryConfig:
+        if self.config is None:
+            raise _fail(ErrorCode.CONFIG_INVALID)
+        return self.config
+
+    def active(self) -> ReleaseHandle:
+        return self.view.release
+
+    def release(self, release_id: str) -> ReleaseHandle:
+        return self._pinned().release(release_id)
+
+    def document(self, name: ConfigName, version: str | None = None) -> ConfigDocumentView:
+        if version is None:
+            return self.view.release.document(name)
+        return self._pinned().document(name, version)
+
+    def render(self, field_key: str, template: str, values: Mapping[str, str]) -> str:
+        return self.renderer.render(field_key, template, values)
+
+
+@dataclass(frozen=True)
+class MemoryConfigBinding:
+    renderer: TemplateRenderer
+    config: MemoryConfig | None = None
+
+    def bind(self, view: ReadSnapshot | UnitOfWork) -> MemoryBoundConfig:
+        return MemoryBoundConfig(view, self.renderer, self.config)
 
 
 class MemoryStorage:

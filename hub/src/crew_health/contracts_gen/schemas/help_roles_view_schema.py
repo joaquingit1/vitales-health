@@ -8,7 +8,7 @@ from . import common_schema, role_assignment_schema
 
 class UnfilledItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     role_id: common_schema.ConfigId
     label: str = Field(..., min_length=1)
@@ -17,7 +17,7 @@ class UnfilledItem(BaseModel):
 
 class HelpRolesView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     help_session_id: common_schema.Id
     assignments: list[role_assignment_schema.RoleAssignment]

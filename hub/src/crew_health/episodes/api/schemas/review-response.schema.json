@@ -1,0 +1,194 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "person",
+            "station",
+            "ground",
+            "operator",
+            "adapter",
+            "engine",
+            "assistant"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DisplayName"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "kind",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "minLength": 1,
+          "title": "Item",
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "agree",
+            "disagree",
+            "needs_more",
+            "not_assessed"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "rationale": {
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "item",
+        "decision",
+        "rationale"
+      ],
+      "title": "Decision",
+      "type": "object"
+    },
+    "DisplayName": {
+      "minLength": 1,
+      "title": "DisplayName",
+      "type": "string"
+    },
+    "Id": {
+      "description": "An opaque object ID issued by the hub. Never a display name.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "Instant": {
+      "description": "UTC instant, RFC 3339 with Z.",
+      "format": "date-time",
+      "title": "Instant",
+      "type": "string"
+    },
+    "UnresolvedItem": {
+      "minLength": 1,
+      "title": "UnresolvedItem",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "review_id": {
+      "$ref": "#/$defs/Id"
+    },
+    "episode_id": {
+      "$ref": "#/$defs/Id"
+    },
+    "reviewer": {
+      "$ref": "#/$defs/Actor"
+    },
+    "role": {
+      "enum": [
+        "crew_medical_officer",
+        "acting_medical_officer",
+        "ground"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "assessment_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decisions": {
+      "items": {
+        "$ref": "#/$defs/Decision"
+      },
+      "title": "Decisions",
+      "type": "array"
+    },
+    "unresolved": {
+      "items": {
+        "$ref": "#/$defs/UnresolvedItem"
+      },
+      "title": "Unresolved",
+      "type": "array"
+    },
+    "signed_at": {
+      "$ref": "#/$defs/Instant"
+    },
+    "authority": {
+      "enum": [
+        "crew_medical_officer",
+        "acting_medical_officer",
+        "ground"
+      ],
+      "title": "Authority",
+      "type": "string"
+    },
+    "role_assignment_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "episode_revision_seen": {
+      "minimum": 1,
+      "title": "Episode Revision Seen",
+      "type": "integer"
+    },
+    "supersedes_review_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "review_id",
+    "episode_id",
+    "reviewer",
+    "role",
+    "assessment_id",
+    "decisions",
+    "unresolved",
+    "signed_at",
+    "authority",
+    "role_assignment_id",
+    "episode_revision_seen",
+    "supersedes_review_id"
+  ],
+  "title": "ReviewResponse",
+  "type": "object"
+}

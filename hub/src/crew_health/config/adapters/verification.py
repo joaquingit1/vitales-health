@@ -12,8 +12,10 @@ from referencing.jsonschema import DRAFT202012, Schema
 
 from crew_health.config.domain.checks import IndicatorCheck, SourceCheck, parse_document
 from crew_health.config.domain.errors import ConfigInvalid
+from crew_health.config.domain.package_checks import package_checks
+from crew_health.contracts_gen.build import effective_schemas
 from crew_health.contracts_gen.enums import ConfigName
-from crew_health.kernel.config import CandidateRelease, ConfigDocumentView, Finding
+from crew_health.kernel.config import CandidateRelease, ConfigDocumentView, Finding, ReleaseCheck
 
 
 def verified_documents(
@@ -30,6 +32,13 @@ def verified_documents(
     return result
 
 
+def _effective_schemas(directory: Path, paths: tuple[Path, ...]) -> dict[str, bytes]:
+    try:
+        return effective_schemas(directory, paths)
+    except (ValueError, OSError) as exc:
+        raise ConfigInvalid("effective schema inventory invalid") from exc
+
+
 @dataclass(frozen=True, slots=True)
 class SchemaCheck:
     validators: Mapping[ConfigName, Draft202012Validator]
@@ -42,14 +51,15 @@ class SchemaCheck:
         paths = tuple(sorted(directory.glob("*.schema.json")))
         if not paths or len(paths) > 1024:
             raise ConfigInvalid("schema inventory invalid")
-        for path in paths:
-            value = parse_document(path.read_bytes())
+        effective = _effective_schemas(directory, paths)
+        for name, raw in sorted(effective.items()):
+            value = parse_document(raw)
             if not isinstance(value, dict):
                 raise ConfigInvalid("schema is not an object")
             schema = cast(dict[str, object], value)
             Draft202012Validator.check_schema(schema)
-            schemas[path.name] = schema
-            resources.append((path.name, Resource.from_contents(schema, default_specification=DRAFT202012)))
+            schemas[name] = schema
+            resources.append((name, Resource.from_contents(schema, default_specification=DRAFT202012)))
         registry: Registry[Schema] = Registry().with_resources(resources)
         validators = {}
         for name in ConfigName:
@@ -90,6 +100,9 @@ class ConfigArtifacts:
     schemas: SchemaCheck
     sources: SourceCheck
     indicators: IndicatorCheck
+    # Loader checks 3 to 8, 10, 11, 12, 14, 15 and 16 over the package's condition registry and saved forms;
+    # empty when those inputs were not supplied, which leaves the bound checks failing closed.
+    package: tuple[ReleaseCheck, ...] = ()
 
     @classmethod
     def from_verified(
@@ -99,6 +112,8 @@ class ConfigArtifacts:
         artifacts: Mapping[str, bytes],
         inventory: Mapping[str, str],
         source_documents: Mapping[str, ConfigName] | None = None,
+        condition_ids: frozenset[str] | None = None,
+        form_pages: Mapping[str, tuple[str, ...]] | None = None,
     ) -> ConfigArtifacts:
         required = {
             "input-dictionary.json",
@@ -118,10 +133,16 @@ class ConfigArtifacts:
         schemas = SchemaCheck.from_directory(schema_directory)
         sources = _source_identifiers(artifacts)
         sources.update(_contributor_sources(schemas, artifacts, source_documents or {}))
+        package = (
+            ()
+            if condition_ids is None or form_pages is None
+            else package_checks(condition_ids=condition_ids, form_pages=form_pages)
+        )
         return cls(
             schemas,
             SourceCheck(frozenset(sources)),
             IndicatorCheck(_dictionary_fields(artifacts["input-dictionary.json"])),
+            package,
         )
 
 

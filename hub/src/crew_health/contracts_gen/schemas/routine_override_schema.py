@@ -10,54 +10,50 @@ from . import common_schema
 
 class Source(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal[
-        'warning', 'mission_event', 'overlay', 'observation', 'answer', 'person'
-    ]
+    kind: Literal["warning", "mission_event", "overlay", "observation", "answer", "person"]
     ref_id: common_schema.Id
 
 
 class Ends(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal[
-        'warning_cleared', 'effect_complete', 'days', 'person_stops', 'mission_event'
-    ]
+    kind: Literal["warning_cleared", "effect_complete", "days", "person_stops", "mission_event"]
     at: common_schema.Instant | None
     text: str = Field(..., min_length=1)
 
 
 class RoutineOverride(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     override_id: common_schema.Id
     revision: int = Field(..., ge=1)
     item_id: common_schema.ConfigId
     person_id: common_schema.Id | None
-    audience: Literal['person', 'everyone_in_location', 'all_crew']
+    audience: Literal["person", "everyone_in_location", "all_crew"]
     binding_id: common_schema.DottedId | None
     trigger_index: int = Field(..., ge=0)
     trigger_text: str = Field(..., min_length=1)
-    started_by: Literal['rule', 'sensor_limit', 'person']
+    started_by: Literal["rule", "sensor_limit", "person"]
     source: Source
     new_cadence: common_schema.Cadence
     cadence_text: str = Field(..., min_length=1)
     reason_text: str = Field(..., min_length=1)
-    state: Literal['active', 'ended']
+    state: Literal["active", "ended"]
     started_at: common_schema.Instant
     ends: Ends
     ended_at: common_schema.Instant | None
     end_reason: (
         Literal[
-            'warning_cleared',
-            'effect_complete',
-            'days_elapsed',
-            'stopped_by_person',
-            'mission_event',
-            'environment_changed',
+            "warning_cleared",
+            "effect_complete",
+            "days_elapsed",
+            "stopped_by_person",
+            "mission_event",
+            "environment_changed",
         ]
         | None
     )

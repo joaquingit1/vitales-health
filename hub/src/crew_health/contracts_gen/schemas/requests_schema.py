@@ -11,27 +11,27 @@ from . import common_schema
 class RequestBodies(RootModel[Any]):
     root: Any = Field(
         ...,
-        description='Every request body, one definition per operation family. Referenced from openapi.yaml.',
-        title='Request bodies',
+        description="Every request body, one definition per operation family. Referenced from openapi.yaml.",
+        title="Request bodies",
     )
 
 
 class SessionCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['crew', 'station', 'ground', 'operator', 'editor']
+    kind: Literal["crew", "station", "ground", "operator", "editor"]
     person_id: common_schema.Id | None = None
     credential: str = Field(
         ...,
-        description='A local credential configured on the hub (PIN or passphrase). Never a config document.',
+        description="A local credential configured on the hub (PIN or passphrase). Never a config document.",
         min_length=1,
     )
 
 
 class Document(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     name: common_schema.ConfigName
     document: dict[str, Any]
@@ -39,7 +39,7 @@ class Document(BaseModel):
 
 class ConfigReleaseCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     documents: list[Document] = Field(..., min_length=1)
     note: str | None = Field(None, min_length=1)
@@ -47,25 +47,25 @@ class ConfigReleaseCreate(BaseModel):
 
 class EnvironmentChangeCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     environment_id: common_schema.EnvironmentId
-    reason: Literal['phase_plan', 'operator', 'ground', 'demo_switch']
+    reason: Literal["phase_plan", "operator", "ground", "demo_switch"]
     effective_at: common_schema.Instant | None = None
     note: str | None = Field(None, min_length=1)
 
 
 class EnvironmentChangeAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['confirm', 'reject']
+    action: Literal["confirm", "reject"]
     note: str | None = Field(None, min_length=1)
 
 
 class MissionEventCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     event_type: common_schema.ConfigId
     occurred_at: common_schema.Instant
@@ -77,7 +77,7 @@ class MissionEventCreate(BaseModel):
 
 class GroundLinkDemoSwitch1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     use_schedule: Literal[True]
 
@@ -88,9 +88,9 @@ class OneWayDelayS(RootModel[float]):
 
 class GroundLinkDemoSwitch2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    status: Literal['up', 'delayed', 'down']
+    status: Literal["up", "delayed", "down"]
     one_way_delay_s: OneWayDelayS | None = None
     next_contact_at: common_schema.Instant | None = None
     gap_kind: common_schema.GapKind | None = None
@@ -106,7 +106,7 @@ class GroundLinkDemoSwitch(RootModel[GroundLinkDemoSwitch1 | GroundLinkDemoSwitc
 
 class OverlayCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     overlay: common_schema.Overlay
     planned_start: common_schema.Instant | None = None
@@ -116,31 +116,28 @@ class OverlayCreate(BaseModel):
 
 class OverlayEnd(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     ended_at: common_schema.Instant
 
 
 class WarningAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['acknowledge', 'resolve', 'dismiss', 'add_note']
+    action: Literal["acknowledge", "resolve", "dismiss", "add_note"]
     reason: str | None = Field(None, min_length=1)
     note: str | None = Field(None, min_length=1)
 
 
 class OccurrenceAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['complete', 'skip', 'later']
+    action: Literal["complete", "skip", "later"]
     observation_ids: list[common_schema.Id] | None = None
     answer_ids: list[common_schema.Id] | None = None
-    skip_reason: (
-        Literal['not_available', 'declined', 'no_time', 'not_needed_now', 'other']
-        | None
-    ) = None
+    skip_reason: Literal["not_available", "declined", "no_time", "not_needed_now", "other"] | None = None
     note: str | None = Field(None, min_length=1)
     later_until: common_schema.Instant | None = None
     completed_at: common_schema.Instant | None = None
@@ -148,15 +145,15 @@ class OccurrenceAction(BaseModel):
 
 class Until(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['days', 'person_stops']
+    kind: Literal["days", "person_stops"]
     days: int | None = Field(None, ge=1)
 
 
 class OverrideCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     item_id: common_schema.ConfigId
     trigger_index: int = Field(..., ge=0)
@@ -167,22 +164,22 @@ class OverrideCreate(BaseModel):
 
 class OverrideAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['end']
+    action: Literal["end"]
     note: str | None = Field(None, min_length=1)
 
 
 class DailyCheckCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    origin_mode: Literal['LIVE', 'SIM']
+    origin_mode: Literal["LIVE", "SIM"]
 
 
 class AnswerCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     question_id: common_schema.ConfigId
     presence: common_schema.Presence
@@ -196,31 +193,31 @@ class AnswerCreate(BaseModel):
 
 class JournalEntryCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str = Field(..., min_length=1)
 
 
 class Onset(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     at: common_schema.Instant | None
-    precision: Literal['exact', 'hour', 'day', 'unknown']
+    precision: Literal["exact", "hour", "day", "unknown"]
 
 
 class EpisodeCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     concern_text: str = Field(..., min_length=1)
     onset: Onset | None = None
-    origin_mode: Literal['LIVE', 'SIM']
+    origin_mode: Literal["LIVE", "SIM"]
 
 
 class ObservationCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     patient_id: common_schema.Id
     episode_id: common_schema.Id | None = None
@@ -238,12 +235,12 @@ class ObservationCreate(BaseModel):
 
 
 class ConditionId(RootModel[str]):
-    root: str = Field(..., pattern='^ICL[1-9][0-9]{0,2}$')
+    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
 
 
 class MeasurementRequestCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     episode_id: common_schema.Id | None = None
     capability_code: common_schema.ConfigId
@@ -253,13 +250,13 @@ class MeasurementRequestCreate(BaseModel):
     body_region: common_schema.BodyRegionOrNull | None = None
     condition_ids: list[ConditionId] | None = Field(
         None,
-        description='ICL conditions the result would help confirm; echoed in kit_check with their CliFF links.',
+        description="ICL conditions the result would help confirm; echoed in kit_check with their CliFF links.",
     )
 
 
 class AddSupply(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     supply_id: common_schema.ConfigId
     quantity: float = Field(..., gt=0.0)
@@ -267,7 +264,7 @@ class AddSupply(BaseModel):
 
 class AddSkill(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     skill_id: common_schema.ConfigId
     person_ids: list[common_schema.Id] = Field(..., min_length=1)
@@ -275,7 +272,7 @@ class AddSkill(BaseModel):
 
 class KitMapWhatIf(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     add_instruments: list[common_schema.ConfigId] | None = Field(None, min_length=1)
     add_supplies: list[AddSupply] | None = Field(None, min_length=1)
@@ -285,15 +282,15 @@ class KitMapWhatIf(BaseModel):
 
 class MeasurementRequestAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['submit', 'accept', 'decline', 'start', 'cancel']
+    action: Literal["submit", "accept", "decline", "start", "cancel"]
     reason: str | None = Field(None, min_length=1)
 
 
 class Observation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     patient_id: common_schema.Id
     episode_id: common_schema.Id | None = None
@@ -316,12 +313,12 @@ class QualityNote(RootModel[str]):
 
 class AttemptCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     sequence: int = Field(..., ge=1)
     started_at: common_schema.Instant
     ended_at: common_schema.Instant
-    outcome: Literal['success', 'failed', 'rejected']
+    outcome: Literal["success", "failed", "rejected"]
     failure_reason: str | None = Field(None, min_length=1)
     observations: list[Observation]
     quality_notes: list[QualityNote] | None = None
@@ -329,34 +326,34 @@ class AttemptCreate(BaseModel):
 
 class Confirmation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     draft_id: common_schema.Id
-    decision: Literal['confirm', 'reject']
+    decision: Literal["confirm", "reject"]
     value: float | str | None = None
     unit: str | None = Field(None, min_length=1)
 
 
 class ReportConfirmations(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     confirmations: list[Confirmation] = Field(..., min_length=1)
 
 
 class AssessmentCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     state_snapshot_version: int = Field(..., ge=1)
 
 
 class Decision(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     item: str = Field(..., min_length=1)
-    decision: Literal['agree', 'disagree', 'needs_more', 'not_assessed']
+    decision: Literal["agree", "disagree", "needs_more", "not_assessed"]
     rationale: str = Field(..., min_length=1)
 
 
@@ -366,7 +363,7 @@ class UnresolvedItem(RootModel[str]):
 
 class ReviewCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     assessment_id: common_schema.Id | None = None
     decisions: list[Decision] = Field(..., min_length=1)
@@ -379,7 +376,7 @@ class Recipient(RootModel[str]):
 
 class HandoffCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     episode_id: common_schema.Id
     fields: list[common_schema.ConfigId] = Field(..., min_length=1)
@@ -390,30 +387,30 @@ class HandoffCreate(BaseModel):
 
 class HandoffApprove(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     previewed_revision: int = Field(..., ge=1)
 
 
 class Subject(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['self', 'crewmate', 'unknown']
+    kind: Literal["self", "crewmate", "unknown"]
     person_id: common_schema.Id | None = None
 
 
 class Entry(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['button', 'red_flag', 'warning']
+    kind: Literal["button", "red_flag", "warning"]
     ref_id: common_schema.Id | None = None
 
 
 class OfflinePathItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     node_id: common_schema.ConfigId
     answer_index: int = Field(..., ge=0)
@@ -422,7 +419,7 @@ class OfflinePathItem(BaseModel):
 
 class HelpSessionCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     subject: Subject
     entry: Entry
@@ -430,29 +427,29 @@ class HelpSessionCreate(BaseModel):
     client_opened_at: common_schema.Instant
     offline_path: list[OfflinePathItem] | None = Field(
         None,
-        description='Answers given on the cached first screen before the hub answered; replayed in order.',
+        description="Answers given on the cached first screen before the hub answered; replayed in order.",
     )
     flow_id: common_schema.ConfigId | None = None
 
 
 class HelpAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     action: Literal[
-        'answer',
-        'switch_flow',
-        'tick_step',
-        'untick_step',
-        'call_crew',
-        'join',
-        'leave',
-        'start_over',
-        'set_body_region',
-        'set_place',
-        'add_note',
-        'ask_assistant',
-        'close',
+        "answer",
+        "switch_flow",
+        "tick_step",
+        "untick_step",
+        "call_crew",
+        "join",
+        "leave",
+        "start_over",
+        "set_body_region",
+        "set_place",
+        "add_note",
+        "ask_assistant",
+        "close",
     ]
     client_time: common_schema.Instant
     node_id: common_schema.ConfigId | None = None
@@ -465,11 +462,11 @@ class HelpAction(BaseModel):
     text: str | None = Field(None, min_length=1)
     disposition: (
         Literal[
-            'resolved_on_board',
-            'handed_to_crew_medical_officer',
-            'ground_consulted',
-            'false_alarm',
-            'other',
+            "resolved_on_board",
+            "handed_to_crew_medical_officer",
+            "ground_consulted",
+            "false_alarm",
+            "other",
         ]
         | None
     ) = None
@@ -477,7 +474,7 @@ class HelpAction(BaseModel):
 
 class GroundMessageCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     extra_note: str | None = Field(None, min_length=1)
     previewed_sha256: common_schema.Sha256 | None = None
@@ -485,9 +482,9 @@ class GroundMessageCreate(BaseModel):
 
 class PlanRunCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    plan_id: str = Field(..., pattern='^plan_[a-z0-9_]{1,59}$')
+    plan_id: str = Field(..., pattern="^plan_[a-z0-9_]{1,59}$")
     subject_person_id: common_schema.Id
     episode_id: common_schema.Id | None = None
     help_session_id: common_schema.Id | None = None
@@ -495,9 +492,9 @@ class PlanRunCreate(BaseModel):
 
 class PlanRunAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['step_done', 'not_available', 'use_substitute', 'escalate', 'close']
+    action: Literal["step_done", "not_available", "use_substitute", "escalate", "close"]
     client_time: common_schema.Instant
     step_id: common_schema.ConfigId | None = None
     reason: str | None = Field(None, min_length=1)
@@ -505,11 +502,11 @@ class PlanRunAction(BaseModel):
     guided_check_id: common_schema.Id | None = None
     disposition: (
         Literal[
-            'resolved_on_board',
-            'handed_to_medical_officer',
-            'watch_ended',
-            'preparing_return',
-            'other',
+            "resolved_on_board",
+            "handed_to_medical_officer",
+            "watch_ended",
+            "preparing_return",
+            "other",
         ]
         | None
     ) = None
@@ -518,7 +515,7 @@ class PlanRunAction(BaseModel):
 
 class GuidedCheckCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     skill_id: common_schema.ConfigId
     helper_person_id: common_schema.Id
@@ -530,7 +527,7 @@ class GuidedCheckCreate(BaseModel):
 
 class GuidedCheckBeat(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     sequence: int = Field(..., ge=1)
     client_time: common_schema.Instant
@@ -538,19 +535,19 @@ class GuidedCheckBeat(BaseModel):
 
 class GuidedCheckAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['step_done', 'start_count', 'answer', 'finish', 'retry', 'cancel']
+    action: Literal["step_done", "start_count", "answer", "finish", "retry", "cancel"]
     client_time: common_schema.Instant
     step_no: int | None = Field(None, ge=1)
-    answer: Literal['regular', 'irregular', 'not_sure'] | None = None
+    answer: Literal["regular", "irregular", "not_sure"] | None = None
 
 
 class RoleAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['accept', 'reassign']
+    action: Literal["accept", "reassign"]
     role_assignment_id: common_schema.Id
     person_id: common_schema.Id | None = None
     client_time: common_schema.Instant
@@ -558,18 +555,18 @@ class RoleAction(BaseModel):
 
 class DrillCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     scenario_id: common_schema.ConfigId
     skill_ids: list[common_schema.ConfigId] = Field(..., min_length=1)
     participant_ids: list[common_schema.Id] = Field(..., min_length=1)
     routine_occurrence_id: common_schema.Id | None = None
-    origin_mode: Literal['LIVE', 'SIM']
+    origin_mode: Literal["LIVE", "SIM"]
 
 
 class DrillComplete(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     client_time: common_schema.Instant
     participant_ids: list[common_schema.Id] | None = Field(None, min_length=1)
@@ -577,7 +574,7 @@ class DrillComplete(BaseModel):
 
 class SupplyUseCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     quantity: float = Field(..., gt=0.0)
     plan_run_id: common_schema.Id | None = None
@@ -588,29 +585,29 @@ class SupplyUseCreate(BaseModel):
 
 class AssistantRuntimeAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['start', 'stop']
+    action: Literal["start", "stop"]
 
 
 class Context(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['general', 'episode', 'help_session', 'warning', 'reading', 'insight']
+    kind: Literal["general", "episode", "help_session", "warning", "reading", "insight"]
     ref_id: common_schema.Id | None = None
 
 
 class ConversationCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     context: Context
 
 
 class ReplyToAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     message_id: common_schema.Id
     choice: str = Field(..., min_length=1)
@@ -618,7 +615,7 @@ class ReplyToAction(BaseModel):
 
 class MessageCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str | None = Field(None, min_length=1)
     reply_to_action: ReplyToAction | None = None
@@ -626,17 +623,17 @@ class MessageCreate(BaseModel):
 
 class InsightAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    action: Literal['dismiss']
+    action: Literal["dismiss"]
     reason: str | None = Field(None, min_length=1)
 
 
 class ParticipationRebuild(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    origin_mode: Literal['LIVE', 'SIM']
+    origin_mode: Literal["LIVE", "SIM"]
 
 
 class WindowSeconds(RootModel[int]):
@@ -645,15 +642,15 @@ class WindowSeconds(RootModel[int]):
 
 class Aggregation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['sample', 'mean', 'time_weighted_mean', 'energy_mean', 'max']
+    kind: Literal["sample", "mean", "time_weighted_mean", "energy_mean", "max"]
     window_seconds: WindowSeconds | None
 
 
 class Replay(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     dataset: str = Field(..., min_length=1)
     time_basis: str = Field(..., min_length=1)
@@ -661,15 +658,15 @@ class Replay(BaseModel):
 
 class CabinPressureMmhg(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float
-    basis: Literal['measured', 'assumed']
+    basis: Literal["measured", "assumed"]
 
 
 class Reading(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     channel_id: common_schema.Id
     adapter_sequence: int = Field(..., ge=0)
@@ -686,7 +683,7 @@ class Reading(BaseModel):
 
 class AdapterReadingBatch(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     batch_id: common_schema.Id
     readings: list[Reading] = Field(..., max_length=1000, min_length=1)
@@ -694,14 +691,14 @@ class AdapterReadingBatch(BaseModel):
 
 class GroundReceipt(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     received_at: common_schema.Instant
 
 
 class GroundReply(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str = Field(
         ...,
@@ -712,7 +709,7 @@ class GroundReply(BaseModel):
 
 class ResearchSourceCreate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     source_id: common_schema.SourceId
     title: str = Field(..., min_length=1)
