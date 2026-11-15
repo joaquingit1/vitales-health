@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import replace
 from datetime import timedelta
 from decimal import Decimal
+from typing import Literal
 
 import pytest
 from hypothesis import given as hypothesis_given
@@ -21,6 +22,8 @@ from crew_health.medicines.domain.model import (
     IngredientRule,
     LotView,
     Mode,
+    PastAdministration,
+    Proposal,
     WeightObservation,
     WeightPolicy,
 )
@@ -263,13 +266,14 @@ def test_live_compensates_like_sim_with_no_outside_authorization_and_every_gate_
     do_not_use lot, an ineligible estimate, the product opt-out) still refuse or keep the label."""
     summary = assessed("adjust", "0.85", "0.9", "0.95", "promethazine")
 
-    def context(mode: str, view: LotView) -> DoseContext:
+    def context(mode: Mode, view: LotView) -> DoseContext:
         base = given(mode=mode)
         rules = {k: replace(v, review_state="reviewed") for k, v in base.treatments.rules.items()}
         return replace(base, treatments=replace(base.treatments, rules=rules), lots=(view,))
 
     eligible = lot("lot-pmz-tab-001", "promethazine_25_tab", summary=summary)
-    for mode in ("LIVE", "SIM", "REPLAY"):
+    modes: tuple[Mode, ...] = ("LIVE", "SIM", "REPLAY")
+    for mode in modes:
         assert propose(ask("promethazine_25_tab", "ICL97"), context(mode, eligible)).path == "compensated", (
             mode
         )
@@ -331,3 +335,71 @@ def test_lots_fixture_has_the_three_reviewed_products() -> None:
         "ibuprofen_400_tab",
         "promethazine_25_tab",
     }
+
+
+# ---- review gaps: the per-kilogram cap for a heavy crew member, exact catastrophic boundaries, mission totals ----
+
+
+@pytest.mark.trace("REVIEW-GAPS", "E32-3.5", "LBL01")
+@pytest.mark.parametrize("kg", [Decimal(100), Decimal(140), Decimal(150)])
+def test_a_per_kilogram_target_above_the_administration_cap_is_capped_at_the_label_maximum(
+    kg: Decimal,
+) -> None:
+    """10 mg/kg for 100 to 150 kg asks 1,000 to 1,500 mg; LBL01 (Drug Facts, Directions: 2 tablets, 650 mg) caps
+    one administration, so the dose is two 325 mg tablets, never more, whatever the weight."""
+    weighted, _ = _weighted()
+    heavy = replace(weighted, weights=(WeightObservation("obs_heavy", kg, NOW - timedelta(days=1)),))
+    proposal = propose(ask("acetaminophen_325_tab", "ICL63"), heavy)
+    assert proposal.outcome == "proposal" and proposal.amount is not None
+    assert line_amount(proposal) == 2
+    (line,) = proposal.ingredients
+    assert line.accounting == Amount(Decimal(650), "mg")
+
+
+def _catastrophic(mg: str, *, high: str | None = None, dose: int = 650) -> Proposal:
+    base = given()
+    views = base.lots
+    if high is not None:
+        summary = assessed("adjust", "1.0", "1.0", high, "acetaminophen")
+        views = (lot("lot-apap-001", "acetaminophen_325_tab", summary=summary),)
+    rule = base.treatments.rules["apap_pain"]
+    target = replace(rule.ingredients[0], dose=Amount(Decimal(dose), "mg"))
+    treatments = replace(
+        base.treatments,
+        catastrophic={"acetaminophen": Amount(Decimal(mg), "mg")},
+        rules={**base.treatments.rules, "apap_pain": replace(rule, ingredients=(target,))},
+    )
+    return propose(ask("acetaminophen_325_tab", "ICL63"), replace(base, treatments=treatments, lots=views))
+
+
+@pytest.mark.trace("REVIEW-GAPS", "E32-3.6", "INV-M1")
+def test_the_catastrophic_limit_holds_at_its_exact_boundary() -> None:
+    """A target equal to the catastrophic limit is proposed, a hair over it refuses; and the upper potency estimate
+    counts: one 325 mg tablet at u = 1.01 accounts 328.25 mg, so a 325 mg limit refuses it and 328.25 mg admits it."""
+    assert line_amount(_catastrophic("650")) == 2
+    assert _refusal(_catastrophic("649.99")) == "catastrophic_limit"
+    assert _refusal(_catastrophic("325", high="1.01", dose=325)) == "catastrophic_limit"
+    one = _catastrophic("328.25", high="1.01", dose=325)
+    assert line_amount(one) == 1
+    assert [x.accounting for x in one.ingredients] == [Amount(Decimal("328.25"), "mg")]
+
+
+def _mission_limit(scope: Literal["course", "mission"], history: tuple[PastAdministration, ...]) -> Proposal:
+    base = given()
+    rule = base.treatments.rules["apap_pain"]
+    capped = replace(rule.ingredients[0], max_cumulative=Amount(Decimal(1300), "mg"), cumulative_scope=scope)
+    rules = {**base.treatments.rules, "apap_pain": replace(rule, ingredients=(capped,))}
+    context = replace(base, treatments=replace(base.treatments, rules=rules), history=history)
+    return propose(ask("acetaminophen_325_tab", "ICL63", lineage="medd_today"), context)
+
+
+@pytest.mark.trace("REVIEW-GAPS", "E32-3.6", "INV-M1")
+def test_a_mission_cumulative_limit_counts_other_diagnoses_and_earlier_days() -> None:
+    """A mission scope counts every administration of the ingredient in the mission: another working diagnosis
+    (lineage), another rule and earlier days. A course scope counts only this diagnosis's course. 1,300 mg less
+    650 mg leaves exactly the 650 mg target; 0.01 mg more refuses."""
+    yesterday = past(30, "acetaminophen", 650, rule_id="apap_fever", lineage="medd_other")
+    assert line_amount(_mission_limit("mission", (yesterday,))) == 2
+    over = past(150, "acetaminophen", Decimal("0.01"), rule_id="apap_pain", lineage="medd_old", n=1)
+    assert _refusal(_mission_limit("mission", (yesterday, over))) == "cumulative_max_exceeded"
+    assert line_amount(_mission_limit("course", (yesterday, over))) == 2

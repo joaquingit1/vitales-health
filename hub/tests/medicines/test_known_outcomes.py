@@ -1,12 +1,14 @@
-"""Known-outcome replay (AGENTS: replay known NASA outcomes as model validation) for medicines and supplies.
+"""A synthetic sensitivity check built on a documented ISS case. It is not a known-outcome replay and validates no
+model (AGENTS 4 and 7): the case does not publish the facts a replay would need.
 
 Case iss-ijv-thrombosis-anticoagulant-supply (catalog N42, NEJM 2020 letter; N41, JAMA Netw Open 2019): an ISS
 astronaut with an internal jugular vein thrombosis was treated with enoxaparin 1.5 mg/kg once daily from 20 vials of
 300 mg; the dose was reduced to 1 mg/kg on day 33 "to extend therapy until oral apixaban could be delivered", and
-apixaban arrived on day 42. The case is qualitative: the body weight is not published, so the test states what the
-product must say for any weight (cover from the documented stock and regimen, a low warning while the cover is short
-of the resupply, the documented reduction bridging it) and what it says without a weight (cover unknown, never a
-default weight; a per-kilogram dose refuses `weight_missing`). Every number comes from the case files."""
+apixaban arrived on day 42. The body weight is not published, so the historical case stays at an unknown weight: the
+cover is unknown (never a default weight) and a per-kilogram rule refuses `weight_missing`. Enoxaparin is not in
+the formulary, so that refusal is shown on a per-kilogram rewrite of the acetaminophen rule (synthetic). The stock
+arithmetic below runs only on HYPOTHETICAL weights, named as such: it shows how the supply cover responds to weight
+and to the documented reduction, and says nothing about the astronaut's actual dose or stock forecast."""
 
 from __future__ import annotations
 
@@ -27,6 +29,12 @@ from .test_engine import _weighted
 
 CASE = REPO / "docs/product/nasa-data/cases/iss-ijv-thrombosis-anticoagulant-supply"
 MG = Unit("{mg}")
+HYPOTHETICAL_KG = (
+    Decimal(70),
+    Decimal(95),
+    Decimal(100),
+    Decimal(110),
+)  # not from the case: the weight is unpublished
 ENOXAPARIN = SupplyDef("enoxaparin", "enoxaparin", "mg", MG, True)
 
 
@@ -55,8 +63,10 @@ def _cover(stock_mg: Decimal, daily_mg: Decimal | None, days_to_resupply: int) -
     )
 
 
-@pytest.mark.trace("KO-iss-ijv-thrombosis-anticoagulant-supply", "N41", "N42", "INV-S6", "INV-S7", "INV-S8")
-def test_the_documented_anticoagulant_supply_constraint_surfaces_as_the_supply_cover_finding() -> None:
+@pytest.mark.trace(
+    "SYNTHETIC-iss-ijv-thrombosis-anticoagulant-supply", "N41", "N42", "INV-S6", "INV-S7", "INV-S8"
+)
+def test_synthetic_sensitivity_of_the_supply_cover_around_the_documented_anticoagulant_case() -> None:
     outcome = json.loads((CASE / "outcome.json").read_text(encoding="utf-8"))
     assert outcome["case_type"] == "qualitative" and outcome["environment_id"] == "station_leo"
     facts = _facts()
@@ -77,20 +87,22 @@ def test_the_documented_anticoagulant_supply_constraint_surfaces_as_the_supply_c
         42,
     )
 
-    # No weight: the daily amount is unknown, so the cover is unknown, never computed from an assumed weight, and an
-    # unknown cover never raises or clears the warning (INV-S6, INV-S8); the dose path asks for the weight.
+    # The historical case, as published: no weight, so the daily amount is unknown and the cover is unknown, never
+    # computed from an assumed weight; an unknown cover never raises or clears the warning (INV-S6, INV-S8). A
+    # per-kilogram rule (synthetic: acetaminophen rewritten, enoxaparin is not in the formulary) asks for the weight.
     unknown = _cover(stock, None, resupply_day)
     assert (unknown.cover_uses, unknown.cover_text_key, unknown.low) == (None, "cover_unknown", False)
     weighted, _ = _weighted()
     refusal = propose(ask("acetaminophen_325_tab", "ICL63"), weighted)
     assert refusal.refusal is not None and refusal.refusal.code == "weight_missing"
 
-    # With a weight: the full regimen falls short of the resupply above 6000 / (1.5 x 42) = 95.2 kg, and the
-    # documented day-33 reduction (33 days at 1.5 plus 9 at 1 mg/kg = 58.5 mg/kg) bridges it up to 102.6 kg.
-    for kg, short in ((Decimal(70), False), (Decimal(95), False), (Decimal(100), True), (Decimal(110), True)):
+    # Sensitivity on HYPOTHETICAL weights only: the full regimen falls short of the resupply above 6000 / (1.5 x 42)
+    # = 95.2 kg, and the documented day-33 reduction (33 days at 1.5 plus 9 at 1 mg/kg = 58.5 mg/kg) would bridge it
+    # up to 102.6 kg. Which side the astronaut was on is unknown.
+    for kg, short in zip(HYPOTHETICAL_KG, (False, False, True, True), strict=True):
         start = _cover(stock, full * kg, resupply_day)
         assert start.cover_uses == int(stock / (full * kg)) and start.low is short, kg
-    kg = Decimal(100)
+    kg = HYPOTHETICAL_KG[2]
     left = stock - full * kg * reduced_day
     after = _cover(left, reduced * kg, resupply_day - reduced_day)
     assert (after.cover_uses, after.low) == (10, False)  # 1050 mg at 100 mg/d covers the 9 days to day 42
