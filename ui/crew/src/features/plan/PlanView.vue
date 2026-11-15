@@ -15,6 +15,7 @@ const route = useRoute();
 const plan = ref<PlanView | null>(null);
 const planError = ref<string | null>(null);
 const kitMap = ref<KitMapView | null>(null);
+const kitMapError = ref<string | null>(null);
 const run = ref<PlanRun | null>(null);
 const starting = ref(false);
 const startError = ref<string | null>(null);
@@ -66,8 +67,9 @@ async function loadPlan(): Promise<void> {
 async function loadKitMap(): Promise<void> {
   try {
     kitMap.value = await api.get<KitMapView>("/v1/kit-map");
-  } catch {
+  } catch (failure) {
     kitMap.value = null;
+    kitMapError.value = refused(failure);
   }
 }
 
@@ -233,7 +235,7 @@ const canStart = computed(() => run.value === null && episodeId.value !== null &
           class="card-title"
           data-test="plan-count"
         >
-          {{ count ?? "" }}
+          {{ count ?? kitMapError ?? "" }}
         </h2>
       </div>
       <p
