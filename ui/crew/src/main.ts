@@ -2,7 +2,7 @@ import { createApp } from "vue";
 import { createWebHistory } from "vue-router";
 import "./design/tokens.css";
 import { SESSION_LOCK, SessionLock, bindBrowser, stationScreen } from "./features/identity/sessionLock";
-import { CrewApi } from "./shell/api/client";
+import { CREW_API, CrewApi } from "./shell/api/client";
 import App from "./shell/App.vue";
 import { createCrewRouter } from "./shell/router";
 import { SESSION, SessionStore } from "./shell/session";
@@ -43,4 +43,4 @@ const lock = new SessionLock({
 });
 bindBrowser(lock, window, document);
 
-createApp(App).provide(SESSION, session).provide(SESSION_LOCK, lock).use(router).mount("#app");
+createApp(App).provide(SESSION, session).provide(CREW_API, api).provide(SESSION_LOCK, lock).use(router).mount("#app");
