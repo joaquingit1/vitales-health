@@ -31,8 +31,6 @@ from .kit import ask, assessed, complete_context, given, lot, lots, part, past, 
 APAP_MAX_DOSE_MG = Decimal(650)  # LBL01 "take 2 tablets" of 325 mg
 APAP_MAX_24H_MG = Decimal(3250)  # LBL01 "not more than 10 tablets in 24 hours"
 INTERVAL = timedelta(hours=4)  # LBL01, N18 p. 5-3
-# USP01 and USP03 Definition: tablets "contain ... NMT 110.0% of the labeled amount"
-USP_TABLETS_UPPER = Decimal("1.10")
 
 
 def line_amount(proposal: object) -> Decimal:
@@ -78,8 +76,7 @@ def test_no_proposal_ever_exceeds_a_dose_or_the_24_hour_limit(
         return
     assert proposal.amount is not None
     (line,) = proposal.ingredients
-    # E32 3.6 Acc_i(a), with the USP01 acceptance range: an upper estimate within 110 % counts at label
-    upper = max(Decimal(1), median + spread) if adjust and median + spread > USP_TABLETS_UPPER else Decimal(1)
+    upper = max(Decimal(1), median + spread) if adjust else Decimal(1)  # E32 3.6 Acc_i(a) = a * S_i * max(1, u_i)
     assert line.accounting.value == proposal.amount.value * Decimal(325) * upper
     used = sum((Decimal(mg) for h, mg in history if 0 <= h < 24), Decimal(0))
     assert line.accounting.value <= APAP_MAX_DOSE_MG * upper
@@ -109,14 +106,13 @@ def test_a_compensated_proposal_counts_the_upper_potency_against_the_limits(
     )
     ctx = replace(ctx, treatments=replace(ctx.treatments, products=products))
     proposal = propose(ask("promethazine_25_tab", "ICL97"), ctx)
-    if median + high > USP_TABLETS_UPPER:  # outside USP03's range Acc passes 25 mg; 75 mg is already used
+    if median + high > Decimal(1):  # Acc passes 25 mg at max(1, u) > 1; 75 mg is already used
         assert proposal.outcome == "refusal"
     if proposal.outcome == "proposal":
         assert proposal.path == "compensated"
         (line,) = proposal.ingredients
         assert Decimal(75) + line.accounting.value <= Decimal(100)  # N18 p. 6-10: 100 mg in 24 hours
-        upper = median + high if median + high > USP_TABLETS_UPPER else Decimal(1)
-        assert line.accounting.value == line_amount(proposal) * Decimal(25) * max(Decimal(1), upper)
+        assert line.accounting.value == line_amount(proposal) * Decimal(25) * max(Decimal(1), median + high)
 
 
 def _refusal(proposal: object) -> str:

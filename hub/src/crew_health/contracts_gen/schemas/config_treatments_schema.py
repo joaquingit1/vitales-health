@@ -168,15 +168,6 @@ class DoseRule(BaseModel):
     provenance: list[ProvenanceItem] = Field(..., min_length=1)
 
 
-class AssayAcceptance(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    lower_fraction: float = Field(..., gt=0.0, le=1.0)
-    upper_fraction: float = Field(..., ge=1.0, le=2.0)
-    citations: list[Citation] = Field(..., min_length=1)
-
-
 class Product(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
@@ -185,10 +176,6 @@ class Product(BaseModel):
     deliverable_increment: AmountPositive
     measuring_device: MeasuringDevice | None
     rounding_tolerance_fraction: float = Field(..., ge=0.0, le=0.5)
-    assay_acceptance: AssayAcceptance | None = Field(
-        ...,
-        description='The compendial acceptance range of the labeled amount for the product (a pooled lot assay, as fractions of label claim). A lot whose upper potency estimate stays within it is counted at its labeled amount on the labeled path; null when no source gives the range, so every limit counts the upper estimate (E32 3.6).',
-    )
     high_alert: bool
     narrow_therapeutic_index: bool
     confirm_by: Literal['crew_medical_officer', 'any_trained_crew']

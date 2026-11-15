@@ -156,7 +156,6 @@ def parse_treatments(raw: Json, sha256: str) -> Treatments:
                 therapeutic_classes=tuple(str(x) for x in cast(list[object], p["therapeutic_classes"])),
                 spaceflight_cautions=tuple(str(x) for x in cast(list[object], p["spaceflight_cautions"])),
                 pointer=f"/products/{n}",
-                assay_acceptance=_acceptance(p.get("assay_acceptance")),
             )
             for n, p in enumerate(_list(raw["products"]))
         },
@@ -232,13 +231,6 @@ def parse_policy(raw: Json, sha256: str) -> MedicinesPolicy:
             for a in _list(raw["live_compensation_authorizations"])
         },
     )
-
-
-def _acceptance(raw: object) -> tuple[Decimal, Decimal] | None:
-    if not isinstance(raw, dict):
-        return None
-    band = cast(Json, raw)
-    return Decimal(str(band["lower_fraction"])), Decimal(str(band["upper_fraction"]))
 
 
 def _cited(raw: Json, sources: set[str], prefix: str, out: list[Finding]) -> None:

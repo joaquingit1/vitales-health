@@ -205,6 +205,9 @@ class FakeEngine:
 
     outcome: RunOutcome | None = None
     runs: int = 0
+    # Multiplies every potency estimate of the recorded run: 0.98 puts the upper estimates (about 100.6 % of label)
+    # at or under label, so a lot counts at its labeled amount (E32 3.6 max(1, u)) and proposals exist at all.
+    scale: float = 1.0
 
     def assess(self, bundle: Mapping[str, bytes], inputs: bytes) -> RunOutcome:
         self.runs += 1
@@ -214,6 +217,11 @@ class FakeEngine:
         as_of = json.loads(inputs)["as_of_utc"]
         for assessment in result["assessments"]:  # as a run at this hub clock would state it
             assessment["decision"]["as_of_utc"] = as_of
+            for estimate in assessment["estimates"]:
+                for quantile in estimate["quantiles"]:
+                    quantile["value"] *= self.scale
+                interval = estimate["coverage_interval"]
+                interval["low"], interval["high"] = interval["low"] * self.scale, interval["high"] * self.scale
         return RunOutcome("completed", json.dumps(result, sort_keys=True).encode(), None, "")
 
     def replay(self, bundle: Mapping[str, bytes], inputs: bytes, recorded: bytes) -> RunOutcome:

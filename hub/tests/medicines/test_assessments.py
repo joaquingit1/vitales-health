@@ -398,6 +398,7 @@ def test_a_bundle_below_its_net_movements_is_refused_and_the_last_good_bundle_st
 @pytest.mark.trace("T-79", "E32-5.2")
 def test_retention_prunes_only_unreferenced_inputs_and_a_direct_delete_aborts(st_plain: Station) -> None:
     st = st_plain
+    st.use_engine(FakeEngine(scale=0.98))
     _context(st)
     assert st.drain() == 1
     (referenced,) = _runs(st)
@@ -437,6 +438,7 @@ PRIVATE = ("amount", "product", "lot", "dose", "note", "reason", "diagnosis", "c
 @pytest.mark.trace("T-75", "R-E32-11", "E32-4.5", "E32-10.3")
 def test_medicines_events_carry_ids_and_states_only_to_their_audiences(st_plain: Station) -> None:
     st = st_plain
+    st.use_engine(FakeEngine(scale=0.98))
     _context(st)
     assert st.drain() == 1
     proposal = _propose(st, _diagnose(st))

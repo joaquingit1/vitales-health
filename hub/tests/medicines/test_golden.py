@@ -35,7 +35,6 @@ APAP_COURSE_DAYS = 10  # LBL01 "more than 10 days for pain"
 IBU_DOSE_MG = Decimal(400)  # LBL02, one 400 mg tablet
 IBU_MAX_24H_MG = Decimal(3200)  # LBL02
 PMZ_DOSE_MG = Decimal(25)  # LBL03
-USP_PMZ_TABLETS = (Decimal("0.95"), Decimal("1.10"))  # USP03 "NLT 95.0% and NMT 110.0% of the labeled amount"
 PMZ_MAX_24H_MG = Decimal(100)  # N18 p. 6-10
 
 HEADACHE, SPACE_HEADACHE, MOTION_SICKNESS, EPISTAXIS = "ICL63", "ICL94", "ICL97", "ICL38"
@@ -206,20 +205,24 @@ def test_acetaminophen_already_taken_outside_the_hub_is_flagged() -> None:
     assert kinds["outside_medicine_overlap"] == "override_required"
 
 
-@pytest.mark.trace("T-52", "INV-M1")
-def test_promethazine_lot_within_the_usp_range_is_dosed_at_its_label() -> None:
-    """USP03: a lot with an upper estimate inside 95 to 110 % of label is a 25 mg tablet; above 110 % its
-    upper estimate counts, and one tablet passes the 25 mg per-administration maximum (LBL03)."""
-    inside = assessed("in_specification", "0.97", "1.0", str(USP_PMZ_TABLETS[1]), "promethazine")
+@pytest.mark.trace("T-52", "INV-M1", "E32 3.6")
+def test_an_upper_potency_estimate_above_label_counts_against_every_limit() -> None:
+    """E32 3.6 Acc = a * S * max(1, u). Hand-computed: with 75 mg of promethazine recorded in the last 24 hours the
+    N18 p. 6-10 100 mg limit leaves 25 mg; one 25 mg tablet (LBL03) at u = 1.10 counts 27.5 mg and is refused, at
+    u = 1.00 it counts exactly 25 mg and is the boundary that passes."""
+    rows = [past(10, "promethazine", 25, rule_id="pmz_nausea", n=n) for n in range(3)]
+    above = assessed("in_specification", "1.0", "1.05", "1.10", "promethazine")
+    refused = propose(
+        ask("promethazine_25_tab", MOTION_SICKNESS),
+        given(history=rows, lot_views=(lot("lot-pmz-tab-001", "promethazine_25_tab", summary=above),)),
+    )
+    assert refused.outcome == "refusal" and refused.refusal is not None
+    assert refused.refusal.code in {"period_max_exceeded", "per_administration_max_exceeded"}
+    at_label = assessed("in_specification", "0.95", "0.98", "1.00", "promethazine")
     ok = propose(
-        ask("promethazine_25_tab", "ICL97"),
-        given(lot_views=(lot("lot-pmz-tab-001", "promethazine_25_tab", summary=inside),)),
+        ask("promethazine_25_tab", MOTION_SICKNESS),
+        given(history=rows, lot_views=(lot("lot-pmz-tab-001", "promethazine_25_tab", summary=at_label),)),
     )
     assert ok.outcome == "proposal" and ok.amount is not None and ok.amount.value == 1
     assert ok.ingredients[0].accounting.value == PMZ_DOSE_MG
-    above = assessed("in_specification", "1.0", "1.05", "1.12", "promethazine")
-    refused = propose(
-        ask("promethazine_25_tab", "ICL97"),
-        given(lot_views=(lot("lot-pmz-tab-001", "promethazine_25_tab", summary=above),)),
-    )
-    assert refused.refusal is not None and refused.refusal.code == "per_administration_max_exceeded"
+    assert PMZ_DOSE_MG * 3 + ok.ingredients[0].accounting.value == PMZ_MAX_24H_MG

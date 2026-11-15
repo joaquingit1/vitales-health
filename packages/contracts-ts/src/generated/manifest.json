@@ -281,7 +281,7 @@
     "api/schemas/config-sensor-catalog.schema.json": "e3778838f7a083e0b38781f3170e0b576021a5728410e7b29a85b81c137ca11e",
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
-    "api/schemas/config-treatments.schema.json": "4e4ae1b8ecf70a626b573ee95cbafc3f75b5ccb9fd8a15fd9326600e5b337d45",
+    "api/schemas/config-treatments.schema.json": "733cbd7df5ace54ff9b0656e71d8c2a06d14c074bd645416520d42056daf03cc",
     "api/schemas/config-ui-copy.schema.json": "048ee63e7699e201d96a97216dd809b3bf227310547dc5decb6d39647a17ee4e",
     "api/schemas/config-warning-rules.schema.json": "a237eac14f8cc5b2bc1d3d19019847a56d07261d84e59cbec0df1eee3ac522b3",
     "api/schemas/context.schema.json": "0fd66549c0b915548ec3f89b9650f3c84e3fe72e8f5c98c1671349cf53494a2b",
@@ -641,7 +641,7 @@
     "api/schemas/config-sensor-catalog.schema.json": "e3778838f7a083e0b38781f3170e0b576021a5728410e7b29a85b81c137ca11e",
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
-    "api/schemas/config-treatments.schema.json": "4e4ae1b8ecf70a626b573ee95cbafc3f75b5ccb9fd8a15fd9326600e5b337d45",
+    "api/schemas/config-treatments.schema.json": "733cbd7df5ace54ff9b0656e71d8c2a06d14c074bd645416520d42056daf03cc",
     "api/schemas/config-ui-copy.schema.json": "048ee63e7699e201d96a97216dd809b3bf227310547dc5decb6d39647a17ee4e",
     "api/schemas/config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
     "api/schemas/config-warning-rules.schema.json": "a237eac14f8cc5b2bc1d3d19019847a56d07261d84e59cbec0df1eee3ac522b3",
@@ -747,7 +747,7 @@
       "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
       "part-a.json": "51d6fe596f1a31bcf6e1256d4184d485d5d9ab2f51a2f66789742152aeadc468"
     },
-    "manifest_sha256": "fd1b3250b6a1953b236f0aabaee8b6378cefd3a498633b29203f46eb9eeb700a",
+    "manifest_sha256": "0a1bbb9ba39113b30413139ca571d2ea90f3b9a0240891f63cbff1aba68ddc85",
     "traces": [
       {
         "a3": [

@@ -499,23 +499,10 @@ def _short_of(
     return under[-1]
 
 
-def _upper(run: _Run, ingredient_id: str, summary: LotSummary | None, product: ProductRule) -> Decimal:
-    """max(1, u_i) for the accounting amount, except that a lot whose upper estimate stays within the product's
-    compendial acceptance range is counted at its labeled amount on either path (brief section 4: the USP monograph
-    range of the labeled amount, applied per increment); outside the range, or with no sourced range, the upper
-    estimate counts."""
-    if summary is None:
-        return ONE
-    high = summary.potency[ingredient_id].high
-    band = product.assay_acceptance
-    if band is not None and high <= band[1]:
-        run.note(
-            "label_equivalent",
-            f"treatments.json{product.pointer}/assay_acceptance",
-            f"{ingredient_id}: upper estimate {text(high)} within {text(band[0])} to {text(band[1])} of label",
-        )
-        return ONE
-    return max(ONE, high)
+def _upper(summary: LotSummary | None, ingredient_id: str) -> Decimal:
+    """E32 3.6: every limit counts `max(1, u_i)` of the labeled amount, on either path; a lot is never counted below
+    its label, and never at its label when its upper estimate is above it (a refusal is the safe outcome)."""
+    return ONE if summary is None else max(ONE, summary.potency[ingredient_id].high)
 
 
 @dataclass(frozen=True, slots=True)
@@ -554,7 +541,7 @@ def _count(
     k_x, deviation = _best(targets, effective, k_max)
     if deviation > product.rounding_tolerance_fraction:
         k_x = _short_of(run, targets, effective, k_max, path, deviation)
-    upper = {i: _upper(run, i, summary, product) for i in limits}
+    upper = {i: _upper(summary, i) for i in limits}
     k_f = min(
         min(k_max, _floor(remaining[i][0] / (nominal[i] * upper[i]))) if remaining[i][0] >= 0 else 0
         for i in limits

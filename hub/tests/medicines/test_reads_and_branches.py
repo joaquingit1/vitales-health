@@ -60,14 +60,11 @@ def test_a_stored_engine_assessment_reaches_the_board_and_the_dose_path(st: Stat
     (pmz,) = [x for x in board["lots"] if x["lot_id"] == "lot-pmz-tab-001"]
     assert pmz["state"] == "adjust" and pmz["potency"][0]["ingredient_id"] == "promethazine"
     diagnosis = _diagnose(st, "ICL97")
-    # Compensation: the nearest whole tablet is 2.5 % from the target and the tolerance is 0, so the engine takes
-    # the most tablets at or under the target (one) and states the shortfall for the officer (HZ6).
+    # E32 3.6 counts every increment at max(1, u) on either path: u = 1.0117 puts one 25 mg tablet at 25.29 mg,
+    # over the 25 mg per-administration maximum (LBL03), so both paths refuse with the binding limit named.
     compensated = cast(dict[str, Any], _propose(st, diagnosis, "promethazine_25_tab"))
-    assert compensated["outcome"] == "proposal" and compensated["potency"]["path"] == "compensated"
-    assert compensated["amount"] == {"value": 1, "ucum": "{tbl}"}
-    assert "potency_shortfall" in {a["kind"] for a in compensated["alerts"]}
-    # u = 1.0117 is within USP03's 95 to 110 % range, so one 25 mg tablet counts at its labeled 25 mg on the
-    # labeled path too, under the 25 mg per-administration maximum (brief section 4, spec correction 1).
+    assert compensated["outcome"] == "refusal"
+    assert compensated["refusal"]["code"] == "per_administration_max_exceeded"
     labeled = _post(
         st,
         "/v1/dose-proposals",
@@ -78,8 +75,8 @@ def test_a_stored_engine_assessment_reaches_the_board_and_the_dose_path(st: Stat
             "client_time": CLIENT_TIME,
         },
     ).json()
-    assert labeled["outcome"] == "proposal" and labeled["potency"]["path"] == "labeled_with_estimate"
-    assert labeled["ingredients"][0]["accounting"] == {"value": 25, "ucum": "mg"}
+    assert labeled["outcome"] == "refusal"
+    assert labeled["refusal"]["code"] == "per_administration_max_exceeded"
 
 
 @pytest.mark.trace("R-E32-04")

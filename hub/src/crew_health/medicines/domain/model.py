@@ -108,9 +108,6 @@ class ProductRule:
     therapeutic_classes: tuple[str, ...]
     spaceflight_cautions: tuple[str, ...]
     pointer: str = ""
-    # The compendial acceptance range of the labeled amount (lower, upper), as fractions of label claim; None when
-    # no source gives it. Within it, the labeled path counts the labeled amount (E32 3.6 correction, brief section 4).
-    assay_acceptance: tuple[Decimal, Decimal] | None = None
 
 
 @dataclass(frozen=True, slots=True)
