@@ -37,9 +37,10 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-import e23_station as base
 import pytest
-from e24_station import build, post, wobble
+
+from . import rules_station as base
+from .e24_station import build, post, wobble
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("AGENTS-4-replay", "V55", "V56", "R35")]
 

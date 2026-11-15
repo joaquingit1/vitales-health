@@ -7,10 +7,9 @@ step the invariants of E24 3.17 that the domain can decide must hold.
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import cast
+from typing import Any, cast
 
 import pytest
-import rules_harness as h
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -39,12 +38,16 @@ from crew_health.rules.domain.vocabulary import (
     WarningState,
 )
 
+from . import rules_harness as h
+
 pytestmark = [pytest.mark.E24, pytest.mark.trace("T-E24-012", "INV-E24-05", "INV-E24-16", "INV-E24-04", "H9")]
 
 ORIGINS = st.sampled_from(list(OriginMode))
 FLAGS = st.sampled_from([(True, False), (False, True), (False, False), (None, None), (True, True)])
 LIMITS = st.sampled_from(["co2_1h_act", "co2_7d_watch"])
 O2 = st.sampled_from(["o2_low_watch", "o2_low_act", "o2_low_emergency", "o2_high_act"])
+
+Op = tuple[Any, ...]  # a drawn operation: its tag, a delay in seconds, then a payload per tag
 
 OPS = st.one_of(
     st.tuples(
@@ -96,8 +99,8 @@ OPS = st.one_of(
 )
 
 
-def build(world: h.World, op: tuple[object, ...], n: int) -> RuleInput | None:
-    kind, delta = op[0], int(op[1])  # type: ignore[call-overload]
+def build(world: h.World, op: Op, n: int) -> RuleInput | None:
+    kind, delta = op[0], int(op[1])
     world.advance(delta)
     now = world.now
     if kind in {"co2", "o2"}:
@@ -115,7 +118,7 @@ def build(world: h.World, op: tuple[object, ...], n: int) -> RuleInput | None:
         )
         return sensor_input
     if kind == "fresh":
-        origin: OriginMode = op[3]  # type: ignore[assignment]
+        origin: OriginMode = op[3]
         fresh_input: RuleInput = world.freshness_input(
             op[2],
             since=now,
@@ -129,11 +132,11 @@ def build(world: h.World, op: tuple[object, ...], n: int) -> RuleInput | None:
         return event_input
     if kind == "answer":
         world.answer_events = (world.event("evt_land", "landing", now - timedelta(hours=1)),)
-        return AnswerInput(f"ans_{n}", "p1", "dizzy_standing", str(op[2]), now, now, op[3], "day", "09:00")  # type: ignore[arg-type]
+        return AnswerInput(f"ans_{n}", "p1", "dizzy_standing", str(op[2]), now, now, op[3], "day", "09:00")
     if kind == "fact":
-        return StateFactInput("local_water_untested", op[2], world.environment.value, now, f"evt_{n}", op[3])  # type: ignore[arg-type]
+        return StateFactInput("local_water_untested", op[2], world.environment.value, now, f"evt_{n}", op[3])
     if kind == "link":
-        return GroundLinkInput(op[2], now - timedelta(minutes=5), "adapter", "station_leo", bool(op[3]), now)  # type: ignore[arg-type]
+        return GroundLinkInput(op[2], now - timedelta(minutes=5), "adapter", "station_leo", bool(op[3]), now)
     if kind == "supply":
         row = SupplyCoverRow(
             "s1",
@@ -175,7 +178,7 @@ def scratch_world() -> h.World:
     import copy
 
     raw = copy.deepcopy(raw)
-    for d in raw["definitions"]:
+    for d in h.definitions_of(raw):
         if d["id"] == "ground_silence":
             d["condition"]["after_next_contact_seconds"] = 60
         if d["id"] == "supply_cover_low":

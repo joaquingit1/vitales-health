@@ -10,9 +10,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-import e23_station as base
 import pytest
-from e24_station import build, co2_act_hour
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -35,6 +33,9 @@ from crew_health.rules.application.stores import WarningStore
 from crew_health.rules.domain import engine
 from crew_health.rules.domain.errors import InvariantViolation, NotVisible
 from crew_health.rules.domain.vocabulary import WarningAction
+
+from . import rules_station as base
+from .e24_station import build, co2_act_hour
 
 pytestmark = pytest.mark.E24
 

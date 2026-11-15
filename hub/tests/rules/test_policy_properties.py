@@ -8,10 +8,9 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import datetime, timedelta
-from typing import cast
+from typing import Literal
 
 import pytest
-import rules_harness as h
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -22,6 +21,8 @@ from crew_health.rules.domain.ordering import after, order_key, ordered
 from crew_health.rules.domain.vocabulary import ClearReason, Level, OriginMode, WarningState
 from crew_health.rules.domain.warning import HeadlineFields, Warning
 
+from . import rules_harness as h
+
 pytestmark = [pytest.mark.E24, pytest.mark.trace("T-E24-012", "INV-E24-07", "INV-E24-17")]
 
 
@@ -29,7 +30,7 @@ def base_warning() -> Warning:
     world = h.World(parse_rules_document(h.deployment_rules()), h.release_documents())
     world.feed(world.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]))
     (w,) = world.by_definition("co2_above_limit")
-    return cast(Warning, w)
+    return w
 
 
 BASE = base_warning()
@@ -170,8 +171,8 @@ def eligible_world() -> tuple[h.World, Warning]:
 @h.PROP
 @pytest.mark.trace("T-E24-120", "INV-E24-07", "D3")
 def test_t120_eligibility_implies_every_condition_of_d3(
-    clock_state: str, freshness: str, origin: OriginMode, offset: int, uncertainty_ms: int,
-    crossed: bool | None, holds: bool | None, fingerprint: str, time_state: str,
+    clock_state: Literal["trusted", "uncertain", "unknown"], freshness: Literal["current", "stale"], origin: OriginMode, offset: int, uncertainty_ms: int,
+    crossed: bool | None, holds: bool | None, fingerprint: str, time_state: Literal["known", "unknown", "future"],
 ) -> None:  # fmt: skip
     world, w = eligible_world()
     assert w.pin.limit is not None
