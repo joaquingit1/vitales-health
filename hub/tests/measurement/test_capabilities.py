@@ -9,11 +9,11 @@ import pytest
 from measurement_harness import (
     KIT_MAP,
     build_hub,
-    demo_crew,
     ecg_body,
     headers,
     pulse_body,
     scratch_kit_map,
+    seed_crew,
 )
 
 from crew_health.measurement.application.ports import KitCapabilitiesPort, KitGate, MissionStatePort
@@ -36,7 +36,7 @@ def test_kit_map_edit_changes_content_without_code(tmp_path: Path) -> None:
         document["kits"]["lunar_surface"].append("ecg_single_lead")
 
     hub = build_hub(tmp_path, kit_map=scratch_kit_map(tmp_path, edit))
-    demo_crew(hub)
+    seed_crew(hub)
     capabilities = _capabilities(hub)
     assert capabilities["pulse"]["label"] == "Heart rate"
     assert capabilities["ecg_rhythm"]["status"] == "available"
@@ -55,7 +55,7 @@ def test_instrument_removed_from_kit_makes_pulse_camera_only(tmp_path: Path) -> 
         document["kits"]["lunar_surface"].remove("pulse_oximeter")
 
     hub = build_hub(tmp_path, kit_map=scratch_kit_map(tmp_path, edit), ready=None)
-    demo_crew(hub)
+    seed_crew(hub)
     pulse = _capabilities(hub)["pulse"]
     assert pulse["instrument_ids"] == ["camera_station"] and pulse["methods"] == ["camera_estimate"]
     assert (pulse["status"], pulse["unavailable_reason"]) == ("unavailable", "adapter_down")
@@ -66,7 +66,7 @@ def test_instrument_removed_from_kit_makes_pulse_camera_only(tmp_path: Path) -> 
 @pytest.mark.trace("T-E05-01", "T-E05-10", "E05-01", "R08", "V69", "I1")
 def test_device_absent_records_unavailable_with_device_gap(tmp_path: Path) -> None:
     hub = build_hub(tmp_path, ready=None)
-    demo_crew(hub)
+    seed_crew(hub)
     body = dict(pulse_body(), capability_code="respiratory_rate")
     refused = hub.client.post(
         "/v1/measurement-requests", json=body, headers=headers("mara", "idem-key-dev-1")
@@ -86,7 +86,7 @@ def test_corrupt_kit_map_fails_loud_and_persists_nothing(tmp_path: Path) -> None
     broken = tmp_path / "kit-map.json"
     broken.write_text("{ not json", encoding="utf-8")
     hub = build_hub(tmp_path, kit_map=broken)
-    demo_crew(hub)
+    seed_crew(hub)
     listing = hub.client.get("/v1/capabilities", headers=headers("mara"))
     assert listing.status_code == 500 and listing.json()["code"] == "INTERNAL_ERROR"
     created = hub.client.post(
@@ -100,7 +100,7 @@ def test_corrupt_kit_map_fails_loud_and_persists_nothing(tmp_path: Path) -> None
 @pytest.mark.trace("T-E05-10", "T-E05-01", "R08", "V69", "I1")
 def test_missing_provider_never_guesses_a_capability(tmp_path: Path, missing: type[object]) -> None:
     hub = build_hub(tmp_path, omit=frozenset({missing}))
-    demo_crew(hub)
+    seed_crew(hub)
     listing = hub.client.get("/v1/capabilities", headers=headers("mara"))
     if missing is KitGate:
         assert listing.status_code == 200
@@ -118,7 +118,7 @@ def test_missing_provider_never_guesses_a_capability(tmp_path: Path, missing: ty
 @pytest.mark.trace("T-E05-10", "R08", "V69")
 def test_unknown_environment_is_not_a_capability_list(tmp_path: Path) -> None:
     hub = build_hub(tmp_path, environment=None)
-    demo_crew(hub)
+    seed_crew(hub)
     assert hub.client.get("/v1/capabilities", headers=headers("mara")).status_code == 500
     created = hub.client.post(
         "/v1/measurement-requests", json=pulse_body(), headers=headers("mara", "idem-key-env-1")
@@ -134,7 +134,7 @@ def test_records_port_absent_refuses_a_usable_value_loudly(tmp_path: Path) -> No
     from crew_health.measurement.application.ports import ObservationCommands
 
     hub = build_hub(tmp_path, omit=frozenset({ObservationCommands}))
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = str(started_pulse(hub)["request_id"])
     response = attempt(hub, "camera", request_id, success_attempt(1), "idem-key-rec-1")
     assert response.status_code == 500 and response.json()["retryable"] is True

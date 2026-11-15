@@ -1,6 +1,6 @@
 """End to end over HTTP: the help router on real SQLite, kernel fakes and fakes of the optional ports.
 
-Drives DEMO-PLAN shot E (Someone needs help with the model stopped) and the failure cases E26 names.
+Covers Someone needs help with the model stopped and the failure cases E26 names.
 """
 
 from __future__ import annotations
@@ -93,7 +93,7 @@ def test_help_works_with_every_optional_part_absent_or_failing(tmp_path: Path, p
 
 
 @pytest.mark.trace("T-E26-055", "D15", "D41", "V01", "UC16", "rule-4")
-def test_demo_shot_e_model_stopped_shows_stopped_text_once_and_steps_still_work(tmp_path: Path) -> None:
+def test_model_stopped_shows_stopped_text_once_and_steps_still_work(tmp_path: Path) -> None:
     assistant = Assistant("stopped")
     harness, driver = _harness(tmp_path, Providers(assistant=assistant, roster=Roster()))
     session = drive_eye(driver)

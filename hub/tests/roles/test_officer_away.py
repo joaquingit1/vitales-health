@@ -1,4 +1,4 @@
-"""DEMO-PLAN shot D (V85 to V89 where E31's): the medical officer is away, the helper row proposes Tomas with why."""
+"""V85 to V89 (the E31 parts): with the medical officers away, the helper row proposes a trained crewmate and says why."""
 
 from __future__ import annotations
 

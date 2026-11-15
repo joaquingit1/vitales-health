@@ -82,7 +82,7 @@ def test_catalog_validates_against_its_schema() -> None:
     validator.validate(document())
 
 
-def test_demo_skill_comes_from_config() -> None:
+def test_taught_skill_comes_from_config() -> None:
     catalog = parse_catalog(CATALOG.read_bytes())
     skill = catalog.skill("pulse_check_wrist")
     assert skill is not None and skill.count_check is not None and skill.count_check.tolerance is not None

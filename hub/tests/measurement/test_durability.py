@@ -9,11 +9,11 @@ from measurement_harness import (
     Hub,
     attempt,
     build_hub,
-    demo_crew,
     ecg_body,
     failed_attempt,
     headers,
     pulse_body,
+    seed_crew,
     started_pulse,
 )
 
@@ -31,7 +31,7 @@ def _rows(hub: Hub) -> tuple[int, int, int, int]:
 
 def test_retry_with_same_key_replays_without_executing_again(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     first = hub.client.post(
         "/v1/measurement-requests", json=pulse_body(), headers=headers("mara", "idem-key-dup-1")
     )
@@ -46,7 +46,7 @@ def test_retry_with_same_key_replays_without_executing_again(tmp_path: Path) -> 
 
 def test_refusal_replays_as_the_same_refusal(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     first = hub.client.post(
         "/v1/measurement-requests", json=ecg_body(), headers=headers("mara", "idem-key-dup-ecg")
     )
@@ -61,7 +61,7 @@ def test_refusal_replays_as_the_same_refusal(tmp_path: Path) -> None:
 
 def test_same_key_with_other_body_or_target_is_a_conflict(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     assert (
         hub.client.post(
             "/v1/measurement-requests", json=pulse_body(), headers=headers("mara", "idem-key-dup-2")
@@ -86,7 +86,7 @@ def test_same_key_with_other_body_or_target_is_a_conflict(tmp_path: Path) -> Non
 
 def test_replay_after_the_window_returns_only_the_receipt(tmp_path: Path) -> None:
     hub = build_hub(tmp_path, overrides={"measurement.replay_window_ms": 1000})
-    demo_crew(hub)
+    seed_crew(hub)
     first = hub.client.post(
         "/v1/measurement-requests", json=pulse_body(), headers=headers("mara", "idem-key-old-1")
     )
@@ -103,7 +103,7 @@ def test_replay_after_the_window_returns_only_the_receipt(tmp_path: Path) -> Non
 
 def test_stale_and_missing_revision(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     created = hub.client.post(
         "/v1/measurement-requests", json=pulse_body(), headers=headers("mara", "idem-key-rev-1")
     ).json()
@@ -124,7 +124,7 @@ def test_stale_and_missing_revision(tmp_path: Path) -> None:
 @pytest.mark.parametrize("table", ["measurement_gap", "measurement_transition"])
 def test_crash_mid_command_leaves_no_partial_record(tmp_path: Path, table: str) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     hub.uows.writer.fail_on = "INSERT INTO " + table
     crashed = hub.client.post(
         "/v1/measurement-requests", json=ecg_body(), headers=headers("mara", "idem-key-crash-1")
@@ -142,7 +142,7 @@ def test_crash_mid_command_leaves_no_partial_record(tmp_path: Path, table: str) 
 
 def test_attempt_crash_keeps_request_running_and_retry_appends_once(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = str(started_pulse(hub)["request_id"])
     hub.uows.writer.fail_on = "INSERT INTO measurement_attempt"
     assert attempt(hub, "camera", request_id, failed_attempt(), "idem-key-ac-1").status_code == 500
@@ -160,7 +160,7 @@ def test_attempt_crash_keeps_request_running_and_retry_appends_once(tmp_path: Pa
 
 def test_config_release_mismatch_refuses_the_command(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     refused = hub.client.post(
         "/v1/measurement-requests",
         json=pulse_body(),
@@ -179,7 +179,7 @@ def test_config_release_mismatch_refuses_the_command(tmp_path: Path) -> None:
 
 def test_replay_after_an_intervening_change_returns_the_original_response(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     created = hub.client.post(
         "/v1/measurement-requests", json=pulse_body(), headers=headers("mara", "idem-key-i-1")
     )

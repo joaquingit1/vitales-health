@@ -1,4 +1,4 @@
-"""E05 scenario on the demo path (DEMO-PLAN shots C and D).
+"""E05 scenario: a camera pulse request, then an ECG request on a kit without an ECG.
 
 A webcam pulse request keeps its first attempt as failed with its reason, and its second is a LIVE camera
 value with its camera and UCUM unit. An ECG request on a kit with no ECG stays a durable unavailable request
@@ -19,10 +19,10 @@ if str(_HARNESS) not in sys.path:
 from measurement_harness import (  # noqa: E402
     attempt,
     build_hub,
-    demo_crew,
     ecg_body,
     failed_attempt,
     headers,
+    seed_crew,
     started_pulse,
     success_attempt,
 )
@@ -30,17 +30,17 @@ from measurement_harness import (  # noqa: E402
 pytestmark = pytest.mark.trace("T-E05-02", "T-E05-04", "T-E05-14", "R07", "R08", "D08", "D09", "D11", "D12")
 
 
-def test_demo_path_pulse_then_ecg_gap(tmp_path: Path) -> None:
+def test_pulse_then_ecg_gap(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
 
     request_id = str(started_pulse(hub)["request_id"])
-    failed = attempt(hub, "camera", request_id, failed_attempt(1), "idem-key-demo-1").json()
+    failed = attempt(hub, "camera", request_id, failed_attempt(1), "idem-key-1").json()
     assert failed["attempts"][-1]["outcome"] == "failed"
     assert failed["attempts"][-1]["failure_reason"] == failed_attempt(1)["failure_reason"]
     assert failed["result_observation_ids"] == []
 
-    live = attempt(hub, "camera", request_id, success_attempt(2), "idem-key-demo-2").json()
+    live = attempt(hub, "camera", request_id, success_attempt(2), "idem-key-2").json()
     assert live["state"] == "completed"
     assert [a["outcome"] for a in live["attempts"]] == ["failed", "success"]
     (value,) = hub.observations.drafts
@@ -51,9 +51,7 @@ def test_demo_path_pulse_then_ecg_gap(tmp_path: Path) -> None:
     )
     assert value.quantity.unit.code == "/min"
 
-    ecg = hub.client.post(
-        "/v1/measurement-requests", json=ecg_body(), headers=headers("mara", "idem-key-demo-3")
-    )
+    ecg = hub.client.post("/v1/measurement-requests", json=ecg_body(), headers=headers("mara", "idem-key-3"))
     assert ecg.status_code == 422
     assert ecg.json()["code"] == "KIT_CANNOT_PERFORM"
     ecg_id = ecg.json()["current_state"]["request_id"]

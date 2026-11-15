@@ -516,7 +516,7 @@ def _const(value: object) -> Callable[[object], object]:
     return lambda _resolver: value
 
 
-def demo_crew(hub: Hub) -> None:
+def seed_crew(hub: Hub) -> None:
     """The two crew members of the examples and their episode (identifiers from the contract examples)."""
     pulse = example("clinical/measurement-request-pulse.json")
     episode_id = str(pulse["episode_id"])

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from measurement_harness import Hub, build_hub, demo_crew, ecg_body, headers, pulse_body, started_pulse
+from measurement_harness import Hub, build_hub, ecg_body, headers, pulse_body, seed_crew, started_pulse
 
 from crew_health.app.registry import DeclarationRegistry
 from crew_health.contracts_gen.enums import ErrorCode
@@ -79,7 +79,7 @@ def test_unbound_facades_fail_closed() -> None:
 @pytest.mark.trace("T-E05-15", "D06", "D30", "V23", "I1", "I2")
 def test_controller_proposal_commits_in_the_callers_unit_of_work(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     commands = _port(hub, MeasurementCommands)
     with hub.uows.begin(actor=Actor("assistant", "assistant"), correlation_id="cor_turn_1") as uow:
         result = commands.propose(
@@ -106,7 +106,7 @@ def test_controller_proposal_commits_in_the_callers_unit_of_work(tmp_path: Path)
 @pytest.mark.trace("T-E05-15", "T-E05-02", "R07", "I7")
 def test_gap_proposal_checks_the_actual_lack_and_never_duplicates(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     gaps = _port(hub, GapProposalPort)
     episode = str(ecg_body()["episode_id"])
     engine = Actor("engine", "controller")
@@ -129,7 +129,7 @@ def test_gap_proposal_checks_the_actual_lack_and_never_duplicates(tmp_path: Path
 @pytest.mark.trace("T-E05-12", "T-E05-03", "R06", "I5")
 def test_assignment_port_and_audience_rule_follow_the_object_grant(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = str(started_pulse(hub)["request_id"])
     assignments = _port(hub, MeasurementAssignmentPort)
     rule = hub.registry.declarations["audiences"][AUDIENCE_RULE]

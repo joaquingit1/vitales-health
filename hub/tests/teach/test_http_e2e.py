@@ -1,6 +1,6 @@
 # mypy: disable-error-code="type-abstract"
 # The SYSTEM 6 registry keys ports by their Protocol classes; mypy flags every Protocol passed as type[P].
-"""End to end over HTTP (E30 12.2; DEMO-PLAN shot D, D37 to D39): the real domain, application, SQLite adapters
+"""End to end over HTTP (E30 12.2; D37 to D39): the real domain, application, SQLite adapters
 (migration applied to a tmp file) and router, composed through module.register, with fakes only for the ports of
 other epics. Covers the three verdicts, duplicate beats, clock jumps during a count, a hub restart, incomplete
 captures, concurrent edits, a crash inside finish and privacy between crew members."""
@@ -441,7 +441,7 @@ class People:
             "tomas": PersonRef("tomas", "Tomas", True),
             "mara": PersonRef("mara", "Mara", True),
             "ana": PersonRef("ana", "Ana", True),
-            "op_demo": PersonRef("op_demo", "Operator", True),
+            "op_other": PersonRef("op_other", "Operator", True),
         }
 
     def person(self, person_id: str) -> PersonRef | None:
@@ -1042,15 +1042,15 @@ def test_privacy_between_crew_members(stack: Stack) -> None:
 
 @pytest.mark.trace("T30-13", "H3")
 def test_live_count_on_a_sim_persona_goes_to_the_operator_record(stack: Stack) -> None:
-    stack.routing.routes["mara"] = "op_demo"
+    stack.routing.routes["mara"] = "op_other"
     gid, done = run_count(stack, 92)
     assert done["result"] == "agree"
-    assert stack.rows("SELECT patient_id FROM test_observation") == [("op_demo",)]
-    assert stack.camera.requests[0].record_id == "op_demo"
+    assert stack.rows("SELECT patient_id FROM test_observation") == [("op_other",)]
+    assert stack.camera.requests[0].record_id == "op_other"
     completed = [e for e in stack.sink.published if isinstance(e, GuidedCheckCompleted)]
     assert completed[0].observation_ids == ()  # the persona's plan never references another record
     scopes = sorted({e.scope.person_id or "" for e in stack.sink.events})
-    assert scopes == ["op_demo", "tomas"]
+    assert scopes == ["op_other", "tomas"]
 
 
 @pytest.mark.trace("T30-08", "I30-17")

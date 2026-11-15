@@ -1,4 +1,5 @@
-"""HTTP end to end on the demo path (DEMO-PLAN shots C and D) through FastAPI TestClient and real SQLite."""
+"""HTTP end to end through FastAPI TestClient and real SQLite: a camera pulse request with a failed then a live attempt,
+and an ECG request on a kit without an ECG."""
 
 from __future__ import annotations
 
@@ -10,12 +11,12 @@ import pytest
 from measurement_harness import (
     attempt,
     build_hub,
-    demo_crew,
     ecg_body,
     example,
     failed_attempt,
     headers,
     schema_validator,
+    seed_crew,
     started_pulse,
     success_attempt,
 )
@@ -31,7 +32,7 @@ def _valid(schema: str, body: object) -> None:
 @pytest.mark.trace("T-E05-04", "T-E05-14", "R08", "E05-02", "V05", "V11", "D08", "D09", "D11")
 def test_pulse_failed_attempt_kept_then_live_camera_value(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     started = started_pulse(hub)
     assert started["state"] == "in_progress"
     request_id = str(started["request_id"])
@@ -71,7 +72,7 @@ def test_pulse_failed_attempt_kept_then_live_camera_value(tmp_path: Path) -> Non
 @pytest.mark.trace("T-E05-02", "R07", "R08", "V18", "V19", "D06", "D12", "D30")
 def test_ecg_without_kit_is_durable_unavailable_with_open_gap(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     response = hub.client.post(
         "/v1/measurement-requests", json=ecg_body(), headers=headers("mara", "idem-key-ecg-1")
     )
@@ -110,7 +111,7 @@ def test_ecg_without_kit_is_durable_unavailable_with_open_gap(tmp_path: Path) ->
 @pytest.mark.trace("T-E05-02", "R07", "I7")
 def test_request_without_episode_invents_no_episode_and_no_gap(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     body = ecg_body()
     del body["episode_id"]
     response = hub.client.post(
@@ -126,7 +127,7 @@ def test_request_without_episode_invents_no_episode_and_no_gap(tmp_path: Path) -
 @pytest.mark.trace("T-E05-04", "R08", "D08")
 def test_exhausted_attempts_end_failed_and_nothing_is_guessed(tmp_path: Path) -> None:
     hub = build_hub(tmp_path, overrides={"measurement.max_attempts": 2})
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = str(started_pulse(hub)["request_id"])
     assert attempt(hub, "camera", request_id, failed_attempt(1), "idem-key-f-1").status_code == 200
     last = attempt(hub, "camera", request_id, failed_attempt(2), "idem-key-f-2")
@@ -146,7 +147,7 @@ def test_exhausted_attempts_end_failed_and_nothing_is_guessed(tmp_path: Path) ->
 @pytest.mark.trace("T-E05-05", "V13", "I3")
 def test_late_result_after_cancel_is_held_not_recorded(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     started = started_pulse(hub)
     request_id = str(started["request_id"])
     assert attempt(hub, "camera", request_id, failed_attempt(1), "idem-key-l-1").status_code == 200
@@ -169,7 +170,7 @@ def test_late_result_after_cancel_is_held_not_recorded(tmp_path: Path) -> None:
 @pytest.mark.trace("T-E05-04", "R08", "SYSTEM-8.4")
 def test_every_change_publishes_measurement_request_changed(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = str(started_pulse(hub)["request_id"])
     events = hub.uows.state.events
     assert [e.type for e in events] == [EventType.MEASUREMENT_REQUEST_CHANGED] * 4
@@ -185,7 +186,7 @@ def test_every_change_publishes_measurement_request_changed(tmp_path: Path) -> N
 @pytest.mark.trace("T-E05-11", "V36")
 def test_capability_list_validates_and_pages(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     first = hub.client.get("/v1/capabilities?limit=2", headers=headers("mara"))
     assert first.status_code == 200
     page = first.json()
@@ -204,7 +205,7 @@ def test_capability_list_validates_and_pages(tmp_path: Path) -> None:
 @pytest.mark.trace("T-E05-05", "V13", "I3")
 def test_first_result_after_cancel_is_retained_as_quarantined(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = str(started_pulse(hub)["request_id"])
     cancelled = hub.client.post(
         f"/v1/measurement-requests/{request_id}/actions",

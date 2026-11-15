@@ -12,11 +12,11 @@ from measurement_harness import (
     attempt,
     build_hub,
     camera_value,
-    demo_crew,
     failed_attempt,
     headers,
     pulse_body,
     scratch_kit_map,
+    seed_crew,
     started_pulse,
     success_attempt,
 )
@@ -37,7 +37,7 @@ def _proposed(hub: Hub, key: str = "idem-key-p-1") -> str:
 @pytest.mark.trace("T-E05-12", "R06", "V25", "I5")
 def test_privacy_between_crew_members(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = _proposed(hub)
     url = f"/v1/measurement-requests/{request_id}"
     for token in ("kai", "cmo", "station", "camera"):
@@ -55,7 +55,7 @@ def test_privacy_between_crew_members(tmp_path: Path) -> None:
 @pytest.mark.trace("T-E05-12", "T-E05-03", "R06", "V08", "V25", "I5")
 def test_another_crew_member_cannot_act_or_propose_for_the_subject(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = _proposed(hub)
     act = hub.client.post(
         f"/v1/measurement-requests/{request_id}/actions",
@@ -77,7 +77,7 @@ def test_another_crew_member_cannot_act_or_propose_for_the_subject(tmp_path: Pat
 @pytest.mark.trace("T-E05-03", "T-E05-12", "R06", "V09", "V25", "I2", "I5")
 def test_crewmate_operator_needs_consent_and_reads_only_after_accepting(tmp_path: Path) -> None:
     hub = build_hub(tmp_path, kit_map=scratch_kit_map(tmp_path, _crewmate_pulse))
-    demo_crew(hub)
+    seed_crew(hub)
     self_operator = dict(pulse_body(), operator_id="mara")
     refused = hub.client.post(
         "/v1/measurement-requests", json=self_operator, headers=headers("mara", "idem-key-c-0")
@@ -107,7 +107,7 @@ def test_crewmate_operator_needs_consent_and_reads_only_after_accepting(tmp_path
 @pytest.mark.trace("T-E05-03", "R06", "V08", "I2")
 def test_adapter_trust_and_no_attempt_before_start(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = _proposed(hub)
     early = attempt(hub, "camera", request_id, failed_attempt(), "idem-key-a-0")
     assert early.status_code == 409 and early.json()["code"] == "INVALID_TRANSITION"
@@ -138,7 +138,7 @@ def test_attempt_values_are_checked_before_any_write(
     tmp_path: Path, edit: dict[str, str], code: str, field: str
 ) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = str(started_pulse(hub)["request_id"])
     body = success_attempt(1)
     value = camera_value(96, origin=edit.get("origin", "LIVE"), unit=edit.get("unit", "/min"))
@@ -155,7 +155,7 @@ def test_attempt_values_are_checked_before_any_write(
 @pytest.mark.trace("T-E05-04", "R08", "D08")
 def test_success_without_a_value_is_not_a_result(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = str(started_pulse(hub)["request_id"])
     empty = dict(success_attempt(1), observations=[])
     response = attempt(hub, "camera", request_id, empty, "idem-key-e-1")
@@ -175,7 +175,7 @@ def _raw(hub: Hub, url: str, content: bytes, key: str, content_type: str = "appl
 @pytest.mark.trace("T-E05-11", "R06", "R08", "V36")
 def test_malformed_bodies_are_refused_with_the_envelope(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     url = "/v1/measurement-requests"
     good = json.dumps(pulse_body())
     cases: list[tuple[bytes, str, int, str]] = [
@@ -216,7 +216,7 @@ def test_malformed_bodies_are_refused_with_the_envelope(tmp_path: Path) -> None:
 @pytest.mark.trace("T-E05-06", "R06", "I8")
 def test_attempt_numbers_are_exact_and_finite(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = str(started_pulse(hub)["request_id"])
     url = f"/v1/measurement-requests/{request_id}/attempts"
     base = json.dumps(success_attempt(1, value=0))
@@ -248,7 +248,7 @@ def _officer_pulse(document: dict[str, Any]) -> None:
 def test_unconsented_accept_commits_and_returns_nothing(tmp_path: Path) -> None:
     kit_map = scratch_kit_map(tmp_path, _crewmate_pulse)
     hub = build_hub(tmp_path, kit_map=kit_map)
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = _proposed(hub)
     url = f"/v1/measurement-requests/{request_id}"
     hub.client.post(
@@ -274,7 +274,7 @@ def test_unconsented_accept_commits_and_returns_nothing(tmp_path: Path) -> None:
 @pytest.mark.trace("T-E05-03", "R06", "V09", "I2")
 def test_officer_only_capability_needs_a_qualified_operator(tmp_path: Path) -> None:
     hub = build_hub(tmp_path, kit_map=scratch_kit_map(tmp_path, _officer_pulse))
-    demo_crew(hub)
+    seed_crew(hub)
     assigned = dict(pulse_body(), operator_id="kai")
     refused = hub.client.post(
         "/v1/measurement-requests", json=assigned, headers=headers("mara", "idem-key-o-1")
@@ -300,7 +300,7 @@ def test_officer_only_capability_needs_a_qualified_operator(tmp_path: Path) -> N
 @pytest.mark.trace("T-E05-03", "T-E05-12", "R06", "V08", "I2", "I5")
 def test_only_the_adapter_assigned_at_start_may_write(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     request_id = str(started_pulse(hub)["request_id"])
     rogue = attempt(hub, "rogue", request_id, success_attempt(1), "idem-key-r-1")
     assert rogue.status_code == 403
@@ -318,7 +318,7 @@ def test_only_the_adapter_assigned_at_start_may_write(tmp_path: Path) -> None:
 @pytest.mark.trace("T-E05-03", "T-E05-10", "R08", "I2")
 def test_start_without_an_assigned_adapter_fails_closed(tmp_path: Path) -> None:
     hub = build_hub(tmp_path)
-    demo_crew(hub)
+    seed_crew(hub)
     hub.assignments.by_method.clear()
     request_id = _proposed(hub)
     url = f"/v1/measurement-requests/{request_id}/actions"

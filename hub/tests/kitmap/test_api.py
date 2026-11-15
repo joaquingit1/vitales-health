@@ -42,7 +42,7 @@ pytestmark = [pytest.mark.trace("R44", "V76", "V77", "D28", "D29", "KM-I7", "KM-
 
 CREW = {SESSION_HEADER: "crew"}
 WHAT_IF_ECG = example_value(EXAMPLE.parent / "requests/kit-map-what-if.json")
-DEMO_ENVIRONMENT = "lunar_surface"  # DEMO-PLAN shot A and DEMO-CONDITIONS steps 4 and 5: the Moon base
+ENVIRONMENT_ID = "lunar_surface"  # the Moon base environment of the configuration
 
 
 def rows(body: dict[str, object]) -> dict[str, dict[str, object]]:
@@ -64,7 +64,7 @@ def post_what_if(hub: Hub, body: object, **headers: str) -> dict[str, object]:
 
 @pytest.fixture
 def hub(make_hub: Callable[..., Hub], config_raw: bytes, ui_copy: bytes) -> Hub:
-    return make_hub(release("rel_1", config_raw, ui_copy=ui_copy), mission=FakeMission(DEMO_ENVIRONMENT))
+    return make_hub(release("rel_1", config_raw, ui_copy=ui_copy), mission=FakeMission(ENVIRONMENT_ID))
 
 
 def test_shot_a_counts_and_the_icl10_ecg_gap(hub: Hub) -> None:
@@ -74,7 +74,7 @@ def test_shot_a_counts_and_the_icl10_ecg_gap(hub: Hub) -> None:
     assert response.headers["Config-Release"] == "rel_1"
     payload = json.loads(response.content)
     body = KitMapView.model_validate(replace_ids(payload, stand_ins(payload)))  # D22 suffixed IDs
-    assert body.environment_id.root == DEMO_ENVIRONMENT
+    assert body.environment_id.root == ENVIRONMENT_ID
     assert (body.counts.measured_here, body.counts.report_only, body.counts.needs_test_not_aboard) == (
         9,
         82,
