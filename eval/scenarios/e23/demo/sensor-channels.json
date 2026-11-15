@@ -1,0 +1,60 @@
+{
+  "channels": [
+    {
+      "channel_id": "ch_co2_cabin_replay",
+      "sensor_type_id": "co2",
+      "hazard_id": "co2",
+      "environment_ids": ["station_leo"],
+      "location": "cabin",
+      "location_label": null,
+      "adapter_id": "adp_replay_osdr",
+      "origin_mode": "REPLAY",
+      "input_unit": "ppm",
+      "expected_interval_seconds": 300,
+      "expected_interval_basis": "The RR-1 file's sample interval: 12071 of 12086 intervals are 300 s (eda_rr1_provenance.json, interval_seconds_counts; N02).",
+      "stale_after_seconds": 600,
+      "stale_after_basis": "Twice the 300 s sample interval, so one missed sample does not flap the channel stale (team default, as DosTel).",
+      "source_label": "Replay, ISS 2014",
+      "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+      "display_note": null,
+      "trusted": true,
+      "health_url": "http://127.0.0.1:8101/health"
+    },
+    {
+      "channel_id": "ch_rad_columbus_replay",
+      "sensor_type_id": "rad",
+      "hazard_id": "radiation",
+      "environment_ids": ["station_leo"],
+      "location": "columbus",
+      "location_label": "Columbus module",
+      "adapter_id": "adp_replay_osdr",
+      "origin_mode": "REPLAY",
+      "input_unit": "µGy/h",
+      "expected_interval_seconds": null,
+      "stale_after_seconds": 600,
+      "source_label": "Replay, ISS 2022",
+      "dataset": "OSDR RadLab DosTel1, 1 to 2 Apr 2022",
+      "display_note": null,
+      "trusted": true,
+      "health_url": "http://127.0.0.1:8101/health"
+    },
+    {
+      "channel_id": "ch_co2_cabin_sim",
+      "sensor_type_id": "co2",
+      "hazard_id": "co2",
+      "environment_ids": ["station_leo"],
+      "location": "cabin",
+      "location_label": null,
+      "adapter_id": "adp_sim",
+      "origin_mode": "SIM",
+      "input_unit": "ppm",
+      "expected_interval_seconds": 5,
+      "stale_after_seconds": 300,
+      "source_label": "Sim",
+      "dataset": null,
+      "display_note": null,
+      "trusted": true,
+      "health_url": "http://127.0.0.1:8102/health"
+    }
+  ]
+}

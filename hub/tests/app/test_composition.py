@@ -334,8 +334,9 @@ def station(tmp_path: Path, resources: Path, *, omit: frozenset[type[object]] = 
     }
 
     def configure(registry: ModuleRegistry) -> None:
+        provided = getattr(registry, "providers", {})  # a port an installed module provides is never stood in
         for port, value in stand_ins.items():
-            if port not in omit:
+            if port not in omit and port not in provided:
                 registry.provide(port, partial(_constant, value))
         for identifier in sorted(required_contributors() - own):
             registry.loader_check(MemoryReleaseCheck(identifier, lambda candidate: ()))
