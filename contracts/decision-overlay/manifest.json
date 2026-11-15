@@ -1,5 +1,5 @@
 {
-  "base_inventory_sha256": "92dc56c674e160c6231d57a3a655cecebe706424d2040f1cef9b21420c52ec99",
+  "base_inventory_sha256": "0c05c9e29a7ac860d4ca936b1021a26ced6cade7029686c16b9165241897000c",
   "files": {
     "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
     "part-a.json": "51d6fe596f1a31bcf6e1256d4184d485d5d9ab2f51a2f66789742152aeadc468"
