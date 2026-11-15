@@ -287,3 +287,23 @@ def test_a_deletion_that_lands_inside_a_confirmation_rejects_the_publication(tmp
         rig.workflows.confirm(person(), key="c1", report_id=report_id, command=command)
     assert code(error) is ErrorCode.NOT_FOUND
     assert rows(rig, "reports_finding") == 0
+
+
+def test_a_key_whose_report_was_deleted_never_yields_an_accepted_result(tmp_path: Path) -> None:
+    rig = build(tmp_path)
+    report_id = upload(rig)
+    rig.workflows.delete_report(person(), key="del1", report_id=report_id)
+    with pytest.raises(ProblemError) as again:
+        rig.workflows.upload(
+            person(),
+            key="up1",
+            data=builders.png(),
+            original_name="other.png",
+            declared_type="image/png",
+            access_scope=None,
+            examination_date=None,
+            report_date=None,
+            origin_mode="SIM",
+        )
+    assert code(again) is ErrorCode.DUPLICATE_COMMAND
+    assert rows(rig, "reports_report") == 1

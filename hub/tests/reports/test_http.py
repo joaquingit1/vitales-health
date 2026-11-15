@@ -349,3 +349,26 @@ def test_the_migration_is_expand_only_and_names_only_report_tables() -> None:
         "reports_confirmation",
         "reports_finding",
     }
+
+
+def test_a_form_field_that_is_not_utf8_is_a_malformed_request_not_a_500(tmp_path: Path) -> None:
+    rig = build(tmp_path)
+    boundary = "b0undary"
+    body = (
+        f'--{boundary}\r\nContent-Disposition: form-data; name="access_scope"\r\n\r\n'.encode()
+        + b"\xff\xfe\r\n"
+        + f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="a.pdf"\r\n'.encode()
+        + b"Content-Type: application/pdf\r\n\r\n"
+        + builders.pdf(LINES)
+        + f"\r\n--{boundary}--\r\n".encode()
+    )
+    response = rig.client.post(
+        "/v1/reports",
+        headers={
+            "X-Person": OWNER,
+            "Idempotency-Key": "k_bad",
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+        },
+        content=body,
+    )
+    assert response.status_code == 400 and response.json()["code"] == "MALFORMED_REQUEST"
