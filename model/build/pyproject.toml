@@ -1,0 +1,29 @@
+[project]
+name = "crew-health-model-build"
+version = "0.1.0"
+requires-python = ">=3.14,<3.15"
+dependencies = ["numpy", "safetensors", "torch>=2.13.0,<2.14", "setuptools>=84.1.0", "transformers", "sentencepiece", "protobuf", "pyyaml", "gguf"]
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = ["ruff", "mypy", "pytest"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py314"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = ["trace(*ids): requirements and invariants"]
