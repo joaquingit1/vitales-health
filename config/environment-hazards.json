@@ -1,0 +1,2755 @@
+{
+  "notice": "Unreviewed draft: needs clinician review before live guidance.",
+  "environments": [
+    {
+      "id": "station_leo",
+      "name": "Space station, low Earth orbit",
+      "gravity": "Microgravity (weightless)",
+      "earth_delay": "Near real time. The sources read give no delay figure for low Earth orbit; the ground team is close at hand.",
+      "what_is_different": "You float, so body fluids move toward your head and your bones and muscles carry no load (EV26). Earth's magnetic field still shields you from much space radiation, but the orbit passes through a zone of trapped particles called the South Atlantic Anomaly (EV05, EV28). The air is made and cleaned by machines in a closed cabin, so CO2, chemical vapors, microbes and noise build up unless the systems keep up (N04, C25). Coolant ammonia and visiting vehicle propellants are possible leak sources (EV07, EV01).",
+      "hazard_ids": [
+        "radiation",
+        "co2",
+        "oxygen",
+        "pressure_dcs",
+        "toxic_combustion",
+        "toxic_ammonia",
+        "toxic_propellants",
+        "toxic_vocs",
+        "dust",
+        "noise",
+        "thermal_humidity",
+        "water_quality",
+        "microbial",
+        "microgravity",
+        "isolation_confinement",
+        "circadian_light",
+        "distance_autonomy"
+      ]
+    },
+    {
+      "id": "transit",
+      "name": "Deep-space transit",
+      "gravity": "Microgravity (weightless)",
+      "earth_delay": "Grows with distance from Earth. Up to 20 minutes one way near Mars (EV25).",
+      "what_is_different": "You are outside Earth's protective magnetic field, so cosmic rays and solar storms reach the ship (EV28). Shielding stops most solar particles but works poorly against cosmic rays, so the ship has a storm shelter for solar events (EV05). You float for months, with the same bone, muscle, fluid shift and eye changes as on a station (EV26, S12). Messages to Earth take longer every day, so the crew must solve problems on its own (EV25, EV20).",
+      "hazard_ids": [
+        "radiation",
+        "co2",
+        "oxygen",
+        "pressure_dcs",
+        "toxic_combustion",
+        "toxic_ammonia",
+        "toxic_propellants",
+        "toxic_vocs",
+        "dust",
+        "noise",
+        "thermal_humidity",
+        "water_quality",
+        "microbial",
+        "microgravity",
+        "isolation_confinement",
+        "circadian_light",
+        "distance_autonomy"
+      ]
+    },
+    {
+      "id": "lunar_surface",
+      "name": "Lunar surface base",
+      "gravity": "About one sixth of Earth's gravity (EV01, EV23)",
+      "earth_delay": "Seconds. NASA gives 6 to 10 seconds on the surface of the Moon as an example of a small delay (EV01).",
+      "what_is_different": "The Moon itself gives significant radiation protection compared with free space, but surface walks during a solar event are dangerous (EV05). Fine, sharp lunar dust comes inside on suits; it irritates the eyes, scratches the skin and can harm the lungs (EV08). Frequent surface walks mean frequent pressure changes and a risk of decompression sickness (EV12). The habitat may run at a lower pressure with more oxygen, for example 8.2 psia and 34% oxygen, which makes walks easier but helps fires burn (EV01, EV14).",
+      "hazard_ids": [
+        "radiation",
+        "co2",
+        "oxygen",
+        "pressure_dcs",
+        "toxic_combustion",
+        "toxic_ammonia",
+        "toxic_propellants",
+        "toxic_vocs",
+        "dust",
+        "noise",
+        "thermal_humidity",
+        "water_quality",
+        "microbial",
+        "partial_gravity",
+        "isolation_confinement",
+        "circadian_light",
+        "distance_autonomy"
+      ]
+    },
+    {
+      "id": "mars_surface",
+      "name": "Mars surface base",
+      "gravity": "About three eighths of Earth's gravity (N04); NASA also rounds it to about one third (EV26)",
+      "earth_delay": "Up to 20 minutes one way (EV25).",
+      "what_is_different": "Radiation on the surface is lower than in free space but continues every day; NASA's surface mission analysis uses about 0.5 mSv per day (EV02). Martian dust is fine, highly oxidized and salty, with heavy metals and perchlorate, and NASA sets a stricter dust limit than for the Moon (EV23, EV01). Local water and crops can carry perchlorate (EV01). After months of weightlessness in transit, the body must readjust to partial gravity before hard tasks (EV26). The ground answers late, so the crew decides alone in an emergency (EV25).",
+      "hazard_ids": [
+        "radiation",
+        "co2",
+        "oxygen",
+        "pressure_dcs",
+        "toxic_combustion",
+        "toxic_ammonia",
+        "toxic_propellants",
+        "toxic_vocs",
+        "perchlorate",
+        "dust",
+        "noise",
+        "thermal_humidity",
+        "water_quality",
+        "microbial",
+        "partial_gravity",
+        "isolation_confinement",
+        "circadian_light",
+        "distance_autonomy"
+      ]
+    },
+    {
+      "id": "eva",
+      "name": "Spacewalk or surface walk (activity overlay)",
+      "gravity": "Same as the host environment",
+      "earth_delay": "Same as the host environment.",
+      "what_is_different": "Outside the habitat the suit is your only shelter. Pressure drops from cabin pressure to the lower suit pressure, so nitrogen can form bubbles in the body unless you prebreathe oxygen first (EV12). CO2 can build up inside the helmet (EV15). Shielding is thin; real-time radiation alerts with the walk ended within 2 hours give a very high level of protection (EV05). On the Moon and Mars, dust comes back in on the suit (EV08). After the walk, ammonia and propellants need checking before the suit comes into the cabin (EV01).",
+      "hazard_ids": [
+        "radiation",
+        "co2",
+        "oxygen",
+        "pressure_dcs",
+        "toxic_ammonia",
+        "toxic_propellants",
+        "perchlorate",
+        "dust",
+        "thermal_humidity",
+        "microgravity",
+        "partial_gravity",
+        "distance_autonomy"
+      ]
+    }
+  ],
+  "hazards": [
+    {
+      "id": "radiation",
+      "name": "Ionizing radiation",
+      "kind": "sensed",
+      "plain": "Invisible, fast particles from the Sun and from deep space pass through the body and can damage cells.",
+      "effects": [
+        {
+          "effect": "Higher lifetime risk of cancer",
+          "body_region": null,
+          "source_ids": [
+            "EV05",
+            "EV02"
+          ]
+        },
+        {
+          "effect": "Nausea, vomiting and tiredness after a large solar particle event (acute radiation syndrome)",
+          "body_region": "abdomen",
+          "source_ids": [
+            "EV05"
+          ]
+        },
+        {
+          "effect": "Skin injury and loss of blood-forming cells after large doses",
+          "body_region": null,
+          "source_ids": [
+            "EV05"
+          ]
+        },
+        {
+          "effect": "Cataract (clouding of the lens of the eye)",
+          "body_region": "eyes",
+          "source_ids": [
+            "EV02"
+          ]
+        },
+        {
+          "effect": "Changes in thinking, movement and behavior",
+          "body_region": "head",
+          "source_ids": [
+            "EV05"
+          ]
+        },
+        {
+          "effect": "Harm to the heart and blood vessels (NASA sets circulatory dose limits)",
+          "body_region": "heart",
+          "source_ids": [
+            "EV02"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Inside Earth's magnetic field. Short passes through the South Atlantic Anomaly add trapped-particle dose; normal shielding is enough for these (EV05).",
+        "transit": "Outside Earth's magnetic field (EV28). Unshielded cosmic-ray dose in free space is about 1.5 mSv per day at solar minimum; ship designs for stays over 60 days aim below 1.3 mSv per day (EV02). Solar particle events need a storm shelter (EV05).",
+        "lunar_surface": "The lunar surface gives significant protection compared with free space (EV05). Designs for stays over 60 days aim below 0.9 mSv per day on planetary surfaces (EV02). Surface walks during a solar event are the main danger (EV05).",
+        "mars_surface": "About 0.5 mSv per day from the space environment in NASA's surface mission analysis (EV02). Extra shielding on Mars helps little unless it is rich in hydrogen (EV02).",
+        "eva": "Thin shielding. Real-time alert dosimetry gives a very high level of protection if the walk ends within 2 hours and shelter is available (EV05)."
+      },
+      "sensor": {
+        "measures": "Dose rate in the habitat (area monitor) and the dose each person receives (personal dosimeter). NASA requires both, plus alerts when dose rates exceed thresholds the program sets in advance (EV01).",
+        "unit": "mSv (effective dose, used for NASA limits)",
+        "other_units": "µGy per hour (absorbed dose rate from instruments, as in the package's DosTel replay sample); mGy-Eq (organ dose limits); counts per minute (Geiger counters)",
+        "hackathon_options": "A handheld Geiger counter counts ionizing events and usually shows an estimated dose rate.",
+        "cannot_tell": "A Geiger counter counts events. It cannot tell particle type or energy. NASA dose monitoring needs radiation type, linear energy transfer, intensity and direction (EV01), and the biological effect per unit dose differs by particle type (EV02, Table 4.8-2). So it cannot give a NASA effective dose or any one person's dose. Team note, not from a source read here: handheld counters are usually calibrated with gamma rays on Earth, not space particles."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Show today's dose rate and the running mission dose next to the career limit: total career effective dose stays below 600 mSv, for all ages and sexes, counting every past mission.",
+          "value": 600,
+          "unit": "mSv",
+          "window": "career (all missions)",
+          "quote": "total career effective radiation dose due to spaceflight radiation exposure shall be less than 600 mSv",
+          "source_ids": [
+            "EV02"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Dose rate rises above the habitat's usual background, for example as a solar event builds. NASA requires the program to predefine the alert threshold; until then, threshold to be set by clinical review.",
+          "value": null,
+          "unit": "µGy per hour",
+          "window": "continuous",
+          "quote": "alert the crew and operations teams when radiation exposure rates exceed predefined thresholds",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Radiation alert or solar particle event warning: shelter now and end any walk outside. NASA requires the program to predefine the alert threshold; until then, threshold to be set by clinical review.",
+          "value": null,
+          "unit": "µGy per hour",
+          "window": "continuous",
+          "quote": "The crew must be able to follow sheltering procedures planned in the event that dose rates exceed predefined thresholds.",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Projected 30-day dose to the blood-forming organs would pass 250 mGy-Eq (the 30-day limit). How close counts as a warning is a threshold to be set by clinical review.",
+          "value": 250,
+          "unit": "mGy-Eq",
+          "window": "30 days",
+          "quote": "Blood-forming Organs# 250 mGy-Eq 500 mGy-Eq Not applicable",
+          "source_ids": [
+            "EV02"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Anyone has nausea, vomiting or unusual tiredness during or after a radiation event (possible acute radiation syndrome). Dose threshold to be set by clinical review.",
+          "value": null,
+          "unit": "mSv",
+          "window": "during or after an event",
+          "quote": "Acute radiation syndromes, such as nausea, vomiting, and fatigue, may occur due to in mission radiation exposure",
+          "source_ids": [
+            "EV05"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do. Wear your personal dosimeter. NASA keeps every exposure as low as reasonably achievable, even far below the limits (EV02).",
+        "watch": "Know where the storm shelter is. Wrap up work in thinly shielded areas. If you are outside, stay close to the habitat.",
+        "act": "Go to the storm shelter now. If you are outside, end the walk and come back in. Stay in the shelter until the all clear.",
+        "emergency": "Press Someone needs help. Stay in the shelter. Note when the symptoms started. Log it for the ground."
+      },
+      "routine_hint": "continuous: dose rate on screen (NASA says the radiation sampling rate depends on system design and mission, EV01 Table 6.1-1). per_eva: read the personal dosimeter after each walk. after_event (solar particle event): record shelter time and dose. How often to read personal dosimeters: frequency to be set by the flight surgeon.",
+      "source_ids": [
+        "EV01",
+        "EV02",
+        "EV05",
+        "EV28"
+      ]
+    },
+    {
+      "id": "co2",
+      "name": "Carbon dioxide (CO2)",
+      "kind": "sensed",
+      "plain": "CO2 is the gas you breathe out. In a closed cabin it builds up unless machines remove it.",
+      "effects": [
+        {
+          "effect": "Headache",
+          "body_region": "head",
+          "source_ids": [
+            "C25",
+            "EV07"
+          ]
+        },
+        {
+          "effect": "Shortness of breath",
+          "body_region": "lungs",
+          "source_ids": [
+            "C25"
+          ]
+        },
+        {
+          "effect": "Tiredness",
+          "body_region": null,
+          "source_ids": [
+            "C25"
+          ]
+        },
+        {
+          "effect": "Vision changes",
+          "body_region": "eyes",
+          "source_ids": [
+            "EV07"
+          ]
+        },
+        {
+          "effect": "Nausea",
+          "body_region": "abdomen",
+          "source_ids": [
+            "EV07"
+          ]
+        },
+        {
+          "effect": "Unconsciousness in severe overexposure",
+          "body_region": "head",
+          "source_ids": [
+            "EV07"
+          ]
+        },
+        {
+          "effect": "Poorer sleep",
+          "body_region": null,
+          "source_ids": [
+            "C15"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Removed by scrubbers. NASA's brief gives an ISS range of 1 to 9 mmHg (C25). Pockets can form around the face during sleep if the air does not move (C15).",
+        "transit": "Same machines and the same limit. When the average stays high for days, degraded scrubbers must be found and repaired or extra scrubbing switched on (C25); far from Earth the crew does more of this work itself (EV25).",
+        "lunar_surface": "Same 3 mmHg limit. In a low-pressure habitat the same ppm reading is a lower partial pressure, so always convert with the real cabin pressure (EV03 makes the same point for other gases).",
+        "mars_surface": "Same limit and the same conversion care as on the Moon.",
+        "eva": "CO2 can build up inside the helmet when suit gases are not fully washed out (EV15). Suit limits are set separately from cabin limits (EV15)."
+      },
+      "sensor": {
+        "measures": "CO2 in the cabin air, averaged over one hour (the NASA limit) and over seven days (headache risk context).",
+        "unit": "mmHg (partial pressure, ppCO2)",
+        "other_units": "ppm by volume (ppCO2 in mmHg = ppm x cabin pressure in mmHg / 1,000,000, see NASA-SOURCES.md section 2); kPa",
+        "hackathon_options": "An NDIR (non-dispersive infrared) CO2 module reads ppm.",
+        "cannot_tell": "It reads ppm at one spot. To compare with the mmHg limit you need the actual cabin pressure. One fixed sensor misses local pockets that are not measured by fixed sensors (C25). It cannot tell whether a headache comes from CO2: fluid shift in weightlessness causes similar headaches (C25)."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "One-hour average at or below 3 mmHg: within the NASA limit.",
+          "value": 3,
+          "unit": "mmHg",
+          "window": "1-hour average",
+          "quote": "limit the average one-hour CO2 partial pressure (ppCO2) in the habitable volume to no more than 3 mmHg",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Seven-day average at or above 2.5 mmHg. NASA's CO2 brief says staying below 2.5 mmHg keeps headache risk below 1%. Context value, not a NASA-STD-3001 requirement.",
+          "value": 2.5,
+          "unit": "mmHg",
+          "window": "7-day average",
+          "quote": "To keep the risk of headache below 1%, average 7 [...] needs to be maintained below 2.5 mmHg",
+          "source_ids": [
+            "C25"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "One-hour average above 3 mmHg (NASA-STD-3001 Volume 2 Rev F, V2 6004). An environmental limit for the cabin, not a diagnosis.",
+          "value": 3,
+          "unit": "mmHg",
+          "window": "1-hour average",
+          "quote": "limit the average one-hour CO2 partial pressure (ppCO2) in the habitable volume to no more than 3 mmHg",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Off-nominal CO2 values are left to each program, so the emergency level is a threshold to be set by clinical review. Raise Emergency at once if anyone is confused, very short of breath or hard to wake.",
+          "value": null,
+          "unit": "mmHg",
+          "window": "any moment",
+          "quote": "Off-nominal CO2 values are not included within this NASA Technical Standard",
+          "source_ids": [
+            "EV01"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do. Keep air moving around your face when you sleep (C15).",
+        "watch": "Record any headache with its time and place in the daily check. Make sure vents and fans near you are not blocked.",
+        "act": "Tell the crew and the ground. Move to a well-ventilated module. Report headache, breathlessness or tiredness. The flight control team finds and repairs the CO2 scrubbers or switches on extra scrubbing (C25).",
+        "emergency": "Press Someone needs help. Move the person to another module with fresh air. Follow the vehicle's breathing protection procedure. Log it for the ground."
+      },
+      "routine_hint": "continuous: NASA's example sampling rate for atmosphere constituents is every 5 seconds (EV01 Table 6.1-1). daily: headache question in the daily check. after_event: a reported headache opens the CO2 trend for the place the person was.",
+      "source_ids": [
+        "EV01",
+        "C25",
+        "EV07",
+        "EV15",
+        "C15",
+        "EV03"
+      ]
+    },
+    {
+      "id": "oxygen",
+      "name": "Oxygen (too little or too much)",
+      "kind": "sensed",
+      "plain": "Too little oxygen dulls your thinking and vision, often without you noticing. Too much oxygen helps fires burn and can injure the lungs.",
+      "effects": [
+        {
+          "effect": "Mental changes, at times not noticed by the person",
+          "body_region": "head",
+          "source_ids": [
+            "EV06"
+          ]
+        },
+        {
+          "effect": "Worse color, night and side vision",
+          "body_region": "eyes",
+          "source_ids": [
+            "EV06"
+          ]
+        },
+        {
+          "effect": "Tiredness, nausea, headache, dizziness and mood changes",
+          "body_region": "head",
+          "source_ids": [
+            "EV06"
+          ]
+        },
+        {
+          "effect": "Fast breathing (hyperventilation)",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV06"
+          ]
+        },
+        {
+          "effect": "Poorer sleep",
+          "body_region": null,
+          "source_ids": [
+            "EV06"
+          ]
+        },
+        {
+          "effect": "Small areas of lung collapse (absorption atelectasis) when oxygen is above half the air",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "effect": "Oxygen toxicity: breathing problems or tissue injury",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV06"
+          ]
+        },
+        {
+          "effect": "Fire: materials burn more easily and hotter in oxygen-rich air",
+          "body_region": null,
+          "source_ids": [
+            "EV14",
+            "EV01"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Air like sea level. The normal target range applies.",
+        "transit": "Same as a station; all oxygen comes from on-board systems.",
+        "lunar_surface": "The habitat may run at lower pressure with more oxygen, for example 8.2 psia and 34% oxygen, to make walks easier (EV01). Mild low oxygen is allowed only with a health monitoring plan (EV01). A higher oxygen fraction raises fire risk (EV14).",
+        "mars_surface": "Same as the lunar base.",
+        "eva": "The suit uses pure oxygen at low pressure; NASA's current suit runs at 4.3 psia with 100% oxygen (EV01). Oxygen prebreathe comes before the walk (EV12)."
+      },
+      "sensor": {
+        "measures": "Oxygen partial pressure in the cabin, used to work out the inspired oxygen pressure (PIO2) that NASA's limits use.",
+        "unit": "mmHg (PIO2, inspired oxygen partial pressure)",
+        "other_units": "% oxygen by volume; kPa; psia. PIO2 is the barometric pressure minus water vapor in the lungs, times the oxygen fraction (EV01 Table 6.2-1; the formula did not extract cleanly as text, so read it from the PDF).",
+        "hackathon_options": "An electrochemical oxygen cell reads % oxygen (some read partial pressure). A barometric pressure sensor gives total pressure; the two together give ppO2.",
+        "cannot_tell": "A % reading alone does not tell how much oxygen your lungs get; you also need total pressure. Gas sensors can lose sensitivity over time (EV32). It cannot measure a person's blood oxygen; that needs the pulse oximeter."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "PIO2 in the normal target range of 145 to 155 mmHg.",
+          "value": 145,
+          "unit": "mmHg",
+          "window": "continuous",
+          "quote": "(mmHg) 145-155 356 791 127",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "PIO2 below 145 mmHg. Mild low oxygen down to 127 mmHg is allowed only when planned, with health monitoring.",
+          "value": 145,
+          "unit": "mmHg",
+          "window": "continuous",
+          "quote": "Indefinite with monitoring",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Oxygen fraction above the mission's planned set point (fire risk). For context, at sea-level pressure OSHA calls air above 23.5% oxygen enriched; planned exploration atmospheres run higher on purpose.",
+          "value": 23.5,
+          "unit": "% oxygen by volume",
+          "window": "continuous",
+          "quote": "oxygen-enriched atmosphere as >23.5% oxygen by volume",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "PIO2 one-hour average below 127 mmHg (the mild hypoxia lower limit).",
+          "value": 127,
+          "unit": "mmHg",
+          "window": "1-hour time-weighted average",
+          "quote": "1-hour time-weighted average with an absolute lower limit for the minimum hypoxia range of 122 mmHg/2.36 psia",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "PIO2 above 356 mmHg outside a planned prebreathe or treatment (above the indefinite hyperoxia limit).",
+          "value": 356,
+          "unit": "mmHg",
+          "window": "continuous",
+          "quote": "(mmHg) 145-155 356 791 127",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "PIO2 below 122 mmHg at any moment, or anyone shows signs of low oxygen such as confusion or worse vision.",
+          "value": 122,
+          "unit": "mmHg",
+          "window": "any moment (absolute lower limit)",
+          "quote": "1-hour time-weighted average with an absolute lower limit for the minimum hypoxia range of 122 mmHg/2.36 psia [...] Crew are trained to don oxygen masks anytime symptoms of hypoxia are experienced.",
+          "source_ids": [
+            "EV01",
+            "EV06"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do.",
+        "watch": "Check how you and your crewmates feel; low oxygen can change thinking without you noticing (EV06). For high oxygen, keep ignition sources away and follow the fire prevention rules.",
+        "act": "Put on an oxygen mask if you have any symptom (EV06). Tell the crew and the ground.",
+        "emergency": "Put on oxygen masks now and help crewmates with theirs (EV06). Press Someone needs help. Watch each other: symptoms are easier to see in others (EV06)."
+      },
+      "routine_hint": "continuous: NASA's example sampling rate for atmosphere constituents is every 5 seconds (EV01 Table 6.1-1). per_eva: prebreathe log. mission_phase: any change of cabin atmosphere set point.",
+      "source_ids": [
+        "EV01",
+        "EV06",
+        "EV14",
+        "EV21",
+        "EV12",
+        "EV32"
+      ]
+    },
+    {
+      "id": "pressure_dcs",
+      "name": "Total pressure and decompression sickness",
+      "kind": "sensed",
+      "plain": "Air pressure keeps nitrogen dissolved in your body. A fast drop, such as moving into a suit, can make it form bubbles (decompression sickness, also called the bends).",
+      "effects": [
+        {
+          "effect": "Joint and muscle pain",
+          "body_region": null,
+          "source_ids": [
+            "EV12"
+          ]
+        },
+        {
+          "effect": "Itching, mild rashes or a mottled skin rash",
+          "body_region": null,
+          "source_ids": [
+            "EV12"
+          ]
+        },
+        {
+          "effect": "Numbness and weakness",
+          "body_region": null,
+          "source_ids": [
+            "EV12"
+          ]
+        },
+        {
+          "effect": "Problems thinking",
+          "body_region": "head",
+          "source_ids": [
+            "EV12"
+          ]
+        },
+        {
+          "effect": "Inner ear problems",
+          "body_region": "ear",
+          "source_ids": [
+            "EV12"
+          ]
+        },
+        {
+          "effect": "Heart and lung problems",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV12"
+          ]
+        },
+        {
+          "effect": "Ear and lung injury from fast pressure changes (barotrauma)",
+          "body_region": "ear",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "effect": "Low oxygen if the cabin loses pressure",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV21"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Sea-level cabin pressure. Decompression sickness risk comes with spacewalks at low suit pressure (EV12).",
+        "transit": "Few walks expected; the main pressure concern is a cabin leak.",
+        "lunar_surface": "Frequent walks. A lower cabin pressure, such as 8.2 psia, reduces the pressure drop into the suit (EV01, EV12).",
+        "mars_surface": "As on the Moon. Treatment has to happen on site because timely return to Earth is not feasible (EV01).",
+        "eva": "The main risk. Prebreathe pure oxygen before the walk (EV12) and report any symptom at once."
+      },
+      "sensor": {
+        "measures": "Total cabin pressure and how fast it changes.",
+        "unit": "kPa",
+        "other_units": "psia; mmHg; hPa (most barometric sensors)",
+        "hackathon_options": "A digital barometric pressure sensor (the kind in phones and weather stations) reads absolute pressure.",
+        "cannot_tell": "It cannot see bubbles in the body or tell who has decompression sickness. NASA diagnoses it from symptoms; bubbles can be present without symptoms, and symptoms can occur without detectable bubbles (EV12)."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Cabin pressure inside the range for an indefinite stay: above 34.5 kPa (5 psia) and up to 103 kPa (15.0 psia).",
+          "value": 34.5,
+          "unit": "kPa",
+          "window": "continuous",
+          "quote": "kPa < pressure ≤ 103 kPa (5 psia < pressure ≤ 15.0 psia) for indefinite human exposure",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Unplanned slow drop from the pressure set point. Threshold to be set by clinical review.",
+          "value": null,
+          "unit": "kPa",
+          "window": "continuous",
+          "quote": "",
+          "source_ids": []
+        },
+        {
+          "level": "act",
+          "rule": "Pressure changing faster than 13.5 psi per minute (for changes larger than 1 psi), or falling to 34.5 kPa (5 psia) or below.",
+          "value": 13.5,
+          "unit": "psi per minute",
+          "window": "any change larger than 1 psi",
+          "quote": "the rate of change of total internal vehicle pressure shall not exceed 13.5 psi/min",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Fast pressure loss, or any decompression sickness symptom after a walk or pressure change: joint pain, itching or rash, numbness, weakness, confusion, ear or breathing problems.",
+          "value": null,
+          "unit": null,
+          "window": "after any pressure drop",
+          "quote": "Musculoskeletal pain [...] Neurological symptoms [...] Numbness [...] Weakness [...] Cognitive issues [...] Inner ear problems [...] Cardiopulmonary issues",
+          "source_ids": [
+            "EV12"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do.",
+        "watch": "Tell the crew. Know the way to the safe module and where the masks are.",
+        "act": "Follow the leak procedure. During a planned pressure change, ask for a pause if your ears hurt; NASA requires the system to pause within 1 psi of the request (EV01).",
+        "emergency": "Press Someone needs help. For decompression sickness, quick treatment works better: NASA aims to return the person to their starting pressure as soon as possible (EV01, EV12). Log it for the ground."
+      },
+      "routine_hint": "continuous: NASA's example sampling rate for pressure is every 1 second (EV01 Table 6.1-1). per_eva: confirm prebreathe was completed, and run a decompression symptom check after every walk; how long after the walk: frequency to be set by the flight surgeon.",
+      "source_ids": [
+        "EV01",
+        "EV12",
+        "EV21"
+      ]
+    },
+    {
+      "id": "toxic_combustion",
+      "name": "Fire and combustion products (carbon monoxide, hydrogen cyanide, acid gases)",
+      "kind": "sensed",
+      "plain": "A fire or an overheating part releases poisonous gases. Carbon monoxide has no smell and no color.",
+      "effects": [
+        {
+          "effect": "Headache, dizziness and weakness from carbon monoxide",
+          "body_region": "head",
+          "source_ids": [
+            "EV07"
+          ]
+        },
+        {
+          "effect": "Upset stomach and vomiting",
+          "body_region": "abdomen",
+          "source_ids": [
+            "EV07"
+          ]
+        },
+        {
+          "effect": "Chest pain",
+          "body_region": "heart",
+          "source_ids": [
+            "EV07"
+          ]
+        },
+        {
+          "effect": "Confusion",
+          "body_region": "head",
+          "source_ids": [
+            "EV07"
+          ]
+        },
+        {
+          "effect": "Irritant gases from burning materials; toxic combustion products contributed to the deaths in the Apollo 1 fire",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV07"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "In spaceflight, carbon monoxide most likely comes from a fire (EV07).",
+        "transit": "No nearby escape. Masks, stopping ventilation and closing hatches are the response (EV14).",
+        "lunar_surface": "A higher oxygen fraction makes materials ignite more easily and burn hotter (EV14).",
+        "mars_surface": "As on the Moon.",
+        "eva": "Not applicable during the walk."
+      },
+      "sensor": {
+        "measures": "Carbon monoxide, hydrogen cyanide and acid gases (HCl, HF) in the cabin air.",
+        "unit": "ppm",
+        "other_units": "mg/m3 (depends on cabin pressure, EV03)",
+        "hackathon_options": "An electrochemical carbon monoxide sensor reads ppm. A particle sensor rises with smoke.",
+        "cannot_tell": "A low-cost electrochemical cell can respond to more than one gas (EV33 describes a cell that responds to both NO2 and O3). It does not measure hydrogen cyanide or acid gases. NASA recommends a carbon monoxide monitor covering 5 to 1000 ppm with 10% accuracy and 1 ppm resolution (EV01 Table 6.2-3); compare any sensor with that."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Carbon monoxide at or below 15 ppm, the long-term SMAC (30, 180 and 1000 days).",
+          "value": 15,
+          "unit": "ppm",
+          "window": "30 to 1000 days",
+          "quote": "100 55 15 15(485) (114) (63) (17) (17)425 [...] Carbon monoxide [...] 630-08-0",
+          "source_ids": [
+            "EV24"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Carbon monoxide above 15 ppm (30 to 1000 day SMAC). Above 55 ppm also passes the 7-day SMAC.",
+          "value": 15,
+          "unit": "ppm",
+          "window": "30 to 1000 days",
+          "quote": "100 55 15 15(485) (114) (63) (17) (17)425",
+          "source_ids": [
+            "EV24"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Carbon monoxide above 100 ppm (24-hour SMAC). Short-term SMACs are for off-nominal events.",
+          "value": 100,
+          "unit": "ppm",
+          "window": "24 hours",
+          "quote": "100 55 15 15(485) (114) (63) (17) (17)425 [...] Short-term (1- and 24-hour) SMACs apply to off-nominal situations",
+          "source_ids": [
+            "EV24",
+            "EV03"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Carbon monoxide above 425 ppm (1-hour SMAC).",
+          "value": 425,
+          "unit": "ppm",
+          "window": "1 hour",
+          "quote": "100 55 15 15(485) (114) (63) (17) (17)425 [...] 1 hour | ppm | 50 | 50 | 425",
+          "source_ids": [
+            "EV24",
+            "EV03"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Smoke, flame, burning smell or a fire alarm. Do not wait for a gas reading before putting on a mask.",
+          "value": null,
+          "unit": null,
+          "window": "any moment",
+          "quote": "Contaminant Level readings are not required prior to mask donning",
+          "source_ids": [
+            "EV14"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do.",
+        "watch": "Look and smell for hot or overheating equipment. Tell the crew. The ground reviews the trend.",
+        "act": "Tell the crew and the ground. Find the source. Get masks ready. Report headache, dizziness or nausea.",
+        "emergency": "Put on your mask now (EV14). Follow the fire procedure: stop ventilation, remove power, use the extinguisher, then leave and close the hatch if the air stays bad (EV14). Press Someone needs help for anyone with symptoms."
+      },
+      "routine_hint": "continuous: NASA's example sampling rate for combustion products is every 1 second (EV01 Table 6.1-1). after_event (fire or overheating): keep monitoring after the event until levels are safe (EV01, V2 6025).",
+      "source_ids": [
+        "EV01",
+        "EV03",
+        "EV24",
+        "EV07",
+        "EV14",
+        "EV33"
+      ]
+    },
+    {
+      "id": "toxic_ammonia",
+      "name": "Ammonia (coolant leak)",
+      "kind": "sensed",
+      "plain": "Ammonia is a sharp-smelling gas used to cool some spacecraft. A coolant leak can release a lot of it quickly.",
+      "effects": [
+        {
+          "effect": "Coughing",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV07"
+          ]
+        },
+        {
+          "effect": "Nose and throat irritation",
+          "body_region": "neck",
+          "source_ids": [
+            "EV07"
+          ]
+        },
+        {
+          "effect": "At high levels, burning of the nose, throat and airways that can lead to breathing failure",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV07"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Used for active cooling on the US segment of the ISS and on Orion. It can enter through a heat exchanger leak or be brought in by a fan (EV07). It also builds up slowly from human metabolism (EV07).",
+        "transit": "Depends on the ship's cooling design; Orion uses ammonia (EV07).",
+        "lunar_surface": "Depends on the habitat's cooling design. Some polar ice samples may hold ammonia; they must stay contained (EV08).",
+        "mars_surface": "Depends on the habitat's cooling design.",
+        "eva": "In 1998 an ammonia leak froze on a spacesuit during a walk (EV07). NASA says ammonia needs monitoring after a walk (EV01)."
+      },
+      "sensor": {
+        "measures": "Ammonia in the cabin or airlock air.",
+        "unit": "ppm",
+        "other_units": "mg/m3 (depends on cabin pressure, EV03)",
+        "hackathon_options": "Electrochemical or metal oxide ammonia sensors exist.",
+        "cannot_tell": "Low-cost gas sensors may not be selective for the target gas and become less sensitive over time (EV32). A cheap sensor is no substitute for the vehicle's monitor."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Ammonia at or below 3 ppm, the SMAC for 7 to 1000 days.",
+          "value": 3,
+          "unit": "ppm",
+          "window": "7 to 1000 days",
+          "quote": "20 3 3 3(20) (14) (2) (2) (2)30 [...] Ammonia [...] 7664-41-7",
+          "source_ids": [
+            "EV24"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Ammonia above 3 ppm, or any ammonia smell.",
+          "value": 3,
+          "unit": "ppm",
+          "window": "7 to 1000 days",
+          "quote": "20 3 3 3(20) (14) (2) (2) (2)30",
+          "source_ids": [
+            "EV24"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Ammonia above 20 ppm (24-hour SMAC).",
+          "value": 20,
+          "unit": "ppm",
+          "window": "24 hours",
+          "quote": "20 3 3 3(20) (14) (2) (2) (2)30 [...] 24 hour | ppm | 50 | 200 | 0.035 | 45 | 80 | 20",
+          "source_ids": [
+            "EV24",
+            "EV03"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Ammonia above 30 ppm (1-hour SMAC), a coolant leak alarm, or a strong smell with burning eyes or throat.",
+          "value": 30,
+          "unit": "ppm",
+          "window": "1 hour",
+          "quote": "20 3 3 3(20) (14) (2) (2) (2)30 [...] 1 hour | ppm | 134 | 500 | 0.075 | 45 | 150 | 30",
+          "source_ids": [
+            "EV24",
+            "EV03"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do.",
+        "watch": "Report any ammonia smell. The ground checks the trend.",
+        "act": "Get the ammonia masks ready. Tell the crew and the ground. Look for the source.",
+        "emergency": "Put on the ammonia mask (NASA uses masks fitted with ammonia cartridges, EV07). Leave the area and close the hatch as the procedure says. Press Someone needs help for anyone coughing or short of breath."
+      },
+      "routine_hint": "continuous where a monitor exists. per_eva: post-walk ammonia check before the suit enters the cabin (EV01, V2 6025). after_event: coolant leak alarm or hard landing.",
+      "source_ids": [
+        "EV07",
+        "EV24",
+        "EV03",
+        "EV01",
+        "EV08",
+        "EV32"
+      ]
+    },
+    {
+      "id": "toxic_propellants",
+      "name": "Propellants (hydrazine family, nitrogen tetroxide)",
+      "kind": "sensed",
+      "plain": "Rocket fuels such as hydrazine and their oxidizers are very toxic. They can come inside on a suit after a walk near thrusters or a lander, or leak during descent.",
+      "effects": [
+        {
+          "effect": "Liver damage (the basis of the hydrazine SMAC)",
+          "body_region": "abdomen",
+          "source_ids": [
+            "EV24"
+          ]
+        },
+        {
+          "effect": "Cancer, and tissue changes in the nose (listed effects in the hydrazine SMAC)",
+          "body_region": null,
+          "source_ids": [
+            "EV24"
+          ]
+        },
+        {
+          "effect": "Breathing problems and fluid in the lungs after nitrogen tetroxide exposure (Apollo-Soyuz, 1975)",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV07"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Thrusters and visiting vehicles use propellants. Check after walks near them (EV01).",
+        "transit": "The ship's own thrusters; leaks are possible.",
+        "lunar_surface": "Landers use propellants. Check suits and the airlock after walks near a lander.",
+        "mars_surface": "As on the Moon.",
+        "eva": "The main route: a contaminated suit brought inside. NASA says hydrazine, MMH, UDMH, nitrogen tetroxide and ammonia need monitoring after a walk (EV01)."
+      },
+      "sensor": {
+        "measures": "Hydrazine, monomethylhydrazine (MMH), unsymmetrical dimethylhydrazine (UDMH) and nitrogen tetroxide or nitrogen dioxide in the airlock or cabin.",
+        "unit": "ppm",
+        "other_units": "ppb; mg/m3 (depends on cabin pressure, EV03)",
+        "hackathon_options": "None known to the team for hydrazine at these levels (team note). Electrochemical NO2 cells exist but can respond to other gases too (EV33).",
+        "cannot_tell": "Low-cost sensors are not selective or sensitive enough at these very low limits (the hydrazine 180-day SMAC is 0.004 ppm)."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Hydrazine at or below 0.004 ppm (180-day SMAC). Use the SMAC that matches the mission length: 0.04 ppm for 7 days, 0.02 ppm for 30 days.",
+          "value": 0.004,
+          "unit": "ppm",
+          "window": "180 days",
+          "quote": "0.3 0.04 0.02 0.004(5) (0.4) (0.05) (0.03) (0.005)4 [...] Hydrazine [...] 302-01-2",
+          "source_ids": [
+            "EV24"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Hydrazine above the long-term SMAC for the mission length, or an unusual smell after a walk.",
+          "value": 0.004,
+          "unit": "ppm",
+          "window": "180 days",
+          "quote": "0.3 0.04 0.02 0.004(5) (0.4) (0.05) (0.03) (0.005)4",
+          "source_ids": [
+            "EV24"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Hydrazine above 0.3 ppm (24-hour SMAC).",
+          "value": 0.3,
+          "unit": "ppm",
+          "window": "24 hours",
+          "quote": "0.3 0.04 0.02 0.004(5) (0.4) (0.05) (0.03) (0.005)4",
+          "source_ids": [
+            "EV24"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Hydrazine above 4 ppm (1-hour SMAC), or visible residue on a suit after a walk near thrusters.",
+          "value": 4,
+          "unit": "ppm",
+          "window": "1 hour",
+          "quote": "0.3 0.04 0.02 0.004(5) (0.4) (0.05) (0.03) (0.005)4",
+          "source_ids": [
+            "EV24"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do.",
+        "watch": "Report any unusual smell after a walk. Keep the airlock closed until it is checked.",
+        "act": "Stay out of the airlock. Put on masks. Log it for the ground.",
+        "emergency": "Mask on. Leave and close off the area. Press Someone needs help for anyone with eye, throat or breathing symptoms. Log it for the ground."
+      },
+      "routine_hint": "per_eva: check the suit and airlock for propellant before entering the cabin when the walk was near thrusters or a lander (EV01, V2 6025). after_event: landing, docking or propellant leak.",
+      "source_ids": [
+        "EV01",
+        "EV24",
+        "EV03",
+        "EV07",
+        "EV33"
+      ]
+    },
+    {
+      "id": "toxic_vocs",
+      "name": "Chemical vapors (formaldehyde and other volatile organic compounds)",
+      "kind": "sensed",
+      "plain": "Plastics, glues, cleaning products, experiments and people slowly release chemical vapors. In a sealed cabin they add up.",
+      "effects": [
+        {
+          "effect": "Eye, nose and throat irritation",
+          "body_region": "eyes",
+          "source_ids": [
+            "EV31",
+            "EV07"
+          ]
+        },
+        {
+          "effect": "Headaches, loss of coordination and nausea",
+          "body_region": "head",
+          "source_ids": [
+            "EV31"
+          ]
+        },
+        {
+          "effect": "Liver damage",
+          "body_region": "abdomen",
+          "source_ids": [
+            "EV31"
+          ]
+        },
+        {
+          "effect": "Kidney damage",
+          "body_region": "flank",
+          "source_ids": [
+            "EV31"
+          ]
+        },
+        {
+          "effect": "Damage to the central nervous system",
+          "body_region": "head",
+          "source_ids": [
+            "EV31"
+          ]
+        },
+        {
+          "effect": "Formaldehyde irritates the airways and can cause cancer after long exposure",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV07"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Off-gassing from hardware and payload chemicals. Formaldehyde has been tracked on the ISS for years (EV07).",
+        "transit": "No fresh air and the same sources. NASA requires VOC monitoring with alerts (EV01, V2 6023).",
+        "lunar_surface": "As in transit. SMACs in ppm apply at every habitat pressure (EV03).",
+        "mars_surface": "As on the Moon.",
+        "eva": "Not applicable during the walk."
+      },
+      "sensor": {
+        "measures": "Individual compounds (for example formaldehyde) against their SMACs, and the toxicity index of each group of similar compounds.",
+        "unit": "ppm",
+        "other_units": "ppb; mg/m3 (depends on cabin pressure, EV03); VOC index (unitless, from low-cost sensors)",
+        "hackathon_options": "A metal oxide VOC index sensor gives a relative index of total VOCs.",
+        "cannot_tell": "It cannot name the chemical or give its concentration, so it cannot be compared with any SMAC. A metal oxide sensor turns a resistance change into an estimate (EV33) and may not be selective (EV32). Use it only as a 'something changed' signal."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Toxicity index below 1 for every group of similar compounds (the sum of each compound's concentration divided by its SMAC).",
+          "value": 1,
+          "unit": "toxicity index (unitless)",
+          "window": "SMAC duration matching the mission",
+          "quote": "the toxicity index (Tgrp) for each toxicological group of compounds is less than 1",
+          "source_ids": [
+            "EV03"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Toxicity index reaches 1 for any group, or formaldehyde above 0.1 ppm (SMAC for 7 to 1000 days). Formaldehyde SMACs are ceiling values, not averages.",
+          "value": 0.1,
+          "unit": "ppm",
+          "window": "ceiling value (7 to 1000 days)",
+          "quote": "0.5 0.1 0.1 0.1(1.0) (0.6) (0.12) (0.12) (0.12)0.8 [...] Formaldehyde [...] 50-00-0",
+          "source_ids": [
+            "EV24"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "A low-cost VOC index jumps well above its usual baseline. Threshold to be set by clinical review.",
+          "value": null,
+          "unit": "VOC index",
+          "window": "continuous",
+          "quote": "",
+          "source_ids": []
+        },
+        {
+          "level": "act",
+          "rule": "Formaldehyde above 0.5 ppm (24-hour SMAC, a ceiling value).",
+          "value": 0.5,
+          "unit": "ppm",
+          "window": "ceiling value (24 hours)",
+          "quote": "0.5 0.1 0.1 0.1(1.0) (0.6) (0.12) (0.12) (0.12)0.8",
+          "source_ids": [
+            "EV24"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Formaldehyde above 0.8 ppm (1-hour SMAC, a ceiling value), or a chemical spill with eye or breathing symptoms.",
+          "value": 0.8,
+          "unit": "ppm",
+          "window": "ceiling value (1 hour)",
+          "quote": "0.5 0.1 0.1 0.1(1.0) (0.6) (0.12) (0.12) (0.12)0.8 [...] REMARKS:  Ceiling values, Carcinogen",
+          "source_ids": [
+            "EV24"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do.",
+        "watch": "Note any smell, eye or throat irritation, or headache in the daily check. The ground reviews the air samples.",
+        "act": "Find and contain the source if you know it (a spill, an experiment, hot equipment). Report symptoms. Log it for the ground.",
+        "emergency": "Leave the area and close the hatch. Mask on. Press Someone needs help for anyone with symptoms."
+      },
+      "routine_hint": "every_n_days (n = 3): NASA's example sampling rate for VOCs is at least every 73 hours (EV01 Table 6.1-1). daily: irritation and headache questions in the daily check.",
+      "source_ids": [
+        "EV03",
+        "EV24",
+        "EV01",
+        "EV07",
+        "EV31",
+        "EV32",
+        "EV33"
+      ]
+    },
+    {
+      "id": "perchlorate",
+      "name": "Martian perchlorates",
+      "kind": "sensed",
+      "plain": "Martian dust and soil contain perchlorate salts. Breathed in or swallowed, perchlorate can stop the thyroid gland in your neck from taking up iodine.",
+      "effects": [
+        {
+          "effect": "The thyroid gland takes up less iodine; long exposure to higher amounts may lower thyroid activity (hypothyroidism)",
+          "body_region": "neck",
+          "source_ids": [
+            "EV30"
+          ]
+        },
+        {
+          "effect": "Low thyroid hormone can affect the skin, heart, lungs, kidneys, gut, nerves and other organs",
+          "body_region": null,
+          "source_ids": [
+            "EV30"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Not a hazard here in the sources read.",
+        "transit": "Not a hazard here in the sources read.",
+        "lunar_surface": "Not a hazard here in the sources read.",
+        "mars_surface": "Martian dust holds 0.5 to 1% perchlorate, 3 to 4 orders of magnitude more than soils on Earth (EV23). Water from Martian sources and crops grown in it can carry perchlorate (EV01).",
+        "eva": "On Mars, dust on suits brings perchlorate inside."
+      },
+      "sensor": {
+        "measures": "Perchlorate in water or soil samples (laboratory analysis). In air, NASA protects against it through the Martian dust limit (EV01).",
+        "unit": "mg/m3 (as Martian dust in air)",
+        "other_units": "mg/L (perchlorate in water, laboratory test)",
+        "hackathon_options": "None known to the team for perchlorate itself. A particle sensor can track dust (see the dust hazard).",
+        "cannot_tell": "A dust reading does not tell how much perchlorate the dust holds. The saved water guidelines (JSC 63414 Rev A) have no perchlorate entry."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Martian dust below 0.1 mg/m3 (30-day time-weighted average). NASA says meeting this dust limit also protects from perchlorate and manganese in the dust.",
+          "value": 0.1,
+          "unit": "mg/m3",
+          "window": "30-day time-weighted average",
+          "quote": "implementation of this Martian dust limit will also protect from these compounds",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Water or food from a local Martian source has not been tested for perchlorate. Threshold to be set by clinical review.",
+          "value": null,
+          "unit": "mg/L",
+          "window": "before first use",
+          "quote": "perchlorate dissolution from Mars regolith into water and subsequent uptake by food crops",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Perchlorate found in drinking water or food. No spacecraft limit for perchlorate was found in the sources read; threshold to be set by clinical review.",
+          "value": null,
+          "unit": "mg/L",
+          "window": "any detection",
+          "quote": "Perchlorate's inhibition of iodine uptake must be great enough to affect the thyroid before it is considered harmful.",
+          "source_ids": [
+            "EV30"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do. Keep dust out of living areas.",
+        "watch": "Do not drink or cook with local water until it is tested.",
+        "act": "Switch to stored water. The medical officer decides on thyroid checks, as in the onboard procedure. Log it for the ground.",
+        "emergency": "No emergency level: perchlorate harm builds slowly over long exposure (EV30). Use Someone needs help for any sudden illness."
+      },
+      "routine_hint": "after_event: test every new local water source before use. per_eva: dust control after every Mars surface walk. Thyroid checks: frequency to be set by the flight surgeon.",
+      "source_ids": [
+        "EV01",
+        "EV23",
+        "EV30",
+        "EV04"
+      ]
+    },
+    {
+      "id": "dust",
+      "name": "Dust and particles (cabin, lunar and Martian dust)",
+      "kind": "sensed",
+      "plain": "Tiny particles in the air. On the Moon and Mars the dust is very fine and sharp, and it comes inside on suits.",
+      "effects": [
+        {
+          "effect": "Eye irritation and scratching",
+          "body_region": "eyes",
+          "source_ids": [
+            "EV08"
+          ]
+        },
+        {
+          "effect": "Skin abrasion and irritation, for example from gloves and under fingernails",
+          "body_region": "hand",
+          "source_ids": [
+            "EV08"
+          ]
+        },
+        {
+          "effect": "Lung harm; the respiratory system is believed to be the most sensitive target",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV08"
+          ]
+        },
+        {
+          "effect": "Stuffy nose and sneezing",
+          "body_region": "head",
+          "source_ids": [
+            "EV08"
+          ]
+        },
+        {
+          "effect": "Possible harm to the heart and lungs together (cardiopulmonary)",
+          "body_region": "heart",
+          "source_ids": [
+            "EV19"
+          ]
+        },
+        {
+          "effect": "Possible allergy (research pending)",
+          "body_region": null,
+          "source_ids": [
+            "EV08"
+          ]
+        },
+        {
+          "effect": "Martian dust is likely toxic: highly oxidized, salty, with heavy metals and perchlorate",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV23"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Ordinary cabin dust from skin, hair and clothing lint; exercise adds more (EV01).",
+        "transit": "As on a station. Dust from the Moon or Mars can float everywhere once back in weightlessness (EV08 on Apollo).",
+        "lunar_surface": "Lunar dust limit applies. Lunar dust particles are mostly 0.02 to 5 µm (EV01). Apollo crews had eye irritation and nasal congestion (EV08). Low gravity keeps dust in the air longer (EV23).",
+        "mars_surface": "Martian dust limit applies; it is stricter than the lunar limit, and peaks at ingress must stay below 10 mg/m3 (EV01).",
+        "eva": "Surface walks bring dust back on suits. An airlock that separates the hatch from living areas helps (EV08)."
+      },
+      "sensor": {
+        "measures": "Mass of particles in the air by size: total dust, the respirable fraction (smaller than 2.5 µm) and lunar or Martian dust smaller than 10 µm.",
+        "unit": "mg/m3",
+        "other_units": "µg/m3 (1 mg/m3 = 1000 µg/m3; low-cost sensors usually report µg/m3); particle counts per size bin",
+        "hackathon_options": "An optical particle sensor (PM1, PM2.5, PM10) counts particles by how they scatter light and estimates their mass (EV33).",
+        "cannot_tell": "It estimates mass from counts, so it cannot tell lunar or Martian dust from lint or skin flakes, and it assumes a particle density and shape. High humidity can cause inaccurate readings (EV32). It cannot see dust on skin or in eyes."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Cabin dust within the general limits: total dust below 3 mg/m3 and the respirable fraction (smaller than 2.5 µm) below 1 mg/m3. These do not apply to lunar or Martian dust.",
+          "value": 1,
+          "unit": "mg/m3",
+          "window": "continuous",
+          "quote": "dust to <3 mg/m3 with a crew generation rate of 1.33 mg/person-minute, and the respirable fraction of the total dust <2.5 μm (micrometer) in aerodynamic diameter to <1 mg/m3",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Respirable cabin dust above 1 mg/m3, or dust rising after a surface walk.",
+          "value": 1,
+          "unit": "mg/m3",
+          "window": "continuous",
+          "quote": "They do not apply to reactive dust, e.g., lithium hydroxide (LiOH) or extraterrestrial dust.",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Lunar base: lunar dust smaller than 10 µm above 0.3 mg/m3 as a time-weighted average.",
+          "value": 0.3,
+          "unit": "mg/m3",
+          "window": "time-weighted average; intermittent daily exposure up to 6 months",
+          "quote": "below a time-weighted average of 0.3 mg/m3 during intermittent daily exposure periods that may persist up to 6 months in duration",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Mars base: Martian dust smaller than 10 µm above 0.1 mg/m3 as a time-weighted average.",
+          "value": 0.1,
+          "unit": "mg/m3",
+          "window": "time-weighted average; up to 30 days",
+          "quote": "below a time-weighted average of 0.1 mg/m3 during exposure scenarios lasting up to 30 days in duration",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Mars base: Martian dust above 10 mg/m3 at any moment, for example right after ingress.",
+          "value": 10,
+          "unit": "mg/m3",
+          "window": "instantaneous peak",
+          "quote": "Peak dust exposure levels should be limited to 10 mg/m3",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Lunar base: NASA sets no short-term peak limit for lunar dust, so a peak alarm is a threshold to be set by clinical review. Raise Emergency for dust in an eye that does not clear with rinsing, or breathing trouble after dust exposure.",
+          "value": null,
+          "unit": "mg/m3",
+          "window": "any moment",
+          "quote": "acute limits for lunar dust are not being set at this time [...] ocular irritation occurred that required copious saline irrigation to treat",
+          "source_ids": [
+            "EV08"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do.",
+        "watch": "Brush off and contain suits in the airlock. Run the cabin cleaner. Apollo 12 crew kept helmets on until the cabin was clear (EV08).",
+        "act": "Wear a dust mask and goggles in the affected area (EV08 names these as controls). Vacuum. Log it for the ground.",
+        "emergency": "Rinse the eyes with plenty of saline (EV08). Press Someone needs help for eye pain that does not clear or for any breathing trouble."
+      },
+      "routine_hint": "continuous: NASA's example sampling rate for dust is every 1 minute (EV01 Table 6.1-1). per_eva: dust cleanup plus an eye, nose and skin check after each surface walk. daily: eye and nose irritation question on surface missions.",
+      "source_ids": [
+        "EV01",
+        "EV08",
+        "EV19",
+        "EV23",
+        "EV32",
+        "EV33"
+      ]
+    },
+    {
+      "id": "noise",
+      "name": "Noise",
+      "kind": "sensed",
+      "plain": "Fans, pumps and machines run all the time. Long exposure can damage hearing and disturb sleep.",
+      "effects": [
+        {
+          "effect": "Hearing loss",
+          "body_region": "ear",
+          "source_ids": [
+            "EV01",
+            "EV09"
+          ]
+        },
+        {
+          "effect": "Headaches",
+          "body_region": "head",
+          "source_ids": [
+            "EV09"
+          ]
+        },
+        {
+          "effect": "Irritation",
+          "body_region": null,
+          "source_ids": [
+            "EV09"
+          ]
+        },
+        {
+          "effect": "Worse sleep and relaxation",
+          "body_region": null,
+          "source_ids": [
+            "EV09",
+            "C15"
+          ]
+        },
+        {
+          "effect": "Harder to talk and hear each other",
+          "body_region": "ear",
+          "source_ids": [
+            "EV09"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Constant fan noise. ISS crews use acoustic monitors from time to time (EV01).",
+        "transit": "Months of the same noise. Quiet sleep areas matter more: the stricter sleep limit applies on missions over 30 days (EV01).",
+        "lunar_surface": "Life support machinery as on a station; same limits.",
+        "mars_surface": "Life support machinery as on a station; same limits.",
+        "eva": "Spacesuits have their own continuous noise requirement, outside this hazard (EV01)."
+      },
+      "sensor": {
+        "measures": "Sound level in work and sleep areas, and each person's daily noise exposure.",
+        "unit": "dBA",
+        "other_units": "dB per octave band (for the NC curves); noise dose D (100 = the daily limit)",
+        "hackathon_options": "A sound level meter, or a sound meter app on a phone, reads dBA. A small MEMS microphone can log levels.",
+        "cannot_tell": "One dBA number cannot check the NC-50 or NC-40 limits, which are set per octave band (EV01 Table 6.6-3). A fixed meter does not give each person's dose at the ear; NASA asks for per-person monitoring as needed (EV01). Phone microphones are not calibrated (team note)."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Work areas within the NC-50 curve; sleep areas within NC-40 on missions over 30 days.",
+          "value": 50,
+          "unit": "NC rating",
+          "window": "continuous",
+          "quote": "limited to the values given by the Noise Criterion (NC)-50 curve",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Sleep area louder than the NC-40 curve on a mission over 30 days.",
+          "value": 40,
+          "unit": "NC rating",
+          "window": "sleep period",
+          "quote": "values given by the NC-40 curve",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Daily noise dose above 100, which equals a 24-hour average of 70 dBA (or 75 dBA over 8 hours).",
+          "value": 70,
+          "unit": "dBA",
+          "window": "24 hours",
+          "quote": "corresponds to a 24-hour noise exposure level of 70 dBA",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Sound at the ear above 115 dBA, or sudden hearing loss, ringing or ear pain after a loud event.",
+          "value": 115,
+          "unit": "dBA",
+          "window": "any moment",
+          "quote": "Noise levels above 115 dBA have been shown to produce noise-induced hearing loss",
+          "source_ids": [
+            "EV01"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do.",
+        "watch": "Use earplugs for sleep if they help; some crew sleep worse with them (EV01). Report noisy equipment.",
+        "act": "Move away from the source and use hearing protection. Hearing protection does not count toward meeting the limit, so the noise itself must be fixed (EV01). Log it for the ground.",
+        "emergency": "Leave the noisy area. Press Someone needs help for sudden hearing loss. Log it for the ground."
+      },
+      "routine_hint": "NASA asks for sound and personal noise monitoring 'as needed', and ISS crews measure periodically (EV01). Team default: a weekly check of work and sleep areas; frequency to be set by the flight surgeon. after_event: new or changed noisy equipment.",
+      "source_ids": [
+        "EV01",
+        "EV09",
+        "C15"
+      ]
+    },
+    {
+      "id": "thermal_humidity",
+      "name": "Temperature and humidity",
+      "kind": "sensed",
+      "plain": "Cabin warmth and air moisture. Too hot, too cold, too dry or too damp harms comfort, skin and performance.",
+      "effects": [
+        {
+          "effect": "Dry, stuffy or irritated mucous membranes",
+          "body_region": null,
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "effect": "Skin rashes from microbial growth at high humidity",
+          "body_region": null,
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "effect": "Overheating and heat-related illness",
+          "body_region": null,
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "effect": "Worse performance from thermal stress",
+          "body_region": null,
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "effect": "Static electricity in very dry air (shock and ignition hazard)",
+          "body_region": null,
+          "source_ids": [
+            "EV01"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Controlled cabin. Crew can set the temperature in steps of 0.5 °C or smaller (EV01).",
+        "transit": "As on a station.",
+        "lunar_surface": "As on a station. On the lunar surface gravity adds convection, which changes air movement (EV01).",
+        "mars_surface": "As on a station.",
+        "eva": "The cabin limits do not apply in the suit; the suit has its own thermal requirements (EV01)."
+      },
+      "sensor": {
+        "measures": "Air temperature and relative humidity.",
+        "unit": "°C and % relative humidity",
+        "other_units": "°F; dew point",
+        "hackathon_options": "A digital temperature and humidity sensor.",
+        "cannot_tell": "It reads one spot; hot pockets can form where air does not move (EV01, V2 6107). It cannot measure a person's body temperature or the heat stored in the body; that needs a thermometer."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Inside the comfort zone. NASA's rationale cites 20 to 25 °C with 30 to 60% humidity as supporting comfort and performance. The value is null because the zone is a temperature and humidity area, not one number.",
+          "value": null,
+          "unit": "°C and % relative humidity",
+          "window": "continuous",
+          "quote": "atmospheric parameters (20°C [...] 25°C and 30-60% humidity) to support human comfort and performance",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Outside the comfort zone but inside the health limits zone.",
+          "value": null,
+          "unit": "°C and % relative humidity",
+          "window": "continuous",
+          "quote": "Operating outside of this zone will cause performance decrements and impact productivity.",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Outside the crew health limits zone. Its corners are 18 °C with 75% humidity and 27 °C with 25% humidity; average humidity stays above 25%. The full zone is a figure in NASA-STD-3001 Volume 2 (Figure 6.2-2), so the engine needs the figure's outline. Value null for that reason.",
+          "value": null,
+          "unit": "°C and % relative humidity",
+          "window": "continuous",
+          "quote": "anchored at 18°C and 75% humidity on the upper left corner and 27 °C and 25% humidity on the lower right corner",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Anyone shows signs of heat illness or severe cold. Threshold to be set by clinical review.",
+          "value": null,
+          "unit": null,
+          "window": "any moment",
+          "quote": "The intent of this requirement is to protect the crewmember from heat-related illness.",
+          "source_ids": [
+            "EV01"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do.",
+        "watch": "Adjust the temperature set point, your clothing or the local airflow.",
+        "act": "Tell the crew and the ground. In very dry air, drink extra water; NASA says low humidity calls for extra water to prevent dehydration (EV01).",
+        "emergency": "Press Someone needs help. Move the person to a cooler or warmer module."
+      },
+      "routine_hint": "continuous: NASA's example sampling rate for temperature and humidity is every 1 minute (EV01 Table 6.1-1).",
+      "source_ids": [
+        "EV01"
+      ]
+    },
+    {
+      "id": "water_quality",
+      "name": "Drinking water quality",
+      "kind": "sensed",
+      "plain": "Drinking water is recycled from cabin humidity or brought from Earth. It must be free of harmful chemicals and germs, and taste good enough that you drink enough.",
+      "effects": [
+        {
+          "effect": "Nausea and headache from short contamination",
+          "body_region": "abdomen",
+          "source_ids": [
+            "EV04"
+          ]
+        },
+        {
+          "effect": "Stomach and gut irritation",
+          "body_region": "abdomen",
+          "source_ids": [
+            "EV04"
+          ]
+        },
+        {
+          "effect": "Kidney disease or cancer from long exposure",
+          "body_region": "flank",
+          "source_ids": [
+            "EV04"
+          ]
+        },
+        {
+          "effect": "Drinking less because of bad taste or smell, leading to dehydration",
+          "body_region": null,
+          "source_ids": [
+            "EV04",
+            "EV01"
+          ]
+        },
+        {
+          "effect": "Infection from germs in water",
+          "body_region": "abdomen",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "effect": "Illness from too much iodine used as a disinfectant",
+          "body_region": null,
+          "source_ids": [
+            "EV01"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Recycled humidity condensate plus supplied water; iodine or silver is added as a disinfectant (EV01, EV10).",
+        "transit": "NASA requires the capability to monitor water quality and alert the crew on board (EV01, V2 6046); far from Earth, problems must be handled with what is on board.",
+        "lunar_surface": "As in transit. Any future local water must be tested before use.",
+        "mars_surface": "As in transit. Local water may carry perchlorate (EV01).",
+        "eva": "Suit drinking water comes from the same supply."
+      },
+      "sensor": {
+        "measures": "Chemical contaminants (for example silver, ammonia, total organic carbon) and germs (bacteria count, coliforms).",
+        "unit": "mg/L (chemicals); CFU/mL (bacteria)",
+        "other_units": "ug/L",
+        "hackathon_options": "Test strips and a conductivity (TDS) meter give rough chemistry; culture kits grow bacteria over days (team note).",
+        "cannot_tell": "Strips and TDS meters do not identify the contaminants that have SWEG limits. Cultures take days. Neither can say the water is safe."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Total organic carbon at or below 5 mg/L (the 100 and 1000 day SWEG).",
+          "value": 5,
+          "unit": "mg/L",
+          "window": "100 to 1000 days",
+          "quote": "5 mg/L 5 mg/L TOC limit is based on reasonable worst",
+          "source_ids": [
+            "EV04"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Silver above 0.4 mg/L (1000-day SWEG).",
+          "value": 0.4,
+          "unit": "mg/L",
+          "window": "1000 days",
+          "quote": "5 mg/L 5 mg/L 0.6 mg/L 0.4 mg/L Argyria is not considered an adverse toxic",
+          "source_ids": [
+            "EV04"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Ammonia above 1 mg/L (SWEG for 10 to 1000 days), or the water tastes or smells odd.",
+          "value": 1,
+          "unit": "mg/L",
+          "window": "10 to 1000 days",
+          "quote": "5 mg/L 1 mg/L 1 mg/L 1 mg/L RWC resulting from unpleasant smell/taste.",
+          "source_ids": [
+            "EV04"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Bacteria above 50 CFU/mL, or any coliform detected.",
+          "value": 50,
+          "unit": "CFU/mL",
+          "window": "per sample",
+          "quote": "Water 50 CFU/mL [...] No detectable coliforms",
+          "source_ids": [
+            "EV11"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Total organic carbon above 5 mg/L.",
+          "value": 5,
+          "unit": "mg/L",
+          "window": "100 to 1000 days",
+          "quote": "5 mg/L 5 mg/L TOC limit is based on reasonable worst",
+          "source_ids": [
+            "EV04"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Several crew members sick to the stomach at once, or a water system alarm. Threshold to be set by clinical review.",
+          "value": null,
+          "unit": null,
+          "window": "any moment",
+          "quote": "Microbially safe water is essential to prevent infection",
+          "source_ids": [
+            "EV01"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do. Keep drinking enough.",
+        "watch": "Report any odd taste or smell. The ground reviews the last sample. Keep drinking enough water.",
+        "act": "Switch to a backup water source if there is one. Do not use the affected water for drinking or food. Log it for the ground.",
+        "emergency": "Stop using that water. Press Someone needs help for anyone very sick. Log it for the ground."
+      },
+      "routine_hint": "NASA says the water sampling rate depends on system design and mission (EV01 Table 6.1-1); frequency to be set by the flight surgeon. after_event: any change in taste or smell, or a new water source.",
+      "source_ids": [
+        "EV01",
+        "EV04",
+        "EV10",
+        "EV11"
+      ]
+    },
+    {
+      "id": "microbial",
+      "name": "Microbes in air and on surfaces",
+      "kind": "sensed",
+      "plain": "Bacteria and fungi live wherever people live. In a closed cabin they grow on damp surfaces and spread through the air.",
+      "effects": [
+        {
+          "effect": "Infection",
+          "body_region": null,
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "effect": "Allergic reactions",
+          "body_region": null,
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "effect": "Microbes can become more able to cause disease in space",
+          "body_region": null,
+          "source_ids": [
+            "EV11"
+          ]
+        },
+        {
+          "effect": "Changes to the immune system in flight make infection more likely",
+          "body_region": null,
+          "source_ids": [
+            "EV11",
+            "EV29"
+          ]
+        },
+        {
+          "effect": "Microbes pass more easily between people in a closed habitat",
+          "body_region": null,
+          "source_ids": [
+            "EV29"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Routine in-flight sampling, with analysis on Earth (EV11).",
+        "transit": "ISS monitoring relies partly on testing on Earth; for missions beyond, culture-independent on-board methods are being developed and in-flight monitoring is a listed countermeasure for lunar and Mars missions (EV11).",
+        "lunar_surface": "As in transit. HEPA filters clean the air (EV01).",
+        "mars_surface": "As in transit.",
+        "eva": "Not applicable during the walk."
+      },
+      "sensor": {
+        "measures": "Live bacteria and fungi in the air and on surfaces, as colony counts.",
+        "unit": "CFU/m3 (air); CFU/100 cm2 (surfaces)",
+        "other_units": "CFU/mL (water, see drinking water quality)",
+        "hackathon_options": "Agar contact or settle plates grow colonies that can be counted after days (team note; NASA grows samples on agar, EV11).",
+        "cannot_tell": "Counts take days and do not say which organism it is or whether it causes disease."
+      },
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Air bacteria at or below 1000 CFU/m3 and fungi at or below 100 CFU/m3 (ISS in-flight acceptability limits).",
+          "value": 1000,
+          "unit": "CFU/m3",
+          "window": "per sample",
+          "quote": "Air 1000 CFU/m3 100 CFU/m3",
+          "source_ids": [
+            "EV11"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Visible mold, or damp surfaces and condensation that stay. Threshold to be set by clinical review.",
+          "value": null,
+          "unit": null,
+          "window": "any time",
+          "quote": "The system shall prevent condensation persistence on surfaces within the vehicle.",
+          "source_ids": [
+            "EV01"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Air bacteria above 1000 CFU/m3, or air fungi above 100 CFU/m3.",
+          "value": 1000,
+          "unit": "CFU/m3",
+          "window": "per sample",
+          "quote": "Air 1000 CFU/m3 100 CFU/m3",
+          "source_ids": [
+            "EV11"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Surface bacteria above 10,000 CFU/100 cm2, or surface fungi above 100 CFU/100 cm2.",
+          "value": 10000,
+          "unit": "CFU/100 cm2",
+          "window": "per sample",
+          "quote": "Surface 10,000 CFU/100 cm2 100 CFU/100 cm2",
+          "source_ids": [
+            "EV11"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Several crew members with fever or signs of infection at the same time. Threshold to be set by clinical review.",
+          "value": null,
+          "unit": null,
+          "window": "any time",
+          "quote": "Microbiologically safe air is essential to prevent infection, allergic response",
+          "source_ids": [
+            "EV01"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do.",
+        "watch": "Dry and clean the area. Report any mold.",
+        "act": "Clean and disinfect the area as the procedure says, take a new sample, and log it for the ground.",
+        "emergency": "Press Someone needs help. The medical officer decides on separating sick crew, as in the onboard procedure. Log it for the ground."
+      },
+      "routine_hint": "NASA notes debate over routine testing versus testing only when someone is ill (EV11); frequency to be set by the flight surgeon. after_event: crew illness, visible mold, or a spill.",
+      "source_ids": [
+        "EV01",
+        "EV11",
+        "EV29"
+      ]
+    },
+    {
+      "id": "microgravity",
+      "name": "Weightlessness (microgravity)",
+      "kind": "condition",
+      "plain": "Floating without weight. Bones and muscles lose load, body fluids move toward the head, and the balance system gets confused.",
+      "effects": [
+        {
+          "effect": "Bone loss: weight-bearing bones lose on average 1% to 1.5% of mineral density per month",
+          "body_region": "back",
+          "source_ids": [
+            "EV26",
+            "EV16"
+          ]
+        },
+        {
+          "effect": "Kidney stones from dehydration and calcium leaving the bones",
+          "body_region": "flank",
+          "source_ids": [
+            "EV26"
+          ]
+        },
+        {
+          "effect": "Smaller, weaker muscles with less endurance",
+          "body_region": "legs",
+          "source_ids": [
+            "EV22"
+          ]
+        },
+        {
+          "effect": "Fluids shift toward the head and may press on the eyes",
+          "body_region": "eyes",
+          "source_ids": [
+            "EV26"
+          ]
+        },
+        {
+          "effect": "Eye changes (SANS): swelling of the optic disc, flattening of the back of the eye, folds, and a shift toward far-sightedness",
+          "body_region": "eyes",
+          "source_ids": [
+            "S12"
+          ]
+        },
+        {
+          "effect": "Headaches from fluid shift that look like CO2 headaches",
+          "body_region": "head",
+          "source_ids": [
+            "C25"
+          ]
+        },
+        {
+          "effect": "Space motion sickness, disorientation, and problems with balance, walking and fine motor control",
+          "body_region": "ear",
+          "source_ids": [
+            "EV17"
+          ]
+        },
+        {
+          "effect": "Fainting or near-fainting when standing after return to gravity (orthostatic intolerance)",
+          "body_region": "heart",
+          "source_ids": [
+            "C09"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Applies for the whole stay.",
+        "transit": "Applies for months; NASA describes a six-month trip between Earth and Mars (EV26).",
+        "lunar_surface": "Not on the surface; applies on the trip there and back.",
+        "mars_surface": "Applies in transit; on arrival the body must readapt (EV26).",
+        "eva": "Spacewalks in orbit are weightless; surface walks are in partial gravity."
+      },
+      "sensor": null,
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Daily view of exercise done and fluids. With the exercise schedule kept and adequate equipment, ISS crews return with minimal muscle losses on average.",
+          "value": null,
+          "unit": null,
+          "window": "daily",
+          "quote": "if crew adhere to the exercise schedule and have access to adequate exercise countermeasure systems then on average, they return with minimal losses",
+          "source_ids": [
+            "EV22"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Exercise sessions missed. How many: threshold to be set by clinical review.",
+          "value": null,
+          "unit": "sessions",
+          "window": "per week",
+          "quote": "",
+          "source_ids": []
+        },
+        {
+          "level": "act",
+          "rule": "Strength test below 80% of the person's pre-flight baseline (NASA's in-mission target).",
+          "value": 80,
+          "unit": "% of pre-flight strength",
+          "window": "per strength test",
+          "quote": "Countermeasures shall maintain in-mission skeletal muscle strength at or above 80% of baseline values.",
+          "source_ids": [
+            "EV02"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Any new change in vision. A specialist eye examination is needed; threshold to be set by clinical review for what counts as a change.",
+          "value": null,
+          "unit": null,
+          "window": "any time",
+          "quote": "hyperopic shifts in refractive error observed in astronauts during and following long-duration spaceflight",
+          "source_ids": [
+            "S12"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Severe one-sided back or side pain (possible kidney stone), or fainting.",
+          "value": null,
+          "unit": null,
+          "window": "any time",
+          "quote": "increased risk of developing kidney stones due to dehydration and increased excretion of calcium from their bones [...] It can result in presyncope and, ultimately, syncope",
+          "source_ids": [
+            "EV26",
+            "C09"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Do your exercise sessions and drink enough water.",
+        "watch": "Make up missed exercise. Mention it at the next private medical conference.",
+        "act": "Tell the flight surgeon. A vision change needs a specialist eye examination (S12).",
+        "emergency": "Press Someone needs help and follow its steps."
+      },
+      "routine_hint": "daily: exercise and fluid log. Vision and strength checks: frequency to be set by the flight surgeon. mission_phase (return): fluid loading and care before standing (C09; EV01 gives fluid loading before reentry).",
+      "source_ids": [
+        "EV26",
+        "EV22",
+        "EV16",
+        "EV02",
+        "S12",
+        "C25",
+        "EV17",
+        "C09",
+        "EV01"
+      ]
+    },
+    {
+      "id": "partial_gravity",
+      "name": "Partial gravity (Moon and Mars)",
+      "kind": "condition",
+      "plain": "On the Moon and Mars you weigh less than on Earth. After weeks or months of floating, your body must readjust, and your bones and muscles still carry less load than at home.",
+      "effects": [
+        {
+          "effect": "Balance and orientation need time to adjust after landing, before hard tasks",
+          "body_region": "ear",
+          "source_ids": [
+            "EV26"
+          ]
+        },
+        {
+          "effect": "Muscles, bones, inner ear and organs adjust to the new load",
+          "body_region": "legs",
+          "source_ids": [
+            "N04"
+          ]
+        },
+        {
+          "effect": "Dizziness or fainting when standing after a long time weightless",
+          "body_region": "heart",
+          "source_ids": [
+            "C09"
+          ]
+        },
+        {
+          "effect": "Dust stays in the air longer in low gravity",
+          "body_region": "lungs",
+          "source_ids": [
+            "EV23"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Not applicable (weightless).",
+        "transit": "Not applicable (weightless).",
+        "lunar_surface": "About one sixth of Earth's gravity (EV01).",
+        "mars_surface": "About three eighths of Earth's gravity (N04), after about six months weightless in transit (EV26).",
+        "eva": "Surface walks happen in partial gravity."
+      },
+      "sensor": null,
+      "levels": [
+        {
+          "level": "info",
+          "rule": "First days after landing: the readjustment period is shown on the dashboard. Its length: threshold to be set by clinical review.",
+          "value": null,
+          "unit": "days",
+          "window": "after landing",
+          "quote": "Astronauts may also need time to adjust to new gravity fields after landing on the Moon or Mars before they conduct mission-critical tasks.",
+          "source_ids": [
+            "EV26"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Dizziness or unsteadiness when standing or walking after landing.",
+          "value": null,
+          "unit": null,
+          "window": "after landing",
+          "quote": "It is triggered by upright positioning",
+          "source_ids": [
+            "C09"
+          ]
+        },
+        {
+          "level": "act",
+          "rule": "Still unsteady on a day with a planned surface walk or other critical task. Threshold to be set by clinical review.",
+          "value": null,
+          "unit": null,
+          "window": "before critical tasks",
+          "quote": "",
+          "source_ids": []
+        },
+        {
+          "level": "emergency",
+          "rule": "Fainting (loss of consciousness).",
+          "value": null,
+          "unit": null,
+          "window": "any time",
+          "quote": "It can result in presyncope and, ultimately, syncope",
+          "source_ids": [
+            "C09"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Take the readjustment time before hard tasks (EV26).",
+        "watch": "Sit or lie down until it passes. Tell a crewmate.",
+        "act": "Postpone the walk or critical task. Tell the flight surgeon.",
+        "emergency": "Press Someone needs help."
+      },
+      "routine_hint": "mission_phase (landing on the Moon or Mars): a daily dizziness and balance question during the readjustment period; its length to be set by the flight surgeon.",
+      "source_ids": [
+        "EV26",
+        "N04",
+        "EV01",
+        "C09",
+        "EV23"
+      ]
+    },
+    {
+      "id": "isolation_confinement",
+      "name": "Isolation and confinement",
+      "kind": "condition",
+      "plain": "Living for months in a small space with the same few people, far from family and friends. Stress builds up.",
+      "effects": [
+        {
+          "effect": "Stress, depression, anxiety, relationship problems and grief",
+          "body_region": null,
+          "source_ids": [
+            "C14"
+          ]
+        },
+        {
+          "effect": "These can pass with time or help, or develop into a psychiatric disorder",
+          "body_region": null,
+          "source_ids": [
+            "C14"
+          ]
+        },
+        {
+          "effect": "Sleep loss, body clock problems and work overload make it worse and can lower performance",
+          "body_region": null,
+          "source_ids": [
+            "EV27"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Months in a small crew, with the ground close at hand.",
+        "transit": "Long and confined, with a growing communication delay (EV25).",
+        "lunar_surface": "Small crew in a confined habitat, a few seconds of delay (EV01).",
+        "mars_surface": "The most isolated: up to 20 minutes of delay (EV25) and a mission of roughly three years (N04).",
+        "eva": "Not specific to walks."
+      },
+      "sensor": null,
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Daily private mood check. It belongs to the person and is never shared without consent.",
+          "value": null,
+          "unit": null,
+          "window": "daily",
+          "quote": "Assessing predictive and contributing factors related to behavioral health can help prevent the onset of distress.",
+          "source_ids": [
+            "C14"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Mood check lower than the person's own baseline for several days. How many days: threshold to be set by clinical review.",
+          "value": null,
+          "unit": "days",
+          "window": "rolling",
+          "quote": "",
+          "source_ids": []
+        },
+        {
+          "level": "act",
+          "rule": "Low mood or high stress on most days for a week, or a crewmate notices withdrawal. Threshold to be set by clinical review.",
+          "value": null,
+          "unit": null,
+          "window": "7 days",
+          "quote": "",
+          "source_ids": []
+        },
+        {
+          "level": "emergency",
+          "rule": "Any thought of self-harm or of harming someone else.",
+          "value": null,
+          "unit": null,
+          "window": "any time",
+          "quote": "The condition can be temporary, resolving with time and/or intervention, or can develop into a psychiatric disorder.",
+          "source_ids": [
+            "C14"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Take the private mood check. It is yours.",
+        "watch": "Talk to someone you trust. Keep your sleep and exercise routine.",
+        "act": "Book a private conference with the flight surgeon or psychologist.",
+        "emergency": "Press Someone needs help. Stay with the person. Log it for the ground."
+      },
+      "routine_hint": "daily: private mood check. Private medical conferences: frequency to be set by the flight surgeon (NASA says the flight surgeon schedules them, EV02).",
+      "source_ids": [
+        "C14",
+        "EV27",
+        "N04",
+        "EV25",
+        "EV02"
+      ]
+    },
+    {
+      "id": "circadian_light",
+      "name": "Body clock and light",
+      "kind": "condition",
+      "plain": "Your body clock follows light and dark. In space the light cycle and work hours are irregular, so the clock drifts out of step.",
+      "effects": [
+        {
+          "effect": "Tiredness",
+          "body_region": null,
+          "source_ids": [
+            "C23"
+          ]
+        },
+        {
+          "effect": "Thinking problems: inattention, distraction, slow reactions and poor decisions",
+          "body_region": "head",
+          "source_ids": [
+            "C23"
+          ]
+        },
+        {
+          "effect": "Sleep disruption",
+          "body_region": null,
+          "source_ids": [
+            "C23"
+          ]
+        },
+        {
+          "effect": "Metabolic disturbance",
+          "body_region": null,
+          "source_ids": [
+            "C23"
+          ]
+        },
+        {
+          "effect": "Blue light before sleep holds back melatonin and makes sleep harder",
+          "body_region": "eyes",
+          "source_ids": [
+            "EV18"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "Altered light and dark cycles and schedule shifts (C23).",
+        "transit": "No natural day. Lighting sets the clock; missions will not necessarily follow a 24-hour day (EV18).",
+        "lunar_surface": "Habitat lighting and the work schedule set the clock (EV18).",
+        "mars_surface": "Habitat lighting and the work schedule set the clock (EV18).",
+        "eva": "Long walks and their preparation shift work hours."
+      },
+      "sensor": null,
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Daily sleep log and lighting schedule shown.",
+          "value": null,
+          "unit": null,
+          "window": "daily",
+          "quote": "Altered light cycles",
+          "source_ids": [
+            "C23"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Short sleep, or a schedule shift coming. Threshold to be set by clinical review.",
+          "value": null,
+          "unit": "hours of sleep",
+          "window": "per night",
+          "quote": "",
+          "source_ids": []
+        },
+        {
+          "level": "act",
+          "rule": "Reaction test well below the person's own baseline before a critical task. Threshold to be set by clinical review.",
+          "value": null,
+          "unit": null,
+          "window": "before critical tasks",
+          "quote": "cognitive impairment (e.g., inattention; distraction; slowed reaction time; poor decision making)",
+          "source_ids": [
+            "C23"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Keep regular sleep times. Avoid blue light before sleep (EV18).",
+        "watch": "Protect your next sleep period. Follow the lighting schedule.",
+        "act": "Avoid critical tasks until rested. Tell the flight surgeon.",
+        "emergency": "No emergency level for body clock problems. Use Someone needs help for any sudden illness."
+      },
+      "routine_hint": "daily: sleep log. after_event (schedule shift): extra reaction test; frequency to be set by the flight surgeon.",
+      "source_ids": [
+        "C23",
+        "EV18",
+        "C15"
+      ]
+    },
+    {
+      "id": "distance_autonomy",
+      "name": "Distance from Earth (communication delay and autonomy)",
+      "kind": "condition",
+      "plain": "The farther from Earth, the longer messages take and the less the ground can help in time. The crew must act on its own.",
+      "effects": [
+        {
+          "effect": "No direct effect on the body. Every medical event is harder because help and supplies come late or not at all",
+          "body_region": null,
+          "source_ids": [
+            "EV25"
+          ]
+        },
+        {
+          "effect": "Without the usual ground support, the crew may not be able to respond to unexpected critical failures",
+          "body_region": null,
+          "source_ids": [
+            "EV20"
+          ]
+        }
+      ],
+      "by_environment": {
+        "station_leo": "The ground is close and supports in near real time.",
+        "transit": "The delay grows every day; supplies are fixed at launch.",
+        "lunar_surface": "6 to 10 seconds of delay (EV01); a three-day trip home (N04).",
+        "mars_surface": "Up to 20 minutes one way (EV25); about three years away from Earth (N04).",
+        "eva": "Walks rely on the crew and the habitat, not on the ground."
+      },
+      "sensor": null,
+      "levels": [
+        {
+          "level": "info",
+          "rule": "Show the current one-way delay and when the ground last answered.",
+          "value": null,
+          "unit": "minutes",
+          "window": "continuous",
+          "quote": "communication delay of up to 20 minutes one way",
+          "source_ids": [
+            "EV25"
+          ]
+        },
+        {
+          "level": "watch",
+          "rule": "Ground out of contact longer than planned. How long: threshold to be set by clinical review.",
+          "value": null,
+          "unit": "minutes",
+          "window": "continuous",
+          "quote": "",
+          "source_ids": []
+        },
+        {
+          "level": "act",
+          "rule": "A medical problem while the ground cannot answer in time: follow on-board steps and log everything to send later.",
+          "value": null,
+          "unit": null,
+          "window": "any time",
+          "quote": "when missions have communication delays, different modalities can be considered (e.g., stored/forward communications)",
+          "source_ids": [
+            "EV02"
+          ]
+        },
+        {
+          "level": "emergency",
+          "rule": "Someone needs help and the ground cannot answer in time. Alerts and fixed steps never wait for the ground.",
+          "value": null,
+          "unit": null,
+          "window": "any time",
+          "quote": "The crew must be alerted even if ground communication is disrupted or is unviable.",
+          "source_ids": [
+            "EV01"
+          ]
+        }
+      ],
+      "what_to_do": {
+        "info": "Nothing to do.",
+        "watch": "Note the time. Keep logging. Plan as if no answer will come soon.",
+        "act": "Use the on-board steps. Record what you did and send it when the link returns.",
+        "emergency": "Press Someone needs help. Its steps never wait for the ground."
+      },
+      "routine_hint": "continuous: delay and last-contact time on screen. mission_phase (pre-flight): practice with delayed communication, as NASA's HERA analog crews do (EV25).",
+      "source_ids": [
+        "EV25",
+        "EV20",
+        "EV01",
+        "EV02",
+        "N04"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "EV01",
+      "title": "NASA-STD-3001 Volume 2, Revision F: Human Factors, Habitability, and Environmental Health",
+      "url": "https://standards.nasa.gov/system/files/tmp/NASA-STD-3001%20Vol%202%20Rev%20F.pdf",
+      "date": "2026-07-14 (approved)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV01.txt"
+    },
+    {
+      "id": "EV02",
+      "title": "NASA-STD-3001 Volume 1, Revision C: Crew Health",
+      "url": "https://standards.nasa.gov/sites/default/files/standards/NASA/C/nasa-std-3001-vol-1-rev-c-signature.pdf",
+      "date": "2023-09-15 (approved)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV02.txt"
+    },
+    {
+      "id": "EV03",
+      "title": "JSC 20584 Revision D, Spacecraft Maximum Allowable Concentrations for Airborne Contaminants",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/02/jsc-20584-smacs-rev-d.pdf",
+      "date": "February 2026",
+      "access": "Public PDF, retrieved 2026-11-14 UTC. The SMAC table pages (9 to 16) are images: their text was read by OCR and kept only as a cross-check",
+      "saved_as": "research/environment/EV03.txt"
+    },
+    {
+      "id": "EV04",
+      "title": "JSC 63414 Revision A, Spacecraft Water Exposure Guidelines (SWEGs)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2024/02/jsc-63414-swegs-rev-a.pdf",
+      "date": "November 2023",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV04.txt"
+    },
+    {
+      "id": "EV05",
+      "title": "OCHMO-TB-020 Design for Ionizing Radiation Protection, Rev G (technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-020-radiation-protection.pdf",
+      "date": "2025-06-06 (Rev G)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV05.txt"
+    },
+    {
+      "id": "EV06",
+      "title": "OCHMO-TB-003 Habitable Atmosphere, Rev A (technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-003-habitable-atmosphere.pdf",
+      "date": "2023-11-30 (Rev A)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV06.txt"
+    },
+    {
+      "id": "EV07",
+      "title": "OCHMO-TB-015 Spaceflight Toxicology, Rev B (technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-015-spaceflight-toxicology.pdf",
+      "date": "2023-10-30 (Rev B)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV07.txt"
+    },
+    {
+      "id": "EV08",
+      "title": "OCHMO-TB-011 Lunar Dust, Rev C (technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-011-lunar-dust-technical-brief.pdf",
+      "date": "2023-11-28 (Rev C)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV08.txt"
+    },
+    {
+      "id": "EV09",
+      "title": "OCHMO-TB-035 Acoustics, Rev C (technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-035-acoustics.pdf",
+      "date": "2023-10-06 (Rev C)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV09.txt"
+    },
+    {
+      "id": "EV10",
+      "title": "OCHMO-TB-027 Water, Rev C (technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-027-water.pdf",
+      "date": "2023-11-29 (Rev C)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV10.txt"
+    },
+    {
+      "id": "EV11",
+      "title": "OCHMO-TB-046 Microbiology in Space Overview, Rev A (technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2025/05/ochmo-tb-046-microbiology-rev-a.pdf",
+      "date": "2025-05-19 (Rev A)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV11.txt"
+    },
+    {
+      "id": "EV12",
+      "title": "OCHMO-TB-037 Decompression Sickness (DCS) Risk Mitigation, Revision D (technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-037-decompression-sickness.pdf",
+      "date": "Revision D; posted December 2023 (URL path)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV12.txt"
+    },
+    {
+      "id": "EV14",
+      "title": "OCHMO-TB-008 Fire Protection, Rev A (technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-008-fire-protection.pdf",
+      "date": "2023-11-29 (Rev A)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV14.txt"
+    },
+    {
+      "id": "EV15",
+      "title": "Nominal Spacesuit Carbon Dioxide Levels Standard Technical Bulletin",
+      "url": "https://www.nasa.gov/wp-content/uploads/2025/02/suited-co2-technical-bulletin-02182025.pdf",
+      "date": "2025-02-18",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV15.txt"
+    },
+    {
+      "id": "EV16",
+      "title": "OCHMO-TB-030 Bone Loss, Revision D (technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-030-bone-loss.pdf",
+      "date": "Revision D; posted December 2023 (URL path)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV16.txt"
+    },
+    {
+      "id": "EV17",
+      "title": "OCHMO-TB-010 Sensorimotor, Rev A (technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-010-sensorimotor.pdf",
+      "date": "2023-12-01 (Rev A)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV17.txt"
+    },
+    {
+      "id": "EV18",
+      "title": "OCHMO-TB-026 Lighting Design, Rev C (technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-026-lighting-design.pdf",
+      "date": "2023-12-19 (Rev C)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV18.txt"
+    },
+    {
+      "id": "EV19",
+      "title": "Risk of Adverse In-Mission Health and Performance Effects and Long-Term Health Effects Due to Celestial Dust Exposure (Dust Risk), NASA risk page",
+      "url": "https://www.nasa.gov/directorates/esdmd/hhp/risk-of-adverse-health-performance-effects-of-celestial-dust-exposure/",
+      "date": "Page last updated 2025-09-17",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV19.txt"
+    },
+    {
+      "id": "EV20",
+      "title": "Risk of Adverse Mission Outcomes Due to Earth Independent Human-Systems Operations (EIHSO Risk), NASA risk page",
+      "url": "https://www.nasa.gov/directorates/esdmd/hhp/eihso-risk/",
+      "date": "Page last updated 2025-09-12",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV20.txt"
+    },
+    {
+      "id": "EV21",
+      "title": "Risk of Reduced Crew Health and Performance Due to Hypoxia, NASA risk page",
+      "url": "https://www.nasa.gov/directorates/esdmd/hhp/risk-of-reduced-crew-health-and-performance-due-to-hypoxia/",
+      "date": "Page last updated 2025-06-24",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV21.txt"
+    },
+    {
+      "id": "EV22",
+      "title": "Risk of Reduced Physical Performance Capabilities Due to Reduced Muscle Size, Strength, and Endurance (Muscle Risk), NASA risk page",
+      "url": "https://www.nasa.gov/directorates/esdmd/hhp/muscle-risk/",
+      "date": "Page last updated 2025-08-20",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV22.txt"
+    },
+    {
+      "id": "EV23",
+      "title": "Evidence Report: Risk of Adverse Health and Performance Effects of Celestial Dust Exposure (Human Research Program)",
+      "url": "https://humanresearchroadmap.nasa.gov/Evidence/reports/Dust.pdf",
+      "date": "2015-08-04 (approved for public release)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV23.txt"
+    },
+    {
+      "id": "EV24",
+      "title": "JSC 20584 Revision C, Spacecraft Maximum Allowable Concentrations for Airborne Contaminants",
+      "url": "https://ntrs.nasa.gov/api/citations/20240007713/downloads/JSC%2020584_SMACs_Rev%20C_FINAL.pdf",
+      "date": "2024-06-13",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC. Superseded by Rev D (EV03); used because its table extracts as text. The extracted table rows list values out of column order (see the note on reading SMAC rows)",
+      "saved_as": "research/environment/EV24.txt"
+    },
+    {
+      "id": "EV25",
+      "title": "Hazard: Distance from Earth, NASA Human Research Program",
+      "url": "https://www.nasa.gov/hrp/hazard-distance-from-earth/",
+      "date": "Page last updated 2024-08-01",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV25.txt"
+    },
+    {
+      "id": "EV26",
+      "title": "Hazard: Gravity Fields, NASA Human Research Program",
+      "url": "https://www.nasa.gov/hrp/hazard-gravity-fields/",
+      "date": "Page last updated 2024-08-01",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV26.txt"
+    },
+    {
+      "id": "EV27",
+      "title": "Hazard: Isolation and Confinement, NASA Human Research Program",
+      "url": "https://www.nasa.gov/hrp/hazard-isolation-and-confinement/",
+      "date": "Page last updated 2024-08-01",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV27.txt"
+    },
+    {
+      "id": "EV28",
+      "title": "Hazard: Space Radiation, NASA Human Research Program",
+      "url": "https://www.nasa.gov/hrp/hazard-space-radiation/",
+      "date": "Page last updated 2025-06-05",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV28.txt"
+    },
+    {
+      "id": "EV29",
+      "title": "Hazard: Hostile/Closed Environments, NASA Human Research Program",
+      "url": "https://www.nasa.gov/hrp/hazard-hostile-closed-environments/",
+      "date": "Page last updated 2024-08-01",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV29.txt"
+    },
+    {
+      "id": "EV30",
+      "title": "ToxFAQs for Perchlorates, ATSDR (CDC)",
+      "url": "https://wwwn.cdc.gov/TSP/ToxFAQs/ToxFAQsDetails.aspx?faqid=893&toxid=181",
+      "date": "Page last reviewed 2014-03-25",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV30.txt"
+    },
+    {
+      "id": "EV31",
+      "title": "Volatile Organic Compounds' Impact on Indoor Air Quality, US EPA",
+      "url": "https://www.epa.gov/indoor-air-quality-iaq/volatile-organic-compounds-impact-indoor-air-quality",
+      "date": "Last updated 2026-06-23",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV31.txt"
+    },
+    {
+      "id": "EV32",
+      "title": "Frequent Questions about Air Sensors, US EPA Air Sensor Toolbox",
+      "url": "https://www.epa.gov/air-sensor-toolbox/frequent-questions-about-air-sensors",
+      "date": "Last updated 2026-09-29",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV32.txt"
+    },
+    {
+      "id": "EV33",
+      "title": "Evaluation of Emerging Air Sensor Performance, US EPA Air Sensor Toolbox",
+      "url": "https://www.epa.gov/air-sensor-toolbox/evaluation-emerging-air-sensor-performance",
+      "date": "Last updated 2026-09-29",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/EV33.txt"
+    },
+    {
+      "id": "C09",
+      "title": "OCHMO-TB-019 Orthostatic Intolerance, Rev B (technical brief; package ID from DEMO-CONDITIONS.md)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-019-orthostatic-intolerance.pdf",
+      "date": "2023-12-01 (Rev B)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/C09.txt"
+    },
+    {
+      "id": "C14",
+      "title": "OCHMO-TB-016 Behavioral Health and Performance, Rev B (technical brief; package ID)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-016-behavioral-health.pdf",
+      "date": "2023-10-24 (Rev B)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/C14.txt"
+    },
+    {
+      "id": "C15",
+      "title": "OCHMO-TB-041 Sleep Accommodations, Rev B (technical brief; package ID)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-041-sleep-accommodations.pdf",
+      "date": "2023-10-23 (Rev B)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/C15.txt"
+    },
+    {
+      "id": "C23",
+      "title": "OCHMO-MTB-009 Circadian Desynchrony (medical technical brief; package ID)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/03/ochmo-mtb-009-circadian-desynchrony.pdf",
+      "date": "Posted March 2026 (URL path)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/C23.txt"
+    },
+    {
+      "id": "C25",
+      "title": "OCHMO-TB-004 Carbon Dioxide, Revision D (technical brief; package ID)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-004-carbon-dioxide.pdf",
+      "date": "Revision D; posted December 2023 (URL path)",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/C25.txt"
+    },
+    {
+      "id": "S12",
+      "title": "OCHMO-MTB-001 Spaceflight Associated Neuro-ocular Syndrome (SANS) (medical technical brief; package ID)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2024/02/ochmo-mtb-001-sans.pdf",
+      "date": "2024-02-21",
+      "access": "Public PDF, full text, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/S12.txt"
+    },
+    {
+      "id": "N04",
+      "title": "5 Hazards of Human Spaceflight, NASA Human Research Program (package ID)",
+      "url": "https://www.nasa.gov/hrp/hazards/",
+      "date": "Page last updated 2026-06-12",
+      "access": "Public web page, text saved, retrieved 2026-11-14 UTC",
+      "saved_as": "research/environment/N04.txt"
+    }
+  ]
+}
