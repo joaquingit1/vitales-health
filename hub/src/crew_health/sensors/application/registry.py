@@ -17,6 +17,9 @@ from typing import Any
 from pydantic import ValidationError
 
 from crew_health.contracts_gen.schemas.sensor_channel_schema import SensorChannel
+from crew_health.kernel.audit import AuditEntry
+from crew_health.kernel.uow import UnitOfWork
+from crew_health.sensors.application.runtime import Runtime
 from crew_health.sensors.application.store import RegistryChannel
 from crew_health.sensors.domain.channel import ChannelFacts, SensorTypeFacts
 from crew_health.sensors.domain.plausibility import registration_policy
@@ -163,3 +166,30 @@ def parse_registry(
     if findings:
         raise RegistryRejected(tuple(findings))
     return tuple(result)
+
+
+def install(rt: Runtime, uow: UnitOfWork, raw: bytes, *, source: str) -> int:
+    """Validate against the unit of work's release and store the channels; an invalid registry changes nothing.
+
+    The audit entry names the document's SHA-256 and the number of channels, never document text (E23 5.3).
+    """
+    config = rt.config_of(uow.release)
+    try:
+        channels = parse_registry(
+            raw,
+            config.sensor_types,
+            max_channels=rt.limits.max_channels,
+            max_bytes=rt.limits.registry_max_bytes,
+            criteria_available=rt.criteria_available,
+        )
+    except RegistryRejected as error:
+        _audit(rt, uow, "sensors.registry_rejected", {"source": source, "findings": str(len(error.findings))})
+        return 0
+    for channel in channels:
+        rt.store.register_channel(uow, channel)
+    _audit(rt, uow, "sensors.registry_loaded", {"source": source, "sha256": registry_version(raw)})
+    return len(channels)
+
+
+def _audit(rt: Runtime, uow: UnitOfWork, kind: str, refs: dict[str, str]) -> None:
+    uow.audit(AuditEntry(rt.ids.new("aud"), kind, 1, uow.actor, refs, uow.correlation_id, None, {}))
