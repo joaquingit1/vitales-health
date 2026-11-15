@@ -8,13 +8,13 @@ import json
 from pathlib import Path
 
 import pytest
-from e02_http import bearer, problem, sign_in
-from e22_served import Hub, basis, run, session_of, start
 from httpx import AsyncClient
 
 from crew_health.contracts_gen.enums import ErrorCode, Role
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.uow import Actor, SessionContext
+
+from .e22_served import Hub, basis, bearer, problem, run, session_of, sign_in, start
 
 pytestmark = [pytest.mark.E22, pytest.mark.trace("R31", "R32", "R33", "D10", "V41", "V44", "V45")]
 RULES = json.loads(
@@ -85,7 +85,10 @@ def test_streak_patch_and_crew_goal_consent_over_http(tmp_path: Path) -> None:
             "mission_id", "origin_mode", "window_first_mission_day", "window_last_mission_day",
             "completed_total", "due_total", "reached", "as_of", "derivation_version", "mission_clock_version",
         }  # fmt: skip
-        assert goal["window_last_mission_day"] - goal["window_first_mission_day"] + 1 == WINDOW
+        assert (
+            int(str(goal["window_last_mission_day"])) - int(str(goal["window_first_mission_day"])) + 1
+            == WINDOW
+        )
 
     run(hub.running, after)
     # Revocation removes the member at once: two counting members is below the floor of 3, so no totals at all.

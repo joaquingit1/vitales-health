@@ -1,26 +1,13 @@
-"""Helpers for the served-app tests: the E02 station (real identity, clock, configuration and HTTP over SQLite) with
-the participation module composed in, producers that call the real `CompletionRecorder` the way E03 and E15 will."""
-
-from __future__ import annotations
-
 import uuid
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from importlib import import_module
 from pathlib import Path
+from typing import Any
 
-from e02_http import run
-from e02_station import (
-    MISSION_EPOCH,
-    E02Station,
-    Running,
-    mission_id,
-    seed_roster,
-    serve,
-    sim_bootstrap,
-    sim_station_principal,
-    station,
-)
 from fastapi import FastAPI
+from httpx import AsyncClient, Response
 
 from crew_health.contracts_gen.enums import Role
 from crew_health.identity.domain.roster import ProvisionedPrincipal
@@ -29,7 +16,38 @@ from crew_health.participation.application.consent import ConsentCommands
 from crew_health.participation.application.ports import CompletionRecorder, IntakeOutcome, ParticipationSettle
 from crew_health.participation.domain.types import CompletionBasis
 
-__all__ = ["Hub", "at_day", "basis", "hub_at", "run", "session_of", "start"]
+__all__ = ["Hub", "at_day", "basis", "bearer", "hub_at", "problem", "run", "session_of", "sign_in", "start"]
+
+# The served E02 station lives with the privacy tests, which are not a package: it is loaded by name (conftest.py
+# puts its directory on sys.path) and typed here, so the participation tests stay fully typed.
+_station: Any = import_module("e02_station")
+_http: Any = import_module("e02_http")
+MISSION_EPOCH: datetime = _station.MISSION_EPOCH
+type Journey = Callable[[AsyncClient], Awaitable[None]]
+
+
+def mission_id() -> str:
+    return str(_station.mission_id())
+
+
+def run(running: Any, journey: Journey) -> None:
+    _http.run(running, journey)
+
+
+async def sign_in(
+    client: AsyncClient, person: str | None, *, kind: str = "crew", secret: str | None = None
+) -> str:
+    return str(await _http.sign_in(client, person, kind=kind, secret=secret))
+
+
+def bearer(token: str, **headers: str) -> dict[str, str]:
+    result: dict[str, str] = _http.bearer(token, **headers)
+    return result
+
+
+def problem(response: Response, status: int, code: str) -> None:
+    _http.problem(response, status, code)
+
 
 EDITOR = ProvisionedPrincipal("editor_sim", "editor", "Editor")
 OPERATOR = ProvisionedPrincipal("operator_sim", "operator", "Operator")
@@ -64,15 +82,17 @@ def basis(person: str, day: int, ref: str | None = None, *, hours: int = 2) -> C
 
 @dataclass
 class Hub:
-    station: E02Station
-    running: Running
+    station: Any
+    running: Any
 
     @property
     def app(self) -> FastAPI:
-        return self.running.app
+        app: FastAPI = self.running.app
+        return app
 
     def require[P](self, port: type[P]) -> P:
-        return self.app.state.runtime.resolver.require(port)  # type: ignore[no-any-return]
+        result: P = self.app.state.runtime.resolver.require(port)
+        return result
 
     def set_day(self, day: int, hours: int = 3) -> None:
         self.station.clock.at = at_day(day, hours)
@@ -94,10 +114,12 @@ class Hub:
 
 def hub_at(directory: Path, day: int, *, staff: bool = False) -> Hub:
     # The harness sets every integer setting to its registered maximum; the privacy floor is its own minimum, 3.
-    hub = station(directory, settings={"participation.min_counting_members": 3})
-    running = serve(hub, seed=not staff)
+    hub = _station.station(directory, settings={"participation.min_counting_members": 3})
+    running = _station.serve(hub, seed=not staff)
     if staff:
-        seed_roster(running, sim_bootstrap(principals=(sim_station_principal(), EDITOR, OPERATOR)))
+        _station.seed_roster(
+            running, _station.sim_bootstrap(principals=(_station.sim_station_principal(), EDITOR, OPERATOR))
+        )
     result = Hub(hub, running)
     result.set_day(day)
     return result

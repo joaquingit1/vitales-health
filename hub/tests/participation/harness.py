@@ -16,7 +16,7 @@ from hypothesis import settings
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
-from crew_health.kernel.met import MissionClockVersion
+from crew_health.kernel.met import MetLabel, MissionClockVersion
 from crew_health.participation.domain.identity import completion_id, intent_key, logical_identity
 from crew_health.participation.domain.rules import ParticipationRules, parse_rules
 from crew_health.participation.domain.types import CompletionBasis, CompletionFact
@@ -67,6 +67,23 @@ class FakeClock:
             else next(v for v in self.versions if v.clock_version == version)
         )
         return int((at - chosen.epoch) // DAY) + 1
+
+    def met(self, at: datetime, *, version: str | None = None) -> MetLabel:
+        chosen = (
+            self.version_at(at)
+            if version is None
+            else next(v for v in self.versions if v.clock_version == version)
+        )
+        day = self.mission_day(at, version=version)
+        return MetLabel(str(at - chosen.epoch), day, f"Day {day}", chosen.clock_version)
+
+    def label(self, at: datetime, *, version: str | None = None) -> tuple[str, int]:
+        value = self.met(at, version=version)
+        return value.day_label, value.mission_day
+
+    def day_bounds(self, mission_day: int, *, version: str) -> tuple[datetime, datetime]:
+        chosen = next(v for v in self.versions if v.clock_version == version)
+        return chosen.epoch + (mission_day - 1) * DAY, chosen.epoch + mission_day * DAY
 
 
 def clock_version(

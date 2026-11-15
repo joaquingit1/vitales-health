@@ -6,6 +6,7 @@ import re
 import uuid
 from dataclasses import fields, replace
 from datetime import datetime, timedelta, timezone
+from typing import cast
 
 import pytest
 from hypothesis import given
@@ -14,6 +15,7 @@ from hypothesis import strategies as st
 from crew_health.kernel.ids import ID_PATTERN
 from crew_health.participation.domain.errors import InvalidBasis
 from crew_health.participation.domain.identity import (
+    Json,
     award_id,
     canonical_json,
     completion_id,
@@ -42,9 +44,9 @@ def test_basis_field_set_equals_the_design_and_an_extra_field_fails() -> None:
     with pytest.raises(TypeError):
         CompletionBasis(
             **{**{f.name: getattr(basis(), f.name) for f in fields(CompletionBasis)}, "systolic": 120}
-        )  # type: ignore[call-arg]
+        )
     with pytest.raises(AttributeError):
-        basis().symptom_count = 3  # type: ignore[misc]
+        setattr(basis(), "symptom_count", 3)  # noqa: B010
 
 
 @pytest.mark.trace("T-E22-004")
@@ -179,6 +181,6 @@ def test_award_id_is_deterministic_and_distinct_per_person_origin_threshold() ->
 def test_canonical_json_is_sorted_compact_and_refuses_floats() -> None:
     assert canonical_json({"b": [1, None, True], "a": "é"}) == '{"a":"é","b":[1,null,true]}'
     with pytest.raises(InvalidBasis):
-        canonical_json([1.5])
+        canonical_json(cast(Json, [1.5]))
     with pytest.raises(InvalidBasis):
-        canonical_json({"x": float("nan")})
+        canonical_json(cast(Json, {"x": float("nan")}))
