@@ -21,6 +21,7 @@ from crew_health.kernel.commands import canonical_json
 
 from crew_health_bench.adapters import providers
 from crew_health_bench.api.cli import run
+from crew_health_bench.domain.errors import BenchError
 from tests.healthbench_stack import BENCH, REPOSITORY, Workspace
 from tests.hub_stack import HubScript, StandInHarness
 
@@ -197,10 +198,11 @@ def test_product_suite_runs_end_to_end_and_the_gate_refuses_the_ungradable_check
         }
     blob = "".join(path.read_text(encoding="utf-8") for path in (suite.space.published / run_id).iterdir())
     assert suite.case_id not in blob and "benchcanary_fixture" not in blob
-    assert suite.cli("gate", "--published", str(suite.space.published), "--runs", run_id) == 4
+    published = ["--published", str(suite.space.published), "--root", str(suite.space.runs)]
+    assert suite.cli("gate", *published, "--runs", run_id) == 4
     problem = _problem(capsys)
     assert problem["type"] == "urn:crew-health:bench:gate_input_invalid"
-    assert problem["detail"] == run_id + ": NoUnauthorizedExecution not graded in 2 of 2 cases"
+    assert problem["detail"] == run_id + ": harness commit " + stand_in.version + " is a stand-in"
     assert not (suite.space.published / run_id / "gate.json").exists()
 
 
@@ -221,44 +223,114 @@ def test_rules_only_track_stops_the_model_and_records_no_model_request(
 
 
 @pytest.mark.trace("E18-03", "INV-E18-12", "T-E18-25", "T-E18-26")
-def test_gate_verdicts_and_compare_over_published_runs(
+def test_gate_refuses_edited_artifacts_stand_in_runs_and_a_chosen_subset(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """Real runs; then, labeled synthetic, the one outcome no declared interface can grade is set in the
-    published rows (NoUnauthorizedExecution pass) so the verdict path itself is exercised."""
+    """B4: an edited published row never feeds the gate. M5: the gate covers every reported holdout run of
+    the release. B4: stand-in harness and `none:` identity runs never feed it either."""
+    suite = Suite(tmp_path, monkeypatch)
+    honest, _ = suite.full_run(HubScript(warning_level="emergency"), "system_assisted", capsys)
+    other, _ = suite.full_run(HubScript(warning_level="emergency", fabricate=True), "system_assisted", capsys)
+    root = ["--published", str(suite.space.published), "--root", str(suite.space.runs)]
+    assert suite.cli("gate", *root, "--runs", honest) == 4
+    problem = _problem(capsys)
+    assert problem["title"] == "gate_input_invalid" and other in problem["detail"], "M5: subset refused"
+    path = suite.space.published / honest / "case_results.jsonl"
+    rows = suite.rows(honest)
+    for row in rows:
+        for item in row["outcomes"]:  # type: ignore[attr-defined]
+            if item["check"] == "NoUnauthorizedExecution":
+                item["outcome"] = "pass"
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+    assert suite.cli("gate", *root, "--runs", honest, other) == 6
+    problem = _problem(capsys)
+    assert problem["title"] == "integrity" and "case_results.jsonl" in problem["detail"]
+    assert not (suite.space.published / honest / "gate.json").exists()
+    path.write_text("".join(json.dumps(row) + "\n" for row in suite.rows(other)), encoding="utf-8")
+    assert suite.cli("gate", *root, "--runs", other, honest) == 6
+    path.unlink()
+    assert suite.cli("gate", *root, "--runs", other, honest) == 6
+
+
+@pytest.mark.trace("E18-03", "INV-E18-12", "T-E18-26")
+def test_the_gate_names_a_stand_in_run_and_a_failed_release_verdict_is_final(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from crew_health_bench.adapters.documents import BenchSettings, load_document
+    from crew_health_bench.api.gate_commands import GateCommands, stand_in_reason
+
+    suite = Suite(tmp_path, monkeypatch)
+    honest, stand_in = suite.full_run(HubScript(warning_level="emergency"), "system_assisted", capsys)
+    manifest = json.loads((suite.space.published / honest / "run_manifest.json").read_bytes())
+    assert stand_in_reason(manifest) == "harness commit " + stand_in.version + " is a stand-in"
+    manifest["harness"]["commit"] = "0" * 40
+    assert stand_in_reason(manifest) == "config_release_id is none:stand-in hub"
+    settings = BenchSettings(
+        load_document(suite.space.config / "bench-settings.json", max_file_bytes=1 << 20)
+    )
+    commands = GateCommands(suite.space.config, settings, suite.space.published, suite.space.runs)
+    failed = {"verdict": "fail", "release_id": "r", "run_ids": [honest]}
+    commands.record_verdict("r", failed)
+    with pytest.raises(BenchError) as refused:
+        commands.record_verdict("r", {**failed, "verdict": "pass"})
+    assert refused.value.reason == "gate_verdict_final"
+    gates = suite.space.published / "gates" / "r.json"
+    assert json.loads(gates.read_bytes())["verdict"] == "fail"
+
+
+@pytest.mark.trace("E18-03", "INV-E18-05", "T-E18-25")
+def test_compare_refuses_partial_or_unreported_runs_and_scores_failures_instead_of_dropping_them(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """B5 and M6: compare needs two full reported runs with equal labels; a timed-out case counts as a fail;
+    an invalidated run is republished as failed and refused by gate and compare."""
     suite = Suite(tmp_path, monkeypatch)
     honest, _ = suite.full_run(HubScript(warning_level="emergency"), "system_assisted", capsys)
     fabricated, _ = suite.full_run(
         HubScript(warning_level="emergency", fabricate=True), "system_assisted", capsys
     )
-    assert {_outcomes(row)["NoFabricatedResult"] for row in suite.rows(fabricated)} == {"fail"}
-    for run_id in (honest, fabricated):
-        path = suite.space.published / run_id / "case_results.jsonl"
-        rows = suite.rows(run_id)
-        for row in rows:
-            for item in row["outcomes"]:  # type: ignore[attr-defined]
-                if item["check"] == "NoUnauthorizedExecution":
-                    item["outcome"] = "pass"
-        path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
-    published = str(suite.space.published)
-    assert suite.cli("gate", "--published", published, "--runs", honest) == 0
-    verdict = _last_json(capsys)
-    assert verdict["verdict"] == "pass"
-    assert json.loads((suite.space.published / honest / "gate.json").read_bytes()) == verdict
-    assert suite.cli("gate", "--published", published, "--runs", fabricated) == 3
-    assert _last_json(capsys)["verdict"] == "fail"
-    assert suite.cli("compare", "--published", published, honest, fabricated) == 0
+    root = ["--published", str(suite.space.published), "--root", str(suite.space.runs)]
+    assert suite.cli("compare", *root, honest, fabricated) == 0
     comparison = _last_json(capsys)
     assert comparison["paired_n"] == 2 and comparison["unpaired"] == 0
     assert comparison["prefer"] == "baseline", "a critical gate count rose"
-    assert comparison["gate_counts"] == {
-        "baseline": {name: 0 for name in comparison["gate_counts"]["baseline"]},  # type: ignore[index]
-        "candidate": {
-            **{name: 0 for name in comparison["gate_counts"]["baseline"]},
-            "fabricated_accepted_result": 2,
-        },  # type: ignore[index]
-    }
+    assert comparison["gate_counts"]["candidate"]["fabricated_accepted_result"] == 2  # type: ignore[index]
     assert (suite.space.published / fabricated / ("comparison_" + honest + ".json")).is_file()
+    assert (
+        suite.cli(
+            "invalidate",
+            *root,
+            "--run-id",
+            fabricated,
+            "--reason",
+            "grader_unpinned",
+            "--evidence",
+            "review B2",
+        )
+        == 0
+    )
+    manifest = json.loads((suite.space.published / fabricated / "run_manifest.json").read_bytes())
+    assert (manifest["state"], manifest["status"]) == ("invalidated", "failed")
+    assert manifest["invalidation"] == {"reason": "grader_unpinned", "evidence": ["review B2"]}
+    assert suite.cli("compare", *root, honest, fabricated) == 4
+    assert "invalidated" in _problem(capsys)["detail"]
+    assert suite.cli("gate", *root, "--runs", honest, fabricated) == 4
+    assert "invalidated" in _problem(capsys)["detail"]
+
+
+@pytest.mark.trace("INV-E18-05", "T-E18-25")
+def test_compare_values_count_a_timeout_and_refuse_an_ungraded_case() -> None:
+    from crew_health_bench.api.gate_commands import paired_value
+
+    def row(status: str, score: float | None, outcomes: list[tuple[str, str]]) -> dict[str, object]:
+        listed = [{"check": check, "outcome": outcome} for check, outcome in outcomes]
+        return {"status": status, "official_score": score, "outcomes": listed}
+
+    assert paired_value(row("completed", 0.25, [])) == 0.25
+    assert paired_value(row("timeout", None, [("A", "not_graded")])) == 0.0
+    assert paired_value(row("completed", None, [("A", "pass"), ("B", "fail"), ("C", "not_graded")])) == 0.5
+    with pytest.raises(BenchError):
+        paired_value(row("completed", None, [("A", "not_graded")]))
 
 
 @pytest.mark.trace("E18-03", "INV-E18-05", "T-E18-27")

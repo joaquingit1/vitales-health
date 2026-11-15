@@ -247,4 +247,7 @@ class RunLifecycle:
             raise BenchError("case_invalid")
         for name in (*sorted(required - {"run_manifest.json"}), "run_manifest.json"):
             published.write_atomic(Path(self.run_id) / name, artifacts[name])
-        self._transition("reported")
+        self._transition(
+            "reported",
+            artifacts_sha256={name: sha256(data).hexdigest() for name, data in sorted(artifacts.items())},
+        )

@@ -49,6 +49,8 @@ class Arguments(argparse.Namespace):
     runs: list[str]
     baseline: str
     candidate: str
+    reason: str
+    evidence: list[str]
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -116,11 +118,19 @@ def _parser() -> argparse.ArgumentParser:
     _suite_parser(groups)
     gate = groups.add_parser("gate")
     gate.add_argument("--published", type=Path, required=True)
+    gate.add_argument("--root", type=Path, required=True)
     gate.add_argument("--runs", nargs="+", required=True)
     compare = groups.add_parser("compare")
     compare.add_argument("--published", type=Path, required=True)
+    compare.add_argument("--root", type=Path, required=True)
     compare.add_argument("baseline")
     compare.add_argument("candidate")
+    invalidate = groups.add_parser("invalidate")
+    invalidate.add_argument("--published", type=Path, required=True)
+    invalidate.add_argument("--root", type=Path, required=True)
+    invalidate.add_argument("--run-id", required=True)
+    invalidate.add_argument("--reason", required=True)
+    invalidate.add_argument("--evidence", nargs="+", required=True)
     return parser
 
 
@@ -274,7 +284,14 @@ def _evaluation(args: Arguments, config_dir: Path, settings: BenchSettings) -> i
         ).run()
         print(json.dumps(result, sort_keys=True))
         return 0
-    commands = GateCommands(config_dir, settings, args.published or config_dir)
+    commands = GateCommands(config_dir, settings, args.published or config_dir, args.root or config_dir)
+    if args.group == "invalidate":
+        print(
+            json.dumps(
+                commands.invalidate(str(args.run_id), args.reason, tuple(args.evidence)), sort_keys=True
+            )
+        )
+        return 0
     if args.group == "gate":
         verdict, code = commands.gate(args.runs)
         print(json.dumps(verdict, sort_keys=True))
@@ -293,7 +310,7 @@ def run(argv: Sequence[str]) -> int:
         )
         limit = settings.integer("bench.leak.max_file_bytes")
         findings: list[dict[str, object]]
-        if args.group in ("suite", "gate", "compare"):
+        if args.group in ("suite", "gate", "compare", "invalidate"):
             return _evaluation(args, config_dir, settings)
         if args.group == "healthbench":
             from crew_health_bench.api.healthbench_commands import HealthBenchCommands, Options
