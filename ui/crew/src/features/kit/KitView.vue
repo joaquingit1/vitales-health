@@ -7,7 +7,7 @@ import { useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
 import { useStage } from "../../shell/stage";
 import { placeOf } from "../today/place";
-import { KIT_STATES, STATE_MK, figureMarks, loadKitMap, type KitMapView, type KitState } from "./kitMap";
+import { KIT_STATES, STATE_MK, figureMarks, instrumentNames, loadKitMap, type KitMapView, type KitState } from "./kitMap";
 
 const api = useCrewApi();
 const stage = useStage();
@@ -19,35 +19,43 @@ const filter = ref<KitState | "all">("all");
 const rows = computed(() =>
   (kit.value?.conditions ?? []).filter((row) => filter.value === "all" || row.state === filter.value),
 );
-const instrumentName = computed(() => {
-  const names = new Map<string, string>();
-  for (const item of [...(kit.value?.kit ?? []), ...(kit.value?.candidates ?? [])]) {
-    names.set(item.instrument_id, item.name);
-  }
-  return names;
-});
+const instrumentName = ref<Map<string, string>>(new Map());
 
 function cap(text: string): string {
   return text === "" ? text : (text[0] ?? "").toUpperCase() + text.slice(1);
 }
 
+/* ui-copy kit_check_templates.cannot ("This kit can't: needs {instruments}"), shown from its verb on, as the
+   prototype's row end does ("needs an ECG"). */
+function cannotTail(text: string): string {
+  const cannot = copy("kit_check_templates.cannot");
+  const prefix = cannot.slice(0, cannot.indexOf("{instruments}")).replace(/\S+\s*$/, "");
+  return prefix !== "" && text.startsWith(prefix) ? text.slice(prefix.length) : text;
+}
+
 function endText(row: KitMapView["conditions"][number]): string {
   if (row.state === "needs_test_not_aboard") {
-    /* the hub's own text ("This kit can't: needs an ECG"), shown from "needs" on, as the prototype does */
-    const cannot = copy("kit_check_templates.cannot");
-    const prefix = cannot.slice(0, cannot.indexOf("needs"));
-    if (row.missing_text != null && prefix !== "" && row.missing_text.startsWith(prefix)) {
-      return row.missing_text.slice(prefix.length);
+    if (row.missing_text != null && row.missing_text !== "") {
+      return cannotTail(row.missing_text);
     }
-    const missing = row.missing_instruments.map((id) => instrumentName.value.get(id) ?? id);
-    return fill(CHROME.needs, { instruments: missing.join(" and ") });
+    const missing = row.missing_instruments
+      .map((id) => instrumentName.value.get(id))
+      .filter((name): name is string => name !== undefined);
+    return missing.length === 0
+      ? copy("kit_map_state_words.needs_test_not_aboard")
+      : cannotTail(copy("kit_check_templates.cannot", { instruments: missing.join(" and ") }));
   }
-  return row.state === "measured_here" ? CHROME.aboard : CHROME.noInstrument;
+  return copy(`kit_map_state_words.${row.state}`);
+}
+
+function regionLabel(region: string): string {
+  const label = copy(`body_region_labels.${region}`);
+  return label.startsWith("body_region_labels.") ? region : label.toLowerCase();
 }
 
 function smallText(row: KitMapView["conditions"][number]): string {
   const test = row.tests[0]?.name ?? "";
-  return [test, row.body_regions.join(", ")].filter((part) => part !== "").join(" · ");
+  return [test, row.body_regions.map(regionLabel).join(", ")].filter((part) => part !== "").join(" · ");
 }
 
 onMounted(async () => {
@@ -56,7 +64,9 @@ onMounted(async () => {
   stage.headline = CHROME.kitHeadline;
   stage.focus = null;
   try {
-    kit.value = await loadKitMap(api);
+    const view = await loadKitMap(api);
+    instrumentName.value = await instrumentNames(api, view);
+    kit.value = view;
     stage.marks = figureMarks(kit.value);
     const place = await placeOf(api, kit.value.environment_id).catch(() => null);
     if (place !== null && stage.subline !== "") {
@@ -90,7 +100,7 @@ onBeforeUnmount(() => {
         <RouterLink
           class="go"
           :to="{ name: 'today' }"
-          :aria-label="CHROME.backToToday"
+          :aria-label="copy('display_group_labels.today')"
         >
           <svg
             class="icon"
@@ -170,7 +180,7 @@ onBeforeUnmount(() => {
         v-else-if="failed"
         class="kit-note"
       >
-        {{ CHROME.kitMapUnavailable }}
+        {{ copy("designed_states.not_available_here") }}
       </p>
     </article>
     <article

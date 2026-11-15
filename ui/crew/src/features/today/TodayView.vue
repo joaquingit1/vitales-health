@@ -115,9 +115,6 @@ onBeforeUnmount(() => {
           {{ copy("designed_states.not_available_here") }}
         </div>
       </div>
-      <p class="fine">
-        {{ CHROME.todoUnavailable }}
-      </p>
     </article>
 
     <article
@@ -144,7 +141,7 @@ onBeforeUnmount(() => {
         v-else-if="linkFailed"
         class="env-line"
       >
-        {{ CHROME.linkUnavailable }}
+        {{ copy("designed_states.unknown") }}
       </p>
     </article>
 
@@ -193,7 +190,7 @@ onBeforeUnmount(() => {
         v-else-if="kitFailed"
         class="kit-note"
       >
-        {{ CHROME.kitMapUnavailable }}
+        {{ copy("designed_states.not_available_here") }}
       </p>
     </RouterLink>
 
