@@ -1,0 +1,81 @@
+{
+  "profile": "demo",
+  "feeds": [
+    {
+      "feed_id": "feed_rr1_co2_replay",
+      "kind": "replay",
+      "adapter_id": "adp_replay_osdr",
+      "channel_id": "ch_co2_cabin_replay",
+      "file": "eda_rr1_telemetry.csv",
+      "columns": {"time": "time", "value": "co2_iss", "unit": "ppm"},
+      "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+      "time_basis": "Dataset clock as printed in the source file. The source states no time zone, so the printed time is carried with a Z suffix as the dataset's own clock and is not asserted to be UTC.",
+      "naive_time": "carry_as_dataset_clock",
+      "from": "2014-09-30T15:41:00",
+      "to": "2014-10-07T15:36:00",
+      "pace": {"mode": "burst"},
+      "cabin_pressure": {
+        "value": 760,
+        "basis": "assumed",
+        "source": {
+          "text": "The file carries no cabin pressure. NASA-SOURCES.md section 2 states the 760 mmHg assumption used to convert ppm to mmHg.",
+          "source_ids": ["N02"]
+        }
+      },
+      "basis": {
+        "file": {"text": "Byte copy of eda_rr1_telemetry.csv (SHA-256 in provenance.json). Column co2_iss is the ISS channel CO2 in ppm.", "source_ids": ["N02"]},
+        "unit": {"text": "units_from_portal_js in eda_rr1_provenance.json: co2_iss is ppm. Wire spelling ppm; UCUM [ppm] by config/unit-mapping.json.", "source_ids": ["N02"]},
+        "time_basis": {"text": "timestamp_timezone in eda_rr1_provenance.json: not stated in the downloaded payload; not assumed UTC.", "source_ids": ["N02"]},
+        "window": {"text": "Seven days of the file ending 2014-10-07 15:36, the demo replay clock (DEMO-CONDITIONS.md); 2012 rows, the original dates kept.", "source_ids": ["N02"]},
+        "pace": {"text": "Burst: the demo does not wait five minutes per sample. Freshness follows hub receive time of rows that advance the window end (D14).", "source_ids": ["N02"]}
+      }
+    },
+    {
+      "feed_id": "feed_dostel1_rad_replay",
+      "kind": "replay",
+      "adapter_id": "adp_replay_osdr",
+      "channel_id": "ch_rad_columbus_replay",
+      "file": "radlab_dostel_sample.csv",
+      "columns": {"time": "timestamp", "value": "absorbed_dose_rate", "unit": "µGy/h"},
+      "row_filter": {"column": "instrument_id", "equals": "DosTel1"},
+      "dataset": "OSDR RadLab DosTel1, 1 to 2 Apr 2022",
+      "time_basis": "Dataset clock as printed in the source file. The API states no time zone, so the printed time is carried with a Z suffix as the dataset's own clock and is not asserted to be UTC.",
+      "naive_time": "carry_as_dataset_clock",
+      "pace": {"mode": "burst"},
+      "basis": {
+        "file": {"text": "Byte copy of radlab_dostel_sample.csv (SHA-256 in provenance.json). Only DosTel1 rows: an instrument dose rate in the Columbus module, never a person's dose.", "source_ids": ["N20"]},
+        "unit": {"text": "absorbed_dose_rate_units in radlab_dostel_sample.provenance.json: microgray per hour.", "source_ids": ["N20"]},
+        "time_basis": {"text": "timestamp_timezone in radlab_dostel_sample.provenance.json: not stated by the API; not asserted.", "source_ids": ["N20"]},
+        "pace": {"text": "Burst, as for the RR-1 feed.", "source_ids": ["N20"]}
+      }
+    },
+    {
+      "feed_id": "feed_co2_cabin_sim",
+      "kind": "sim",
+      "adapter_id": "adp_sim",
+      "channel_id": "ch_co2_cabin_sim",
+      "unit": "ppm",
+      "sim": {
+        "type": "twin",
+        "protocol": "ble_ess",
+        "scenario": "nominal",
+        "select": "0x2B8C",
+        "seed": 1,
+        "data_dir": "."
+      },
+      "pace": {"mode": "fixed", "interval_s": 5},
+      "cabin_pressure": {
+        "value": 760,
+        "basis": "assumed",
+        "source": {
+          "text": "The twin streams ppm. NASA-SOURCES.md section 2 states the 760 mmHg assumption used to convert ppm to mmHg.",
+          "source_ids": ["N02"]
+        }
+      },
+      "basis": {
+        "sim": {"text": "The habitat simulator twin replays the RR-1 ISS CO2 recording as Bluetooth Environmental Sensing notifications; the adapter parses the same bytes a real sensor would send. The device identity declares it simulated.", "source_ids": ["N02"]},
+        "pace": {"text": "One notification every 5 s, the catalog CO2 interval (EV01).", "source_ids": ["EV01"]}
+      }
+    }
+  ]
+}

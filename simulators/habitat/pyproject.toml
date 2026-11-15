@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crew-health-sim-habitat"
+version = "0.1.0"
+description = "Simulated twin of habitat sensors: emits the Bluetooth Environmental Sensing notifications and CCSDS space packets a real device would, from recorded NASA telemetry."
+requires-python = ">=3.14,<3.15"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+crew_health_sim_habitat = ["scenarios.json", "py.typed"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["crew_health_sim_habitat"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
