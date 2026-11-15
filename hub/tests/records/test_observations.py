@@ -82,7 +82,9 @@ def station(tmp_path):
     db = database(tmp_path)
     for migration in sorted(Path("hub/src/crew_health/records/adapters/migrations").glob("*_records.sql")):
         db.migrate(migration.read_text(encoding="utf-8"))
-    db.migrate(Path("hub/src/crew_health/clock/adapters/migrations/0001_clock.sql").read_text())
+    db.migrate(
+        Path("hub/src/crew_health/clock/adapters/migrations/0001_clock.sql").read_text(encoding="utf-8")
+    )
     clocks = PersistentClocks(
         repository=SqlClockRepository(
             settings=db.settings, node_id=db.origin_node_id, incarnation_id=db.origin_incarnation
@@ -263,7 +265,9 @@ def test_real_answer_append_publishes_once_and_rollback_shares_outer_uow(tmp_pat
     from crew_health.records.domain.answers import AnswerAccepted, AnswerRecord
 
     raw = json.dumps(
-        json.loads(Path("contracts/api/examples/config/questionnaires.example.json").read_text())["value"]
+        json.loads(
+            Path("contracts/api/examples/config/questionnaires.example.json").read_text(encoding="utf-8")
+        )["value"]
     ).encode()
     document = ConfigDocumentView(ConfigName.QUESTIONNAIRES, hashlib.sha256(raw).hexdigest(), raw)
     db, repo, service, session = station(tmp_path)
