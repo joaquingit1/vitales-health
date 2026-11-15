@@ -3,76 +3,80 @@
 One row per AI run that produced work (KICKOFF.md section 8). The product itself runs a local medical language model
 (HuatuoGPT-3-9B) behind a typed tool gateway; nothing safety related depends on it.
 
-"Coordinator" is the Claude Code session (Claude Opus 5.5) that plans, briefs, reviews and greenlights. Every row
-marked "checked by coordinator" was accepted only after its gate commands passed.
+"Who" is the person who ran the tool; the agent and its model are the tool, named in "Tool and model". Joaquin
+Castellano runs Claude Code (Claude Opus 5.5) to plan, brief and check, and Codex CLI (GPT-6.1 Sol to code, GPT-6
+Astra to review). A row Joaquin Castellano checked was accepted only after its gate commands passed.
 
 | Time | Who | Tool and model | What for | What it produced | Where it landed | Checked by |
 |---|---|---|---|---|---|---|
-| Sat 09:00 | Coordinator | Claude Code, Claude Opus 5.5 | Root cause the potency engine's failed independent validation | Coordinator decisions, spec changes | docs/requests/COORDINATOR-DECISIONS.md, docs/ENGINE-SPEC.md | Team |
-| Sat 09:31 | Builder CX-A | Codex CLI, GPT-6 Astra | Engine foundation round (types, settings, anchors) | Code and tests | pharmacy/, tests/ | Coordinator (gates, review) |
-| Sat 10:05 | Builder CX-A2 | Codex CLI, GPT-6 Astra | Foundation follow-up | Code and tests | pharmacy/, tests/ | Coordinator (gates, review) |
-| Sat 10:10 | Builders CX-B, CX-C, CX-CAL, CX-D | Codex CLI, GPT-6 Astra | Engine round 2: compression, chemistry, calibration, validation | Code, tests, calibration data | pharmacy/, tests/, data/pharmacy/calibration/ | Coordinator (gates, review) |
-| Sat 10:40 | Coordinator | Claude Code, Claude Opus 5.5 | Calibration fixes (mean location, rate weighted internal humidity derivative) | Code, tests, regenerated calibration | pharmacy/calibration.py, tests/unit/calibration/, config/pharmacy/ | Coordinator (gates) |
-| Sat 10:50 | Research agents | Claude Code subagents, Claude Opus 5.5 | Deployment research: vehicle computing, surface and comms, medical systems and standards | Research notes with sources | build folder research/ (local) | Coordinator |
-| Sat 11:00 | Coordinator | Claude Code, Claude Opus 5.5 | Build charter and design template | Charter, template | docs/BUILD-CHARTER.md, docs/tdd/TEMPLATE.md | Team |
-| Sat 11:10 | Design authors | Claude Code workflow, Claude Opus 5.5 | Technical designs for 21 epics | Design documents | docs/tdd/E*.md | GPT-6 Astra review, coordinator |
-| Sat 13:54 | Design author (E23) | Claude Code, Claude Fable 5.2 | Technical design for E23 (environment profile and habitat sensors) and its requests | Design document, request file | docs/tdd/E23.md, docs/requests/E23.md | Reviewed in r1 (below) |
-| Sat 14:35 | Reviewer (E23) | Claude Code subagent, Claude Opus 5.5 | Independent cold review of the E23 design, round 1 | Review, 36 findings | docs/tdd/reviews/E23.opus-r1.md | Author response with evidence |
-| Sat 14:35 | Design author (E23) | Claude Code, Claude Opus 5.5 | Revision of the E23 design and requests for the r1 review | Revised design, requests, response | docs/tdd/E23.md, docs/requests/E23.md, docs/tdd/reviews/E23.response-r1.md | Awaiting review round 2 and the coordinator ruling on R-E23-1 |
-| Sat 15:09 | Reviewer (E23) | Claude Code subagent, Claude Opus 5.5 | Independent review of the E23 design, round 2 | Review: 32 of 36 r1 findings resolved, 15 new | docs/tdd/reviews/E23.opus-r2.md | Author response with evidence |
-| Sat 15:09 | Design author (E23) | Claude Code, Claude Opus 5.5 | Revision of the E23 design for the r2 review; owner rulings D8 and D9 recorded | Revised design, requests, response, two coordinator decisions | docs/tdd/E23.md, docs/requests/E23.md, docs/tdd/reviews/E23.response-r2.md, docs/requests/COORDINATOR-DECISIONS.md | Awaiting review round 3 |
-| Sat 15:13 | Reviewer (E23) | Claude Code subagent, Claude Opus 5.5 | Independent review of the E23 design, round 3 | Review: 17 of 19 earlier findings resolved, 8 new (1 major, 7 minor) | docs/tdd/reviews/E23.opus-r3.md | Author response with evidence |
-| Sat 15:13 | Design author (E23) | Claude Code, Claude Opus 5.5 | Revision of the E23 design for the r3 review | Revised design, requests, response | docs/tdd/E23.md, docs/requests/E23.md, docs/tdd/reviews/E23.response-r3.md | Awaiting review round 4 |
-| Sat 15:16 | Reviewer (E23) | Claude Code subagent, Claude Opus 5.5 | Independent review of the E23 design, round 4 | Review: GREENLIGHT, 2 non-blocking minors | docs/tdd/reviews/E23.opus-r4.md | Author response with evidence |
-| Sat 15:16 | Design author (E23) | Claude Code, Claude Opus 5.5 | Fixes for the two r4 minors | Revised design, requests, response | docs/tdd/E23.md, docs/requests/E23.md, docs/tdd/reviews/E23.response-r4.md | Greenlit by r4 |
-| Sat 15:18 | Design author (E23) | Claude Code, Claude Opus 5.5 | getContext added to E23 by owner ruling D10; request R-E23-17 | Revised design, requests, coordinator decision | docs/tdd/E23.md, docs/requests/E23.md, docs/requests/COORDINATOR-DECISIONS.md | Added after the r4 greenlight; not yet reviewed |
-| Sat 16:10 | Supervisor SYSTEM | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/SYSTEM.md | Cold review (GPT-6 Astra), design lint |
-| Sat 16:29 | Supervisor SYSTEM | Codex CLI, GPT-6 Astra | Cold design review | Review with verdict | docs/tdd/reviews/ | Coordinator |
-| Sat 16:32 | Supervisor E02 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E02.md | Cold review (GPT-6 Astra), design lint |
-| Sat 16:32 | Supervisor E20 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E20.md | Cold review (GPT-6 Astra), design lint |
-| Sat 16:35 | Supervisor E10 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E10.md | Cold review (GPT-6 Astra), design lint |
-| Sat 16:47 | Supervisor E02 | Codex CLI, GPT-6 Astra | Cold design review | Review with verdict | docs/tdd/reviews/ | Coordinator |
-| Sat 16:48 | Supervisor E01 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E01.md | Cold review (GPT-6 Astra), design lint |
-| Sat 16:48 | Supervisor E21 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E21.md | Cold review (GPT-6 Astra), design lint |
-| Sat 16:51 | Supervisor E05 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E05.md | Cold review (GPT-6 Astra), design lint |
-| Sat 16:51 | Supervisor SYSTEM | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/SYSTEM.md | Cold review (GPT-6 Astra), design lint |
-| Sat 16:53 | Supervisor E03 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E03.md | Cold review (GPT-6 Astra), design lint |
-| Sat 16:53 | Supervisor E12 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E12.md | Cold review (GPT-6 Astra), design lint |
-| Sat 16:55 | Supervisor E23 | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E23.md | Cold review (GPT-6 Astra), design lint |
-| Sat 16:57 | Supervisor E21 | Codex CLI, GPT-6 Astra | Cold design review | Review with verdict | docs/tdd/reviews/ | Coordinator |
-| Sat 17:01 | Supervisor E01 | Codex CLI, GPT-6 Astra | Cold design review | Review with verdict | docs/tdd/reviews/ | Coordinator |
-| Sat 17:03 | Supervisor E05 | Codex CLI, GPT-6 Astra | Cold design review | Review with verdict | docs/tdd/reviews/ | Coordinator |
-| Sat 17:06 | Supervisor E03 | Codex CLI, GPT-6 Astra | Cold design review | Review with verdict | docs/tdd/reviews/ | Coordinator |
-| Sat 17:08 | Supervisor E02 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E02/ | Coordinator |
-| Sat 17:26 | Supervisor E23 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E23/ | Coordinator |
-| Sat 17:29 | Coder E04 | Codex CLI, GPT-6.1 Sol | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E04.md | Cold review (GPT-6 Astra), design lint |
-| Sat 17:29 | Supervisor E05 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E05/ | Coordinator |
-| Sat 17:29 | Coder E01 | Codex CLI, GPT-6.1 Sol | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E01.md | Cold review (GPT-6 Astra), design lint |
-| Sat 17:32 | Supervisor E21 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E21/ | Coordinator |
-| Sat 17:33 | Supervisor E10 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E10/ | Coordinator |
-| Sat 17:33 | Supervisor E03 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E03/ | Coordinator |
-| Sat 17:36 | Coder E15 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E15/ | Plan review (GPT-6 Astra) |
-| Sat 17:37 | Supervisor E12 | Codex CLI, GPT-6 Astra | Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E12/ | Coordinator |
-| Sat 17:37 | Coder E28 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E28/ | Plan review (GPT-6 Astra) |
-| Sat 17:37 | Coder E24 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E24/ | Plan review (GPT-6 Astra) |
-| Sat 17:38 | Coder E32 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E32/ | Plan review (GPT-6 Astra) |
-| Sat 17:39 | Coder E13 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E13/ | Plan review (GPT-6 Astra) |
-| Sat 17:41 | Coder E20 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E20/ | Plan review (GPT-6 Astra) |
-| Sat 17:42 | Coder E04 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E04/ | Plan review (GPT-6 Astra) |
-| Sat 17:43 | Coder E19 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E19/ | Plan review (GPT-6 Astra) |
-| Sat 17:43 | Coder E25 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E25/ | Plan review (GPT-6 Astra) |
-| Sat 17:44 | Coder E14 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E14/ | Plan review (GPT-6 Astra) |
-| Sat 17:44 | Coder E23 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E23/ | Plan review (GPT-6 Astra) |
-| Sat 17:45 | Coder E33 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E33/ | Plan review (GPT-6 Astra) |
-| Sat 17:46 | Coder E29 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E29/ | Plan review (GPT-6 Astra) |
-| Sat 17:46 | Coder E26 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E26/ | Plan review (GPT-6 Astra) |
-| Sat 17:46 | Coder E16 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E16/ | Plan review (GPT-6 Astra) |
-| Sat 17:47 | Coder E11 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E11/ | Plan review (GPT-6 Astra) |
-| Sat 17:48 | Coder E30 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E30/ | Plan review (GPT-6 Astra) |
-| Sat 17:48 | Coder E07 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E07/ | Plan review (GPT-6 Astra) |
-| Sat 17:48 | Coder E09 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E09/ | Plan review (GPT-6 Astra) |
-| Sat 17:48 | Coder E06 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E06/ | Plan review (GPT-6 Astra) |
-| Sat 17:52 | Coder E01 | Codex CLI, GPT-6.1 Sol | Build plan from the frozen design | Plan and task briefs | docs/build/E01/ | Plan review (GPT-6 Astra) |
-| Sat 18:01 | Supervisor E01 | Codex CLI, GPT-6 Astra | Review of the build plan | Plan review with verdict | docs/build/E01/ | Coordinator |
-| Sat 18:08 | Federico Gutman | Claude Code, Claude Opus 5.5 | File the E24 requests against the frozen design | R-E24-1 to R-E24-33 (18 and 27 settled) | docs/requests/E24.md | Joaquin (PR review) |
-| Sat 19:25 | Coder E01 | Codex CLI, GPT-6.1 Sol | Code for task T1 | Code and tests | hub/pyproject.toml, hub/src/crew_health/__init__.py, hub/src/crew_health/kernel/__init__.py | Gates rerun by the pipeline; build review (GPT-6 Astra) |
+| Sat 09:00 | Joaquin Castellano | Claude Code, Claude Opus 5.5 | Root cause the potency engine's failed independent validation | Coordinator decisions, spec changes | docs/requests/COORDINATOR-DECISIONS.md, docs/ENGINE-SPEC.md | Team |
+| Sat 09:31 | Joaquin Castellano | Codex CLI, GPT-6 Astra | Engine foundation round (types, settings, anchors) | Code and tests | pharmacy/, tests/ | Joaquin Castellano (gates, review) |
+| Sat 10:05 | Joaquin Castellano | Codex CLI, GPT-6 Astra | Foundation follow-up | Code and tests | pharmacy/, tests/ | Joaquin Castellano (gates, review) |
+| Sat 10:10 | Joaquin Castellano | Codex CLI, GPT-6 Astra | Engine round 2: compression, chemistry, calibration, validation | Code, tests, calibration data | pharmacy/, tests/, data/pharmacy/calibration/ | Joaquin Castellano (gates, review) |
+| Sat 10:40 | Joaquin Castellano | Claude Code, Claude Opus 5.5 | Calibration fixes (mean location, rate weighted internal humidity derivative) | Code, tests, regenerated calibration | pharmacy/calibration.py, tests/unit/calibration/, config/pharmacy/ | Joaquin Castellano (gates) |
+| Sat 10:50 | Joaquin Castellano | Claude Code subagents, Claude Opus 5.5 | Deployment research: vehicle computing, surface and comms, medical systems and standards | Research notes with sources | build folder research/ (local) | Joaquin Castellano |
+| Sat 11:00 | Joaquin Castellano | Claude Code, Claude Opus 5.5 | Build charter and design template | Charter, template | docs/BUILD-CHARTER.md, docs/tdd/TEMPLATE.md | Team |
+| Sat 11:10 | Joaquin Castellano | Claude Code workflow, Claude Opus 5.5 | Technical designs for 21 epics | Design documents | docs/tdd/E*.md | Joaquin Castellano (GPT-6 Astra review) |
+| Sat 13:54 | Federico Gutman | Claude Code, Claude Fable 5.2 | Technical design for E23 (environment profile and habitat sensors) and its requests | Design document, request file | docs/tdd/E23.md, docs/requests/E23.md | Reviewed in r1 (below) |
+| Sat 14:35 | Federico Gutman | Claude Code subagent, Claude Opus 5.5 | Independent cold review of the E23 design, round 1 | Review, 36 findings | docs/tdd/reviews/E23.opus-r1.md | Author response with evidence |
+| Sat 14:35 | Federico Gutman | Claude Code, Claude Opus 5.5 | Revision of the E23 design and requests for the r1 review | Revised design, requests, response | docs/tdd/E23.md, docs/requests/E23.md, docs/tdd/reviews/E23.response-r1.md | Awaiting review round 2 and Joaquin Castellano's ruling on R-E23-1 |
+| Sat 15:09 | Federico Gutman | Claude Code subagent, Claude Opus 5.5 | Independent review of the E23 design, round 2 | Review: 32 of 36 r1 findings resolved, 15 new | docs/tdd/reviews/E23.opus-r2.md | Author response with evidence |
+| Sat 15:09 | Federico Gutman | Claude Code, Claude Opus 5.5 | Revision of the E23 design for the r2 review; owner rulings D8 and D9 recorded | Revised design, requests, response, two coordinator decisions | docs/tdd/E23.md, docs/requests/E23.md, docs/tdd/reviews/E23.response-r2.md, docs/requests/COORDINATOR-DECISIONS.md | Awaiting review round 3 |
+| Sat 15:13 | Federico Gutman | Claude Code subagent, Claude Opus 5.5 | Independent review of the E23 design, round 3 | Review: 17 of 19 earlier findings resolved, 8 new (1 major, 7 minor) | docs/tdd/reviews/E23.opus-r3.md | Author response with evidence |
+| Sat 15:13 | Federico Gutman | Claude Code, Claude Opus 5.5 | Revision of the E23 design for the r3 review | Revised design, requests, response | docs/tdd/E23.md, docs/requests/E23.md, docs/tdd/reviews/E23.response-r3.md | Awaiting review round 4 |
+| Sat 15:16 | Federico Gutman | Claude Code subagent, Claude Opus 5.5 | Independent review of the E23 design, round 4 | Review: GREENLIGHT, 2 non-blocking minors | docs/tdd/reviews/E23.opus-r4.md | Author response with evidence |
+| Sat 15:16 | Federico Gutman | Claude Code, Claude Opus 5.5 | Fixes for the two r4 minors | Revised design, requests, response | docs/tdd/E23.md, docs/requests/E23.md, docs/tdd/reviews/E23.response-r4.md | Greenlit by r4 |
+| Sat 15:18 | Federico Gutman | Claude Code, Claude Opus 5.5 | getContext added to E23 by owner ruling D10; request R-E23-17 | Revised design, requests, coordinator decision | docs/tdd/E23.md, docs/requests/E23.md, docs/requests/COORDINATOR-DECISIONS.md | Added after the r4 greenlight; not yet reviewed |
+| Sat 16:10 | Joaquin Castellano | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/SYSTEM.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 16:29 | Joaquin Castellano | Codex CLI, GPT-6 Astra | Cold design review | Review with verdict | docs/tdd/reviews/ | Joaquin Castellano |
+| Sat 16:32 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E02: Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E02.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 16:32 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E20: Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E20.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 16:35 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E10: Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E10.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 16:47 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E02: Cold design review | Review with verdict | docs/tdd/reviews/ | Joaquin Castellano |
+| Sat 16:48 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E01: Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E01.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 16:48 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E21: Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E21.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 16:51 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E05: Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E05.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 16:51 | Joaquin Castellano | Codex CLI, GPT-6 Astra | Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/SYSTEM.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 16:53 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E03: Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E03.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 16:53 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E12: Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E12.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 16:55 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E23: Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E23.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 16:57 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E21: Cold design review | Review with verdict | docs/tdd/reviews/ | Joaquin Castellano |
+| Sat 17:01 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E01: Cold design review | Review with verdict | docs/tdd/reviews/ | Joaquin Castellano |
+| Sat 17:03 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E05: Cold design review | Review with verdict | docs/tdd/reviews/ | Joaquin Castellano |
+| Sat 17:06 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E03: Cold design review | Review with verdict | docs/tdd/reviews/ | Joaquin Castellano |
+| Sat 17:08 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E02: Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E02/ | Joaquin Castellano |
+| Sat 17:26 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E23: Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E23/ | Joaquin Castellano |
+| Sat 17:29 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E04: Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E04.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 17:29 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E05: Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E05/ | Joaquin Castellano |
+| Sat 17:29 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E01: Design fix against reviews, SYSTEM.md and decisions | Revised design and requests | docs/tdd/E01.md | Joaquin Castellano (GPT-6 Astra cold review, design lint) |
+| Sat 17:32 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E21: Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E21/ | Joaquin Castellano |
+| Sat 17:33 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E10: Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E10/ | Joaquin Castellano |
+| Sat 17:33 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E03: Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E03/ | Joaquin Castellano |
+| Sat 17:36 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E15: Build plan from the frozen design | Plan and task briefs | docs/build/E15/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:37 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E12: Build plan and design fixes from the cold review | Plan and task briefs | docs/build/E12/ | Joaquin Castellano |
+| Sat 17:37 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E28: Build plan from the frozen design | Plan and task briefs | docs/build/E28/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:37 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E24: Build plan from the frozen design | Plan and task briefs | docs/build/E24/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:38 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E32: Build plan from the frozen design | Plan and task briefs | docs/build/E32/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:39 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E13: Build plan from the frozen design | Plan and task briefs | docs/build/E13/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:41 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E20: Build plan from the frozen design | Plan and task briefs | docs/build/E20/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:42 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E04: Build plan from the frozen design | Plan and task briefs | docs/build/E04/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:43 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E19: Build plan from the frozen design | Plan and task briefs | docs/build/E19/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:43 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E25: Build plan from the frozen design | Plan and task briefs | docs/build/E25/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:44 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E14: Build plan from the frozen design | Plan and task briefs | docs/build/E14/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:44 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E23: Build plan from the frozen design | Plan and task briefs | docs/build/E23/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:45 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E33: Build plan from the frozen design | Plan and task briefs | docs/build/E33/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:46 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E29: Build plan from the frozen design | Plan and task briefs | docs/build/E29/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:46 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E26: Build plan from the frozen design | Plan and task briefs | docs/build/E26/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:46 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E16: Build plan from the frozen design | Plan and task briefs | docs/build/E16/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:47 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E11: Build plan from the frozen design | Plan and task briefs | docs/build/E11/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:48 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E30: Build plan from the frozen design | Plan and task briefs | docs/build/E30/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:48 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E07: Build plan from the frozen design | Plan and task briefs | docs/build/E07/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:48 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E09: Build plan from the frozen design | Plan and task briefs | docs/build/E09/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:48 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E06: Build plan from the frozen design | Plan and task briefs | docs/build/E06/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 17:52 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E01: Build plan from the frozen design | Plan and task briefs | docs/build/E01/ | Joaquin Castellano (GPT-6 Astra plan review) |
+| Sat 18:01 | Joaquin Castellano | Codex CLI, GPT-6 Astra | E01: Review of the build plan | Plan review with verdict | docs/build/E01/ | Joaquin Castellano |
+| Sat 18:08 | Federico Gutman | Claude Code, Claude Opus 5.5 | File the E24 requests against the frozen design | R-E24-1 to R-E24-33 (18 and 27 settled) | docs/requests/E24.md | Joaquin Castellano (PR review) |
+| Sat 19:25 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E01: Code for task T1 | Code and tests | hub/pyproject.toml, hub/src/crew_health/__init__.py, hub/src/crew_health/kernel/__init__.py | Joaquin Castellano (gates, GPT-6 Astra build review) |
+| Sat 19:36 | Joaquin Castellano | Codex CLI, GPT-6.1 Sol | E01: Code for task T2 (paused at 20:30, finished below) | Code and tests | hub/src/crew_health/ | Joaquin Castellano (gates, GPT-6 Astra build review) |
+| Sat 20:30 | Joaquin Castellano | Claude Code subagent, Claude Opus 5.5 | E01: Finish task T2 (D12 overlay in the contract generator, import gate, remaining E01 modules) | Code, tests, overlay files | hub/src/crew_health/, contracts/decision-overlay/, scripts/validate_hub.py | Joaquin Castellano (nine T2 gates rerun in a clean shell) |
+| Sat 20:40 | Joaquin Castellano | Claude Code, Claude Opus 5.5 | Run the potency engine on Windows without tblite (decision D24) | Code, tests, engine setting, spec note | pharmacy/, config/pharmacy/, contracts/pharmacy/, docs/ENGINE-SPEC.md | Joaquin Castellano (Windows wheels-only resolve, engine tests with and without tblite) |
