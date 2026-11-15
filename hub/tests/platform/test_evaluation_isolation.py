@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import timedelta
 from pathlib import Path
 
@@ -232,3 +232,24 @@ def test_retry_preserves_original_identity_and_pins_and_completed_input_has_no_d
         assert count(view, "isolation_effect") == 1
         assert count(view, "platform_evaluation_pending") == 0
         assert count(view, "repl_log") == 4
+
+
+@pytest.mark.trace("SYSTEM.5.10.2", "E23")
+def test_a_sensor_evaluation_input_completes_under_the_core_audit_policy(tmp_path: Path) -> None:
+    """The served hub's isolation also runs E23's sensor evaluations, whose input is a sensors_evaluation_input row:
+    the core evaluation.* policy names it, so the evaluation completes instead of failing the ingest (422)."""
+    s = station(tmp_path, EvaluatorComputationFailure("bounded_failure"))
+    s.evaluator.failure = None
+    s.db.migrate("CREATE TABLE isolation_sensor_input(id TEXT PRIMARY KEY) STRICT;")
+    s.db.register_replicated_table(
+        "isolation_sensor_input", record_type="sensors_evaluation_input", key_column="id"
+    )
+    value = replace(
+        s.value,
+        input_ref="evi_1",
+        completion_id=s.db.ids.derived("completion", "rules", "immutable_v1", "evi_1", "2", "release_1"),
+    )
+    with s.db.begin(actor=Actor("adapter", "adp_sim"), correlation_id="ingest_1") as uow:
+        uow.connection.execute("INSERT INTO isolation_sensor_input VALUES (?)", ("evi_1",))
+        uow.replicate(change("sensors_evaluation_input", "evi_1", value.release_id))
+        assert s.service.run(uow, value) == "completed"

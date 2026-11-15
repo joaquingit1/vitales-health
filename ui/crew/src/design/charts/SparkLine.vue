@@ -18,7 +18,7 @@ const end = computed(() => points.value[points.value.length - 1] ?? null);
 <template>
   <svg
     v-if="end"
-    class="spark"
+    class="spark-svg"
     :viewBox="`0 0 ${props.width} ${props.height}`"
     preserveAspectRatio="none"
     role="img"
@@ -46,7 +46,7 @@ const end = computed(() => points.value[points.value.length - 1] ?? null);
 </template>
 
 <style scoped>
-.spark {
+.spark-svg {
   display: block;
   width: 100%;
   height: auto;

@@ -8,7 +8,7 @@ import RequestCard from "../../pulse/PulseCard.vue";
 import { WORDS } from "../../pulse/words";
 import { pulseReadings, type Observation } from "./pulseReadings";
 
-/* After shot C the Today pulse card shows the recorded reading (value, unit, its time, quality and source word)
+/* The grid owns the card shell (TodayView's pulse place). After shot C the card shows the recorded reading (value, unit, its time, quality and source word)
    and the line of this session's pulse readings ending on a glowing dot. Before any reading it is the pulse
    request card. Every value is the hub's observation. */
 const api = useCrewApi();
@@ -26,50 +26,45 @@ onMounted(async () => {
 </script>
 
 <template>
-  <article
-    class="card g g-sun pulse-today"
-    data-slot="pulse"
+  <RequestCard v-if="latest === null" />
+  <div
+    v-else
+    class="pulse-read"
+    data-testid="pulse-reading"
   >
-    <RequestCard v-if="latest === null" />
-    <div
-      v-else
-      class="pulse-read"
-      data-testid="pulse-reading"
-    >
-      <div class="card-head">
-        <h2 class="card-title">
-          {{ WORDS.pulseTitle }}
-        </h2>
-        <RouterLink
-          class="go"
-          :to="{ name: 'pulse' }"
-          :aria-label="WORDS.pulseTitle"
-        >
-          <svg
-            class="icon"
-            viewBox="0 0 24 24"
-          ><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
-        </RouterLink>
-      </div>
-      <div class="big">
-        {{ latest.original_value }}<small>{{ latest.original_unit }}</small>
-      </div>
-      <div class="pulse-line">
-        <SparkLine
-          :values="values"
-          :range="null"
-          :width="240"
-          :height="64"
-          :label="WORDS.pulseTitle"
-        />
-      </div>
-      <p class="pulse-meta">
-        <span>{{ WORDS.taken }} {{ taken }}</span>
-        <span>{{ WORDS.quality }} {{ latest.quality_status }}</span>
-        <SourceWord :origin="latest.origin_mode" />
-      </p>
+    <div class="card-head">
+      <h2 class="card-title">
+        {{ WORDS.pulseTitle }}
+      </h2>
+      <RouterLink
+        class="go"
+        :to="{ name: 'pulse' }"
+        :aria-label="WORDS.pulseTitle"
+      >
+        <svg
+          class="icon"
+          viewBox="0 0 24 24"
+        ><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
+      </RouterLink>
     </div>
-  </article>
+    <div class="big">
+      {{ latest.original_value }}<small>{{ latest.original_unit }}</small>
+    </div>
+    <div class="pulse-line">
+      <SparkLine
+        :values="values"
+        :range="null"
+        :width="240"
+        :height="64"
+        :label="WORDS.pulseTitle"
+      />
+    </div>
+    <p class="pulse-meta">
+      <span>{{ WORDS.taken }} {{ taken }}</span>
+      <span>{{ WORDS.quality }} {{ latest.quality_status }}</span>
+      <SourceWord :origin="latest.origin_mode" />
+    </p>
+  </div>
 </template>
 
 <style scoped>
@@ -82,7 +77,7 @@ onMounted(async () => {
   margin: 4px 0 8px;
   color: rgba(255, 255, 255, 0.92);
 }
-.pulse-line .spark {
+.pulse-line .spark-svg {
   height: 100%;
 }
 .pulse-meta {

@@ -29,13 +29,17 @@ def core_policies() -> tuple[AuditPolicy, ...]:
                 "ownership." + phase, {}, frozenset({"transfer"}), {"transfer": frozenset({"ownership"})}
             )
         )
+    # SYSTEM 5.10.2 isolation also runs E23's sensor evaluations, whose input is a sensors_evaluation_input row.
     for result in ("pending", "completed"):
         policies.append(
             AuditPolicy(
                 "evaluation." + result,
                 {},
                 frozenset({"input", "completion"}),
-                {"input": frozenset({"observation", "answer"}), "completion": frozenset({"evaluation"})},
+                {
+                    "input": frozenset({"observation", "answer", "sensors_evaluation_input"}),
+                    "completion": frozenset({"evaluation"}),
+                },
             )
         )
     return tuple(policies)

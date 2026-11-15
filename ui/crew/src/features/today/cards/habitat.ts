@@ -44,12 +44,31 @@ export function tileOf(status: SensorStatus): ChannelTile {
   };
 }
 
+/** The tile line covers this span before the newest reading. A drawing bound, not content: a whole replay file is
+    more than sensors.series_max_points, and getSensorSeries refuses an unbounded read of it (INVALID_VALUE). */
+export const SERIES_SPAN_MS = 6 * 60 * 60 * 1000;
+
+/** getSensorSeries for the span ending at the newest reading, or null when the sensor has none to end on. */
+export function seriesPath(status: SensorStatus): string | null {
+  const newest = status.latest_reading?.observed_at;
+  const end = newest === undefined ? Number.NaN : Date.parse(newest);
+  if (status.channel_id === null || !Number.isFinite(end)) {
+    return null;
+  }
+  const query = new URLSearchParams({
+    from: new Date(end - SERIES_SPAN_MS).toISOString(),
+    to: new Date(end).toISOString(),
+  });
+  return `${status.series_href}?${query.toString()}`;
+}
+
 /** Accepted series points of a sensor with a reading; a sensor with none keeps an empty line. */
 export async function seriesOf(api: CrewApi, status: SensorStatus): Promise<number[]> {
-  if (status.reading_state === "no_reading" || status.channel_id === null) {
+  const path = seriesPath(status);
+  if (path === null) {
     return [];
   }
-  const series = await api.get<SensorSeries>(status.series_href);
+  const series = await api.get<SensorSeries>(path);
   return series.points.map((point) => point.value);
 }
 
