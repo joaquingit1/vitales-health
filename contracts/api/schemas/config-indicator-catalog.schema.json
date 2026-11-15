@@ -56,13 +56,47 @@
               },
               "basis": {
                 "$ref": "common.schema.json#/$defs/basis"
+              },
+              "within_usual": {
+                "type": "object",
+                "description": "How far today's value may sit from the usual value and still read as within usual. A value further away reads as above or below usual. Both values are compared at the indicator's display precision (decimals).",
+                "properties": {
+                  "band": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,5})(\\.[0-9]{1,3})?$",
+                    "description": "Largest absolute difference from the usual value, in the indicator's unit, that still reads as within usual. Decimal text with at most decimals places; 0 means equal at display precision. The release check rejects a finer band."
+                  },
+                  "basis": {
+                    "$ref": "common.schema.json#/$defs/basis"
+                  },
+                  "source_ids": {
+                    "$ref": "common.schema.json#/$defs/source_ids",
+                    "description": "Sources that give this band. Required when basis is sourced; empty while the band is a team default."
+                  },
+                  "nasa_checked": {
+                    "$ref": "common.schema.json#/$defs/source_ids",
+                    "description": "NASA catalog IDs (NASA-SOURCES.md) read before the band was set, kept when none of them gives a band."
+                  },
+                  "to_be_set_by": {
+                    "$ref": "common.schema.json#/$defs/to_be_set_by"
+                  }
+                },
+                "required": [
+                  "band",
+                  "basis",
+                  "source_ids",
+                  "nasa_checked",
+                  "to_be_set_by"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
               "method",
               "window_days",
               "min_samples",
-              "basis"
+              "basis",
+              "within_usual"
             ],
             "additionalProperties": false
           },

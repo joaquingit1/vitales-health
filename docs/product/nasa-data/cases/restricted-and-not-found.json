@@ -1,0 +1,87 @@
+{
+  "purpose": "Candidate known-outcome cases that were checked and not built, with the reason and the URL that shows it.",
+  "items": [
+    {
+      "candidate": "Individual astronaut medical data behind every case here (vitals, private medical conference notes, OCT, IOP, ultrasound, labs)",
+      "status": "restricted",
+      "why": "Released only through NASA's Lifetime Surveillance of Astronaut Health (LSAH) and Life Sciences Data Archive (LSDA) after review: 'Each request for human data must be evaluated and approved through the appropriate NASA review boards prior to the release of any human data.' Attributable data need NASA IRB approval and LSAH Advisory Board review; the page cites the Privacy Act of 1974 and HIPAA.",
+      "urls": [
+        "https://nlsp.nasa.gov/data-request-guidelines",
+        "https://lsda.jsc.nasa.gov/Request/dataRequestFAQ"
+      ]
+    },
+    {
+      "candidate": "ISS CO2 versus headache time series (Law et al. 2014, JOEM 56(5):477-483; NTRS abstracts 20140003857 and 20160012725)",
+      "status": "aggregate only",
+      "why": "Public outputs are odds ratios and counts (46 headache days, 1,716 observations). The per-conference symptom data come from private medical conferences and LSAH, so no event can be replayed. Single documented events are in iss-co2-symptom-reports-2001-2009 instead.",
+      "urls": [
+        "https://ntrs.nasa.gov/citations/20140003857",
+        "https://ntrs.nasa.gov/citations/20160012725",
+        "https://pubmed.ncbi.nlm.nih.gov/24806559/"
+      ]
+    },
+    {
+      "candidate": "ExMC headache events with MCA CO2 two weeks around each (Wu 2009, in NASA/TP-2010-216126 Figure 3)",
+      "status": "figure only",
+      "why": "Eight headache events are shown only as plots (for example GMT 2005-175 and 2007-282). Digitizing them was not done; no table exists in the paper.",
+      "urls": [
+        "https://inspectapedia.com/hazmat/In-Flight-CO2-Exposure-Implications-Law-NASA.pdf"
+      ]
+    },
+    {
+      "candidate": "Jugular venous flow cohort, per crew member (Marshall-Goebel et al. 2019)",
+      "status": "aggregate and figures only",
+      "why": "The open article gives group means and counts; per-crew flow grades appear only in Figure 3 and videos. Used as context in iss-ijv-thrombosis-anticoagulant-supply.",
+      "urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC6902784/"
+      ]
+    },
+    {
+      "candidate": "Inspiration4 blood data (OSDR OSD-569 CBC, OSD-575 metabolic panel)",
+      "status": "public data, no documented clinical outcome",
+      "why": "The measurements are public and are stored by the crew-physiology curation, but no published clinical event (a diagnosis, symptom or treatment tied to a value) was found to replay toward.",
+      "urls": [
+        "https://osdr.nasa.gov/bio/repo/data/studies/OSD-569",
+        "https://osdr.nasa.gov/bio/repo/data/studies/OSD-575"
+      ]
+    },
+    {
+      "candidate": "HERA analog missions (sleep, actigraphy, conflict, performance)",
+      "status": "restricted",
+      "why": "HERA subject data are human research data released through LSDA under the same review process; no public per-subject sleep series with a documented outcome was found.",
+      "urls": [
+        "https://nlsp.nasa.gov/data-request-guidelines"
+      ]
+    },
+    {
+      "candidate": "NASA Twins Study per-subject data (Garrett-Bakelman et al. 2019)",
+      "status": "restricted",
+      "why": "Individual data of an identifiable astronaut pair; access follows the LSDA and LSAH attributable-data process.",
+      "urls": [
+        "https://nlsp.nasa.gov/data-request-guidelines"
+      ]
+    },
+    {
+      "candidate": "Apollo 15 arrhythmia ECG and in-flight potassium",
+      "status": "not public as data",
+      "why": "Biomedical Results of Apollo prints the events, times and approximate heart rates and shows ECG strips as a figure; no sampled ECG or in-flight electrolytes are published. Built as qualitative case apollo15-cardiac-arrhythmia-potassium.",
+      "urls": [
+        "https://ntrs.nasa.gov/citations/19760005580"
+      ]
+    },
+    {
+      "candidate": "September 2017 solar event: documented ISS crew action",
+      "status": "not found",
+      "why": "Berger et al. 2018 report dose, not a shelter order or other crew action; no NASA source found that documents one. The case asserts the watch level only.",
+      "urls": [
+        "https://ntrs.nasa.gov/citations/52387849917688"
+      ]
+    },
+    {
+      "candidate": "In-flight kidney stone or decompression sickness with preceding measurements",
+      "status": "not found",
+      "why": "No public NASA case report with the measurements that preceded the event was found in this pass.",
+      "urls": []
+    }
+  ]
+}

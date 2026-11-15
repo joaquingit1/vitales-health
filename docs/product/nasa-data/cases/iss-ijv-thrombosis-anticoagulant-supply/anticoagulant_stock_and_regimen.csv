@@ -1,0 +1,8 @@
+item,day_after_diagnosis,medicine,quantity,value,unit_ucum,unit_as_printed,source,verbatim_quote
+onboard_stock,0,enoxaparin,vials on board,20,{vial},vials,nejm2020,"Twenty vials containing 300 mg of enoxaparin each were available in the pharmacy of the space station, but no anticoagulation-reversal agent was available."
+onboard_stock_per_vial,0,enoxaparin,amount per vial,300,mg,mg,nejm2020,"Twenty vials containing 300 mg of enoxaparin each were available in the pharmacy of the space station, but no anticoagulation-reversal agent was available."
+dose_start,0,enoxaparin,daily dose per body mass,1.5,mg/kg/d,mg per kilogram once daily,nejm2020,Treatment with enoxaparin at a dose of 1.5 mg per kilogram of body weight once daily was started;
+dose_reduced,33,enoxaparin,daily dose per body mass,1,mg/kg/d,mg per kilogram once daily,nejm2020,the dose was reduced to 1 mg per kilogram once daily after 33 days to extend therapy until oral apixaban could be delivered to the space station with a supply spacecraft.
+switch,42,apixaban,dose,5,mg,mg twice daily,nejm2020,"Transition to apixaban at a dose of 5 mg twice daily occurred 42 days after the diagnosis of venous thrombosis,"
+apixaban_reduced,about 90 (printed: '3 months'),apixaban,dose,2.5,mg,mg twice daily,nejm2020,and the dose was reduced to 2.5 mg twice daily 3 months after diagnosis.
+delivered_reversal,,protamine; prothrombin complex concentrate,delivered by supply spacecraft,,,,nejm2020,Protamine and prothrombin complex concentrate were also sent to the space station.

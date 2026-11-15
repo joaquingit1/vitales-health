@@ -19,7 +19,7 @@ This package is the working plan for the event, covering the expanded assessment
 5. [design/interaction-prototype.html](design/interaction-prototype.html): the visual direction as a working prototype, with the point-cloud body map, Today, Habitat, Routine, warnings and Someone needs help, in a six-act walkthrough.
 6. [condition-browser.html](condition-browser.html): NASA's 119 modeled conditions, with what would confirm each one and whether this kit can.
 7. [DEMO-CONDITIONS.md](DEMO-CONDITIONS.md): the worked condition entries the demo relies on.
-8. [NASA-SOURCES.md](NASA-SOURCES.md): every NASA document and dataset from the research: the ones the product uses and what each does, the NASA data in [nasa-data/](nasa-data/eda_rr1_telemetry.csv), and the full catalog of 580 documents.
+8. [NASA-SOURCES.md](NASA-SOURCES.md): every NASA document and dataset from the research: the ones the product uses and what each does, the NASA data in [nasa-data/](nasa-data/README.md), and the full catalog of 580 documents.
 
 Every Markdown document also has a generated web version, linked from [the reading guide](index.html).
 
@@ -52,7 +52,7 @@ Every Markdown document also has a generated web version, linked from [the readi
 - `assessment-families.csv` / `.json`: 51 planning families, including a generic review fallback.
 - `tool-catalog.json`: 23 tool interface sketches; nested schemas belong in the TDDs.
 - `sources.csv`: the source registry, with what each source does in the product.
-- `nasa-data/`: the NASA cabin telemetry (Rodent Research-1, 2014) and radiation sample, unchanged, with provenance.
+- `nasa-data/`: the NASA data the product replays, one folder per category (habitat environment, radiation and the others), each file unchanged from its download and with its provenance; [nasa-data/README.md](nasa-data/README.md) lists every dataset and its consumers.
 - `diagrams/`: editable Mermaid and shareable SVG diagrams.
 
 ## Status and limitations

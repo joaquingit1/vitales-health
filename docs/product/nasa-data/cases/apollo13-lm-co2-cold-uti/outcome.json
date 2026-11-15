@@ -1,0 +1,109 @@
+{
+  "case_id": "apollo13-lm-co2-cold-uti",
+  "case_type": "qualitative",
+  "case_type_reason": "The report prints a peak, a duration and ranges, not a time series. Tests can assert the warning level reached from those values and the documented outcome, not timing to the minute.",
+  "title": "Apollo 13 lifeboat: CO2 up to an indicated 14.9 mm Hg, a cold cabin, rationed water, then fatigue and a urinary tract infection",
+  "environment_id": "transit",
+  "input_data": [
+    {
+      "path": "apollo13_mission_report_values.csv",
+      "use": "CO2 peak, duration above 7.6 mm Hg, cabin temperature, water and sleep values with page references"
+    }
+  ],
+  "documented_outcome": [
+    {
+      "quote": "The carbon dioxide level was above 7.6 mm Hg for only a 4-hour period, and no adverse physiological effects or degradation in crew performance resulted from this elevated concentration.",
+      "source": "a13mr",
+      "location": "Section 9.2.2 Cabin Environment, printed page 9-3, PDF page 74 (OCR reads '7.6ram Hg')"
+    },
+    {
+      "quote": "With ground instructions, a system was constructed which attached a command module lithium hydroxide cartridge to each of two lunar module suit hoses.",
+      "source": "a13mr",
+      "location": "Section 8, printed page 8-13, PDF page 67"
+    },
+    {
+      "quote": "These physical examinations were normal, although all crewmen were extremely fatigued and the Lunar Module Pilot had a urinary tract infection.",
+      "source": "a13mr",
+      "location": "Section 10 (postflight), printed page 10-1, PDF page 78"
+    },
+    {
+      "quote": "A urinary tract infection in one of the crewmen could have resulted in a serious inflight illness if the mission had lasted 24 hours longer. During the return flight following the inflight accident, the combined stresses of cold, dehydration (caused by voluntary rationing of water), and prolonged wearing of the urine collecting device (UCD) were contributing factors.",
+      "source": "sp368",
+      "location": "Section II Chapter 1, printed pages 70 to 71, PDF pages 73 to 74 (the sentence runs across a page break and a footnote)"
+    },
+    {
+      "quote": "The Lunar Module Pilot suffered an acute pseudomonas urinary tract infection which required two weeks of antibiotic therapy to resolve.",
+      "source": "sp368",
+      "location": "Section II Chapter 1, PDF page 81"
+    }
+  ],
+  "onset_relative_to_data": "Oxygen tank incident at about 56 hours ground elapsed time (report section 9.2.3); lunar module used from about 58 hours; CO2 peak during lunar module cartridge use, before the improvised arrangement (exact time not printed). The urinary tract infection was diagnosed at the postflight examination after splashdown; its in-flight onset is not documented.",
+  "expected_product_output": [
+    {
+      "hazard_id": "co2",
+      "level": "act",
+      "reason": "Any one-hour average above 3 mm Hg; the documented indicated peak was 14.9 mm Hg and CO2 was above 7.6 mm Hg for about 4 hours. The act guidance 'switches on extra scrubbing' matches the documented improvised scrubber."
+    },
+    {
+      "hazard_id": "co2",
+      "level_not_expected": "emergency",
+      "reason": "The emergency rule needs confusion, severe breathlessness or a person hard to wake; the report documents no adverse physiological effects."
+    },
+    {
+      "hazard_id": "thermal_humidity",
+      "level": "watch or act depending on humidity",
+      "reason": "54 to 60 degF is 12.2 to 15.6 degC, below the 20 to 25 degC comfort zone and below the 18 degC corner of the health limits zone; humidity is not printed, so the zone cannot be placed exactly."
+    },
+    {
+      "hazard_id": "circadian_light",
+      "level": "watch",
+      "reason": "Short sleep: 11 to 19 hours total per crewman for the rest of the mission after the incident."
+    },
+    {
+      "condition_id": "ICL117",
+      "condition": "URINARY TRACT INFECTION",
+      "role": "Documented postflight diagnosis. The product records it and may prompt fluids and a symptom check from the low water intake and cold; it must not claim to detect or diagnose it from these inputs."
+    }
+  ],
+  "consumers": [
+    {
+      "epic": "E23/E24",
+      "use": "CO2 act and thermal warnings"
+    },
+    {
+      "epic": "E32",
+      "use": "Consumable scrubber cartridges and water rationing"
+    },
+    {
+      "epic": "E28",
+      "use": "Onboard plan for scrubber failure with an improvised substitute"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenario"
+    }
+  ],
+  "is_not": "Not individual vital signs; Apollo biomedical telemetry for this period is not in the public report.",
+  "sources": {
+    "a13mr": {
+      "title": "Apollo 13 Mission Report (MSC-02680), September 1970",
+      "ntrs_record": "https://ntrs.nasa.gov/citations/19710003598",
+      "url": "https://ntrs.nasa.gov/api/citations/19710003598/downloads/19710003598.pdf",
+      "bytes_of_copy_read": 2588172,
+      "sha256_of_copy_read": "f6941eaeabf8d611d3da88853923d7e85a8f578c577b02b7e65ba9d92bb54988",
+      "text_note": "Scanned report; text read with pdftotext from the NTRS OCR layer. Where the OCR garbles a character the quote marks it as [OCR: ...].",
+      "is_nasa": "NASA",
+      "catalog_id": "N35"
+    },
+    "sp368": {
+      "title": "Biomedical Results of Apollo, NASA SP-368 (1975), Section II Chapter 1, Clinical Aspects of Crew Health, W. Royce Hawkins and John F. Zieglschmid",
+      "ntrs_record": "https://ntrs.nasa.gov/citations/19760005580",
+      "url": "https://ntrs.nasa.gov/api/citations/19760005580/downloads/19760005580.pdf",
+      "bytes_of_copy_read": 103914217,
+      "sha256_of_copy_read": "4313d75619c81d781a8adbf42ddec58a71b26ecb7c704b754fc8a5b8a1d306de",
+      "text_note": "Scanned book, 579 PDF pages; text read from the NTRS OCR layer, word spacing restored when quoting.",
+      "is_nasa": "NASA",
+      "catalog_id": "N36"
+    }
+  }
+}

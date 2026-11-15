@@ -1,0 +1,67 @@
+{
+  "source_url": "https://visualization.osdr.nasa.gov/radlab/api/?spacecraft=ISS&instrument=DosTel&timestamp%3E=2022-04-01T23%3A00&timestamp%3C2022-04-02T01%3A05&absorbed_dose_rate&module&instrument_family&format=csv",
+  "documentation": "https://visualization.osdr.nasa.gov/radlab/gui/data-api/",
+  "retrieved_at_utc": "2026-11-14T02:51:57.523759+00:00",
+  "bytes": 14412,
+  "sha256": "67b2faab53ad1427f34e75933113c09f6a0542cc07334bbe1033ed9562eb9631",
+  "provenance": "REPLAY; instrument environmental dose rate, not individual effective dose or diagnosis",
+  "preprocessing": "None; downloaded CSV response as supplied",
+  "absorbed_dose_rate_units": "microgray/hour per API documentation",
+  "file": "radlab_dostel_sample.csv",
+  "catalog_id": "N20",
+  "mission": "International Space Station",
+  "instrument": "DOSTEL family instruments in the Columbus module (DosTel1, DosTel2)",
+  "rows": 180,
+  "time_span": {
+    "first": "2022-04-01T23:00:00",
+    "last": "2022-04-02T01:04:40"
+  },
+  "timestamp_timezone": "Not stated by the API; not asserted.",
+  "columns": {
+    "timestamp": {
+      "unit": null,
+      "description": "ISO 8601 date and time, no offset"
+    },
+    "instrument_id": {
+      "unit": null,
+      "description": "Instrument ID"
+    },
+    "absorbed_dose_rate": {
+      "unit": "uGy/h",
+      "description": "Absorbed dose rate, microgray per hour (API documentation)"
+    },
+    "instrument": {
+      "unit": null,
+      "description": "Instrument name"
+    },
+    "instrument_family": {
+      "unit": null,
+      "description": "Instrument family"
+    },
+    "module": {
+      "unit": null,
+      "description": "ISS module"
+    },
+    "spacecraft": {
+      "unit": null,
+      "description": "Always ISS"
+    }
+  },
+  "license": "US Government work. NASA material is generally not subject to copyright in the United States (NASA media usage guidelines, https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA as the source; no NASA logo or insignia is used (NASA-SOURCES.md section 4).",
+  "is_not": [
+    "An instrument's absorbed dose rate at a fixed location, not any person's dose, effective dose or diagnosis.",
+    "Two hours on a quiet day; the solar particle event weeks are in radlab_iss_2017-09_spe.csv."
+  ],
+  "consumers": [
+    {
+      "epic": "E23",
+      "component": "simulators/habitat radiation feed",
+      "use": "Short REPLAY sample for the radiation channel ingest."
+    },
+    {
+      "epic": "E21",
+      "component": "contract examples",
+      "use": "The contract example series-rad-replay is computed from this file, so it stays unchanged."
+    }
+  ]
+}

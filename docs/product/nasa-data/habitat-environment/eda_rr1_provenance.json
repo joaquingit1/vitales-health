@@ -119,5 +119,65 @@
     "eda_rr1_payload.json": "edf8f9eca1ecd6c79cc6c911a5db33cac2e6e757f57f0aa87d9ac2d7446c41db",
     "eda_rr1_telemetry.csv": "2d03645b927eae08b275be09ee168b829ac647c0db608ba08cda5e6af494b787",
     "eda_rr1_source.html": "d7284e1d82a9ca6fe56670fa7ac48fcff4fb361c4f6a6025ede7087352a7c0aa"
-  }
+  },
+  "catalog_id": "N02",
+  "file": "eda_rr1_telemetry.csv",
+  "bytes": 566212,
+  "sha256": "2d03645b927eae08b275be09ee168b829ac647c0db608ba08cda5e6af494b787",
+  "documentation": [
+    "https://osdr-tutorials.readthedocs.io/en/latest/pages/guides/environmental_data_application.html",
+    "https://visualization.osdr.nasa.gov/eda/static/js/telemetry_plots.js"
+  ],
+  "columns": {
+    "time": {
+      "unit": null,
+      "description": "Source string without time zone"
+    },
+    "temperature_iss": {
+      "unit": "Cel",
+      "description": "ISS channel temperature"
+    },
+    "rh_iss": {
+      "unit": "%",
+      "description": "ISS channel relative humidity"
+    },
+    "co2_iss": {
+      "unit": "[ppm]",
+      "description": "ISS channel CO2"
+    },
+    "temperature_ground": {
+      "unit": "Cel",
+      "description": "Ground control chamber temperature"
+    },
+    "rh_ground": {
+      "unit": "%",
+      "description": "Ground control chamber relative humidity"
+    },
+    "co2_ground": {
+      "unit": "[ppm]",
+      "description": "Ground control chamber CO2"
+    }
+  },
+  "license": "US Government work. NASA material is generally not subject to copyright in the United States (NASA media usage guidelines, https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA as the source; no NASA logo or insignia is used (NASA-SOURCES.md section 4).",
+  "is_not": [
+    "Another mission's cabin in 2014, never a crew member's exposure or a paired medical case.",
+    "ppm, not mmHg: converting needs cabin pressure, which the file does not have (NASA-SOURCES.md section 2 states the 760 mmHg assumption)."
+  ],
+  "consumers": [
+    {
+      "epic": "E23",
+      "component": "simulators/habitat CO2, temperature and humidity feeds",
+      "use": "Primary REPLAY profile for the CO2 channel; contract examples reading-co2-replay and series-co2-replay are computed from this file."
+    },
+    {
+      "epic": "E24",
+      "component": "CO2 warning rules",
+      "use": "Positive case: the one-hour mean CO2 reaches 4,606 ppm (3.50 mmHg at an assumed 760 mmHg), above the 3 mmHg one-hour limit, so the CO2 warning must fire (PRD section 1.4)."
+    },
+    {
+      "epic": "E21",
+      "component": "eval/scenarios and the demo replay clock",
+      "use": "The demo replay clock is 2014-10-07 15:36, where the one-hour mean over the twelve five-minute samples is 4,606 ppm (PRD, VALIDATION.md, DEMO-CONDITIONS.md)."
+    }
+  ]
 }

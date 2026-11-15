@@ -1,0 +1,84 @@
+{
+  "case_id": "iss-ijv-thrombosis-anticoagulant-supply",
+  "case_type": "qualitative",
+  "case_type_reason": "The supply arithmetic needs the astronaut's body weight, which is not public, and the flow data of the cohort are published only as aggregate counts and figures.",
+  "title": "ISS internal jugular vein thrombosis: enoxaparin stock stretched until apixaban arrived",
+  "environment_id": "station_leo",
+  "input_data": [
+    {
+      "path": "anticoagulant_stock_and_regimen.csv",
+      "use": "Stock (20 vials of 300 mg), dose per kg, the day-33 reduction and the day-42 switch"
+    }
+  ],
+  "documented_outcome": [
+    {
+      "quote": "Approximately 2 months into an International Space Station mission, obstructive left internal jugular venous thrombosis was suspected in an astronaut during an ultrasound examination that was performed as part of a vascular research study. The astronaut reported no headache or worsening of the facial plethora that is common in conditions of weightlessness.",
+      "source": "nejm2020",
+      "location": "Letter, paragraph 1"
+    },
+    {
+      "quote": "the dose was reduced to 1 mg per kilogram once daily after 33 days to extend therapy until oral apixaban could be delivered to the space station with a supply spacecraft.",
+      "source": "nejm2020",
+      "location": "Letter, paragraph 2"
+    },
+    {
+      "quote": "a limited pharmacy in which long-term anticoagulation is not supported, syringes are a limited commodity, and drawing liquids from vials is a significant challenge because of surface-tension effects.",
+      "source": "nejm2020",
+      "location": "Letter, paragraph 4"
+    },
+    {
+      "quote": "Furthermore, stagnant or reverse flow in the IJV was observed in 6 crew members (55%) on approximate flight day 50. Notably, 1 crew member was found to have an occlusive IJV thrombus, and a potential partial IJV thrombus was identified in another crew member retrospectively.",
+      "source": "jama2019",
+      "location": "Abstract, Results"
+    }
+  ],
+  "onset_relative_to_data": "Thrombosis found about 2 months into the mission (flight day 50 in the cohort paper) by a research ultrasound, without symptoms. Day 0 of the regimen file is the diagnosis.",
+  "expected_product_output": [
+    {
+      "epic": "E32",
+      "output": "A supply warning that 20 x 300 mg of enoxaparin at 1.5 mg/kg/d does not last until the next resupply for the crewman's weight, and a prompt for the weight when it is missing (no default weight, rule 5). The documented response is a dose reduction on day 33 and resupply of apixaban by day 42."
+    },
+    {
+      "condition_id": "ICL119",
+      "condition": "VENOUS THROMBOEMBOLISM",
+      "role": "Documented diagnosis by ultrasound read by radiologists on Earth. With no symptoms, the product has no trigger of its own; the case is not a detection test."
+    },
+    {
+      "kit_map": "No anticoagulation-reversal agent on board at diagnosis (documented); the kit map should show it as not available here."
+    }
+  ],
+  "consumers": [
+    {
+      "epic": "E32",
+      "use": "Medicine supply forecast"
+    },
+    {
+      "epic": "E28",
+      "use": "Onboard plan"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenario"
+    }
+  ],
+  "is_not": "Not individual flow or ultrasound data (restricted). Not a protocol: the letter describes one decision made with specialists on the ground.",
+  "sources": {
+    "nejm2020": {
+      "title": "Venous Thrombosis during Spaceflight, Aunon-Chancellor SM, Pattarini JM, Moll S, Sargsyan A, N Engl J Med 2020;382:89-90 (letter)",
+      "url": "https://www.nejm.org/doi/full/10.1056/NEJMc1905875",
+      "pubmed": "https://pubmed.ncbi.nlm.nih.gov/31893522/",
+      "affiliations": "Louisiana State University Health Science Center; NASA Johnson Space Center; University of North Carolina School of Medicine; KBR, Houston (PubMed record)",
+      "license": "Copyright NEJM; short quotations only",
+      "is_nasa": "Journal letter with a NASA JSC author; not a NASA publication",
+      "catalog_id": "N42"
+    },
+    "jama2019": {
+      "title": "Assessment of Jugular Venous Blood Flow Stasis and Thrombosis During Spaceflight, Marshall-Goebel K, Laurie SS, Alferova IV, et al., JAMA Network Open 2019;2(11):e1915011",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6902784/",
+      "doi": "10.1001/jamanetworkopen.2019.15011",
+      "license": "CC BY (Europe PMC record)",
+      "is_nasa": "NASA-funded study with NASA authors; journal article, not a NASA publication",
+      "catalog_id": "N41"
+    }
+  }
+}

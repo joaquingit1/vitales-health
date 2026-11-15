@@ -1,0 +1,24 @@
+{
+  "help_sha256": {
+    "up": "b7f4b71b0b9532dbf2eb1fe2a64140fef1a790ba89fbe10349d6de425d497ff1",
+    "delayed": "b7f4b71b0b9532dbf2eb1fe2a64140fef1a790ba89fbe10349d6de425d497ff1",
+    "down": "b7f4b71b0b9532dbf2eb1fe2a64140fef1a790ba89fbe10349d6de425d497ff1"
+  },
+  "ground_message_sha256": {
+    "up": "a2eb46198a94c34ae17c5403463c5a45c8bafd185bbc6d1d93877601ff2c2dbd",
+    "delayed": "a2eb46198a94c34ae17c5403463c5a45c8bafd185bbc6d1d93877601ff2c2dbd",
+    "down": "1bc02216c8b54038780ef31153ae5982b45cf87137bee45d5ffc74a39fcffad5"
+  },
+  "permitted_differences": [
+    "leaves_at",
+    "status_text"
+  ],
+  "observed_differences": {
+    "up": [],
+    "delayed": [],
+    "down": [
+      "leaves_at",
+      "status_text"
+    ]
+  }
+}
