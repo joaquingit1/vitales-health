@@ -345,7 +345,7 @@ def test_a_failed_loop_pass_is_logged_loudly_without_record_text(
     with caplog.at_level("ERROR", logger="crew_health.camera"):
         loop._run()  # noqa: SLF001
     assert len(passes) == 1
-    assert [r.getMessage() for r in caplog.records] == [
+    assert [r.getMessage() for r in caplog.records if r.name == "crew_health.camera"] == [
         "camera link pass failed: RuntimeError"
     ]  # no record text
 
