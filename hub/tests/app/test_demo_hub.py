@@ -240,7 +240,9 @@ def test_the_icl10_plan_shows_real_availability_and_the_ground_line(served: Serv
     assert isinstance(review["who_can"], list) and "ilya" in {p["person_id"] for p in review["who_can"]}
     # Nobody has a recorded pulse check practice yet: the step waits for a skill holder, it is not "Unknown".
     assert steps["icl10_pulse_by_crewmate"]["availability"] == "needs_skill_holder"
-    ground = next(s for s in plan["stages"] if s["stage_id"] == "ground_log")  # type: ignore[union-attr]
+    stages = plan["stages"]
+    assert isinstance(stages, list)
+    ground = next(s for s in stages if s["stage_id"] == "ground_log")
     assert ground["link_text"]
 
 
