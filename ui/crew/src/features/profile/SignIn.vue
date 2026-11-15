@@ -7,7 +7,8 @@ import { copy } from "../../design/copy";
 import SourceWord from "../../design/SourceWord.vue";
 import { ApiProblem, CREW_API, type CrewApi } from "../../shell/api/client";
 import ContextBar from "../../shell/context/ContextBar.vue";
-import { linkSimulated, type GroundLink } from "../../shell/context/missionContext";
+import { linkSimulated, type GroundLink, type MissionContext } from "../../shell/context/missionContext";
+import { linkLine } from "../today/groundLink";
 import { SESSION_LOCK, STATION_HEADING_ID } from "../identity/sessionLock";
 import { StationUnpaired, useStation } from "../identity/station";
 import { KIT_STATES, STATE_MK, type KitMapView } from "../kit/kitMap";
@@ -31,7 +32,10 @@ const pairFailed = ref(false);
 const crew = ref<CrewMember[] | null>(null);
 const rosterFailed = ref(false);
 const kit = ref<KitMapView | null>(null);
+/* the ground link and hub time come from the context bar's live read (every few seconds), so the Habitat line
+   turns with the top bar when the link or the environment changes */
 const link = ref<GroundLink | null>(null);
+const hubNow = ref(Number.NaN);
 const assistant = ref<string | null>(null);
 
 const chosen = ref<string | null>(null);
@@ -72,15 +76,11 @@ async function load(): Promise<void> {
     (value) => (kit.value = value),
     () => (kit.value = null),
   );
-  const linkRead = station.get<GroundLink>("/v1/ground-link").then(
-    (value) => (link.value = value),
-    () => (link.value = null),
-  );
   const assistantRead = station.get<AssistantStatus>("/v1/assistant/status").then(
     (value) => (assistant.value = value.state),
     () => (assistant.value = null),
   );
-  await Promise.all([roster, kitRead, linkRead, assistantRead]);
+  await Promise.all([roster, kitRead, assistantRead]);
 }
 
 async function pair(): Promise<void> {
@@ -165,11 +165,16 @@ async function submit(): Promise<void> {
   }
 }
 
+function onContext(context: MissionContext): void {
+  link.value = context.link;
+  hubNow.value = context.serverTime;
+}
+
 const linkLineText = computed(() => {
   if (link.value === null) {
     return copy("designed_states.unknown");
   }
-  return copy(`ground_link_words.${link.value.status}`);
+  return linkLine(link.value, hubNow.value);
 });
 </script>
 
@@ -180,6 +185,7 @@ const linkLineText = computed(() => {
       :read="read"
       :help-to="null"
       @help="askHelp"
+      @context="onContext"
     />
     <main class="home-grid">
       <section

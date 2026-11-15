@@ -80,6 +80,10 @@ const landmark = computed(() => current.value?.landmark_label ?? shown.value.map
 const region = computed(() => current.value?.body_region ?? null);
 const ref0 = computed(() => check.value?.camera_reference ?? null);
 const anotherWay = ref<string | null>(null);
+/* The plan view's own step availability (getPlan): when no available crewmate holds the step's skill, the hub
+   renders why from ui-copy plan_lines.needs_skill_holder ("Needs a crewmate with Pulse check practice"). */
+type AnotherWayStep = { cannot_replace_text: string | null; availability?: string; availability_text?: string | null };
+const noHelperReason = ref<string | null>(null);
 
 /**
  * `id` is a plan run (prun_: the subject's view, D9: the helper row and Teach) or a guided check (gck_: the
@@ -103,11 +107,13 @@ async function load(): Promise<void> {
   }
   const roles = await proposedRoles(runId.value);
   helper.value = roles.items.find((r) => r.skill_id !== null && r.state !== "changed") ?? roles.items[0] ?? null;
-  const plan = await api.get<{ stages: { stage_id: string; label?: string; steps: { cannot_replace_text: string | null }[] }[] }>(
+  const plan = await api.get<{ stages: { stage_id: string; label?: string; steps: AnotherWayStep[] }[] }>(
     `/v1/plans/${run.value.plan_id}`,
   );
   const another = plan.stages.find((s) => s.stage_id === "check_another_way");
-  anotherWay.value = another?.steps[0]?.cannot_replace_text ?? null;
+  const first = another?.steps[0];
+  anotherWay.value = first?.cannot_replace_text ?? null;
+  noHelperReason.value = first?.availability === "needs_skill_holder" ? (first.availability_text ?? null) : null;
   anotherLabel.value = another?.label ?? "";
   const existing = run.value.steps.find((s) => s.stage_id === "check_another_way" && s.guided_check_id)?.guided_check_id;
   if (existing) await open(existing);
@@ -293,7 +299,7 @@ onBeforeUnmount(() => {
         class="result"
         data-test="no-helper"
       >
-        <span class="r-num word">{{ copy("designed_states.not_available_here") }}</span>
+        <span class="r-num word">{{ noHelperReason ?? copy("designed_states.not_available_here") }}</span>
       </div>
 
       <template v-if="!check">

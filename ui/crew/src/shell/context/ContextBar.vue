@@ -13,7 +13,7 @@ import { environmentIcon, linkSimulated, readMissionContext, type MissionContext
  * anything on screen is not live, a "Simulated inputs" marker that says which inputs are simulated.
  */
 const props = defineProps<{ read: Read; who?: string; homeTo?: string; helpTo?: string | null }>();
-const emit = defineEmits<{ help: []; signOut: [] }>();
+const emit = defineEmits<{ help: []; signOut: []; context: [MissionContext] }>();
 const context = ref<MissionContext | null>(null);
 const failed = ref(false);
 const simCount = ref(0);
@@ -34,6 +34,8 @@ async function refresh(): Promise<void> {
   try {
     context.value = await readMissionContext(props.read);
     failed.value = false;
+    /* the screen under the bar shows the same read (the station's Habitat line), never a second, older one */
+    emit("context", context.value);
   } catch {
     failed.value = true;
   }
