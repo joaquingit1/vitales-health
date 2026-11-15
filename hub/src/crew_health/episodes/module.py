@@ -149,12 +149,13 @@ class Kernel:
         return self.current().view(uow, viewer, episode_id)
 
 
-def _bind(live: Live, api: EpisodeApi) -> Callable[[Resolver], None]:
+def _bind(live: Live, api: EpisodeApi, words_check: EpisodeWordsCheck) -> Callable[[Resolver], None]:
     def bind(resolver: Resolver) -> None:
         settings = resolver.require(HubSettings)  # type: ignore[type-abstract]
         rules = resolver.optional(EpisodeRulesSource)
         if rules is None:
             return
+        words_check.enabled = True
         limits = Limits(**{key: settings.integer("episodes." + key) for key, _, _, _ in _SETTINGS})
         providers = Providers(
             authorization=resolver.optional(ports.RecordAuthorization),  # type: ignore[type-abstract]
@@ -203,7 +204,8 @@ def _bind(live: Live, api: EpisodeApi) -> Callable[[Resolver], None]:
 def register(registry: Registry) -> None:
     live = Live()
     api = EpisodeApi()
-    registry.loader_check(EpisodeWordsCheck())
+    words_check = EpisodeWordsCheck(enabled=False)
+    registry.loader_check(words_check)
     for spec in setting_specs():
         registry.setting(spec)
     for prefix in ("epi", "ack", "rev", "rop", "res", "tsk", "etl", "efx"):
@@ -314,5 +316,5 @@ def register(registry: Registry) -> None:
 
     registry.scheduler_handler("episodes.maintenance", tick)
     registry.on_startup(StartupPhase.STATE_SWEEP, start)
-    registry.bind("episodes", _bind(live, api))
+    registry.bind("episodes", _bind(live, api, words_check))
     registry.router(build_router(api))
