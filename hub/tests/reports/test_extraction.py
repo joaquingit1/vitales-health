@@ -6,7 +6,7 @@ from dataclasses import replace
 from decimal import Decimal
 
 import pytest
-from .reports_harness import AT, UNITS, numeric, station, text  # noqa: F401
+from reports_harness import AT, UNITS, numeric, station, text  # noqa: F401
 
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.testing import MemoryIds

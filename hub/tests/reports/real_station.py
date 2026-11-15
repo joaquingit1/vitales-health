@@ -270,7 +270,9 @@ def build(tmp: Path, *, in_process_parser: bool = True, catalog: dict[str, objec
         health=ComponentHealthState(maximum=64),
         clock=clock,
     )
-    handler = _Noop()
+    from crew_health.reports.module import _NoopHandler
+
+    handler = _NoopHandler()
     tasks = TaskService(
         settings=db.settings,
         repository=TaskRepository(),

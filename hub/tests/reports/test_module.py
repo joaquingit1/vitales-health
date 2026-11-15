@@ -9,7 +9,7 @@ from typing import cast
 import pytest
 from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
-from .real_station import OWNER, build, parse_in_process
+from real_station import OWNER, build, parse_in_process
 
 from crew_health.app.registry import DeclarationRegistry
 from crew_health.kernel.audit import AuditPolicy
@@ -114,9 +114,8 @@ def test_without_the_private_store_every_report_operation_is_unavailable_and_not
         assert view.connection.rows("SELECT count(*) FROM reports_report", (), limit=1) == ((0,),)
 
 
-def test_with_every_provider_the_late_binding_composes_the_workflows(tmp_path: Path) -> None:
-    rig = build(tmp_path)
-    registry = declared()
+def provide_all(registry: DeclarationRegistry, rig, health: MemoryHealth) -> None:  # type: ignore[no-untyped-def]
+    """Every provider the late binding needs, backed by the real rig."""
     provided: dict[type, object] = {
         HubSettings: rig.settings,
         IdFactory: rig.db.ids,
@@ -134,10 +133,16 @@ def test_with_every_provider_the_late_binding_composes_the_workflows(tmp_path: P
         RecordOrigin: _Routing(),
         TaskRunner: rig.tasks,
         TaskQueue: rig.tasks,
-        HealthState: MemoryHealth(maximum=8),
+        HealthState: health,
     }
     for port, value in provided.items():
         registry.provide(port, lambda _, value=value: value)  # type: ignore[misc]
+
+
+def test_with_every_provider_the_late_binding_composes_the_workflows(tmp_path: Path) -> None:
+    rig = build(tmp_path)
+    registry = declared()
+    provide_all(registry, rig, MemoryHealth(maximum=8))
     registry.resolve()
     (router,) = [r for r in registry.declarations["routers"].values() if isinstance(r, APIRouter)]
     app = FastAPI()
@@ -150,7 +155,7 @@ def test_with_every_provider_the_late_binding_composes_the_workflows(tmp_path: P
         return await call_next(request)
 
     app.include_router(router)
-    from . import builders
+    import builders
 
     created = TestClient(app).post(
         "/v1/reports",

@@ -221,7 +221,8 @@ def _literal(content: str, pos: int) -> tuple[str, int]:
 _TOKEN = re.compile(r"\(|\bT\*|\bTd\b|\bTD\b|\bET\b|\bTj\b|\bTJ\b|\bBT\b")
 
 
-def _page_text(content: bytes, limit: int) -> str:
+def _page_text(content: bytes, limit: int) -> str | None:
+    """The page text, or None when it exceeds the bound: a cut page is never passed on as the whole page."""
     text = content.decode("latin-1")
     lines: list[str] = []
     current: list[str] = []
@@ -240,10 +241,11 @@ def _page_text(content: bytes, limit: int) -> str:
                 lines.append("".join(current))
                 current = []
         if sum(map(len, lines)) > limit:
-            break
+            return None
     if current:
         lines.append("".join(current))
-    return "\n".join(lines)[:limit]
+    joined = "\n".join(lines)
+    return joined if len(joined) <= limit else None
 
 
 _CONTENTS = re.compile(rb"/Contents\s*(\[[^\]]*\]|\d+\s+\d+\s+R)")
@@ -267,7 +269,10 @@ def pdf_pages(data: bytes, limits: ParseLimits) -> tuple[str, ...] | None:
             stream = _stream(objects.get(int(ref.group(1)), b""), limits)
             if stream is None:
                 return None
-            parts.append(_page_text(stream, limits.max_text_chars))
+            text = _page_text(stream, limits.max_text_chars)
+            if text is None:
+                return None
+            parts.append(text)
         page = "\n".join(p for p in parts if p)
         total += len(page)
         if len(pages) >= limits.max_pages or total > limits.max_text_chars:

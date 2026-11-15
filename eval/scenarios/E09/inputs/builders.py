@@ -1,6 +1,6 @@
-"""Deterministic report inputs for the E09 tests (AGENTS 4: test data lives only in eval/).
-Every file is built from bytes here, so a reviewer can read what a case contains. The clinical lines are
-labels from the example indicator catalog and values typed by the test, never taken from product code."""
+"""Deterministic report inputs for the E09 tests (AGENTS 4: test data lives only in eval/). Every file is built
+from bytes here, so a reviewer can read what a case contains. The clinical lines are labels from the example
+indicator catalog and values typed by the test, never taken from product code."""
 
 from __future__ import annotations
 

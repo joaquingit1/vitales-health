@@ -5,11 +5,11 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from . import builders
+import builders
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
-from .real_station import OWNER, Rig, build, person
+from real_station import OWNER, Rig, build, person
 
 from crew_health.reports.adapters import parsing as P
 from crew_health.reports.adapters.contained import ContainedParser, ParserBounds, ParserUnavailable
