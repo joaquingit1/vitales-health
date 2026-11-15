@@ -62,12 +62,14 @@ def test_a_stored_engine_assessment_reaches_the_board_and_the_dose_path(st: Stat
     (pmz,) = [x for x in board["lots"] if x["lot_id"] == "lot-pmz-tab-001"]
     assert pmz["state"] == "adjust" and pmz["potency"][0]["ingredient_id"] == "promethazine"
     diagnosis = _diagnose(st, "ICL97")
-    # Compensation: the nearest whole tablet is 2.5 % from the target and the tolerance is 0, so it is refused.
-    compensated = _propose(st, diagnosis, "promethazine_25_tab")
-    assert compensated["refusal"]["code"] == "no_deliverable_amount"  # type: ignore[index]
-    # The labeled path keeps the label amount, but every limit counts it at the upper potency (E32 3.6: Acc =
-    # a * S * max(1, u)); u = 1.0117 puts one 25 mg tablet over the 25 mg per-administration maximum, so the
-    # design's own rule refuses it. Reported as a spec correction (the label maximum already covers label variation).
+    # Compensation: the nearest whole tablet is 2.5 % from the target and the tolerance is 0, so the engine takes
+    # the most tablets at or under the target (one) and states the shortfall for the officer (HZ6).
+    compensated = cast(dict[str, Any], _propose(st, diagnosis, "promethazine_25_tab"))
+    assert compensated["outcome"] == "proposal" and compensated["potency"]["path"] == "compensated"
+    assert compensated["amount"] == {"value": 1, "ucum": "{tbl}"}
+    assert "potency_shortfall" in {a["kind"] for a in compensated["alerts"]}
+    # u = 1.0117 is within USP03's 95 to 110 % range, so one 25 mg tablet counts at its labeled 25 mg on the
+    # labeled path too, under the 25 mg per-administration maximum (brief section 4, spec correction 1).
     labeled = _post(
         st,
         "/v1/dose-proposals",
@@ -78,7 +80,8 @@ def test_a_stored_engine_assessment_reaches_the_board_and_the_dose_path(st: Stat
             "client_time": CLIENT_TIME,
         },
     ).json()
-    assert labeled["refusal"]["code"] == "per_administration_max_exceeded"
+    assert labeled["outcome"] == "proposal" and labeled["potency"]["path"] == "labeled_with_estimate"
+    assert labeled["ingredients"][0]["accounting"] == {"value": 25, "ucum": "mg"}
 
 
 @pytest.mark.trace("R-E32-04")

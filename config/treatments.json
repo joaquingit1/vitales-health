@@ -59,6 +59,30 @@
       "nasa": false,
       "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=e16238dc-9292-49ac-b80f-8afeccb88bc5",
       "retrieved_on": "2026-11-14"
+    },
+    {
+      "source_id": "USP01",
+      "title": "Acetaminophen Tablets, USP-NF monograph, Definition (USP 2021 preview page)",
+      "publisher": "United States Pharmacopeia, not NASA",
+      "nasa": false,
+      "url": "https://doi.usp.org/USPNF/USPNF_M200_05_01.html",
+      "retrieved_on": "2026-11-14"
+    },
+    {
+      "source_id": "USP02",
+      "title": "Ibuprofen Tablets, USP-NF monograph, Definition (USP 2017 preview page)",
+      "publisher": "United States Pharmacopeia, not NASA",
+      "nasa": false,
+      "url": "https://doi.usp.org/USPNF/USPNF_M39890_01_01.html",
+      "retrieved_on": "2026-11-14"
+    },
+    {
+      "source_id": "USP03",
+      "title": "Promethazine Hydrochloride Tablets, USP-NF monograph, Definition (USP 2022 preview page)",
+      "publisher": "United States Pharmacopeia, not NASA",
+      "nasa": false,
+      "url": "https://doi.usp.org/USPNF/USPNF_M70170_01_01.html",
+      "retrieved_on": "2026-11-14"
     }
   ],
   "indications": [
@@ -429,6 +453,22 @@
       },
       "measuring_device": null,
       "rounding_tolerance_fraction": 0,
+      "assay_acceptance": {
+        "lower_fraction": 0.9,
+        "upper_fraction": 1.1,
+        "citations": [
+          {
+            "source_id": "USP01",
+            "locator": "Definition",
+            "quote": "Acetaminophen Tablets contain NLT 90.0% and NMT 110.0% of the labeled amount of acetaminophen"
+          },
+          {
+            "source_id": "RT22",
+            "locator": "p. 5, Wotring 550-day ISS study",
+            "quote": "All medications but one (Melatonin) found to contain API within USP guidelines (90-110%) of label claim."
+          }
+        ]
+      },
       "high_alert": false,
       "narrow_therapeutic_index": false,
       "confirm_by": "any_trained_crew",
@@ -451,6 +491,22 @@
       },
       "measuring_device": null,
       "rounding_tolerance_fraction": 0,
+      "assay_acceptance": {
+        "lower_fraction": 0.9,
+        "upper_fraction": 1.1,
+        "citations": [
+          {
+            "source_id": "USP02",
+            "locator": "Definition",
+            "quote": "Ibuprofen Tablets contain NLT 90.0% and NMT 110.0% of the labeled amount of ibuprofen"
+          },
+          {
+            "source_id": "RT22",
+            "locator": "p. 5, Wotring 550-day ISS study",
+            "quote": "All medications but one (Melatonin) found to contain API within USP guidelines (90-110%) of label claim."
+          }
+        ]
+      },
       "high_alert": false,
       "narrow_therapeutic_index": false,
       "confirm_by": "any_trained_crew",
@@ -475,6 +531,22 @@
       },
       "measuring_device": null,
       "rounding_tolerance_fraction": 0,
+      "assay_acceptance": {
+        "lower_fraction": 0.95,
+        "upper_fraction": 1.1,
+        "citations": [
+          {
+            "source_id": "USP03",
+            "locator": "Definition",
+            "quote": "Promethazine Hydrochloride Tablets contain NLT 95.0% and NMT 110.0% of the labeled amount of promethazine hydrochloride"
+          },
+          {
+            "source_id": "RT22",
+            "locator": "p. 5, Wotring 550-day ISS study",
+            "quote": "All medications but one (Melatonin) found to contain API within USP guidelines (90-110%) of label claim."
+          }
+        ]
+      },
       "high_alert": false,
       "narrow_therapeutic_index": false,
       "confirm_by": "crew_medical_officer",

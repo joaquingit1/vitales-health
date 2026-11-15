@@ -281,7 +281,7 @@
     "api/schemas/config-sensor-catalog.schema.json": "e3778838f7a083e0b38781f3170e0b576021a5728410e7b29a85b81c137ca11e",
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
-    "api/schemas/config-treatments.schema.json": "733cbd7df5ace54ff9b0656e71d8c2a06d14c074bd645416520d42056daf03cc",
+    "api/schemas/config-treatments.schema.json": "4e4ae1b8ecf70a626b573ee95cbafc3f75b5ccb9fd8a15fd9326600e5b337d45",
     "api/schemas/config-ui-copy.schema.json": "048ee63e7699e201d96a97216dd809b3bf227310547dc5decb6d39647a17ee4e",
     "api/schemas/config-warning-rules.schema.json": "a237eac14f8cc5b2bc1d3d19019847a56d07261d84e59cbec0df1eee3ac522b3",
     "api/schemas/context.schema.json": "0fd66549c0b915548ec3f89b9650f3c84e3fe72e8f5c98c1671349cf53494a2b",
@@ -644,7 +644,7 @@
     "api/schemas/config-sensor-catalog.schema.json": "e3778838f7a083e0b38781f3170e0b576021a5728410e7b29a85b81c137ca11e",
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
-    "api/schemas/config-treatments.schema.json": "733cbd7df5ace54ff9b0656e71d8c2a06d14c074bd645416520d42056daf03cc",
+    "api/schemas/config-treatments.schema.json": "4e4ae1b8ecf70a626b573ee95cbafc3f75b5ccb9fd8a15fd9326600e5b337d45",
     "api/schemas/config-ui-copy.schema.json": "048ee63e7699e201d96a97216dd809b3bf227310547dc5decb6d39647a17ee4e",
     "api/schemas/config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
     "api/schemas/config-warning-rules.schema.json": "a237eac14f8cc5b2bc1d3d19019847a56d07261d84e59cbec0df1eee3ac522b3",
@@ -774,7 +774,7 @@
     "schemas/config_sensor_catalog_schema.py": "b58e8b042a2d4594ecf1f94ba29111fa7e4a269d1c90316f3848511fe10c8e9d",
     "schemas/config_sensor_limits_schema.py": "98d142fffe5242cd57142644fb2bd1c0cd7b2b4cd18665facc928b58fee5394c",
     "schemas/config_skills_catalog_schema.py": "007a8112e4bb6a6742fd08672b660df6a1cdf0592dc0b7abac4361dbd434f0e5",
-    "schemas/config_treatments_schema.py": "f5ca9a7d4d37bcadb05f01cbbb0e57643207624a4f9710e6fd3a2fbed2f73727",
+    "schemas/config_treatments_schema.py": "7df7184ed640824b2706de4e77217d07fc2258744fd9897f97ce9166a50de21c",
     "schemas/config_ui_copy_schema.py": "9add484b1626a365e85e66cadbe396bb01c45549b8175634a99decc4672f8f39",
     "schemas/config_unit_mapping_schema.py": "7ecfcc838c6591fe59cffbf5adc27eab98cfcd5e2eb48a64a8f16de655aff27e",
     "schemas/config_warning_rules_schema.py": "02dd9d751cd566cbcceaea887f8e37942ffd411836b566cee610abb208e68cf0",
@@ -856,7 +856,7 @@
       "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
       "part-a.json": "51d6fe596f1a31bcf6e1256d4184d485d5d9ab2f51a2f66789742152aeadc468"
     },
-    "manifest_sha256": "1ff270bc444d156f47dad6111e0886b80cf262c5a41a86b4740dcabc4a6e4c89",
+    "manifest_sha256": "7248a16c1737336524df13cd1ba663d115ab60867b833cdfa77f69adc3988932",
     "traces": [
       {
         "a3": [

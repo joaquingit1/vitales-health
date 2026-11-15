@@ -31,8 +31,29 @@ that is safe to use, with every number traceable, and nothing that waits for the
    It is never applied to a `do_not_use` lot. In LIVE it applies only to products with a
    `live_compensation_authorizations` entry; otherwise the label dose is given with the estimate and the shortfall
    (owner decision R-E32-10, V104).
-6. **Accounting never undercounts.** Every limit counts `Acc_i(a) = a * S_i * max(1, u_i)`: never below the label and
-   never below the most the estimate says was delivered (E32 3.6).
+   Spec correction 2 (decided here): with a rounding tolerance of 0 and whole tablets, the nearest amount rarely
+   equals the target, and E32 3.6 refused it (`no_deliverable_amount`), so compensation never produced a dose. The
+   compensated path now takes the largest number of increments whose expected delivery at the median stays at or
+   under every target, and the `potency_shortfall` alert states the gap (HZ6, E32-T-74); it refuses only when one
+   increment already delivers more than a target. No source gives a rounding tolerance, so it stays 0 and the
+   engine never rounds up past a target.
+6. **Accounting never undercounts, and an in-specification lot is its label.** Every limit counts
+   `Acc_i(a) = a * S_i * max(1, u_i)`, never below the label (E32 3.6), with one sourced exception (spec correction
+   1, decided here): when the product carries a compendial acceptance range for its labeled amount
+   (`treatments.json` `products[].assay_acceptance`) and the lot's upper estimate `u_i` is within it, each increment
+   counts at its labeled amount. Without the exception the module refused promethazine at its NASA dose for a lot
+   whose upper estimate was 1.0117, since one 25 mg tablet then counted as 25.29 mg against the 25 mg maximum.
+   Sources, read 2026-11-14: USP01 (Acetaminophen Tablets, Definition: "NLT 90.0% and NMT 110.0% of the labeled
+   amount"), USP02 (Ibuprofen Tablets, the same range), USP03 (Promethazine Hydrochloride Tablets: "NLT 95.0% and
+   NMT 110.0%"), and RT22 p. 5, where NASA judges the flown medicines by the same yardstick ("All medications but one
+   (Melatonin) found to contain API within USP guidelines (90-110%) of label claim"). This is an inference, labeled
+   as one: no source says in so many words that a tablet within the range delivers the labeled dose. USP's General
+   Notices say the acceptance criteria "allow for analytical error, for unavoidable variations in manufacturing and
+   compounding, and for deterioration to an extent considered acceptable", and a product within its monograph range
+   meets the legal strength standard for its label (FD&C Act 501(b)). The range is a pooled lot assay, which matches
+   the engine's lot-level estimate, not a per-tablet bound. Above the range, or for a product with no sourced range
+   (`assay_acceptance: null`), the upper estimate counts as before and the refusal names the binding limit; the
+   officer's route past it is a manual administration (decision 9), recorded with every limit it breaks.
 7. **Lots are excluded synchronously.** Recalled, adversely inspected, expired and `do_not_use` lots are excluded at
    proposal and at confirmation from the hub's own records, whatever the worker's state (INV-M3).
 8. **Missing facts refuse.** An unknown allergy list, a missing context part, a missing or stale weight for a
@@ -62,5 +83,7 @@ that is safe to use, with every number traceable, and nothing that waits for the
   adding names to `ConfigName` makes `config/adapters/verification.py` require them in every release and
   `config/api/router.py` require a basis summary for each, both outside E32's paths (R-E32-12, R-E32-13 "Interim: not
   activated").
-- The potency engine runs in-process from `medicines/adapters/potency.py` through `pharmacy.pipeline.assess_inventory`
-  only; the worker child process, its memory cap and nice level (E32 5.3) remain to be built.
+- The potency engine runs in a child process (`medicines/adapters/potency_child.py`) under the pharmacy interpreter
+  named by the hub setting `medicines.engine_python`, with a deadline, a memory cap sampled inside the child, and a
+  lowered priority (E32 5.3). Runs are scheduled through E01's TaskQueue; a hub composed without one answers the
+  schedule with `CAPABILITY_UNAVAILABLE` and says why.

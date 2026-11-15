@@ -22,6 +22,9 @@ rule built from these values ships with `review_state` `draft`, so a LIVE missio
 | LBL01 | DailyMed, TYLENOL REGULAR STRENGTH (acetaminophen) tablet, Kenvue Brands, set ID 1622f694-4d63-4c56-8737-fae31f0ecfb7, published 28 May 2026 (not NASA) | Drug Facts: Directions, Liver warning, Do not use, Ask a doctor | https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1622f694-4d63-4c56-8737-fae31f0ecfb7 |
 | LBL02 | DailyMed, Ibuprofen Tablets USP (Rx), set ID 793e4b36-8208-4fa3-9f4f-9e9e72648280, revised 05/2021 (not NASA) | Dosage and Administration; Contraindications | https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=793e4b36-8208-4fa3-9f4f-9e9e72648280 |
 | LBL03 | DailyMed, Promethazine Hydrochloride Tablets USP 12.5, 25 and 50 mg (Rx), set ID e16238dc-9292-49ac-b80f-8afeccb88bc5, published 2 Nov 2026 (not NASA) | Dosage and Administration: Nausea and Vomiting; Contraindications | https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=e16238dc-9292-49ac-b80f-8afeccb88bc5 |
+| USP01 | USP-NF, Acetaminophen Tablets monograph, Definition (USP 2021 public page; not NASA) | Definition: "NLT 90.0% and NMT 110.0% of the labeled amount" | https://doi.usp.org/USPNF/USPNF_M200_05_01.html |
+| USP02 | USP-NF, Ibuprofen Tablets monograph, Definition (USP 2017 public page; not NASA) | Definition: "NLT 90.0% and NMT 110.0% of the labeled amount" | https://doi.usp.org/USPNF/USPNF_M39890_01_01.html |
+| USP03 | USP-NF, Promethazine Hydrochloride Tablets monograph, Definition (USP 2022 public page; not NASA) | Definition: "NLT 95.0% and NMT 110.0% of the labeled amount" | https://doi.usp.org/USPNF/USPNF_M70170_01_01.html |
 
 Page numbers of N18 are the checklist's own page labels (for example "6-10"), matched against its table of contents
 (MILD MOTION SICKNESS 4-38, NAUSEA/VOMITING 4-39, NOSEBLEED 4-40, PAIN RELIEF 5-3, MEDICATION SIDE EFFECTS 6-2) and its
@@ -80,6 +83,13 @@ cross-references ("see WARNING, 6-10").
     repeated, as necessary, at four- to six-hour intervals." Contraindications: "individuals known to be hypersensitive
     or to have had an idiosyncratic reaction to promethazine or to other phenothiazines". Used for the single dose in
     milligrams, which N18 gives only as tablets; the 24-hour maximum stays NASA's (item 4).
+
+15. **Compendial acceptance range (USP01 to USP03, Definition; NASA does not give one).** The tablet monographs
+    accept 90.0 to 110.0 % of the labeled amount for acetaminophen and ibuprofen tablets and 95.0 to 110.0 % for
+    promethazine hydrochloride tablets, measured on a pooled sample. NASA's RT22 (p. 5) uses the same USP range to
+    judge flown medicines but gives no dosing rule. The product counts a lot whose upper potency estimate is inside
+    the range at its labeled amount (brief decision 6); this is an inference from the range, labeled as one. The
+    public pages show the editions 2017, 2021 and 2022; a later revision behind the USP paywall cannot be ruled out.
 
 ## 1.2 Values the engine uses, with their origin
 

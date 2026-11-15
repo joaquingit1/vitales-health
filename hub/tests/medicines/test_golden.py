@@ -24,7 +24,7 @@ import pytest
 from crew_health.medicines.domain.engine import propose
 
 from .harness import NOW
-from .kit import ask, complete_context, given, part, past
+from .kit import ask, assessed, complete_context, given, lot, part, past
 
 # Hand-read source values (mg), never from configuration.
 APAP_TABLET_MG = Decimal(325)  # LBL01 product strength
@@ -35,6 +35,7 @@ APAP_COURSE_DAYS = 10  # LBL01 "more than 10 days for pain"
 IBU_DOSE_MG = Decimal(400)  # LBL02, one 400 mg tablet
 IBU_MAX_24H_MG = Decimal(3200)  # LBL02
 PMZ_DOSE_MG = Decimal(25)  # LBL03
+USP_PMZ_TABLETS = (Decimal("0.95"), Decimal("1.10"))  # USP03 "NLT 95.0% and NMT 110.0% of the labeled amount"
 PMZ_MAX_24H_MG = Decimal(100)  # N18 p. 6-10
 
 HEADACHE, SPACE_HEADACHE, MOTION_SICKNESS, EPISTAXIS = "ICL63", "ICL94", "ICL97", "ICL38"
@@ -203,3 +204,22 @@ def test_acetaminophen_already_taken_outside_the_hub_is_flagged() -> None:
     }
     assert kinds["duplicate_ingredient"] == "acknowledge"
     assert kinds["outside_medicine_overlap"] == "override_required"
+
+
+@pytest.mark.trace("T-52", "INV-M1")
+def test_promethazine_lot_within_the_usp_range_is_dosed_at_its_label() -> None:
+    """USP03: a lot with an upper estimate inside 95 to 110 % of label is a 25 mg tablet; above 110 % its
+    upper estimate counts, and one tablet passes the 25 mg per-administration maximum (LBL03)."""
+    inside = assessed("in_specification", "0.97", "1.0", str(USP_PMZ_TABLETS[1]), "promethazine")
+    ok = propose(
+        ask("promethazine_25_tab", "ICL97"),
+        given(lot_views=(lot("lot-pmz-tab-001", "promethazine_25_tab", summary=inside),)),
+    )
+    assert ok.outcome == "proposal" and ok.amount is not None and ok.amount.value == 1
+    assert ok.ingredients[0].accounting.value == PMZ_DOSE_MG
+    above = assessed("in_specification", "1.0", "1.05", "1.12", "promethazine")
+    refused = propose(
+        ask("promethazine_25_tab", "ICL97"),
+        given(lot_views=(lot("lot-pmz-tab-001", "promethazine_25_tab", summary=above),)),
+    )
+    assert refused.refusal is not None and refused.refusal.code == "per_administration_max_exceeded"

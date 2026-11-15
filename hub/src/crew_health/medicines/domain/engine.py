@@ -474,6 +474,50 @@ def _best(targets: dict[str, Decimal], per_unit: dict[str, Decimal], k_max: int)
     return best_k, best_dev
 
 
+def _short_of(
+    run: _Run,
+    targets: dict[str, Decimal],
+    effective: dict[str, Decimal],
+    k_max: int,
+    path: Path,
+    deviation: Decimal,
+) -> int:
+    """Outside the rounding tolerance. The labeled path refuses. The compensated path takes the largest amount whose
+    expected delivery stays at or under every target, and the potency_shortfall alert states the gap for the person
+    to decide (E32 HZ6, T-74); it refuses only when one increment already delivers more than a target."""
+    if path != "compensated":
+        raise run.refuse(
+            "no_deliverable_amount", f"nearest amount deviates {text(deviation)} from the target"
+        )
+    under = [k for k in range(1, k_max + 1) if all(k * effective[i] <= targets[i] for i in targets)]
+    if not under:
+        raise run.refuse(
+            "no_deliverable_amount",
+            f"one increment delivers more than the target; nearest deviates {text(deviation)}",
+        )
+    run.note("compensation_short", "computed", f"{under[-1]} increments, the most at or under every target")
+    return under[-1]
+
+
+def _upper(run: _Run, ingredient_id: str, summary: LotSummary | None, product: ProductRule) -> Decimal:
+    """max(1, u_i) for the accounting amount, except that a lot whose upper estimate stays within the product's
+    compendial acceptance range is counted at its labeled amount on either path (brief section 4: the USP monograph
+    range of the labeled amount, applied per increment); outside the range, or with no sourced range, the upper
+    estimate counts."""
+    if summary is None:
+        return ONE
+    high = summary.potency[ingredient_id].high
+    band = product.assay_acceptance
+    if band is not None and high <= band[1]:
+        run.note(
+            "label_equivalent",
+            f"treatments.json{product.pointer}/assay_acceptance",
+            f"{ingredient_id}: upper estimate {text(high)} within {text(band[0])} to {text(band[1])} of label",
+        )
+        return ONE
+    return max(ONE, high)
+
+
 @dataclass(frozen=True, slots=True)
 class _Count:
     final: int  # deliverable increments proposed
@@ -506,12 +550,11 @@ def _count(
         if path == "compensated" and summary is not None
         else nominal
     )
-    k_x, deviation = _best({i: lim.target for i, lim in limits.items()}, effective, k_max)
+    targets = {i: lim.target for i, lim in limits.items()}
+    k_x, deviation = _best(targets, effective, k_max)
     if deviation > product.rounding_tolerance_fraction:
-        raise run.refuse(
-            "no_deliverable_amount", f"nearest amount deviates {text(deviation)} from the target"
-        )
-    upper = {i: max(ONE, summary.potency[i].high) if summary is not None else ONE for i in limits}
+        k_x = _short_of(run, targets, effective, k_max, path, deviation)
+    upper = {i: _upper(run, i, summary, product) for i in limits}
     k_f = min(
         min(k_max, _floor(remaining[i][0] / (nominal[i] * upper[i]))) if remaining[i][0] >= 0 else 0
         for i in limits
