@@ -1,0 +1,77 @@
+{
+  "repo": "FreedomIntelligence/HuatuoGPT-3-9B",
+  "revision": "6870b60e54d41cfef88ab36478d9d15d4b9bd7bc",
+  "files": [
+    {
+      "name": ".gitattributes",
+      "sha256": "a0e948ca693c63e0b5139f66bd709003cbcf8bc764acb1ee687a552885c8fe2c",
+      "size_bytes": 101,
+      "downloaded": true
+    },
+    {
+      "name": "README.md",
+      "sha256": "3fbc0872006303df97ca3aff6046cd37d259f1464c22dae5654e027596228c14",
+      "size_bytes": 3126,
+      "downloaded": true
+    },
+    {
+      "name": "chat_template.jinja",
+      "sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+      "size_bytes": 7756,
+      "downloaded": true
+    },
+    {
+      "name": "config.json",
+      "sha256": "ef22a58dc1b427ce22daf19afe476b236b034ba0b57efe665358d43bbe45b375",
+      "size_bytes": 2910,
+      "downloaded": true
+    },
+    {
+      "name": "generation_config.json",
+      "sha256": "8948832be59b387343934f8f861ba033690b4b8f089fd8a81b804ec0ee8eeb5f",
+      "size_bytes": 182,
+      "downloaded": true
+    },
+    {
+      "name": "model.safetensors",
+      "sha256": "2df6253a3f7f3c017315280606413988e14f3b5c26c5438206f0b1565d2c1dae",
+      "size_bytes": 18819722392,
+      "downloaded": false
+    },
+    {
+      "name": "preprocessor_config.json",
+      "sha256": "6c04d523b0ebaf0e2cff5b7c5a8a391fad530266bf2a3c9507c9222184886aa7",
+      "size_bytes": 484,
+      "downloaded": true
+    },
+    {
+      "name": "processor_config.json",
+      "sha256": "d89ef49ce9cd37fbf510158e13c1ef063d9286411c1ec9049932dbe0487143b1",
+      "size_bytes": 1191,
+      "downloaded": true
+    },
+    {
+      "name": "tokenizer.json",
+      "sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+      "size_bytes": 19989325,
+      "downloaded": false
+    },
+    {
+      "name": "tokenizer_config.json",
+      "sha256": "8cb3e00cc8414b1b2a8630d83c1b44c0c6886e653dfd6557357bea83feb4b64c",
+      "size_bytes": 9139,
+      "downloaded": true
+    },
+    {
+      "name": "video_preprocessor_config.json",
+      "sha256": "aba6400f3c17df08ce960a982cdc9219e56d70936354545000a215ebda07e4e6",
+      "size_bytes": 591,
+      "downloaded": true
+    }
+  ],
+  "license": "apache-2.0",
+  "license_basis": "README.md front matter; the publisher has no LICENSE file",
+  "license_sha256": "3fbc0872006303df97ca3aff6046cd37d259f1464c22dae5654e027596228c14",
+  "source_url": "https://huggingface.co/FreedomIntelligence/HuatuoGPT-3-9B/tree/6870b60e54d41cfef88ab36478d9d15d4b9bd7bc",
+  "basis": "Publisher revision metadata and SHA-256 of downloaded files; LFS SHA-256 for not-yet-fetched weights/tokenizer"
+}

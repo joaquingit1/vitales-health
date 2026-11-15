@@ -19,6 +19,7 @@ _SIMPLE = (
     (errors.ConfigVersionMismatch, ErrorCode.CONFIG_VERSION_MISMATCH),
     (errors.ConfigInvalid, ErrorCode.CONFIG_INVALID),
     (errors.MissionUnavailable, ErrorCode.CAPABILITY_UNAVAILABLE),
+    (errors.MissionClockUnset, ErrorCode.CONTEXT_INAPPLICABLE),
 )
 
 

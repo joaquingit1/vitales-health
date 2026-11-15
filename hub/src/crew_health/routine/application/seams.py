@@ -1,19 +1,25 @@
-"""Which of routine's seams resolved, reported as health (B2: an absent seam fails closed and visibly).
+"""Which of routine's seams resolved (B2), and what each absence does.
 
-Each absent seam is its own health component `routine.seam.<name>` with code CAPABILITY_UNAVAILABLE, so the hub
-health turns degraded and the diagnostics snapshot names exactly what is missing. What each absence does:
+A seam whose owning epic is not installed is a missing capability, not a fault (SYSTEM 5.10): it never marks
+health degraded, so the station's general fault notice stays for real faults (the evaluator fault and its
+re-apply job, a parked job, storage errors, an unreadable pin, a cold release cache at a deadline). Each use of an
+absent seam refuses with its typed reason instead, the way E32 handles absent providers, and `RoutineRuntime.missing`
+names the absent seams for diagnostics.
 
 | Seam                 | Owner          | Absent                                                                  |
 |----------------------|----------------|-------------------------------------------------------------------------|
 | roster               | E02 identity   | no person is materialized; stored open work still misses on time        |
-| mission              | E23 mission    | MISSION_UNAVAILABLE: no new occurrence; stored deadlines still decided  |
+| mission              | E23 mission    | CAPABILITY_UNAVAILABLE on work that needs it; stored deadlines decided   |
 | location             | E23 mission    | a location-scoped audience resolves to nobody, audited                  |
 | visibility           | E02 identity   | no care read: only the person's own routine is visible                  |
 | records              | E01 records    | no record-driven binding; linked records and answers are refused        |
 | warnings             | E24 warnings   | overrides are not attached back to their warning                        |
-| release_history      | E01 config     | an evicted pin is unreadable: the stored deadline stands (M1)           |
+| release_history      | E01 config     | an evicted pin is unreadable: the stored deadline stands (M1, degraded)  |
 | clock_trust          | E01 clock      | the clock is never trusted: misses are recorded and never counted       |
 | hub_clock            | E01 clock      | elapsed timers fall back to their absolute instant                      |
+
+No mission clock set yet is missing context, not a fault either: work that needs the mission day refuses with
+CONTEXT_INAPPLICABLE (adapters/mission_clock.py) and health stays ok.
 
 Requests are not a seam here: in create_app the hub's operation middleware authenticates and authorizes every
 contract operation through its HttpSecurity and routine reads that session (module.py `authenticate`); without a
@@ -25,10 +31,7 @@ the deadline path reads only routine's own store."""
 from __future__ import annotations
 
 from collections.abc import Mapping
-from datetime import datetime
 from typing import Literal
-
-from crew_health.kernel.scheduler import HealthState
 
 type Seam = Literal[
     "roster",
@@ -57,11 +60,3 @@ SEAMS: tuple[Seam, ...] = (
 
 def absent(resolved: Mapping[Seam, object | None]) -> tuple[Seam, ...]:
     return tuple(seam for seam in SEAMS if resolved.get(seam) is None)
-
-
-def report(health: HealthState, missing: tuple[Seam, ...], at: datetime) -> None:
-    for seam in SEAMS:
-        if seam in missing:
-            health.mark_degraded("routine.seam." + seam, "CAPABILITY_UNAVAILABLE", at)
-        else:
-            health.mark_ok("routine.seam." + seam)

@@ -1,0 +1,8 @@
+{
+  "basis": "E17 P2 requires independent builds on two machines; same-host repeatability is partial evidence.",
+  "first_sha256": "0361c77aedf832c7a58ec32bda68de25e2d437841e734e8de0fd43c6f3a8d947",
+  "independent_machines": false,
+  "measured": true,
+  "second_sha256": "0361c77aedf832c7a58ec32bda68de25e2d437841e734e8de0fd43c6f3a8d947",
+  "verdict": "partial"
+}

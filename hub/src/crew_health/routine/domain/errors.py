@@ -88,6 +88,13 @@ class MissionUnavailable(RoutineError):
         super().__init__("mission_unavailable")
 
 
+class MissionClockUnset(RoutineError):
+    """No mission clock is set yet, so there is no mission day: missing context, never a fault (SYSTEM 5.10)."""
+
+    def __init__(self) -> None:
+        super().__init__("mission_clock_unset")
+
+
 class VersionRequired(RoutineError):
     def __init__(self) -> None:
         super().__init__("version_required")

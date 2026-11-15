@@ -34,8 +34,11 @@ from crew_health.kernel.uow import (
     UnitOfWork,
     UnitOfWorkFactory,
 )
+from crew_health.records.application.ports import ObservationCommands
 from crew_health.routine.adapters.config_reader import ReleaseCache, RoutineReleaseCheck
 from crew_health.routine.adapters.hub_clock import shared_hub_clock
+from crew_health.routine.adapters.mission_clock import RoutineMissionClock
+from crew_health.routine.adapters.record_facts import shared_record_facts
 from crew_health.routine.adapters.sqlite_repository import SqliteRoutineStore
 from crew_health.routine.adapters.wire_inputs import parse_input
 from crew_health.routine.api.router import build_router
@@ -81,7 +84,7 @@ from crew_health.routine.application.provided import (
     RoutineToday,
 )
 from crew_health.routine.application.queries import RoutineQueryService
-from crew_health.routine.application.seams import Seam, absent, report
+from crew_health.routine.application.seams import Seam, absent
 from crew_health.routine.application.settings import RoutineSettings, specs
 from crew_health.routine.application.subscriptions import RoutineSubscriptions
 from crew_health.routine.domain.loader_checks import Bounds
@@ -177,7 +180,6 @@ class RoutineRuntime:
         """SYSTEM 6 STATE_SWEEP: after the module migrations (STORAGE) and the clock regression check (CLOCK), never
         inside bind, which runs before any table exists."""
         engine = _need(self._engine)
-        report(engine.deps.health, self.missing, engine.deps.clock.now())
         engine.startup_sweep()
 
     def authenticate(self, request: Request, operation_id: str) -> SessionContext:
@@ -336,7 +338,7 @@ def _deps(resolver: Resolver) -> RoutineDeps:
         resolver.require(UnitOfWorkFactory),
         resolver.require(ReadSnapshotFactory),
         resolver.require(Clock),
-        resolver.require(MissionClock),
+        RoutineMissionClock(resolver.require(MissionClock)),
         resolver.require(IdFactory),
         settings,
         resolver.require(IdempotencyStore),
@@ -355,7 +357,7 @@ def _deps(resolver: Resolver) -> RoutineDeps:
         corrections,
         resolver.optional(HubClock) or shared_hub_clock(corrections),
         resolver.optional(Visibility),
-        resolver.optional(RecordFacts),
+        resolver.optional(RecordFacts) or shared_record_facts(resolver.optional(ObservationCommands)),
         resolver.optional(WarningCommands),
     )
 

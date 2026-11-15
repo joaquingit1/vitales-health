@@ -1,0 +1,12 @@
+{
+  "packages": {
+    "peft": "Additional medical training is prohibited by R23 and E17 C1",
+    "trl": "Additional medical training is prohibited by R23 and E17 C1",
+    "unsloth": "Additional medical training is prohibited by R23 and E17 C1",
+    "axolotl": "Additional medical training is prohibited by R23 and E17 C1",
+    "torchtune": "Additional medical training is prohibited by R23 and E17 C1",
+    "deepspeed": "Additional medical training is prohibited by R23 and E17 C1",
+    "mlx-lm": "Additional medical training is prohibited by R23 and E17 C1"
+  },
+  "basis": "E17 3.3 C1"
+}

@@ -60,7 +60,8 @@ def test_unavailable_mission_aborts_materialization_atomically(tmp_path: Path) -
         with hub.db.begin(actor=Actor("engine", "routine"), correlation_id="cor_no_mission") as uow:
             hub.engine.materialize(uow, "person_mara", 2)
     assert hub.rows("SELECT * FROM routine_occurrence ORDER BY occurrence_id") == before
-    assert any(c.code == "MISSION_UNAVAILABLE" for c in hub.health.snapshot().components)
+    # No mission facts is a missing capability, not a fault (SYSTEM 5.10): refused, health stays ok.
+    assert not [c for c in hub.health.snapshot().components if c.code]
 
 
 @pytest.mark.trace("T-E25-005", "T-E25-091")
@@ -107,10 +108,8 @@ def test_environment_anchor_is_rejected_without_environment_start_fact(tmp_path:
 @pytest.mark.trace("T-E25-014", "SYSTEM-5-11")
 def test_supported_open_bound_above_storage_page_size_still_materializes(tmp_path: Path) -> None:
     hub = station(tmp_path, values={"routine.max_open_per_person": 2000})
-    # Seams this harness leaves absent report themselves (B2); routine's own components stay ok.
-    assert not [
-        c for c in hub.health.snapshot().components if c.code and not c.component.startswith("routine.seam.")
-    ]
+    # Seams this harness leaves absent are missing capabilities, never faults: health stays ok.
+    assert not [c for c in hub.health.snapshot().components if c.code]
     assert hub.rows("SELECT COUNT(*) FROM routine_occurrence")[0][0] != 0
     schedule = hub.queries.schedule(session(), "today")
     assert schedule["person_id"] == "person_mara"

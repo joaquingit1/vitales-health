@@ -36,6 +36,7 @@ from crew_health.routine.domain.errors import (
     ConfigInvalid,
     EnvironmentAnchorUnavailable,
     Finding,
+    MissionClockUnset,
     MissionUnavailable,
 )
 from crew_health.routine.domain.hold import Interval, held_kind_at, held_until
@@ -101,7 +102,8 @@ class RoutineEngine:
         port = self.deps.mission
         facts = None if port is None else port.current(view)
         if facts is None:
-            self.deps.health.mark_degraded("routine", "MISSION_UNAVAILABLE", view.now)
+            # A missing capability (E23 not installed, or no mission yet), not a fault: the caller refuses with
+            # CAPABILITY_UNAVAILABLE and health stays ok (SYSTEM 5.10).
             raise MissionUnavailable("mission facts are absent")
         return facts
 
@@ -236,9 +238,7 @@ class RoutineEngine:
         # instant until the clock is trusted again.
         if kind == "elapsed" and self.trusted(uow):
             anchor = self.hub_time(uow)
-            if anchor is None:
-                self.deps.health.mark_degraded("routine.clock", "CAPABILITY_UNAVAILABLE", uow.now)
-            else:
+            if anchor is not None:
                 deadline = ElapsedDeadline(anchor, max(at - uow.now, timedelta(0)))
         generation = self.deps.store.deadline_generation(uow, key)
         generation = uow.schedule(
@@ -581,7 +581,6 @@ class RoutineEngine:
         """The shared clock trust (SYSTEM 5.2, PersistentClocks.clearing_allowed): False after a regression until
         the correction and its sweep, and at first boot until the hub's first sweep. Routine keeps none of its own."""
         if self.deps.clock_trust is None:
-            self.deps.health.mark_degraded("routine.clock", "CAPABILITY_UNAVAILABLE", view.now)
             return False
         return self.deps.clock_trust.clearing_allowed(view)
 
@@ -643,14 +642,14 @@ class RoutineEngine:
 
     def day_failed(self, uow: UnitOfWork, step: str, error: Exception) -> None:
         """m2: one person's failing day job rolls back only its own savepoint and stays visible, so the deadlines
-        of everyone else in the shared dispatch batch still commit. Storage errors are never contained."""
-        code = (
-            "CONFIG_INVALID"
-            if isinstance(error, ConfigInvalid)
-            else "MISSION_UNAVAILABLE"
-            if isinstance(error, MissionUnavailable)
-            else "EVALUATION_UNAVAILABLE"
-        )
+        of everyone else in the shared dispatch batch still commit. Storage errors are never contained. No mission
+        facts or no mission clock yet is missing context, not a fault (SYSTEM 5.10): nothing to create, health ok."""
+        if isinstance(error, MissionUnavailable | MissionClockUnset):
+            logging.getLogger("crew_health.routine").info(
+                "routine day job %s: %s", step, type(error).__name__
+            )
+            return
+        code = "CONFIG_INVALID" if isinstance(error, ConfigInvalid) else "EVALUATION_UNAVAILABLE"
         logging.getLogger("crew_health.routine").error(
             "routine day job %s failed: %s", step, type(error).__name__
         )
@@ -759,6 +758,13 @@ class RoutineEngine:
         )
 
     def startup_sweep(self) -> None:
+        """STATE_SWEEP: load the active release first (AGENTS 3 rule 3), whatever seams are absent, so the deadline
+        path, which opens no configuration document, finds it cached; a cold cache there is a fault (m1)."""
+        try:
+            with self.deps.snapshots.snapshot() as view:
+                self.release(view)
+        except ConfigInvalid:
+            self.deps.health.mark_degraded("routine", "CONFIG_INVALID", self.deps.clock.now())
         if self.deps.roster is None:
             return
         for member in tuple(self.deps.roster.members())[: self.deps.settings.max_roster]:
@@ -770,17 +776,16 @@ class RoutineEngine:
                     self.ensure_day_job(uow, member.person_id)
                     for occ in self.open_occurrences(uow, member.person_id):
                         self.reschedule(uow, occ)
+            except (MissionUnavailable, MissionClockUnset) as error:
+                # Missing context, not a fault: the next start after the mission is set materializes the day.
+                logging.getLogger("crew_health.routine").info(
+                    "routine startup sweep: %s", type(error).__name__
+                )
             except Exception as error:
                 logging.getLogger("crew_health.routine").error(
                     "routine startup sweep failed: %s", type(error).__name__
                 )
-                self.deps.health.mark_degraded(
-                    "routine",
-                    "MISSION_UNAVAILABLE"
-                    if isinstance(error, MissionUnavailable)
-                    else "EVALUATION_UNAVAILABLE",
-                    self.deps.clock.now(),
-                )
+                self.deps.health.mark_degraded("routine", "EVALUATION_UNAVAILABLE", self.deps.clock.now())
 
     def apply_input(self, uow: UnitOfWork, inp: TriggerInput) -> None:
         self.inputs.apply(uow, inp)

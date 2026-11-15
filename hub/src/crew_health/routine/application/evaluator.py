@@ -17,7 +17,6 @@ class RoutineEvaluator(Evaluator):
     def evaluate(self, uow: UnitOfWork, value: EvaluationInput) -> None:
         store = self.deps.records
         if store is None:
-            self.deps.health.mark_degraded("routine.seam.records", "CAPABILITY_UNAVAILABLE", uow.now)
             return
         try:
             answer = store.answer(uow, value.input_ref)

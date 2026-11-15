@@ -3,9 +3,9 @@ module convention of SYSTEM 6), applies its migrations, resolves its providers a
 the hub's own supervisor; no routine test harness is involved here.
 
 The hub is E01's composition station (hub/tests/app/test_composition.py): the real modules on this checkout plus
-E01's stand-ins for epics that are not on main. Routine's own seams (E02 roster and visibility, E23 mission and
-location, E24 warnings) are stood in here, and the real records repository stands under routine's RecordFacts
-until records registers its composition adapter (listed in the PR)."""
+E01's stand-ins for epics that are not on main. Routine's own seams for epics not on main (E02 roster and
+visibility, E23 mission and location, E24 warnings) are stood in here; records is reached through routine's own
+composition adapter over records' real store (adapters/record_facts.py)."""
 
 from __future__ import annotations
 
@@ -34,9 +34,9 @@ from crew_health.kernel.met import MissionClock, MissionClockVersion
 from crew_health.kernel.scheduler import HealthState
 from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
 from crew_health.platform.storage import SQLiteDatabase
-from crew_health.records.adapters.repository import RecordRepository
 from crew_health.routine import module as routine_module
 from crew_health.routine.adapters.hub_clock import SharedHubClock
+from crew_health.routine.adapters.record_facts import SharedRecordFacts
 from crew_health.routine.application import ports
 from crew_health.routine.application.ports import RoutineQueries
 from crew_health.routine.application.seams import SEAMS
@@ -113,7 +113,6 @@ STAND_INS: dict[type[object], object] = {
     ports.LocationPort: Crew(),
     ports.Visibility: Seams(),
     ports.WarningCommands: Seams(),
-    ports.RecordFacts: RecordRepository(),
 }
 
 
@@ -158,7 +157,9 @@ def _with_routine(hub: StationLike) -> StationLike:
     return with_routine
 
 
-def _started(tmp_path: Path, resources: Path) -> tuple[StationLike, FastAPI, StationLike]:
+def _started(
+    tmp_path: Path, resources: Path, *, mission_clock: bool = True
+) -> tuple[StationLike, FastAPI, StationLike]:
     """First start, then the operator sets the mission clock (MissionClockService.append, the clock module's own
     path; no epoch exists until someone sets it) and confirms the hub time, then a restart: routine's STATE_SWEEP
     startup hook materializes the crew's day."""
@@ -169,10 +170,11 @@ def _started(tmp_path: Path, resources: Path) -> tuple[StationLike, FastAPI, Sta
     service = first.resolver.require(MissionClock)
     assert isinstance(service, MissionClockService)
     epoch = hub.db.clock.now()
-    with hub.db.begin(actor=Actor("operator", "operator_sim"), correlation_id="e25_mission_clock") as uow:
-        service.append(
-            uow, MissionClockVersion("clock_sim", 1, epoch, epoch, None, "Day {day}"), ids=hub.db.ids
-        )
+    if mission_clock:
+        with hub.db.begin(actor=Actor("operator", "operator_sim"), correlation_id="e25_mission_clock") as uow:
+            service.append(
+                uow, MissionClockVersion("clock_sim", 1, epoch, epoch, None, "Day {day}"), ids=hub.db.ids
+            )
     correct_hub_clock(first)
     first.shutdown()
     hub = reopen(hub)
@@ -191,6 +193,7 @@ def test_create_app_serves_routine_with_the_real_clock_records_and_scheduler(
     deps = routine.engine.deps
     # Providers on main resolve under their real classes or a composition adapter, never a routine copy.
     assert deps.clock_trust is not None and isinstance(deps.hub_clock, SharedHubClock)
+    assert isinstance(deps.records, SharedRecordFacts)
     assert getattr(deps.releases, "history", None) is not None
     assert routine.missing == ()
     with hub.db.snapshot() as view:
@@ -205,6 +208,8 @@ def test_create_app_serves_routine_with_the_real_clock_records_and_scheduler(
             assert response.status_code == 200, response.text
             unauthenticated = await client.get("/v1/routine/today")
             assert unauthenticated.status_code == 401, unauthenticated.text
+            health = await client.get("/v1/health")
+            assert health.json()["status"] == "ok", health.text
             return dict(response.json())
 
     assert asyncio.run(today())["person_id"] == "person_sim"
@@ -234,7 +239,7 @@ def test_misses_count_through_the_supervisor_with_every_optional_provider_absent
     assert runtime.serving, runtime.fault_code
     routine = runtime.resolver.require(RoutineQueries)
     assert isinstance(routine, routine_module.RoutineRuntime)
-    assert set(routine.missing) == {"roster", "mission", "location", "visibility", "records", "warnings"}
+    assert set(routine.missing) == {"roster", "mission", "location", "visibility", "warnings"}
     assert set(routine.missing) <= set(SEAMS)
     hub.db.clock.at = boundary.astimezone(UTC)  # MemoryClock, the station clock
     assert runtime.supervisor is not None
@@ -250,6 +255,32 @@ def test_misses_count_through_the_supervisor_with_every_optional_provider_absent
             limit=1000,
         )
     assert set(ended) == {("missed", 1, "deadline")}
-    components = {c.component: c.code for c in runtime.resolver.require(HealthState).snapshot().components}
-    for seam in routine.missing:
-        assert components["routine.seam." + seam] == "CAPABILITY_UNAVAILABLE"
+    # Missing capabilities are not faults (SYSTEM 5.10): health stays ok, and each use refuses with its reason.
+    snap = runtime.resolver.require(HealthState).snapshot()
+    assert snap.status == "ok", [(c.component, c.code) for c in snap.components if c.code]
+    assert _get(app, "/v1/routine/today") == (422, "CAPABILITY_UNAVAILABLE")
+
+
+def test_before_the_mission_clock_is_set_routine_refuses_with_context_inapplicable_and_health_stays_ok(
+    tmp_path: Path, station_resources: Path
+) -> None:
+    hub, app, _ = _started(tmp_path, station_resources, mission_clock=False)
+    routine = app.state.runtime.resolver.require(RoutineQueries)
+    assert isinstance(routine, routine_module.RoutineRuntime)
+    with hub.db.snapshot() as view:
+        materialized = view.connection.rows("SELECT count(*) FROM routine_occurrence", (), limit=1)
+    assert materialized == ((0,),)
+    assert _get(app, "/v1/routine/today") == (422, "CONTEXT_INAPPLICABLE")
+    assert _get(app, "/v1/health") == (200, "ok")
+
+
+def _get(app: FastAPI, path: str) -> tuple[int, str]:
+    """The status and the envelope code (or the health status) of one authenticated crew GET."""
+
+    async def call() -> tuple[int, str]:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://station") as client:
+            response = await client.get(path, headers={"Authorization": "Bearer crew"})
+            body = dict(response.json())
+            return response.status_code, str(body.get("code", body.get("status")))
+
+    return asyncio.run(call())

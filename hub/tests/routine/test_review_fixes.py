@@ -240,7 +240,7 @@ def test_each_timer_has_its_kind_and_only_elapsed_ones_move_with_a_correction(tm
 
 
 @pytest.mark.trace("T-E25-093")
-def test_without_a_hub_clock_an_elapsed_timer_keeps_its_instant_and_reports_it(tmp_path: Path) -> None:
+def test_without_a_hub_clock_an_elapsed_timer_keeps_its_instant_and_health_stays_ok(tmp_path: Path) -> None:
     hub = station(tmp_path, at=at(1, 9))
     hub.restart(replace(hub.engine.deps, hub_clock=None))
     install(
@@ -258,10 +258,7 @@ def test_without_a_hub_clock_an_elapsed_timer_keeps_its_instant_and_reports_it(t
         hub.rows("SELECT override_id FROM routine_override WHERE item_id='vision_self_check'")[0][0]
     )
     assert "at" in cast(dict[str, object], _job(hub, "routine.ovr." + override)["deadline"])
-    assert any(
-        c.component == "routine.clock" and c.code == "CAPABILITY_UNAVAILABLE"
-        for c in hub.health.snapshot().components
-    )
+    assert not [c for c in hub.health.snapshot().components if c.code]
 
 
 # M4 ------------------------------------------------------------------------------------------------------------
