@@ -6,9 +6,9 @@ import json
 from dataclasses import replace
 from pathlib import Path
 
-import builders
+from . import builders
 import pytest
-from real_station import OFFICER, OTHER, OWNER, Rig, build, person, release_documents
+from .real_station import OFFICER, OTHER, OWNER, Rig, build, person, release_documents
 
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode, Role
 from crew_health.kernel.config import ConfigDocumentView

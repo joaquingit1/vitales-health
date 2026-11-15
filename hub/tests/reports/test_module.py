@@ -9,7 +9,7 @@ from typing import cast
 import pytest
 from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
-from real_station import OWNER, build, parse_in_process
+from .real_station import OWNER, build, parse_in_process
 
 from crew_health.app.registry import DeclarationRegistry
 from crew_health.kernel.audit import AuditPolicy
@@ -150,7 +150,7 @@ def test_with_every_provider_the_late_binding_composes_the_workflows(tmp_path: P
         return await call_next(request)
 
     app.include_router(router)
-    import builders
+    from . import builders
 
     created = TestClient(app).post(
         "/v1/reports",

@@ -10,7 +10,7 @@ from typing import cast
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
-from reports_harness import AT, OWNER, UNITS, numeric, station, text
+from .reports_harness import AT, OWNER, UNITS, numeric, station, text
 
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.testing import MemoryIds

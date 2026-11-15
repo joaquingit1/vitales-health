@@ -10,7 +10,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
-from reports_harness import (
+from .reports_harness import (
     AT,
     JPEG,
     OTHER,

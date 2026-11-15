@@ -13,7 +13,7 @@ from decimal import Decimal
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
-from reports_harness import (
+from .reports_harness import (
     AT,
     OWNER,
     UNITS,

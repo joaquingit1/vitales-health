@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
-from reports_harness import AT
+from .reports_harness import AT
 
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.reports.domain.model import (

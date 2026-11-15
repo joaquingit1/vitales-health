@@ -8,9 +8,9 @@ from __future__ import annotations
 import threading
 from pathlib import Path
 
-import builders
+from . import builders
 import pytest
-from real_station import OTHER, OWNER, Rig, build, person
+from .real_station import OTHER, OWNER, Rig, build, person
 
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.kernel.errors import ProblemError, StorageUnavailable
