@@ -50,6 +50,16 @@ class StorageUnavailable(ProblemError):
     cause: Literal["disk_full", "locked", "io_error", "corrupt"]  # internal enum
 
 
+class TargetBusy(StorageUnavailable):
+    """The bounded writer wait expired while another command on the same target held the writer (SYSTEM 5.7).
+
+    That is a concurrent edit of one resource, not a storage fault. A module whose contract guards that resource with
+    a revision maps it to its conflict code; every other caller still sees StorageUnavailable("locked")."""
+
+    def __init__(self) -> None:
+        super().__init__("locked")
+
+
 @dataclass(frozen=True, slots=True)
 class Problem:
     type: str

@@ -717,7 +717,9 @@ Only a module's repository adapters use `connection`, only for their tables; no 
 `rows` enforces `storage.max_rows` and raises on excess rather than silently truncating. `execute` bounds input bytes.
 ReadSnapshot rejects mutations. SQLite implementation uses WAL, FULL synchronous, foreign keys, STRICT tables and
 one writer with bounded busy timeout. Every command begins IMMEDIATE; successful context exit commits once, any
-exception rolls back. Nested transactions and public manual commits are forbidden.
+exception rolls back. Nested transactions and public manual commits are forbidden. A writer wait that expires
+behind a command on the same target raises `TargetBusy` (a `StorageUnavailable("locked")` subclass): a module whose
+contract guards that resource with a revision maps it to its 409 conflict, and every other timeout stays a 500.
 
 State, command identity/result reference, audit, outbox, scheduled changes, replication log and origin sequence
 allocation commit atomically. Each repository mutation declares its replication change; missing declarations fail
