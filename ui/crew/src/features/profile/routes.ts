@@ -5,5 +5,5 @@ import SignIn from "./SignIn.vue";
 
 export const routes: RouteRecordRaw[] = [
   { path: "/", name: STATION_ROUTE, component: SignIn },
-  { path: "/profile", name: "profile", component: ProfileView, meta: { private: true } },
+  { path: "/profile", name: "profile", component: ProfileView, meta: { private: true, stage: false } },
 ];
