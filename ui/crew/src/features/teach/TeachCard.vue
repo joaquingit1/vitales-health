@@ -23,12 +23,7 @@ function readHandoff(): string | null {
 
 /** The check this person helps with, when the hub lets them read it; nothing otherwise. */
 onMounted(async () => {
-  let stored: string | null = null;
-  try {
-    stored = window.sessionStorage.getItem(HANDOFF_KEY);
-  } catch {
-    stored = null;
-  }
+  const stored = readHandoff();
   if (!stored) return;
   try {
     const check = await api.get<GuidedCheck>(`/v1/guided-checks/${stored}`);
