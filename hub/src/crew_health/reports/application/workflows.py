@@ -15,8 +15,8 @@ from decimal import Decimal
 from crew_health.kernel.audit import AuditEntry
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import CommandIdentity, CommandReceipts, IdempotencyStore, StoredResult
-from crew_health.kernel.config import ConfigReleaseReader
-from crew_health.kernel.errors import ErrorCode
+from crew_health.kernel.config import ConfigReleaseReader, ReleaseHandle
+from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.ids import IdFactory, require_id
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.tasks import TaskLease, TaskResult, TaskRunner
@@ -81,6 +81,10 @@ class ReportPorts:
 def _check_name(name: str) -> None:
     if not name or len(name) > _MAX_NAME_CHARS or any(ord(char) < 32 for char in name):
         raise invalid_value("original_name", field="file")
+
+
+class _Replay(Exception):  # noqa: N818  # control signal inside one apply, never crosses the module
+    """The command key already committed; roll back this unit of work and replay the stored result."""
 
 
 class ReportWorkflows:
@@ -165,7 +169,12 @@ class ReportWorkflows:
         if lease.task.handler_version != result.engine_version:
             raise invalid_transition("engine_pin")
         after = publish_extraction(
-            report, result, generation=lease.generation, ids=self.p.ids, limits=self.p.limits
+            report,
+            result,
+            generation=lease.generation,
+            release_id=lease.task.release_id,
+            ids=self.p.ids,
+            limits=self.p.limits,
         )
         fingerprint = hashlib.sha256(
             "\n".join(d.draft_id for d in after.extraction_drafts).encode()
@@ -200,7 +209,7 @@ class ReportWorkflows:
         with self.p.snapshots.snapshot() as view:
             if self.p.lineage.applied(view, command_key=key):
                 return report
-        release = self.p.releases.active()
+        release = self._pinned_release(report)
         outcome = decide(
             report,
             command,
@@ -211,6 +220,8 @@ class ReportWorkflows:
         )
 
         def apply(uow: UnitOfWork) -> bool:
+            if self.p.lineage.applied(uow, command_key=key):
+                raise _Replay
             self._advance(uow, report, outcome.report)
             recorded = tuple(self._record(uow, session, f) for f in outcome.findings)
             self.p.lineage.append(uow, recorded, command_key=key)
@@ -229,8 +240,23 @@ class ReportWorkflows:
             )
             return True
 
-        self.p.store.publish_version(session, key=key, report=outcome.report, apply=apply)
-        return outcome.report
+        try:
+            self.p.store.publish_version(session, key=key, report=outcome.report, apply=apply)
+        except _Replay:
+            pass  # another submission of this key committed first: replay its stored result
+        stored = self.p.store.load(session, report.report_id)
+        if stored is None:
+            raise not_found()
+        return stored
+
+    def _pinned_release(self, report: Report) -> ReleaseHandle:
+        """Policies come from the release the extraction ran under, never the active one (fail closed)."""
+        if report.extraction_release_id is None:
+            raise invalid_transition("release_not_pinned")
+        try:
+            return self.p.releases.release(report.extraction_release_id)
+        except ProblemError as error:
+            raise ReportError(ErrorCode.CONFIG_INVALID, "pinned_release_unavailable") from error
 
     def enter_finding(
         self, session: SessionContext, identity: CommandIdentity, entry: SpecialistEntry

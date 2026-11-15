@@ -422,6 +422,85 @@ def test_a_policy_edit_changes_what_confirmation_accepts_with_no_code_change() -
     assert code(error) is ErrorCode.INVALID_UNIT
 
 
+def test_confirmation_judges_by_the_release_pinned_at_extraction_not_the_active_one() -> None:
+    st = fresh()
+    report = drafted(st)
+    assert report.extraction_release_id == "release"
+    st.activate_release("release_2", {**POLICIES, "cardiac_troponin": numeric("cardiac_troponin", "mg/dL")})
+    after = st.workflows.confirm(session(), key="c1", report_id=report.report_id, command=cmd(report, 0))
+    assert st.lineage.applied_keys["c1"][0].unit == "mmol/L" and after.extraction_release_id == "release"
+    fresh_extraction = st.upload(key="up2")
+    st.workflows.record_extraction(
+        session(), st.lease(fresh_extraction, release_id="release_2"), extraction(fresh_extraction, *DEFAULT)
+    )
+    pinned_new = st.store.reports[fresh_extraction.report_id]
+    assert pinned_new.extraction_release_id == "release_2"
+    with pytest.raises(ProblemError) as error:
+        st.workflows.confirm(session(), key="c2", report_id=pinned_new.report_id, command=cmd(pinned_new, 0))
+    assert code(error) is ErrorCode.INVALID_UNIT
+
+
+def test_an_unresolvable_pinned_release_refuses_confirmation_and_records_nothing() -> None:
+    st = fresh()
+    report = drafted(st)
+    st.activate_release("release_2", POLICIES)
+    del st.ports.releases.releases["release"]  # type: ignore[attr-defined]
+    with pytest.raises(ProblemError) as error:
+        st.workflows.confirm(session(), key="c1", report_id=report.report_id, command=cmd(report, 0))
+    assert code(error) is ErrorCode.CONFIG_INVALID
+    assert st.recorder.recorded == [] and st.lineage.applied_keys == {}
+    assert st.store.reports[report.report_id] == report
+
+
+def test_a_report_with_no_pinned_release_cannot_be_confirmed() -> None:
+    st = fresh()
+    report = st.upload()
+    with pytest.raises(ProblemError) as error:
+        st.workflows.confirm(session(), key="c1", report_id=report.report_id, command=cmd(report))
+    assert code(error) is ErrorCode.INVALID_TRANSITION
+
+
+@pytest.mark.parametrize("coordinator_replays", [True, False])
+def test_same_key_submitted_twice_from_one_revision_replays_instead_of_failing(
+    coordinator_replays: bool, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    st = fresh()
+    report = drafted(st)
+    if not coordinator_replays:
+        monkeypatch.setattr(st.commands, "lookup", lambda uow, identity: None)
+    real = st.lineage.applied
+    state = {"first": True}
+
+    def interleaved(view: object, *, command_key: str) -> bool:
+        if state["first"]:
+            state["first"] = False
+            st.workflows.confirm(session(), key="k", report_id=report.report_id, command=cmd(report, 0))
+            return False  # this submission's snapshot read predates the other commit
+        return real(view, command_key=command_key)
+
+    monkeypatch.setattr(st.lineage, "applied", interleaved)
+    st.store.serve_stale = report
+    second = st.workflows.confirm(session(), key="k", report_id=report.report_id, command=cmd(report, 0))
+    assert second == st.store.reports[report.report_id] and second.revision == report.revision + 1
+    assert len(st.recorder.recorded) == 1 and len(st.lineage.applied_keys["k"]) == 1
+
+
+def test_a_report_deleted_right_after_the_commit_is_not_returned(monkeypatch: pytest.MonkeyPatch) -> None:
+    st = fresh()
+    report = drafted(st)
+    real = st.store.load
+    calls = {"n": 0}
+
+    def load(who: SessionContext, report_id: str) -> Report | None:
+        calls["n"] += 1
+        return real(who, report_id) if calls["n"] == 1 else None
+
+    monkeypatch.setattr(st.store, "load", load)
+    with pytest.raises(ProblemError) as error:
+        st.workflows.confirm(session(), key="c1", report_id=report.report_id, command=cmd(report, 0))
+    assert code(error) is ErrorCode.NOT_FOUND
+
+
 # ---- authorization ----------------------------------------------------------------------------------
 
 

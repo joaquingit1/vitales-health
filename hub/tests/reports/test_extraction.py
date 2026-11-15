@@ -40,7 +40,9 @@ def proposal(value: object = "sinus", start: int = 0, end: int = 5, page: int = 
 
 
 def publish(report: Report, res: ExtractionResult, generation: int = 1) -> Report:
-    return publish_extraction(report, res, generation=generation, ids=IDS, limits=LIMITS)
+    return publish_extraction(
+        report, res, generation=generation, release_id="release", ids=IDS, limits=LIMITS
+    )
 
 
 def code(error: pytest.ExceptionInfo[ProblemError]) -> ErrorCode:
@@ -63,8 +65,12 @@ def test_draft_ids_are_deterministic_for_a_generation() -> None:
     def ids() -> MemoryIds:
         return MemoryIds(identifiers=("1", "2"))
 
-    first = publish_extraction(report, result(report, proposal()), generation=1, ids=ids(), limits=LIMITS)
-    second = publish_extraction(report, result(report, proposal()), generation=1, ids=ids(), limits=LIMITS)
+    first = publish_extraction(
+        report, result(report, proposal()), generation=1, release_id="release", ids=ids(), limits=LIMITS
+    )
+    second = publish_extraction(
+        report, result(report, proposal()), generation=1, release_id="release", ids=ids(), limits=LIMITS
+    )
     assert first == second
 
 
@@ -163,6 +169,7 @@ def test_instructions_in_extracted_text_stay_inert_data() -> None:
         report,
         result(report, proposal(hostile), proposal("sinus", 5, 9)),
         generation=1,
+        release_id="release",
         ids=IDS,
         limits=roomy,
     )
