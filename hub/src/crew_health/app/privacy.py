@@ -56,7 +56,6 @@ from crew_health.records.application.commands import RecordsCommands
 from crew_health.records.application.queries import RecordsQueries
 from crew_health.records.application.seams import ObservationPolicies, RecordsStore
 from crew_health.records.domain.observations import ObservationInput, RecordContext
-from crew_health.records.application.seams import RecordsStore
 from crew_health.reports.application.ports import RecordOrigin as ReportOrigin
 from crew_health.roles.api.router import RequestAuthenticator as RolesAuthenticator
 from crew_health.roles.application.ports import RosterMember as RolesMember
@@ -438,8 +437,7 @@ def compose(
         (RoutineRoster, lambda r: RoutineRosterAdapter(identity(r)), on_identity),
         (PersonDirectory, lambda r: PeopleAdapter(identity(r)), on_identity),
         (RecordRouting, lambda r: RoutingAdapter(identity(r), demo), on_identity),
-        (RecordRouting, lambda r: RoutingAdapter(identity(r)), on_identity),
-        (ReportOrigin, lambda r: RoutingAdapter(identity(r)), on_identity),
+        (ReportOrigin, lambda r: RoutingAdapter(identity(r), demo), on_identity),
         (CatchupConsent, consent, (ConsentService,)),
         (MeasurementConsent, consent, (ConsentService,)),
         (MedicinesConsent, consent, (ConsentService,)),
