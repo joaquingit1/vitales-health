@@ -6,7 +6,7 @@ from datetime import datetime
 
 from crew_health.sensors.application.runtime import Runtime
 from crew_health.sensors.application.store import ReadingRecord, View
-from crew_health.sensors.domain.plausibility import STATIC_FAILURES
+from crew_health.sensors.domain.plausibility import STATIC_FAILURES, SUSPECT_REASONS
 from crew_health.sensors.domain.reading import ReadingFact
 
 
@@ -22,6 +22,7 @@ def fact_of(record: ReadingRecord) -> ReadingFact:
         record.quality_status,
         record.origin_mode,
         record.segment_id,
+        record.provenance_trace if record.provenance_trace in SUSPECT_REASONS else None,
     )
 
 
@@ -30,8 +31,8 @@ def plausibility_history(
 ) -> tuple[ReadingFact, ...]:
     """Earlier readings of the channel, oldest first, at most `sensors.plausibility_history_max`.
 
-    A reading that failed range or saturation has no usable value and is left out; one rejected as stuck or too
-    fast stays, because its value is a real measurement the next reading is compared with.
+    A reading that failed range or saturation has no usable value and is left out; one that failed as stuck or too
+    fast stays (stored as suspect), because its value is a real measurement the next reading is compared with.
     """
     records = rt.store.recent_readings(
         view, channel_id, before=before, limit=rt.limits.plausibility_history_max

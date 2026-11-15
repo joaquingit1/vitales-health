@@ -1,9 +1,7 @@
 """Sensor ports exactly as E23 4.2 declares them. Implemented by ticket T3, consumed by E24, E27 and E32.
 
 Left out until R-E23-5 agrees the binding (never invented here):
-- `SensorStateQuery.last_results`, whose return type `SensorEvaluated` is a bus payload export (E23 4.3);
-- the `SensorEvaluated` and `ChannelFreshnessChanged` payload exports themselves, their discriminators, and the
-  Quantity-bearing duration and coverage fields;
+- the Quantity-bearing duration and coverage fields of the payloads;
 - a caller-snapshot `SensorStatus` projection for `HabitatParts` and `getHabitatView`.
 """
 
@@ -52,6 +50,7 @@ class SensorStateQuery(Protocol):
     def freshness(self, uow: UnitOfWork, channel_id: str) -> Freshness: ...  # SensorChannel.freshness
     def channels(self, uow: UnitOfWork) -> Sequence[str]: ...
     def type_name(self, uow: UnitOfWork, sensor_type_id: str) -> str: ...
+    def last_results(self, uow: UnitOfWork, channel_id: str) -> SensorEvaluated | None: ...
 
 
 class SensorSeriesReader(Protocol):
@@ -85,6 +84,7 @@ class LimitOutcome:
     value_text: str
     unit_display: str
     limit_value_text: str
+    suspect_reason: str | None = None  # rate_exceeded or stuck_value inside this limit's window: raise only
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,6 +114,10 @@ class SensorEvaluated:
     source_label: str
     last_received_time: str | None
     replay_dataset: str | None
+    # R-E23-2: `rate_exceeded` or `stuck_value` when the newest reading, or one still inside a window, failed a
+    # plausibility check that a real event could also fail. Such an evaluation may raise a warning; every
+    # `clear_holds` in `results` is already None, and the consumer must show "rapid change, verify the sensor".
+    suspect_reason: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

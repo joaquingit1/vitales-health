@@ -93,6 +93,20 @@ class SensorEvaluator:
         if event is not None:
             uow.publish(event)  # E24 consumes it in this unit of work (R-E24-14)
 
+    def current(self, uow: UnitOfWork, channel: ChannelState) -> tuple[Evaluation, SensorTypeFacts] | None:
+        """The evaluation of every stored reading of the channel under the release now active, without storing it.
+
+        It lets a consumer re-evaluate after a configuration activation without waiting for a new reading."""
+        rt = self._rt
+        environment = rt.store.environment(uow)
+        if environment is None or environment.environment_id not in channel.facts.environment_ids:
+            return None
+        config = rt.config_of(uow.release)
+        kind = config.sensor_type(channel.facts.sensor_type_id)
+        if kind is None:
+            raise ConfigInconsistent("sensor type is not in the release: " + channel.facts.sensor_type_id)
+        return self._compute(rt, uow, config, kind, channel, None, environment), kind
+
     def _compute(
         self,
         rt: Runtime,
@@ -100,7 +114,7 @@ class SensorEvaluator:
         config: SensorConfig,
         kind: SensorTypeFacts,
         channel: ChannelState,
-        high_rev: int,
+        high_rev: int | None,
         environment: EnvironmentRow,
     ) -> Evaluation:
         windowed = [a.window_seconds for a in kind.aggregations if a.window_seconds is not None]
@@ -128,6 +142,9 @@ class SensorEvaluator:
             False,
             channel.clock_state == "trusted",
             uow.now,
+            tuple(
+                (f.at, f.suspect_reason) for f in facts if f.at is not None and f.suspect_reason is not None
+            ),
         )
         verdict = _verdict(rt, uow, kind, records, channel)
         try:
