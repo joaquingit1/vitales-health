@@ -213,7 +213,9 @@ def test_expiry_never_ends_a_rule_or_sensor_warning(world: h.World) -> None:
 
 
 @pytest.mark.parametrize("reason", [ClearReason.CONFIG_CHANGED, ClearReason.ENVIRONMENT_CHANGED])
-def test_the_engine_never_clears_for_a_configuration_or_environment_change(world: h.World, reason: ClearReason) -> None:
+def test_the_engine_never_clears_for_a_configuration_or_environment_change(
+    world: h.World, reason: ClearReason
+) -> None:
     w = co2_warning(world)
     engine = engine_actor(h.NODE, origin_node_id=w.origin_node_id)
     with pytest.raises(ActionNotAllowed):

@@ -10,11 +10,11 @@ payloads under `docs/product/api/examples/config/`).
 from __future__ import annotations
 
 import json
-from functools import lru_cache
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
@@ -36,7 +36,11 @@ from crew_health.rules.domain.decisions import (
     ResolveOccurrences,
     ScheduleDeadline,
 )
-from crew_health.rules.domain.definitions import RulesDocument, WarningDefinition, parse_rules_document
+from crew_health.rules.domain.definitions import (
+    MissionEventCondition,
+    RulesDocument,
+    WarningDefinition,
+)
 from crew_health.rules.domain.dwell import DwellMarker
 from crew_health.rules.domain.engine import evaluate
 from crew_health.rules.domain.fingerprint import (
@@ -46,11 +50,18 @@ from crew_health.rules.domain.fingerprint import (
     rule_fingerprint,
 )
 from crew_health.rules.domain.inputs import (
+    AssistantPolicy,
     ChannelRenderFacts,
+    EvidenceKey,
     FreshnessInput,
+    InsightDraft,
+    InsightInput,
+    InsightTopic,
     LimitRenderFacts,
     LimitResult,
+    MissionEventInput,
     ObservedTime,
+    RecordFacts,
     RuleInput,
     SensorEvaluatedInput,
 )
@@ -65,6 +76,7 @@ from crew_health.rules.domain.vocabulary import (
     EnvironmentId,
     Level,
     OriginMode,
+    Scope,
     WarningState,
 )
 from crew_health.rules.domain.warning import (
@@ -246,6 +258,18 @@ class World:
         }
         self.renderer = MemoryTemplateRenderer(unknown="Unknown", allowed=allowed)
 
+    def reload(
+        self, rules: RulesDocument, *, docs: ReleaseDocuments | None = None, release_id: str = "rel_b"
+    ) -> None:
+        """Activates another release: new definitions and limits for new inputs, warnings keep their pins (D1)."""
+        self.rules = rules
+        if docs is not None:
+            self.docs = docs
+        self.release_id = release_id
+        self.limits = limit_facts(self.docs)
+        self._fingerprints = {d.id: rule_fingerprint(d, self.docs) for d in self.definitions}
+        self._content_hashes = {d.id: content_hash(d) for d in self.definitions}
+
     # -- derived release facts -------------------------------------------------------------------
     @property
     def definitions(self) -> tuple[WarningDefinition, ...]:
@@ -288,7 +312,42 @@ class World:
     def feed(self, inp: RuleInput) -> Decision:
         decision = evaluate(inp, self.view())
         self.apply(decision)
+        if isinstance(inp, MissionEventInput):
+            self._record_clear_event(inp)
         return decision
+
+    def _record_clear_event(self, inp: MissionEventInput) -> None:
+        """The producer's event log: a clear event is remembered for its key whether or not a warning is active."""
+        for d in self.definitions:
+            cond = d.condition
+            if isinstance(cond, MissionEventCondition) and inp.event_type in cond.clear_event_types:
+                for key in _keys(d.scope, inp):
+                    k = (d.id, key)
+                    self.latest_clear[k] = max(self.latest_clear.get(k, inp.occurred_at), inp.occurred_at)
+
+    def event(
+        self,
+        event_id: str,
+        event_type: str,
+        at: datetime,
+        *,
+        origin: OriginMode = OriginMode.LIVE,
+        persons: tuple[str, ...] = (),
+        location: str | None = None,
+        corrected: datetime | None = None,
+    ) -> MissionEventInput:
+        return MissionEventInput(
+            event_id,
+            event_type,
+            f"label {event_type}",
+            at,
+            corrected,
+            at,
+            origin,
+            self.environment.value,
+            persons,
+            location,
+        )
 
     def apply(self, decision: Decision) -> None:
         for step in decision:
@@ -324,19 +383,30 @@ class World:
             self.spent.add((w.definition_id, w.scope_key, w.trigger))
         self.dwell.pop(w.warning_id, None)
 
+    def finish(self, warning_id: str, state: WarningState) -> None:
+        """Marks a warning ended in a spent way outside the engine (a person resolved or dismissed it)."""
+        w = self.warnings[warning_id]
+        self.warnings[warning_id] = replace_state(w, state)
+        self.spent.add((w.definition_id, w.scope_key, w.trigger))
+
     def _resolve(self, step: ResolveOccurrences) -> None:
         items = self.occurrences.get(step.warning_id, [])
         for i, o in enumerate(items):
             if o.resolved_by_event_id is None and o.occurred_at < step.before:
                 items[i] = Occurrence(
-                    o.warning_id, o.definition_id, o.scope_key, o.trigger_ref, o.occurred_at, step.clear_event_id
+                    o.warning_id,
+                    o.definition_id,
+                    o.scope_key,
+                    o.trigger_ref,
+                    o.occurred_at,
+                    step.clear_event_id,
                 )
-        w = self.warnings[step.warning_id]
-        self.latest_clear[w.key] = max(self.latest_clear.get(w.key, step.before), step.before)
 
     def _raise(self, r: Raise) -> None:
         self._n += 1
-        rendered = rendering.render_content(r.pin, r.render, self.renderer, self.what_to_do.get(r.pin.definition.hazard_id or ""))
+        rendered = rendering.render_content(
+            r.pin, r.render, self.renderer, self.what_to_do.get(r.pin.definition.hazard_id or "")
+        )
         label = f"{r.render.time_label.at:%H:%M}" + (", replay time" if r.render.replay else "")
         wid = f"wrn_{self._n}"
         w = raise_new(
@@ -359,7 +429,9 @@ class World:
                 evidence=r.evidence,
                 evidence_time=r.evidence_time,
                 evidence_time_label=label,
-                citation=Citation(rendered.citation.text, rendered.citation.source_ids, rendered.citation.basis),
+                citation=Citation(
+                    rendered.citation.text, rendered.citation.source_ids, rendered.citation.basis
+                ),
                 insight_id=r.insight_id,
                 raised_at=self.now,
                 previous_warning_id=r.previous_warning_id,
@@ -375,7 +447,9 @@ class World:
         )
         self.warnings[wid] = w
         if r.trigger.kind.value == "mission_event":
-            self.occurrences[wid] = [Occurrence(wid, w.definition_id, w.scope_key, r.trigger.ref, r.evidence_time, None)]
+            self.occurrences[wid] = [
+                Occurrence(wid, w.definition_id, w.scope_key, r.trigger.ref, r.evidence_time, None)
+            ]
 
     # -- convenience -----------------------------------------------------------------------------
     def by_definition(self, definition_id: str, *, active_only: bool = True) -> list[Warning]:
@@ -444,6 +518,66 @@ class World:
             receive_reference=receive_reference,
             channel=channel_facts(origin),
         )
+
+
+def _keys(scope: Scope, inp: MissionEventInput) -> list[str]:
+    if scope is Scope.PERSON:
+        return sorted(set(inp.person_ids))
+    if scope is Scope.CREW:
+        return [""]
+    return [inp.location if inp.location else f"environment:{inp.environment_id}"]
+
+
+def replace_state(w: Warning, state: WarningState) -> Warning:
+    """A resolved or dismissed copy of a warning, for scenarios that need a person's final action."""
+    from dataclasses import replace
+
+    from crew_health.rules.domain.warning import Dismissal, Resolution
+
+    if state is WarningState.RESOLVED:
+        return replace(
+            w,
+            revision=w.revision + 1,
+            state=state,
+            resolved=Resolution("p1", "person", T0, "reason", "owner"),
+        )
+    return replace(w, revision=w.revision + 1, state=state, dismissed=Dismissal("p1", T0, None))
+
+
+OBS_KEY = EvidenceKey("observation", "obs_1")
+
+
+def assistant_policy() -> AssistantPolicy:
+    """The assistant policy of the labeled test example release, never hand-typed."""
+    raw = example_value("assistant-policy")
+    return AssistantPolicy(
+        frozenset(Level(v) for v in raw["allowed_warning_levels"]),  # type: ignore[attr-defined]
+        tuple(
+            InsightTopic(t["id"], t["warning_definition_id"], t["body_region"])
+            for t in raw["insight_topics"]  # type: ignore[attr-defined]
+        ),
+    )
+
+
+def good_record(state: str = "accepted") -> RecordFacts:
+    return RecordFacts(True, "p1", OriginMode.LIVE, False, "ok", state, T0, "pulse summary")
+
+
+def insight_draft(**kw: object) -> InsightDraft:
+    from dataclasses import replace as _replace
+
+    base = InsightDraft(
+        insight_id="ins_1", person_id="p1", topic_id="sleep_reaction", level=Level.WATCH, title="Short sleep",
+        text="You slept less.", why="From your own records.", headline_fragment="Short sleep",
+        steps=("Go to bed earlier.",), body_region="eyes", evidence=(OBS_KEY,), habitat_reading_ids=(),
+        habitat_fact_text_present=False, routine_occurrence_ids=(), origin_mode=OriginMode.LIVE,
+        created_at=T0, model_release_id="model_1",
+    )  # fmt: skip
+    return _replace(base, **kw)  # type: ignore[arg-type]
+
+
+def insight_input(**kw: object) -> InsightInput:
+    return InsightInput(insight_draft(**kw), ((OBS_KEY, good_record()),), assistant_policy())
 
 
 def final_states() -> Iterable[WarningState]:

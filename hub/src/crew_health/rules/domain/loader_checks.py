@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping, Sequence
 from decimal import Decimal, InvalidOperation
+from types import MappingProxyType
 from typing import Final
 
 from crew_health.kernel.config import Finding
@@ -39,12 +40,14 @@ VALUE_PLACEHOLDERS: Final[frozenset[str]] = frozenset(
 _PLACEHOLDER: Final = re.compile(r"\{([a-z_]+)\}")
 
 _HIGH_RAISE = frozenset({"above", "at_or_above"})
-_STRICT_PAIRS: Final[Mapping[str, tuple[str, ...]]] = {
-    "above": ("at_or_below", "below"),
-    "at_or_above": ("below",),
-    "below": ("at_or_above", "above"),
-    "at_or_below": ("above",),
-}
+_STRICT_PAIRS: Final[Mapping[str, tuple[str, ...]]] = MappingProxyType(
+    {
+        "above": ("at_or_below", "below"),
+        "at_or_above": ("below",),
+        "below": ("at_or_above", "above"),
+        "at_or_below": ("above",),
+    }
+)
 
 
 def _finding(check: str, pointer: str, message: str) -> Finding:

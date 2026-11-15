@@ -115,13 +115,17 @@ def _edited(mutator: object) -> RulesDocument:
     return parse_rules_document(raw)
 
 
-def test_t090_a_threshold_edit_changes_the_rule_fingerprint(release_docs: ReleaseDocuments, deployment_doc: RulesDocument) -> None:
+def test_t090_a_threshold_edit_changes_the_rule_fingerprint(
+    release_docs: ReleaseDocuments, deployment_doc: RulesDocument
+) -> None:
     """Scratch copy edit of a sourced limit value (D15): the fingerprint of the definition moves."""
     limits = copy.deepcopy(dict(release_docs.sensor_limits))
     for entry in limits["limits"]:  # type: ignore[attr-defined,index]
         if entry["limit_id"] == "co2_1h_act":
             entry["value"] = 4
-    edited = ReleaseDocuments(limits, release_docs.sensor_catalog, release_docs.questionnaires, release_docs.assistant_policy)
+    edited = ReleaseDocuments(
+        limits, release_docs.sensor_catalog, release_docs.questionnaires, release_docs.assistant_policy
+    )
     d = deployment_doc.by_id()["co2_above_limit"]
     assert rule_fingerprint(d, edited) != rule_fingerprint(d, release_docs)
     other = deployment_doc.by_id()["oxygen_low_act"]
@@ -140,7 +144,18 @@ def test_t091_a_listed_step_edit_reaches_the_next_warning(release_docs: ReleaseD
     from crew_health.rules.domain.vocabulary import OriginMode
 
     world.feed(
-        MissionEventInput("evt_1", "space_weather_alert", "Space weather alert", h.T0, h.T0, h.T0, OriginMode.LIVE, "station_leo", (), None)
+        MissionEventInput(
+            "evt_1",
+            "space_weather_alert",
+            "Space weather alert",
+            h.T0,
+            h.T0,
+            h.T0,
+            OriginMode.LIVE,
+            "station_leo",
+            (),
+            None,
+        )
     )
     (w,) = world.by_definition("radiation_storm_shelter")
     assert w.steps[0] == "Edited first step."

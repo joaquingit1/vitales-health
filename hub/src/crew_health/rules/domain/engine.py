@@ -44,6 +44,7 @@ from crew_health.rules.domain.definitions import (
     StateFactCondition,
     SupplyCoverLowCondition,
     WarningDefinition,
+    WithinDays,
 )
 from crew_health.rules.domain.inputs import (
     ActivationInput,
@@ -53,6 +54,7 @@ from crew_health.rules.domain.inputs import (
     GroundLinkInput,
     InsightExpiredInput,
     InsightInput,
+    LimitResult,
     MissionEventInput,
     RuleInput,
     SensorEvaluatedInput,
@@ -69,6 +71,7 @@ from crew_health.rules.domain.time_policy import (
 )
 from crew_health.rules.domain.views import EngineView, LimitFacts
 from crew_health.rules.domain.vocabulary import (
+    ClearBy,
     ClearReason,
     ConditionKind,
     EvidenceKind,
@@ -117,7 +120,7 @@ def reconcile_clear_events(view: EngineView) -> Decision:
         return ()
     steps: list[Step] = []
     for w in sorted(view.active.values(), key=lambda x: x.warning_id):
-        if not w.active or w.pin.definition.clear.by_engine.value != "clear_event":
+        if not w.active or w.pin.definition.clear.by_engine is not ClearBy.CLEAR_EVENT:
             continue
         if occurrences.fully_resolved(view.occurrences.get(w.warning_id, ())):
             steps.append(Clear(w.warning_id, ClearReason.CLEAR_EVENT))
@@ -132,9 +135,14 @@ def _in_environment(d: WarningDefinition, view: EngineView) -> bool:
     return view.environment_id in d.environments
 
 
-def _defs(view: EngineView, kind: ConditionKind) -> list[WarningDefinition]:
-    found = [d for d in view.definitions if d.condition.kind is kind and _in_environment(d, view)]
-    return sorted(found, key=lambda d: d.id)
+def _defs[C](view: EngineView, cls: type[C]) -> list[tuple[WarningDefinition, C]]:
+    """The definitions of one condition kind that apply in the active environment, sorted by id."""
+    found: list[tuple[WarningDefinition, C]] = []
+    for d in sorted(view.definitions, key=lambda x: x.id):
+        cond = d.condition
+        if isinstance(cond, cls) and _in_environment(d, view):
+            found.append((d, cond))
+    return found
 
 
 def _stamp(d: WarningDefinition, view: EngineView) -> tuple[str, str] | None:
@@ -257,13 +265,12 @@ def _limit_pin(facts: LimitFacts) -> LimitPin:
     )
 
 
-def _crossed(inp: SensorEvaluatedInput, view: EngineView) -> list[tuple[WarningDefinition, LimitFacts]]:
+def _crossed(
+    inp: SensorEvaluatedInput, view: EngineView
+) -> list[tuple[WarningDefinition, LimitFacts, LimitResult]]:
     """Definitions whose own limit result is crossed, with an active limit that has a threshold."""
-    found: list[tuple[WarningDefinition, LimitFacts]] = []
-    for d in _defs(view, ConditionKind.SENSOR_LIMIT):
-        cond = d.condition
-        if not isinstance(cond, SensorLimitCondition):
-            continue
+    found: list[tuple[WarningDefinition, LimitFacts, LimitResult]] = []
+    for d, cond in _defs(view, SensorLimitCondition):
         facts = view.limits.get(cond.limit_id)
         result = inp.result_for(cond.limit_id)
         if facts is None or result is None or result.crossed is not True:
@@ -272,23 +279,21 @@ def _crossed(inp: SensorEvaluatedInput, view: EngineView) -> list[tuple[WarningD
             continue  # a null threshold or a display-only limit raises nothing
         if facts.sensor_type_id != inp.sensor_type_id:
             continue
-        found.append((d, facts))
+        found.append((d, facts, result))
     return found
 
 
-def _sensor_fields(inp: SensorEvaluatedInput, facts: LimitFacts, view: EngineView) -> _Fields:
-    result = inp.result_for(facts.limit_id)
-    base: dict[str, str] = {"sensor_name": inp.channel.sensor_name}
-    if result is not None:
-        base.update(
-            {
-                "aggregation_label": result.render.aggregation_label,
-                "value": result.render.value_text,
-                "unit": result.render.unit,
-                "unit_display": result.render.unit_display,
-                "limit_value": result.render.limit_value_text,
-            }
-        )
+def _sensor_fields(
+    inp: SensorEvaluatedInput, facts: LimitFacts, result: LimitResult, view: EngineView
+) -> _Fields:
+    base: dict[str, str] = {
+        "sensor_name": inp.channel.sensor_name,
+        "aggregation_label": result.render.aggregation_label,
+        "value": result.render.value_text,
+        "unit": result.render.unit,
+        "unit_display": result.render.unit_display,
+        "limit_value": result.render.limit_value_text,
+    }
     if inp.channel.location_label is not None:
         base["location"] = inp.channel.location_label
     base["source_label"] = inp.channel.source_label
@@ -359,7 +364,7 @@ def _sensor_raises(
     inp: SensorEvaluatedInput,
     view: EngineView,
     plan: escalation.EscalationPlan,
-    facts_by_def: Mapping[str, LimitFacts],
+    facts_by_def: Mapping[str, tuple[LimitFacts, LimitResult]],
 ) -> tuple[list[Raise], list[Step]]:
     raises: list[Raise] = []
     refusals: list[Step] = []
@@ -368,7 +373,8 @@ def _sensor_raises(
         if _spent(view, d.id, inp.channel_id, trigger):
             refusals.append(_refuse(d.id, inp.channel_id, "trigger_spent"))
             continue
-        fields = _sensor_fields(inp, facts_by_def[d.id], view)
+        facts, result = facts_by_def[d.id]
+        fields = _sensor_fields(inp, facts, result, view)
         fields.supersedes = tuple(w.warning_id for w in plan.supersedes)
         fields.previous = plan.previous.warning_id if plan.previous is not None else None
         built = _raise(d, view, fields)
@@ -382,8 +388,8 @@ def _sensor(inp: SensorEvaluatedInput, view: EngineView) -> Decision:
     ready, dwell_steps = _sensor_dwell(inp, view, group)
     stale_release = inp.config_release_id != view.release_id
     crossed = [] if stale_release else _crossed(inp, view)
-    facts_by_def = {d.id: facts for d, facts in crossed}
-    plan = escalation.plan_group([d for d, _ in crossed], group, cleared=ready, frozen=view.clears_frozen)
+    facts_by_def = {d.id: (facts, result) for d, facts, result in crossed}
+    plan = escalation.plan_group([d for d, _, _ in crossed], group, cleared=ready, frozen=view.clears_frozen)
     raises, refusals = _sensor_raises(inp, view, plan, facts_by_def)
     steps: list[Step] = []
     if stale_release:
@@ -440,10 +446,7 @@ def _quiet_fields(inp: FreshnessInput, view: EngineView, since: datetime) -> _Fi
     return fields
 
 
-def _quiet_covers(d: WarningDefinition, sensor_type_id: str) -> bool:
-    cond = d.condition
-    if not isinstance(cond, SensorQuietCondition):
-        return False
+def _quiet_covers(cond: SensorQuietCondition, sensor_type_id: str) -> bool:
     return not cond.sensor_type_ids or sensor_type_id in cond.sensor_type_ids
 
 
@@ -451,8 +454,8 @@ def _quiet_raises(inp: FreshnessInput, view: EngineView) -> list[Step]:
     if inp.state != "stale" or inp.stale_since is None:
         return []
     steps: list[Step] = []
-    for d in _defs(view, ConditionKind.SENSOR_QUIET):
-        if not _quiet_covers(d, inp.sensor_type_id) or (d.id, inp.channel_id) in view.active:
+    for d, cond in _defs(view, SensorQuietCondition):
+        if not _quiet_covers(cond, inp.sensor_type_id) or (d.id, inp.channel_id) in view.active:
             continue
         fields = _quiet_fields(inp, view, inp.stale_since)
         if _spent(view, d.id, inp.channel_id, fields.trigger):
@@ -564,9 +567,8 @@ def _event_for_key(d: WarningDefinition, inp: MissionEventInput, view: EngineVie
 
 def _event_raises(inp: MissionEventInput, view: EngineView) -> list[Step]:
     steps: list[Step] = []
-    for d in _defs(view, ConditionKind.MISSION_EVENT):
-        cond = d.condition
-        if not isinstance(cond, MissionEventCondition) or inp.event_type not in cond.event_types:
+    for d, cond in _defs(view, MissionEventCondition):
+        if inp.event_type not in cond.event_types:
             continue
         for key in _event_keys(d.scope, inp):
             built = _event_for_key(d, inp, view, key)
@@ -577,7 +579,10 @@ def _event_raises(inp: MissionEventInput, view: EngineView) -> list[Step]:
 
 def _pinned_clears_event(w: Warning, inp: MissionEventInput) -> bool:
     cond = w.pin.definition.condition
-    if not isinstance(cond, MissionEventCondition) or w.pin.definition.clear.by_engine.value != "clear_event":
+    if (
+        not isinstance(cond, MissionEventCondition)
+        or w.pin.definition.clear.by_engine is not ClearBy.CLEAR_EVENT
+    ):
         return False
     return inp.event_type in cond.clear_event_types
 
@@ -607,12 +612,12 @@ def _mission_event(inp: MissionEventInput, view: EngineView) -> Decision:
 # state facts
 
 
-def _same_fact_value(a: object, b: object) -> bool:
-    """Equality that never mixes a boolean with a number or a string with a number."""
+def _compare_fact(a: object, b: object) -> bool | None:
+    """True when equal, False when different, `None` when the types are not comparable (never a guess)."""
     if isinstance(a, bool) or isinstance(b, bool):
-        return isinstance(a, bool) and isinstance(b, bool) and a == b
+        return (a == b) if isinstance(a, bool) and isinstance(b, bool) else None
     if isinstance(a, str) or isinstance(b, str):
-        return isinstance(a, str) and isinstance(b, str) and a == b
+        return (a == b) if isinstance(a, str) and isinstance(b, str) else None
     return a == b
 
 
@@ -634,7 +639,7 @@ def _fact_clears(inp: StateFactInput, view: EngineView) -> list[Step]:
             continue
         if w.scope_key != _fact_key(w.pin.definition.scope, inp):
             continue
-        holds = not _same_fact_value(inp.value, cond.equals)
+        holds = _compare_fact(inp.value, cond.equals) is False  # an incomparable value never clears
         if holds and inp.origin_mode is w.origin_mode and inp.at > w.raised_at:
             steps.append(Clear(w.warning_id, ClearReason.CONDITION_FALSE))
     return steps
@@ -642,12 +647,11 @@ def _fact_clears(inp: StateFactInput, view: EngineView) -> list[Step]:
 
 def _fact_raises(inp: StateFactInput, view: EngineView) -> list[Step]:
     steps: list[Step] = []
-    for d in _defs(view, ConditionKind.STATE_FACT):
-        cond = d.condition
+    for d, cond in _defs(view, StateFactCondition):
         key = _fact_key(d.scope, inp)
-        if not isinstance(cond, StateFactCondition) or cond.fact != inp.fact or key is None:
+        if cond.fact != inp.fact or key is None:
             continue
-        if not _same_fact_value(inp.value, cond.equals) or (d.id, key) in view.active:
+        if _compare_fact(inp.value, cond.equals) is not True or (d.id, key) in view.active:
             continue
         trigger = TriggerRef(ConditionKind.STATE_FACT, inp.cause_event_id)
         if _spent(view, d.id, key, trigger):
@@ -675,27 +679,23 @@ def _state_fact(inp: StateFactInput, view: EngineView) -> Decision:
 # answers
 
 
-def _window_event(cond: AnswerCondition, inp: AnswerInput, view: EngineView) -> MissionEventInput | None:
-    if cond.within_days_after_event is None:
-        return None
-    wanted = cond.within_days_after_event.event_type
+def _window_event(within: WithinDays, inp: AnswerInput, view: EngineView) -> MissionEventInput | None:
+    """The latest event of the configured type naming this person or nobody."""
     pool = [
         e
         for e in view.answer_events
-        if e.event_type == wanted and (not e.person_ids or inp.person_id in e.person_ids)
+        if e.event_type == within.event_type and (not e.person_ids or inp.person_id in e.person_ids)
     ]
     return max(pool, key=lambda e: (e.occurred_at, e.event_id), default=None)
 
 
-def _answer_matches(d: WarningDefinition, inp: AnswerInput, view: EngineView) -> bool:
-    cond = d.condition
-    if not isinstance(cond, AnswerCondition) or cond.question_id != inp.question_id:
+def _answer_matches(cond: AnswerCondition, inp: AnswerInput, view: EngineView) -> bool:
+    if cond.question_id != inp.question_id or inp.presence not in {p.value for p in cond.presence}:
         return False
-    if inp.presence not in {p.value for p in cond.presence}:
-        return False
-    if cond.within_days_after_event is None:
+    within = cond.within_days_after_event
+    if within is None:
         return True
-    event = _window_event(cond, inp, view)
+    event = _window_event(within, inp, view)
     if event is None:
         return False
     return answer_window_satisfied(
@@ -703,14 +703,14 @@ def _answer_matches(d: WarningDefinition, inp: AnswerInput, view: EngineView) ->
         answered_corrected_at=inp.answered_corrected_at,
         occurred_at=event.occurred_at,
         occurred_corrected_at=event.occurred_corrected_at,
-        days=cond.within_days_after_event.days,
+        days=within.days,
     )
 
 
 def _answer(inp: AnswerInput, view: EngineView) -> Decision:
     steps: list[Step] = []
-    for d in _defs(view, ConditionKind.ANSWER):
-        if not _answer_matches(d, inp, view) or (d.id, inp.person_id) in view.active:
+    for d, cond in _defs(view, AnswerCondition):
+        if not _answer_matches(cond, inp, view) or (d.id, inp.person_id) in view.active:
             continue
         trigger = TriggerRef(ConditionKind.ANSWER, inp.answer_id)
         if not _person_ok(view, [inp.origin_mode]):
@@ -773,9 +773,8 @@ def _ground_key(definition_id: str) -> str:
 def _ground_raises(inp: GroundLinkInput, view: EngineView) -> list[Step]:
     steps: list[Step] = []
     link_origin = origin.ground_origin(inp.source, view.mission_mode)
-    for d in _defs(view, ConditionKind.GROUND_SILENCE):
-        cond = d.condition
-        if not isinstance(cond, GroundSilenceCondition) or (d.id, "") in view.active:
+    for d, cond in _defs(view, GroundSilenceCondition):
+        if (d.id, "") in view.active:
             continue
         threshold = cond.after_next_contact_seconds
         if threshold is None or inp.next_contact_at is None or inp.gap_planned or inp.status != "down":
@@ -873,9 +872,8 @@ def _supply_fields(inp: SupplyCoverInput, row: SupplyCoverRow, view: EngineView)
 
 def _supply_raises(inp: SupplyCoverInput, view: EngineView) -> list[Step]:
     steps: list[Step] = []
-    for d in _defs(view, ConditionKind.SUPPLY_COVER_LOW):
-        cond = d.condition
-        if not isinstance(cond, SupplyCoverLowCondition) or cond.below_uses is None:
+    for d, cond in _defs(view, SupplyCoverLowCondition):
+        if cond.below_uses is None:
             continue  # a null threshold raises nothing
         for row in sorted(inp.rows, key=lambda r: r.supply_id):
             if row.cover_uses is None or row.cover_uses >= cond.below_uses:
@@ -904,11 +902,9 @@ def _insight_definition(inp: InsightInput, view: EngineView) -> WarningDefinitio
     topic = inp.policy.topic(inp.draft.topic_id)
     if topic is None or topic.warning_definition_id is None:
         return None
-    for d in _defs(view, ConditionKind.ASSISTANT_INSIGHT):
-        cond = d.condition
-        if d.id == topic.warning_definition_id and isinstance(cond, InsightCondition):
-            if inp.draft.topic_id in cond.topic_ids:
-                return d
+    for d, cond in _defs(view, InsightCondition):
+        if d.id == topic.warning_definition_id and inp.draft.topic_id in cond.topic_ids:
+            return d
     return None
 
 

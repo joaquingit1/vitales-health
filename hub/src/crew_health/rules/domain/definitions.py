@@ -191,9 +191,6 @@ def _enforce_raiser_matrix(d: WarningDefinition) -> None:
         raise DefinitionInvalid(f"{d.id}: assistant_insight and raised_by assistant go together")
     if d.raised_by is RaisedBy.ASSISTANT and d.level not in ASSISTANT_LEVELS:
         raise DefinitionInvalid(f"{d.id}: assistant definitions are info or watch only")
-    if kind not in SENSOR_KINDS and kind is not ConditionKind.ASSISTANT_INSIGHT:
-        if d.raised_by is not RaisedBy.RULE:
-            raise DefinitionInvalid(f"{d.id}: every other condition kind is raised by rule")
 
 
 def _enforce_kind_scope(d: WarningDefinition) -> None:

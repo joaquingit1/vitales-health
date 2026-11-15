@@ -15,6 +15,7 @@ import rules_harness as h  # noqa: E402
 from crew_health.rules.domain.definitions import RulesDocument, parse_rules_document  # noqa: E402
 from crew_health.rules.domain.fingerprint import ReleaseDocuments  # noqa: E402
 
+
 def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "E24: warnings engine")
 

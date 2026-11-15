@@ -236,6 +236,16 @@ def _check_identity(w: Warning) -> None:
         raise InvariantViolation("revision starts at 1")
     if w.raised_by is RaisedBy.ASSISTANT and w.level not in ASSISTANT_LEVELS:
         raise LevelNotAllowed("the assistant raises info or watch only")
+    _check_content(w)
+    if (w.scope is Scope.PERSON) != (w.person_id is not None):
+        raise InvariantViolation("only person scope names a person")
+    if w.scope is Scope.PERSON and w.origin_mode is OriginMode.REPLAY:
+        raise OriginMismatch("a person warning is never REPLAY")
+    if (w.raised_by is RaisedBy.ASSISTANT) != (w.insight_id is not None):
+        raise InvariantViolation("an insight is named by assistant warnings only")
+
+
+def _check_content(w: Warning) -> None:
     if not w.steps or any(not s for s in w.steps):
         raise InvariantViolation("a warning always has stored steps")
     if not set(w.body_regions) <= BODY_REGIONS or len(set(w.body_regions)) != len(w.body_regions):
@@ -244,12 +254,6 @@ def _check_identity(w: Warning) -> None:
         raise InvariantViolation("a warning always has a citation")
     if not (w.title and w.what and w.why and w.evidence_time_label):
         raise InvariantViolation("a warning always has its words")
-    if (w.scope is Scope.PERSON) != (w.person_id is not None):
-        raise InvariantViolation("only person scope names a person")
-    if w.scope is Scope.PERSON and w.origin_mode is OriginMode.REPLAY:
-        raise OriginMismatch("a person warning is never REPLAY")
-    if (w.raised_by is RaisedBy.ASSISTANT) != (w.insight_id is not None):
-        raise InvariantViolation("an insight is named by assistant warnings only")
 
 
 def _check_state(w: Warning) -> None:
@@ -307,8 +311,6 @@ class NewWarning:
 
 def raise_new(n: NewWarning) -> Warning:
     d = n.definition
-    if d.raised_by is RaisedBy.ASSISTANT and d.level not in ASSISTANT_LEVELS:
-        raise LevelNotAllowed("the assistant raises info or watch only")
     return Warning(
         warning_id=n.warning_id,
         revision=1,

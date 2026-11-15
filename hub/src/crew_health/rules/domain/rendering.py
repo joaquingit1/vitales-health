@@ -69,7 +69,7 @@ def steps_for(
     return steps
 
 
-def weakest_basis(pin: DefinitionPin) -> Basis | None:
+def weakest_basis(pin: DefinitionPin) -> Basis:
     """The weakest basis among condition, clear, steps and, for sensor limits, the limit and its clear."""
     d = pin.definition
     found: list[Basis] = [d.clear.basis]
@@ -82,8 +82,6 @@ def weakest_basis(pin: DefinitionPin) -> Basis | None:
         found.append(d.content.steps.basis)
     if pin.limit is not None:
         found.extend(b for b in (pin.limit.basis, pin.limit.clear_basis) if b is not None)
-    if not found:
-        return None
     return Basis.TEAM_DEFAULT if Basis.TEAM_DEFAULT in found else Basis.SOURCED
 
 

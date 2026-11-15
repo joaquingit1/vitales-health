@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from crew_health.rules.domain.vocabulary import LINK_SOURCE_DEMO_SWITCH, OriginMode, Scope
+from crew_health.rules.domain.vocabulary import LINK_SOURCE_DEMO_SWITCH, OriginMode
 
 
 def person_origin_allowed(*, evidence_origins: Iterable[OriginMode], mission_mode: OriginMode) -> bool:
@@ -18,14 +18,6 @@ def person_origin_allowed(*, evidence_origins: Iterable[OriginMode], mission_mod
     if not origins:
         return False
     return origins == {mission_mode} and OriginMode.REPLAY not in origins
-
-
-def raise_origin_allowed(
-    *, scope: Scope, evidence_origins: Iterable[OriginMode], mission_mode: OriginMode
-) -> bool:
-    if scope is Scope.PERSON:
-        return person_origin_allowed(evidence_origins=evidence_origins, mission_mode=mission_mode)
-    return len(set(evidence_origins)) <= 1
 
 
 def ground_origin(source: str, mission_mode: OriginMode) -> OriginMode:

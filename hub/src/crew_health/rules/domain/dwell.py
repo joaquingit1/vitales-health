@@ -45,13 +45,11 @@ def step(
     fingerprint: str,
 ) -> DwellOutcome:
     """One evaluation of a warning's dwell. `e` is the evaluation instant on the data's own time axis."""
-    if marker is not None and marker.rule_fingerprint != fingerprint:
-        marker = None  # a marker of another rule is void; the delete below is not needed, put replaces it
-        stale_marker = True
-    else:
-        stale_marker = False
+    voided = marker is not None and marker.rule_fingerprint != fingerprint
+    if voided:
+        marker = None  # a marker of another rule is void; a put replaces it, a delete removes it
     if not eligible or e is None:
-        return DwellOutcome("delete", None, False) if (marker is not None or stale_marker) else _NOTHING
+        return DwellOutcome("delete", None, False) if (marker is not None or voided) else _NOTHING
     if marker is not None and marker.segment_key != segment_key:
         marker = None
     if marker is not None:

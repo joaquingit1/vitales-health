@@ -127,5 +127,5 @@ def _transition(
             return add_note(w, r.actor, at, note or "", max_notes=ctx.max_notes)
         case WarningAction.RESOLVE:
             return resolve(w, r.actor, at, reason or "", role=resolve_role(w, r, ctx.definition_status))
-        case WarningAction.DISMISS:
+        case _:
             return dismiss(w, r.actor, at, reason)

@@ -9,8 +9,6 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from crew_health.rules.domain.vocabulary import Level
-
 _DAY_SECONDS = 86400
 
 
@@ -67,8 +65,3 @@ def answer_window_satisfied(
         return False
     corrected = (answered_corrected_at - occurred_corrected_at).total_seconds()
     return 0 <= corrected <= limit
-
-
-def level_wakes_everyone(level: Level) -> bool:
-    """Emergency wakes everyone and is never held (Q9, D2)."""
-    return level is Level.EMERGENCY

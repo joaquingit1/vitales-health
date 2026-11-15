@@ -82,12 +82,18 @@ def test_t020_o2_below_the_emergency_limit_raises_emergency_and_supersedes_lower
 
 
 @pytest.mark.trace("T-E24-018", "T-E24-021")
-def test_t018_a_lower_crossing_under_a_higher_active_warning_raises_nothing_then_deescalates_linked(world: h.World) -> None:
+def test_t018_a_lower_crossing_under_a_higher_active_warning_raises_nothing_then_deescalates_linked(
+    world: h.World,
+) -> None:
     kw = {"sensor_type": "o2", "channel": "ch_o2"}
     world.feed(world.sensor(results=[h.result("o2_low_emergency", **CROSSED)], **kw))  # type: ignore[arg-type]
     (top,) = world.by_definition("oxygen_low_emergency")
     world.advance(10)
-    world.feed(world.sensor(results=[h.result("o2_low_act", **CROSSED), h.result("o2_low_emergency", **CROSSED)], **kw))  # type: ignore[arg-type]
+    world.feed(
+        world.sensor(
+            results=[h.result("o2_low_act", **CROSSED), h.result("o2_low_emergency", **CROSSED)], **kw
+        )
+    )  # type: ignore[arg-type]
     assert world.by_definition("oxygen_low_act") == []
     # The emergency clears by its own dwell while the act limit is still crossed: the lower one raises, linked.
     for offset in (70, 130, 190, 250, 310, 370, 430, 490, 550, 610, 670, 730):
@@ -132,7 +138,12 @@ def test_t027_a_null_threshold_and_a_display_only_limit_raise_nothing(world: h.W
     world.limits["co2_1h_act"] = replace(pending, role="display_only")
     assert world.feed(world.sensor(results=[h.result("co2_1h_act", **CROSSED)])) == ()
     # A pending radiation limit crossing is ignored: no definition names it and no number is invented.
-    assert world.feed(world.sensor(sensor_type="rad", channel="ch_rad", results=[h.result("rad_rate_act", **CROSSED)])) == ()
+    assert (
+        world.feed(
+            world.sensor(sensor_type="rad", channel="ch_rad", results=[h.result("rad_rate_act", **CROSSED)])
+        )
+        == ()
+    )
 
 
 @pytest.mark.trace("T-E24-025", "V56")
@@ -141,7 +152,9 @@ def test_t025_clear_holds_599_seconds_then_insufficient_restarts_the_dwell(world
     (w,) = world.by_definition("co2_above_limit")
     for offset in (*range(60, 660, 60), 659):  # every minute, ending 599 seconds after the first evaluation
         holding(world, offset)
-    assert world.warnings[w.warning_id].active and world.dwell[w.warning_id].holding_since == h.T0 + timedelta(seconds=60)
+    assert world.warnings[w.warning_id].active and world.dwell[
+        w.warning_id
+    ].holding_since == h.T0 + timedelta(seconds=60)
     world.now = h.T0 + timedelta(seconds=700)
     world.feed(world.sensor(results=[h.result("co2_1h_act", crossed=None, clear_holds=None)]))  # insufficient
     assert w.warning_id not in world.dwell and world.warnings[w.warning_id].active
@@ -171,9 +184,19 @@ def test_t046_the_same_evaluation_instant_never_advances_a_dwell_and_false_reset
     holding(world, 60)
     before = world.dwell[w.warning_id]
     world.now = h.T0 + timedelta(seconds=61)
-    world.feed(world.sensor(at=h.T0 + timedelta(seconds=60), results=[h.result("co2_1h_act", **HOLDING)], reading="rdg_late"))
+    world.feed(
+        world.sensor(
+            at=h.T0 + timedelta(seconds=60), results=[h.result("co2_1h_act", **HOLDING)], reading="rdg_late"
+        )
+    )
     assert world.dwell[w.warning_id] == before  # a late repeat at the same E advances nothing
-    world.feed(world.sensor(at=h.T0 + timedelta(seconds=60), results=[h.result("co2_1h_act", crossed=False, clear_holds=False)], reading="rdg_late2"))
+    world.feed(
+        world.sensor(
+            at=h.T0 + timedelta(seconds=60),
+            results=[h.result("co2_1h_act", crossed=False, clear_holds=False)],
+            reading="rdg_late2",
+        )
+    )
     assert w.warning_id not in world.dwell  # false at the same E resets
 
 
@@ -186,7 +209,9 @@ def test_t046_the_same_evaluation_instant_never_advances_a_dwell_and_false_reset
         {"freshness": "stale"},
     ],
 )
-def test_t120_untrusted_or_stale_evaluations_never_complete_a_dwell(world: h.World, kwargs: dict[str, str]) -> None:
+def test_t120_untrusted_or_stale_evaluations_never_complete_a_dwell(
+    world: h.World, kwargs: dict[str, str]
+) -> None:
     co2_raise(world)
     (w,) = world.by_definition("co2_above_limit")
     for offset in range(60, 1500, 60):
@@ -201,7 +226,9 @@ def test_t120_future_unknown_and_late_observations_never_clear(world: h.World) -
     world.now = h.T0 + timedelta(seconds=100)
     inp_future = world.sensor(at=h.T0 + timedelta(seconds=400), results=[h.result("co2_1h_act", **HOLDING)])
     assert clear_evidence.eligible(inp_future, w, world.now).reason == "time_unknown"
-    unknown = world.sensor(results=[h.result("co2_1h_act", **HOLDING)], obs=h.observed(world.now, state="unknown"))
+    unknown = world.sensor(
+        results=[h.result("co2_1h_act", **HOLDING)], obs=h.observed(world.now, state="unknown")
+    )
     assert clear_evidence.eligible(unknown, w, world.now).reason == "time_unknown"
     old = world.sensor(at=h.T0 - timedelta(seconds=1000), results=[h.result("co2_1h_act", **HOLDING)])
     assert clear_evidence.eligible(old, w, world.now).reason == "not_fresh"
@@ -219,10 +246,16 @@ def test_the_whole_uncertainty_interval_must_be_inside_freshness_and_after_the_r
     # The interval reaches 0.5 s into the future of `now`: not evidence yet.
     assert clear_evidence.eligible(narrow, w, world.now).reason == "time_unknown"
     earlier = h.T0 + timedelta(seconds=90)
-    ok = world.sensor(at=earlier, results=[h.result("co2_1h_act", **HOLDING)], obs=h.observed(earlier, uncertainty_ms=500))
+    ok = world.sensor(
+        at=earlier, results=[h.result("co2_1h_act", **HOLDING)], obs=h.observed(earlier, uncertainty_ms=500)
+    )
     assert clear_evidence.eligible(ok, w, world.now).eligible
     straddles = h.T0 + timedelta(milliseconds=200)
-    edge = world.sensor(at=straddles, results=[h.result("co2_1h_act", **HOLDING)], obs=h.observed(straddles, uncertainty_ms=500))
+    edge = world.sensor(
+        at=straddles,
+        results=[h.result("co2_1h_act", **HOLDING)],
+        obs=h.observed(straddles, uncertainty_ms=500),
+    )
     assert clear_evidence.eligible(edge, w, world.now).reason == "not_after_raise"
 
 
@@ -234,7 +267,9 @@ def test_the_same_raw_time_in_a_different_clock_segment_breaks_continuity(world:
     first = world.dwell[w.warning_id]
     world.now = h.T0 + timedelta(seconds=120)
     e = world.now
-    world.feed(world.sensor(at=e, results=[h.result("co2_1h_act", **HOLDING)], obs=h.observed(e, segment="seg2")))
+    world.feed(
+        world.sensor(at=e, results=[h.result("co2_1h_act", **HOLDING)], obs=h.observed(e, segment="seg2"))
+    )
     assert world.dwell[w.warning_id].segment_key != first.segment_key
     assert world.dwell[w.warning_id].holding_since == e
 
@@ -272,20 +307,31 @@ def test_replay_clears_on_data_time_but_only_replay_evidence_clears_a_replay_war
 
 
 @pytest.mark.trace("T-E24-047", "T-E24-120", "D14")
-def test_a_replay_that_does_not_advance_and_a_receive_reference_that_is_stale_never_clear(world: h.World) -> None:
+def test_a_replay_that_does_not_advance_and_a_receive_reference_that_is_stale_never_clear(
+    world: h.World,
+) -> None:
     from datetime import UTC, datetime
 
     data0 = datetime(2014, 10, 7, 15, 36, tzinfo=UTC)
     world.feed(world.sensor(at=data0, origin=OriginMode.REPLAY, results=[h.result("co2_1h_act", **CROSSED)]))
     (w,) = world.by_definition("co2_above_limit")
     world.advance(10)
-    no_ref = world.sensor(at=data0 + timedelta(seconds=60), origin=OriginMode.REPLAY, results=[h.result("co2_1h_act", **HOLDING)])
+    no_ref = world.sensor(
+        at=data0 + timedelta(seconds=60),
+        origin=OriginMode.REPLAY,
+        results=[h.result("co2_1h_act", **HOLDING)],
+    )
     from dataclasses import replace
 
-    assert clear_evidence.eligible(replace(no_ref, receive_reference=None), w, world.now).reason == "no_receive_reference"
+    assert (
+        clear_evidence.eligible(replace(no_ref, receive_reference=None), w, world.now).reason
+        == "no_receive_reference"
+    )
     old_ref = replace(no_ref, receive_reference=world.now - timedelta(seconds=1000))
     assert clear_evidence.eligible(old_ref, w, world.now).reason == "not_fresh"
-    not_later = replace(no_ref, observed=h.observed(data0, origin=OriginMode.REPLAY), receive_reference=world.now)
+    not_later = replace(
+        no_ref, observed=h.observed(data0, origin=OriginMode.REPLAY), receive_reference=world.now
+    )
     assert clear_evidence.eligible(not_later, w, world.now).reason == "not_after_raise"
 
 
@@ -334,7 +380,12 @@ def test_d1_a_result_under_the_pinned_fingerprint_clears_even_after_a_release_ch
     world.release_id = "rel_b"  # a new release activates; the old warning keeps its pin
     for offset in range(60, 700, 60):
         world.now = h.T0 + timedelta(seconds=offset)
-        world.feed(world.sensor(release="rel_b", results=[h.result("co2_1h_act", fingerprint=w.pin.limit.limit_fingerprint, **HOLDING)]))
+        world.feed(
+            world.sensor(
+                release="rel_b",
+                results=[h.result("co2_1h_act", fingerprint=w.pin.limit.limit_fingerprint, **HOLDING)],
+            )
+        )
     assert world.warnings[w.warning_id].state is WarningState.CLEARED
 
 
@@ -349,23 +400,37 @@ def test_d1_without_a_pinned_fingerprint_only_the_warnings_own_release_may_clear
 
 
 @pytest.mark.trace("T-E24-120", "INV-E24-16")
-def test_a_pending_evaluation_freezes_every_clear_and_every_supersession_but_not_a_raise(world: h.World) -> None:
+def test_a_pending_evaluation_freezes_every_clear_and_every_supersession_but_not_a_raise(
+    world: h.World,
+) -> None:
     kw = {"sensor_type": "o2", "channel": "ch_o2"}
     world.feed(world.sensor(results=[h.result("o2_low_watch", **CROSSED)], **kw))  # type: ignore[arg-type]
     (watch,) = world.by_definition("oxygen_low_watch")
     world.frozen = True
     world.advance(10)
-    world.feed(world.sensor(results=[h.result("o2_low_watch", **CROSSED), h.result("o2_low_emergency", **CROSSED)], **kw))  # type: ignore[arg-type]
+    world.feed(
+        world.sensor(
+            results=[h.result("o2_low_watch", **CROSSED), h.result("o2_low_emergency", **CROSSED)], **kw
+        )
+    )  # type: ignore[arg-type]
     assert world.warnings[watch.warning_id].active  # not superseded while frozen
     assert world.by_definition("oxygen_low_emergency")  # raises continue
     for offset in range(100, 1500, 60):
         world.now = h.T0 + timedelta(seconds=offset)
-        world.feed(world.sensor(results=[h.result("o2_low_watch", **HOLDING), h.result("o2_low_emergency", **HOLDING)], **kw))  # type: ignore[arg-type]
+        world.feed(
+            world.sensor(
+                results=[h.result("o2_low_watch", **HOLDING), h.result("o2_low_emergency", **HOLDING)], **kw
+            )
+        )  # type: ignore[arg-type]
     assert all(w.active for w in world.warnings.values())
     assert world.dwell == {}
     world.frozen = False
     world.advance(60)
-    world.feed(world.sensor(results=[h.result("o2_low_watch", **CROSSED), h.result("o2_low_emergency", **CROSSED)], **kw))  # type: ignore[arg-type]
+    world.feed(
+        world.sensor(
+            results=[h.result("o2_low_watch", **CROSSED), h.result("o2_low_emergency", **CROSSED)], **kw
+        )
+    )  # type: ignore[arg-type]
     assert world.warnings[watch.warning_id].clear_reason is ClearReason.SUPERSEDED  # cleaned up once unfrozen
 
 
@@ -377,7 +442,9 @@ def test_a_stale_release_input_raises_nothing_and_is_refused(world: h.World) -> 
 
 
 @pytest.mark.trace("T-E24-007")
-def test_two_identical_inputs_give_one_active_warning_and_a_spent_trigger_never_raises_again(world: h.World) -> None:
+def test_two_identical_inputs_give_one_active_warning_and_a_spent_trigger_never_raises_again(
+    world: h.World,
+) -> None:
     inp = world.sensor(results=[h.result("co2_1h_act", **CROSSED)], reading="rdg_fixed")
     world.feed(inp)
     assert world.feed(inp) == ()
@@ -457,6 +524,8 @@ def test_clear_decisions_are_clears_with_reasons_only_from_the_engine_set(world:
                 assert step.reason is ClearReason.CONDITION_FALSE
 
 
-def test_example_document_is_unaffected_by_the_deployment_edits(example_doc: RulesDocument, release_docs: object) -> None:
+def test_example_document_is_unaffected_by_the_deployment_edits(
+    example_doc: RulesDocument, release_docs: object
+) -> None:
     """The example storm is `act`; only the deployment document raises it at emergency (D2)."""
     assert example_doc.by_id()["radiation_storm_shelter"].level is Level.ACT

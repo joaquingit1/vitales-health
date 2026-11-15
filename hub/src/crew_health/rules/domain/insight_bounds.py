@@ -8,6 +8,7 @@ holds the hard invariant that an assistant never raises above watch, whatever th
 from __future__ import annotations
 
 from collections.abc import Mapping
+from types import MappingProxyType
 from typing import Final, Literal
 
 from crew_health.rules.domain.inputs import AssistantPolicy, EvidenceKey, InsightDraft, RecordFacts
@@ -31,12 +32,9 @@ ALLOWED_EVIDENCE_KINDS: Final[frozenset[str]] = frozenset(
     {"observation", "answer", "daily_check", "routine_occurrence"}
 )
 # The accepted state of each kind of record, as E01 records report it in `RecordFacts.state`.
-ACCEPTED_STATE: Final[Mapping[str, str | None]] = {
-    "observation": "accepted",
-    "daily_check": "submitted",
-    "routine_occurrence": "done",
-    "answer": None,
-}
+ACCEPTED_STATE: Final[Mapping[str, str | None]] = MappingProxyType(
+    {"observation": "accepted", "daily_check": "submitted", "routine_occurrence": "done", "answer": None}
+)
 MAX_ACTIONS: Final[int] = 1
 
 
