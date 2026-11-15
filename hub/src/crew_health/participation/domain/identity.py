@@ -79,9 +79,9 @@ def _instant(value: datetime) -> str:
     return value.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 
-def payload_hash(basis: CompletionBasis) -> str:
-    """SHA-256 over the canonical form of every basis field."""
-    fields: dict[str, Json] = {
+def basis_fields(basis: CompletionBasis) -> dict[str, Json]:
+    """Every basis field in its wire form: the stored intent payload and the input of the payload hash."""
+    return {
         "basis": basis.basis,
         "basis_ref": basis.basis_ref,
         "patient_id": basis.patient_id,
@@ -94,7 +94,11 @@ def payload_hash(basis: CompletionBasis) -> str:
         "cause_ref": basis.cause_ref,
         "required_answers_complete": basis.required_answers_complete,
     }
-    return sha256_hex(canonical_json(fields))
+
+
+def payload_hash(basis: CompletionBasis) -> str:
+    """SHA-256 over the canonical form of every basis field."""
+    return sha256_hex(canonical_json(basis_fields(basis)))
 
 
 def completion_id(key: str) -> str:
