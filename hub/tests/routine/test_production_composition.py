@@ -299,9 +299,10 @@ def test_every_routine_audit_type_is_declared_and_a_served_refusal_appends_it(
     declared = set(app.state.runtime.database.audit_policies)
     assert set(audit_event_types()) <= declared
     with hub.db.snapshot() as view:
-        [(occurrence_id,)] = view.connection.rows(
+        [(found,)] = view.connection.rows(
             "SELECT occurrence_id FROM routine_occurrence WHERE person_id='person_sim' LIMIT 1", (), limit=1
         )
+        occurrence_id = str(found)
         before = view.connection.rows("SELECT count(*) FROM platform_audit", (), limit=1)[0][0]
 
     async def act() -> tuple[int, str]:
@@ -322,7 +323,7 @@ def test_every_routine_audit_type_is_declared_and_a_served_refusal_appends_it(
         rows = view.connection.rows(
             "SELECT envelope FROM platform_audit WHERE seq > ? ORDER BY seq", (before,), limit=100
         )
-    assert any(b"routine.unauthorized" in bytes(row[0]) for row in rows)
+    assert any(isinstance(row[0], bytes) and b"routine.unauthorized" in row[0] for row in rows)
 
 
 def _e02_station() -> ModuleType:
