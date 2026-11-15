@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "crew-health"
 version = "0.1.0"
 requires-python = ">=3.14,<3.15"
-dependencies = ["pydantic>=2", "fastapi", "uvicorn", "jsonschema", "referencing"]
+dependencies = ["pydantic>=2", "fastapi", "uvicorn", "jsonschema", "referencing", "argon2-cffi>=25.1.0"]
 
 [dependency-groups]
 dev = ["datamodel-code-generator", "pytest", "pytest-cov", "hypothesis", "mypy", "ruff", "import-linter", "httpx", "schemathesis", "types-jsonschema", "pyyaml", "types-pyyaml"]
