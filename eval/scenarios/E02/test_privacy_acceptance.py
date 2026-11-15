@@ -18,8 +18,6 @@ from datetime import timedelta
 from pathlib import Path
 
 import pytest
-from httpx import ASGITransport, AsyncClient, Response
-
 from crew_health.consent.application.records import RECORD_PURPOSE
 from crew_health.consent.cli import Console as OwnerConsole
 from crew_health.consent.cli import main as consent_cli
@@ -31,6 +29,7 @@ from crew_health.identity.cli import Console as OperatorConsole
 from crew_health.identity.cli import main as identity_cli
 from crew_health.identity.domain.roster import ProvisionedPrincipal, RosterMember
 from crew_health.kernel.uow import Actor
+from httpx import ASGITransport, AsyncClient, Response
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "hub" / "tests" / "privacy"))
 
@@ -201,7 +200,8 @@ def test_a_record_is_shared_only_by_its_owners_explicit_grant_and_closes_on_revo
         refused(await client.get(path, headers=bearer(tokens["ilya"])), 403, "UNAUTHORIZED_SCOPE")
         grant_id = mara.grant("ilya", own.json()["observation_id"])
         shared = await client.get(path, headers=bearer(tokens["ilya"]))
-        assert shared.status_code == 200 and shared.json()["patient_id"] == "mara"
+        assert shared.status_code == 200
+        assert shared.json()["patient_id"] == "mara"
         refused(await client.get(path, headers=bearer(tokens["tomas"])), 403, "UNAUTHORIZED_SCOPE")
         mara.revoke(grant_id)
         refused(await client.get(path, headers=bearer(tokens["ilya"])), 403, "UNAUTHORIZED_SCOPE")
@@ -246,7 +246,8 @@ def test_time_ends_finite_grants_and_neither_correction_nor_restart_revives_them
             pass
         with hub.database.snapshot() as view:
             frozen = running.clocks.repository.state(view.connection)
-        assert frozen is not None and frozen.frozen
+        assert frozen is not None
+        assert frozen.frozen
         hub.clock.at += timedelta(hours=1)
         refused(
             await client.get("/v1/observations/" + observations[1], headers=bearer(officer)),
@@ -261,8 +262,8 @@ def test_time_ends_finite_grants_and_neither_correction_nor_restart_revives_them
             403,
             "UNAUTHORIZED_SCOPE",
         )
-        # The operator confirms hub time and the sweep lifts the freeze; the confirmation is a correction, so it
-        # fences the grant issued while frozen, and only a grant issued afterwards is admitted.
+        # The operator confirms hub time and the sweep lifts the freeze; the confirmation is a correction, so
+        # it fences the grant issued while frozen, and only a grant issued afterwards is admitted.
         with hub.database.begin(actor=OPERATOR, correlation_id="time_confirmed") as uow:
             running.clocks.confirm_hub_time(
                 uow, correction_id=hub.database.ids.new("correction"), offset_ms=0, uncertainty_ms=0
