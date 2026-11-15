@@ -1,0 +1,186 @@
+{
+  "policy_id": "camera-quality",
+  "version": "1",
+  "provenance": {
+    "owner": "E06",
+    "status": "draft awaiting PLAN C3 approval",
+    "sources": [
+      "Wang, den Brinker, Stuijk, de Haan, Algorithmic principles of remote PPG, IEEE TBME 64(7), 2017 (POS)",
+      "de Haan, Jeanne, Robust pulse rate from chrominance-based rPPG, IEEE TBME 60(10), 2013 (CHROM, SNR)",
+      "docs/product/PRD.md:420-421 and :616 (camera pulse and breathing, separate pipelines)",
+      "docs/product/DEMO-PLAN.md:60-66 (front light, presenter seated still)"
+    ],
+    "nasa_sources": [
+      "C09 OCHMO-TB-019 Orthostatic Intolerance, Rev B (docs/product/NASA-SOURCES.md:19): fluid shift and baroreflex changes in flight, why an onboard pulse reading matters",
+      "S14 Human Research Roadmap evidence (docs/product/NASA-SOURCES.md:23): why each measurement matters",
+      "N04 The five hazards of human spaceflight (docs/product/NASA-SOURCES.md:25): what the kit marks not measured"
+    ],
+    "non_nasa_scope": "The NASA catalog (docs/product/NASA-SOURCES.md, docs/product/sources.csv, docs/product/nasa-data/) holds no camera photoplethysmography method, frequency band or signal quality limit, so the algorithm and its limits cite the non-NASA papers in sources; every limit is a team default, not a measured accuracy claim"
+  },
+  "frames": {
+    "min_rate_hz": {
+      "value": 10,
+      "basis": "Nyquist margin above the 3 Hz pulse band edge; POS was evaluated at 20 frames per second (Wang 2017); team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "max_gap_ms": {
+      "value": 250,
+      "basis": "a gap longer than one quarter second loses a whole beat at the band edge; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "min_luma": {
+      "value": 40,
+      "basis": "dim faces give colour traces dominated by sensor noise; venue lighting per DEMO-PLAN 60-66; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "max_saturated_fraction": {
+      "value": 0.05,
+      "basis": "clipped pixels carry no pulse colour change (AGENTS section 2 saturation check); team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "max_face_motion": {
+      "value": 0.05,
+      "basis": "face centre displacement as a fraction of the frame; seated still per DEMO-PLAN; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "max_torso_motion": {
+      "value": 0.05,
+      "basis": "horizontal sway of the torso centre as a fraction of the frame; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "max_shoulder_excursion": {
+      "value": 0.03,
+      "basis": "largest vertical excursion of the shoulder midpoint from its median, as a fraction of the frame: quiet breathing lifts the shoulders by millimetres, so a larger periodic bob is body motion (rocking, bobbing), not breathing; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    }
+  },
+  "capture": {
+    "saturated_level": {
+      "value": 250,
+      "basis": "8 bit grey level at or above which a pixel counts as clipped by the sensor (AGENTS section 2 saturation check); team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "face_region_margin": {
+      "value": 0.25,
+      "basis": "skin region is the face box minus this fraction on every side (the central half), which keeps hair, background and eyes out of the colour mean as in Wang 2017's face skin region; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "min_landmark_visibility": {
+      "value": 0.5,
+      "basis": "a shoulder landmark counts as visible when the landmark model's visibility score reaches this value (MediaPipe pose landmarker output, 0 to 1); team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "settled_change_per_s": {
+      "value": 3,
+      "basis": "8 bit levels per second: the analysis window starts once the whole frame mean of every colour channel changes by no more than this against the frame one second earlier. Team measurement, one recording, not a published value: a MacBook FaceTime camera opened fresh (2026-11-15) ramped its auto exposure and white balance from R 75.9, G 67.3, B 65.1 to R 97.8, G 70.9, B 54.8 over its first 1.3 s (up to about 21 levels per second), then a still sitter in ordinary light changed by at most 1.95 levels per second over 24 s; a window holding the ramp read signal_quality_too_low and the same window without it read a pulse. NASA's catalog holds no camera method (provenance non_nasa_scope)"
+    }
+  },
+  "pulse": {
+    "code": "pulse",
+    "unit": "/min",
+    "band_hz": {
+      "min": 0.7,
+      "max": 3.0,
+      "basis": "POS pass band starts at 0.7 Hz (Wang 2017); upper edge 3 Hz (180 /min) for a seated adult; a rate outside is refused, never clipped; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "window_s": {
+      "value": 20,
+      "basis": "analysis window long enough for 0.05 Hz spectral resolution; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "min_coverage": {
+      "value": 0.9,
+      "basis": "fraction of frames with exactly one face; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "min_snr_db": {
+      "value": 0,
+      "basis": "de Haan 2013 SNR definition; signal power must at least equal the rest of the band; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "snr_halfwidth_hz": {
+      "value": 0.1,
+      "basis": "de Haan 2013 uses a band around the fundamental and first harmonic; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "edge_margin_hz": {
+      "value": 0.2,
+      "basis": "search beyond the band so a peak past the edge is seen and refused (V06); team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "frequency_step_hz": {
+      "value": 0.005,
+      "basis": "0.3 /min grid, finer than the reported resolution; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "decimals": {
+      "value": 0,
+      "basis": "pulse is reported in whole beats per minute (docs/product/api/examples/clinical/observation-pulse.json)"
+    },
+    "pos_window_s": {
+      "value": 1.6,
+      "basis": "POS temporal window of 1.6 s (Wang 2017)"
+    },
+    "max_method_gap_per_min": {
+      "value": 5,
+      "basis": "CHROM corroborates POS within the 5 /min camera pulse error target (DEPLOYMENT 688); team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    }
+  },
+  "breathing": {
+    "code": "respiratory_rate",
+    "unit": "/min",
+    "band_hz": {
+      "min": 0.1,
+      "max": 0.7,
+      "basis": "6 to 42 breaths per minute; a rate outside is refused, never clipped; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "window_s": {
+      "value": 30,
+      "basis": "at least three breaths at the slowest band rate; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "min_coverage": {
+      "value": 0.9,
+      "basis": "fraction of frames with both shoulders visible (PRD R09); team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "min_snr_db": {
+      "value": 0,
+      "basis": "same SNR definition as pulse; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "snr_halfwidth_hz": {
+      "value": 0.03,
+      "basis": "narrower than the pulse band to match slower breathing; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "edge_margin_hz": {
+      "value": 0.05,
+      "basis": "search beyond the band so a peak past the edge is refused (V06); team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "frequency_step_hz": {
+      "value": 0.002,
+      "basis": "0.12 /min grid; team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    },
+    "decimals": {
+      "value": 0,
+      "basis": "breaths per minute are counted whole (PRD 616 counted breaths)"
+    }
+  },
+  "selection": {
+    "agreement_tolerance_per_min": {
+      "value": 2,
+      "basis": "views agree within 2 /min (docs/product/api/examples/clinical/measurement-request-pulse.json quality note); team default pending the coordinator's camera policy (PLAN C3); not a measured accuracy claim"
+    }
+  },
+  "reasons": {
+    "time_discontinuous": "the camera clock jumped during the reading",
+    "invalid_signal": "the camera gave invalid numbers",
+    "too_short": "not enough video to read",
+    "frame_rate_too_low": "the camera is too slow",
+    "frame_gaps": "the video had gaps",
+    "face_not_visible": "face not visible",
+    "shoulders_not_visible": "shoulders not visible",
+    "too_dark": "too dark",
+    "overexposed": "too much light on the face",
+    "stuck_input": "the camera image is frozen",
+    "too_much_movement": "too much movement",
+    "outside_analysis_range": "outside the range the camera can read",
+    "signal_quality_too_low": "signal quality too low",
+    "methods_disagree": "the two camera methods disagree",
+    "not_paired": "this camera is not paired with this person",
+    "ambiguous_subject": "more than one face in view",
+    "pairing_expired": "the camera pairing expired",
+    "pairing_revoked": "the reading was stopped",
+    "no_camera": "no camera available",
+    "capture_failed": "the camera could not capture",
+    "camera_not_settled": "the camera's picture was still adjusting to the light",
+    "window_missed": "the reading window had already passed",
+    "origin_mismatch": "this camera's source does not match the check"
+  },
+  "notes": {
+    "selected": "{device} selected: best signal of {views} usable views",
+    "disagree": "views disagree by {spread} {unit}",
+    "refused": "{device}: {reason}"
+  }
+}

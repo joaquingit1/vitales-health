@@ -709,10 +709,11 @@
     "reference/input-dictionary.json": "23dcdfad5edd18cc2f4ccd25e8d0c91cad14559edef52994913406697daaa479"
   },
   "modules": {
+    "crew_health.camera.module": "599a6b883586466b1acc79411d302ea107709938f4bdef7d5b97a273a9c8ceb9",
     "crew_health.catchup.module": "e059c0495ff052df825619e99f50fcc655be1ab48f6f398bca2d42bd2ccc9875",
     "crew_health.clock.module": "f3477b30463775da1187f644bd15bacb33f059f120df7c86f2fd0d88efbff38c",
     "crew_health.config.module": "63f12106f518b5545586dd1f5ce62b0890c0631ed0ea2ee2550559dede4a4837",
-    "crew_health.episodes.module": "0af56d061d5af912f3f750bebbbe6898938fa28ee5594522a81b7662dadc116e",
+    "crew_health.episodes.module": "144f6a24978f61b83e26f7af72e1d70cc16c71d4d9f9bf975c68505f7979eda2",
     "crew_health.events.module": "e9793132a2a4d61f6deb269dadcaf6e6cd1e1e364f0220081044f1a9a08ab5ca",
     "crew_health.groundlink.module": "1f0e316dbed1202f9f7c06b18dd62e767b9c4995f56cb32f787464bb7d4af890",
     "crew_health.guidance.module": "28a6a6a2803c18244d6eb215fe1293ed5f45a30768bf724ade2ec52532e0d553",
