@@ -8,7 +8,7 @@ from . import common_schema
 
 class Observation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     schema_version: str = Field(..., min_length=1)
     observation_id: common_schema.Id

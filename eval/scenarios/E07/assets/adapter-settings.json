@@ -1,0 +1,74 @@
+{
+  "adapter.connect_timeout_ms": {
+    "value": 1000,
+    "unit": "ms",
+    "basis": "Operational bound, not configuration content: no domain meaning and no catalog source (AGENTS.md section 1 rule 1 and section 3 rule 2; docs/SYSTEM.md 5.11). E07 scenario value, set for a station by its operator.",
+    "to_be_set_by": "station operator"
+  },
+  "adapter.frame_timeout_ms": {
+    "value": 1000,
+    "unit": "ms",
+    "basis": "Operational bound, not configuration content: no domain meaning and no catalog source (AGENTS.md section 1 rule 1 and section 3 rule 2; docs/SYSTEM.md 5.11). E07 scenario value, set for a station by its operator.",
+    "to_be_set_by": "station operator"
+  },
+  "adapter.acquisition_window_ms": {
+    "value": 60000,
+    "unit": "ms",
+    "basis": "Upper bound on one reading: the oximeter procedure takes about 2 minutes (docs/product/ROUTINE.md section 5, team estimate) and its reading counts once it 'stops changing and displays one steady number' (C08, a non-NASA exception in docs/product/NASA-SOURCES.md). No catalog source gives a capture window, so this is an operational bound (docs/SYSTEM.md 5.11), not a clinical timing.",
+    "to_be_set_by": "station operator"
+  },
+  "adapter.max_frames": {
+    "value": 4,
+    "unit": null,
+    "basis": "Bound on the frames read in one acquisition (AGENTS.md section 3 rule 2; docs/SYSTEM.md 5.11). The recorded scenario files of this folder hold at most 4 frames, so 4 makes a complete recording use the whole frame budget.",
+    "to_be_set_by": "station operator"
+  },
+  "adapter.max_frame_bytes": {
+    "value": 64,
+    "unit": "By",
+    "basis": "Operational bound, not configuration content: no domain meaning and no catalog source (AGENTS.md section 1 rule 1 and section 3 rule 2; docs/SYSTEM.md 5.11). E07 scenario value, set for a station by its operator.",
+    "to_be_set_by": "station operator"
+  },
+  "adapter.send_timeout_ms": {
+    "value": 1000,
+    "unit": "ms",
+    "basis": "Operational bound, not configuration content: no domain meaning and no catalog source (AGENTS.md section 1 rule 1 and section 3 rule 2; docs/SYSTEM.md 5.11). E07 scenario value, set for a station by its operator.",
+    "to_be_set_by": "station operator"
+  },
+  "adapter.journal_max_entries": {
+    "value": 64,
+    "unit": null,
+    "basis": "Operational bound, not configuration content: no domain meaning and no catalog source (AGENTS.md section 1 rule 1 and section 3 rule 2; docs/SYSTEM.md 5.11). E07 scenario value, set for a station by its operator.",
+    "to_be_set_by": "station operator"
+  },
+  "adapter.journal_max_bytes": {
+    "value": 1048576,
+    "unit": "By",
+    "basis": "Operational bound, not configuration content: no domain meaning and no catalog source (AGENTS.md section 1 rule 1 and section 3 rule 2; docs/SYSTEM.md 5.11). E07 scenario value, set for a station by its operator.",
+    "to_be_set_by": "station operator"
+  },
+  "adapter.retry_max": {
+    "value": 3,
+    "unit": null,
+    "basis": "Operational bound, not configuration content: no domain meaning and no catalog source (AGENTS.md section 1 rule 1 and section 3 rule 2; docs/SYSTEM.md 5.11). E07 scenario value, set for a station by its operator.",
+    "to_be_set_by": "station operator"
+  },
+  "adapter.retry_backoff_ms": {
+    "value": 1000,
+    "unit": "ms",
+    "basis": "Operational bound, not configuration content: no domain meaning and no catalog source (AGENTS.md section 1 rule 1 and section 3 rule 2; docs/SYSTEM.md 5.11). E07 scenario value, set for a station by its operator.",
+    "to_be_set_by": "station operator"
+  },
+  "adapter.health_quiet_ms": {
+    "value": 60000,
+    "unit": "ms",
+    "basis": "How long a connected device may stay silent before /health says quiet, an operational bound (docs/SYSTEM.md 5.11) kept equal to the capture window above; no catalog source gives it.",
+    "to_be_set_by": "station operator"
+  },
+  "adapter.profile_max_bytes": {
+    "value": 65536,
+    "unit": "By",
+    "basis": "Operational bound, not configuration content: no domain meaning and no catalog source (AGENTS.md section 1 rule 1 and section 3 rule 2; docs/SYSTEM.md 5.11). E07 scenario value, set for a station by its operator.",
+    "to_be_set_by": "station operator"
+  }
+}

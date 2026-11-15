@@ -10,7 +10,7 @@ from . import common_schema
 
 class JournalEntry(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     entry_id: common_schema.Id
     person_id: common_schema.Id

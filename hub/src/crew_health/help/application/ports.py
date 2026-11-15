@@ -46,7 +46,7 @@ class RosterPort(Protocol):
     def crew(self, at: datetime) -> Sequence[CrewMember]: ...
 
 
-# Provided by E31 (crew_health.roles); structural copy until it is on main.
+# P0 role view consumed by help and implemented by E31 (crew_health.roles).
 class BroadcastRole(Protocol):
     @property
     def role_assignment_id(self) -> str: ...
@@ -62,7 +62,7 @@ class BroadcastRole(Protocol):
     def state(self) -> Literal["proposed", "accepted", "changed"]: ...
 
 
-# Provided by E31 (crew_health.roles); structural copy until it is on main.
+# P0 role view consumed by help and implemented by E31 (crew_health.roles).
 class BroadcastRolesSource(Protocol):
     def roles_for_session(self, help_session_id: str) -> Sequence[BroadcastRole]: ...
 
@@ -110,8 +110,18 @@ class TickLineView(Protocol):
     def time_text(self) -> str | None: ...
 
 
+class ConfigPinView(Protocol):
+    @property
+    def name(self) -> str: ...
+    @property
+    def version(self) -> str: ...
+
+
 class HelpLogSnapshotView(Protocol):
-    """The durable snapshot a ground message was drafted from (SYSTEM 8.7); provided through HelpLogSnapshots."""
+    """The durable snapshot a ground message was drafted from (SYSTEM 8.7); provided through HelpLogSnapshots.
+
+    `pins`, `crew_time_text` and `helping` are fixed when the snapshot is built, so a composer that reads only them
+    renders the same lines at preview, at the press and on every later read (SYSTEM 8.1, pinned templates)."""
 
     @property
     def help_session_id(self) -> str: ...
@@ -131,6 +141,14 @@ class HelpLogSnapshotView(Protocol):
     def ticks(self) -> Sequence[TickLineView]: ...
     @property
     def crew_called_at(self) -> datetime | None: ...
+    @property
+    def crew_time_text(self) -> str | None: ...
+    @property
+    def helping(self) -> str: ...
+    @property
+    def pins(self) -> Sequence[ConfigPinView]: ...
+    @property
+    def subject_person_id(self) -> str | None: ...
     @property
     def environment_id(self) -> str | None: ...
     @property

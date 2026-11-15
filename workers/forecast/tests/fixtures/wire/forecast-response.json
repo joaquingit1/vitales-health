@@ -1,0 +1,33 @@
+{
+  "context_days": 14,
+  "interval_level": "0.8",
+  "model": {
+    "id": "test/model",
+    "revision": "test-revision",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "policy_version": "1",
+  "request_id": "fci_golden",
+  "status": "forecast",
+  "steps": [
+    {
+      "high": "15.25",
+      "low": "13.25",
+      "median": "14.25",
+      "mission_day": 15
+    },
+    {
+      "high": "15.25",
+      "low": "13.25",
+      "median": "14.25",
+      "mission_day": 16
+    },
+    {
+      "high": "15.25",
+      "low": "13.25",
+      "median": "14.25",
+      "mission_day": 17
+    }
+  ],
+  "unit": "/min"
+}

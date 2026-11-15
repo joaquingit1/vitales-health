@@ -1,41 +1,6 @@
-from collections.abc import Mapping
-from dataclasses import dataclass
+from crew_health.kernel.audit import AuditPolicy
 
-from crew_health.kernel.audit import AuditEntry
-from crew_health.kernel.config import _FrozenMapping
-from crew_health.kernel.errors import ErrorCode
-from crew_health.kernel.ids import require_id
-from crew_health.platform.domain.errors import fail
-
-
-@dataclass(frozen=True)
-class AuditPolicy:
-    event_type: str
-    metadata: Mapping[str, frozenset[str | int | bool]]
-    reference_fields: frozenset[str]
-    reference_types: Mapping[str, frozenset[str]]
-
-    def __post_init__(self) -> None:
-        object.__setattr__(self, "metadata", _FrozenMapping(self.metadata))
-        object.__setattr__(self, "reference_types", _FrozenMapping(self.reference_types))
-        if set(self.reference_types) != set(self.reference_fields):
-            raise fail(ErrorCode.CONFIG_INVALID)
-
-    def validate(self, entry: AuditEntry) -> None:
-        if entry.event_type != self.event_type or entry.event_version != 1:
-            raise fail(ErrorCode.INVALID_VALUE)
-        require_id(entry.event_id)
-        require_id(entry.actor.id)
-        require_id(entry.correlation_id)
-        if entry.causation_id is not None:
-            require_id(entry.causation_id)
-        if set(entry.refs) != self.reference_fields or not set(entry.safe_metadata) <= self.metadata.keys():
-            raise fail(ErrorCode.INVALID_VALUE)
-        for value in entry.refs.values():
-            require_id(value)
-        for key, metadata_value in entry.safe_metadata.items():
-            if metadata_value not in self.metadata[key]:
-                raise fail(ErrorCode.INVALID_VALUE)
+__all__ = ["AuditPolicy", "core_policies"]
 
 
 def core_policies() -> tuple[AuditPolicy, ...]:

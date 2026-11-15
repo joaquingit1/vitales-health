@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crew-health-forecast"
+version = "0.1.0"
+description = "Isolated offline forecast worker (E14): experimental second view of a trend, never a measurement."
+requires-python = ">=3.14,<3.15"
+dependencies = ["pydantic>=2", "fastapi", "uvicorn", "jsonschema", "referencing"]
+
+[project.optional-dependencies]
+# The pinned model runtime. Absent: the worker reports model_package_absent on /health and every request is
+# unavailable; the hub keeps its deterministic baselines.
+model = ["chronos-forecasting", "torch"]
+
+[dependency-groups]
+dev = ["pytest", "hypothesis", "mypy", "ruff", "import-linter", "httpx", "types-jsonschema"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"crew_health_forecast" = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers --strict-config --import-mode=importlib"
+xfail_strict = true
+markers = ["trace(*ids): requirements and invariants", "slow: bounded long running validation"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["crew_health_forecast"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+mypy_path = "workers/forecast/src"
+
+[tool.importlinter]
+root_package = "crew_health_forecast"
+
+[[tool.importlinter.contracts]]
+name = "forecast-layers"
+type = "layers"
+layers = ["crew_health_forecast.api", "crew_health_forecast.adapters", "crew_health_forecast.application", "crew_health_forecast.domain"]
+
+# CPU torch everywhere: macOS wheels on PyPI are CPU only; Linux and Windows take the PyTorch CPU index so the
+# optional extra never pulls CUDA. The base install has no torch at all.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform != 'darwin'" }]

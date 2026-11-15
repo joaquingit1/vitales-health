@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensor-channel.schema.json",
+  "title": "SensorChannel",
+  "description": "One habitat or wearable sensor feed. Freshness is derived from last_received_at and the catalog's stale_after_seconds.",
+  "type": "object",
+  "properties": {
+    "channel_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "sensor_type_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "hazard_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "environment_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/environment_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "location": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "location_label": {
+      "anyOf": [
+        {
+          "type": "string",
+          "description": "Shown after the aggregation words on the card, for example Columbus module. null: not shown.",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "adapter_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "input_unit": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_interval_seconds": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stale_after_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "last_received_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_observed_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "freshness": {
+      "enum": [
+        "current",
+        "stale",
+        "never_reported"
+      ]
+    },
+    "source_label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dataset": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "display_note": {
+      "anyOf": [
+        {
+          "type": "string",
+          "description": "Channel note shown instead of the composed context, for example a Sim scenario note.",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "trusted": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "channel_id",
+    "sensor_type_id",
+    "hazard_id",
+    "environment_ids",
+    "location",
+    "location_label",
+    "adapter_id",
+    "origin_mode",
+    "input_unit",
+    "expected_interval_seconds",
+    "stale_after_seconds",
+    "last_received_at",
+    "last_observed_at",
+    "freshness",
+    "source_label",
+    "dataset",
+    "display_note",
+    "trusted"
+  ],
+  "additionalProperties": false
+}

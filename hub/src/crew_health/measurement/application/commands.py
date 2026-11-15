@@ -44,6 +44,7 @@ from crew_health.measurement.application.errors import (
     MeasurementError,
     problem_of,
 )
+from crew_health.measurement.application.mapping import kit_check
 from crew_health.measurement.application.ports import (
     AdapterAssignmentPort,
     ConsentQueries,
@@ -312,7 +313,8 @@ class MeasurementService:
             environment_id=mission.active_environment_id,
             condition_ids=proposal.condition_ids,
         )
-        cause, refusal = self._gate(uow, outcome.kit_check, proposal.capability_code, subject, operator)
+        kit = kit_check(outcome.kit_check)
+        cause, refusal = self._gate(uow, kit, proposal.capability_code, subject, operator)
         request = MeasurementRequest(
             request_id=self._p.ids.new("mrq"),
             revision=1,
@@ -320,7 +322,7 @@ class MeasurementService:
             capability_code=proposal.capability_code,
             reason=proposal.reason,
             decision_affected=proposal.decision_affected,
-            kit_check=outcome.kit_check,
+            kit_check=kit,
             requester=requester,
             patient_id=subject,
             operator_id=operator,
@@ -546,7 +548,9 @@ class MeasurementService:
             environment_id=facts.active_environment_id,
             condition_ids=request.kit_check.condition_ids,
         )
-        cause, _ = self._gate(uow, outcome.kit_check, request.capability_code, request.patient_id, operator)
+        cause, _ = self._gate(
+            uow, kit_check(outcome.kit_check), request.capability_code, request.patient_id, operator
+        )
         return cause
 
     def _become_unavailable(
@@ -588,7 +592,9 @@ class MeasurementService:
             if request is None:
                 raise _problem(ErrorCode.NOT_FOUND)
             binding = self._trusted_binding(uow, request, session.actor.id)
-            quantities = self._validate_attempt(request, attempt, binding)
+            capability = self._caps.get(uow, request.capability_code)
+            panel = () if capability is None else capability.components
+            quantities = self._validate_attempt(request, attempt, binding, panel)
             existing = next((a for a in request.attempts if a.sequence == attempt.sequence), None)
             if existing is not None:
                 if existing.fingerprint == attempt.fingerprint and existing.adapter_id == session.actor.id:
@@ -700,7 +706,11 @@ class MeasurementService:
         return tuple(ids)
 
     def _validate_attempt(
-        self, request: MeasurementRequest, attempt: AttemptInput, binding: AcquisitionBinding
+        self,
+        request: MeasurementRequest,
+        attempt: AttemptInput,
+        binding: AcquisitionBinding,
+        panel: tuple[str, ...] = (),
     ) -> tuple[Quantity, ...]:
         """All-or-none boundary validation before any write (E05 4, 5)."""
         lim = self._limits
@@ -718,13 +728,27 @@ class MeasurementService:
             raise InvalidInput("/quality_notes", "measurement.max_notes")
         for index, note in enumerate(attempt.quality_notes):
             self._text(note, f"/quality_notes/{index}")
-        return tuple(
-            self._validate_value(request, binding, o, f"/observations/{i}")
+        quantities = tuple(
+            self._validate_value(request, binding, o, f"/observations/{i}", panel)
             for i, o in enumerate(attempt.observations)
         )
+        # A panel capability (config-kit-map `components`) is recorded all or none: a successful attempt carries
+        # each component exactly once, never half a panel.
+        if (
+            panel
+            and attempt.outcome == "success"
+            and sorted(o.code for o in attempt.observations) != sorted(panel)
+        ):
+            raise IdentityMismatch("/observations", "panel_incomplete")
+        return quantities
 
     def _validate_value(
-        self, request: MeasurementRequest, binding: AcquisitionBinding, o: ObservationInput, at: str
+        self,
+        request: MeasurementRequest,
+        binding: AcquisitionBinding,
+        o: ObservationInput,
+        at: str,
+        panel: tuple[str, ...] = (),
     ) -> Quantity:
         if o.patient_id != request.patient_id:
             raise IdentityMismatch(at + "/patient_id", "patient_mismatch")
@@ -734,7 +758,7 @@ class MeasurementService:
             raise IdentityMismatch(at + "/measurement_request_id", "request_mismatch")
         if o.origin_mode != request.origin_mode:
             raise IdentityMismatch(at + "/origin_mode", ErrorCode.ORIGIN_MISMATCH.value)
-        if o.code != request.capability_code:
+        if o.code not in (panel or (request.capability_code,)):
             raise IdentityMismatch(at + "/code", "code_not_requested")
         if o.acquisition_method not in request.methods or o.acquisition_method != binding.method:
             raise IdentityMismatch(at + "/acquisition_method", "method_not_assigned")

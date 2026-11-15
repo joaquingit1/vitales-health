@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "claim_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "supported": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "claim_index",
+    "supported"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "E13 section 3.7; can only remove claims"
+}

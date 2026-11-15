@@ -7,20 +7,20 @@ from . import common_schema
 
 
 class ConditionId(RootModel[str]):
-    root: str = Field(..., pattern='^ICL[1-9][0-9]{0,2}$')
+    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
 
 
 class KitCheck(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     can: bool
     instrument_ids: list[common_schema.ConfigId] = Field(
-        ..., description='Instruments aboard that provide the capability.'
+        ..., description="Instruments aboard that provide the capability."
     )
     missing_instrument_ids: list[common_schema.ConfigId] = Field(
         ...,
-        description='Instruments that would provide it but are not aboard. Empty when can is true.',
+        description="Instruments that would provide it but are not aboard. Empty when can is true.",
     )
     condition_ids: list[ConditionId]
     cliff_urls: list[AnyUrl]

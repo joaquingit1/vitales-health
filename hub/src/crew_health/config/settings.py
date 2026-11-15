@@ -23,4 +23,13 @@ def specifications() -> tuple[SettingSpec, ...]:
             None,
             "E01 design section 11 bounded authored text matches",
         ),
+        SettingSpec(
+            "config.ui_copy_cache_max",
+            "integer",
+            None,
+            Decimal(1),
+            Decimal(64),
+            None,
+            "SYSTEM 5.6 parsed ui-copy unknown text, one entry per ui-copy version",
+        ),
     )

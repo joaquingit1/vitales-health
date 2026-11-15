@@ -11,12 +11,12 @@ from . import common_schema
 
 class PatchAward(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     award_id: common_schema.Id
     patient_id: common_schema.Id
     mission_id: common_schema.Id
-    origin_mode: Literal['LIVE', 'SIM']
+    origin_mode: Literal["LIVE", "SIM"]
     threshold: int = Field(..., ge=1)
     patch_design_id: common_schema.ConfigId
     reached_by_completion_id: UUID

@@ -1,0 +1,26 @@
+{
+  "import.max_bytes": {
+    "value": 1048576,
+    "unit": "By",
+    "basis": "E07 SIM scenario bound",
+    "to_be_set_by": "scenario author"
+  },
+  "import.max_entries": {
+    "value": 64,
+    "unit": null,
+    "basis": "E07 SIM scenario bound",
+    "to_be_set_by": "scenario author"
+  },
+  "import.max_depth": {
+    "value": 16,
+    "unit": null,
+    "basis": "E07 SIM scenario bound",
+    "to_be_set_by": "scenario author"
+  },
+  "import.max_text_bytes": {
+    "value": 4096,
+    "unit": "By",
+    "basis": "E07 SIM scenario bound",
+    "to_be_set_by": "scenario author"
+  }
+}

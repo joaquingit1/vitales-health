@@ -15,7 +15,7 @@ class Author(RootModel[str]):
 
 class SourceSpan(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     page: int = Field(..., ge=1)
     start: int = Field(..., ge=0)
@@ -28,7 +28,7 @@ class Unit(RootModel[str]):
 
 class ExtractionDraft(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     draft_id: common_schema.Id
     source_span: SourceSpan
@@ -37,12 +37,12 @@ class ExtractionDraft(BaseModel):
     unit: Unit | None
     date: date_aliased | None
     extraction_version: str = Field(..., min_length=1)
-    review_status: Literal['proposed', 'confirmed', 'rejected']
+    review_status: Literal["proposed", "confirmed", "rejected"]
 
 
 class Report(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     report_id: common_schema.Id
     file_sha256: common_schema.Sha256
@@ -53,6 +53,6 @@ class Report(BaseModel):
     author: Author | None
     examination_date: date_aliased | None
     report_date: date_aliased | None
-    access_scope: Literal['self', 'self_and_crew_medical_officer', 'self_and_ground']
+    access_scope: Literal["self", "self_and_crew_medical_officer", "self_and_ground"]
     uploaded_at: common_schema.Instant
     extraction_drafts: list[ExtractionDraft]

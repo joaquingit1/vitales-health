@@ -18,7 +18,7 @@ class NextStep(RootModel[str]):
 
 class Finding(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str = Field(..., min_length=1)
     body_region: common_schema.BodyRegionOrNull | None
@@ -27,7 +27,7 @@ class Finding(BaseModel):
 
 class Hypothes(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str = Field(..., min_length=1)
     body_region: common_schema.BodyRegionOrNull | None
@@ -36,7 +36,7 @@ class Hypothes(BaseModel):
 
 class MissingEvidenceItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str = Field(..., min_length=1)
     body_region: common_schema.BodyRegionOrNull | None
@@ -45,11 +45,11 @@ class MissingEvidenceItem(BaseModel):
 
 class Assessment(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     assessment_id: common_schema.Id
     episode_id: common_schema.Id
-    origin: Literal['model', 'reviewer']
+    origin: Literal["model", "reviewer"]
     state_snapshot_version: int = Field(..., ge=1)
     evidence_release_id: common_schema.Id
     model_release_id: common_schema.Id | None
@@ -58,5 +58,5 @@ class Assessment(BaseModel):
     contradictions: list[Contradiction]
     missing_evidence: list[MissingEvidenceItem]
     next_step: NextStep | None
-    validation_status: Literal['draft', 'stale', 'reviewed']
+    validation_status: Literal["draft", "stale", "reviewed"]
     created_at: common_schema.Instant

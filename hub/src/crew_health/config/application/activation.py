@@ -43,6 +43,11 @@ class ReleaseActivationService:
     def validate_active(self, view: ReadSnapshot) -> ReleaseHandle:
         release_id = self.repository.active_id(view)
         release = self.repository.release(view, release_id)
+        missing = self.missing_documents(view)
+        if missing:
+            raise ConfigInvalid(
+                "active release " + release_id + " predates required documents: " + ", ".join(missing)
+            )
         candidate = CandidateRelease(release_id, {name: release.document(name) for name in ConfigName})
         result = self.loader.validate(candidate, origin=self.origin(view))
         self._live_example(candidate, self.origin(view))
@@ -88,6 +93,63 @@ class ReleaseActivationService:
         self._live_example(candidate, self.origin(uow))
         if not validation.passed:
             raise ConfigInvalid("activation validation failed")
+        return self._activate(uow, release_id)
+
+    def install(self, uow: UnitOfWork, candidate: CandidateRelease, *, note: str) -> ReleaseRevision:
+        """First start (SYSTEM 5.12 CONFIG): the engine proposes and activates the hub's first release in one
+        transaction, with the same validation, audit, outbox and replication as an editor's activation. Only a hub
+        with no active release accepts it, and a candidate that fails any check is refused with nothing stored."""
+        if uow.actor.kind != "engine":
+            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, "first start release is engine only")
+        if self.has_active(uow):
+            raise ProblemError(ErrorCode.INVALID_TRANSITION, "a release is already active")
+        return self._install(uow, candidate, note)
+
+    def missing_documents(self, view: ReadSnapshot) -> tuple[str, ...]:
+        """Documents the active release does not pin, e.g. unit-mapping in a release from before D12."""
+        release = self.repository.release(view, self.repository.active_id(view))
+        missing = []
+        for name in ConfigName:
+            try:
+                release.document(name)
+            except ConfigInvalid:
+                missing.append(name.value)
+        return tuple(missing)
+
+    def upgrade(self, uow: UnitOfWork, additions: CandidateRelease, *, note: str) -> ReleaseRevision:
+        """Upgrade an active release that predates a required document (D12 added unit-mapping): a new release
+        keeps every document the active one pins and takes only the missing ones from `additions`, validated and
+        activated like any release. Nothing the crew activated is replaced."""
+        if uow.actor.kind != "engine":
+            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, "release upgrade is engine only")
+        missing = self.missing_documents(uow)
+        if not missing:
+            raise ProblemError(ErrorCode.INVALID_TRANSITION, "active release is complete")
+        release = self.repository.release(uow, self.repository.active_id(uow))
+        documents = {
+            name: additions.documents[name] if name.value in missing else release.document(name)
+            for name in ConfigName
+        }
+        return self._install(uow, CandidateRelease(additions.release_id, documents), note)
+
+    def _install(self, uow: UnitOfWork, candidate: CandidateRelease, note: str) -> ReleaseRevision:
+        validation = self.loader.validate(candidate, origin=self.origin(uow), uow=uow)
+        self._live_example(candidate, self.origin(uow))
+        if not validation.passed:
+            raise ConfigInvalid("engine release failed validation")
+        self.repository.store(uow, candidate, validation, note=note)
+        self._replicate(uow, candidate.release_id, "create")
+        self._audit(uow, candidate.release_id, "config.release_proposed")
+        return self._activate(uow, candidate.release_id)
+
+    def has_active(self, view: ReadSnapshot) -> bool:
+        try:
+            self.repository.active_id(view)
+        except ConfigInvalid:
+            return False
+        return True
+
+    def _activate(self, uow: UnitOfWork, release_id: str) -> ReleaseRevision:
         self._swap(uow, release_id)
         self._replicate(uow, release_id, "version")
         self._audit(uow, release_id, "config.release_activated")

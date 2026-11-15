@@ -11,14 +11,14 @@ from . import common_schema
 class RatePerMin(RootModel[float]):
     root: float = Field(
         ...,
-        description='null when the quality gate failed; never a guessed number.',
+        description="null when the quality gate failed; never a guessed number.",
         ge=0.0,
     )
 
 
 class CoachingSample(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     sample_id: common_schema.Id
     help_session_id: common_schema.Id | None
@@ -26,13 +26,11 @@ class CoachingSample(BaseModel):
     skill_id: common_schema.ConfigId
     check_id: common_schema.ConfigId
     at: common_schema.Instant
-    kind: Literal['compression_rate', 'hand_position']
+    kind: Literal["compression_rate", "hand_position"]
     rate_per_min: RatePerMin | None
-    reason: Literal['cannot_see_hands', 'quality_gate_failed'] | None
+    reason: Literal["cannot_see_hands", "quality_gate_failed"] | None
     in_band: bool | None
-    direction: Literal['too_slow', 'too_fast'] | None
-    text: str = Field(
-        ..., description="The skill check's phrase, rendered.", min_length=1
-    )
+    direction: Literal["too_slow", "too_fast"] | None
+    text: str = Field(..., description="The skill check's phrase, rendered.", min_length=1)
     experimental: bool
-    persisted: bool = Field(..., description='False for drill samples.')
+    persisted: bool = Field(..., description="False for drill samples.")

@@ -8,10 +8,10 @@ consumed providers can be looked up (SYSTEM 5 pass 2). Until then every facade f
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from fastapi import APIRouter
 
@@ -50,6 +50,7 @@ from crew_health.measurement.application.ports import (
     CommandFingerprint,
     ConsentQueries,
     EpisodeFacts,
+    GapPlan,
     GapPlanPort,
     GapProposalPort,
     KitCapabilitiesPort,
@@ -70,6 +71,7 @@ from crew_health.measurement.application.queries import (
     MeasurementAudienceRule,
     MeasurementQueries,
 )
+from crew_health.plans.application import ports as plans_ports
 
 _BASIS = "E05 design 11 bounded work table"
 _SETTINGS: tuple[tuple[str, int, int], ...] = (
@@ -96,6 +98,12 @@ class Resolver(Protocol):
 
     def require[P](self, port: type[P]) -> P: ...
     def optional[P](self, port: type[P]) -> P | None: ...
+
+
+@runtime_checkable
+class _ProviderDeclarations(Protocol):
+    @property
+    def providers(self) -> Mapping[type[object], object]: ...
 
 
 class Registry(Protocol):
@@ -127,6 +135,23 @@ class _Live:
         if self.capabilities is None:
             raise ProblemError(ErrorCode.INTERNAL_ERROR, "measurement_not_bound", retryable=True)
         return self.capabilities
+
+
+class _GapPlansAdapter:
+    """Late optional translation under measurement's own registry key."""
+
+    def __init__(self) -> None:
+        self.source: plans_ports.GapPlanPort | None = None
+
+    def plan_for(
+        self, *, condition_ids: Sequence[str], environment_id: str, subject_person_id: str | None
+    ) -> GapPlan | None:
+        if self.source is None:
+            return None
+        plan = self.source.plan_for(
+            condition_ids=condition_ids, environment_id=environment_id, subject_person_id=subject_person_id
+        )
+        return None if plan is None else GapPlan(plan.plan_id, plan.check_another_way_step_ids)
 
 
 class _Capabilities:
@@ -182,8 +207,11 @@ class _Audience:
         return rule is not None and rule.admits(snapshot, session, audience)
 
 
-def _bind(live: _Live, api: MeasurementApi) -> Callable[[Resolver], None]:
+def _bind(live: _Live, api: MeasurementApi, gap_plans: _GapPlansAdapter) -> Callable[[Resolver], None]:
     def bind(resolver: Resolver) -> None:
+        gap_plans.source = resolver.optional(plans_ports.GapPlanPort)
+        candidate = resolver.optional(GapPlanPort)
+        gap_provider = None if candidate is gap_plans and gap_plans.source is None else candidate
         settings = resolver.require(HubSettings)
         consent = resolver.optional(ConsentQueries)
         store = SqliteMeasurementStore(
@@ -213,7 +241,7 @@ def _bind(live: _Live, api: MeasurementApi) -> Callable[[Resolver], None]:
                 request_gate=resolver.optional(RequestGatePort),
                 consent=consent,
                 episodes=resolver.optional(EpisodeFacts),
-                gap_plans=resolver.optional(GapPlanPort),
+                gap_plans=gap_provider,
                 observations=resolver.optional(ObservationCommands),
                 assignments=resolver.optional(AdapterAssignmentPort),
                 units=resolver.require(UnitRegistry),
@@ -246,6 +274,7 @@ def _bind(live: _Live, api: MeasurementApi) -> Callable[[Resolver], None]:
 def register(registry: Registry) -> None:
     live = _Live()
     api = MeasurementApi()
+    gap_plans = _GapPlansAdapter()
     audience = _Audience(live)
     for key, low, high in _SETTINGS:
         registry.setting(SettingSpec(key, "integer", None, Decimal(low), Decimal(high), None, _BASIS))
@@ -260,9 +289,11 @@ def register(registry: Registry) -> None:
             rule=audience,
         )
     )
+    if not isinstance(registry, _ProviderDeclarations) or GapPlanPort not in registry.providers:
+        registry.provide(GapPlanPort, lambda _: gap_plans)
     registry.provide(CapabilityQueries, lambda _: _Capabilities(live))
     registry.provide(MeasurementCommands, lambda _: _Commands(live))
     registry.provide(GapProposalPort, lambda _: _Gaps(live))
     registry.provide(MeasurementAssignmentPort, lambda _: _Assignments(live))
-    registry.bind("measurement", _bind(live, api))
+    registry.bind("measurement", _bind(live, api, gap_plans))
     registry.router(build_router(api))

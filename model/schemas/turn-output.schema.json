@@ -1,0 +1,112 @@
+{
+  "type": "object",
+  "properties": {
+    "kind": {
+      "enum": [
+        "text",
+        "ready",
+        "stop"
+      ]
+    },
+    "text": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 2000
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": [
+              "observation",
+              "answer",
+              "passage",
+              "daily_check"
+            ]
+          },
+          "ref_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "kind",
+          "ref_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "reason": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "missing_codes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    }
+  },
+  "required": [
+    "kind",
+    "text",
+    "evidence_refs",
+    "reason",
+    "missing_codes"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "E13 section 3.3; model data only, E12/E13 apply authorization and semantic policy",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "text"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "text": {
+            "type": "null"
+          },
+          "evidence_refs": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "stop"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "missing_codes": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ]
+}

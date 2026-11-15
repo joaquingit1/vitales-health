@@ -1,0 +1,39 @@
+{
+  "file": "radlab_msl_rad_surface_20170905_20170919.csv",
+  "catalog_id": "N39, N40, N20",
+  "bytes": 88852,
+  "sha256": "5bb00b16536f4ba4fa132f8a9765383e7734537179b63781e1f59d01fe3de0a0",
+  "source_url": "https://visualization.osdr.nasa.gov/radlab/api/?instrument=MSL-RAD-Surface&timestamp%3E=2017-09-05T00:00&timestamp%3C2017-09-20T00:00&absorbed_dose_rate&dose_equivalent_rate&instrument_id&celestial_body&format=csv",
+  "documentation": "https://visualization.osdr.nasa.gov/radlab/gui/data-api/",
+  "retrieved_at_utc": "2026-11-15T01:56:55Z",
+  "mission_instrument": "Mars Science Laboratory (Curiosity rover) Radiation Assessment Detector, surface, as served by NASA OSDR RadLab (instrument_id MSL-RAD-Surface)",
+  "rows": 1296,
+  "first_timestamp": "2017-09-05T00:16:28",
+  "last_timestamp": "2017-09-19T23:43:27",
+  "cadence": "About 1,025 s between most rows; some 548 s intervals",
+  "units": {
+    "timestamp": "ISO 8601 without zone suffix; the API documentation gives no time zone and does not say whether times are Mars event time or Earth receive time",
+    "absorbed_dose_rate": "uGy/h (RadLab API documentation: absorbed dose rate in microgray per hour)",
+    "dose_equivalent_rate": "uSv/h per the API documentation; empty in every row of this file",
+    "celestial_body": "text",
+    "instrument": "text"
+  },
+  "preprocessing": "None; the CSV response saved as returned.",
+  "license_terms": "NASA open data; the RadLab page links site Terms and Conditions that were not read. No license statement on the API documentation page.",
+  "provenance": "REPLAY. Recorded instrument data from the Mars surface, September 2017.",
+  "is_not": "Not a person's dose, not inside a habitat, not shielded like a habitat. Absorbed dose rate of one detector on a rover.",
+  "consumers": [
+    {
+      "epic": "E23/E24",
+      "use": "Radiation feed replay for the mars_surface environment and the radiation watch and act rules"
+    },
+    {
+      "epic": "E14",
+      "use": "Baseline and doubling detection"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenario: solar event during a Mars surface walk"
+    }
+  ]
+}

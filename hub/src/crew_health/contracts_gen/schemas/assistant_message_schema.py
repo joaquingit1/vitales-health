@@ -18,58 +18,56 @@ class Limitation(RootModel[str]):
 
 class AssistantMessage(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     message_id: common_schema.Id
     conversation_id: common_schema.Id
     turn_id: common_schema.Id | None
-    role: Literal['person', 'assistant', 'notice']
+    role: Literal["person", "assistant", "notice"]
     created_at: common_schema.Instant
     text: Text | None
     action: model_action_schema.ModelAction | None
-    status: Literal[
-        'complete', 'streaming', 'cancelled', 'timed_out', 'rejected', 'failed'
-    ]
+    status: Literal["complete", "streaming", "cancelled", "timed_out", "rejected", "failed"]
     error_code: (
         Literal[
-            'MALFORMED_REQUEST',
-            'UNAUTHENTICATED',
-            'UNAUTHORIZED_SCOPE',
-            'CONSENT_REQUIRED',
-            'ACTION_NOT_ALLOWED',
-            'ADAPTER_NOT_TRUSTED',
-            'AGGREGATE_ONLY',
-            'NOT_FOUND',
-            'STALE_VERSION',
-            'INVALID_TRANSITION',
-            'DUPLICATE_COMMAND',
-            'SESSION_CLOSED',
-            'CONFIG_VERSION_MISMATCH',
-            'CONFIRMATION_REQUIRED',
-            'CURSOR_EXPIRED',
-            'PAYLOAD_TOO_LARGE',
-            'UNSUPPORTED_MEDIA_TYPE',
-            'INVALID_UNIT',
-            'INVALID_VALUE',
-            'IDENTITY_MISMATCH',
-            'ORIGIN_MISMATCH',
-            'KIT_CANNOT_PERFORM',
-            'CAPABILITY_UNAVAILABLE',
-            'CONTEXT_INAPPLICABLE',
-            'SOURCE_NOT_APPROVED',
-            'REPORT_UNCONFIRMED',
-            'LEVEL_NOT_ALLOWED',
-            'APPROVAL_REQUIRED',
-            'CONFIG_INVALID',
-            'STEP_NOT_AVAILABLE',
-            'SUPPLY_BELOW_ZERO',
-            'ROLE_NOT_ELIGIBLE',
-            'VERSION_REQUIRED',
-            'INTERNAL_ERROR',
-            'MALFORMED_MODEL_OUTPUT',
-            'MODEL_OUTPUT_REJECTED',
-            'MODEL_UNAVAILABLE',
-            'MODEL_TIMEOUT',
+            "MALFORMED_REQUEST",
+            "UNAUTHENTICATED",
+            "UNAUTHORIZED_SCOPE",
+            "CONSENT_REQUIRED",
+            "ACTION_NOT_ALLOWED",
+            "ADAPTER_NOT_TRUSTED",
+            "AGGREGATE_ONLY",
+            "NOT_FOUND",
+            "STALE_VERSION",
+            "INVALID_TRANSITION",
+            "DUPLICATE_COMMAND",
+            "SESSION_CLOSED",
+            "CONFIG_VERSION_MISMATCH",
+            "CONFIRMATION_REQUIRED",
+            "CURSOR_EXPIRED",
+            "PAYLOAD_TOO_LARGE",
+            "UNSUPPORTED_MEDIA_TYPE",
+            "INVALID_UNIT",
+            "INVALID_VALUE",
+            "IDENTITY_MISMATCH",
+            "ORIGIN_MISMATCH",
+            "KIT_CANNOT_PERFORM",
+            "CAPABILITY_UNAVAILABLE",
+            "CONTEXT_INAPPLICABLE",
+            "SOURCE_NOT_APPROVED",
+            "REPORT_UNCONFIRMED",
+            "LEVEL_NOT_ALLOWED",
+            "APPROVAL_REQUIRED",
+            "CONFIG_INVALID",
+            "STEP_NOT_AVAILABLE",
+            "SUPPLY_BELOW_ZERO",
+            "ROLE_NOT_ELIGIBLE",
+            "VERSION_REQUIRED",
+            "INTERNAL_ERROR",
+            "MALFORMED_MODEL_OUTPUT",
+            "MODEL_OUTPUT_REJECTED",
+            "MODEL_UNAVAILABLE",
+            "MODEL_TIMEOUT",
         ]
         | None
     )

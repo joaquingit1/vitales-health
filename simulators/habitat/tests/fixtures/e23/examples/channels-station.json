@@ -1,0 +1,123 @@
+{
+  "summary": "SIM and REPLAY GET /v1/sensor-channels, station",
+  "description": "Station channels: two REPLAY files and three SIM feeds. Illustrative only: not seed data.",
+  "x-schema": "list:sensor-channel.schema.json",
+  "value": {
+    "items": [
+      {
+        "channel_id": "ch_co2_cabin_replay",
+        "sensor_type_id": "co2",
+        "hazard_id": "co2",
+        "environment_ids": [
+          "station_leo"
+        ],
+        "location": "cabin",
+        "location_label": null,
+        "adapter_id": "adp_replay_osdr",
+        "origin_mode": "REPLAY",
+        "input_unit": "ppm",
+        "expected_interval_seconds": 300,
+        "stale_after_seconds": 300,
+        "last_received_at": "2026-11-13T09:08:00Z",
+        "last_observed_at": "2014-10-07T15:36:00Z",
+        "freshness": "current",
+        "source_label": "Replay, ISS 2014",
+        "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+        "display_note": null,
+        "trusted": true
+      },
+      {
+        "channel_id": "ch_rad_columbus_replay",
+        "sensor_type_id": "rad",
+        "hazard_id": "radiation",
+        "environment_ids": [
+          "station_leo"
+        ],
+        "location": "columbus",
+        "location_label": "Columbus module",
+        "adapter_id": "adp_replay_osdr",
+        "origin_mode": "REPLAY",
+        "input_unit": "µGy/h",
+        "expected_interval_seconds": null,
+        "stale_after_seconds": 600,
+        "last_received_at": "2026-11-13T09:09:30Z",
+        "last_observed_at": "2022-04-02T01:04:40Z",
+        "freshness": "current",
+        "source_label": "Replay, ISS 2022",
+        "dataset": "OSDR RadLab DosTel1, 1 to 2 Apr 2022",
+        "display_note": null,
+        "trusted": true
+      },
+      {
+        "channel_id": "ch_o2_station_sim",
+        "sensor_type_id": "o2",
+        "hazard_id": "oxygen",
+        "environment_ids": [
+          "station_leo"
+        ],
+        "location": "cabin",
+        "location_label": null,
+        "adapter_id": "adp_sim",
+        "origin_mode": "SIM",
+        "input_unit": "mmHg",
+        "expected_interval_seconds": 5,
+        "stale_after_seconds": 300,
+        "last_received_at": "2026-11-13T09:10:00Z",
+        "last_observed_at": "2026-11-13T09:10:00Z",
+        "freshness": "current",
+        "source_label": "Sim",
+        "dataset": null,
+        "display_note": null,
+        "trusted": true
+      },
+      {
+        "channel_id": "ch_noise_station_sim",
+        "sensor_type_id": "noise",
+        "hazard_id": "noise",
+        "environment_ids": [
+          "station_leo"
+        ],
+        "location": "sleep_station",
+        "location_label": null,
+        "adapter_id": "adp_sim",
+        "origin_mode": "SIM",
+        "input_unit": "dBA",
+        "expected_interval_seconds": null,
+        "stale_after_seconds": 600,
+        "last_received_at": "2026-11-13T09:10:00Z",
+        "last_observed_at": "2026-11-13T09:10:00Z",
+        "freshness": "current",
+        "source_label": "Sim",
+        "dataset": null,
+        "display_note": null,
+        "trusted": true
+      },
+      {
+        "channel_id": "ch_air_station_sim",
+        "sensor_type_id": "air",
+        "hazard_id": "toxic_vocs",
+        "environment_ids": [
+          "station_leo"
+        ],
+        "location": "cabin",
+        "location_label": null,
+        "adapter_id": "adp_sim",
+        "origin_mode": "SIM",
+        "input_unit": "index",
+        "expected_interval_seconds": 262800,
+        "stale_after_seconds": 300000,
+        "last_received_at": "2026-11-13T06:00:00Z",
+        "last_observed_at": "2026-11-13T06:00:00Z",
+        "freshness": "current",
+        "source_label": "Sim",
+        "dataset": null,
+        "display_note": null,
+        "trusted": true
+      }
+    ],
+    "page": {
+      "next_cursor": null,
+      "total": 5
+    }
+  }
+}

@@ -10,7 +10,7 @@ from . import common_schema
 
 class Drill(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     drill_id: common_schema.Id
     revision: int = Field(..., ge=1)
@@ -18,7 +18,7 @@ class Drill(BaseModel):
     skill_ids: list[common_schema.ConfigId] = Field(..., min_length=1)
     participants: list[common_schema.PersonRef] = Field(..., min_length=1)
     routine_occurrence_id: common_schema.Id | None
-    state: Literal['running', 'completed', 'abandoned']
+    state: Literal["running", "completed", "abandoned"]
     started_at: common_schema.Instant
     completed_at: common_schema.Instant | None
     abandoned_at: common_schema.Instant | None

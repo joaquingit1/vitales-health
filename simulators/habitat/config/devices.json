@@ -1,0 +1,1513 @@
+{
+  "notice": "Unreviewed draft: needs clinician review before live guidance.",
+  "description": "Device kinds of the habitat simulator: what each low-cost sensor reports, its resolution, range, cadence, noise, drift and cross-sensitivity. Every number carries its basis; 'team assumption' marks values no source read here gives.",
+  "device_kinds": {
+    "ndir_co2": {
+      "label": "NDIR CO2 module",
+      "reports": "CO2 mole fraction in ppm at one spot",
+      "cannot_tell": "ENVIRONMENTS.md section 2 and C25: reads ppm at one spot, needs the real cabin pressure to compare with the mmHg limit, misses local pockets.",
+      "interval": {
+        "value": 5,
+        "unit": "s",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.1-1 Example Sampling Rates, page 48: atmosphere constituents every 5 seconds",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "warmup": {
+        "value": 60,
+        "unit": "s",
+        "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+        "source_ids": []
+      },
+      "outputs": {
+        "co2": {
+          "quantity": "co2_ppm",
+          "unit": "ppm",
+          "resolution": {
+            "value": 1,
+            "unit": "ppm",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 0,
+            "unit": "ppm",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 10000,
+            "unit": "ppm",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 30,
+            "unit": "ppm",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.03,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 2.0,
+            "unit": "ppm/d",
+            "basis": "team assumption: slow NDIR baseline drift, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        }
+      },
+      "extras": {}
+    },
+    "barometer": {
+      "label": "Digital barometric pressure sensor",
+      "reports": "absolute pressure, and its change over a window from its own readings",
+      "cannot_tell": "ENVIRONMENTS.md section 4: cannot see bubbles in the body or tell who has decompression sickness (EV12).",
+      "interval": {
+        "value": 1,
+        "unit": "s",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.1-1 Example Sampling Rates, page 48: pressure every 1 second",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "warmup": {
+        "value": 0,
+        "unit": "s",
+        "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+        "source_ids": []
+      },
+      "outputs": {
+        "pressure": {
+          "quantity": "pressure_kpa",
+          "unit": "kPa",
+          "resolution": {
+            "value": 0.001,
+            "unit": "kPa",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 30,
+            "unit": "kPa",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 110,
+            "unit": "kPa",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.012,
+            "unit": "kPa",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "kPa/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "pressure_rate": {
+          "quantity": "pressure_rate",
+          "unit": "kPa/min",
+          "resolution": {
+            "value": 0.001,
+            "unit": "kPa/min",
+            "basis": "Derived from the sensor's own pressure readings over rate_window; no extra noise",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": -1000,
+            "unit": "kPa/min",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 1000,
+            "unit": "kPa/min",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0,
+            "unit": "kPa/min",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0,
+            "unit": "kPa/min/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        }
+      },
+      "extras": {
+        "rate_window": {
+          "value": 60,
+          "unit": "s",
+          "basis": "team assumption: rate of change over one minute, the unit of the EV01 V2 6007 limit (psi/min)",
+          "source_ids": [
+            "EV01"
+          ]
+        }
+      }
+    },
+    "o2_cell": {
+      "label": "Galvanic (electrochemical) oxygen cell with its own pressure sensor",
+      "reports": "oxygen partial pressure in kPa (the cell responds to partial pressure) and % oxygen from its own pressure reading",
+      "cannot_tell": "ENVIRONMENTS.md section 3: a % reading alone does not give the oxygen your lungs get; gas sensors lose sensitivity over time (EV32); cannot measure blood oxygen.",
+      "interval": {
+        "value": 5,
+        "unit": "s",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.1-1 Example Sampling Rates, page 48: atmosphere constituents every 5 seconds",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "warmup": {
+        "value": 30,
+        "unit": "s",
+        "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+        "source_ids": []
+      },
+      "outputs": {
+        "ppo2": {
+          "quantity": "ppo2_kpa",
+          "unit": "kPa",
+          "resolution": {
+            "value": 0.01,
+            "unit": "kPa",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 0,
+            "unit": "kPa",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 60,
+            "unit": "kPa",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.05,
+            "unit": "kPa",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.01,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "kPa/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0003,
+            "unit": "1/d",
+            "basis": "EV32: many gas sensors become less sensitive to the target over time and are usable for one to two years; the rate is a team assumption",
+            "source_ids": [
+              "EV32"
+            ]
+          }
+        },
+        "o2_percent": {
+          "quantity": "o2_percent",
+          "unit": "%",
+          "resolution": {
+            "value": 0.1,
+            "unit": "%",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 0,
+            "unit": "%",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 100,
+            "unit": "%",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.0,
+            "unit": "%",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "%/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "Derived from the cell's own ppO2 register, which already carries the sensitivity loss",
+            "source_ids": []
+          }
+        }
+      },
+      "extras": {
+        "internal_pressure_noise": {
+          "value": 0.05,
+          "unit": "kPa",
+          "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+          "source_ids": []
+        }
+      }
+    },
+    "ec_co": {
+      "label": "Electrochemical carbon monoxide cell",
+      "reports": "CO in ppm",
+      "cannot_tell": "ENVIRONMENTS.md section 5: can respond to more than one gas (EV33); does not measure HCN or acid gases.",
+      "interval": {
+        "value": 1,
+        "unit": "s",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.1-1 Example Sampling Rates, page 48: combustion products every 1 second",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "warmup": {
+        "value": 60,
+        "unit": "s",
+        "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+        "source_ids": []
+      },
+      "outputs": {
+        "co": {
+          "quantity": "co_ppm",
+          "unit": "ppm",
+          "resolution": {
+            "value": 1,
+            "unit": "ppm",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.2-3 Recommended Combustion Product Monitoring Ranges, page 60: CO resolution 1 ppm",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "range_min": {
+            "value": 0,
+            "unit": "ppm",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.2-3, page 60: CO range 5 to 1000 ppm; the cell reads down to 0 and saturates at 1000",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "range_max": {
+            "value": 1000,
+            "unit": "ppm",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.2-3, page 60: CO range 5 to 1000 ppm; the cell reads down to 0 and saturates at 1000",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "noise_abs": {
+            "value": 0.5,
+            "unit": "ppm",
+            "basis": "team assumption; noise_rel 0.05 keeps two standard deviations within the +/-10% accuracy of EV01 Table 6.2-3 page 60",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.05,
+            "unit": "1",
+            "basis": "team assumption; noise_rel 0.05 keeps two standard deviations within the +/-10% accuracy of EV01 Table 6.2-3 page 60",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "ppm/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0005,
+            "unit": "1/d",
+            "basis": "EV32: many gas sensors become less sensitive to the target over time and are usable for one to two years; the rate is a team assumption",
+            "source_ids": [
+              "EV32"
+            ]
+          }
+        }
+      },
+      "extras": {
+        "cross_sensitivity": {
+          "nh3_ppm": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "tvoc_ugm3": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        }
+      }
+    },
+    "ec_nh3": {
+      "label": "Electrochemical ammonia cell",
+      "reports": "NH3 in ppm",
+      "cannot_tell": "ENVIRONMENTS.md section 6: may not be selective and becomes less sensitive over time (EV32); no substitute for the vehicle's monitor.",
+      "interval": {
+        "value": 5,
+        "unit": "s",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.1-1 Example Sampling Rates, page 48: atmosphere constituents every 5 seconds",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "warmup": {
+        "value": 120,
+        "unit": "s",
+        "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+        "source_ids": []
+      },
+      "outputs": {
+        "nh3": {
+          "quantity": "nh3_ppm",
+          "unit": "ppm",
+          "resolution": {
+            "value": 0.1,
+            "unit": "ppm",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 0,
+            "unit": "ppm",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 100,
+            "unit": "ppm",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.2,
+            "unit": "ppm",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.05,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "ppm/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.001,
+            "unit": "1/d",
+            "basis": "EV32: many gas sensors become less sensitive to the target over time and are usable for one to two years; the rate is a team assumption",
+            "source_ids": [
+              "EV32"
+            ]
+          }
+        }
+      },
+      "extras": {
+        "cross_sensitivity": {
+          "co_ppm": {
+            "value": 0.02,
+            "unit": "1",
+            "basis": "EV32: not sufficiently selective; the coefficient is a team assumption",
+            "source_ids": [
+              "EV32"
+            ]
+          }
+        }
+      }
+    },
+    "mox_voc": {
+      "label": "Metal oxide VOC index sensor",
+      "reports": "a relative VOC index (100 is the sensor's learned baseline), unitless",
+      "cannot_tell": "ENVIRONMENTS.md section 8: cannot name the chemical or give its concentration, so it cannot be compared with any SMAC (EV33, EV32).",
+      "interval": {
+        "value": 60,
+        "unit": "s",
+        "basis": "team assumption; EV01 Table 6.1-1 page 48 asks VOC monitoring at least every 73 hours",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "warmup": {
+        "value": 300,
+        "unit": "s",
+        "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+        "source_ids": []
+      },
+      "outputs": {
+        "voc_index": {
+          "quantity": "voc_signal",
+          "unit": "index",
+          "resolution": {
+            "value": 1,
+            "unit": "index",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 1,
+            "unit": "index",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 500,
+            "unit": "index",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 2,
+            "unit": "index",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.02,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "index/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        }
+      },
+      "extras": {
+        "baseline_tau": {
+          "value": 12,
+          "unit": "h",
+          "basis": "team assumption: the index adapts to a slowly learned baseline",
+          "source_ids": []
+        },
+        "cross_sensitivity": {
+          "co_ppm": {
+            "value": 20.0,
+            "unit": "ug/m3 per ppm",
+            "basis": "EV32: metal oxide sensors may not be selective; coefficient is a team assumption",
+            "source_ids": [
+              "EV32"
+            ]
+          },
+          "nh3_ppm": {
+            "value": 20.0,
+            "unit": "ug/m3 per ppm",
+            "basis": "EV32: as above",
+            "source_ids": [
+              "EV32"
+            ]
+          }
+        }
+      }
+    },
+    "optical_pm": {
+      "label": "Optical particle sensor (PM1, PM2.5, PM10)",
+      "reports": "estimated mass concentration in three size fractions, in µg/m3",
+      "cannot_tell": "ENVIRONMENTS.md section 10: estimates mass from counts, cannot tell lunar or Martian dust from lint, and high humidity causes inaccurate readings (EV32, EV33).",
+      "interval": {
+        "value": 60,
+        "unit": "s",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.1-1 Example Sampling Rates, page 48: dust every 1 minute",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "warmup": {
+        "value": 30,
+        "unit": "s",
+        "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+        "source_ids": []
+      },
+      "outputs": {
+        "pm1": {
+          "quantity": "pm1_ugm3",
+          "unit": "µg/m3",
+          "resolution": {
+            "value": 1,
+            "unit": "µg/m3",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 0,
+            "unit": "µg/m3",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 1000,
+            "unit": "µg/m3",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 2,
+            "unit": "µg/m3",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.1,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "µg/m3/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "pm2_5": {
+          "quantity": "pm2_5_ugm3",
+          "unit": "µg/m3",
+          "resolution": {
+            "value": 1,
+            "unit": "µg/m3",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 0,
+            "unit": "µg/m3",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 1000,
+            "unit": "µg/m3",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 2,
+            "unit": "µg/m3",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.1,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "µg/m3/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "pm10": {
+          "quantity": "pm10_ugm3",
+          "unit": "µg/m3",
+          "resolution": {
+            "value": 1,
+            "unit": "µg/m3",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 0,
+            "unit": "µg/m3",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 1000,
+            "unit": "µg/m3",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 3,
+            "unit": "µg/m3",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.15,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "µg/m3/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        }
+      },
+      "extras": {
+        "humidity_threshold": {
+          "value": 70,
+          "unit": "%",
+          "basis": "EV32: high humidity can cause inaccurate readings; the onset is a team assumption",
+          "source_ids": [
+            "EV32"
+          ]
+        },
+        "humidity_growth": {
+          "value": 1.0,
+          "unit": "1",
+          "basis": "team assumption: hygroscopic growth term g in factor 1 + g * (RH - threshold) / (100 - RH); about a doubling at 85% RH",
+          "source_ids": []
+        }
+      }
+    },
+    "sound_meter": {
+      "label": "Sound level meter with octave bands (MEMS microphone)",
+      "reports": "A-weighted equivalent level over each interval in dBA, and octave band levels in dB",
+      "cannot_tell": "ENVIRONMENTS.md section 11: one dBA number cannot check NC-50 or NC-40 (EV01 Table 6.6-3); a fixed meter does not give each person's dose at the ear.",
+      "interval": {
+        "value": 60,
+        "unit": "s",
+        "basis": "team assumption: one-minute equivalent level; EV01 asks monitoring as needed",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "warmup": {
+        "value": 0,
+        "unit": "s",
+        "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+        "source_ids": []
+      },
+      "outputs": {
+        "laeq": {
+          "quantity": "laeq_dba",
+          "unit": "dBA",
+          "resolution": {
+            "value": 0.1,
+            "unit": "dBA",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 30,
+            "unit": "dBA",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 130,
+            "unit": "dBA",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.3,
+            "unit": "dBA",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "dBA/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "band_63": {
+          "quantity": "band_63_db",
+          "unit": "dB",
+          "resolution": {
+            "value": 0.1,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 20,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 130,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.5,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "dB/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "band_125": {
+          "quantity": "band_125_db",
+          "unit": "dB",
+          "resolution": {
+            "value": 0.1,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 20,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 130,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.5,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "dB/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "band_250": {
+          "quantity": "band_250_db",
+          "unit": "dB",
+          "resolution": {
+            "value": 0.1,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 20,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 130,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.5,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "dB/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "band_500": {
+          "quantity": "band_500_db",
+          "unit": "dB",
+          "resolution": {
+            "value": 0.1,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 20,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 130,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.5,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "dB/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "band_1k": {
+          "quantity": "band_1k_db",
+          "unit": "dB",
+          "resolution": {
+            "value": 0.1,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 20,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 130,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.5,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "dB/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "band_2k": {
+          "quantity": "band_2k_db",
+          "unit": "dB",
+          "resolution": {
+            "value": 0.1,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 20,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 130,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.5,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "dB/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "band_4k": {
+          "quantity": "band_4k_db",
+          "unit": "dB",
+          "resolution": {
+            "value": 0.1,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 20,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 130,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.5,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "dB/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "band_8k": {
+          "quantity": "band_8k_db",
+          "unit": "dB",
+          "resolution": {
+            "value": 0.1,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 20,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 130,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.5,
+            "unit": "dB",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "dB/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        }
+      },
+      "extras": {}
+    },
+    "temp_rh": {
+      "label": "Digital temperature and humidity sensor",
+      "reports": "air temperature in °C and relative humidity in %",
+      "cannot_tell": "ENVIRONMENTS.md section 12: reads one spot; hot pockets form where air does not move (EV01 V2 6107); cannot measure body temperature.",
+      "interval": {
+        "value": 60,
+        "unit": "s",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.1-1 Example Sampling Rates, page 48: temperature and humidity every 1 minute",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "warmup": {
+        "value": 0,
+        "unit": "s",
+        "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+        "source_ids": []
+      },
+      "outputs": {
+        "temperature": {
+          "quantity": "temperature_c",
+          "unit": "Cel",
+          "resolution": {
+            "value": 0.01,
+            "unit": "Cel",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": -40,
+            "unit": "Cel",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 85,
+            "unit": "Cel",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.1,
+            "unit": "Cel",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "Cel/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "humidity": {
+          "quantity": "rh_percent",
+          "unit": "%",
+          "resolution": {
+            "value": 0.1,
+            "unit": "%",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 0,
+            "unit": "%",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 100,
+            "unit": "%",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 1.0,
+            "unit": "%",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.01,
+            "unit": "%/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        }
+      },
+      "extras": {}
+    },
+    "geiger": {
+      "label": "Handheld Geiger counter",
+      "reports": "counted events per interval, and a dose rate estimate from a gamma calibration",
+      "cannot_tell": "ENVIRONMENTS.md section 1: counts events, cannot tell particle type or energy, so no NASA effective dose and no person's dose (EV01, EV02); calibrated with gamma rays on Earth (team note).",
+      "interval": {
+        "value": 60,
+        "unit": "s",
+        "basis": "team assumption: one-minute counting window; EV01 Table 6.1-1 page 48 says the radiation rate depends on the system",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "warmup": {
+        "value": 0,
+        "unit": "s",
+        "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+        "source_ids": []
+      },
+      "outputs": {
+        "counts": {
+          "quantity": "geiger_counts",
+          "unit": "/min",
+          "resolution": {
+            "value": 1,
+            "unit": "/min",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 0,
+            "unit": "/min",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 10000000.0,
+            "unit": "/min",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.0,
+            "unit": "/min",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "/min/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        },
+        "dose_rate_estimate": {
+          "quantity": "geiger_dose_estimate",
+          "unit": "µSv/h",
+          "resolution": {
+            "value": 0.01,
+            "unit": "µSv/h",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 0,
+            "unit": "µSv/h",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 100000.0,
+            "unit": "µSv/h",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.0,
+            "unit": "µSv/h",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.0,
+            "unit": "1",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "µSv/h/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        }
+      },
+      "extras": {
+        "cps_per_ugy_h": {
+          "value": 0.1,
+          "unit": "1/s per µGy/h",
+          "basis": "team note: response of a small GM tube; not from a source read here",
+          "source_ids": []
+        },
+        "dead_time": {
+          "value": 0.0002,
+          "unit": "s",
+          "basis": "team note: typical GM tube dead time; produces count loss at high rates",
+          "source_ids": []
+        },
+        "cpm_per_usv_h": {
+          "value": 6.0,
+          "unit": "1/min per µSv/h",
+          "basis": "team note: the counter's own gamma calibration factor; not a NASA dose",
+          "source_ids": []
+        }
+      }
+    },
+    "area_dosimeter": {
+      "label": "Area radiation monitor (silicon detector)",
+      "reports": "absorbed dose rate in µGy/h, like the DosTel instruments in the package's replay sample",
+      "cannot_tell": "NASA-SOURCES.md section 2: an instrument's dose rate, never a person's dose.",
+      "interval": {
+        "value": 60,
+        "unit": "s",
+        "basis": "team assumption; EV01 Table 6.1-1 page 48 says the radiation rate depends on the system",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "warmup": {
+        "value": 0,
+        "unit": "s",
+        "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+        "source_ids": []
+      },
+      "outputs": {
+        "dose_rate": {
+          "quantity": "dose_rate_ugy_h",
+          "unit": "µGy/h",
+          "resolution": {
+            "value": 0.001,
+            "unit": "µGy/h",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_min": {
+            "value": 0,
+            "unit": "µGy/h",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "range_max": {
+            "value": 100000.0,
+            "unit": "µGy/h",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "noise_abs": {
+            "value": 0.0,
+            "unit": "µGy/h",
+            "basis": "team assumption: counting statistics of a small silicon detector over one minute",
+            "source_ids": []
+          },
+          "noise_rel": {
+            "value": 0.15,
+            "unit": "1",
+            "basis": "team assumption: counting statistics of a small silicon detector over one minute",
+            "source_ids": []
+          },
+          "offset_drift_per_day": {
+            "value": 0.0,
+            "unit": "µGy/h/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          },
+          "sensitivity_loss_per_day": {
+            "value": 0.0,
+            "unit": "1/d",
+            "basis": "team assumption: typical of this low-cost sensor class, not from a source read here",
+            "source_ids": []
+          }
+        }
+      },
+      "extras": {}
+    }
+  }
+}

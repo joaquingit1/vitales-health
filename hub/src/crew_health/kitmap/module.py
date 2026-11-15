@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 import typing
-from collections.abc import Callable
+from collections.abc import Callable, Mapping, Sequence
 from decimal import Decimal
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from fastapi import APIRouter
 
 from crew_health.contracts_gen.schemas.common_schema import BodyRegion, EnvironmentId
 from crew_health.guidance.application.ports import EquipmentFacts
-from crew_health.kernel.config import ActivationGuard, ReleaseCheck, TemplateRenderer
+from crew_health.kernel.config import ActivationGuard, ConfigBinding, ReleaseCheck
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.settings import HubSettings, SettingSpec
 from crew_health.kernel.uow import ReadSnapshotFactory
@@ -21,20 +21,26 @@ from crew_health.kitmap.adapters.release import (
     KitMapReleaseCheck,
 )
 from crew_health.kitmap.api.router import KitMapApi, RequireRoles, build_router
+from crew_health.kitmap.application.errors import KitMapUnavailable
 from crew_health.kitmap.application.ports import (
     ConditionRegistryPort,
     CoverPlanningPort,
     InstrumentReadinessPort,
     KitCapabilitiesPort,
     KitGate,
+    KitMapContext,
     KitMapQueries,
     MissionStatePort,
+    PlanChange,
+    PlanColumns,
     PlanColumnsPort,
+    PlanningDelta,
     RosterPort,
 )
 from crew_health.kitmap.application.queries import KitMapReads, Vocabulary
 from crew_health.kitmap.application.whatif import RunWhatIf, WhatIfBounds
 from crew_health.kitmap.domain.document import DocumentBounds
+from crew_health.plans.application import ports as plans_ports
 
 
 class Resolver(Protocol):
@@ -42,6 +48,12 @@ class Resolver(Protocol):
 
     def require[P](self, port: type[P]) -> P: ...
     def optional[P](self, port: type[P]) -> P | None: ...
+
+
+@runtime_checkable
+class _ProviderDeclarations(Protocol):
+    @property
+    def providers(self) -> Mapping[type[object], object]: ...
 
 
 class ModuleRegistry(Protocol):
@@ -101,6 +113,48 @@ def vocabulary() -> Vocabulary:
     return Vocabulary(environments=tuple(environments), body_regions=tuple(regions))
 
 
+class _PlanColumnsAdapter:
+    """Owner-side translation keeps plans independent of kitmap's domain types."""
+
+    def __init__(self) -> None:
+        self.source: plans_ports.PlanColumnsPort | None = None
+
+    def row_columns(
+        self, ctx: KitMapContext[object], *, kit: frozenset[str], plan_ids: Sequence[str | None]
+    ) -> Sequence[PlanColumns]:
+        if self.source is None:
+            raise KitMapUnavailable("onboard plans present but no plan columns provider")
+        copied = plans_ports.KitMapContext(ctx.snapshot, ctx.release, ctx.environment_id, ctx.at)
+        return tuple(
+            PlanColumns(c.plan_id, c.written_for, c.plan_aboard)
+            for c in self.source.row_columns(copied, kit=kit, plan_ids=plan_ids)
+        )
+
+    def plans_changed(
+        self, ctx: KitMapContext[object], *, base_kit: frozenset[str], delta: PlanningDelta
+    ) -> Sequence[PlanChange]:
+        if self.source is None:
+            raise KitMapUnavailable("onboard plans present but no plan columns provider")
+        copied = plans_ports.KitMapContext(ctx.snapshot, ctx.release, ctx.environment_id, ctx.at)
+        additions = plans_ports.PlanningDelta(
+            delta.add_instruments,
+            tuple(plans_ports.SupplyAddition(v.supply_id, v.quantity) for v in delta.add_supplies),
+            tuple(plans_ports.SkillAddition(v.skill_id, v.person_ids) for v in delta.add_skills),
+        )
+        return tuple(
+            PlanChange(
+                c.plan_id,
+                c.condition_id,
+                c.flow_id,
+                c.before_plan_aboard,
+                c.before_waits_for_mo,
+                c.after_plan_aboard,
+                c.after_waits_for_mo,
+            )
+            for c in self.source.plans_changed(copied, base_kit=base_kit, delta=additions)
+        )
+
+
 class KitMapWiring:
     """One instance per registration: the objects the provider factories build and the late bindings fill."""
 
@@ -111,6 +165,7 @@ class KitMapWiring:
         self.mission: MissionStatePort | None = None
         self.conditions: ConditionRegistryPort | None = None
         self.api = KitMapApi()
+        self.plan_columns = _PlanColumnsAdapter()
 
     def build(self, resolver: Resolver) -> KitMapReads:
         if self.reads is not None:
@@ -141,7 +196,7 @@ class KitMapWiring:
         self.reads = KitMapReads(
             snapshots=snapshots.snapshot,
             releases=self.source,
-            renderer=resolver.require(TemplateRenderer),  # type: ignore[type-abstract]
+            config=resolver.require(ConfigBinding),  # type: ignore[type-abstract]
             vocabulary=words,
             gate_max_condition_ids=value("gate_max_condition_ids"),
         )
@@ -168,19 +223,25 @@ class KitMapWiring:
         self.conditions = resolver.optional(ConditionRegistryPort)  # type: ignore[type-abstract]
         self.reads.readiness = resolver.optional(InstrumentReadinessPort)  # type: ignore[type-abstract]
         self.reads.mission = self.mission
-        self.reads.plans = resolver.optional(PlanColumnsPort)  # type: ignore[type-abstract]
+        self.plan_columns.source = resolver.optional(plans_ports.PlanColumnsPort)  # type: ignore[type-abstract]
+        candidate = resolver.optional(PlanColumnsPort)  # type: ignore[type-abstract]
+        self.reads.plans = (
+            None if candidate is self.plan_columns and self.plan_columns.source is None else candidate
+        )
         self.what_if.roster = resolver.optional(RosterPort)  # type: ignore[type-abstract]
         self.what_if.cover = resolver.optional(CoverPlanningPort)  # type: ignore[type-abstract]
         self.api.require_roles = resolver.optional(RequireRoles)  # type: ignore[type-abstract]
 
 
-_REQUIRES: tuple[type[object], ...] = (HubSettings, ReadSnapshotFactory, TemplateRenderer, IdFactory)
+_REQUIRES: tuple[type[object], ...] = (HubSettings, ReadSnapshotFactory, ConfigBinding, IdFactory)
 
 
 def register(registry: ModuleRegistry) -> None:
     wiring = KitMapWiring()
     for spec in setting_specs():
         registry.setting(spec)
+    if not isinstance(registry, _ProviderDeclarations) or PlanColumnsPort not in registry.providers:
+        registry.provide(PlanColumnsPort, lambda _: wiring.plan_columns)  # type: ignore[type-abstract]
     registry.provide(KitGate, wiring.build, requires=_REQUIRES)  # type: ignore[type-abstract]
     registry.provide(KitMapQueries, wiring.build, requires=_REQUIRES)  # type: ignore[type-abstract]
     registry.provide(KitCapabilitiesPort, wiring.build, requires=_REQUIRES)  # type: ignore[type-abstract]

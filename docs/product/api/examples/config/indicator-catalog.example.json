@@ -16,7 +16,20 @@
           "method": "median",
           "window_days": 14,
           "min_samples": 5,
-          "basis": "team default"
+          "basis": "team default",
+          "within_usual": {
+            "band": "0",
+            "basis": "team default",
+            "source_ids": [],
+            "nasa_checked": [
+              "C09",
+              "C14",
+              "C15",
+              "C23",
+              "N03"
+            ],
+            "to_be_set_by": "clinical review"
+          }
         },
         "better": "neither",
         "basis": "team default"
@@ -32,7 +45,20 @@
           "method": "median",
           "window_days": 14,
           "min_samples": 5,
-          "basis": "team default"
+          "basis": "team default",
+          "within_usual": {
+            "band": "0",
+            "basis": "team default",
+            "source_ids": [],
+            "nasa_checked": [
+              "C09",
+              "C14",
+              "C15",
+              "C23",
+              "N03"
+            ],
+            "to_be_set_by": "clinical review"
+          }
         },
         "better": "higher",
         "basis": "team default"
@@ -48,7 +74,20 @@
           "method": "median",
           "window_days": 14,
           "min_samples": 5,
-          "basis": "team default"
+          "basis": "team default",
+          "within_usual": {
+            "band": "0",
+            "basis": "team default",
+            "source_ids": [],
+            "nasa_checked": [
+              "C09",
+              "C14",
+              "C15",
+              "C23",
+              "N03"
+            ],
+            "to_be_set_by": "clinical review"
+          }
         },
         "better": "lower",
         "basis": "team default"
@@ -64,7 +103,20 @@
           "method": "median",
           "window_days": 14,
           "min_samples": 5,
-          "basis": "team default"
+          "basis": "team default",
+          "within_usual": {
+            "band": "0",
+            "basis": "team default",
+            "source_ids": [],
+            "nasa_checked": [
+              "C09",
+              "C14",
+              "C15",
+              "C23",
+              "N03"
+            ],
+            "to_be_set_by": "clinical review"
+          }
         },
         "better": "lower",
         "basis": "team default"
@@ -80,7 +132,20 @@
           "method": "median",
           "window_days": 14,
           "min_samples": 5,
-          "basis": "team default"
+          "basis": "team default",
+          "within_usual": {
+            "band": "0",
+            "basis": "team default",
+            "source_ids": [],
+            "nasa_checked": [
+              "C09",
+              "C14",
+              "C15",
+              "C23",
+              "N03"
+            ],
+            "to_be_set_by": "clinical review"
+          }
         },
         "better": "lower",
         "basis": "team default"
@@ -96,7 +161,20 @@
           "method": "median",
           "window_days": 14,
           "min_samples": 5,
-          "basis": "team default"
+          "basis": "team default",
+          "within_usual": {
+            "band": "0",
+            "basis": "team default",
+            "source_ids": [],
+            "nasa_checked": [
+              "C09",
+              "C14",
+              "C15",
+              "C23",
+              "N03"
+            ],
+            "to_be_set_by": "clinical review"
+          }
         },
         "better": "neither",
         "basis": "team default"
@@ -112,7 +190,20 @@
           "method": "median",
           "window_days": 14,
           "min_samples": 5,
-          "basis": "team default"
+          "basis": "team default",
+          "within_usual": {
+            "band": "0",
+            "basis": "team default",
+            "source_ids": [],
+            "nasa_checked": [
+              "C09",
+              "C14",
+              "C15",
+              "C23",
+              "N03"
+            ],
+            "to_be_set_by": "clinical review"
+          }
         },
         "better": "neither",
         "basis": "team default"
@@ -128,7 +219,20 @@
           "method": "median",
           "window_days": 14,
           "min_samples": 5,
-          "basis": "team default"
+          "basis": "team default",
+          "within_usual": {
+            "band": "0",
+            "basis": "team default",
+            "source_ids": [],
+            "nasa_checked": [
+              "C09",
+              "C14",
+              "C15",
+              "C23",
+              "N03"
+            ],
+            "to_be_set_by": "clinical review"
+          }
         },
         "better": "neither",
         "basis": "team default"

@@ -14,7 +14,7 @@ class PatchThreshold(RootModel[int]):
 
 class PatchDesign(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     threshold: int = Field(..., ge=1)
     patch_design_id: common_schema.ConfigId
@@ -27,11 +27,11 @@ class Threshold(RootModel[int]):
 
 class PatchDesign1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['first_drill', 'drill_count', 'skill_fresh'] = Field(
+    kind: Literal["first_drill", "drill_count", "skill_fresh"] = Field(
         ...,
-        description='first_drill: the first completed drill. drill_count: threshold completed drills. skill_fresh: every core skill practiced within its freshness cadence.',
+        description="first_drill: the first completed drill. drill_count: threshold completed drills. skill_fresh: every core skill practiced within its freshness cadence.",
     )
     threshold: Threshold | None
     patch_design_id: common_schema.ConfigId
@@ -40,13 +40,13 @@ class PatchDesign1(BaseModel):
 
 class Practice(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    counts: Literal['drill_completed']
+    counts: Literal["drill_completed"]
     drill_measurements_count: Literal[False]
     patch_designs: list[PatchDesign1] = Field(..., min_length=1)
     core_skill_ids: list[common_schema.ConfigId] = Field(
-        ..., description='skills-catalog skill IDs the skill_fresh patch needs.'
+        ..., description="skills-catalog skill IDs the skill_fresh patch needs."
     )
     basis: common_schema.Basis
     to_be_set_by: common_schema.ToBeSetBy | None
@@ -54,7 +54,7 @@ class Practice(BaseModel):
 
 class ParticipationRulesJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     patch_thresholds: list[PatchThreshold] = Field(..., min_length=1)
     crew_goal_window_days: int = Field(..., ge=1)

@@ -1,0 +1,183 @@
+{
+  "source_url": "https://visualization.osdr.nasa.gov/eda/dashboard_RR-1",
+  "retrieved_at_utc": "2026-11-14T02:49:19.723514+00:00",
+  "channel_labels_from_portal": [
+    "ISS",
+    "Ground"
+  ],
+  "mission": "RR-1",
+  "mission_title": "Rodent Research 1 (SpaceX-4)",
+  "mission_description": "NASA's Rodent Research Hardware System provides a research platform aboard the International Space Station (ISS) for long-duration rodent experiments in space. Scientists and engineers at Ames Research Center (ARC) developed the new system for the space station based on the Animal Enclosure Module (AEM) that flew aboard 27 Space Shuttle missions between 1983 and 2011 and supported studies ranging from four to 18 days. Rodent spaceflight experiments have contributed significantly to our understanding of the effects of microgravity on biological processes that are directly relevant to humans in space. The maiden voyage of the system, Rodent Research-1 (RR-1), launched on SpaceX CRS-4 on September 21, 2014 and returned October 25, 2014 , during ISS expeditions 41/42. Lasting 37 days, RR-1 was the longest duration spaceflight rodent study to date conducted in a NASA facility. RR-1 was the first mission to transport rodents aboard an unmanned commercial vehicle. The primary goal is for NASA to validate hardware and demonstrate critical research operations, while supporting the Center for the Advancement of Science in Space (CASIS) in sponsoring the first commercial research study.",
+  "mission_description_addendum": "For this release, the ground dates have been matched to the flight dates.",
+  "mission_link": "https://osdr.nasa.gov/bio/repo/data/payloads/RR-1",
+  "units_from_portal_js": {
+    "co2_iss": "ppm",
+    "temperature_iss": "degrees C",
+    "rh_iss": "%",
+    "time": "source string without time-zone suffix"
+  },
+  "unit_source_url": "https://visualization.osdr.nasa.gov/eda/static/js/telemetry_plots.js",
+  "timestamp_timezone": "not stated in downloaded payload; not assumed UTC",
+  "sensor_location": "ISS channel per EDA; exact cabin node, instrument and calibration not supplied in this payload",
+  "rows": 12087,
+  "first_timestamp": "2014-09-20 03:59:00",
+  "last_timestamp": "2014-11-01 03:54:00",
+  "interval_seconds_counts": {
+    "300.0": 12071,
+    "360.0": 6,
+    "240.0": 5,
+    "1200.0": 1,
+    "1980.0": 1,
+    "480.0": 1,
+    "180.0": 1
+  },
+  "non_300_second_intervals": [
+    {
+      "after": "2014-09-24 12:44:00",
+      "before": "2014-09-24 12:50:00",
+      "seconds": 360.0
+    },
+    {
+      "after": "2014-10-01 06:55:00",
+      "before": "2014-10-01 07:01:00",
+      "seconds": 360.0
+    },
+    {
+      "after": "2014-10-01 07:01:00",
+      "before": "2014-10-01 07:05:00",
+      "seconds": 240.0
+    },
+    {
+      "after": "2014-10-01 13:40:00",
+      "before": "2014-10-01 13:46:00",
+      "seconds": 360.0
+    },
+    {
+      "after": "2014-10-06 14:51:00",
+      "before": "2014-10-06 15:11:00",
+      "seconds": 1200.0
+    },
+    {
+      "after": "2014-10-08 05:31:00",
+      "before": "2014-10-08 05:37:00",
+      "seconds": 360.0
+    },
+    {
+      "after": "2014-10-08 05:37:00",
+      "before": "2014-10-08 05:41:00",
+      "seconds": 240.0
+    },
+    {
+      "after": "2014-10-08 11:16:00",
+      "before": "2014-10-08 11:20:00",
+      "seconds": 240.0
+    },
+    {
+      "after": "2014-10-15 14:50:00",
+      "before": "2014-10-15 15:23:00",
+      "seconds": 1980.0
+    },
+    {
+      "after": "2014-10-22 05:48:00",
+      "before": "2014-10-22 05:54:00",
+      "seconds": 360.0
+    },
+    {
+      "after": "2014-10-22 05:54:00",
+      "before": "2014-10-22 05:58:00",
+      "seconds": 240.0
+    },
+    {
+      "after": "2014-10-22 12:08:00",
+      "before": "2014-10-22 12:16:00",
+      "seconds": 480.0
+    },
+    {
+      "after": "2014-10-29 08:46:00",
+      "before": "2014-10-29 08:52:00",
+      "seconds": 360.0
+    },
+    {
+      "after": "2014-10-29 08:52:00",
+      "before": "2014-10-29 08:56:00",
+      "seconds": 240.0
+    },
+    {
+      "after": "2014-10-29 13:01:00",
+      "before": "2014-10-29 13:04:00",
+      "seconds": 180.0
+    }
+  ],
+  "co2_iss_ppm": {
+    "min": 1862,
+    "max": 4667,
+    "mean": 3197.2672292545712
+  },
+  "preprocessing": "Nested JSON telemetry arrays extracted losslessly to CSV; no imputation, interpolation, timezone conversion or ppm-to-mmHg conversion. Values retain source precision.",
+  "provenance": "REPLAY. Historical environmental records, not paired human medical cases.",
+  "checksums": {
+    "eda_rr1_payload.json": "edf8f9eca1ecd6c79cc6c911a5db33cac2e6e757f57f0aa87d9ac2d7446c41db",
+    "eda_rr1_telemetry.csv": "2d03645b927eae08b275be09ee168b829ac647c0db608ba08cda5e6af494b787",
+    "eda_rr1_source.html": "d7284e1d82a9ca6fe56670fa7ac48fcff4fb361c4f6a6025ede7087352a7c0aa"
+  },
+  "catalog_id": "N02",
+  "file": "eda_rr1_telemetry.csv",
+  "bytes": 566212,
+  "sha256": "2d03645b927eae08b275be09ee168b829ac647c0db608ba08cda5e6af494b787",
+  "documentation": [
+    "https://osdr-tutorials.readthedocs.io/en/latest/pages/guides/environmental_data_application.html",
+    "https://visualization.osdr.nasa.gov/eda/static/js/telemetry_plots.js"
+  ],
+  "columns": {
+    "time": {
+      "unit": null,
+      "description": "Source string without time zone"
+    },
+    "temperature_iss": {
+      "unit": "Cel",
+      "description": "ISS channel temperature"
+    },
+    "rh_iss": {
+      "unit": "%",
+      "description": "ISS channel relative humidity"
+    },
+    "co2_iss": {
+      "unit": "[ppm]",
+      "description": "ISS channel CO2"
+    },
+    "temperature_ground": {
+      "unit": "Cel",
+      "description": "Ground control chamber temperature"
+    },
+    "rh_ground": {
+      "unit": "%",
+      "description": "Ground control chamber relative humidity"
+    },
+    "co2_ground": {
+      "unit": "[ppm]",
+      "description": "Ground control chamber CO2"
+    }
+  },
+  "license": "US Government work. NASA material is generally not subject to copyright in the United States (NASA media usage guidelines, https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA as the source; no NASA logo or insignia is used (NASA-SOURCES.md section 4).",
+  "is_not": [
+    "Another mission's cabin in 2014, never a crew member's exposure or a paired medical case.",
+    "ppm, not mmHg: converting needs cabin pressure, which the file does not have (NASA-SOURCES.md section 2 states the 760 mmHg assumption)."
+  ],
+  "consumers": [
+    {
+      "epic": "E23",
+      "component": "simulators/habitat CO2, temperature and humidity feeds",
+      "use": "Primary REPLAY profile for the CO2 channel; contract examples reading-co2-replay and series-co2-replay are computed from this file."
+    },
+    {
+      "epic": "E24",
+      "component": "CO2 warning rules",
+      "use": "Positive case: the one-hour mean CO2 reaches 4,606 ppm (3.50 mmHg at an assumed 760 mmHg), above the 3 mmHg one-hour limit, so the CO2 warning must fire (PRD section 1.4)."
+    },
+    {
+      "epic": "E21",
+      "component": "eval/scenarios and the demo replay clock",
+      "use": "The demo replay clock is 2014-10-07 15:36, where the one-hour mean over the twelve five-minute samples is 4,606 ppm (PRD, VALIDATION.md, DEMO-CONDITIONS.md)."
+    }
+  ]
+}
