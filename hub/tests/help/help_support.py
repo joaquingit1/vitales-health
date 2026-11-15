@@ -165,7 +165,7 @@ def _ledger_ddl() -> tuple[str, ...]:
 def create_schema(path: Path) -> None:
     connection = sqlite3.connect(path)
     try:
-        connection.executescript(MIGRATION.read_text())
+        connection.executescript(MIGRATION.read_text(encoding="utf-8"))
         for statement in _ledger_ddl():
             connection.execute(statement)
         connection.commit()

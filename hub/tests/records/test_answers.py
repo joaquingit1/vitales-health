@@ -23,7 +23,9 @@ pytestmark = [pytest.mark.E01, pytest.mark.trace("T-E01-07", "R06")]
 
 def release():
     raw = json.dumps(
-        json.loads(Path("contracts/api/examples/config/questionnaires.example.json").read_text())["value"]
+        json.loads(
+            Path("contracts/api/examples/config/questionnaires.example.json").read_text(encoding="utf-8")
+        )["value"]
     ).encode()
     document = ConfigDocumentView(ConfigName.QUESTIONNAIRES, hashlib.sha256(raw).hexdigest(), raw)
     return MemoryRelease("release", {document.name: document})

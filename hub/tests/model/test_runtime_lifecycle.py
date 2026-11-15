@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import json
+import os
+import shutil
+import subprocess
+import sys
 import threading
 import time
 from collections.abc import Iterator
@@ -172,9 +177,92 @@ def test_failed_start_cleans_partial_process_and_key_then_can_retry(
     runtime.start("model_candidate")
     assert runtime.release_id == "model_candidate" and supervisor.running
     key = store.data_dir / "models/runtime.key"
-    assert key.stat().st_mode & 0o777 == 0o600
+    if sys.platform == "win32":
+        assert_windows_key_acl(key)
+    else:
+        assert key.stat().st_mode & 0o777 == 0o600
     runtime.stop()
     assert not key.exists()
+
+
+def assert_windows_key_acl(key: Path) -> None:
+    """Independently inspect the actual file via .NET ACLs, not the implementation's ctypes calls."""
+    shell = shutil.which("powershell.exe")
+    assert shell is not None
+    script = (
+        "$ErrorActionPreference='Stop'; "
+        "$a=Get-Acl -LiteralPath $env:VITALES_KEY_ACL_TEST_PATH; "
+        "$r=@($a.Access | ForEach-Object { @{"
+        "sid=$_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value; "
+        "rights=[int]$_.FileSystemRights; type=$_.AccessControlType.ToString(); inherited=$_.IsInherited} }); "
+        "@{protected=$a.AreAccessRulesProtected; rules=$r} | ConvertTo-Json -Depth 4 -Compress"
+    )
+    result = subprocess.run(
+        [shell, "-NoProfile", "-NonInteractive", "-Command", script],
+        env={**os.environ, "VITALES_KEY_ACL_TEST_PATH": str(key)},
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=10,
+        check=True,
+    )
+    value = json.loads(result.stdout)
+    assert value["protected"] is True
+    rules = value["rules"]
+    assert len(rules) == 2
+    assert {rule["sid"] for rule in rules} == {"S-1-3-4", "S-1-5-18"}
+    assert all(rule["type"] == "Allow" and rule["inherited"] is False for rule in rules)
+    assert all(rule["rights"] == 0x1F01FF for rule in rules)
+
+
+@pytest.mark.trace("R23", "T-E17-080")
+@pytest.mark.parametrize("stage", ["before", "after_empty_creation"])
+def test_key_permission_failure_writes_no_secret_and_leaves_no_file(
+    stage: str, store: ManifestStore, manifest: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from crew_health.model.adapters import runtime_service
+    from crew_health.model.domain.release import ModelRefused
+
+    live(store, manifest)
+    supervisor = Supervisor()
+    runtime = RuntimeService(store, cast(LaunchBuilder, Launch()), supervisor, port=18081, max_bytes=1048576)
+    inspected: list[Path] = []
+
+    def refused(path: Path) -> int:
+        assert not path.exists()
+        if stage == "after_empty_creation":
+            path.write_bytes(b"")
+        inspected.append(path)
+        raise ModelRefused("runtime_key_permissions")
+
+    monkeypatch.setattr(runtime_service, "create_runtime_key_file", refused)
+    with pytest.raises(ModelRefused, match="runtime_key_permissions"):
+        runtime.start("model_candidate")
+    assert len(inspected) == 1
+    assert supervisor.enabled == 0
+    assert runtime.release_id is None and runtime.identity is None and not runtime.key
+    assert list((store.data_dir / "models").glob("runtime.key*")) == []
+
+
+@pytest.mark.trace("R23", "T-E17-080")
+def test_runtime_key_creation_is_private_before_any_credential_bytes(tmp_path: Path) -> None:
+    from crew_health.model.adapters.key_permissions import create_runtime_key_file
+    from crew_health.model.domain.release import ModelRefused
+
+    key = tmp_path / "empty-runtime.key"
+    fd = create_runtime_key_file(key)
+    try:
+        assert key.read_bytes() == b""
+        if sys.platform == "win32":
+            assert_windows_key_acl(key)
+        else:
+            assert key.stat().st_mode & 0o777 == 0o600
+        collision = ModelRefused if sys.platform == "win32" else FileExistsError
+        with pytest.raises(collision):
+            create_runtime_key_file(key)
+    finally:
+        os.close(fd)
+        key.unlink()
 
 
 @pytest.mark.trace("V27", "T-E17-022")

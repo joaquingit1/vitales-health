@@ -30,7 +30,9 @@ def at(hour: int, minute: int = 0) -> datetime:
 def station(tmp_path: Path):
     clock = MemoryClock(at(12), 0, "epoch_test")
     db = database(tmp_path, clock=clock)
-    db.migrate(Path("hub/src/crew_health/clock/adapters/migrations/0001_clock.sql").read_text())
+    db.migrate(
+        Path("hub/src/crew_health/clock/adapters/migrations/0001_clock.sql").read_text(encoding="utf-8")
+    )
     repository = SqlClockRepository(settings=db.settings, node_id="node_test", incarnation_id="inc_test")
     service = PersistentClocks(
         repository=repository,
