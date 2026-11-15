@@ -29,7 +29,7 @@ class ModelAction1(BaseModel):
 
 
 class ConditionId(RootModel[str]):
-    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}$")
+    root: str = Field(..., pattern="^ICL[1-9][0-9]{0,2}[A-Z]?$")
 
 
 class ModelAction2(BaseModel):

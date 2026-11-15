@@ -2,7 +2,7 @@
   "base_inventory_sha256": "f0800be4bc8b17b4c23d65f4cafc500d823e85db05932cb6678e13ce5fd1673e",
   "files": {
     "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
-    "part-a.json": "f6928d6dcb6ea7a4878374e0eca8c9c29c2d2cff54e5dd78183f478f916071ea"
+    "part-a.json": "35de455967b4a02825bdaaaac5a641cd7247cf763f89c8f1a09ce0a56aed246c"
   },
-  "version": "part-a-d12-2"
+  "version": "part-a-d12-d22-3"
 }
