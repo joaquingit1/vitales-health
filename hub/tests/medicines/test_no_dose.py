@@ -63,6 +63,8 @@ PHARMACY_ALLOWED = frozenset(
         ("engine-settings.json", "/q3b/qualification/*/dose_upper_mg"),
     }
 )
+# The medicines screen's labels for the engine's radiation input and flag (sense 2 above), never an amount to give.
+UI_COPY_ALLOWED = frozenset({"/medicine_words/dose", "/medicine_words/flag_radiosensitive_dose_exceeded"})
 MEDICINE_PATHS = (
     "/v1/medicines",
     "/v1/dose-proposals",
@@ -132,7 +134,9 @@ def test_no_dose_field_outside_treatments() -> None:
         if path == TREATMENTS:
             continue
         for pointer in _keys(json.loads(path.read_text(encoding="utf-8"))):
-            allowed = path.parent == PHARMACY and (path.name, pointer) in PHARMACY_ALLOWED
+            allowed = (path.parent == PHARMACY and (path.name, pointer) in PHARMACY_ALLOWED) or (
+                path == CONFIG / "ui-copy.json" and pointer in UI_COPY_ALLOWED
+            )
             if _is_dose_field(pointer) and not allowed:
                 offenders.append(f"{path.relative_to(REPO)}:{pointer}")
     assert offenders == []

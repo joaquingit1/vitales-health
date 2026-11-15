@@ -134,8 +134,9 @@ class E09Station(E02Station):
                 )
             return shared[0]
 
-        registry.provide(TaskQueue, tasks, requires=(PersistentClocks,))  # type: ignore[type-abstract]
-        registry.provide(TaskRunner, tasks, requires=(PersistentClocks,))  # type: ignore[type-abstract]
+        if TaskQueue not in getattr(registry, "providers", {}):  # the served hub may bind them already
+            registry.provide(TaskQueue, tasks, requires=(PersistentClocks,))  # type: ignore[type-abstract]
+            registry.provide(TaskRunner, tasks, requires=(PersistentClocks,))  # type: ignore[type-abstract]
         if self.extra_configure is not None:
             self.extra_configure(registry)
 

@@ -196,9 +196,8 @@ def build_station(
     db.settings = _settings(tmp_path, registry_file, settings or {})
     db.clock = MemoryClock(START, 0, "epoch_1")  # type: ignore[assignment]
     for module in ("config", "clock", "events", "records"):
-        db.migrate(
-            (ROOT / "hub/src/crew_health" / module / "adapters/migrations" / f"0001_{module}.sql").read_text()
-        )
+        for sql in sorted((ROOT / "hub/src/crew_health" / module / "adapters/migrations").glob("*.sql")):
+            db.migrate(sql.read_text())
     package_artifacts = config_artifacts(
         _resources()
     )  # the real package checks, as the served hub binds them

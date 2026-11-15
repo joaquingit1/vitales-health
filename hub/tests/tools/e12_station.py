@@ -26,7 +26,6 @@ from crew_health.guidance.application.ports import (
     ContentFacts,
     ContentFactSet,
     ContentRef,
-    EnvironmentFacts,
     Fact,
     Known,
 )
@@ -246,7 +245,6 @@ class E12Hub:
         evidence, installation, tokens = self.evidence, self.installation, self.tokens
         registry.provide(EvidenceQueryPort, _constant(evidence))  # type: ignore[type-abstract]
         registry.provide(ContentFacts, _constant(Content(evidence)))  # type: ignore[type-abstract]
-        registry.provide(EnvironmentFacts, _constant(Places()))  # type: ignore[type-abstract]
         if installation is not None:
             registry.provide(ModelInstallation, _constant(installation))
         if tokens is not None:

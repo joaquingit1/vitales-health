@@ -236,9 +236,9 @@ def test_first_token_timeout_is_distinct_from_total_timeout() -> None:
     assert result == StepTimedOut("first_token")
     wire = Wire(
         (frame({"reasoning_content": "first"}), frame({"content": "{}"}, "stop"), b"data: [DONE]\n\n"),
-        delay=0.06,
+        delay=0.3,
     )
-    result = run(wire, first=1, total=0.09)
+    result = run(wire, first=1, total=0.45)
     assert result == StepTimedOut("total")
 
 
