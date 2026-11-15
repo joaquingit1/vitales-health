@@ -137,6 +137,8 @@ def _messages_of(release: ReleaseHandle) -> Mapping[str, str]:
         found = json.loads(release.document(ConfigName.UI_COPY).raw)["error_messages"]
     except ValueError, KeyError, TypeError:
         return {}
+    if not isinstance(found, dict):
+        return {}  # a corrupt document names no messages; the error then carries its code only
     return {str(k): str(v) for k, v in found.items() if isinstance(v, str)}
 
 
