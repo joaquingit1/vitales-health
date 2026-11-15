@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from decimal import Decimal
+from decimal import Decimal, Inexact, localcontext
 from pathlib import Path
 
 import pytest
@@ -103,6 +103,16 @@ def test_drawn_subtracts_exactly_and_refuses_unknown_other_units_and_below_zero(
     assert other.value.code == "INVALID_UNIT" and isinstance(other.value, SupplyPortError)
     with pytest.raises(SupplyInputInvalid):
         drawn(level, q(0))
+
+
+@pytest.mark.trace("M3", "drawn")
+def test_drawn_ignores_an_inexact_flag_the_caller_already_raised() -> None:
+    level = StockLevel("eye_rinse_water", True, q("6"), RINSE)
+    with localcontext() as caller:
+        caller.prec = 3
+        Decimal(1) / Decimal(3)  # the caller's own rounding sets Inexact in its context
+        assert caller.flags[Inexact]
+        assert drawn(level, q("2")) == StockLevel("eye_rinse_water", True, q("4"), RINSE)
 
 
 @pytest.mark.trace("M3", "INV-S9", "rule 5")

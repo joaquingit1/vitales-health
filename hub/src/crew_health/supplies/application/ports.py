@@ -125,6 +125,7 @@ def drawn(level: StockLevel, amount: Quantity) -> StockLevel:
         raise StockUnitMismatch(level.unit, now.unit, level.supply_id)
     with localcontext() as ctx:
         ctx.prec = PRECISION
+        ctx.clear_flags()  # the copy inherits the caller's flags; only this subtraction may set Inexact
         rest = now.value - amount.value
         inexact = ctx.flags[Inexact]
     if inexact:
