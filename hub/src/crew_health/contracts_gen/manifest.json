@@ -638,6 +638,7 @@
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
     "api/schemas/config-ui-copy.schema.json": "048ee63e7699e201d96a97216dd809b3bf227310547dc5decb6d39647a17ee4e",
+    "api/schemas/config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
     "api/schemas/config-warning-rules.schema.json": "a237eac14f8cc5b2bc1d3d19019847a56d07261d84e59cbec0df1eee3ac522b3",
     "api/schemas/context.schema.json": "0fd66549c0b915548ec3f89b9650f3c84e3fe72e8f5c98c1671349cf53494a2b",
     "api/schemas/conversation.schema.json": "ac49ee869418d9b553264ef66207c29f40dd954500c9bbf433ddfde1e00d876b",
@@ -710,7 +711,19 @@
     "reference/assessment-families.json": "b9e931c2e048e189404a924a3c3728b1c807d577cd7f847e26c61e36e4e8cc66",
     "reference/input-dictionary.json": "23dcdfad5edd18cc2f4ccd25e8d0c91cad14559edef52994913406697daaa479"
   },
-  "modules": {},
+  "modules": {
+    "crew_health.clock.module": "f3477b30463775da1187f644bd15bacb33f059f120df7c86f2fd0d88efbff38c",
+    "crew_health.config.module": "63f12106f518b5545586dd1f5ce62b0890c0631ed0ea2ee2550559dede4a4837",
+    "crew_health.events.module": "e9793132a2a4d61f6deb269dadcaf6e6cd1e1e364f0220081044f1a9a08ab5ca",
+    "crew_health.guidance.module": "28a6a6a2803c18244d6eb215fe1293ed5f45a30768bf724ade2ec52532e0d553",
+    "crew_health.help.module": "692862df7d46b36f28ee4b2a154da3a0fd4de73baff63df64de95ff047636769",
+    "crew_health.kitmap.module": "fad25a19a8d8fc95999e318a0bac786f85dd66bb931bfb04e48bd678a747f3b4",
+    "crew_health.measurement.module": "36ab7ad93d857cb2d70b5786b156deb7d0da5f456f620b500e212e289a656240",
+    "crew_health.platform.module": "f2d69c33296054e2783b5604edf4bac3211cb8da2bb3dfb4b2334ed757ac141a",
+    "crew_health.records.module": "f37574d7a5e0ac1230ed584945df40420960c81274145b7f571247bdc2ea41c3",
+    "crew_health.roles.module": "047c43e318ee3cd0021e50e309adab0f95a1764f0b940bc3e0a855663bf80ee2",
+    "crew_health.teach.module": "a3128ce8c4401c08f34960e9b3efee89b606a58051e01ea2ca37c2fd163256d3"
+  },
   "outputs": {
     "enums.py": "27696ca71b68fba3324757e24938ca220378abd3d00253c686a737283cbbd9f2",
     "schemas/__init__.py": "b08c9a12f25d3fe56619318f3ea66e4632a7e1b73b3540a527be86779baafb9b",
@@ -746,6 +759,7 @@
     "schemas/config_sensor_limits_schema.py": "98d142fffe5242cd57142644fb2bd1c0cd7b2b4cd18665facc928b58fee5394c",
     "schemas/config_skills_catalog_schema.py": "007a8112e4bb6a6742fd08672b660df6a1cdf0592dc0b7abac4361dbd434f0e5",
     "schemas/config_ui_copy_schema.py": "9add484b1626a365e85e66cadbe396bb01c45549b8175634a99decc4672f8f39",
+    "schemas/config_unit_mapping_schema.py": "7ecfcc838c6591fe59cffbf5adc27eab98cfcd5e2eb48a64a8f16de655aff27e",
     "schemas/config_warning_rules_schema.py": "02dd9d751cd566cbcceaea887f8e37942ffd411836b566cee610abb208e68cf0",
     "schemas/context_schema.py": "5ae7bcff5c5d5b8ecf59d392a2c355c501ca6343597dfae6014cb2535d08bb1c",
     "schemas/conversation_schema.py": "6e6af401a8bc59fc41ea47f5ec71415a953621ab9eecfd6431318c1d95883c1a",
@@ -816,7 +830,27 @@
     "schemas/today_view_schema.py": "a4d034d1e69bd7cfb22742fa9d73fff22b782d7e657fb078c96454473137be85",
     "schemas/warning_schema.py": "f8cdbd9c5025684e9c48bcd4dd2b6fdffc1ad02c7b8733e88632b634df9ef701"
   },
-  "overlay": null,
+  "overlay": {
+    "files": {
+      "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
+      "part-a.json": "51d6fe596f1a31bcf6e1256d4184d485d5d9ab2f51a2f66789742152aeadc468"
+    },
+    "manifest_sha256": "9b671d9fb5d3f5526a4703f63d957d04131b1529f6c805fdde347dac2cfa3386",
+    "traces": [
+      {
+        "a3": [
+          "CONTRACTS.md:86",
+          "CONTRACTS.md:659"
+        ],
+        "decision": "D12",
+        "id": "d12-unit-mapping-schema",
+        "op": "add_file",
+        "source": "config-unit-mapping.schema.json",
+        "target": "api/schemas/config-unit-mapping.schema.json"
+      }
+    ],
+    "version": "part-a-d12-1"
+  },
   "sources": {
     "docs/product/CONTRACTS.md": "4d8085fb55083f5bc5c0579d247b12040177b2139131b69ffd7fc01f032c7c21"
   }

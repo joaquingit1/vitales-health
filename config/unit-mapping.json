@@ -1,0 +1,119 @@
+{
+  "version": "part-a-d12-1",
+  "mappings": [
+    {
+      "indicator_code": "pulse",
+      "wire_unit": "bpm",
+      "ucum_unit": "/min",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/CONTRACTS.md",
+          "line": 86,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "systolic_bp",
+      "wire_unit": "mmHg",
+      "ucum_unit": "mm[Hg]",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/CONTRACTS.md",
+          "line": 86,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "diastolic_bp",
+      "wire_unit": "mmHg",
+      "ucum_unit": "mm[Hg]",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/CONTRACTS.md",
+          "line": 86,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "co2",
+      "wire_unit": "mmHg",
+      "ucum_unit": "mm[Hg]",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/CONTRACTS.md",
+          "line": 659,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "co2",
+      "wire_unit": "ppm",
+      "ucum_unit": "[ppm]",
+      "conversion": "ppm_to_mmhg",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/CONTRACTS.md",
+          "line": 659,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "o2",
+      "wire_unit": "mmHg",
+      "ucum_unit": "mm[Hg]",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/CONTRACTS.md",
+          "line": 659,
+          "decision": "D12"
+        }
+      ]
+    }
+  ]
+}

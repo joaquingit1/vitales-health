@@ -1,0 +1,3073 @@
+{
+ "drafted_by": "model:claude-opus-5-5",
+ "method": "Q26 applied to cliff-confirming-tests.json candidates",
+ "instruments_added": [
+  {
+   "id": "urine_pregnancy_test",
+   "name": "urine pregnancy test",
+   "needs_text": "a urine pregnancy test",
+   "first_cited_by": "ICL2"
+  },
+  {
+   "id": "otoscope",
+   "name": "otoscope",
+   "needs_text": "an otoscope",
+   "first_cited_by": "ICL24"
+  },
+  {
+   "id": "fluorescein_uv_light",
+   "name": "fluorescein stain and UV light source",
+   "needs_text": "fluorescein stain and a UV light",
+   "first_cited_by": "ICL48"
+  },
+  {
+   "id": "anterior_segment_oct",
+   "name": "anterior segment OCT",
+   "needs_text": "an anterior segment OCT",
+   "first_cited_by": "ICL60"
+  },
+  {
+   "id": "intraocular_pressure_device",
+   "name": "hand held intraocular pressure device",
+   "needs_text": "a hand held intraocular pressure device",
+   "first_cited_by": "ICL60"
+  },
+  {
+   "id": "audiometry",
+   "name": "inflight audiometry",
+   "needs_text": "inflight audiometry",
+   "first_cited_by": "ICL65"
+  },
+  {
+   "id": "urinalysis",
+   "name": "urinalysis",
+   "needs_text": "a urinalysis",
+   "first_cited_by": "ICL71"
+  },
+  {
+   "id": "amylase",
+   "name": "amylase",
+   "needs_text": "an amylase test",
+   "first_cited_by": "ICL75"
+  },
+  {
+   "id": "cbc",
+   "name": "CBC",
+   "needs_text": "a CBC",
+   "first_cited_by": "ICL75"
+  },
+  {
+   "id": "basic_metabolic_panel",
+   "name": "BMP",
+   "needs_text": "a BMP",
+   "first_cited_by": "ICL75"
+  },
+  {
+   "id": "glucose",
+   "name": "glucose",
+   "needs_text": "a glucose test",
+   "first_cited_by": "ICL75"
+  },
+  {
+   "id": "liver_function_panel",
+   "name": "liver function assays",
+   "needs_text": "a liver function panel",
+   "first_cited_by": "ICL75"
+  },
+  {
+   "id": "blood_gas",
+   "name": "blood gasses",
+   "needs_text": "a blood gas analysis",
+   "first_cited_by": "ICL80"
+  },
+  {
+   "id": "electrolytes",
+   "name": "electrolytes",
+   "needs_text": "an electrolyte panel",
+   "first_cited_by": "ICL80"
+  },
+  {
+   "id": "white_blood_cell_count",
+   "name": "white blood cell count",
+   "needs_text": "a white blood cell count",
+   "first_cited_by": "ICL84"
+  },
+  {
+   "id": "pregnancy_test",
+   "name": "pregnancy test",
+   "needs_text": "a pregnancy test",
+   "first_cited_by": "ICL123"
+  }
+ ],
+ "rows": [
+  {
+   "condition_id": "ICL1",
+   "tests": [
+    {
+     "name": "Physical examination (abdominal)",
+     "candidates": [
+      0,
+      2
+     ],
+     "instruments": []
+    },
+    {
+     "name": "Ultrasound imaging",
+     "candidates": [
+      5
+     ],
+     "instruments": [
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 4,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 8 bases the best case on history and abdominal exam alone; page 1 says diagnosis can be made with ultrasound imaging. Vital signs are worst case only and lactate and abdominal ultrasound are for worst-case complications (page 8)."
+  },
+  {
+   "condition_id": "ICL2",
+   "tests": [
+    {
+     "name": "Abdominal and pelvic exam, pelvic ultrasound and urine pregnancy test",
+     "candidates": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "instruments": [
+      "ultrasound",
+      "urine_pregnancy_test"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 4,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 5,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6 recommends exam, pelvic ultrasound and a urine pregnancy test together for the best case; vital signs and CBC are added only for the worst case."
+  },
+  {
+   "condition_id": "ICL3",
+   "tests": [
+    {
+     "name": "Physical exam with vital signs, troponin, 12-lead EKG and cardiac and pulmonary ultrasound",
+     "candidates": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "troponin_poc",
+      "ecg_12_lead",
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 8 bases best and worst case on physical exam with vital signs, troponin, EKG and cardiac and pulmonary ultrasound together, so all are one test; ischemia needs the 12-lead. The form names ultrasound and vital signs that the package example omits; the form wins."
+  },
+  {
+   "condition_id": "ICL4",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7: best and worst case diagnosis is based on history and physical examination; no dosimetry or laboratory test is named."
+  },
+  {
+   "condition_id": "ICL5",
+   "tests": [
+    {
+     "name": "Physical exam (cardiopulmonary, skin and oropharyngeal)",
+     "candidates": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: diagnostics are limited to history and physical exam; no biomarkers, imaging or instrumentation are required."
+  },
+  {
+   "condition_id": "ICL6",
+   "tests": [
+    {
+     "name": "Physical exam, fundoscopic exam and vital signs",
+     "candidates": [
+      0,
+      1,
+      2
+     ],
+     "instruments": [
+      "fundoscope",
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 3,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 6: diagnosis centers on history, physical exam, fundoscopic exam and vital signs together; ophthalmic ultrasound is included but not necessary. The page 6 CP1 best case lists only a cursory exam, but the diagnostic sentence covers both cases."
+  },
+  {
+   "condition_id": "ICL7",
+   "tests": [
+    {
+     "name": "Vital signs and physical exam (cardiopulmonary, oropharyngeal, skin)",
+     "candidates": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 8: diagnosis relies on history, vital signs and physical exam, and resources for periodic vital signs and the exams are included; no other instrumentation, biomarker or imaging is included."
+  },
+  {
+   "condition_id": "ICL8",
+   "tests": [
+    {
+     "name": "Clinical examination (abdominal exam and CVA tenderness exam)",
+     "candidates": [
+      1,
+      2
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [
+    {
+     "quote": "In spaceflight, the physical examination and history will be the mainstays of diagnosis, and lab tests (particularly an elevated white blood cell count) can further increase the suspicion for intra-abdominal infection.",
+     "page": 5
+    },
+    {
+     "quote": "There is no availability of confirmatory testing, so treatment and RTDC decisions will need to be made based on clinical data and flight surgeon experience/comfort.",
+     "page": 5
+    }
+   ],
+   "excluded": [
+    {
+     "candidate": 0,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 3,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 4,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 5,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 6,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 7,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 8,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 9,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 5 says there is no availability of confirmatory testing and that history and physical examination are the mainstays of diagnosis, so the row has one clinical examination test; the page 7 labs, vital signs and ultrasound only support suspicion and the differential."
+  },
+  {
+   "condition_id": "ICL9",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 7: best case diagnosis is history and physical examination; joint fluid collection is worst case, to differentiate septic arthritis."
+  },
+  {
+   "condition_id": "ICL10",
+   "tests": [
+    {
+     "name": "Single-lead or 12-lead ECG, with history and physical",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": [
+      "ecg_single_lead"
+     ]
+    },
+    {
+     "name": "12-lead ECG, with history and physical",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": [
+      "ecg_12_lead"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "differential"
+    },
+    {
+     "candidate": 3,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 8 names history, physical and ECG together for the best case, a rhythm diagnosis; laboratory testing and cardiac ultrasound are for differentials."
+  },
+  {
+   "condition_id": "ICL11",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "differential"
+    },
+    {
+     "candidate": 2,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 6: best case diagnosis is history and physical exam; inflight audiometry and tympanograms are a worst-case simple differential with necessity zero."
+  },
+  {
+   "condition_id": "ICL12",
+   "tests": [
+    {
+     "name": "Physical examination and medication reconciliation",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 8 bases best and worst case on history, physical examination and medication reconciliation; no laboratory or toxicology test is named."
+  },
+  {
+   "condition_id": "ICL13",
+   "tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 6 bases diagnosis on psychiatric history, review of systems and mental status exam; the vital signs and cardiopulmonary exam are an additional step outside that statement, following the package convention of an interview and exam test with no instruments."
+  },
+  {
+   "condition_id": "ICL14",
+   "tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 7 bases diagnosis on psychiatric history, review of systems and mental status exam; the vital signs and cardiopulmonary exam are an additional step outside that statement, following the package convention of an interview and exam test with no instruments."
+  },
+  {
+   "condition_id": "ICL15",
+   "tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 3,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 7 bases diagnosis on psychiatric history, review of systems and mental status exam; the vital signs and cardiopulmonary exam are an additional step outside that statement, following the package convention of an interview and exam test with no instruments. TSH/Free T4 has necessity 0."
+  },
+  {
+   "condition_id": "ICL16",
+   "tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 7 bases diagnosis on psychiatric history, review of systems and mental status exam; the vital signs and cardiopulmonary exam are an additional step outside that statement, following the package convention of an interview and exam test with no instruments."
+  },
+  {
+   "condition_id": "ICL17",
+   "tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 3,
+     "reason": "differential"
+    },
+    {
+     "candidate": 4,
+     "reason": "differential"
+    },
+    {
+     "candidate": 5,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 7 bases diagnosis on psychiatric history, review of systems and mental status exam; the vital signs and cardiopulmonary exam are an additional step outside that statement, following the package convention of an interview and exam test with no instruments. BMP, UA and TSH/FreeT4 rule out an underlying medical cause."
+  },
+  {
+   "condition_id": "ICL18",
+   "tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 7 bases diagnosis on psychiatric history, review of systems and mental status exam; the vital signs and cardiopulmonary exam are an additional step outside that statement, following the package convention of an interview and exam test with no instruments."
+  },
+  {
+   "condition_id": "ICL19",
+   "tests": [
+    {
+     "name": "Physical examination including eye exam",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: best case diagnosis is history and physical examination, with an eye exam for scratches and scarring; no pH test is named in the diagnostic section."
+  },
+  {
+   "condition_id": "ICL20",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7 scopes diagnosis as removal of agents, history and physical exam; no test needs equipment."
+  },
+  {
+   "condition_id": "ICL21",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: diagnosis is based on history and physical examination and focuses solely on the physical exam in the best case."
+  },
+  {
+   "condition_id": "ICL22",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 7 Diagnostic Scope says best and worst case diagnosis is based on history and physical examination; vital signs and unnamed laboratory tests appear only in the CP1 task list."
+  },
+  {
+   "condition_id": "ICL23",
+   "tests": [
+    {
+     "name": "Physical exam (neurologic, cardiopulmonary, fundoscopic) with vital signs",
+     "candidates": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "instruments": [
+      "fundoscope",
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 4,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 5,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 6,
+     "reason": "differential"
+    },
+    {
+     "candidate": 7,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6 bases best and worst case diagnosis on history and physical examination including fundoscopic exam and vital signs; carotid ultrasound and echocardiogram are post-CVA workup, the EKG is for a differential and glucose for a CVA effect."
+  },
+  {
+   "condition_id": "ICL24",
+   "tests": [
+    {
+     "name": "Physical exam with an otoscope",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": [
+      "otoscope"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "optional"
+    },
+    {
+     "candidate": 3,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 6: diagnosis is made via history and physical exam and is expected to be readily apparent on exam with an otoscope; inflight audiometry and tympanograms have necessity zero and serve a worst-case differential."
+  },
+  {
+   "condition_id": "ICL25",
+   "tests": [
+    {
+     "name": "Primary assessment exam",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7: diagnosis is emergent and done by a primary assessment type exam alone."
+  },
+  {
+   "condition_id": "ICL26",
+   "tests": [
+    {
+     "name": "Clinical diagnosis: vital signs and abdominal exam",
+     "candidates": [
+      0,
+      1,
+      4
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "differential"
+    },
+    {
+     "candidate": 3,
+     "reason": "optional"
+    },
+    {
+     "candidate": 5,
+     "reason": "differential"
+    },
+    {
+     "candidate": 6,
+     "reason": "differential"
+    },
+    {
+     "candidate": 7,
+     "reason": "differential"
+    },
+    {
+     "candidate": 8,
+     "reason": "differential"
+    },
+    {
+     "candidate": 9,
+     "reason": "differential"
+    },
+    {
+     "candidate": 10,
+     "reason": "differential"
+    },
+    {
+     "candidate": 11,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 6 says diagnosis may be made clinically and augmented by ultrasound; page 8 starts the workup with vital signs and an abdominal exam. Ultrasound augments rather than replaces the clinical diagnosis; the pelvic exam, pelvic ultrasound and labs are conditional or for cholecystitis and the differential."
+  },
+  {
+   "condition_id": "ICL28",
+   "tests": [
+    {
+     "name": "Physical exam (dental, oropharyngeal, neck, skin) with vital signs",
+     "candidates": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 6,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 8 bases best case diagnosis on history and physical examination including vital signs; head and neck ultrasound is worst case, to rule out spread."
+  },
+  {
+   "condition_id": "ICL29",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 8: best and worst case diagnosis is based on history and physical examination."
+  },
+  {
+   "condition_id": "ICL30",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 8: best and worst case diagnosis is based on history and physical examination."
+  },
+  {
+   "condition_id": "ICL31",
+   "tests": [
+    {
+     "name": "Limited dental exam including bite testing",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7: diagnosis is based on history and a limited dental exam with bite testing; X-rays, mobility and pulp vitality testing are unavailable."
+  },
+  {
+   "condition_id": "ICL32",
+   "tests": [
+    {
+     "name": "Limited dental exam",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: diagnosis is based on history and a limited dental exam; X-rays, mobility and pulp vitality testing are unavailable."
+  },
+  {
+   "condition_id": "ICL33",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "optional"
+    },
+    {
+     "candidate": 2,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 6 names history, physical examination and imaging, but the only imaging available is musculoskeletal ultrasound, which the form says is not a necessary capability to diagnose a dislocated finger, so the exam confirms by itself."
+  },
+  {
+   "condition_id": "ICL34",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "optional"
+    },
+    {
+     "candidate": 2,
+     "reason": "optional"
+    },
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6 names history, physical examination and imaging, but the only imaging available is musculoskeletal ultrasound, which the form says is not a necessary capability to diagnose a dislocated shoulder, so the exam confirms by itself. Vital signs are worst case only."
+  },
+  {
+   "condition_id": "ICL35",
+   "tests": [
+    {
+     "name": "Abdominal exam and abdominopelvic ultrasound",
+     "candidates": [
+      0,
+      2
+     ],
+     "instruments": [
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "differential"
+    },
+    {
+     "candidate": 3,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 4,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 5,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 6,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 9: diagnosis starts with history and abdominal exam and the in-flight imaging named is abdominopelvic ultrasound (CT unavailable). The CRP rule is a terrestrial decision rule and the page 1 labs are the terrestrial description, not the CRT scope; the pelvic exam is for the differential."
+  },
+  {
+   "condition_id": "ICL36A",
+   "tests": [
+    {
+     "name": "Physical exam (oropharynx, eyes, lungs)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: diagnosis relies on history and physical exam; no instrument is named."
+  },
+  {
+   "condition_id": "ICL36B",
+   "tests": [
+    {
+     "name": "Physical exam (oropharynx, eyes, lungs)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: diagnosis relies on history and physical exam; no instrument is named."
+  },
+  {
+   "condition_id": "ICL37",
+   "tests": [
+    {
+     "name": "Physical exam of all organ systems",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "differential"
+    },
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 7: the diagnosis of ebullism is primarily clinical and clinically obvious; EKG is for other causes of syncope and arrhythmia, and ultrasound delineates the extent of injury."
+  },
+  {
+   "condition_id": "ICL38",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 8: best case diagnosis is history and physical exam; the extra nasal and oropharyngeal exam time is worst case."
+  },
+  {
+   "condition_id": "ICL39",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 8: best case diagnosis is based on history and physical alone; EKG and ultrasound are worst case."
+  },
+  {
+   "condition_id": "ICL40",
+   "tests": [
+    {
+     "name": "Physical examination (cardiac, pulmonary, skin, focused neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7: best and worst case diagnosis is history and physical examination; labs and imaging were not felt necessary."
+  },
+  {
+   "condition_id": "ICL41",
+   "tests": [
+    {
+     "name": "Evaluation of the hands",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: diagnosis involves history and evaluation of the hands; no test needs equipment."
+  },
+  {
+   "condition_id": "ICL42",
+   "tests": [
+    {
+     "name": "Evaluation of the hands and wound",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6: simple evaluation of the wound is all that is needed in the best case; focused musculoskeletal and neurologic exams are worst case."
+  },
+  {
+   "condition_id": "ICL43",
+   "tests": [
+    {
+     "name": "Clinical exam",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6: best case diagnosis is made clinically on history and exam alone; POC glucose is worst case, to rule out hypoglycemia."
+  },
+  {
+   "condition_id": "ICL44",
+   "tests": [
+    {
+     "name": "Physical exam including focused neurological exam",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: diagnosis relies on history and physical exam including a focused neurological exam; EMG is set aside."
+  },
+  {
+   "condition_id": "ICL45",
+   "tests": [
+    {
+     "name": "Focused musculoskeletal examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 2,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 7: best and worst case are diagnosed by history and a focused musculoskeletal examination; the neurological exam looks for nerve injury and ultrasound looks for alternate diagnoses."
+  },
+  {
+   "condition_id": "ICL46",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: diagnosis starts with history and physical exam and no labs, imaging or other resourcing is needed."
+  },
+  {
+   "condition_id": "ICL47",
+   "tests": [
+    {
+     "name": "Exterior, anterior and posterior eye exam with fundoscopy",
+     "candidates": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "instruments": [
+      "fundoscope"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 4,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 6: diagnosis requires a thorough exam of the posterior eye, for which panoptic fundoscopy is included; ultrasound is a nice-to-have and not essential."
+  },
+  {
+   "condition_id": "ICL48",
+   "tests": [
+    {
+     "name": "Eye exam with fluorescein stain and UV light",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": [
+      "fluorescein_uv_light"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 3,
+     "reason": "consultant"
+    },
+    {
+     "candidate": 4,
+     "reason": "consultant"
+    },
+    {
+     "candidate": 5,
+     "reason": "consultant"
+    },
+    {
+     "candidate": 6,
+     "reason": "consultant"
+    },
+    {
+     "candidate": 7,
+     "reason": "consultant"
+    },
+    {
+     "candidate": 8,
+     "reason": "consultant"
+    }
+   ],
+   "why": "Page 7: evaluation largely focuses on history and physical exam, with fluorescein stain and UV light included in both cases to assist diagnosis and to tell best from worst case. Whether the exam alone confirms in the mildest case is not settled by the form; the visual acuity, photo, fundus camera, OCT, Tonopen, pupil and anterior chamber items are a consultant's suggestions (page 8).",
+   "undecided": true
+  },
+  {
+   "condition_id": "ICL49",
+   "tests": [
+    {
+     "name": "Superficial, functional and eyelid eye exam",
+     "candidates": [
+      0,
+      1,
+      2
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 4,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 5,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 8: best case diagnosis is history with superficial, functional and eyelid exams; visual acuity, fluorescein with cobalt blue lamp and the camera are worst case additions."
+  },
+  {
+   "condition_id": "ICL50",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7: best and worst case diagnosis is based on history and physical examination."
+  },
+  {
+   "condition_id": "ICL51",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "optional"
+    },
+    {
+     "candidate": 2,
+     "reason": "optional"
+    },
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 8 names history, physical examination and imaging, but the only imaging available is musculoskeletal ultrasound, which the form says is not a necessary capability to diagnose arm fracture, so the exam confirms by itself. Vital signs are worst case only."
+  },
+  {
+   "condition_id": "ICL52",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal, neurologic) with vital signs",
+     "candidates": [
+      0,
+      3
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "optional"
+    },
+    {
+     "candidate": 2,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 6 names history, physical examination and imaging, but the only imaging available is musculoskeletal ultrasound, which the form says is not a necessary capability to diagnose a cervical spine fracture, so the exam with vital signs confirms by itself. Vital signs are in both cases."
+  },
+  {
+   "condition_id": "ICL53",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "optional"
+    },
+    {
+     "candidate": 2,
+     "reason": "optional"
+    },
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 7 names history, physical examination and imaging, but the only imaging available is musculoskeletal ultrasound, which the form says is not a necessary capability to diagnose distal leg fracture, so the exam confirms by itself. Vital signs are worst case only."
+  },
+  {
+   "condition_id": "ICL54",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "optional"
+    },
+    {
+     "candidate": 2,
+     "reason": "optional"
+    },
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 7 names history, physical examination and imaging, but the only imaging available is musculoskeletal ultrasound, which the form says is not a necessary capability to diagnose femur fracture, so the exam confirms by itself. Vital signs are worst case only."
+  },
+  {
+   "condition_id": "ICL55",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "optional"
+    },
+    {
+     "candidate": 2,
+     "reason": "optional"
+    },
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6 names history, physical examination and imaging, but the only imaging available is musculoskeletal ultrasound, which the form says is not a necessary capability to diagnose hand fracture, so the exam confirms by itself. Vital signs are worst case only."
+  },
+  {
+   "condition_id": "ICL56",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "optional"
+    },
+    {
+     "candidate": 2,
+     "reason": "optional"
+    },
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 7 names history, physical examination and imaging, but the only imaging available is musculoskeletal ultrasound, which the form says is not a necessary capability to diagnose wrist fracture, so the exam confirms by itself. Vital signs are worst case only."
+  },
+  {
+   "condition_id": "ICL57",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal, neurologic) with vital signs",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "optional"
+    },
+    {
+     "candidate": 3,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 6 names history, physical examination and imaging, but the only imaging available is musculoskeletal ultrasound, which the form says is not a necessary capability to diagnose a thoracic or lumbar fracture, so the exam with vital signs confirms by itself."
+  },
+  {
+   "condition_id": "ICL58",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "differential"
+    },
+    {
+     "candidate": 2,
+     "reason": "differential"
+    },
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 4,
+     "reason": "optional"
+    },
+    {
+     "candidate": 5,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 6,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 8: in the best case diagnostics are based on clinical symptoms and physical exam; EKG and troponin are for the acute cardiac differential, bloodwork assesses severity, stool hemoccult has necessity 0, and the systems exam and ultrasound are worst-case CP1 items."
+  },
+  {
+   "condition_id": "ICL59",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6: best case diagnostics are based on clinical symptoms and physical exam; vital signs and serum chemistry are worst case, for electrolyte imbalance."
+  },
+  {
+   "condition_id": "ICL60",
+   "tests": [
+    {
+     "name": "Eye exam with anterior segment OCT and hand held intraocular pressure measurement",
+     "candidates": [
+      0,
+      1,
+      2,
+      3,
+      5
+     ],
+     "instruments": [
+      "anterior_segment_oct",
+      "intraocular_pressure_device"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 4,
+     "reason": "unavailable_or_not_scoped"
+    }
+   ],
+   "why": "Page 7 bases best and worst case diagnosis on physical exam, anterior segment OCT and intraocular pressure measurement with a hand held device together; gonioscopy is the gold standard (page 1) but is not in the CRT scope. Anterior segment OCT gets its own instrument rather than the catalog OCT."
+  },
+  {
+   "condition_id": "ICL61",
+   "tests": [
+    {
+     "name": "Physical exam including focused neurological exam",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: diagnosis relies on history and physical exam including a focused neurological exam."
+  },
+  {
+   "condition_id": "ICL62",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6 Diagnostic Scope says diagnosis relies on history and physical exam; vital signs appear only in the CP1 duration line and the more thorough exam is worst case. A reviewer may prefer to add vital signs for an orthostatic condition, but the diagnostic sentence does not name them."
+  },
+  {
+   "condition_id": "ICL63",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: best and worst case diagnosis is based on history and physical examination."
+  },
+  {
+   "condition_id": "ICL64",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: diagnosis is based on history and physical examination; cabin CO2 is context, not a named diagnostic test, so the package example's CO2 monitor is dropped (the form wins)."
+  },
+  {
+   "condition_id": "ICL65",
+   "tests": [
+    {
+     "name": "Physical exam and inflight audiometry",
+     "candidates": [
+      0,
+      1,
+      2
+     ],
+     "instruments": [
+      "audiometry"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 3,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 6: best case diagnosis is made via history, physical exam and inflight audiometry together; tympanograms follow only if a conductive loss is found."
+  },
+  {
+   "condition_id": "ICL66",
+   "tests": [
+    {
+     "name": "Physical exam and inflight audiometry",
+     "candidates": [
+      0,
+      1,
+      2
+     ],
+     "instruments": [
+      "audiometry"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 3,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 6: best case diagnosis is made by history, physical exam and inflight audiometry together; tympanograms further the differential workup."
+  },
+  {
+   "condition_id": "ICL67",
+   "tests": [
+    {
+     "name": "Physical examination with digital rectal exam",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6: best case diagnosis is history and physical examination including a digital rectal exam; the anoscope is worst case and conditional."
+  },
+  {
+   "condition_id": "ICL68",
+   "tests": [
+    {
+     "name": "Skin physical exam",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6: a history and skin physical exam are all that are required for diagnosis; neurological and eye exams are worst case and conditional."
+  },
+  {
+   "condition_id": "ICL70",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: best and worst case diagnosis is made via history and physical exam; biopsy is not possible."
+  },
+  {
+   "condition_id": "ICL71",
+   "tests": [
+    {
+     "name": "Urinalysis and renal ultrasound",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": [
+      "urinalysis",
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 3,
+     "reason": "differential"
+    },
+    {
+     "candidate": 4,
+     "reason": "differential"
+    },
+    {
+     "candidate": 5,
+     "reason": "differential"
+    },
+    {
+     "candidate": 6,
+     "reason": "differential"
+    },
+    {
+     "candidate": 7,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 7: workup begins with urinalysis and renal ultrasound; the other labs and abdominal and pelvic ultrasounds are for the differential, and the creatinine in a BMP is a reasonable first lab not tied to the diagnosis."
+  },
+  {
+   "condition_id": "ICL72",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 3,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 6: best case diagnosis is history and musculoskeletal and neurologic examination only; vital signs and imaging are worst case and musculoskeletal ultrasound is non-necessary."
+  },
+  {
+   "condition_id": "ICL73",
+   "tests": [
+    {
+     "name": "Physical examination including cranial nerve exam",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7: best and worst case diagnosis is based on history and physical examination."
+  },
+  {
+   "condition_id": "ICL74",
+   "tests": [
+    {
+     "name": "Physical exam (ear, nose and throat)",
+     "candidates": [
+      0,
+      2
+     ],
+     "instruments": []
+    },
+    {
+     "name": "Otoscopic exam",
+     "candidates": [
+      3
+     ],
+     "instruments": [
+      "otoscope"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 8: diagnosis relies on history and physical exam with attention to the ear, nose and throat; page 1 says diagnosis is often made with otoscopic exams. Inflight audiometry may also be useful (optional)."
+  },
+  {
+   "condition_id": "ICL75",
+   "tests": [
+    {
+     "name": "Physical examination and laboratory values (amylase, CBC, BMP, glucose, liver function)",
+     "candidates": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "instruments": [
+      "amylase",
+      "cbc",
+      "basic_metabolic_panel",
+      "glucose",
+      "liver_function_panel"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7: best and worst case diagnosis is based on history, physical examination and laboratory values, which the CP1 list names as amylase, CBC, BMP, glucose and liver function assays."
+  },
+  {
+   "condition_id": "ICL76",
+   "tests": [
+    {
+     "name": "Urine pregnancy test",
+     "candidates": [
+      0
+     ],
+     "instruments": [
+      "urine_pregnancy_test"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 8: the only resourcing required is a history and urine pregnancy test; serum bHCG and ultrasound are beyond scope."
+  },
+  {
+   "condition_id": "ICL77",
+   "tests": [
+    {
+     "name": "Physical exam with vital signs, ultrasound (post-void residual) and urinalysis",
+     "candidates": [
+      0,
+      1,
+      2
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "ultrasound",
+      "urinalysis"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6 bases best and worst case diagnosis on history, physical examination with vital signs, ultrasound and urinalysis together."
+  },
+  {
+   "condition_id": "ICL78",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7: SME consensus relies on history and physical for diagnosing the rash in both cases."
+  },
+  {
+   "condition_id": "ICL80",
+   "tests": [
+    {
+     "name": "Physical exam with blood gasses, electrolytes, blood counts, EKG and cardiopulmonary ultrasound",
+     "candidates": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "instruments": [
+      "blood_gas",
+      "electrolytes",
+      "cbc",
+      "ecg_12_lead",
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7 says evaluation starts with history and physical exam and that an extensive workup of labs, EKG and cardiopulmonary ultrasound is required in both cases, but frames that workup as finding severity and reversible causes. Whether the workup confirms or only characterizes is not settled; the EKG is not for a rhythm, so 12-lead is used.",
+   "undecided": true
+  },
+  {
+   "condition_id": "ICL81",
+   "tests": [
+    {
+     "name": "Vital signs and physical exam",
+     "candidates": [
+      0,
+      1,
+      5
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 4,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 6,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 7,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 8,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 9,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 6: best case diagnostic capabilities are limited to vital signs, history and physical exam; imaging, labs, ultrasound and prognostic scoring are worst case."
+  },
+  {
+   "condition_id": "ICL82",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: best and worst case diagnosis is based on history and physical examination."
+  },
+  {
+   "condition_id": "ICL83",
+   "tests": [
+    {
+     "name": "Physical including neurological examination",
+     "candidates": [
+      0,
+      3
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "differential"
+    },
+    {
+     "candidate": 2,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 8: best case diagnosis is based on history and physical; electrolyte labs find the cause and the EKG checks a seizure mimic."
+  },
+  {
+   "condition_id": "ICL84",
+   "tests": [
+    {
+     "name": "SIRS criteria with an infectious source: exam, vital signs, white blood cell count and ultrasound",
+     "candidates": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      10
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "white_blood_cell_count",
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 6,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 7,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 8,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 9,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 6 defines sepsis as 2 of 4 SIRS criteria with an infectious source and bases diagnosis on exam, vital signs and laboratory values, with ultrasound deemed necessary to find the source; Q26 makes SIRS one joint test. Lactate and MAP define septic shock and cardiac ultrasound monitors resuscitation (worst case)."
+  },
+  {
+   "condition_id": "ICL85",
+   "tests": [
+    {
+     "name": "Bedside exam for hypotension and poor perfusion, echocardiography and single-lead or 12-lead EKG",
+     "candidates": [
+      0,
+      6,
+      8,
+      9
+     ],
+     "instruments": [
+      "bp_cuff",
+      "ultrasound",
+      "ecg_single_lead"
+     ]
+    },
+    {
+     "name": "Bedside exam for hypotension and poor perfusion, echocardiography and 12-lead EKG",
+     "candidates": [
+      0,
+      6,
+      8,
+      9
+     ],
+     "instruments": [
+      "bp_cuff",
+      "ultrasound",
+      "ecg_12_lead"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "differential"
+    },
+    {
+     "candidate": 2,
+     "reason": "differential"
+    },
+    {
+     "candidate": 3,
+     "reason": "differential"
+    },
+    {
+     "candidate": 4,
+     "reason": "differential"
+    },
+    {
+     "candidate": 5,
+     "reason": "differential"
+    },
+    {
+     "candidate": 7,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 1 makes the diagnosis at the bedside by hypotension and poor perfusion, and page 7 says echocardiography is necessary for diagnosis and EKG necessary for electrical causes, so they are one joint test; the EKG reads rhythm, so it follows the ICL10 convention. Labs are for alternative diagnoses and pulmonary and abdominal ultrasound round out the evaluation."
+  },
+  {
+   "condition_id": "ICL86",
+   "tests": [
+    {
+     "name": "Physical examination including skin examination",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7: best and worst case diagnosis is history and physical examination; no adjuncts are required for diagnosis."
+  },
+  {
+   "condition_id": "ICL87",
+   "tests": [
+    {
+     "name": "Physical examination of the skin",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 2,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 6: in the best case the infection is diagnosed by history and physical examination of the skin; ultrasound is worst case, and unnamed lab tests may confirm but do not change management."
+  },
+  {
+   "condition_id": "ICL88",
+   "tests": [
+    {
+     "name": "Skin examination (diagnosed by its description)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "ICL88 has no form in NASA's CliFF 119 set; this row cites the older 2020 Skin Infection CliFF, whose page 1 says fungal skin infection is diagnosed by its description, so the test is the examination.",
+   "provenance": "No CliFF 119 form exists for ICL88. Source: the 2020 Skin Infection CliFF (CliFF 100 set), which covers bacterial and fungal skin infection and does not mention viral infection."
+  },
+  {
+   "condition_id": "ICL89",
+   "tests": [
+    {
+     "name": "Skin, wound and basic neurological exam",
+     "candidates": [
+      0,
+      1,
+      2
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: diagnosis requires a skin exam, a wound exam and a basic neurological exam of the area; no lab or imaging is named."
+  },
+  {
+   "condition_id": "ICL90",
+   "tests": [
+    {
+     "name": "Primary assessment and abdominal exam",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "optional"
+    },
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 4,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6: diagnosis begins with history, primary assessment and abdominal exam, and ultrasound can be considered only if the diagnosis is equivocal; BMP and CBC are for severity triage."
+  },
+  {
+   "condition_id": "ICL91",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6: diagnosis relies on history and physical exam; the more thorough exam is worst case."
+  },
+  {
+   "condition_id": "ICL92",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6: diagnosis relies on history and physical exam; the more thorough exam is worst case."
+  },
+  {
+   "condition_id": "ICL93",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 7: best case diagnosis is made via history and physical exam; nasal and oropharyngeal exams are worst case."
+  },
+  {
+   "condition_id": "ICL94",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 6: diagnosis relies on history and physical exam; the worst-case neurological, fundoscopic and vision testing rules out other causes."
+  },
+  {
+   "condition_id": "ICL95",
+   "tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 6 bases diagnosis on psychiatric history, review of systems and mental status exam; the vital signs and cardiopulmonary exam are an additional step outside that statement, following the package convention of an interview and exam test with no instruments. The form names no sleep diary, so the package example's diary is dropped."
+  },
+  {
+   "condition_id": "ICL96",
+   "tests": [
+    {
+     "name": "Ear, nose and throat examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6 resources no diagnostics for the best case and diagnoses the worst case by ear, nose and throat examination; that exam is the only diagnostic the form names, so it is the row's test."
+  },
+  {
+   "condition_id": "ICL97",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 7: diagnosis relies on history and physical exam; the worst-case thorough exam rules out other causes."
+  },
+  {
+   "condition_id": "ICL98",
+   "tests": [
+    {
+     "name": "Abdominal exam confirmed with abdominal ultrasound",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": [
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7: workup begins with an abdominal exam and can be confirmed with simple abdominal ultrasound; labs and other imaging are beyond scope."
+  },
+  {
+   "condition_id": "ICL99",
+   "tests": [
+    {
+     "name": "Abdominal exam and urinalysis",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": [
+      "urinalysis"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7: workup begins with an abdominal exam and urinalysis; more advanced exams, labs or imaging are beyond scope."
+  },
+  {
+   "condition_id": "ICL100",
+   "tests": [
+    {
+     "name": "Ophthalmic exam: fundoscopy, vision, OCT, intraocular pressure and ophthalmic ultrasound",
+     "candidates": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "instruments": [
+      "fundoscope",
+      "oct",
+      "intraocular_pressure_device",
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 6,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 6 CP1 diagnoses SANS with a thorough ophthalmic exam (fundoscopic, vision, OCT, intraocular pressure) plus neurological exam and ophthalmic ultrasound, the same in both cases; Q26 makes SANS one joint test. The visual acuity case criterion (page 2) was measured only pre and post flight."
+  },
+  {
+   "condition_id": "ICL101",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal, neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 2,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 6: best case diagnosis is history and musculoskeletal and neurologic examination; the ano-rectal exam is worst case and musculoskeletal ultrasound is non-necessary."
+  },
+  {
+   "condition_id": "ICL102",
+   "tests": [
+    {
+     "name": "Focused musculoskeletal and neurologic exam",
+     "candidates": [
+      0,
+      3
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 2,
+     "reason": "optional"
+    },
+    {
+     "candidate": 4,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 5,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 8: best case diagnosis is history and musculoskeletal and neurologic examination; imaging and the ultrasound exam are worst case and non-necessary."
+  },
+  {
+   "condition_id": "ICL103",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal, neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 7: best and worst case diagnosis is history and musculoskeletal and neurologic examination; musculoskeletal ultrasound is non-necessary."
+  },
+  {
+   "condition_id": "ICL104",
+   "tests": [
+    {
+     "name": "Focused musculoskeletal and neurologic exam",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 3,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 8: best case diagnosis is history and musculoskeletal and neurologic examination; the complete exam is worst case and ultrasound is not needed."
+  },
+  {
+   "condition_id": "ICL105",
+   "tests": [
+    {
+     "name": "Physical examination (ENT, cardiopulmonary, abdominal) with vital signs",
+     "candidates": [
+      0
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6 bases best and worst case diagnosis on history and physical examination including vital signs; rapid strep antigen and culture are outside scope."
+  },
+  {
+   "condition_id": "ICL106",
+   "tests": [
+    {
+     "name": "Pulse check: no palpable pulse on physical exam",
+     "candidates": [
+      0,
+      2
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 7: best and worst case diagnosis is lack of palpable pulse on physical exam; the defibrillator rhythm analysis only separates best from worst case."
+  },
+  {
+   "condition_id": "ICL107",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 6: best and worst case diagnosis is history and examination; musculoskeletal ultrasound is not a necessity."
+  },
+  {
+   "condition_id": "ICL108",
+   "tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 1,
+     "reason": "optional"
+    }
+   ],
+   "why": "Page 6: best and worst case diagnosis is history and examination; musculoskeletal ultrasound is not a necessity."
+  },
+  {
+   "condition_id": "ICL109",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: best and worst case diagnosis is based on history and physical examination."
+  },
+  {
+   "condition_id": "ICL110",
+   "tests": [
+    {
+     "name": "Physical examination (cardiopulmonary)",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 7 Diagnostic Scope bases best and worst case diagnosis on history and physical examination; lung ultrasound appears only in the CP1 task list."
+  },
+  {
+   "condition_id": "ICL111",
+   "tests": [
+    {
+     "name": "Physical examination (cardiopulmonary)",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 3,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 10 Diagnostic Scope bases best and worst case diagnosis on history and physical examination; lung ultrasound and ABG with lactate appear only in the CP1 task list."
+  },
+  {
+   "condition_id": "ICL112",
+   "tests": [
+    {
+     "name": "Primary and secondary survey with vital signs and EFAST ultrasound",
+     "candidates": [
+      0,
+      1,
+      2
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6: the survey with basic vital signs is necessary and ultrasound (EFAST) is a necessary diagnostic modality in the absence of radiography; the CBC is worst case."
+  },
+  {
+   "condition_id": "ICL113",
+   "tests": [
+    {
+     "name": "Physical exam: primary and secondary trauma survey with vital signs",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 3,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 4,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 5,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 8: in the best case diagnosis is made with history and physical exam, which involves the trauma survey with basic vital signs; ultrasound, EFAST and EKG look for gross or life-threatening injuries and the CBC is worst case."
+  },
+  {
+   "condition_id": "ICL114",
+   "tests": [
+    {
+     "name": "Primary assessment, physical exam with vital signs and neurological exam",
+     "candidates": [
+      0,
+      1,
+      2
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 7: best and worst case diagnostics include history, primary assessment, physical exam inclusive of vital signs and a thorough neurological exam."
+  },
+  {
+   "condition_id": "ICL115",
+   "tests": [
+    {
+     "name": "Physical examination and ultrasound studies",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": [
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 8: best and worst case are diagnosed by history, physical examination and ultrasound studies; lack of improvement over hours only settles the coma-like subtype in the best case."
+  },
+  {
+   "condition_id": "ICL116",
+   "tests": [
+    {
+     "name": "Primary assessment with vital signs, secondary survey and RUSH ultrasound",
+     "candidates": [
+      0,
+      1,
+      2,
+      4,
+      5
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 3,
+     "reason": "not_diagnostic"
+    }
+   ],
+   "why": "Page 8: diagnosis depends on history and exam with a primary assessment with vital signs and a secondary survey, and is reliant on ultrasound (RUSH exam, a necessary capability); labs trend hemoglobin."
+  },
+  {
+   "condition_id": "ICL117",
+   "tests": [
+    {
+     "name": "Abdominal and costovertebral angle exam with urinalysis",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": [
+      "urinalysis"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 3,
+     "reason": "differential"
+    },
+    {
+     "candidate": 4,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 7: best case diagnosis is history, abdominal and costovertebral angle exam and a urinalysis; the rectal exam is worst case, and labs and ultrasound look for complications or other diagnoses."
+  },
+  {
+   "condition_id": "ICL118",
+   "tests": [
+    {
+     "name": "Physical exam for vulvar and discharge signs",
+     "candidates": [
+      0,
+      1
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 2,
+     "reason": "differential"
+    }
+   ],
+   "why": "Page 6: the diagnosis will be made by history and physical without laboratory tests; the pH strip, if available, helps distinguish from bacterial vaginosis."
+  },
+  {
+   "condition_id": "ICL119",
+   "tests": [
+    {
+     "name": "Vital signs, cardiac, pulmonary and extremity exam and compression ultrasound",
+     "candidates": [
+      0,
+      1,
+      2,
+      4,
+      5
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 3,
+     "reason": "not_diagnostic"
+    },
+    {
+     "candidate": 6,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 7,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 8,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 9,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 10,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 11,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 12,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 8: for the best case, vitals, an exam and ultrasound are recommended and any suspicion goes straight to ultrasound; the Wells score cannot be validated in flight and the full lab, EKG and cardiac workup is worst case."
+  },
+  {
+   "condition_id": "ICL122",
+   "tests": [
+    {
+     "name": "Physical examination",
+     "candidates": [
+      0
+     ],
+     "instruments": []
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [],
+   "why": "Page 6: diagnosis relies on history and physical exam."
+  },
+  {
+   "condition_id": "ICL123",
+   "tests": [
+    {
+     "name": "Vital signs, abdominal/pelvic exam, pregnancy test and ultrasound",
+     "candidates": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "pregnancy_test",
+      "ultrasound"
+     ]
+    }
+   ],
+   "extra_quotes": [],
+   "excluded": [
+    {
+     "candidate": 6,
+     "reason": "complication_or_worst_case"
+    },
+    {
+     "candidate": 7,
+     "reason": "complication_or_worst_case"
+    }
+   ],
+   "why": "Page 6: best case diagnostic resourcing is vital signs, abdominal/pelvic exam, a pregnancy test and ultrasound (transvaginal if available, else transabdominal); CBC and serum bHCG are worst case."
+  }
+ ]
+}

@@ -346,6 +346,7 @@ class RadiationSettings(TypedDict):
 class ComputedLayerSettings(TypedDict):
     rdkit_embed_seed: SourcedValue
     xtb_method: Literal["GFN2-xTB"]
+    xtb_cache_tblite_version: str
     xtb_accuracy: SourcedValue
     xtb_electronic_temperature_k: SourcedValue
     xtb_n_conformers: SourcedValue
