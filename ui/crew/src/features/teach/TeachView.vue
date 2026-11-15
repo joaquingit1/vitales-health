@@ -495,10 +495,7 @@ onBeforeUnmount(() => {
           />
         </svg>
       </div>
-      <p
-        class="fine"
-        style="margin-top: auto"
-      >
+      <p class="fine">
         {{ WORDS.tapsNote }}
       </p>
     </article>
@@ -515,48 +512,46 @@ onBeforeUnmount(() => {
           class="tag"
         >{{ copy("guided_check_words.experimental") }}</span>
       </div>
-      <div
-        class="cams"
-        style="grid-template-columns: 1fr"
-      >
-        <div
-          class="cam"
-          :class="{ scan: check?.state === 'counting', ok: !!ref0 && ref0.value !== null, off: !!ref0 && ref0.value === null }"
-        >
-          <svg
-            class="icon"
-            viewBox="0 0 24 24"
-          ><ellipse
-            cx="12"
-            cy="11"
-            rx="6"
-            ry="7.5"
-          /><path d="M9.5 10h.01M14.5 10h.01M10 14.5c1.2.8 2.8.8 4 0" /></svg>
-        </div>
-      </div>
-      <div
-        v-if="ref0"
-        class="result"
-        data-test="camera-reference"
-      >
-        <template v-if="ref0.value !== null">
-          <div class="big">
-            {{ ref0.value }}<small>{{ ref0.unit === "/min" ? "bpm" : ref0.unit }}</small>
+      <div class="about-cam">
+        <div class="cams">
+          <div
+            class="cam"
+            :class="{ scan: check?.state === 'counting', ok: !!ref0 && ref0.value !== null, off: !!ref0 && ref0.value === null }"
+          >
+            <svg
+              class="icon"
+              viewBox="0 0 24 24"
+            ><ellipse
+              cx="12"
+              cy="11"
+              rx="6"
+              ry="7.5"
+            /><path d="M9.5 10h.01M14.5 10h.01M10 14.5c1.2.8 2.8.8 4 0" /></svg>
           </div>
-          <SourceWord :origin="ref0.origin_mode" />
-        </template>
-        <template v-else>
-          <span class="r-num word">{{ copy("designed_states.no_reading") }}</span>
-          <span class="tag watch">{{ ref0.no_reading_reason }}</span>
-        </template>
+        </div>
+        <div
+          v-if="ref0"
+          class="result"
+          data-test="camera-reference"
+        >
+          <template v-if="ref0.value !== null">
+            <div class="big">
+              {{ ref0.value }}<small>{{ ref0.unit === "/min" ? "bpm" : ref0.unit }}</small>
+            </div>
+            <SourceWord :origin="ref0.origin_mode" />
+          </template>
+          <template v-else>
+            <span class="r-num word">{{ copy("designed_states.no_reading") }}</span>
+            <span class="tag watch">{{ ref0.no_reading_reason }}</span>
+          </template>
+        </div>
+        <p
+          v-else
+          class="sub"
+        >
+          {{ WORDS.compared }}
+        </p>
       </div>
-      <p
-        v-else
-        class="sub"
-        style="margin-top: 10px"
-      >
-        {{ WORDS.compared }}
-      </p>
       <template v-if="check?.what_it_shows">
         <p class="label-k">
           {{ WORDS.doesAndNot }}
@@ -573,7 +568,7 @@ onBeforeUnmount(() => {
       <p
         v-if="check?.tolerance"
         class="fine"
-        style="margin-top: auto"
+        style="margin-top: 14px"
       >
         {{ WORDS.agreement }}: {{ check.tolerance.value }} {{ check.tolerance.unit }}, {{ check.tolerance.basis }}, {{ check.tolerance.to_be_set_by }}.
       </p>

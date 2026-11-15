@@ -84,6 +84,13 @@ const closers = computed(() =>
     .sort((a, b) => b.closes - a.closes || a.name.localeCompare(b.name)),
 );
 
+/* each instrument's bar is its count against the instrument that closes the most, so the longest bar is the best
+   next instrument; a zero stays an empty track */
+function closeShare(closes: number): number {
+  const most = Math.max(0, ...closers.value.map((item) => item.closes));
+  return most === 0 ? 0 : Math.round((closes / most) * 100);
+}
+
 function regionLabel(region: string): string {
   const label = copy(`body_region_labels.${region}`);
   return label.startsWith("body_region_labels.") ? region : label.toLowerCase();
@@ -249,29 +256,58 @@ onBeforeUnmount(() => {
           {{ CHROME.closeGaps }}
         </h2>
       </div>
-      <div class="pills">
-        <span
+      <div class="list">
+        <div
           v-for="item in closers"
           :key="item.id"
-          class="pill"
-        >+ {{ item.name }}<small>{{ fill(CHROME.closes, { n: item.closes }) }}</small></span>
+          class="li"
+        >
+          <span class="what">+ {{ item.name }}<i
+            class="close-bar"
+            aria-hidden="true"
+          ><b :style="{ width: `${closeShare(item.closes)}%` }" /></i></span>
+          <span class="end">{{ fill(CHROME.closes, { n: item.closes }) }}</span>
+        </div>
       </div>
     </article>
   </section>
 </template>
 
 <style scoped>
-/* the reference's kit grid (02-kit): the list over two rows, the kit aboard beside it, the planning card below.
-   The hub serves no build note, so the kit aboard keeps both rows on the right. */
-.f-kit .k-aboard {
-  grid-row: 1 / span 2;
-}
+/* the kit grid: the list down the left, the kit aboard and what would close the most gaps stacked on the right,
+   each as tall as its rows (design/app.css, content-sized flow screens) */
 .go {
   color: inherit;
 }
-.k-close .pill {
-  display: inline-flex;
-  align-items: center;
+/* one instrument per line on the right column, so both right cards read as lists of the same width */
+#km-aboard {
+  grid-template-columns: minmax(0, 1fr);
+}
+.k-aboard .flow-body,
+.k-close .list {
+  margin-top: 6px;
+}
+.k-close .list {
+  overflow: auto;
+  min-height: 0;
+}
+.k-close .end {
+  min-width: 72px;
+  text-align: right;
+}
+.close-bar {
+  display: block;
+  height: 4px;
+  margin-top: 8px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+.close-bar b {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--lime);
 }
 .flow-body {
   display: flex;
