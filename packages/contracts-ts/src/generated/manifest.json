@@ -128,7 +128,7 @@
     "api/examples/help/preset-cpr.json": "76a5dbae68b69b8380d2b4a843d669e2d187440c128b0009e2eda627c36d851d",
     "api/examples/help/subject-summary.json": "a12dbeb26ff760bfc86153166056de83805213feadc8c740da3d9232ce3c429d",
     "api/examples/help/urgent-event-alias.json": "e11b6070c0aa888873409e33b2a716904cd5d596a18d0c00612d4a4940eca827",
-    "api/examples/kit-map.example.json": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b",
+    "api/examples/kit-map.example.json": "3f98f1855025d41ad54b162dd98eea66acab250b4fd9c1acf29ebf7c20ed0850",
     "api/examples/kit-map/view-mars.json": "4b9137f23f43d63841004de2d624823b768d0e50ca6fc4a2f8197b694dc3b5a2",
     "api/examples/kit-map/view-station.json": "0cba0721dc7703ad0a9c22e786007ad1fc5a105d3d89900dabd2bb89e4a7d5f0",
     "api/examples/kit-map/what-if-ecg.json": "95a0860146c0e6db13a0ee634d8a7f31fd345ee1aba5a438c36807552e12187a",
@@ -268,7 +268,7 @@
     "api/schemas/config-help-presentation.schema.json": "bbee41efbb991c23738940bdbf7f7107146dc184dbe54685e6f1b0fc654a6e36",
     "api/schemas/config-index.schema.json": "269cde8b164a86162b028b6eccd4d56f47261f9fa96c25728e2467cf6db722fc",
     "api/schemas/config-indicator-catalog.schema.json": "3a03eb8efcb0ed700fe53bc315a110fcb29410ae26bacff25f52f28e72a04e42",
-    "api/schemas/config-kit-map.schema.json": "d9dcdc2d269e3682f5294cbd7b4fdd39ddf7df6c94132051e91453311a77e379",
+    "api/schemas/config-kit-map.schema.json": "3961e6fd22467e40e1075df84584e9a6d09cf3a4589071a063aefab8ca446f8c",
     "api/schemas/config-onboard-plans.schema.json": "31bf7545f4b1d7406de37dbda41d7447325e80f35daf06365cc467027947bffe",
     "api/schemas/config-participation-rules.schema.json": "33b688e0ed1d5af9f6601b811c0eeebc044b04e0c4068f1ae31c0e2afce6e6ec",
     "api/schemas/config-questionnaires.schema.json": "f9419c705b36ac3ef5d3963b446cfeb623ed72dff24914c5fd0514b0612fce38",
@@ -482,7 +482,7 @@
     "api/examples/help/preset-cpr.json": "76a5dbae68b69b8380d2b4a843d669e2d187440c128b0009e2eda627c36d851d",
     "api/examples/help/subject-summary.json": "a12dbeb26ff760bfc86153166056de83805213feadc8c740da3d9232ce3c429d",
     "api/examples/help/urgent-event-alias.json": "e11b6070c0aa888873409e33b2a716904cd5d596a18d0c00612d4a4940eca827",
-    "api/examples/kit-map.example.json": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b",
+    "api/examples/kit-map.example.json": "3f98f1855025d41ad54b162dd98eea66acab250b4fd9c1acf29ebf7c20ed0850",
     "api/examples/kit-map/view-mars.json": "4b9137f23f43d63841004de2d624823b768d0e50ca6fc4a2f8197b694dc3b5a2",
     "api/examples/kit-map/view-station.json": "0cba0721dc7703ad0a9c22e786007ad1fc5a105d3d89900dabd2bb89e4a7d5f0",
     "api/examples/kit-map/what-if-ecg.json": "95a0860146c0e6db13a0ee634d8a7f31fd345ee1aba5a438c36807552e12187a",
@@ -622,7 +622,7 @@
     "api/schemas/config-help-presentation.schema.json": "bbee41efbb991c23738940bdbf7f7107146dc184dbe54685e6f1b0fc654a6e36",
     "api/schemas/config-index.schema.json": "269cde8b164a86162b028b6eccd4d56f47261f9fa96c25728e2467cf6db722fc",
     "api/schemas/config-indicator-catalog.schema.json": "3a03eb8efcb0ed700fe53bc315a110fcb29410ae26bacff25f52f28e72a04e42",
-    "api/schemas/config-kit-map.schema.json": "d9dcdc2d269e3682f5294cbd7b4fdd39ddf7df6c94132051e91453311a77e379",
+    "api/schemas/config-kit-map.schema.json": "3961e6fd22467e40e1075df84584e9a6d09cf3a4589071a063aefab8ca446f8c",
     "api/schemas/config-onboard-plans.schema.json": "31bf7545f4b1d7406de37dbda41d7447325e80f35daf06365cc467027947bffe",
     "api/schemas/config-participation-rules.schema.json": "33b688e0ed1d5af9f6601b811c0eeebc044b04e0c4068f1ae31c0e2afce6e6ec",
     "api/schemas/config-questionnaires.schema.json": "f9419c705b36ac3ef5d3963b446cfeb623ed72dff24914c5fd0514b0612fce38",
@@ -709,6 +709,7 @@
     "reference/input-dictionary.json": "23dcdfad5edd18cc2f4ccd25e8d0c91cad14559edef52994913406697daaa479"
   },
   "modules": {
+    "crew_health.camera.module": "599a6b883586466b1acc79411d302ea107709938f4bdef7d5b97a273a9c8ceb9",
     "crew_health.catchup.module": "e059c0495ff052df825619e99f50fcc655be1ab48f6f398bca2d42bd2ccc9875",
     "crew_health.clock.module": "f3477b30463775da1187f644bd15bacb33f059f120df7c86f2fd0d88efbff38c",
     "crew_health.config.module": "63f12106f518b5545586dd1f5ce62b0890c0631ed0ea2ee2550559dede4a4837",
@@ -716,13 +717,14 @@
     "crew_health.groundlink.module": "1f0e316dbed1202f9f7c06b18dd62e767b9c4995f56cb32f787464bb7d4af890",
     "crew_health.guidance.module": "28a6a6a2803c18244d6eb215fe1293ed5f45a30768bf724ade2ec52532e0d553",
     "crew_health.help.module": "692862df7d46b36f28ee4b2a154da3a0fd4de73baff63df64de95ff047636769",
-    "crew_health.kitmap.module": "fad25a19a8d8fc95999e318a0bac786f85dd66bb931bfb04e48bd678a747f3b4",
-    "crew_health.measurement.module": "36ab7ad93d857cb2d70b5786b156deb7d0da5f456f620b500e212e289a656240",
+    "crew_health.kitmap.module": "74db20ea7b6fd9d9c7e9a022d491bb52edca54df64d9957c40d6b78abbbbffa2",
+    "crew_health.measurement.module": "08950be7ca3636307d0b7bc911f26ffe1b0d1a3d55cff09ec04c461b3ba6cf92",
+    "crew_health.plans.module": "30171a39bb5952444b787cab7f82b655c77042760b21a6ae74848f61706b62cb",
     "crew_health.platform.module": "f2d69c33296054e2783b5604edf4bac3211cb8da2bb3dfb4b2334ed757ac141a",
     "crew_health.records.module": "f37574d7a5e0ac1230ed584945df40420960c81274145b7f571247bdc2ea41c3",
     "crew_health.roles.module": "047c43e318ee3cd0021e50e309adab0f95a1764f0b940bc3e0a855663bf80ee2",
     "crew_health.routine.module": "2deec7c70fabde494e8baea0b9479f1974a35bd729fe6b170974b0c9e21fc0e1",
-    "crew_health.teach.module": "a3128ce8c4401c08f34960e9b3efee89b606a58051e01ea2ca37c2fd163256d3",
+    "crew_health.teach.module": "bef10e2c559982f29b379918662e9db6b9a4def9229506dd8e33c51d280a5129",
     "crew_health.trends.module": "657f6588850fba8722cc447298e69f513b0092931c08d4e0b820c96b80dd6591"
   },
   "outputs": {
@@ -734,7 +736,7 @@
       "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
       "part-a.json": "51d6fe596f1a31bcf6e1256d4184d485d5d9ab2f51a2f66789742152aeadc468"
     },
-    "manifest_sha256": "0bd7924756f3eedab2567af1e5a9181f6a2f888194b8b129e5ef4b2fc66355f3",
+    "manifest_sha256": "4066fc64d9adf192acd57acd0924ce0c4cbee333092450964664a68e8a8769af",
     "traces": [
       {
         "a3": [

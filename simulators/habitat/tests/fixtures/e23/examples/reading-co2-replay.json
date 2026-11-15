@@ -1,0 +1,45 @@
+{
+  "summary": "REPLAY GET /v1/sensor-readings/rdg_co2_cabin_replay",
+  "description": "The CO2 sample at 15:36 on 7 Oct 2014 from nasa-data/eda_rr1_telemetry.csv, converted at an assumed 760 mmHg. observed_at keeps the original date. Illustrative only: not seed data.",
+  "x-schema": "sensor-reading.schema.json",
+  "value": {
+    "reading_id": "rdg_co2_cabin_replay",
+    "channel_id": "ch_co2_cabin_replay",
+    "sensor_type_id": "co2",
+    "hazard_id": "co2",
+    "value": 3.531,
+    "unit": "mmHg",
+    "original_value": 4646.0,
+    "original_unit": "ppm",
+    "conversion": {
+      "method": "ppm_to_mmhg",
+      "cabin_pressure_mmhg": 760,
+      "pressure_basis": "assumed",
+      "factor": null
+    },
+    "aggregation": {
+      "kind": "sample",
+      "window_seconds": null
+    },
+    "observed_at": "2014-10-07T15:36:00Z",
+    "window_start": null,
+    "received_at": "2026-11-13T09:08:00Z",
+    "origin_mode": "REPLAY",
+    "adapter_id": "adp_replay_osdr",
+    "adapter_sequence": 5033,
+    "quality_status": "accepted",
+    "location": "cabin",
+    "replay": {
+      "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+      "original_observed_at": "2014-10-07T15:36:00Z",
+      "time_basis": "Times as in the source file, read as UTC."
+    },
+    "provenance": {
+      "origin_mode": "REPLAY",
+      "source_label": "Replay, ISS 2014",
+      "trace": "Trace: OSDR Rodent Research-1 cabin CO2, 7 Oct 2014, converted at an assumed 760 mmHg.",
+      "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+      "source_ids": []
+    }
+  }
+}

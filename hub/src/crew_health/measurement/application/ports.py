@@ -70,6 +70,7 @@ class KitCapability:
     applicable_environments: tuple[str, ...]
     kit_status: Literal["available", "unavailable"]
     kit_reason: Literal["not_in_kit"] | None
+    components: tuple[str, ...] = ()  # a panel's indicator codes (config-kit-map), empty for one value
 
 
 # Provided by E27 (crew_health.kitmap.application.ports.KitCapabilitiesPort). A structural copy: the provider's
@@ -233,6 +234,7 @@ class CapabilityView:
     unavailable_reason: UnavailableReason | None
     expected_duration_seconds: int | None
     body_region: str | None
+    components: tuple[str, ...] = ()  # internal: a panel's indicator codes, not on the Capability wire object
 
 
 class CapabilityQueries(Protocol):

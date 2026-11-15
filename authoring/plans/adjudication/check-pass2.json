@@ -1,0 +1,456 @@
+{
+  "checked_by": "model:gpt-6.1-sol",
+  "checked_at": "2026-11-14",
+  "pass": 2,
+  "method": "Compared all 112 current family plans with their condition rows, family fields, template, source registry and E28/C22 requirements using scripted verbatim and structural checks plus independent condition-by-condition safety assessment.",
+  "plans": {
+    "plan_icl1": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl2": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.repro.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl4": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl5": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.allergy.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl6": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.pressure.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl7": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.allergy.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl8": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl9": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.msk.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl11": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.ent.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support. mo_review.text directs otoscopy, which requires an otoscope, but mo_review.needs.instruments is empty."
+    },
+    "plan_icl12": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.overdose.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl13": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl15": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl16": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl17": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl19": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl20": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.thermal.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl21": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.thermal.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl22": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.thermal.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl23": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.neuro.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl24": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.ent.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support. mo_review.text directs otoscopy, which requires an otoscope, but mo_review.needs.instruments is empty."
+    },
+    "plan_icl25": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.airway.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl26": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl28": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.dental.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl29": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.dental.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl30": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.dental.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl31": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.dental.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl32": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.dental.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl33": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.injury.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl34": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.injury.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl35": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl36a": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.dust.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl36b": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.dust.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl37": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.pressure.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl38": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.ent.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support. mo_review.text directs otoscopy, which requires an otoscope, but mo_review.needs.instruments is empty."
+    },
+    "plan_icl39": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.pressure.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl40": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.hydration.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl41": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.injury.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl42": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.injury.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl43": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.thermal.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl44": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.neuropathy.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl45": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.injury.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl46": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.injury.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl47": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl48": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl49": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl50": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl51": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.fracture.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl52": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.fracture.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl53": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.fracture.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl54": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.fracture.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl55": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.fracture.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl56": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.fracture.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl57": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.fracture.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl58": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.gi.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl59": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.gi.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl60": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl61": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.vestibular.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl62": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.orthostatic.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl63": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.headache.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl65": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.hearing.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support. mo_review.text directs otoscopy, which requires an otoscope, but mo_review.needs.instruments is empty."
+    },
+    "plan_icl66": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.hearing.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support. mo_review.text directs otoscopy, which requires an otoscope, but mo_review.needs.instruments is empty."
+    },
+    "plan_icl67": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.gi.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl68": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.skin.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl70": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.ent.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support. mo_review.text directs otoscopy, which requires an otoscope, but mo_review.needs.instruments is empty."
+    },
+    "plan_icl71": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl72": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.neuropathy.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl73": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.ent.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support. mo_review.text directs otoscopy, which requires an otoscope, but mo_review.needs.instruments is empty."
+    },
+    "plan_icl74": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.ent.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support. mo_review.text directs otoscopy, which requires an otoscope, but mo_review.needs.instruments is empty."
+    },
+    "plan_icl75": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl76": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.repro.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl77": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.uti.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl78": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.skin.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl80": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.airway.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl81": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.resp.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl82": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.resp.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl83": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.neuro.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl84": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.sepsis.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl85": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.shock.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl86": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.skin.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl87": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.skin.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl88": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.skin.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl89": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.skin.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl90": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl91": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.msk.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl92": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.gi.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl93": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.ent.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support. mo_review.text directs otoscopy, which requires an otoscope, but mo_review.needs.instruments is empty."
+    },
+    "plan_icl94": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.headache.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl96": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.ent.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support. mo_review.text directs otoscopy, which requires an otoscope, but mo_review.needs.instruments is empty."
+    },
+    "plan_icl97": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.vestibular.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl98": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl99": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl101": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.msk.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl102": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.msk.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl103": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.msk.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl104": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.msk.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl105": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.resp.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl106": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.airway.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl107": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.msk.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl108": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.msk.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl109": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.toxic.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl110": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.toxic.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl111": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.toxic.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl112": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.injury.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl113": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.injury.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl114": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.neuro.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl115": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.neuro.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl116": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.shock.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl117": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.uti.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl118": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.repro.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl119": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.vte.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl122": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.vestibular.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    },
+    "plan_icl123": {
+      "verdict": "disagrees",
+      "reason": "note.source_ids and mo_review.source_ids are [], unlike assessment-families.repro.source_ids (S01); sources.csv limits S01 to inventory membership and modeling methodology, not clinical support."
+    }
+  }
+}

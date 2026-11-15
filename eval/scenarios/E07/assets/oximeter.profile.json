@@ -1,0 +1,80 @@
+{
+  "profile_id": "oximeter-sim",
+  "version": "2",
+  "family": "oximeter",
+  "device_label": "Kit pulse oximeter (simulated input)",
+  "model": null,
+  "calibration": "unknown",
+  "hardware_evidence": "unmeasured",
+  "evidence_ref": null,
+  "provenance": [
+    {
+      "path": "eval/scenarios/E07",
+      "note": "SIM scenario profile, not a device specification. No paired model, no hardware evidence, calibration unknown. SpO2 range 0 to 100 is the definition of a percentage, not a device bound. No catalog source (NASA-SOURCES.md, sources.csv, nasa-data) and no repository source sets a device range or rate limit for the pulse rate, so range_min, range_max and max_rate_per_second stay null: missing stays missing (AGENTS.md section 1 rule 5). Each reading then carries unchecked:range:<code> and unchecked:rate:<code> quality notes, and a real profile sets them from the paired device's instructions for use (evidence_ref)."
+    },
+    {
+      "path": "docs/product/DEMO-CONDITIONS.md C08; docs/product/ROUTINE.md section 5",
+      "note": "completion window and steady_reading true: the oximeter streams continuously and its reading counts once it 'stops changing and displays one steady number' (C08, FDA Pulse Oximeter Basics, quoted in docs/product/DEMO-CONDITIONS.md and docs/product/ROUTINE.md section 5 step 4). Non-NASA, listed as an exception in docs/product/NASA-SOURCES.md: no NASA catalog document gives an oximeter reading procedure. A link lost before the window ends makes the reading unavailable (E07-01). A stuck sensor is decided from frame evidence (a device-timestamped measurement repeated whole) or the device's own sensor status bits, never from equal values."
+    },
+    {
+      "path": "docs/product/NASA-SOURCES.md RT17; docs/product/ROUTINE.md:172",
+      "note": "NASA CHP-IDSP Project Updates (HRP IWS 2025, NTRS 20250000330): heart rate, blood pressure, temperature and blood oxygen levels are collected data packaged as the crew member's patient file. Why the kit reading is kept as attributed device data."
+    },
+    {
+      "path": "contracts/reference/input-dictionary.json",
+      "note": "Bounds are data checks, not clinical thresholds (validation text of the measurement fields)."
+    },
+    {
+      "path": "Bluetooth SIG Pulse Oximeter Service and GATT Specification Supplement",
+      "note": "Protocol units of the decoded fields. non-NASA: no NASA catalog document defines a device protocol."
+    },
+    {
+      "path": "Bluetooth SIG Pulse Oximeter Service, PLX Measurement Status and Device and Sensor Status fields",
+      "note": "equipment_malfunction, sensor_malfunctioning and sensor_displaced reject the frame: the device itself reports that the value is not a measurement (the sensor evidence review M1 asks for, besides a repeated timestamped measurement). questionable_measurement and erratic_signal reject it too: the device marks the value as doubtful or the signal as disturbed, and C08 asks to 'Sit still and do not move the part of your body where the pulse oximeter is located', so a moving reading is not the steady number. low_perfusion stays a note: C08 lists poor circulation among factors that 'can affect the accuracy', not as an invalid reading. Non-NASA: no NASA catalog document defines a device protocol."
+    }
+  ],
+  "components": [
+    {
+      "field": "pulse_rate",
+      "indicator_code": "pulse",
+      "units": {
+        "beats_per_minute": "/min"
+      },
+      "range_min": null,
+      "range_max": null,
+      "saturation_low": null,
+      "saturation_high": null,
+      "max_rate_per_second": null
+    },
+    {
+      "field": "spo2",
+      "indicator_code": "spo2",
+      "units": {
+        "percent": "%"
+      },
+      "range_min": "0",
+      "range_max": "100",
+      "saturation_low": null,
+      "saturation_high": null,
+      "max_rate_per_second": null
+    }
+  ],
+  "min_samples": 1,
+  "rejecting_status": [
+    "equipment_malfunction",
+    "erratic_signal",
+    "invalid_measurement",
+    "measurement_unavailable",
+    "questionable_measurement",
+    "sensor_disconnected",
+    "sensor_displaced",
+    "sensor_malfunctioning",
+    "sensor_unconnected_to_user"
+  ],
+  "noted_status": [
+    "reserved_bits",
+    "low_perfusion"
+  ],
+  "completion": "window",
+  "steady_reading": true
+}
