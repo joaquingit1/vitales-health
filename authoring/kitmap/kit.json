@@ -35,6 +35,14 @@
    "finger joints": ["hand"]
   }
  },
+ "plan_ids": {
+  "prefix": "plan_",
+  "basis": "E28's plan ID rule (authoring/plans/build.py: plan_ + lower(condition_id)), so each row names the onboard plan written for it in config/onboard-plans.json; package check 15 needs that plan aboard."
+ },
+ "supplies": {
+  "ids": ["eye_rinse_water", "cpr_manikin"],
+  "basis": "The supplies other release documents reference (config/onboard-plans.json steps, config/skills-catalog.json drill needs_supplies; package check 16), copied with their names and units from the package example's supply catalog (catalog_from)."
+ },
  "source_ids": ["S13"],
  "drafts": "authoring/kitmap/adjudication/draft.json",
  "checks": "authoring/kitmap/adjudication/check.json"

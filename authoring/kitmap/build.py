@@ -8,7 +8,8 @@ Deterministic: the same inputs give the same bytes. Inputs, all already in the r
 - docs/product/cliff/forms/ICL<n>.json: saved form text, used to verify every extra quote on its page;
 - docs/product/sources.csv: the source registry (S13, NASA's Integrated Medical Model documentation);
 - contracts/api/examples/kit-map.example.json: the instrument catalog, capabilities, kits and candidates;
-- authoring/kitmap/kit.json: the head (label, notice, defaults for added instruments);
+- authoring/kitmap/kit.json: the head (label, notice, defaults for added instruments, the plan ID rule and the
+  supplies other release documents reference);
 - authoring/kitmap/adjudication/draft.json (drafting model) and check.json (checking model).
 
 A row whose check is not `agrees`, or that the drafter marked undecided, keeps `checked_by: null`
@@ -218,12 +219,23 @@ def _provenance(cid: str, candidate: Obj, row: Obj, verdict: Obj, cited: list[Ob
     }
 
 
+def _supplies(head: Obj, example: Obj) -> list[Obj]:
+    """The supplies kit.json names, in its order, copied from the example's catalog; an unknown ID fails."""
+    catalog = {_str(s["supply_id"]): s for s in _objs(example["supplies"])}
+    wanted = [_str(i) for i in _list(_obj(head["supplies"])["ids"])]
+    missing = [i for i in wanted if i not in catalog]
+    if missing:
+        raise BuildError("supplies not in the example catalog: " + ", ".join(missing))
+    return [dict(catalog[i]) for i in wanted]
+
+
 def build() -> tuple[bytes, bytes]:
     head, assessments, candidates, drafted, verdicts, draft, check = _inputs()
     instruments, capabilities = _catalog(head, draft)
     methods = {_str(i["id"]): _str(i.get("method", "manual_instrument")) for i in instruments}
     example = _obj(_load(ROOT / _str(head["catalog_from"])))
     q26 = {key: _list(value) for key, value in _obj(_obj(head["q26_region_map"])["regions"]).items()}
+    plan_prefix = _str(_obj(head["plan_ids"])["prefix"])
     rows: list[Obj] = []
     provenance: list[Obj] = []
     omitted: list[Obj] = []
@@ -243,7 +255,7 @@ def build() -> tuple[bytes, bytes]:
                 "body_regions": _regions(candidate, q26),
                 "confirming_tests": tests,
                 "cliff_url": candidate["url"],
-                "plan_id": None,
+                "plan_id": plan_prefix + cid.lower(),
                 "ground_needs": None,
                 "treatment_scope": None,
                 "rtdc": None,
@@ -255,6 +267,7 @@ def build() -> tuple[bytes, bytes]:
         )
         provenance.append(side)
     kits = _obj(example["kits"])
+    supplies = _supplies(head, example)
     document = {
         "version": head["version"],
         "example": head["example"],
@@ -265,7 +278,7 @@ def build() -> tuple[bytes, bytes]:
         "candidates": list(_list(example["candidates"])),
         "candidate_supplies": [],
         "candidate_skills": [],
-        "supplies": [],
+        "supplies": supplies,
         "stock": {e: [] for e in ENVIRONMENTS},
         "conditions": rows,
     }
