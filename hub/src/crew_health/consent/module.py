@@ -10,16 +10,24 @@ from typing import Protocol, TypeGuard
 
 from crew_health.app.registry import ModuleRegistry, Resolver, StartupPhase
 from crew_health.consent.adapters.repository import SqliteConsentStore
-from crew_health.consent.application.ports import AuthoredRecords, ConsentPorts
+from crew_health.consent.application.ports import (
+    ConsentPorts,
+    ConsentQueries,
+    ObservationPartitions,
+    TimeAdmission,
+)
 from crew_health.consent.application.records import ConsentRecordAuthorization
 from crew_health.consent.application.service import (
+    AUDIT_DECLARATIONS,
     EXPIRY_HANDLER,
     LOCAL_AUDIENCE,
+    ConsentBindings,
     ConsentDeps,
     ConsentService,
 )
 from crew_health.consent.application.settings import limits, specs
 from crew_health.identity.application.ports import IdentityPorts
+from crew_health.kernel.audit import AuditPolicy
 from crew_health.kernel.clock import Clock, ClockCorrected, ClockRegressed
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.scheduler import ScheduledJob
@@ -47,6 +55,16 @@ class _Lookup(Protocol):
     def require(self, port: type[object]) -> object: ...
 
 
+class _Provide(Protocol):
+    def provide(
+        self,
+        port: type[object],
+        factory: Callable[[Resolver], object],
+        *,
+        requires: tuple[type[object], ...] = (),
+    ) -> None: ...
+
+
 class LocalOnly:
     """The audience of consent reference declarations: no session is ever admitted to them."""
 
@@ -70,8 +88,25 @@ def _has(value: object, *names: str) -> bool:
     return all(callable(getattr(value, name, None)) for name in names)
 
 
-def _authored(value: object) -> TypeGuard[AuthoredRecords]:
+def _observations(value: object) -> TypeGuard[ObservationPartitions]:
     return _has(value, "observation")
+
+
+def _time(value: object) -> TypeGuard[TimeAdmission]:
+    return _has(value, "admission")
+
+
+def audit_policies() -> tuple[AuditPolicy, ...]:
+    """Consent's audit declarations as platform policies, registered through the module (R-E02-23)."""
+    return tuple(
+        AuditPolicy(
+            value.event_type,
+            value.metadata,
+            frozenset({value.reference_field}),
+            {value.reference_field: frozenset({value.reference_type})},
+        )
+        for value in AUDIT_DECLARATIONS
+    )
 
 
 def _uows(value: object) -> TypeGuard[UnitOfWorkFactory]:
@@ -94,7 +129,7 @@ def _settings(value: object) -> TypeGuard[HubSettings]:
     return _has(value, "integer", "quantity", "boolean", "text")
 
 
-def build_deps(resolver: _Lookup) -> ConsentDeps:
+def build_deps(resolver: _Lookup, bound: ConsentBindings | None = None) -> ConsentDeps:
     uows, snapshots = resolver.require(UnitOfWorkFactory), resolver.require(ReadSnapshotFactory)
     clock, ids, hub = resolver.require(Clock), resolver.require(IdFactory), resolver.require(HubSettings)
     identity = resolver.require(IdentityPorts)
@@ -108,7 +143,18 @@ def build_deps(resolver: _Lookup) -> ConsentDeps:
     ):
         raise ValueError("consent: a required port is missing or violates its protocol")
     return ConsentDeps(
-        uows, snapshots, clock, ids, SqliteConsentStore(), identity.roster, identity.directory, limits(hub)
+        uows,
+        snapshots,
+        clock,
+        ids,
+        SqliteConsentStore(),
+        identity.roster,
+        identity.directory,
+        limits(hub),
+        identity.sessions,
+        identity.owners,
+        identity.generations,
+        ConsentBindings() if bound is None else bound,
     )
 
 
@@ -137,36 +183,48 @@ def _hooks(
 
 
 def register(registry: ModuleRegistry) -> None:
-    bound = Bound()
+    bound, facts = Bound(), ConsentBindings()
     corrected, regressed, expire, sweep = _hooks(bound)
 
     def bind(resolver: Resolver) -> None:
         bound.value = resolver.require(ConsentService)
+        time = resolver.optional(TimeAdmission)  # type: ignore[type-abstract]
+        records = resolver.optional(ObservationPartitions)  # type: ignore[type-abstract]
+        facts.time = time if _time(time) else None
+        facts.observations = records if _observations(records) else None
 
     def authorization(resolver: Resolver) -> ConsentRecordAuthorization:
-        loose: _Lookup = resolver
-        records = loose.require(AuthoredRecords)
-        if not _authored(records):
+        snapshots = resolver.require(ReadSnapshotFactory)  # type: ignore[type-abstract]
+        identity = resolver.require(IdentityPorts)
+        if not _snapshots(snapshots):
             raise ValueError("consent: a required port is missing or violates its protocol")
         return ConsentRecordAuthorization(
-            resolver.require(ConsentPorts).queries, resolver.require(IdentityPorts).capture, records
+            resolver.require(ConsentService), identity.capture, identity.sessions, snapshots, facts
         )
 
     for spec in specs():
         registry.setting(spec)
+    for policy in audit_policies():
+        registry.audit_policy(policy)
     registry.id_prefix(record_type="consent.grant", prefix="cns")
     registry.id_prefix(record_type="consent.fence", prefix="fence")
     registry.audience_rule(LOCAL_AUDIENCE, LocalOnly())
     registry.provide(
-        ConsentService, lambda resolver: ConsentService(build_deps(resolver)), requires=KERNEL_PORTS
+        ConsentService, lambda resolver: ConsentService(build_deps(resolver, facts)), requires=KERNEL_PORTS
     )
     registry.provide(
         ConsentPorts,
         lambda resolver: ConsentPorts(resolver.require(ConsentService)),
         requires=(ConsentService,),
     )
+    loose: _Provide = registry
+    loose.provide(
+        ConsentQueries, lambda resolver: resolver.require(ConsentService), requires=(ConsentService,)
+    )
     registry.provide(
-        ConsentRecordAuthorization, authorization, requires=(ConsentPorts, IdentityPorts, AuthoredRecords)
+        ConsentRecordAuthorization,
+        authorization,
+        requires=(ConsentService, IdentityPorts, ReadSnapshotFactory),
     )
     registry.bind("consent.service", bind)
     registry.subscribe(ClockCorrected, corrected, name="consent.fence_on_correction")

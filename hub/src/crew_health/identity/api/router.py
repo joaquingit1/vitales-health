@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import base64
 import binascii
+from collections.abc import Mapping
+from contextvars import ContextVar
 from datetime import UTC, datetime
 from typing import Annotated, Literal
 
@@ -76,15 +78,30 @@ def bearer(value: str | None) -> str | None:
 
 
 class IdentitySecurity:
-    """E01's HttpSecurity for the composition root: bearer token to a live SessionContext on every request."""
+    """E01's HttpSecurity for the composition root: bearer token to a live SessionContext on every request.
+
+    The listener of the request being authenticated is kept in a context variable of this instance, so a
+    consumer that receives only the request headers (`authenticate_headers`) still binds the token to the
+    listener that received it. Outside a request authenticated here the listener is unknown and nothing is
+    authenticated."""
 
     def __init__(self, runtime: IdentityRuntime) -> None:
         self.runtime = runtime
+        self.listener: ContextVar[str | None] = ContextVar(f"identity_listener_{id(self)}", default=None)
 
     def authenticate(self, request: Request) -> SessionContext:
+        listener = listener_of(request)
+        self.listener.set(listener)
         return self.runtime.service().authenticate(
-            bearer(request.headers.get("authorization")), listener=listener_of(request)
+            bearer(request.headers.get("authorization")), listener=listener
         )
+
+    def authenticate_headers(self, headers: Mapping[str, str]) -> SessionContext:
+        listener = self.listener.get()
+        values = [value for key, value in headers.items() if key.lower() == "authorization"]
+        if listener is None or len(values) != 1:
+            raise unauthenticated()
+        return self.runtime.service().authenticate(bearer(values[0]), listener=listener)
 
     def authorize(self, session: SessionContext, operation_id: str) -> None:
         """Role coherence after E01's operation role gate: a context whose roles do not follow from its kind

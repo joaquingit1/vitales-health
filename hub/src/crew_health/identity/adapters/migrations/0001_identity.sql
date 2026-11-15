@@ -50,10 +50,11 @@ CREATE UNIQUE INDEX identity_credential_single_kind ON identity_credential (kind
 CREATE UNIQUE INDEX identity_credential_person ON identity_credential (person_id)
   WHERE person_id IS NOT NULL;
 
-CREATE TRIGGER identity_credential_kind_fixed BEFORE UPDATE OF kind, person_id ON identity_credential
+CREATE TRIGGER identity_credential_kind_fixed BEFORE UPDATE ON identity_credential
+  WHEN NEW.kind IS NOT OLD.kind OR NEW.person_id IS NOT OLD.person_id
   BEGIN SELECT RAISE(ABORT, 'identity_credential kind is fixed'); END;
 
-CREATE TRIGGER identity_credential_generation_forward BEFORE UPDATE OF generation ON identity_credential
+CREATE TRIGGER identity_credential_generation_forward BEFORE UPDATE ON identity_credential
   WHEN NEW.generation < OLD.generation
   BEGIN SELECT RAISE(ABORT, 'identity_credential generation only grows'); END;
 
@@ -87,9 +88,13 @@ CREATE TRIGGER identity_session_terminal BEFORE UPDATE ON identity_session
   WHEN OLD.ended_at IS NOT NULL
   BEGIN SELECT RAISE(ABORT, 'identity_session end is terminal'); END;
 
-CREATE TRIGGER identity_session_fixed BEFORE UPDATE OF
-  session_id, token_digest, principal_id, kind, person_id, mission_id, generation, listener, process_epoch,
-  created_at, created_monotonic_ns, expires_at ON identity_session
+CREATE TRIGGER identity_session_fixed BEFORE UPDATE ON identity_session
+  WHEN NEW.session_id IS NOT OLD.session_id OR NEW.token_digest IS NOT OLD.token_digest OR
+    NEW.principal_id IS NOT OLD.principal_id OR NEW.kind IS NOT OLD.kind OR
+    NEW.person_id IS NOT OLD.person_id OR NEW.mission_id IS NOT OLD.mission_id OR
+    NEW.generation IS NOT OLD.generation OR NEW.listener IS NOT OLD.listener OR
+    NEW.process_epoch IS NOT OLD.process_epoch OR NEW.created_at IS NOT OLD.created_at OR
+    NEW.created_monotonic_ns IS NOT OLD.created_monotonic_ns OR NEW.expires_at IS NOT OLD.expires_at
   BEGIN SELECT RAISE(ABORT, 'identity_session facts are fixed'); END;
 
 CREATE TRIGGER identity_session_retained BEFORE DELETE ON identity_session

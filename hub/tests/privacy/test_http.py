@@ -13,12 +13,13 @@ from pathlib import Path
 
 import pytest
 from e02_station import (
-    OPERATOR,
+    CONSOLE,
     START,
     E02Station,
     Running,
     credential,
     mission_id,
+    release_id,
     serve,
     sim_bootstrap,
     sim_members,
@@ -80,7 +81,7 @@ def observation(patient: str, value: int = 50) -> dict[str, object]:
 
 
 async def record(client: AsyncClient, token: str, patient: str, key: str) -> Response:
-    headers = bearer(token, **{"Idempotency-Key": key, "Config-Release": "release_explicit_sim"})
+    headers = bearer(token, **{"Idempotency-Key": key, "Config-Release": release_id()})
     return await client.post("/v1/observations", headers=headers, json=observation(patient))
 
 
@@ -97,7 +98,7 @@ def test_the_session_lifecycle_follows_the_contract(hub: E02Station) -> None:
         )
         assert created.status_code == 201, created.text
         assert created.headers["Location"] == "/v1/sessions/current"
-        assert created.headers["Config-Release"] == "release_explicit_sim"
+        assert created.headers["Config-Release"] == release_id()
         assert created.headers["X-Correlation-Id"]
         session = Session.model_validate(created.json())
         assert session.token is not None and session.person is not None
@@ -241,8 +242,12 @@ def test_a_record_is_private_until_its_owner_grants_and_closes_again_on_revocati
         officer_capture = await record(client, ilya, "mara", "ilya_capture_1")
         assert officer_capture.status_code == 201, officer_capture.text
         entered = "/v1/observations/" + officer_capture.json()["observation_id"]
-        assert officer_capture.json()["operator_id"] == "ilya"
-        assert (await client.get(entered, headers=bearer(ilya))).status_code == 200
+        assert (officer_capture.json()["operator_id"], officer_capture.json()["patient_id"]) == (
+            "ilya",
+            "mara",
+        )
+        # The capture command returned the officer's entry once; entering it is no later read grant (E02 3.4).
+        problem(await client.get(entered, headers=bearer(ilya)), 403, "UNAUTHORIZED_SCOPE")
         assert (await client.get(entered, headers=bearer(mara))).status_code == 200
         problem(await client.get(entered, headers=bearer(tomas)), 403, "UNAUTHORIZED_SCOPE")
         problem(await client.get(path, headers=bearer(ilya)), 403, "UNAUTHORIZED_SCOPE")
@@ -289,7 +294,7 @@ def test_removal_credential_change_and_expiry_end_a_session_mid_flow(hub: E02Sta
         )
         members = tuple(member for member in sim_members() if member.person_id != "tomas")
         running.admin.apply_roster(
-            sim_bootstrap(members=members), expected_revision=1, operator=OPERATOR, correlation_id="c"
+            sim_bootstrap(members=members), expected_revision=1, operator=CONSOLE, correlation_id="c"
         )
         problem(await client.get("/v1/sessions/current", headers=bearer(tomas)), 401, "UNAUTHENTICATED")
         crew = await client.get("/v1/crew", headers=bearer(mara))
@@ -298,7 +303,7 @@ def test_removal_credential_change_and_expiry_end_a_session_mid_flow(hub: E02Sta
             "mara",
             "mara changed passphrase",
             current_credential=credential("mara"),
-            operator=OPERATOR,
+            operator=CONSOLE,
             client="console",
             correlation_id="c",
         )

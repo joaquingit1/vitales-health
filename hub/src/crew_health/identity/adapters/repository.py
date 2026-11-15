@@ -31,7 +31,9 @@ _SESSION_COLUMNS = (
     "created_at, created_monotonic_ns, expires_at, ended_at, end_reason"
 )
 _PRINCIPAL_COLUMNS = "principal_id, kind, person_id, mission_id, display_name, verifier, generation, enabled"
-_MEMBER_COLUMNS = "person_id, display_name, roster_index, from_day, medical_officer_rank"
+_MEMBER_COLUMNS = "person_id, display_name, roster_index, from_day, medical_officer_rank, until_day"
+# A current member on mission day `?`: not removed and inside its from_day..until_day interval (E02 3.1).
+_CURRENT = "removed_at IS NULL AND from_day <= ? AND (until_day IS NULL OR until_day >= ?)"
 _SCOPES: tuple[BucketScope, ...] = ("principal", "client", "global")
 
 
@@ -146,6 +148,7 @@ def _member(row: tuple[SqlValue, ...]) -> RosterEntry:
         roster_index=_integer(row[2]),
         on_roster_from_day=_integer(row[3]),
         medical_officer_rank=_optional_integer(row[4]),
+        on_roster_until_day=_optional_integer(row[5]),
     )
 
 
@@ -270,20 +273,20 @@ class SqliteIdentityStore:
         return tuple(retired)
 
     def roster(
-        self, connection: StorageSession, *, after_index: int | None, limit: int
+        self, connection: StorageSession, *, day: int, after_index: int | None, limit: int
     ) -> tuple[RosterEntry, ...]:
         rows = connection.rows(
-            f"SELECT {_MEMBER_COLUMNS} FROM identity_person WHERE removed_at IS NULL AND roster_index > ? "
+            f"SELECT {_MEMBER_COLUMNS} FROM identity_person WHERE {_CURRENT} AND roster_index > ? "
             "ORDER BY roster_index LIMIT ?",
-            (-1 if after_index is None else after_index, limit),
+            (day, day, -1 if after_index is None else after_index, limit),
             limit=limit,
         )
         return tuple(_member(row) for row in rows)
 
-    def roster_member(self, connection: StorageSession, person_id: str) -> RosterEntry | None:
+    def roster_member(self, connection: StorageSession, person_id: str, *, day: int) -> RosterEntry | None:
         rows = connection.rows(
-            f"SELECT {_MEMBER_COLUMNS} FROM identity_person WHERE person_id = ? AND removed_at IS NULL",
-            (person_id,),
+            f"SELECT {_MEMBER_COLUMNS} FROM identity_person WHERE person_id = ? AND {_CURRENT}",
+            (person_id, day, day),
             limit=1,
         )
         return _member(rows[0]) if rows else None

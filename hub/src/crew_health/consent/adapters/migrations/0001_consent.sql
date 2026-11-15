@@ -32,10 +32,16 @@ CREATE TRIGGER consent_grant_terminal BEFORE UPDATE ON consent_grant
   WHEN OLD.state <> 'active'
   BEGIN SELECT RAISE(ABORT, 'consent_grant end is terminal'); END;
 
-CREATE TRIGGER consent_grant_fixed BEFORE UPDATE OF
-  grant_id, granted_by, subject_person_id, recipient, mission_id, origin_mode, object_ref, purpose, actions, fields,
-  policy_version, valid_from, valid_until, issued_at, issued_epoch, issued_monotonic_ns, schedule_generation
-  ON consent_grant
+CREATE TRIGGER consent_grant_fixed BEFORE UPDATE ON consent_grant
+  WHEN NEW.grant_id IS NOT OLD.grant_id OR NEW.granted_by IS NOT OLD.granted_by OR
+    NEW.subject_person_id IS NOT OLD.subject_person_id OR NEW.recipient IS NOT OLD.recipient OR
+    NEW.mission_id IS NOT OLD.mission_id OR NEW.origin_mode IS NOT OLD.origin_mode OR
+    NEW.object_ref IS NOT OLD.object_ref OR NEW.purpose IS NOT OLD.purpose OR
+    NEW.actions IS NOT OLD.actions OR NEW.fields IS NOT OLD.fields OR
+    NEW.policy_version IS NOT OLD.policy_version OR NEW.valid_from IS NOT OLD.valid_from OR
+    NEW.valid_until IS NOT OLD.valid_until OR NEW.issued_at IS NOT OLD.issued_at OR
+    NEW.issued_epoch IS NOT OLD.issued_epoch OR NEW.issued_monotonic_ns IS NOT OLD.issued_monotonic_ns OR
+    NEW.schedule_generation IS NOT OLD.schedule_generation
   BEGIN SELECT RAISE(ABORT, 'consent_grant terms are fixed'); END;
 
 CREATE TRIGGER consent_grant_revision_forward BEFORE UPDATE ON consent_grant

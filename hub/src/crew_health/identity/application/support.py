@@ -6,6 +6,7 @@ import threading
 import unicodedata
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Literal
 
 from crew_health.identity.application.settings import IdentitySettings
@@ -16,6 +17,7 @@ from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import CommandReceipts, IdempotencyStore, canonical_json
 from crew_health.kernel.errors import ErrorCode, FieldError, ProblemError
 from crew_health.kernel.ids import IdFactory
+from crew_health.kernel.met import MissionClock
 from crew_health.kernel.uow import (
     Audience,
     AudienceProjectionKey,
@@ -33,8 +35,8 @@ REFERENCE_PROJECTION = AudienceProjectionKey("identity", "reference", 1)
 class AuditDeclaration:
     """One E02 audit event: its reference field, the record types it may name and allowed metadata.
 
-    E01's registry has no audit-policy hook yet (request R-E02-23), so the composer turns these into
-    platform audit policies; the values are the complete allowlist.
+    Each module turns these into platform audit policies and registers them with `registry.audit_policy`
+    (R-E02-23); the values are the complete allowlist.
     """
 
     event_type: str
@@ -78,6 +80,25 @@ class GroundSignIn:
     allowed: bool = False
 
 
+@dataclass(slots=True)
+class MissionDays:
+    """The injected mission clock (SYSTEM 5.2), bound late by the composer. Absent, or with no mission clock
+    version covering the instant, the mission day is unknown and no roster member is current (E02 3.1)."""
+
+    clock: MissionClock | None = None
+
+    def day(self, at: datetime) -> int | None:
+        if self.clock is None:
+            return None
+        try:
+            return self.clock.mission_day(at)
+        except ProblemError as error:
+            # A mission clock with no version for this instant raises CONFIG_INVALID; storage faults stay loud.
+            if error.code is ErrorCode.CONFIG_INVALID:
+                return None
+            raise
+
+
 @dataclass(frozen=True, slots=True)
 class IdentityDeps:
     uows: UnitOfWorkFactory
@@ -92,6 +113,7 @@ class IdentityDeps:
     receipts: CommandReceipts
     slots: KdfSlots
     ground: GroundSignIn
+    days: MissionDays = field(default_factory=MissionDays)
 
     def instant(self) -> Instant:
         return Instant(self.clock.now(), self.clock.monotonic_ns(), self.clock.process_epoch())

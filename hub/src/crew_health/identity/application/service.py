@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
+from datetime import datetime
 
-from crew_health.identity.application.ports import RosterEntry, View
+from crew_health.identity.application.ports import OwnerProof, Partition, RosterEntry, View
 from crew_health.identity.application.store import Principal
 from crew_health.identity.application.support import (
     IdentityDeps,
@@ -30,6 +31,7 @@ from crew_health.identity.domain.limits import (
     refresh,
     refund,
     reserve,
+    reserve_shared,
 )
 from crew_health.identity.domain.routing import may_record_for
 from crew_health.identity.domain.session import (
@@ -51,7 +53,7 @@ from crew_health.identity.domain.session import (
 )
 from crew_health.kernel.commands import CommandIdentity, StoredResult, canonical_json, command_identity
 from crew_health.kernel.errors import ErrorCode, ProblemError
-from crew_health.kernel.uow import Actor, ReadSnapshot, Role, SessionContext, UnitOfWork
+from crew_health.kernel.uow import Actor, Role, SessionContext, UnitOfWork
 
 SIGN_IN_ACTOR = Actor("engine", "identity_sign_in")
 _TOKEN_MAX = 128
@@ -69,9 +71,25 @@ class SessionView:
 
 
 @dataclass(frozen=True, slots=True)
+class CredentialProof:
+    """A principal's credential proven under the sign-in limits, bound to the generation it verified.
+
+    A command acting on it rechecks, inside its own unit of work, that this generation is still current."""
+
+    principal_id: str
+    kind: PrincipalKind
+    person_id: str | None
+    generation: int
+
+
+@dataclass(frozen=True, slots=True)
 class _Reservation:
+    """The attempt reserved before any verifier runs. `refused` attempts hit a full principal bucket: they
+    reserve only the shared buckets, still run one verifier and are refused whatever the credential."""
+
     principal: Principal | None
     buckets: tuple[Bucket, ...]
+    refused: bool = False
 
 
 class IdentityService:
@@ -87,7 +105,9 @@ class IdentityService:
         reservation = self._proven(kind, person_id, credential, client=client, correlation_id=correlation_id)
         return self._issue(reservation, listener=listener, correlation_id=correlation_id)
 
-    def prove(self, principal: Principal, credential: str, *, client: str, correlation_id: str) -> None:
+    def prove(
+        self, principal: Principal, credential: str, *, client: str, correlation_id: str
+    ) -> CredentialProof:
         """Proof of a principal's current credential for a local command, under the sign-in limits."""
         reservation = self._proven(
             principal.kind, principal.person_id, credential, client=client, correlation_id=correlation_id
@@ -96,6 +116,7 @@ class IdentityService:
         if proven is None or proven.principal_id != principal.principal_id:
             raise identity_mismatch()
         self._refund(reservation, correlation_id=correlation_id)
+        return CredentialProof(proven.principal_id, proven.kind, proven.person_id, proven.generation)
 
     def _proven(
         self, kind: PrincipalKind, person_id: str | None, credential: str, *, client: str, correlation_id: str
@@ -104,6 +125,7 @@ class IdentityService:
         reservation = self._reserve(kind, person_id, client=client, correlation_id=correlation_id)
         if (
             not self._verify(reservation, secret, correlation_id=correlation_id)
+            or reservation.refused
             or reservation.principal is None
         ):
             raise identity_mismatch()
@@ -111,8 +133,11 @@ class IdentityService:
 
     def verify_owner(
         self, person_id: str, credential: str, *, client: str, correlation_id: str
-    ) -> SessionContext:
-        """The same limits, verifier and recheck as sign-in, for a local owner command; no token is issued."""
+    ) -> OwnerProof:
+        """The same limits, verifier and recheck as sign-in, for a local owner command; no token is issued.
+
+        The proof carries the credential generation it verified; `owner_current` rechecks it inside the owner
+        command's own unit of work, so a credential changed or a member removed meanwhile cannot act."""
         deps = self.deps
         kind, subject = principal_key(SignInRequest("crew", person_id), ground_allowed=False)
         reservation = self._proven(kind, subject, credential, client=client, correlation_id=correlation_id)
@@ -130,12 +155,29 @@ class IdentityService:
         ):
             raise identity_mismatch()
         self._refund(reservation, correlation_id=correlation_id)
-        return SessionContext(
+        session = SessionContext(
             deps.ids.new("owner"),
             "crew",
             actor_for("crew", principal.principal_id),
             principal.person_id,
             roles_for("crew", member.medical_officer_rank),
+        )
+        return OwnerProof(session, principal.generation)
+
+    def owner_current(self, view: View, proof: OwnerProof) -> bool:
+        """The proven owner is still the same enabled crew principal at the same credential generation and is a
+        current roster member in this view."""
+        session = proof.session
+        principal = self.deps.store.principal(view.connection, session.actor.id)
+        return (
+            principal is not None
+            and principal.kind == "crew"
+            and principal.enabled
+            and principal.generation == proof.generation
+            and principal.person_id is not None
+            and principal.person_id == session.person_id
+            and actor_for("crew", principal.principal_id) == session.actor
+            and self._member(view, principal) is not None
         )
 
     def _reserve(
@@ -161,18 +203,31 @@ class IdentityService:
                 ("global", GLOBAL_KEY),
             )
             existing = {(b.scope, b.key): b for b in store.buckets(connection, wanted)}
-            self._make_room(uow, len([key for key in wanted if key not in existing]), now)
+            # Room for the principal slot is always required, whether or not the principal or its bucket
+            # exists, so a full bucket table refuses known and unknown principals alike.
+            self._make_room(uow, 1 + len([key for key in wanted[1:] if key not in existing]), now)
             policy = deps.settings.attempts
             buckets = refresh(
                 tuple(existing.get(key) or fresh(key[0], key[1], now) for key in wanted), policy, now
             )
-            locked = not admits(buckets, policy)
-            stored = buckets if locked else reserve(buckets, policy, now)
+            shared_open = admits(tuple(b for b in buckets if b.scope != "principal"), policy)
+            principal_open = admits(tuple(b for b in buckets if b.scope == "principal"), policy)
+            if not shared_open:
+                reserved: tuple[Bucket, ...] = ()
+                stored = buckets
+            elif principal_open:
+                reserved = stored = reserve(buckets, policy, now)
+            else:
+                reserved = reserve_shared(buckets, policy, now)
+                stored = (*(b for b in buckets if b.scope == "principal"), *reserved)
             for bucket in stored:
                 store.save_bucket(connection, bucket)
-        if locked:
+        if not shared_open:
+            # Client and global windows hold no principal fact: refusing them early reveals nothing.
             raise identity_mismatch()
-        return _Reservation(principal, stored)
+        if not principal_open:
+            return _Reservation(None, reserved, refused=True)
+        return _Reservation(principal, reserved)
 
     def _make_room(self, uow: UnitOfWork, needed: int, now: Instant) -> None:
         deps, connection = self.deps, uow.connection
@@ -314,7 +369,7 @@ class IdentityService:
         context = None if record is None else self._live_context(view, record, listener=listener)
         return context is not None and context == session
 
-    def alive(self, snapshot: ReadSnapshot, session: SessionContext) -> bool:
+    def alive(self, snapshot: View, session: SessionContext) -> bool:
         """E01 event delivery: the stream's session is still live on the listener that issued it."""
         record = self._record(snapshot, session.session_id)
         return record is not None and self.is_live(snapshot, session, listener=record.listener)
@@ -340,7 +395,11 @@ class IdentityService:
     def _member(self, view: View, principal: Principal | None) -> RosterEntry | None:
         if principal is None or principal.person_id is None:
             return None
-        return self.deps.store.roster_member(view.connection, principal.person_id)
+        return self.member(view, principal.person_id)
+
+    def _day(self, view: View) -> int | None:
+        """The mission day of this view's instant from the injected mission clock; unknown is None."""
+        return self.deps.days.day(view.now)
 
     def current(self, session: SessionContext) -> SessionView:
         with self.deps.snapshots.snapshot() as view:
@@ -385,19 +444,52 @@ class IdentityService:
         if not 1 <= limit <= self.deps.settings.page_max:
             raise ProblemError(ErrorCode.MALFORMED_REQUEST, ErrorCode.MALFORMED_REQUEST.value)
         with self.deps.snapshots.snapshot() as view:
-            rows = self.deps.store.roster(view.connection, after_index=after_index, limit=limit + 1)
+            day = self._day(view)
+            if day is None:
+                raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, ErrorCode.CAPABILITY_UNAVAILABLE.value)
+            rows = self.deps.store.roster(view.connection, day=day, after_index=after_index, limit=limit + 1)
         return rows[:limit], len(rows) > limit
 
     def access_generation(self, view: View) -> int:
         return self.deps.store.access_generation(view.connection)
 
+    # AccessGenerations ------------------------------------------------------------------------------------
+
+    def bump(self, uow: UnitOfWork) -> int:
+        return self.deps.store.bump_access_generation(uow.connection)
+
     # Consumer ports: RosterPort, PrincipalDirectory, CaptureEligibility ---------------------------------------
 
     def members(self, view: View, *, after_index: int | None, limit: int) -> tuple[RosterEntry, ...]:
-        return self.deps.store.roster(view.connection, after_index=after_index, limit=limit)
+        day = self._day(view)
+        if day is None:
+            return ()
+        return self.deps.store.roster(view.connection, day=day, after_index=after_index, limit=limit)
 
     def member(self, view: View, person_id: str) -> RosterEntry | None:
-        return self.deps.store.roster_member(view.connection, person_id)
+        """A current member: on the roster, not removed, and inside its from_day..until_day interval on the
+        mission day of this view. An unknown mission day makes nobody current."""
+        day = self._day(view)
+        if day is None:
+            return None
+        return self.deps.store.roster_member(view.connection, person_id, day=day)
+
+    def crew_at(self, at: datetime | None = None) -> tuple[RosterEntry, ...]:
+        """The whole current roster on the mission day of `at` (the snapshot's time when None), in roster
+        order and bounded by identity.roster_max. An unknown mission day is an empty roster."""
+        deps, ceiling = self.deps, self.deps.settings.roster_max
+        with deps.snapshots.snapshot() as view:
+            day = deps.days.day(view.now if at is None else at)
+            if day is None:
+                return ()
+            rows = deps.store.roster(view.connection, day=day, after_index=None, limit=ceiling + 1)
+        if len(rows) > ceiling:
+            raise ProblemError(ErrorCode.INTERNAL_ERROR, ErrorCode.INTERNAL_ERROR.value)
+        return rows
+
+    def partition(self, view: View) -> Partition | None:
+        state = self.deps.store.roster_state(view.connection)
+        return None if state is None else (state.mission_id, state.namespace)
 
     def known_recipient(self, view: View, principal_id: str) -> bool:
         principal = self.deps.store.principal(view.connection, principal_id)

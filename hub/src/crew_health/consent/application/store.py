@@ -20,6 +20,8 @@ class ConsentStore(Protocol):
         recipient: str,
         purpose: str,
         object_ref: str,
+        mission_id: str,
+        origin_mode: str,
         limit: int,
     ) -> tuple[Grant, ...]: ...
     def active_count(self, connection: StorageSession, subject_person_id: str) -> int: ...

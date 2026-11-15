@@ -25,6 +25,10 @@ GRANT_STATES: tuple[GrantState, ...] = ("active", "revoked", "expired", "fenced"
 ORIGIN_MODES: tuple[OriginMode, ...] = ("LIVE", "REPLAY", "SIM")
 POLICY_VERSION = "e02.consent.1"
 _NAME = re.compile(r"^[a-z][a-z0-9_.:-]{0,127}$")
+# An object reference is one ID (S5.1 pattern) or a stream reference of up to eight ID segments joined by "/",
+# such as SYSTEM 5.7.1 `catchup/approved/1`. No empty segment, no wildcard, no leading or trailing slash.
+_OBJECT_REF = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}(/[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}){0,7}$")
+OBJECT_REF_MAX = 255
 _NS_PER_MICROSECOND = 1000
 
 
@@ -81,12 +85,25 @@ class Grant:
 
 
 @dataclass(frozen=True, slots=True)
+class Admission:
+    """The durable clock state visible in the caller's snapshot (SYSTEM 5.2): the last committed write time
+    and whether clearing is frozen by a regression or a first start awaiting the operator's time."""
+
+    high_water: datetime
+    frozen: bool
+
+
+@dataclass(frozen=True, slots=True)
 class Reading:
-    """The caller's frozen time: snapshot wall time plus the process clock for the elapsed bound."""
+    """The caller's frozen time: snapshot wall time, the process clock for the elapsed bound, the durable
+    clock admission of the snapshot (None when unknown) and the latest wall time this process has observed
+    in its epoch, so an expiry a read once observed is never undone by a later backward wall step."""
 
     at: datetime
     process_epoch: str
     monotonic_ns: int
+    admission: Admission | None
+    observed: datetime
 
 
 def _names(values: Iterable[str], field: str, *, maximum: int) -> frozenset[str]:
@@ -106,7 +123,7 @@ def validate_request(
     subject = owner(session)
     require_id(value.recipient)
     require_id(value.mission_id)
-    require_id(value.object_ref)
+    require_object_ref(value.object_ref)
     if value.recipient == subject:
         raise invalid("recipient")
     if _NAME.fullmatch(value.purpose) is None:
@@ -124,6 +141,12 @@ def validate_request(
     return replace(value, actions=actions, fields=fields, valid_from=starts)
 
 
+def require_object_ref(value: str) -> str:
+    if len(value) > OBJECT_REF_MAX or _OBJECT_REF.fullmatch(value) is None:
+        raise invalid("object_ref")
+    return value
+
+
 def owner(session: SessionContext) -> str:
     """The authenticated crew person behind a session; operators, helpers, officers and stations are not."""
     if (
@@ -139,8 +162,11 @@ def owner(session: SessionContext) -> str:
 def grants_now(grant: Grant, reading: Reading) -> bool:
     """Whether a stored grant authorizes at this reading; any unknown or terminal fact denies.
 
-    A finite grant also needs the issuing process epoch and an elapsed monotonic time below its span,
-    so neither a backward clock step nor a restart can extend it (R-E02-21 interim, E02 3.1).
+    A finite grant also needs (R-E02-21, E02 3.1): a known clock that is not frozen; a snapshot time not
+    behind the durable high water (a backward step, even one below clock.regression_tolerance_ms, admits no
+    finite grant until time is past it again); its expiry not yet reached by the high water nor by any wall
+    time this process observed, so a read-observed expiry never reverses; the issuing process epoch; and an
+    elapsed monotonic time below its span. No reading is written.
     """
     value = grant.request
     if grant.state != "active" or grant.policy_version != POLICY_VERSION:
@@ -149,7 +175,11 @@ def grants_now(grant: Grant, reading: Reading) -> bool:
         return False
     if value.valid_until is None:
         return True
-    if reading.at >= value.valid_until or reading.process_epoch != grant.issue.process_epoch:
+    admission = reading.admission
+    if admission is None or admission.frozen or reading.at < admission.high_water:
+        return False
+    latest = max(reading.at, reading.observed, admission.high_water)
+    if latest >= value.valid_until or reading.process_epoch != grant.issue.process_epoch:
         return False
     elapsed = reading.monotonic_ns - grant.issue.monotonic_ns
     span = value.valid_until - grant.issue.at
@@ -176,11 +206,22 @@ def ended(grant: Grant, state: GrantState, at: datetime) -> Grant:
     return replace(grant, state=state, ended_at=at, revision=grant.revision + 1)
 
 
-def matches(grant: Grant, *, subject_person_id: str, recipient: str, purpose: str, object_ref: str) -> bool:
+def matches(
+    grant: Grant,
+    *,
+    subject_person_id: str,
+    recipient: str,
+    purpose: str,
+    object_ref: str,
+    partition: tuple[str, str],
+) -> bool:
+    """Exact match on every term, the object's mission and origin included: a SIM or other-mission grant
+    never releases a LIVE object of this mission (E02 3.3)."""
     value = grant.request
     return (
         grant.subject_person_id == subject_person_id
         and value.recipient == recipient
         and value.purpose == purpose
         and value.object_ref == object_ref
+        and (value.mission_id, value.origin_mode) == partition
     )

@@ -7,16 +7,28 @@ opens a transaction; a true answer is necessary but not sufficient, and the owne
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from datetime import datetime
+from typing import Literal, Protocol
 
 from crew_health.kernel.uow import ReadSnapshot, UnitOfWork
 
 type View = ReadSnapshot | UnitOfWork
+type Partition = tuple[str, Literal["LIVE", "REPLAY", "SIM"]]
+"""The mission and origin namespace of the object a query is about."""
 
 
 class ConsentQueries(Protocol):
+    """`partition` is the mission and origin of the object. Omitted, it is the hub roster's partition; a grant
+    made for another mission or origin never matches, and an unknown partition matches nothing."""
+
     def allows(
-        self, view: View, *, subject_person_id: str, recipient: str, scope: tuple[str, str]
+        self,
+        view: View,
+        *,
+        subject_person_id: str,
+        recipient: str,
+        scope: tuple[str, str],
+        partition: Partition | None = None,
     ) -> bool: ...
     def fields(
         self,
@@ -27,6 +39,7 @@ class ConsentQueries(Protocol):
         scope: tuple[str, str],
         action: str,
         requested: frozenset[str],
+        partition: Partition | None = None,
     ) -> frozenset[str]: ...
 
 
@@ -39,10 +52,38 @@ class RecordSubject(Protocol):
     def operator_id(self) -> str: ...
 
 
-class AuthoredRecords(Protocol):
-    """Who entered a stored observation. Consent may not import E01's records store, so the composer binds it."""
+class ObservationFacts(Protocol):
+    """The authoritative facts of one stored observation that consent matches a grant against."""
 
-    def observation(self, view: View, observation_id: str) -> RecordSubject | None: ...
+    @property
+    def patient_id(self) -> str: ...
+    @property
+    def mission_id(self) -> str: ...
+    @property
+    def origin_mode(self) -> str: ...
+
+
+class ObservationPartitions(Protocol):
+    """A stored observation's subject, mission and origin. Consent may not import E01's records store, so the
+    composer binds it; absent, no record grant is made and no non-subject read is released."""
+
+    def observation(self, view: View, observation_id: str) -> ObservationFacts | None: ...
+
+
+@dataclass(frozen=True, slots=True)
+class ClockAdmission:
+    """The durable clock state visible in a view: the last committed write time and whether clearing is frozen
+    (a regression, or a first start before the operator confirmed time)."""
+
+    high_water: datetime
+    frozen: bool
+
+
+class TimeAdmission(Protocol):
+    """The durable clock admission visible in a view (SYSTEM 5.2 clock state), bound by the composer.
+    None means unknown: a finite grant then authorizes nothing (R-E02-21)."""
+
+    def admission(self, view: View) -> ClockAdmission | None: ...
 
 
 @dataclass(frozen=True, slots=True)

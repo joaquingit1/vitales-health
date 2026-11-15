@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pytest
 from e02_station import (
-    OPERATOR,
+    CONSOLE,
     START,
     Light,
     Ports,
@@ -71,6 +71,9 @@ from crew_health.platform.storage import SQLiteDatabase
 LISTENER = "127.0.0.1:8000"
 CLIENT = "10.0.0.2"
 BUCKETS = "identity_auth_bucket"
+# A command that proves a credential commits its sign-in reservation first; that committed write advances E01's
+# durable clock high water (clock_state), which every write transaction maintains (app/maintenance.py).
+RESERVED = frozenset({BUCKETS, "clock_state"})
 STEP_CEILING = 400
 WINDOW = timedelta(minutes=5)
 
@@ -247,10 +250,15 @@ def faulty(base: Light) -> Faulty:
             CommandReceipts: ledger,
         }
     )
-    identity = IdentityService(identity_deps(ports, GroundSignIn(False)))
+    # The same mission clock and late consent bindings as the base hub; only the write factory fails.
+    identity = IdentityService(identity_deps(ports, GroundSignIn(False), base.identity.deps.days))
     ports.values[IdentityPorts] = consumer_ports(identity)
     return Faulty(
-        base, faults, identity, IdentityAdmin(identity.deps, identity), ConsentService(consent_deps(ports))
+        base,
+        faults,
+        identity,
+        IdentityAdmin(identity.deps, identity),
+        ConsentService(consent_deps(ports, base.consent.deps.bound)),
     )
 
 
@@ -355,7 +363,9 @@ def grant_request(recipient: str, record_id: str, until: datetime | None) -> Gra
 
 @pytest.fixture
 def hub(tmp_path: Path) -> Faulty:
-    return faulty(light(tmp_path))
+    base = light(tmp_path)
+    base.observations.add("obs_2", "mara")
+    return faulty(base)
 
 
 @pytest.mark.trace("T-E02-012", "T-E02-009")
@@ -373,7 +383,7 @@ def test_a_failed_sign_in_issues_no_session_and_no_token(hub: Faulty) -> None:
 
         return command
 
-    runs = every_step(hub, prepare, ignoring=frozenset({BUCKETS}), proves=True)
+    runs = every_step(hub, prepare, ignoring=RESERVED, proves=True)
     assert all(run.result is not None for run in runs)
     assert unended_sessions(hub.base.database) == 2
     for run in runs:
@@ -426,7 +436,7 @@ def test_a_failed_credential_change_keeps_the_old_credential_and_its_generation(
 
         return command
 
-    runs = every_step(hub, prepare, ignoring=frozenset({BUCKETS}), proves=True)
+    runs = every_step(hub, prepare, ignoring=RESERVED, proves=True)
     first, second = (run.result for run in runs)
     assert second == first + 1
     owner(hub, "sofia", current[0])
@@ -457,7 +467,7 @@ def test_a_failed_roster_change_removes_nobody_and_ends_no_session(hub: Faulty) 
             result = hub.admin.apply_roster(
                 sim_bootstrap(members=members),
                 expected_revision=revision[0],
-                operator=OPERATOR,
+                operator=CONSOLE,
                 correlation_id="c",
             )
             revision[0] = result.revision
@@ -484,7 +494,7 @@ def test_a_failed_adapter_token_issue_leaves_no_usable_token(tmp_path: Path) -> 
     def prepare() -> Callable[[], str | None]:
         def command() -> str | None:
             return hub.admin.issue_adapter_token(
-                "camera_1", listener=LISTENER, operator=OPERATOR, correlation_id="c"
+                "camera_1", listener=LISTENER, operator=CONSOLE, correlation_id="c"
             ).token
 
         return command

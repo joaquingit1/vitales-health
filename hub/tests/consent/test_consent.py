@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 from e02_station import (
-    OPERATOR,
+    CONSOLE,
     START,
     Light,
     credential,
@@ -20,25 +20,50 @@ from e02_station import (
 )
 
 from crew_health.consent.application.records import RECORD_PURPOSE, ConsentRecordAuthorization
-from crew_health.consent.application.service import ConsentLimits, ConsentService, OwnGrants
+from crew_health.consent.application.service import ConsentLimits, ConsentService
 from crew_health.consent.application.settings import limits
 from crew_health.consent.domain.grants import GrantRequest
-from crew_health.identity.domain.session import roles_for
+from crew_health.identity.application.ports import OwnerProof
+from crew_health.identity.domain.session import SignInRequest, roles_for
 from crew_health.kernel.clock import TimeInput
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.uow import Actor, SessionContext
-from crew_health.records.adapters.repository import RecordRepository
 from crew_health.records.domain.observations import RecordContext
 
 SCOPE = (RECORD_PURPOSE, "obs_1")
 OBSERVATION = frozenset({"observation"})
 MINUTE_NS = 60 * 1_000_000_000
+LISTENER = "127.0.0.1:8000"
 
 
-def person(services: Light, person_id: str) -> SessionContext:
+def person(services: Light, person_id: str) -> OwnerProof:
     """An owner proven by credential, as the owner CLI does; no session row or token."""
     return services.identity.verify_owner(
         person_id, credential(person_id), client="console", correlation_id="c"
+    )
+
+
+def signed_in(services: Light, person_id: str) -> SessionContext:
+    """A live crew session, as a request bearing its token resolves it."""
+    view = services.identity.sign_in(
+        SignInRequest("crew", person_id),
+        credential(person_id),
+        client="client_" + person_id,
+        listener=LISTENER,
+        correlation_id="c",
+    )
+    assert view.token is not None
+    return services.identity.authenticate(view.token, listener=LISTENER)
+
+
+def authorization(services: Light) -> ConsentRecordAuthorization:
+    """The records binding exactly as consent/module.py builds it."""
+    return ConsentRecordAuthorization(
+        services.consent,
+        services.identity,
+        services.identity,
+        services.database,
+        services.consent.deps.bound,
     )
 
 
@@ -191,7 +216,7 @@ def test_a_removed_recipient_or_subject_reads_nothing(services: Light) -> None:
     assert released(services, recipient="tomas") == OBSERVATION
     members = tuple(member for member in sim_members() if member.person_id != "tomas")
     services.admin.apply_roster(
-        sim_bootstrap(members=members), expected_revision=1, operator=OPERATOR, correlation_id="c"
+        sim_bootstrap(members=members), expected_revision=1, operator=CONSOLE, correlation_id="c"
     )
     assert released(services, recipient="tomas") == frozenset()
 
@@ -209,8 +234,8 @@ def context(patient: str, operator: str) -> RecordContext:
 
 @pytest.mark.trace("T-E02-001", "T-E02-003", "R02", "E02-01")
 def test_record_reads_need_ownership_or_a_grant_for_every_requested_field(services: Light) -> None:
-    authorization = ConsentRecordAuthorization(services.consent, services.identity, RecordRepository())
-    sessions = {name: person(services, name) for name in ("mara", "ilya", "sofia")}
+    reads = authorization(services)
+    sessions = {name: signed_in(services, name) for name in ("mara", "ilya", "sofia")}
     station = SessionContext(
         "ses_s", "station", Actor("station", "stn_galley"), None, roles_for("station", None)
     )
@@ -218,9 +243,7 @@ def test_record_reads_need_ownership_or_a_grant_for_every_requested_field(servic
     def read(session: SessionContext, fields: frozenset[str] = OBSERVATION) -> bool:
         with services.database.snapshot() as view:
             try:
-                authorization.require_read(
-                    view, session, object_ref="obs_1", patient_id="mara", fields=fields
-                )
+                reads.require_read(view, session, object_ref="obs_1", patient_id="mara", fields=fields)
             except ProblemError as error:
                 assert error.code == ErrorCode.UNAUTHORIZED_SCOPE
                 return False
@@ -229,7 +252,7 @@ def test_record_reads_need_ownership_or_a_grant_for_every_requested_field(servic
     assert read(sessions["mara"])
     assert not read(sessions["ilya"]), "officer status is not a chart grant"
     assert not read(station)
-    services.consent.grant(sessions["mara"], request("ilya"), correlation_id="c")
+    services.consent.grant(person(services, "mara"), request("ilya"), correlation_id="c")
     assert read(sessions["ilya"])
     assert not read(sessions["ilya"], frozenset({"observation", "note"}))
     assert not read(sessions["ilya"], frozenset())
@@ -238,27 +261,27 @@ def test_record_reads_need_ownership_or_a_grant_for_every_requested_field(servic
 
 @pytest.mark.trace("T-E02-004", "R29", "V08")
 def test_record_writes_are_self_capture_or_an_officer_entering_for_a_member(services: Light) -> None:
-    authorization = ConsentRecordAuthorization(services.consent, services.identity, RecordRepository())
+    writes = authorization(services)
     cases = (
         ("mara", "mara", "mara", True),
         ("ilya", "mara", "ilya", True),
         ("tomas", "mara", "tomas", False),
     )
-    for signed_in, patient, operator, allowed in cases:
-        session = person(services, signed_in)
+    for name, patient, operator, allowed in cases:
+        session = signed_in(services, name)
         with services.database.begin(actor=session.actor, correlation_id="c") as uow:
             try:
-                authorization.require_write(uow, session, context(patient, operator))
+                writes.require_write(uow, session, context(patient, operator))
                 outcome = True
             except ProblemError as error:
                 assert error.code == ErrorCode.UNAUTHORIZED_SCOPE
                 outcome = False
-        assert outcome == allowed, (signed_in, patient)
+        assert outcome == allowed, (name, patient)
     station = SessionContext(
         "ses_s", "station", Actor("station", "stn_galley"), None, roles_for("station", None)
     )
     with services.database.begin(actor=station.actor, correlation_id="c") as uow, pytest.raises(ProblemError):
-        authorization.require_write(uow, station, context("mara", "mara"))
+        writes.require_write(uow, station, context("mara", "mara"))
 
 
 @pytest.mark.trace("T-E02-001", "T-E02-003", "T-E02-020")
@@ -292,12 +315,15 @@ def test_a_subject_removed_after_proving_their_credential_cannot_grant(services:
     tomas = person(services, "tomas")
     members = tuple(member for member in sim_members() if member.person_id != "tomas")
     services.admin.apply_roster(
-        sim_bootstrap(members=members), expected_revision=1, operator=OPERATOR, correlation_id="c"
+        sim_bootstrap(members=members), expected_revision=1, operator=CONSOLE, correlation_id="c"
     )
     with pytest.raises(ProblemError) as error:
         services.consent.grant(tomas, request("ilya"), correlation_id="c")
     assert error.value.code == ErrorCode.UNAUTHORIZED_SCOPE
-    assert services.consent.own_grants(tomas) == OwnGrants((), older=False)
+    # The owner proof is rechecked in the listing's own view too (finding 2): a removed member lists nothing.
+    with pytest.raises(ProblemError) as listing:
+        services.consent.own_grants(tomas)
+    assert listing.value.code == ErrorCode.UNAUTHORIZED_SCOPE
 
 
 @pytest.mark.trace("T-E02-020")

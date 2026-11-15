@@ -11,67 +11,60 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
-import shutil
 import tempfile
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
-from functools import cache
+from functools import cache, partial
 from pathlib import Path
 from typing import Protocol
 
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 
-from crew_health.app.assembly import BuildCatalog, ConfigHttpMetadata, RecordHttpServices, create_app
+from crew_health.app.assembly import BuildCatalog, RecordHttpServices, create_app
+from crew_health.app.import_contracts import module_migrations
+from crew_health.app.maintenance import wire_clock
+from crew_health.app.privacy import ClockAdmissionAdapter, ReplayVisibility
 from crew_health.app.registry import ModuleRegistry, Resolver
+from crew_health.app.station import HubResources, bootstrap_release, config_artifacts, production
 from crew_health.clock.adapters.repository import SqlClockRepository
 from crew_health.clock.application.clock import PersistentClocks
+from crew_health.clock.application.history import MissionClockService
 from crew_health.config.adapters.repository import ConfigRepository, SQLiteConfigReader
 from crew_health.config.adapters.verification import ConfigArtifacts
-from crew_health.config.application.activation import ReleaseActivationService
-from crew_health.config.application.loader import ConfigLoader, LoaderChecks, required_contributors
-from crew_health.config.domain.templates import TemplateCheck
 from crew_health.consent.adapters.repository import migration_sql as consent_migration
-from crew_health.consent.application.ports import AuthoredRecords
 from crew_health.consent.application.records import ConsentRecordAuthorization
-from crew_health.consent.application.service import AUDIT_DECLARATIONS as CONSENT_AUDIT
-from crew_health.consent.application.service import ConsentService
+from crew_health.consent.application.service import ConsentBindings, ConsentService
 from crew_health.consent.application.settings import defaults as consent_defaults
-from crew_health.consent.application.settings import specs as consent_specs
-from crew_health.contracts_gen.enums import ConfigName, ErrorCode, Role
-from crew_health.events.adapters.repository import EventRepository, EventValidator
+from crew_health.consent.module import audit_policies as consent_policies
+from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.events.application.delivery import EventDelivery
-from crew_health.events.module import EventAccess
 from crew_health.identity.adapters.repository import migration_sql as identity_migration
-from crew_health.identity.api.router import IdentitySecurity
 from crew_health.identity.application.admin import IdentityAdmin
-from crew_health.identity.application.ports import HubProfile, IdentityPorts, SessionReader
+from crew_health.identity.application.ports import HubProfile, IdentityPorts, OperatorProof
 from crew_health.identity.application.service import IdentityService
 from crew_health.identity.application.settings import defaults as identity_defaults
-from crew_health.identity.application.settings import specs as identity_specs
-from crew_health.identity.application.support import AUDIT_DECLARATIONS as IDENTITY_AUDIT
 from crew_health.identity.domain.roster import ProvisionedPrincipal, RosterBootstrap, RosterMember
+from crew_health.identity.module import audit_policies as identity_policies
 from crew_health.kernel.clock import ClockCorrection, ClockSegment, TimeInput
-from crew_health.kernel.commands import CommandIdentity, StoredResult
-from crew_health.kernel.config import CandidateRelease, ConfigDocumentView, ReleaseHandle
+from crew_health.kernel.config import CandidateRelease, ReleaseHandle
 from crew_health.kernel.errors import ProblemError
-from crew_health.kernel.testing import MemoryClock, MemoryReleaseCheck, MemoryUnits, MemoryWireConverter
+from crew_health.kernel.met import MissionClockVersion
+from crew_health.kernel.testing import MemoryClock, MemoryUnits, MemoryWireConverter
 from crew_health.kernel.units import ConvertedQuantity, Quantity, Unit
 from crew_health.kernel.uow import (
     Actor,
-    Audience,
-    AudienceProjectionKey,
-    LocalProjectionRegistration,
     ReadSnapshot,
     SessionContext,
     UnitOfWork,
 )
 from crew_health.platform.domain.audit import AuditPolicy
 from crew_health.platform.settings import ValidatedSettings
-from crew_health.platform.storage import SQLiteDatabase
+from crew_health.platform.storage import SQLiteDatabase, SystemIds
 from crew_health.platform.testing.sqlite import database
 from crew_health.records.adapters.repository import RecordRepository
 from crew_health.records.application.commands import RecordsCommands
@@ -86,7 +79,10 @@ SCHEMAS = ROOT / "contracts/api/schemas"
 MODULES = ("clock", "config", "consent", "events", "identity", "platform", "records")
 START = datetime(2026, 11, 14, 8, 0, tzinfo=UTC)
 OPERATOR = Actor("operator", "operator_sim")
-RELEASE = "release_explicit_sim"
+CONSOLE = OperatorProof(OPERATOR, None)
+"""The console before any operator credential exists: physical access is the proof (E02 4)."""
+MISSION_EPOCH = START - timedelta(days=1)
+"""Mission day 1 began the day before START, so START is day 2 and every SIM member (from day 1) is current."""
 
 
 def _example(path: str) -> dict[str, object]:
@@ -95,6 +91,11 @@ def _example(path: str) -> dict[str, object]:
         raise ValueError("example without a value: " + path)
     value: dict[str, object] = document["value"]
     return value
+
+
+def release_id() -> str:
+    """The ID of the release every station here serves: the checkout's first-start release."""
+    return _candidate()[0].release_id
 
 
 def mission_id() -> str:
@@ -151,169 +152,112 @@ def credential(principal_id: str) -> str:
 
 
 def station_settings(**overrides: int) -> ValidatedSettings:
-    from crew_health.clock.settings import specifications as clock_specs
-    from crew_health.config.settings import specifications as config_specs
-    from crew_health.events.settings import specifications as event_specs
-    from crew_health.platform.settings import specifications as platform_specs
-    from crew_health.records.settings import specs as record_specs
+    """Every setting the installed modules declare (as `crew-health serve` reads them): integers at their registered
+    maximum, switches off and text empty, then the E02 defaults, a zero clock regression tolerance and `overrides`."""
+    from crew_health.app.cli import registered_settings
 
-    core = (*platform_specs(), *config_specs(), *clock_specs(), *event_specs(), *record_specs())
-    values: dict[str, object] = {spec.key: int(spec.maximum) for spec in core if spec.maximum is not None}
+    specs = registered_settings()
+    values: dict[str, object] = {
+        spec.key: int(spec.maximum or 0)
+        if spec.kind == "integer"
+        else False
+        if spec.kind == "boolean"
+        else ""
+        for spec in specs
+    }
     values["clock.regression_tolerance_ms"] = 0
     values.update(identity_defaults())
     values.update(consent_defaults())
     values.update(overrides)
-    return ValidatedSettings((*core, *identity_specs(), *consent_specs()), values)
+    return ValidatedSettings(specs, values)
 
 
 def e02_policies() -> tuple[AuditPolicy, ...]:
-    """E02 audit declarations as platform policies; the composer registers them (R-E02-23)."""
-    identity = tuple(
-        AuditPolicy(
-            value.event_type,
-            value.metadata,
-            frozenset({value.reference_field}),
-            {value.reference_field: frozenset({value.reference_type})},
-        )
-        for value in IDENTITY_AUDIT
+    """E02 audit policies exactly as the modules register them (registry.audit_policy)."""
+    return (*identity_policies(), *consent_policies())
+
+
+def mission_clock(db: SQLiteDatabase) -> MissionClockService:
+    """E01's mission clock with one version whose day 1 began the day before START (operator authority)."""
+    repository = SqlClockRepository(
+        settings=db.settings, node_id=db.origin_node_id, incarnation_id=db.origin_incarnation
     )
-    consent = tuple(
-        AuditPolicy(
-            value.event_type,
-            value.metadata,
-            frozenset({value.reference_field}),
-            {value.reference_field: frozenset({value.reference_type})},
-        )
-        for value in CONSENT_AUDIT
-    )
-    return (*identity, *consent)
+    service = MissionClockService(snapshots=db, repository=repository)
+    with db.snapshot() as view:
+        known = view.connection.rows("SELECT clock_version FROM clock_mission_version", (), limit=1)
+    if not known:
+        with db.begin(actor=OPERATOR, correlation_id="sim_mission_clock") as uow:
+            service.append(
+                uow,
+                MissionClockVersion("mission_clock_sim", 1, MISSION_EPOCH, MISSION_EPOCH, None, "Day {day}"),
+                ids=db.ids,
+            )
+    return service
 
 
 def install_e02(db: SQLiteDatabase) -> None:
-    """Composer duties E01 does not yet take from a module: E02 migrations and audit policies."""
+    """For hubs built without E01's STORAGE phase (light): E02 migrations and audit policies."""
     for name, sql in (("identity.0001", identity_migration()), ("consent.0001", consent_migration())):
         db.migrate_tracked(name, hashlib.sha256(sql.encode()).hexdigest(), sql)
     for policy in e02_policies():
         db.register_audit_policy(policy)
 
 
-def static_build(directory: Path) -> BuildCatalog:
-    target = directory / "packaged/crew_health"
-    for module in MODULES:
-        path = target / module
-        path.mkdir(parents=True, exist_ok=True)
-        for name in ("__init__.py", "module.py"):
-            shutil.copyfile(SOURCE / module / name, path / name)
-    from crew_health.clock.module import register as clock
-    from crew_health.config.module import register as config
-    from crew_health.consent.module import register as consent
-    from crew_health.events.module import register as events
-    from crew_health.identity.module import register as identity
-    from crew_health.platform.module import register as platform
-    from crew_health.records.module import register as records
-
-    registrations = [clock, config, consent, events, identity, platform, records]
-    inventory = {
-        fn.__module__: hashlib.sha256(
-            (target / fn.__module__.split(".")[1] / "module.py").read_bytes()
-        ).hexdigest()
-        for fn in registrations
-    }
-    return BuildCatalog(target, inventory, tuple(registrations))
+@cache
+def resources() -> HubResources:
+    """The station resources E01's app tests start from (tests/app/conftest.py): the repository's own first-start
+    release is refused on main (test_serve.py pins it), so config/ pairs the package's kit-map and plans examples."""
+    spec = importlib.util.spec_from_file_location("e01_station_resources", ROOT / "hub/tests/app/conftest.py")
+    if spec is None or spec.loader is None:
+        raise ImportError("tests/app/conftest.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    target = Path(tempfile.mkdtemp(prefix="e02-resources-")) / "resources"
+    return HubResources(module.copy_station_resources(target))
 
 
-def _candidate() -> CandidateRelease:
-    documents = {}
-    for name in ConfigName:
-        if name.value in {"environment-hazards", "routine-schedule", "responder-flows"}:
-            raw = (PRODUCT / (name.value + ".json")).read_bytes()
-        else:
-            suffix = (
-                "api/examples/kit-map.example.json"
-                if name == ConfigName.KIT_MAP
-                else f"api/examples/config/{name.value}.example.json"
-            )
-            wrapped = json.loads((PRODUCT / suffix).read_bytes())
-            raw = json.dumps(wrapped if name == ConfigName.KIT_MAP else wrapped["value"]).encode()
-        documents[name] = ConfigDocumentView(name, hashlib.sha256(raw).hexdigest(), raw)
-    return CandidateRelease(RELEASE, documents)
+@cache
+def _production() -> Callable[[ModuleRegistry], None]:
+    """`production`'s configure hook for these resources, built once per test process: building it verifies the
+    offline package artifacts, which do not change between stations."""
+    return production(resources(), origin="SIM")
+
+
+@cache
+def _candidate() -> tuple[CandidateRelease, str]:
+    """The production first-start release of this checkout (app/station.py), with its provenance note."""
+    return bootstrap_release(resources(), SystemIds())
 
 
 @cache
 def _artifacts() -> ConfigArtifacts:
-    """Verified once per test process: the package files are immutable during a run."""
-    names = (
-        "input-dictionary.json",
-        "sources.csv",
-        "NASA-SOURCES.md",
-        "DEMO-CONDITIONS.md",
-        "RESEARCH-ANNEX.md",
-        "environment-hazards.json",
-        "routine-schedule.json",
-        "responder-flows.json",
-    )
-    bindings = {
-        f"api/examples/config/{name.value}.example.json": name
-        for name in (ConfigName.SKILLS_CATALOG, ConfigName.ONBOARD_PLANS)
-    }
-    artifacts = {name: (PRODUCT / name).read_bytes() for name in (*names, *bindings)}
-    manifest = json.loads((PRODUCT / "package-manifest.json").read_bytes())
-    hashes = {row["path"]: row["sha256"] for row in manifest["files"]}
-    return ConfigArtifacts.from_verified(
-        schema_directory=SCHEMAS,
-        artifacts=artifacts,
-        inventory={name: hashes[name] for name in artifacts},
-        source_documents=bindings,
-    )
-
-
-def _counterpart_checks(artifacts: ConfigArtifacts) -> LoaderChecks:
-    checks = LoaderChecks(maximum=1024)
-    for check in (artifacts.schemas, artifacts.sources, artifacts.indicators, TemplateCheck()):
-        checks.register(check)
-    for identifier in sorted(required_contributors() - {"1", "2", "9", "13"}):
-        checks.register(MemoryReleaseCheck(identifier, lambda candidate: ()))
-    return checks
+    """The production artifacts of this checkout (app/station.py), verified once per test process."""
+    return config_artifacts(resources())
 
 
 def migrate_core(db: SQLiteDatabase, modules: tuple[str, ...]) -> None:
-    """E01 core module schemas, migrated as E01's STORAGE phase does."""
+    """E01 module schemas, every tracked migration of each, applied as E01's STORAGE phase applies them."""
     for module in modules:
-        db.migrate(
-            (SOURCE / module / "adapters/migrations" / ("0001_" + module + ".sql")).read_text(
-                encoding="utf-8"
+        for path in module_migrations(SOURCE / module):
+            raw = path.read_bytes()
+            db.migrate_tracked(
+                module + "." + path.name[:4], hashlib.sha256(raw).hexdigest(), raw.decode("utf-8")
             )
-        )
 
 
-def _install_release(db: SQLiteDatabase, artifacts: ConfigArtifacts) -> None:
-    migrate_core(db, ("config", "clock", "events", "records"))
-    db.event_sink = EventRepository(
-        settings=db.settings, ids=db.ids, validator=EventValidator(schema_directory=SCHEMAS)
-    ).append
-    service = ReleaseActivationService(
-        ConfigRepository(),
-        ConfigLoader(
-            _counterpart_checks(artifacts), max_document_bytes=db.settings.integer("commands.max_bytes")
-        ),
-        db.ids,
-        origin=lambda view: "SIM",
-    )
-    editor = SessionContext("session_profile", "editor", OPERATOR, None, frozenset({Role.EDITOR}))
-    with db.begin(actor=OPERATOR, correlation_id="sim_profile_install") as uow:
-        service.propose(uow, editor, _candidate())
-        service.activate(uow, editor, release_id=RELEASE, expected_etag=f'"{RELEASE}:1:0"')
-    db.set_release_reader(lambda view: SQLiteConfigReader(view, ConfigRepository()).active())
-
-
-def _sim_clock(db: SQLiteDatabase) -> PersistentClocks:
-    clocks = PersistentClocks(
+def _clocks(db: SQLiteDatabase) -> PersistentClocks:
+    """E01's clock service as the clock module builds it, with the hub's own clock identity (app/assembly.py)."""
+    return PersistentClocks(
         repository=SqlClockRepository(
             settings=db.settings, node_id=db.origin_node_id, incarnation_id=db.origin_incarnation
         ),
+        hub_source_clock_id=db.ids.derived("hubclock", db.origin_node_id),
         settings=db.settings,
         ids=db.ids,
     )
+
+
+def _sim_clock(db: SQLiteDatabase, clocks: PersistentClocks) -> None:
     with db.begin(actor=OPERATOR, correlation_id="sim_clock_setup") as uow:
         clocks.open(uow, ClockSegment("sim_source", "sim_oscillator", "sim_segment", None, 1, 1))
         clocks.apply(
@@ -322,7 +266,6 @@ def _sim_clock(db: SQLiteDatabase) -> PersistentClocks:
                 "sim_correction", "sim_source", "sim_segment", 1, START, None, 0, 0, uow.now, "operator"
             ),
         )
-    return clocks
 
 
 class SimBinding:
@@ -361,54 +304,8 @@ class SyntheticQualityPolicy:
         )
 
 
-class OwnerVisibility:
-    """Command results replay only to the actor that issued the command."""
-
-    def authorize(
-        self,
-        snapshot: ReadSnapshot | UnitOfWork,
-        session: SessionContext,
-        identity: CommandIdentity,
-        result: StoredResult,
-    ) -> None:
-        if session.actor.id != identity.actor_ref:
-            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
-
-
-@dataclass(frozen=True, slots=True)
-class LiveSessionAudience:
-    """The configuration release projection is visible to any live session."""
-
-    sessions: SessionReader
-
-    def admits(self, snapshot: ReadSnapshot, session: SessionContext, audience: Audience) -> bool:
-        return audience.rule == "config.release" and self.sessions.alive(snapshot, session)
-
-
-@dataclass
-class DeferredSecurity:
-    """create_app takes its HttpSecurity before modules resolve; this forwards to E02's once bound."""
-
-    target: object = None
-
-    def _bound(self) -> tuple[Callable[[Request], SessionContext], Callable[[SessionContext, str], None]]:
-        authenticate = getattr(self.target, "authenticate", None)
-        authorize = getattr(self.target, "authorize", None)
-        if not callable(authenticate) or not callable(authorize):
-            raise ProblemError(ErrorCode.INTERNAL_ERROR, ErrorCode.INTERNAL_ERROR.value, retryable=True)
-        return authenticate, authorize
-
-    def authenticate(self, request: Request) -> SessionContext:
-        value = self._bound()[0](request)
-        if not isinstance(value, SessionContext):
-            raise ProblemError(ErrorCode.UNAUTHENTICATED, ErrorCode.UNAUTHENTICATED.value)
-        return value
-
-    def authorize(self, session: SessionContext, operation_id: str) -> None:
-        self._bound()[1](session, operation_id)
-
-
-def _records(db: SQLiteDatabase, clocks: PersistentClocks, resolver: Resolver) -> RecordHttpServices:
+def _records(db: SQLiteDatabase, resolver: Resolver) -> RecordHttpServices:
+    clocks = resolver.require(PersistentClocks)
     repository = RecordRepository()
     authorization = resolver.require(ConsentRecordAuthorization)
     commands = RecordsCommands(
@@ -426,7 +323,9 @@ def _records(db: SQLiteDatabase, clocks: PersistentClocks, resolver: Resolver) -
         clocks=clocks,
     )
     return RecordHttpServices(
-        commands, RecordsQueries(repository, authorization, db.settings), OwnerVisibility()
+        commands,
+        RecordsQueries(repository, authorization, db.settings),
+        ReplayVisibility(resolver.require(IdentityService)),
     )
 
 
@@ -448,58 +347,39 @@ class E02Station:
     build: BuildCatalog
     clocks: PersistentClocks
     profile: HubProfile | None = None
-    security: DeferredSecurity = field(default_factory=DeferredSecurity)
+    served: FastAPI | None = field(default=None, repr=False)
 
     def configure(self, registry: ModuleRegistry) -> None:
-        artifacts, db, clocks = _artifacts(), self.database, self.clocks
-        summaries = {
-            ConfigName(row["name"]): row["basis_summary"]
-            for row in json.loads((PRODUCT / "api/examples/configuration/index.json").read_bytes())["value"][
-                "documents"
-            ]
-        }
-
-        def events(resolver: Resolver) -> EventAccess:
-            rule = LiveSessionAudience(resolver.require(IdentityPorts).sessions)
-            projection = LocalProjectionRegistration(
-                AudienceProjectionKey("config", "release", 1),
-                (SOURCE / "config/replica.schema.json").read_bytes(),
-                ("/release_id", "/state", "/validation"),
-                rule,
-            )
-            return EventAccess(rule.sessions, (projection,), {"config.release": rule})
-
-        def bind(resolver: Resolver) -> None:
-            self.security.target = resolver.require(IdentitySecurity)
-
-        registry.provide(ConfigArtifacts, lambda resolver: artifacts)
-        registry.provide(
-            ConfigHttpMetadata,
-            lambda resolver: ConfigHttpMetadata(summaries, lambda view: "SIM", OwnerVisibility()),
-        )
-        registry.provide(EventAccess, events, requires=(IdentityPorts,))
-        loose: _Provide = registry
-        loose.provide(AuthoredRecords, lambda resolver: RecordRepository())
+        db = self.database
+        # The served hub's own configure (app/station.py `production`): the release artifacts, the E02 composition
+        # (app/privacy.py) under every consumer's real port class, and fail-closed stand-ins for the rest.
+        _production()(registry)
+        # E01's record HTTP services have no production provider yet (docs/requests/E02.md); the harness supplies
+        # them over the real consent record authorization and replay visibility.
         registry.provide(
             RecordHttpServices,
-            lambda resolver: _records(db, clocks, resolver),
-            requires=(ConsentRecordAuthorization,),
+            lambda resolver: _records(db, resolver),
+            requires=(ConsentRecordAuthorization, IdentityService, PersistentClocks),
         )
         if self.profile is not None:
             profile = self.profile
             registry.provide(HubProfile, lambda resolver: profile)
-        for identifier in sorted(required_contributors() - {"1", "2", "9", "13"}):
-            registry.loader_check(MemoryReleaseCheck(identifier, lambda candidate: ()))
-        registry.bind("composer.security", bind)
 
     def app(self) -> FastAPI:
+        """The hub's one app: a database serves a single process (its bus refuses a second subscriber set), so the
+        first start builds it and every later call returns the same app. `restart` opens a new process."""
+        if self.served is None:
+            self.served = self._start()
+        return self.served
+
+    def _start(self) -> FastAPI:
         return create_app(
             database=self.database,
             build=self.build,
             contract_path=CONTRACT,
             schema_directory=SCHEMAS,
-            security=self.security,
             configure=self.configure,
+            bootstrap=partial(bootstrap_release, resources()),
         )
 
     def restart(
@@ -512,6 +392,8 @@ class E02Station:
         with self.database.snapshot() as view:
             pin = view.release
         previous = self.database
+        if self.served is not None:
+            self.served.state.runtime.shutdown()  # the old process stops its workers before its database closes
         previous.close()
         clock = MemoryClock(self.clock.at, monotonic, epoch)
         reopened = SQLiteDatabase(
@@ -535,10 +417,27 @@ def station(
     clock = MemoryClock(START, 1_000_000_000, "epoch_first")
     db = database(directory / "state", clock=clock)
     db.settings = station_settings(**(settings or {}))
-    _install_release(db, _artifacts())
-    install_e02(db)
-    clocks = _sim_clock(db)
-    return E02Station(directory, db, clock, static_build(directory), clocks, profile)
+    clocks = _clocks(db)
+    hub = E02Station(directory, db, clock, BuildCatalog.installed(SOURCE), clocks, profile)
+    # First start exactly as `crew-health serve` does it: STORAGE migrates every installed module, CONFIG installs
+    # the first-start release through the real loader checks, and the operator's time confirmation lifts the first
+    # start clock freeze (app/cli.py `--confirm-time-*`).
+    runtime = hub.app().state.runtime
+    if not runtime.serving or runtime.resolver is None or runtime.supervisor is None:
+        raise AssertionError("first start did not serve: " + str(runtime.fault_code))
+    hub.clocks = runtime.resolver.require(PersistentClocks)
+    _sim_clock(db, hub.clocks)
+    with db.begin(actor=OPERATOR, correlation_id="sim_time_confirmed") as uow:
+        hub.clocks.confirm_hub_time(
+            uow, correction_id=db.ids.new("correction"), offset_ms=0, uncertainty_ms=0
+        )
+    runtime.supervisor.run_once()
+    with db.snapshot() as view:
+        state = hub.clocks.repository.state(view.connection)
+    if state is None or state.frozen:
+        raise AssertionError("the time confirmation did not lift the first start freeze")
+    mission_clock(db)
+    return hub
 
 
 @dataclass(frozen=True, slots=True)
@@ -574,16 +473,21 @@ def serve(hub: E02Station, *, seed: bool = True) -> Running:
 
 def seed_roster(running: Running | Light, bootstrap: RosterBootstrap | None = None) -> None:
     document = sim_bootstrap() if bootstrap is None else bootstrap
-    running.admin.apply_roster(document, expected_revision=0, operator=OPERATOR, correlation_id="sim_roster")
+    operators = [p.principal_id for p in document.principals if p.kind == "operator"]
+    # The first roster names the console operator (E02 4); its own credential is provisioned last, because
+    # afterwards every console command needs that credential proven.
+    console = OperatorProof(Actor("operator", operators[0]), None) if operators else CONSOLE
+    running.admin.apply_roster(document, expected_revision=0, operator=console, correlation_id="sim_roster")
     for principal_id in (
         *(member.person_id for member in document.members),
-        *(principal.principal_id for principal in document.principals if principal.kind != "adapter"),
+        *(p.principal_id for p in document.principals if p.kind not in ("adapter", "operator")),
+        *operators,
     ):
         running.admin.set_credential(
             principal_id,
             credential(principal_id),
             current_credential=None,
-            operator=OPERATOR,
+            operator=console,
             client="console",
             correlation_id="sim_credential",
         )
@@ -611,13 +515,38 @@ class Light:
     identity: IdentityService
     admin: IdentityAdmin
     consent: ConsentService
+    observations: KnownObservations
+    clocks: PersistentClocks
+
+
+@dataclass(frozen=True, slots=True)
+class ObservationFact:
+    patient_id: str
+    mission_id: str
+    origin_mode: str
+
+
+class KnownObservations:
+    """Consent's ObservationPartitions for a hub without the records assembly: the subject, mission and origin of
+    each observation a test stored. The served station binds E01's records store instead (app/privacy.py)."""
+
+    def __init__(self) -> None:
+        self.facts: dict[str, ObservationFact] = {}
+
+    def add(
+        self, observation_id: str, patient_id: str, *, mission: str | None = None, origin: str = "SIM"
+    ) -> None:
+        self.facts[observation_id] = ObservationFact(patient_id, mission or mission_id(), origin)
+
+    def observation(self, view: ReadSnapshot | UnitOfWork, observation_id: str) -> ObservationFact | None:
+        return self.facts.get(observation_id)
 
 
 def light(
     directory: Path, *, ground: bool = False, seed: bool = True, settings: dict[str, int] | None = None
 ) -> Light:
     from crew_health.consent.module import build_deps as consent_deps
-    from crew_health.identity.application.support import GroundSignIn
+    from crew_health.identity.application.support import GroundSignIn, MissionDays
     from crew_health.identity.module import build_deps as identity_deps
     from crew_health.identity.module import consumer_ports
     from crew_health.kernel.clock import Clock
@@ -630,7 +559,7 @@ def light(
     clock = MemoryClock(START, 1_000_000_000, "epoch_first")
     db = database(directory / "state", clock=clock)
     db.settings = station_settings(**(settings or {}))
-    migrate_core(db, ("records",))
+    migrate_core(db, ("platform", "records", "clock"))
     install_e02(db)
     ledger = CommandLedger(db.ids, settings=db.settings)
     ports = Ports(
@@ -644,10 +573,31 @@ def light(
             CommandReceipts: ledger,
         }
     )
-    identity = IdentityService(identity_deps(ports, GroundSignIn(ground)))
+    # E01's clock as a served hub runs it: the regression guard on every write, the hub segment, and the
+    # operator's time confirmation swept so clearing is not frozen.
+    clocks = _clocks(db)
+    wire_clock(db, clocks)
+    with db.begin(actor=OPERATOR, correlation_id="sim_time_confirmed") as uow:
+        clocks.confirm_hub_time(uow, correction_id=db.ids.new("correction"), offset_ms=0, uncertainty_ms=0)
+    with db.begin(actor=Actor("engine", "engine_clock"), correlation_id="sim_clock_sweep") as uow:
+        version = clocks.pending_sweep(uow)
+        if version is None:
+            raise AssertionError("no clock sweep pending after the time confirmation")
+        clocks.complete_sweep(uow, correction_version=version)
+    days = MissionDays(mission_clock(db))
+    identity = IdentityService(identity_deps(ports, GroundSignIn(ground), days))
     ports.values[IdentityPorts] = consumer_ports(identity)
+    observations = KnownObservations()
+    observations.add("obs_1", "mara")
+    bound = ConsentBindings(time=ClockAdmissionAdapter(clocks), observations=observations)
     services = Light(
-        db, clock, identity, IdentityAdmin(identity.deps, identity), ConsentService(consent_deps(ports))
+        db,
+        clock,
+        identity,
+        IdentityAdmin(identity.deps, identity),
+        ConsentService(consent_deps(ports, bound)),
+        observations,
+        clocks,
     )
     if seed:
         seed_roster(services)

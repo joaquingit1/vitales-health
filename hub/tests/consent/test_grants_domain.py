@@ -11,6 +11,7 @@ from hypothesis import strategies as st
 
 from crew_health.consent.domain.grants import (
     POLICY_VERSION,
+    Admission,
     Grant,
     GrantRequest,
     GrantState,
@@ -61,9 +62,23 @@ def grant(value: GrantRequest | None = None, *, state: GrantState = "active") ->
     return issued if state == "active" else ended(issued, state, START)
 
 
-def reading(minutes: float, *, monotonic_minutes: float | None = None, epoch: str = "epoch_first") -> Reading:
+KNOWN = Admission(START, False)
+
+
+def reading(
+    minutes: float,
+    *,
+    monotonic_minutes: float | None = None,
+    epoch: str = "epoch_first",
+    admission: Admission | None = KNOWN,
+    observed_minutes: float | None = None,
+) -> Reading:
+    """A snapshot reading `minutes` after START, with the durable clock admission of that snapshot and the latest
+    wall time this process observed (by default the reading itself)."""
     elapsed = minutes if monotonic_minutes is None else monotonic_minutes
-    return Reading(START + timedelta(minutes=minutes), epoch, int(elapsed * MINUTE_NS))
+    at = START + timedelta(minutes=minutes)
+    observed = at if observed_minutes is None else START + timedelta(minutes=observed_minutes)
+    return Reading(at, epoch, int(elapsed * MINUTE_NS), admission, observed)
 
 
 @pytest.mark.trace("T-E02-007", "E02-03")
@@ -161,3 +176,33 @@ def test_an_open_ended_grant_holds_across_processes_until_revoked() -> None:
     standing = grant(replace(BASE, valid_until=None))
     assert grants_now(standing, reading(10_000, epoch="epoch_second"))
     assert not grants_now(ended(standing, "revoked", START), reading(1))
+
+
+@pytest.mark.trace("T-E02-008", "R-E02-21")
+def test_an_expiry_a_read_observed_never_reverses_after_a_backward_wall_step() -> None:
+    """Finding 4: wall time jumps past the 08:10 expiry, a read denies, then wall time returns to 08:09 with the
+    monotonic elapsed time still inside the span. The process remembers the observed wall time: still denied."""
+    assert grants_now(grant(), reading(9, monotonic_minutes=1))
+    assert not grants_now(grant(), reading(11, monotonic_minutes=1))
+    assert not grants_now(grant(), reading(9, monotonic_minutes=1, observed_minutes=11))
+
+
+@pytest.mark.trace("T-E02-008", "R-E02-21")
+def test_a_regression_below_the_tolerance_admits_no_finite_grant_until_time_passes_the_high_water() -> None:
+    """A write committed at 08:05 is the durable high water; a snapshot at 08:04:59 is behind it by one second,
+    far below any regression tolerance, and still admits no finite grant. An open ended grant is unaffected."""
+    high = Admission(START + timedelta(minutes=5), False)
+    behind = reading(5 - 1 / 60, monotonic_minutes=5, admission=high)
+    assert not grants_now(grant(), behind)
+    assert grants_now(grant(), reading(5, monotonic_minutes=5, admission=high))
+    assert grants_now(grant(replace(BASE, valid_until=None)), behind)
+
+
+@pytest.mark.trace("T-E02-008", "R-E02-21")
+def test_an_unknown_or_frozen_clock_admits_no_finite_grant() -> None:
+    """The fence is the snapshot's durable clock state: unreadable (a fence that failed to persist leaves none) or
+    frozen after a regression, every finite grant denies, and an open ended one keeps its own rules."""
+    for admission in (None, Admission(START, True)):
+        assert not grants_now(grant(), reading(1, admission=admission))
+        assert grants_now(grant(replace(BASE, valid_until=None)), reading(1, admission=admission))
+    assert grants_now(grant(), reading(1))

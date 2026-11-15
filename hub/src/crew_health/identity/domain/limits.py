@@ -91,6 +91,17 @@ def reserve(buckets: tuple[Bucket, ...], policy: AttemptPolicy, now: Instant) ->
     return tuple(replace(bucket, attempts=bucket.attempts + 1) for bucket in refreshed)
 
 
+def reserve_shared(buckets: tuple[Bucket, ...], policy: AttemptPolicy, now: Instant) -> tuple[Bucket, ...]:
+    """Reserve one attempt in the client and global buckets only, for an attempt that is refused whatever its
+    credential because its principal bucket is full. The refusal still costs one verifier run and one attempt
+    of the shared windows, so a locked principal and an unknown one look the same from any client (E02 3.2)."""
+    refreshed = refresh(buckets, policy, now)
+    shared = tuple(bucket for bucket in refreshed if bucket.scope != "principal")
+    if not admits(shared, policy):
+        raise identity_mismatch()
+    return tuple(replace(bucket, attempts=bucket.attempts + 1) for bucket in shared)
+
+
 def refund(bucket: Bucket, reserved: Bucket) -> Bucket:
     """A verified sign-in returns only its own reservation, and only inside the window that holds it.
 

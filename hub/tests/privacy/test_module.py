@@ -11,7 +11,7 @@ from e02_station import light
 
 from crew_health.app.registry import DeclarationRegistry, Resolver, StartupPhase
 from crew_health.consent import module as consent_module
-from crew_health.consent.application.ports import AuthoredRecords, ConsentPorts
+from crew_health.consent.application.ports import ConsentPorts, ObservationPartitions
 from crew_health.consent.application.records import ConsentRecordAuthorization
 from crew_health.consent.application.settings import specs as consent_specs
 from crew_health.identity import module as identity_module
@@ -104,19 +104,35 @@ def test_both_modules_declare_their_settings_prefixes_audiences_and_hooks() -> N
 
 
 @pytest.mark.trace("T-E02-001", "T-E02-020")
-def test_record_authorization_needs_the_composer_bound_authored_records(tmp_path: Path) -> None:
-    missing = declared()
-    kernel(missing, tmp_path / "missing")
-    with pytest.raises(ValueError, match="missing required provider"):
-        missing.resolve()
+def test_record_authorization_resolves_without_observation_facts_and_binds_them_late(tmp_path: Path) -> None:
+    """Observation facts are optional: a hub without them composes (finding 7) and releases nothing to a
+    non-subject; once the composer binds them, the authorization reads them."""
+    bare = declared()
+    kernel(bare, tmp_path / "bare")
+    authorization = bare.resolve().require(ConsentRecordAuthorization)
+    assert authorization.bound.observations is None
     complete = declared()
     kernel(complete, tmp_path / "complete")
     loose: _Provide = complete
-    loose.provide(AuthoredRecords, lambda resolver: RecordRepository())
+    loose.provide(ObservationPartitions, lambda resolver: RecordRepository())
     resolver = complete.resolve()
-    assert isinstance(resolver.require(ConsentRecordAuthorization), ConsentRecordAuthorization)
+    assert isinstance(resolver.require(ConsentRecordAuthorization).bound.observations, RecordRepository)
     assert isinstance(resolver.require(ConsentPorts), ConsentPorts)
     assert isinstance(resolver.require(IdentityPorts), IdentityPorts)
+
+
+@pytest.mark.trace("T-E02-020")
+def test_both_modules_register_their_audit_policies() -> None:
+    policies = declared().declarations["audit_policies"]
+    assert set(policies) == {
+        "identity.session_started",
+        "identity.session_ended",
+        "identity.credential_set",
+        "identity.roster_applied",
+        "consent.granted",
+        "consent.ended",
+        "consent.fenced",
+    }
 
 
 @pytest.mark.trace("T-E02-001")

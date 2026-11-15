@@ -12,7 +12,6 @@ from pathlib import Path
 import pytest
 from e02_station import OPERATOR, START, E02Station, Running, credential, mission_id, serve, station
 
-from crew_health.consent.application.records import RECORD_PURPOSE
 from crew_health.consent.domain.grants import Grant, GrantRequest
 from crew_health.identity.domain.session import SignInRequest
 from crew_health.kernel.clock import ClockCorrection
@@ -23,6 +22,9 @@ from crew_health.kernel.uow import Actor, SessionContext
 MINUTE_NS = 60 * 1_000_000_000
 LISTENER = "127.0.0.1:8000"
 SCHEDULER = Actor("engine", "engine_scheduler")
+# A measurement grant (catchup and measurement consent scope): its object is the hub roster's partition, so these
+# time tests need no stored observation. Record grants are bound to a stored observation (test_review_fixes.py).
+MEASUREMENT, CAPABILITY = "measurement", "heart_rate"
 
 
 def owner(running: Running, person_id: str = "mara") -> SessionContext:
@@ -36,8 +38,8 @@ def grant(running: Running, recipient: str, *, minutes: int | None) -> Grant:
         recipient,
         mission_id(),
         "SIM",
-        "obs_1",
-        RECORD_PURPOSE,
+        CAPABILITY,
+        MEASUREMENT,
         frozenset({"read"}),
         frozenset({"observation"}),
         START,
@@ -79,7 +81,7 @@ def test_a_clock_correction_fences_finite_grants_in_its_own_transaction(hub: E02
                 "sim_correction_2",
                 "sim_source",
                 "sim_segment",
-                2,
+                running.clocks.repository.correction_head(uow.connection) + 1,
                 START,
                 None,
                 -3_600_000,
@@ -98,8 +100,13 @@ def test_a_detected_regression_fences_finite_grants(hub: E02Station) -> None:
     running = serve(hub)
     grant(running, "ilya", minutes=60)
     hub.clock.at -= timedelta(hours=1)
-    with hub.database.begin(actor=Actor("engine", "engine_clock"), correlation_id="sim_regression") as uow:
-        assert running.clocks.check_regression(uow) is not None
+    # E01's write guard (app/maintenance.py) checks the durable high water when any write begins: this one
+    # detects the regression, freezes clearing and publishes ClockRegressed in its own transaction.
+    with hub.database.begin(actor=Actor("engine", "engine_clock"), correlation_id="sim_regression"):
+        pass
+    with hub.database.snapshot() as view:
+        state = running.clocks.repository.state(view.connection)
+    assert state is not None and state.frozen
     assert states(running) == {"ilya": "fenced"}
 
 
@@ -147,7 +154,7 @@ def test_an_absolute_expiry_is_not_moved_by_a_correction(hub: E02Station) -> Non
                 "sim_correction_2",
                 "sim_source",
                 "sim_segment",
-                2,
+                running.clocks.repository.correction_head(uow.connection) + 1,
                 START,
                 None,
                 120_000,

@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 from e02_station import (
-    OPERATOR,
+    CONSOLE,
     E02Station,
     Light,
     Running,
@@ -29,7 +29,7 @@ from e02_station import (
     station_settings,
 )
 
-from crew_health.identity.application.ports import HubProfile
+from crew_health.identity.application.ports import HubProfile, OperatorProof
 from crew_health.identity.application.service import IdentityService
 from crew_health.identity.application.settings import IdentitySettings
 from crew_health.identity.application.store import CredentialHasher
@@ -248,7 +248,7 @@ def test_a_token_works_only_on_the_listener_that_issued_it(running: Services) ->
 @pytest.mark.trace("T-E02-015", "T-E02-012")
 def test_a_credential_change_ends_sessions_and_retires_the_old_credential(running: Light) -> None:
     token = sign_in(running, "mara", credential("mara"))
-    mara = Actor("person", "mara")
+    mara = OperatorProof(Actor("person", "mara"), None)
     with pytest.raises(ProblemError) as missing:
         running.admin.set_credential(
             "mara",
@@ -293,7 +293,7 @@ def test_an_operator_cannot_reset_an_existing_credential(running: Services) -> N
             "mara",
             "operator chosen",
             current_credential=None,
-            operator=OPERATOR,
+            operator=CONSOLE,
             client=CLIENT,
             correlation_id="c",
         )
@@ -302,7 +302,7 @@ def test_an_operator_cannot_reset_an_existing_credential(running: Services) -> N
 
 @pytest.mark.trace("T-E02-015")
 def test_credential_proof_counts_toward_the_lockout(running: Services) -> None:
-    mara = Actor("person", "mara")
+    mara = OperatorProof(Actor("person", "mara"), None)
     for _ in range(5):
         with pytest.raises(ProblemError):
             running.admin.set_credential(
@@ -323,7 +323,7 @@ def test_credentials_are_compared_in_one_unicode_form(running: Services) -> None
         "mara",
         composed,
         current_credential=credential("mara"),
-        operator=Actor("person", "mara"),
+        operator=OperatorProof(Actor("person", "mara"), None),
         client=CLIENT,
         correlation_id="c",
     )
@@ -334,7 +334,7 @@ def test_credentials_are_compared_in_one_unicode_form(running: Services) -> None
                 "ilya",
                 unsafe,
                 current_credential=credential("ilya"),
-                operator=Actor("person", "ilya"),
+                operator=OperatorProof(Actor("person", "ilya"), None),
                 client=CLIENT,
                 correlation_id="c",
             )
@@ -348,7 +348,7 @@ def test_removing_a_member_ends_their_sessions_and_is_final(running: Light) -> N
     members = tuple(member for member in sim_members() if member.person_id != "tomas")
     demoted = tuple(replace(m, medical_officer_rank=None) if m.person_id == "ilya" else m for m in members)
     result = running.admin.apply_roster(
-        sim_bootstrap(members=demoted), expected_revision=1, operator=OPERATOR, correlation_id="c"
+        sim_bootstrap(members=demoted), expected_revision=1, operator=CONSOLE, correlation_id="c"
     )
     assert (result.revision, result.removed) == (2, ("tomas",))
     assert dead(running, token)
@@ -356,13 +356,11 @@ def test_removing_a_member_ends_their_sessions_and_is_final(running: Light) -> N
     assert refused(running, "tomas", credential("tomas")).code == ErrorCode.IDENTITY_MISMATCH
     assert "member_removed" in end_reasons(running.database)
     with pytest.raises(ProblemError) as readded:
-        running.admin.apply_roster(
-            sim_bootstrap(), expected_revision=2, operator=OPERATOR, correlation_id="c"
-        )
+        running.admin.apply_roster(sim_bootstrap(), expected_revision=2, operator=CONSOLE, correlation_id="c")
     assert readded.value.code == ErrorCode.INVALID_TRANSITION
     with pytest.raises(ProblemError) as stale:
         running.admin.apply_roster(
-            sim_bootstrap(members=members), expected_revision=1, operator=OPERATOR, correlation_id="c"
+            sim_bootstrap(members=members), expected_revision=1, operator=CONSOLE, correlation_id="c"
         )
     assert stale.value.code == ErrorCode.STALE_VERSION
 
@@ -371,14 +369,17 @@ def test_removing_a_member_ends_their_sessions_and_is_final(running: Light) -> N
 def test_only_an_operator_applies_a_roster_and_the_mission_is_fixed(running: Services) -> None:
     with pytest.raises(ProblemError) as person:
         running.admin.apply_roster(
-            sim_bootstrap(), expected_revision=1, operator=Actor("person", "mara"), correlation_id="c"
+            sim_bootstrap(),
+            expected_revision=1,
+            operator=OperatorProof(Actor("person", "mara"), None),
+            correlation_id="c",
         )
     assert person.value.code == ErrorCode.UNAUTHORIZED_SCOPE
     with pytest.raises(ProblemError) as mission:
         running.admin.apply_roster(
             replace(sim_bootstrap(), mission_id="another-mission"),
             expected_revision=1,
-            operator=OPERATOR,
+            operator=CONSOLE,
             correlation_id="c",
         )
     assert mission.value.code == ErrorCode.INVALID_VALUE
@@ -415,10 +416,13 @@ def test_adapter_tokens_are_issued_in_process_by_an_operator_only(tmp_path: Path
     seed_roster(running, sim_bootstrap(principals=(sim_station_principal(), camera)))
     with pytest.raises(ProblemError):
         running.admin.issue_adapter_token(
-            "camera_1", listener=LISTENER, operator=Actor("person", "mara"), correlation_id="c"
+            "camera_1",
+            listener=LISTENER,
+            operator=OperatorProof(Actor("person", "mara"), None),
+            correlation_id="c",
         )
     view = running.admin.issue_adapter_token(
-        "camera_1", listener=LISTENER, operator=OPERATOR, correlation_id="c"
+        "camera_1", listener=LISTENER, operator=CONSOLE, correlation_id="c"
     )
     assert view.token is not None
     adapter = context(running, view.token)
@@ -528,7 +532,7 @@ def test_a_long_roster_history_never_hides_a_current_member_from_removal(tmp_pat
         result = running.admin.apply_roster(
             sim_bootstrap(members=member(index)),
             expected_revision=revision,
-            operator=OPERATOR,
+            operator=CONSOLE,
             correlation_id="c",
         )
         assert result.removed == (() if index == 1 else (f"p{index - 1:02d}",))
@@ -537,7 +541,7 @@ def test_a_long_roster_history_never_hides_a_current_member_from_removal(tmp_pat
         running.admin.apply_roster(
             sim_bootstrap(members=member(1)),
             expected_revision=revision,
-            operator=OPERATOR,
+            operator=CONSOLE,
             correlation_id="c",
         )
     assert readded.value.code == ErrorCode.INVALID_TRANSITION

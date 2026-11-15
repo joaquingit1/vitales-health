@@ -151,12 +151,15 @@ class SqliteConsentStore:
         recipient: str,
         purpose: str,
         object_ref: str,
+        mission_id: str,
+        origin_mode: str,
         limit: int,
     ) -> tuple[Grant, ...]:
         rows = connection.rows(
             f"SELECT {_COLUMNS} FROM consent_grant WHERE subject_person_id = ? AND recipient = ? AND purpose = ? "
-            "AND object_ref = ? AND state = 'active' ORDER BY grant_id LIMIT ?",
-            (subject_person_id, recipient, purpose, object_ref, limit),
+            "AND object_ref = ? AND mission_id = ? AND origin_mode = ? AND state = 'active' "
+            "ORDER BY grant_id LIMIT ?",
+            (subject_person_id, recipient, purpose, object_ref, mission_id, origin_mode, limit),
             limit=limit,
         )
         return tuple(_grant(row) for row in rows)

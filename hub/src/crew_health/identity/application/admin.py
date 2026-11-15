@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from crew_health.identity.application.ports import OperatorProof, View
 from crew_health.identity.application.service import IdentityService, SessionView
 from crew_health.identity.application.store import RosterState
 from crew_health.identity.application.support import (
@@ -22,7 +23,6 @@ from crew_health.identity.domain.roster import RosterBootstrap, invalid, validat
 from crew_health.identity.domain.session import actor_for, roles_for
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.ids import require_id
-from crew_health.kernel.uow import Actor
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,12 +42,13 @@ class IdentityAdmin:
         client: str,
         correlation_id: str,
         bootstrap: str | None = None,
-    ) -> Actor:
+    ) -> OperatorProof:
         """The operator at the hub console, attributed to the single provisioned operator principal.
 
         Until that principal has a credential, physical access to the console is the only proof: the first
         roster names it (`bootstrap`) and its first provisioning is attributed to it. Afterwards every console
-        command proves the operator credential under the sign-in limits; the secret is read only then.
+        command proves the operator credential under the sign-in limits; the secret is read only then, and the
+        proof carries the generation it verified so the command's own unit of work can recheck it.
         """
         deps = self.deps
         with deps.snapshots.snapshot() as view:
@@ -55,25 +56,56 @@ class IdentityAdmin:
             first = deps.store.roster_state(view.connection) is None
         if principal is None:
             if first and bootstrap is not None:
-                return actor_for("operator", require_id(bootstrap))
-            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
+                return OperatorProof(actor_for("operator", require_id(bootstrap)), None)
+            raise _refused()
         if not principal.enabled:
-            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
-        if principal.verifier is not None:
-            self.sessions.prove(principal, read_secret(), client=client, correlation_id=correlation_id)
-        return actor_for("operator", principal.principal_id)
+            raise _refused()
+        actor = actor_for("operator", principal.principal_id)
+        if principal.verifier is None:
+            return OperatorProof(actor, None)
+        proof = self.sessions.prove(principal, read_secret(), client=client, correlation_id=correlation_id)
+        return OperatorProof(actor, proof.generation)
+
+    def operator_current(self, view: View, operator: OperatorProof) -> bool:
+        """Revalidates a console proof inside the command's own unit of work (E02 4).
+
+        A proven operator needs the same enabled operator principal at the same credential generation. A
+        console proof without a credential (`generation` None) holds only while no enabled operator principal
+        has a credential, and names that principal when one is provisioned."""
+        actor = operator.actor
+        if actor.kind != "operator":
+            return False
+        principal = self.deps.store.principal_for_kind(view.connection, "operator")
+        if operator.generation is None:
+            return principal is None or (
+                principal.verifier is None and actor == actor_for("operator", principal.principal_id)
+            )
+        return (
+            principal is not None
+            and principal.enabled
+            and principal.verifier is not None
+            and principal.generation == operator.generation
+            and actor == actor_for("operator", principal.principal_id)
+        )
 
     def apply_roster(
-        self, document: RosterBootstrap, *, expected_revision: int, operator: Actor, correlation_id: str
+        self,
+        document: RosterBootstrap,
+        *,
+        expected_revision: int,
+        operator: OperatorProof,
+        correlation_id: str,
     ) -> RosterResult:
         """The whole roster as one document: members absent from it are removed and their sessions end."""
         deps = self.deps
-        if operator.kind != "operator":
-            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
+        if operator.actor.kind != "operator":
+            raise _refused()
         validate_bootstrap(
             document, roster_max=deps.settings.roster_max, day_span_max=deps.settings.day_span_max
         )
-        with deps.uows.begin(actor=operator, correlation_id=correlation_id) as uow:
+        with deps.uows.begin(actor=operator.actor, correlation_id=correlation_id) as uow:
+            if not self.operator_current(uow, operator):
+                raise _refused()
             connection = uow.connection
             state = deps.store.roster_state(connection)
             revision = 0 if state is None else state.revision
@@ -101,7 +133,7 @@ class IdentityAdmin:
         new_credential: str,
         *,
         current_credential: str | None,
-        operator: Actor | None,
+        operator: OperatorProof | None,
         client: str,
         correlation_id: str,
     ) -> int:
@@ -117,19 +149,26 @@ class IdentityAdmin:
         if principal is None or not principal.enabled or principal.kind == "adapter":
             raise ProblemError(ErrorCode.NOT_FOUND, ErrorCode.NOT_FOUND.value)
         if principal.verifier is None:
-            if operator is None or operator.kind != "operator" or current_credential is not None:
-                raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
-            actor = operator
+            if operator is None or operator.actor.kind != "operator" or current_credential is not None:
+                raise _refused()
+            actor = operator.actor
         elif current_credential is None:
-            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
+            raise _refused()
         else:
             self.sessions.prove(principal, current_credential, client=client, correlation_id=correlation_id)
             actor = actor_for(principal.kind, principal_id)
         verifier = deps.hasher.hash(secret)
         with deps.uows.begin(actor=actor, correlation_id=correlation_id) as uow:
+            if (
+                operator is not None
+                and principal.verifier is None
+                and not self.operator_current(uow, operator)
+            ):
+                raise _refused()
             latest = deps.store.principal(uow.connection, principal_id)
             if (
                 latest is None
+                or not latest.enabled
                 or latest.generation != principal.generation
                 or latest.verifier != principal.verifier
             ):
@@ -145,15 +184,21 @@ class IdentityAdmin:
         return generation
 
     def issue_adapter_token(
-        self, principal_id: str, *, listener: str, operator: Actor, correlation_id: str
+        self, principal_id: str, *, listener: str, operator: OperatorProof, correlation_id: str
     ) -> SessionView:
         """Explicit in-process provisioning of an adapter bearer token, returned once (E02 3)."""
         deps = self.deps
-        if operator.kind != "operator":
-            raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
-        with deps.uows.begin(actor=operator, correlation_id=correlation_id) as uow:
+        if operator.actor.kind != "operator":
+            raise _refused()
+        with deps.uows.begin(actor=operator.actor, correlation_id=correlation_id) as uow:
+            if not self.operator_current(uow, operator):
+                raise _refused()
             principal = deps.store.principal(uow.connection, principal_id)
             if principal is None or principal.kind != "adapter" or not principal.enabled:
                 raise ProblemError(ErrorCode.NOT_FOUND, ErrorCode.NOT_FOUND.value)
             record, token = self.sessions.start(uow, principal, listener=listener)
             return SessionView(record, roles_for("adapter", None), principal.display_name, None, token)
+
+
+def _refused() -> ProblemError:
+    return ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
