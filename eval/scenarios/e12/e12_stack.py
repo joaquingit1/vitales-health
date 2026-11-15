@@ -1,6 +1,6 @@
 """The E12 scenario stack: the production Gateway, SessionAuthority, handlers and RetrievalService, compiled
 over E17's own v1 tool catalog (model/tool-catalog/v1/tools.json). Owners that are not on this branch are test
-doubles of their canonical ports (E02 IdentityPorts and consent's AuthoredRecords, E05 CapabilityQueries, E10
+doubles of their canonical ports (E02 IdentityPorts and consent's ObservationPartitions, E05 CapabilityQueries, E10
 EvidenceQueryPort), the same doubles hub/tests/tools uses. No clinical content is invented here."""
 
 from __future__ import annotations
@@ -72,7 +72,7 @@ class Authored:
 
 @dataclass
 class Records:
-    """consent's AuthoredRecords: observation id to the patient it belongs to."""
+    """consent's ObservationPartitions: observation id to the patient it belongs to."""
 
     rows: Mapping[str, Authored] = field(default_factory=dict)
 

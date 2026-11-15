@@ -21,7 +21,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from crew_health.app.registry import ModuleRegistry, Resolver
-from crew_health.consent.application.ports import AuthoredRecords, RecordSubject
+from crew_health.consent.application.ports import ObservationPartitions, RecordSubject
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.guidance.application.ports import (
     ContentFacts,
@@ -234,7 +234,7 @@ class Tokens:
 
 @dataclass(frozen=True, slots=True)
 class StoreAuthors:
-    """consent's AuthoredRecords over E01's RecordsStore: the observation's subject and the person who entered it."""
+    """consent's ObservationPartitions over E01's RecordsStore: the observation's subject and the person who entered it."""
 
     store: RecordsStore
 
@@ -253,11 +253,11 @@ class E12Hub:
     def configure(self, registry: ModuleRegistry) -> None:
         self.base(registry)
         evidence, installation, tokens = self.evidence, self.installation, self.tokens
-        if AuthoredRecords not in registry.providers:  # type: ignore[attr-defined]
-            # consent's AuthoredRecords is the composer's to bind (consent/application/ports.py); main's composer
+        if ObservationPartitions not in registry.providers:  # type: ignore[attr-defined]
+            # consent's ObservationPartitions is the composer's to bind (consent/application/ports.py); main's composer
             # does not bind it yet, so this one does, over E01's own RecordsStore.
             registry.provide(
-                AuthoredRecords,  # type: ignore[type-abstract]
+                ObservationPartitions,  # type: ignore[type-abstract]
                 lambda resolver: StoreAuthors(resolver.require(RecordsStore)),  # type: ignore[type-abstract]
                 requires=(RecordsStore,),
             )

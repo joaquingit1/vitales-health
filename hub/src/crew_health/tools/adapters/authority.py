@@ -3,7 +3,7 @@
 Model context and tool calls are limited to the signed-in crew member's own records. The checks go through E02's
 published seams: the session must still be live (IdentityPorts.sessions), the subject must be a current roster
 member (IdentityPorts.roster), and any stored observation a call names must have that member as its patient
-(consent's AuthoredRecords). A crewmate's identifier or display name in an argument or a result is refused. C17 makes
+(consent's ObservationPartitions). A crewmate's identifier or display name in an argument or a result is refused. C17 makes
 this stricter than consent: a grant, a medical officer role or a helper assignment never opens another member's
 chart to inference, so no ConsentQueries grant can widen what the gateway admits.
 """
@@ -14,7 +14,7 @@ import re
 import unicodedata
 from collections.abc import Callable, Iterator, Mapping
 
-from crew_health.consent.application.ports import AuthoredRecords
+from crew_health.consent.application.ports import ObservationPartitions
 from crew_health.identity.application.ports import IdentityPorts, RosterEntry
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import require_id
@@ -37,7 +37,7 @@ class SessionAuthority:
     def __init__(
         self,
         identity: Callable[[], IdentityPorts | None],
-        records: Callable[[], AuthoredRecords | None],
+        records: Callable[[], ObservationPartitions | None],
         *,
         max_members: int,
         max_strings: int,

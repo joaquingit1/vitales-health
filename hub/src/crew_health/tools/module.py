@@ -5,7 +5,7 @@ ports (ToolGateway, ContextBuilderPort, OutputPolicyPort, EffectApplier) with th
 
 Pass 1 only declares. The provided ports are late facades bound in pass 2 once optional owner providers can be looked
 up (SYSTEM 5). Every missing owner seam leaves its tool or port unavailable, never a local stand-in:
-- E02 IdentityPorts and consent's AuthoredRecords decide scope; without IdentityPorts no call is admitted.
+- E02 IdentityPorts and consent's ObservationPartitions decide scope; without IdentityPorts no call is admitted.
 - E17 ModelReleaseReader supplies the pinned catalog and retrieval settings; E17's TokenCounter the tokenizer.
 - E10 EvidenceQueryPort and E27 GuidanceEligibility back read_source_passage and search_evidence.
 - E05 CapabilityQueries and MeasurementCommands back get_capabilities, propose_measurement and the effect applier.
@@ -19,7 +19,7 @@ from dataclasses import dataclass
 
 from crew_health.app.registry import ModuleRegistry, Resolver
 from crew_health.config.application.ports import TextRulesPort
-from crew_health.consent.application.ports import AuthoredRecords
+from crew_health.consent.application.ports import ObservationPartitions
 from crew_health.guidance.application.ports import GuidanceEligibility
 from crew_health.identity.application.ports import IdentityPorts
 from crew_health.kernel.audit import AuditPolicy
@@ -109,7 +109,7 @@ class _Live:
     policy: OutputPolicy | None = None
     effects: Effects | None = None
     identity: IdentityPorts | None = None
-    records: AuthoredRecords | None = None
+    records: ObservationPartitions | None = None
     capabilities: CapabilityQueries | None = None
     corrections: ClockCorrections | None = None
     catalog: CompiledCatalog | None = None
@@ -214,7 +214,7 @@ def _bind(live: _Live, policy: PolicyValidator) -> Callable[[Resolver], None]:
     def bind(resolver: Resolver) -> None:
         settings = resolver.require(HubSettings)
         policy.bind(settings)
-        live.identity, live.records = resolver.optional(IdentityPorts), resolver.optional(AuthoredRecords)
+        live.identity, live.records = resolver.optional(IdentityPorts), resolver.optional(ObservationPartitions)
         live.capabilities = resolver.optional(CapabilityQueries)
         live.corrections = resolver.optional(ClockCorrections)
         authority = SessionAuthority(

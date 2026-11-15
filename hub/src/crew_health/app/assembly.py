@@ -829,6 +829,7 @@ def create_app(
         service = _startup(runtime, build, configure, validator, catalog, bootstrap)
         _routers(app, runtime, service, access)
     except Exception as error:
+        import traceback; traceback.print_exc()  # DEBUGTMP
         runtime.fail(error.code.value if isinstance(error, ProblemError) else "INTERNAL_ERROR")
         runtime.shutdown()  # workers a binding started before the fault stop with it
 
