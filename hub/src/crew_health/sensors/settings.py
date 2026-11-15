@@ -28,6 +28,7 @@ INTEGERS: tuple[tuple[str, int, int], ...] = (
     ("sensors.scheduler_lag_max_s", 60, 1),
     ("sensors.sweep_page", 200, 1),
     ("sensors.raw_row_max_bytes", 65536, 1),
+    ("sensors.plausibility_history_max", 64, 2),
 )
 TEXTS: tuple[tuple[str, int], ...] = (
     ("sensors.channel_registry_path", 1024),

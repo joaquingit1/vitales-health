@@ -29,7 +29,9 @@ from crew_health.sensors.domain.card import EffectFilter, HazardEffect, HazardFa
 from crew_health.sensors.domain.channel import (
     AcceptedUnit,
     AggregationSpec,
+    CriterionSource,
     DisplaySpec,
+    PlausibilityCriteria,
     SensorTypeFacts,
 )
 from crew_health.sensors.domain.config import SensorConfig
@@ -101,6 +103,27 @@ def _accepted(item: Json) -> AcceptedUnit:
     return AcceptedUnit(item["unit"], item["conversion"], _opt(item.get("factor")))
 
 
+_CRITERIA = ("range", "saturation", "stuck", "rate")
+
+
+def _criteria(item: Json | None) -> PlausibilityCriteria | None:
+    if item is None:
+        return None
+    sources = tuple(
+        CriterionSource(name, item[name]["basis"], tuple(item[name]["source_ids"]), item[name]["citation"])
+        for name in _CRITERIA
+    )
+    return PlausibilityCriteria(
+        minimum=_dec(item["range"]["min"]),
+        maximum=_dec(item["range"]["max"]),
+        saturation=tuple(sorted(_dec(v) for v in item["saturation"]["values"])),
+        stuck_count=int(item["stuck"]["count"]),
+        stuck_min_span_s=_dec(item["stuck"]["min_span_seconds"]),
+        max_rate_per_s=_dec(item["rate"]["max_per_second"]),
+        sources=sources,
+    )
+
+
 def _sensor_type(item: Json) -> SensorTypeFacts:
     display = item["display"]
     interval = item["expected_interval_seconds"]
@@ -132,6 +155,7 @@ def _sensor_type(item: Json) -> SensorTypeFacts:
         no_reading_label=item["no_reading_label"],
         manual_alternative_item_id=item["manual_alternative_item_id"],
         citation_text=item["citation_text"],
+        plausibility=_criteria(item.get("plausibility")),
     )
 
 

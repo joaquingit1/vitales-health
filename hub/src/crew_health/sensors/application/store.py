@@ -168,6 +168,12 @@ class SensorStore(Protocol):
     def readings_since(
         self, view: View, channel_id: str, *, since: datetime | None, up_to_rev: int | None, limit: int
     ) -> Sequence[ReadingRecord]: ...
+    def recent_readings(
+        self, view: View, channel_id: str, *, before: datetime, limit: int
+    ) -> Sequence[ReadingRecord]:
+        """The `limit` newest readings observed strictly before `before`, newest first (plausibility history)."""
+        ...
+
     def instant_peers(
         self, view: View, channel_id: str, corrected_at: datetime, origin: Origin, dataset: str | None
     ) -> Sequence[ReadingRecord]: ...
