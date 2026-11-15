@@ -59,7 +59,7 @@ def _seed_partition_a(st: Station) -> str:
     adverse = _post(
         st,
         "/v1/medicines/inspections",
-        {"lot_id": APAP_LOT, "finding": "discoloration", "client_time": CLIENT_TIME},
+        {"lot_id": APAP_LOT, "finding": "color_change", "client_time": CLIENT_TIME},
     )
     assert adverse.status_code == 201, adverse.text
     return diagnosis

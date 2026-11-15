@@ -41,7 +41,7 @@ def crash(*args: object, **kwargs: object) -> None:
 
 
 setattr(SqliteMedicines, point, crash)
-station = build_station(Path(directory))
+station = build_station(Path(directory), queue=False)
 response = _confirm(station, proposal, key=key)
 print(response.status_code, response.text)
 sys.exit(3)
@@ -83,7 +83,7 @@ def test_a_process_killed_inside_the_confirm_leaves_nothing_and_the_retry_succee
 ) -> None:
     directory = tmp_path / "hub"
     directory.mkdir()
-    st = build_station(directory)
+    st = build_station(directory, queue=False)  # no task queue: a start-up writes no run rows to compare
     _context(st)
     proposal = _propose(st, _diagnose(st))
     before = _tables(st)
@@ -91,7 +91,7 @@ def test_a_process_killed_inside_the_confirm_leaves_nothing_and_the_retry_succee
 
     _crash_inside_confirm(directory, tmp_path / "child.py", point, key, proposal)
 
-    restarted = build_station(directory, clock=StepClock(epoch="epoch_2"))
+    restarted = build_station(directory, clock=StepClock(epoch="epoch_2"), queue=False)
     for _ in range(ID_SKIP):
         restarted.db.ids.new("skip")
     assert (
