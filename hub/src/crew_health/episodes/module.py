@@ -35,21 +35,26 @@ from crew_health.episodes.application.queries import (
     ToolFactsFacade,
 )
 from crew_health.episodes.application.rules import EpisodeRulesSource
+from crew_health.episodes.application.selection import SelectedEpisodeReader
 from crew_health.episodes.application.use_cases import EpisodeService, Limits, Providers
 from crew_health.episodes.domain.loader_checks import EpisodeWordsCheck
 from crew_health.kernel.commands import IdempotencyStore
 from crew_health.kernel.config import ReleaseCheck
+from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.scheduler import HealthState, ScheduledJob
 from crew_health.kernel.settings import HubSettings, SettingSpec
 from crew_health.kernel.uow import (
     Actor,
     DomainEvent,
+    ReadSnapshot,
     ReadSnapshotFactory,
     SessionContext,
     UnitOfWork,
     UnitOfWorkFactory,
 )
+from crew_health.plans.application.ports import EpisodeReader as PlanEpisodeReader
+from crew_health.plans.application.ports import EpisodeRef as PlanEpisodeRef
 from crew_health.roles.application.ports import ClinicalAuthorityQuery
 
 
@@ -239,6 +244,39 @@ def register(registry: Registry) -> None:
             return EpisodeReaderFacade(queries()).visible(session, episode_id)
 
     registry.provide(ports.EpisodeReader, lambda _: Reader())  # type: ignore[type-abstract]
+
+    class PlanReader:
+        def visible(self, session: SessionContext, episode_id: str) -> PlanEpisodeRef | None:
+            current = queries()
+            with current.snapshots.snapshot() as view:
+                ep = current.repo.get(view, episode_id)
+                if ep is None:
+                    return None
+                try:
+                    current.service.authorize(
+                        view, session, ep, fields=frozenset({"episode_id", "patient_id"})
+                    )
+                except ProblemError as exc:
+                    if exc.code not in (
+                        ErrorCode.NOT_FOUND,
+                        ErrorCode.UNAUTHORIZED_SCOPE,
+                        ErrorCode.CONSENT_REQUIRED,
+                    ):
+                        raise
+                    return None
+                return PlanEpisodeRef(episode_id, ep.patient_id)
+
+    registry.provide(PlanEpisodeReader, lambda _: PlanReader())  # type: ignore[type-abstract]
+
+    class Selected:
+        def read(
+            self, view: ReadSnapshot, session: SessionContext, *, episode_id: str, fields: frozenset[str]
+        ) -> ports.SelectedEpisodeSnapshot:
+            return SelectedEpisodeReader(queries().service).read(
+                view, session, episode_id=episode_id, fields=fields
+            )
+
+    registry.provide(ports.SelectedEpisodeFacts, lambda _: Selected())  # type: ignore[type-abstract]
 
     class RefCheck:
         def visible(self, ref_id: str, actor: Actor) -> bool:

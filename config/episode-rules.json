@@ -1,14 +1,68 @@
 {
- "version":"episode-rules-v1",
- "example":false,
- "notice":"Unreviewed draft: needs clinician review before live guidance.",
- "task_policies":{"review":"review_on_board","review_item":"review_item_default","custom":"custom_chosen"},
- "due_policies":[
-  {"policy_id":"review_on_board","kind":"after","duration":{"value":null,"unit":"h"},"status":"threshold_pending","to_be_set_by":"clinical review","basis":"team assumption: E15 DE15-5, no clinical duration set","source_ids":[]},
-  {"policy_id":"review_item_default","kind":"after","duration":{"value":null,"unit":"h"},"status":"threshold_pending","to_be_set_by":"clinical review","basis":"team assumption: E15 section 8 leaves clinical cadence unset","source_ids":[]},
-  {"policy_id":"custom_chosen","kind":"chosen_by_person","min":{"value":5,"unit":"min"},"max":{"value":30,"unit":"d"},"basis":"team assumption: E15 section 8 operational choice bounds, not a clinical deadline","source_ids":[]}
- ],
- "task_templates":{"review_assessment":"Review the assessment of {time}","review_correction":"Review again: a record changed at {time}","review_requested":"Review requested at {time}"},
- "late_entry_after":{"value":5,"unit":"min","basis":"team assumption: E15 section 8 display marker"},
- "review_state":"unreviewed","written_by":null,"checked_by":null
+  "version": "episode-rules-v1",
+  "example": false,
+  "notice": "Unreviewed draft: needs clinician review before live guidance.",
+  "task_policies": {
+    "review": "review_on_board",
+    "review_item": "review_item_default",
+    "custom": "custom_chosen"
+  },
+  "due_policies": [
+    {
+      "policy_id": "review_on_board",
+      "kind": "after",
+      "duration": {
+        "value": null,
+        "unit": "h"
+      },
+      "status": "threshold_pending",
+      "to_be_set_by": "clinical review",
+      "basis": "team assumption: E15 DE15-5, no clinical duration set",
+      "source_ids": []
+    },
+    {
+      "policy_id": "review_item_default",
+      "kind": "after",
+      "duration": {
+        "value": null,
+        "unit": "h"
+      },
+      "status": "threshold_pending",
+      "to_be_set_by": "clinical review",
+      "basis": "team assumption: E15 section 8 leaves clinical cadence unset",
+      "source_ids": []
+    },
+    {
+      "policy_id": "custom_chosen",
+      "kind": "chosen_by_person",
+      "min": {
+        "value": 5,
+        "unit": "min"
+      },
+      "max": {
+        "value": 30,
+        "unit": "d"
+      },
+      "basis": "team assumption: E15 section 8 operational choice bounds, not a clinical deadline",
+      "source_ids": []
+    }
+  ],
+  "task_templates": {
+    "review_assessment": "Review the assessment of {time}",
+    "review_correction": "Review again: a record changed at {time}",
+    "review_requested": "Review requested at {time}"
+  },
+  "late_entry_after": {
+    "value": 5,
+    "unit": "min",
+    "basis": "team assumption: E15 section 8 display marker"
+  },
+  "review_state": "unreviewed",
+  "written_by": null,
+  "checked_by": null,
+  "selected_field_labels": {
+    "concern_text": "Reported concern",
+    "onset": "Reported onset",
+    "answer_refs": "Selected answer references"
+  }
 }

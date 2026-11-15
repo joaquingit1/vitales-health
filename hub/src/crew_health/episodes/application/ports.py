@@ -160,3 +160,32 @@ class CommandFingerprint(Protocol):
 
 class GapFacts(Protocol):
     def for_episode(self, uow: View, episode_id: str) -> Sequence[Mapping[str, object]]: ...
+
+
+@dataclass(frozen=True, slots=True)
+class SelectedEpisodeField:
+    field_id: str
+    label: str
+    value_text: str | None
+    source_refs: tuple[str, ...]
+    observed_at: datetime
+    missing_reason: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class SelectedEpisodeSnapshot:
+    episode_id: str
+    subject_person_id: str
+    revision: int
+    origin_mode: str
+    config_release_id: str
+    config_sha256: str
+    fields: tuple[SelectedEpisodeField, ...]
+
+
+class SelectedEpisodeFacts(Protocol):
+    """E16 selected handoff source. No journal, arbitrary chart or unapproved answer values."""
+
+    def read(
+        self, view: ReadSnapshot, session: SessionContext, *, episode_id: str, fields: frozenset[str]
+    ) -> SelectedEpisodeSnapshot: ...

@@ -236,6 +236,29 @@
           "type": "null"
         }
       ]
+    },
+    "selected_field_labels": {
+      "type": "object",
+      "properties": {
+        "concern_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "onset": {
+          "type": "string",
+          "minLength": 1
+        },
+        "answer_refs": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "concern_text",
+        "onset",
+        "answer_refs"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -248,7 +271,8 @@
     "late_entry_after",
     "review_state",
     "written_by",
-    "checked_by"
+    "checked_by",
+    "selected_field_labels"
   ],
   "additionalProperties": false
 }

@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from string import Formatter
+from types import MappingProxyType
 
 from crew_health.episodes.application.codec import array, obj, text
 from crew_health.episodes.domain.due_policy import DuePolicy, duration_seconds
@@ -20,6 +21,7 @@ class EpisodeRules:
     templates: Mapping[str, str]
     notice: str
     late_seconds: Decimal
+    selected_field_labels: Mapping[str, str]
 
 
 def _seconds(raw: object) -> Decimal:
@@ -45,6 +47,7 @@ def parse_rules(raw: bytes) -> EpisodeRules:
         "review_state",
         "written_by",
         "checked_by",
+        "selected_field_labels",
     }:
         raise ProblemError(ErrorCode.CONFIG_INVALID, "EP1 document fields")
     policies: dict[str, DuePolicy] = {}
@@ -91,13 +94,19 @@ def parse_rules(raw: bytes) -> EpisodeRules:
         result[key] = t
     if value.get("review_state") == "reviewed" and value.get("checked_by") is None:
         raise ProblemError(ErrorCode.CONFIG_INVALID, "EP5 checked_by")
+    labels = obj(value.get("selected_field_labels"))
+    if set(labels) != {"concern_text", "onset", "answer_refs"} or any(
+        not isinstance(v, str) or not v.strip() for v in labels.values()
+    ):
+        raise ProblemError(ErrorCode.CONFIG_INVALID, "EP6 selected field labels")
     late = _seconds(value.get("late_entry_after"))
     return EpisodeRules(
         hashlib.sha256(raw).hexdigest(),
-        {key: policies[text(ref)] for key, ref in assignment.items()},
-        result,
+        MappingProxyType({key: policies[text(ref)] for key, ref in assignment.items()}),
+        MappingProxyType(result),
         text(value.get("notice")),
         late,
+        MappingProxyType({key: text(label) for key, label in labels.items()}),
     )
 
 

@@ -17,6 +17,7 @@ from crew_health.kernel.scheduler import HealthState
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.testing import MemoryHealth, MemorySettings
 from crew_health.kernel.uow import ReadSnapshotFactory, UnitOfWorkFactory
+from crew_health.plans.application.ports import EpisodeReader as PlanEpisodeReader
 from crew_health.roles.application.ports import ClinicalAuthorityQuery
 
 from .builders import NOW, PATIENT, station
@@ -56,6 +57,8 @@ def test_real_registration_resolves_exact_consumer_classes_and_dispatches(tmp_pa
         ports.EpisodeFactsPort,
         ports.RefCheckPort,
         ports.EpisodeReader,
+        ports.SelectedEpisodeFacts,
+        PlanEpisodeReader,
         ports.EpisodeRecordsSource,
     ):
         assert port in registry.providers
@@ -94,4 +97,11 @@ def test_real_registration_resolves_exact_consumer_classes_and_dispatches(tmp_pa
         fact = facts.get(uow, ref.episode_id)
         assert fact is not None and fact.state == "open"
         assert records.items(uow, "person_a", None, 20)["items"]
+    selected = resolver.require(ports.SelectedEpisodeFacts)  # type: ignore[type-abstract]
+    plans = resolver.require(PlanEpisodeReader)  # type: ignore[type-abstract]
+    with state.db.snapshot() as view:
+        snapshot = selected.read(view, PATIENT, episode_id=ref.episode_id, fields=frozenset({"concern_text"}))
+        assert snapshot.subject_person_id == "person_a" and snapshot.fields[0].value_text == "token"
+    context = plans.visible(PATIENT, ref.episode_id)
+    assert context is not None and context.subject_person_id == "person_a"
     assert "episodes.maintenance" in registry.declarations["scheduler_handlers"]

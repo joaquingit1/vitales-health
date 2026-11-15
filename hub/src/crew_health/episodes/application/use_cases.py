@@ -257,7 +257,7 @@ class EpisodeService:
         session: SessionContext,
         ep: Episode,
         *,
-        fields: frozenset[str] = frozenset({"episode"}),
+        fields: frozenset[str] = frozenset({"episode_id", "revision", "state"}),
         ground_advice: bool = False,
     ) -> str:
         if session.actor.kind == "assistant":

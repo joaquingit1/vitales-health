@@ -567,8 +567,16 @@ class EpisodeReaderFacade:
             if ep is None:
                 return None
             try:
-                self.queries.service.authorize(view, session, ep)
-            except ProblemError:
+                self.queries.service.authorize(
+                    view, session, ep, fields=frozenset({"episode_id", "patient_id", "revision"})
+                )
+            except ProblemError as exc:
+                if exc.code not in (
+                    ErrorCode.NOT_FOUND,
+                    ErrorCode.UNAUTHORIZED_SCOPE,
+                    ErrorCode.CONSENT_REQUIRED,
+                ):
+                    raise
                 return None
             return EpisodeRef(ep.episode_id, ep.revision)
 
