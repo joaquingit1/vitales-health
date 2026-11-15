@@ -1,0 +1,167 @@
+{
+  "notice": "Bluetooth Environmental Sensing twin of the cabin temperature, humidity and pressure sensors. Not a NASA source: NASA does not define Bluetooth encodings, so the byte formats come from the Bluetooth SIG specifications named in provenance, and only for what they say.",
+  "description": "The bytes a Bluetooth Environmental Sensing Service (0x181A) peripheral sends for the simulated cabin devices, the device outputs each characteristic reports, and the byte-level fault scenarios. E23's ble_ess adapter (E23 design 5.2) is the consumer.",
+  "provenance": {
+    "is_nasa": false,
+    "why_not_nasa": "NASA documents do not define Bluetooth characteristic encodings; the Bluetooth SIG is the only authority for them.",
+    "sources": [
+      {
+        "id": "GSS",
+        "title": "Bluetooth SIG, GATT Specification Supplement, version date 2026-09-09",
+        "url": "https://btprodspecificationrefs.blob.core.windows.net/gatt-specification-supplement/GATT_Specification_Supplement.pdf",
+        "sha256_of_copy_read": "34ad6b5f2e48c29759c2ef17f01502cb60080aff5d213712a6f581c56c9150b8",
+        "used_for": "Section 2.4 (page 18): fields are little endian. Sections 3.134, 3.195 and 3.235: the Humidity, Pressure and Temperature characteristic structures."
+      },
+      {
+        "id": "AN",
+        "title": "Bluetooth SIG, Assigned Numbers, version date 2025-03-13",
+        "url": "https://btprodspecificationrefs.blob.core.windows.net/assigned-numbers/Assigned%20Number%20Types/Assigned_Numbers.pdf",
+        "sha256_of_copy_read": "238af46196b6137978f9c55ec82ca99d288b06b7950548bd2e959d3b2ff29a00",
+        "used_for": "Section 3.4.2 (page 69): Environmental Sensing Service 0x181A. Section 3.8.2 (page 98): Pressure 0x2A6D, Temperature 0x2A6E, Humidity 0x2A6F."
+      }
+    ]
+  },
+  "twin_id": "sim_ble_ess_cabin",
+  "service": {
+    "uuid16": "0x181A",
+    "basis": "Bluetooth SIG, Assigned Numbers, version date 2025-03-13, Section 3.4.2, page 69"
+  },
+  "characteristics": [
+    {
+      "name": "temperature",
+      "uuid16": "0x2A6E",
+      "data_type": "sint16",
+      "decimal_exponent": -2,
+      "unit": "Cel",
+      "allowed_min": -273.15,
+      "allowed_max": 327.67,
+      "basis": "Bluetooth SIG, GATT Specification Supplement, version date 2026-09-09, Section 3.235, Table 3.361, pages 184 to 185: sint16, M = 1, d = -2, b = 0, degrees Celsius at 0.01, allowed range -273.15 to 327.67, 0x8000 is 'value is not known'; UUID from Bluetooth SIG, Assigned Numbers, version date 2025-03-13, Section 3.8.2, page 98",
+      "source": {
+        "device_id": "sim_temp_rh_cabin",
+        "output": "temperature"
+      },
+      "not_known": "0x8000"
+    },
+    {
+      "name": "humidity",
+      "uuid16": "0x2A6F",
+      "data_type": "uint16",
+      "decimal_exponent": -2,
+      "unit": "%",
+      "allowed_min": 0.0,
+      "allowed_max": 100.0,
+      "basis": "Bluetooth SIG, GATT Specification Supplement, version date 2026-09-09, Section 3.134, Table 3.226, page 123: uint16, M = 1, d = -2, b = 0, percent at 0.01, allowed range 0.00 to 100.00, 0xFFFF is 'value is not known'; UUID from Bluetooth SIG, Assigned Numbers, version date 2025-03-13, Section 3.8.2, page 98",
+      "source": {
+        "device_id": "sim_temp_rh_cabin",
+        "output": "humidity"
+      },
+      "not_known": "0xFFFF"
+    },
+    {
+      "name": "pressure",
+      "uuid16": "0x2A6D",
+      "data_type": "uint32",
+      "decimal_exponent": -1,
+      "unit": "Pa",
+      "allowed_min": null,
+      "allowed_max": null,
+      "basis": "Bluetooth SIG, GATT Specification Supplement, version date 2026-09-09, Section 3.195, Table 3.303, pages 156 to 157: uint32, M = 1, d = -1, b = 0, pascals at 0.1 Pa, no stated range and no 'not known' value; UUID from Bluetooth SIG, Assigned Numbers, version date 2025-03-13, Section 3.8.2, page 98",
+      "source": {
+        "device_id": "sim_baro_cabin",
+        "output": "pressure"
+      },
+      "not_known": null
+    }
+  ],
+  "fault_scenarios": [
+    {
+      "scenario_id": "ess_link_and_byte_faults",
+      "base_scenario": "station_nominal",
+      "duration": {
+        "value": 2,
+        "unit": "h",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "note": "Byte-level faults a Bluetooth sensor shows: a lost link, a prohibited out-of-range humidity code, a stuck temperature, a drifting pressure.",
+      "faults": [
+        {
+          "fault": "disconnect",
+          "characteristic": null,
+          "start": {
+            "value": 20,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 10,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          }
+        },
+        {
+          "fault": "out_of_range",
+          "characteristic": "humidity",
+          "start": {
+            "value": 40,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 5,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "value": {
+            "value": 104.5,
+            "unit": "%",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          }
+        },
+        {
+          "fault": "stuck",
+          "characteristic": "temperature",
+          "start": {
+            "value": 50,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 20,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          }
+        },
+        {
+          "fault": "drift",
+          "characteristic": "pressure",
+          "start": {
+            "value": 80,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 30,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "value": {
+            "value": 600,
+            "unit": "Pa/h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          }
+        }
+      ]
+    }
+  ]
+}

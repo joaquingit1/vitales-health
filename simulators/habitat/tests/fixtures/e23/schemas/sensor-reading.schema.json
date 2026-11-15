@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensor-reading.schema.json",
+  "title": "SensorReading",
+  "description": "One immutable reading. A failed read is not a reading. A reading describes the place, never a person's exposure.",
+  "type": "object",
+  "properties": {
+    "reading_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "channel_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "sensor_type_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "hazard_id": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "value": {
+      "type": "number"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Canonical unit of the sensor type.",
+      "minLength": 1
+    },
+    "original_value": {
+      "type": "number"
+    },
+    "original_unit": {
+      "type": "string",
+      "minLength": 1
+    },
+    "conversion": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "enum": [
+                "scale",
+                "ppm_to_mmhg"
+              ]
+            },
+            "cabin_pressure_mmhg": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "pressure_basis": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "measured",
+                    "assumed"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "factor": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "method",
+            "cabin_pressure_mmhg",
+            "pressure_basis",
+            "factor"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "aggregation": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "sample",
+            "mean",
+            "time_weighted_mean",
+            "energy_mean",
+            "max"
+          ]
+        },
+        "window_seconds": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "window_seconds"
+      ],
+      "additionalProperties": false
+    },
+    "observed_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "window_start": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "received_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    },
+    "adapter_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "adapter_sequence": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "quality_status": {
+      "$ref": "common.schema.json#/$defs/quality_status"
+    },
+    "location": {
+      "$ref": "common.schema.json#/$defs/config_id"
+    },
+    "replay": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "dataset": {
+              "type": "string",
+              "minLength": 1
+            },
+            "original_observed_at": {
+              "$ref": "common.schema.json#/$defs/instant"
+            },
+            "time_basis": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "dataset",
+            "original_observed_at",
+            "time_basis"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "provenance": {
+      "$ref": "common.schema.json#/$defs/provenance"
+    }
+  },
+  "required": [
+    "reading_id",
+    "channel_id",
+    "sensor_type_id",
+    "hazard_id",
+    "value",
+    "unit",
+    "original_value",
+    "original_unit",
+    "conversion",
+    "aggregation",
+    "observed_at",
+    "window_start",
+    "received_at",
+    "origin_mode",
+    "adapter_id",
+    "adapter_sequence",
+    "quality_status",
+    "location",
+    "replay",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "origin_mode": {
+            "const": "REPLAY"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "replay": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "summary": "SIM POST /v1/adapters/adp_sim/readings",
+  "description": "A batch of three readings: two accepted, one duplicate of an earlier adapter_sequence, none rejected. Illustrative only: not seed data.",
+  "x-schema": "ingest-result.schema.json",
+  "value": {
+    "batch_id": "bat_sim_4182",
+    "accepted": 2,
+    "duplicates": 1,
+    "reading_ids": [
+      "rdg_o2_station_sim",
+      "rdg_noise_station_sim"
+    ],
+    "rejected": [],
+    "evaluations_changed": [
+      "noise"
+    ]
+  }
+}
