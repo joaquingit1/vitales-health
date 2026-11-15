@@ -50,7 +50,7 @@ def execute(args: Arguments, data: bytes, settings: BenchSettings) -> dict[str, 
             completion = endpoint.complete(messages, release.decoding, timeout=limit)
             endpoint.require_identity(release, timeout=settings.quantity("bench.model.connect_timeout"))
         except BenchError as error:
-            if error.reason not in ("timeout", "model_unavailable", "model_response_invalid"):
+            if error.reason not in ("timeout", "model_response_invalid"):
                 raise
             return {
                 "status": "timeout" if error.reason == "timeout" else "failed_generation",

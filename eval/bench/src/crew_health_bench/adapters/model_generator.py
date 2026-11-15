@@ -93,7 +93,7 @@ class IsolatedModelGenerator:
                 reason = decode_json(process.stderr).get("reason")
             except BenchError as error:
                 raise BenchError("interrupted", exit_code=7) from error
-            if reason in ("model_identity_mismatch", "drift"):
+            if reason in ("model_identity_mismatch", "drift", "model_unavailable"):
                 raise BenchError(text(reason))
             raise BenchError("interrupted", exit_code=7)
         return decode_json(process.stdout)

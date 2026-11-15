@@ -39,7 +39,7 @@ from crew_health_bench.application.ports import CaseGenerator
 from crew_health_bench.application.preregistration import PreRegister
 from crew_health_bench.domain.documents import integer, number, object_map, text, text_list
 from crew_health_bench.domain.errors import BenchError
-from crew_health_bench.domain.preregistration import preregistration
+from crew_health_bench.domain.preregistration import preregistration, require_frozen_sample
 from crew_health_bench.domain.sample import eligible_order
 
 
@@ -250,11 +250,22 @@ class HealthBenchCommands:
         registration = read_json(source, max_file_bytes=self.maximum)
         if registration.get("plan_sha256") != self.plan_sha256:
             raise BenchError("drift")
-        row = object_map(object_map(registration["variants"])[variant])
-        cases = text_list(row["case_ids"])
-        if len(cases) != integer(row["n"]) or not cases:
-            raise BenchError("warmup_failed")
-        return source, cases, integer(row["N"])
+        with FileArtifactStore(
+            self.options.root, max_line_bytes=self.maximum, max_records=self.max_files
+        ) as store:
+            stored = store.read_valid(self.plan_sha256, "preregistration")
+        corpus = VisibleCorpus(self.options.corpus, variant, dataset(self.plan, variant), self.settings)
+        sample = object_map(self.plan["sample"])
+        cases, count = require_frozen_sample(
+            registration,
+            stored,
+            variant,
+            corpus.prompt_ids,
+            seed=text(sample["seed"]),
+            frame_exclusions=text_list(sample["frame_exclusions"]),
+            warmup_n=integer(self.plan["warmup_n"]),
+        )
+        return source, cases, count
 
     def _context(self) -> tuple[dict[str, object], HealthBenchInputs, tuple[str, ...], int]:
         options = self.options

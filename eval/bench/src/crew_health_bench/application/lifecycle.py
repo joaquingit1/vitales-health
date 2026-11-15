@@ -118,8 +118,10 @@ class RunLifecycle:
                 try:
                     generation = generator.generate(case_id, repeat)
                 except BenchError as error:
-                    if error.reason in ("drift", "model_identity_mismatch"):
+                    if error.reason in ("drift", "model_identity_mismatch", "model_unavailable"):
                         self._transition("aborted", reason=error.reason)
+                    if error.reason == "model_unavailable":
+                        raise BenchError("model_unavailable", exit_code=6) from error
                     raise
                 if (generation.case_id, generation.repeat) != (case_id, repeat):
                     raise BenchError("case_invalid")

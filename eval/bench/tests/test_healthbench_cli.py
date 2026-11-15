@@ -416,3 +416,56 @@ def test_system_assisted_track_refuses_without_the_answer_port_and_runs_end_to_e
     aggregate = json.loads((space.published / run_id / "aggregate.json").read_bytes())
     assert "system_assisted" in json.dumps(aggregate)
     assert aggregate["official"]["graded"] == len(cases)
+
+
+@pytest.mark.trace("E18-02", "R22", "INV-E18-05", "T-E18-13")
+def test_a_hand_written_preregistration_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """B3: the sample is the stored freeze record and the seeded prefix, never whatever the file says."""
+    space = Workspace(tmp_path)
+    space.edit_plan(budget={"value": 3600, "unit": "s"})
+    with serve("model", weights_sha256=space.weights_sha256, context_tokens=space.context_tokens) as model:
+        registration = _preregistered(space, monkeypatch, model.url)
+    main = registration["variants"]["main"]  # type: ignore[index]
+    config = ["--config-dir", str(space.config), "healthbench"]
+    stored = space.runs / "preregistration.json"
+    original = stored.read_bytes()
+    picked = json.loads(original)
+    picked["variants"]["main"].update(case_ids=list(main["warmup_ids"]), warmup_ids=[])
+    shuffled = json.loads(original)
+    shuffled["variants"]["main"]["case_ids"] = list(reversed(main["case_ids"]))
+    for record in (picked, shuffled, {**json.loads(original), "frozen_by": "anyone"}):
+        stored.write_text(json.dumps(record), encoding="utf-8")
+        chosen = space.plan_input(variant="main", case_ids=list(record["variants"]["main"]["case_ids"]))
+        assert run([*config, "plan", *_common(space), "--manifest", str(chosen)]) == 6
+        problem = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+        assert problem["title"] == "preregistration_mismatch"
+    stored.write_bytes(original)
+    honest = space.plan_input(variant="main", case_ids=list(main["case_ids"]))
+    assert run([*config, "plan", *_common(space), "--manifest", str(honest)]) == 0
+
+
+@pytest.mark.trace("E18-02", "R22", "T-E18-19")
+def test_a_model_server_outage_aborts_the_run_instead_of_recording_cases(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """M1: connection refused before any completion is `aborted(model_unavailable)`, exit 6, no records."""
+    space = Workspace(tmp_path)
+    space.edit_plan(budget={"value": 3600, "unit": "s"})
+    with serve("model", weights_sha256=space.weights_sha256, context_tokens=space.context_tokens) as model:
+        registration = _preregistered(space, monkeypatch, model.url)
+        url = model.url
+    monkeypatch.delenv("CHC_EVAL_IDENTITY")
+    main = registration["variants"]["main"]  # type: ignore[index]
+    config = ["--config-dir", str(space.config), "healthbench"]
+    plan_input = space.plan_input(variant="main", case_ids=list(main["case_ids"]))
+    assert run([*config, "plan", *_common(space), "--manifest", str(plan_input)]) == 0
+    run_id = str(_last_json(capsys)["run_id"])
+    assert run([*config, "generate", *_common(space), "--run-id", run_id, "--base-url", url]) == 6
+    problem = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+    assert problem["title"] == "model_unavailable"
+    lines = (space.runs / run_id / "state.jsonl").read_text("utf-8").splitlines()
+    states = [json.loads(line)["record"]["state"] for line in lines]
+    assert states[-1] == "aborted"
+    assert not (space.runs / run_id / "generations.jsonl").exists()

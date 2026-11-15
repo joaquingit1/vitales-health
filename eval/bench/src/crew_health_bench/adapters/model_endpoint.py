@@ -50,7 +50,7 @@ class LlamaEndpoint:
                 method, self.base_url + path, json=body, timeout=bounded, follow_redirects=False
             ) as response:
                 if response.status_code != 200:
-                    raise BenchError("model_unavailable")
+                    raise BenchError("model_response_invalid")
                 data = bytearray()
                 for part in response.iter_bytes(chunk_size=self.maximum):
                     if len(data) + len(part) > self.maximum:
