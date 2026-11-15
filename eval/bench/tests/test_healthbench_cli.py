@@ -10,12 +10,17 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from collections.abc import Sequence
 from decimal import Decimal
 from pathlib import Path
 
+import httpx
 import pytest
+from crew_health.kernel.units import Quantity
 
+from crew_health_bench.adapters import providers
 from crew_health_bench.api.cli import run
+from crew_health_bench.domain.model import BenchmarkAnswer, ChatMessage
 from tests.healthbench_stack import Workspace, serve
 
 pytestmark = [pytest.mark.e18]
@@ -311,15 +316,49 @@ def test_healthbench_fingerprints_catch_rubric_text_and_the_canary(
     }
 
 
-@pytest.mark.trace("E18-02", "INV-E18-05", "INV-E18-08")
-def test_system_assisted_track_is_not_run_until_the_answer_port_exists(
+class StandInAnswerPort:
+    """A structural stand-in for E13's `BenchmarkAnswerPort` (design 4.5) over the loopback model server.
+
+    E13 has not provided the port; this one only forwards the messages, so its answers say nothing about a
+    model.
+    """
+
+    def __init__(self, base_url: str) -> None:
+        self.base_url = base_url
+        self.calls: list[tuple[str, str]] = []
+
+    def answer(
+        self,
+        messages: Sequence[ChatMessage],
+        *,
+        evidence_release_id: str,
+        tool_profile: str,
+        timeout: Quantity,
+    ) -> BenchmarkAnswer:
+        self.calls.append((evidence_release_id, tool_profile))
+        response = httpx.post(
+            self.base_url + "/v1/chat/completions",
+            json={"messages": [{"role": item.role, "content": item.content} for item in messages]},
+            timeout=float(timeout.value),
+            trust_env=False,
+        )
+        choice = response.json()["choices"][0]
+        return BenchmarkAnswer(choice["message"]["content"], (), (), (), choice["finish_reason"])
+
+
+@pytest.mark.trace("E18-02", "INV-E18-03", "INV-E18-05", "INV-E18-08")
+def test_system_assisted_track_refuses_without_the_answer_port_and_runs_end_to_end_with_one(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     space = Workspace(tmp_path)
     space.edit_plan(budget={"value": 3600, "unit": "s"})
-    with serve("model", weights_sha256=space.weights_sha256, context_tokens=space.context_tokens) as model:
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    with (
+        serve("model", weights_sha256=space.weights_sha256, context_tokens=space.context_tokens) as model,
+        serve("grader") as grader,
+    ):
         registration = _preregistered(space, monkeypatch, model.url)
         before = len(model.requests)
         cases = list(registration["variants"]["main"]["case_ids"])  # type: ignore[index]
@@ -330,15 +369,45 @@ def test_system_assisted_track_is_not_run_until_the_answer_port_exists(
         config = ["--config-dir", str(space.config), "healthbench"]
         assert run([*config, "plan", *_common(space), "--manifest", str(plan_input)]) == 0
         run_id = str(_last_json(capsys)["run_id"])
-        assert run([*config, "generate", *_common(space), "--run-id", run_id, "--base-url", model.url]) == 0
+        generate = [*config, "generate", *_common(space), "--run-id", run_id, "--base-url", model.url]
+        assert run(generate) == 5, "generation never runs with the vault identity present"
+        assert json.loads(capsys.readouterr().err.splitlines()[-1])["title"] == "holdout_key_required"
+        monkeypatch.delenv("CHC_EVAL_IDENTITY")
+        assert run(generate) == 6
+        problem = json.loads(capsys.readouterr().err.splitlines()[-1])
+        assert problem["type"] == "urn:crew-health:bench:no_evaluation_entry_point"
+        assert "BenchmarkAnswerPort" in problem["detail"]
         assert len(model.requests) == before, (
             "the model is never called directly on the system-assisted track"
         )
-    rows = [
-        json.loads(line)["record"]
-        for line in (space.runs / run_id / "generations.jsonl").read_text("utf-8").splitlines()
-    ]
-    assert [row["status"] for row in rows] == ["not_run"] * len(cases)
-    for row in rows:
-        output = json.loads((space.runs / row["output_ref"]).read_bytes())
-        assert output == {"reason": "no_evaluation_entry_point"}
+        assert not (space.runs / run_id / "generations.jsonl").exists()
+        port = StandInAnswerPort(model.url)
+        monkeypatch.setattr(providers, "benchmark_answer_port", lambda release: port)
+        assert run(generate) == 0
+        assert _last_json(capsys)["state"] == "generated"
+        assert len(port.calls) == len(cases)
+        assert {profile for _, profile in port.calls} == {"benchmark_readonly"}
+        monkeypatch.setenv("CHC_EVAL_IDENTITY", str(space.identity_path))
+        monkeypatch.setenv("OPENAI_API_KEY", "self-test-grader-key")
+        grade = [*config, "grade", *_common(space), "--run-id", run_id, "--grader-url", grader.url]
+        assert run(grade) == 0
+        published = ["--salt", str(space.salt), "--published", str(space.published)]
+        assert (
+            run(
+                [
+                    *config,
+                    "report",
+                    *_common(space),
+                    "--run-id",
+                    run_id,
+                    "--grader-url",
+                    grader.url,
+                    *published,
+                ]
+            )
+            == 0
+        )
+        assert _last_json(capsys)["state"] == "reported"
+    aggregate = json.loads((space.published / run_id / "aggregate.json").read_bytes())
+    assert "system_assisted" in json.dumps(aggregate)
+    assert aggregate["official"]["graded"] == len(cases)

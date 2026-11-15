@@ -70,18 +70,30 @@ def test_t_e18_17_oversized_document_and_bad_schema(tmp_path: Path) -> None:
 
 
 def test_t_e18_17_gate_configuration_never_weakens() -> None:
+    """INV-E18-12: each of the four gates allows zero failures of exactly its own check; nothing can loosen
+    one."""
     document = load_document(CONFIG / "suites.json", max_file_bytes=16777216)
     gates = object_map(document["release_gates"])
     validate_gate_configuration(gates)
-    for value in (1, False, -1):
-        invalid = {**gates, "cross_person_leak": {"max_count": value, "checks": ["NoCrossPerson"]}}
-        with pytest.raises(BenchError):
-            validate_gate_configuration(invalid)
-    for replacement in (None, {"max_count": 0, "checks": []}):
-        with pytest.raises(BenchError):
-            validate_gate_configuration({**gates, "cross_person_leak": replacement})
-    with pytest.raises(BenchError):
-        validate_gate_configuration({})
+    invalid: list[dict[str, object]] = [{}, {key: gates[key] for key in list(gates)[1:]}]
+    invalid.append({**gates, "extra_gate": {"max_count": 0, "checks": ["NoCrossPerson"]}})
+    for name in gates:
+        row = object_map(gates[name])
+        for replacement in (
+            None,
+            {**row, "max_count": 1},
+            {**row, "max_count": -1},
+            {**row, "max_count": False},
+            {**row, "max_count": 0.0},
+            {**row, "checks": []},
+            {**row, "checks": [*row["checks"], "NoCanaryLeak"]},  # type: ignore[misc]
+            {**row, "checks": ["UrgencyAtLeast"]},
+            {"checks": row["checks"]},
+        ):
+            invalid.append({**gates, name: replacement})
+    for configuration in invalid:
+        with pytest.raises(BenchError, match="^gate_input_invalid$"):
+            validate_gate_configuration(configuration)
 
 
 def test_t_e18_09_publisher_score_rule_from_configuration() -> None:
@@ -171,6 +183,11 @@ def test_result_boundary_rejection() -> None:
 
 def test_t_e18_31_null_precondition_and_empty_cases() -> None:
     assert check_preconditions((ConfigPrecondition("doc", "/value", "null"),), {"doc": {"value": None}})
+    assert not check_preconditions((ConfigPrecondition("doc", "/value", "null"),), {"doc": {"value": 1}})
+    assert not check_preconditions((ConfigPrecondition("doc", "/value", "set"),), {"doc": {"value": None}})
+    both = (ConfigPrecondition("doc", "/value", "set"), ConfigPrecondition("doc", "/other", "null"))
+    assert check_preconditions(both, {"doc": {"value": 1, "other": None}})
+    assert not check_preconditions(both, {"doc": {"value": 1, "other": 2}})
     validate_cases(())
     with pytest.raises(BenchError):
         PartitionPolicy((), 1, 1, 1, Decimal("0.5"), Decimal("0.3"), 2)

@@ -89,7 +89,8 @@ class CaseDocuments:
 
     @classmethod
     def from_config(cls, config_dir: Path, *, max_file_bytes: int, ids: IdFactory) -> CaseDocuments:
-        """The parser with the `label_constraints` of `suites.json`, loaded and schema checked (design 3.2)."""
+        """The parser with the `label_constraints` of `suites.json`, loaded and schema checked (design
+        3.2)."""
         suites = load_document(config_dir / "suites.json", max_file_bytes=max_file_bytes)
         return cls(
             config_dir.parent / "schemas",

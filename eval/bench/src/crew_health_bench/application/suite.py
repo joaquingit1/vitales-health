@@ -12,7 +12,6 @@ from crew_health.kernel.units import Quantity
 from crew_health_bench.application.ports import AtomicArtifacts, Simulator
 from crew_health_bench.domain.errors import BenchError
 from crew_health_bench.domain.labels import check_preconditions
-from crew_health_bench.domain.readiness import SuiteReadiness
 from crew_health_bench.domain.runs import Generation
 from crew_health_bench.domain.simulator import LookupSimulator
 from crew_health_bench.domain.timing import elapsed
@@ -30,7 +29,7 @@ class SuiteGenerator:
     def __init__(
         self,
         *,
-        system: SystemUnderTest | None,
+        system: SystemUnderTest,
         cases: Mapping[str, ProductCase],
         track: str,
         deadline: Quantity,
@@ -39,14 +38,9 @@ class SuiteGenerator:
         clock: Clock,
         ids: IdFactory,
         run_id: str,
-        readiness: SuiteReadiness | None = None,
     ) -> None:
         if track not in ("rules_only", "system_assisted"):
             raise BenchError("case_invalid")
-        readiness = readiness or SuiteReadiness(True, None, ())
-        if readiness.ready == (system is None):
-            raise BenchError("case_invalid")
-        self.readiness = readiness
         self.system, self.cases, self.track, self.deadline = system, cases, track, deadline
         self.documents, self.store, self.clock, self.ids, self.run_id = documents, store, clock, ids, run_id
 
@@ -59,22 +53,27 @@ class SuiteGenerator:
         status = "not_run"
         count: int | None = 0
         output: dict[str, object] = {"reason": "config_precondition"}
-        if self.system is None:
-            output = {
-                "reason": self.readiness.reason,
-                "missing_operations": list(self.readiness.missing_operations),
-            }
-        elif check_preconditions(product.case.requires, self.documents):
+        if check_preconditions(product.case.requires, self.documents):
             if product.case.revealable is None:
                 raise BenchError("case_invalid")
-            trace = self.system.run_case(
-                product.visible,
-                LookupSimulator(product.case.revealable),
-                track=self.track,
-                deadline=self.deadline,
-            )
-            status, count = self._status(trace)
-            output = asdict(trace)
+            try:
+                trace = self.system.run_case(
+                    product.visible,
+                    LookupSimulator(product.case.revealable),
+                    track=self.track,
+                    deadline=self.deadline,
+                )
+            except BenchError as error:
+                if error.reason != "harness_error":
+                    raise
+                status, count, output = (
+                    "harness_error",
+                    None,
+                    {"reason": "harness_error", "detail": error.detail},
+                )
+            else:
+                status, count = self._status(trace)
+                output = asdict(trace)
         reference = Path(self.run_id) / "outputs" / self.ids.new("benchoutput")
         raw = canonical_json(output)
         self.store.write_atomic(reference, raw)

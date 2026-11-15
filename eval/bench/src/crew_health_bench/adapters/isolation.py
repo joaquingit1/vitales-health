@@ -46,6 +46,21 @@ def generation_environment(environment: Mapping[str, str], *, grader_key_env: st
     }
 
 
+def refuse_vault_identity(environment: Mapping[str, str], *, grader_key_env: str) -> None:
+    """In-process generation (system-assisted and product tracks) runs only without the vault identity or
+    grader key.
+
+    INV-E18-03: the process that runs the system under test can never read a hidden part.
+    """
+    present = sorted(name for name in ("CHC_EVAL_IDENTITY", grader_key_env) if environment.get(name))
+    if present:
+        raise BenchError(
+            "holdout_key_required",
+            exit_code=5,
+            detail="generation runs the system under test in this process; unset " + " and ".join(present),
+        )
+
+
 class EvaluationMarker(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     kind: Literal["demo", "evaluation"]

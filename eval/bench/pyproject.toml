@@ -87,6 +87,7 @@ pytest_add_cli_args_test_selection = [
     "tests/test_sample.py",
     "tests/test_metrics.py",
     "tests/test_boundaries.py",
+    "tests/test_case_documents.py",
 ]
 use_git_change_detection = false
 

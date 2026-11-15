@@ -21,7 +21,7 @@ class BenchmarkGenerator:
     def __init__(
         self,
         *,
-        port: BenchmarkAnswerPort | None,
+        port: BenchmarkAnswerPort,
         cases: Mapping[str, HealthBenchVisible],
         evidence_release_id: str,
         deadline: Quantity,
@@ -43,17 +43,14 @@ class BenchmarkGenerator:
             raise BenchError("case_invalid")
         clock = self.clock
         started, mark = clock.now(), (clock.process_epoch(), clock.monotonic_ns())
-        output: dict[str, object] = {"reason": "no_evaluation_entry_point"}
-        status: str = "not_run"
-        count: int | None = 0
-        if self.port is not None:
-            answer = self.port.answer(
-                tuple(ChatMessage(role, content) for role, content in self.cases[case_id].messages),
-                evidence_release_id=self.evidence_release_id,
-                tool_profile="benchmark_readonly",
-                timeout=self.deadline,
-            )
-            output, status, count = asdict(answer), "completed", None
+        answer = self.port.answer(
+            tuple(ChatMessage(role, content) for role, content in self.cases[case_id].messages),
+            evidence_release_id=self.evidence_release_id,
+            tool_profile="benchmark_readonly",
+            timeout=self.deadline,
+        )
+        output: dict[str, object] = {"status": "completed", **asdict(answer)}
+        status, count = "completed", None
         reference = Path(self.run_id) / "outputs" / self.ids.new("benchoutput")
         raw = canonical_json(output)
         self.store.write_atomic(reference, raw)

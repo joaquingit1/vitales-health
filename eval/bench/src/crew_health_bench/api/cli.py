@@ -45,6 +45,10 @@ class Arguments(argparse.Namespace):
     preregistration: Path | None
     grader_url: str | None
     published: Path | None
+    release_config: Path | None
+    runs: list[str]
+    baseline: str
+    candidate: str
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -109,7 +113,35 @@ def _parser() -> argparse.ArgumentParser:
         if name == "report":
             command.add_argument("--salt", type=Path, required=True)
             command.add_argument("--published", type=Path, required=True)
+    _suite_parser(groups)
+    gate = groups.add_parser("gate")
+    gate.add_argument("--published", type=Path, required=True)
+    gate.add_argument("--runs", nargs="+", required=True)
+    compare = groups.add_parser("compare")
+    compare.add_argument("--published", type=Path, required=True)
+    compare.add_argument("baseline")
+    compare.add_argument("candidate")
     return parser
+
+
+def _suite_parser(groups: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
+    suite = groups.add_parser("suite").add_subparsers(dest="command", required=True)
+    for name in ("plan", "generate", "grade", "report"):
+        command = suite.add_parser(name)
+        command.set_defaults(manifest=None, run_id=None, hidden_dir=None, salt=None, published=None)
+        command.add_argument("--root", type=Path, required=True)
+        command.add_argument("--cases", dest="files", type=Path, nargs="+", required=True)
+        command.add_argument("--model-release", type=Path, required=True)
+        command.add_argument("--release-config", type=Path, required=True)
+        if name == "plan":
+            command.add_argument("--manifest", type=Path, required=True)
+            continue
+        command.add_argument("--run-id", required=True)
+        if name in ("grade", "report"):
+            command.add_argument("--hidden-dir", type=Path)
+        if name == "report":
+            command.add_argument("--salt", type=Path, required=True)
+            command.add_argument("--published", type=Path, required=True)
 
 
 def _read_text(path: Path, *, max_file_bytes: int) -> str:
@@ -219,6 +251,38 @@ def _cases(args: Arguments, config_dir: Path, settings: BenchSettings, limit: in
         )
 
 
+def _evaluation(args: Arguments, config_dir: Path, settings: BenchSettings) -> int:
+    from crew_health_bench.api.gate_commands import GateCommands
+    from crew_health_bench.api.suite_commands import SuiteCommands, SuiteOptions
+
+    if args.group == "suite":
+        result = SuiteCommands(
+            config_dir,
+            settings,
+            SuiteOptions(
+                command=args.command,
+                root=args.root or config_dir,
+                cases=tuple(args.files),
+                manifest=args.manifest,
+                run_id=args.run_id,
+                model_release=args.model_release or config_dir,
+                release_config=args.release_config or config_dir,
+                hidden_dir=args.hidden_dir,
+                salt=args.salt,
+                published=args.published,
+            ),
+        ).run()
+        print(json.dumps(result, sort_keys=True))
+        return 0
+    commands = GateCommands(config_dir, settings, args.published or config_dir)
+    if args.group == "gate":
+        verdict, code = commands.gate(args.runs)
+        print(json.dumps(verdict, sort_keys=True))
+        return code
+    print(json.dumps(commands.compare(args.baseline, args.candidate), sort_keys=True))
+    return 0
+
+
 def run(argv: Sequence[str]) -> int:
     args = Arguments()
     _parser().parse_args(argv, namespace=args)
@@ -229,6 +293,8 @@ def run(argv: Sequence[str]) -> int:
         )
         limit = settings.integer("bench.leak.max_file_bytes")
         findings: list[dict[str, object]]
+        if args.group in ("suite", "gate", "compare"):
+            return _evaluation(args, config_dir, settings)
         if args.group == "healthbench":
             from crew_health_bench.api.healthbench_commands import HealthBenchCommands, Options
 

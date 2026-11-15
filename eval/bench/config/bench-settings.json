@@ -118,5 +118,11 @@
     "unit": "s",
     "basis": "team default",
     "to_be_set_by": "evaluation owner"
+  },
+  "bench.hub.poll_interval": {
+    "value": 500,
+    "unit": "ms",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
   }
 }

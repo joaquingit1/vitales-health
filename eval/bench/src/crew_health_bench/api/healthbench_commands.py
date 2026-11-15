@@ -12,6 +12,7 @@ from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.ids import KernelIdFactory
 from crew_health.kernel.units import Quantity, Unit
 
+from crew_health_bench.adapters import providers
 from crew_health_bench.adapters.artifacts import ArtifactSchemas
 from crew_health_bench.adapters.clock import ProcessClock
 from crew_health_bench.adapters.documents import BenchSettings, load_document, read_json
@@ -26,7 +27,7 @@ from crew_health_bench.adapters.healthbench_corpus import (
 )
 from crew_health_bench.adapters.healthbench_grader import HealthBenchCaseGrader
 from crew_health_bench.adapters.healthbench_reporter import HealthBenchReporter
-from crew_health_bench.adapters.isolation import vault_path
+from crew_health_bench.adapters.isolation import refuse_vault_identity, vault_path
 from crew_health_bench.adapters.model_generator import IsolatedModelGenerator
 from crew_health_bench.adapters.model_release import load_release
 from crew_health_bench.adapters.owner import AgeOwnerGrant
@@ -148,8 +149,9 @@ class HealthBenchCommands:
         source = _required(self.options.model_release)
         release = load_release(source, self.schema, max_file_bytes=self.maximum)
         if track == "system_assisted":
+            refuse_vault_identity(os.environ, grader_key_env=text(self.grader["api_key_env"]))
             return BenchmarkGenerator(
-                port=None,
+                port=providers.benchmark_answer_port(release),
                 cases=visible,
                 evidence_release_id=text(
                     object_map(release.projection["evaluated_with"])["evidence_release_id"]

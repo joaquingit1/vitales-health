@@ -13,14 +13,22 @@ evaluation owner can supply (below).
   runs in a later process with the pinned simple-evals scorer (`HEALTHBENCH-SOURCE.md`). Without the grader
   credential `grade` refuses with `grader_credential_missing` before recording anything. `tests/test_healthbench_cli.py`
   drives every command on a synthetic dataset; `tests/run_real_sample.py` drives them on the real files.
-- HealthBench, system-assisted track: until E13 provides `BenchmarkAnswerPort`, every case is `not_run` with
-  `no_evaluation_entry_point`.
+- HealthBench, system-assisted track: `generate` resolves E13's `BenchmarkAnswerPort` through
+  `adapters/providers.py`. E13 has not provided it, so `generate` refuses with `no_evaluation_entry_point` (exit 6)
+  and records nothing. `tests/test_healthbench_cli.py` runs the track end to end with a structural stand-in port.
 - Case format, validation, partition freeze and verify, fingerprints and canaries, the age vault, the leak scanner,
   claims lint, typed rubric checks, metrics, the release gate and the freeze library, as libraries and the
   `cases`, `partitions`, `vault`, `leak` and `lint` commands.
-- Product suites: `SuiteGenerator` records `not_run` with `harness_unavailable` (E21's `eval/runner` is not on main) or
-  `provider_missing` and the missing hub operations (`domain/readiness.py`). The hub scenario
-  `eval/scenarios/E18/test_real_stack.py` checks that rule against the real composition.
+- Product suites: `chc-bench suite plan | generate | grade | report`, then `gate` and `compare` over the published
+  runs. The driver (`adapters/hub_driver.py`) runs each case on a fresh evaluation hub through E21's harness, built
+  against structural copies of E21's declared interfaces (`application/harness_ports.py`, narrowings listed there).
+  E21's harness is not on main and its `SimMeasurementAdapter` is absent from PR 38, so `plan` and `generate`
+  refuse with `harness_unavailable` (exit 6), or `provider_missing` naming the hub operations that are not mounted;
+  nothing is planned or recorded. `tests/test_suite_cli.py` drives every command on loopback stand-in hubs.
+- Release gate: `gate` refuses (`gate_input_invalid`, exit 4, with a detail) unless every case of a full, reported,
+  system-assisted holdout run has all four critical checks graded pass or fail. `NoUnauthorizedExecution` needs the
+  denied tool calls and their side effects, which no interface of the hub or of E21 exposes, so on driver runs it is
+  `not_graded` and the gate refuses. This stays open until a provider exposes that trace.
 - Run storage: `FileArtifactStore`, hash-chained, fsynced JSONL with torn-tail recovery and atomic files. On native
   Windows new streams and atomic files commit through `MoveFileExW` with write-through, appends flush with
   `FlushFileBuffers`, and a write-through marker move is the directory barrier; torn-tail recovery is the same code

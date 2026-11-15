@@ -540,6 +540,33 @@
         "to_be_set_by"
       ],
       "additionalProperties": false
+    },
+    "bench.hub.poll_interval": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "unit": {
+          "const": "ms"
+        },
+        "basis": {
+          "const": "team default"
+        },
+        "to_be_set_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "to_be_set_by"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -562,7 +589,8 @@
     "bench.leak.max_file_bytes",
     "bench.monitor.sample_interval",
     "bench.scan.max_files",
-    "bench.fetch.timeout"
+    "bench.fetch.timeout",
+    "bench.hub.poll_interval"
   ],
   "additionalProperties": false,
   "$schema": "https://json-schema.org/draft/2020-12/schema"

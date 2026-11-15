@@ -75,6 +75,7 @@ def test_grader_wires_references_and_sourced_patterns_without_fabrication() -> N
     changed = document()
     changed["forbidden_value_patterns"] = {"protocol": ["absent"]}
     changed_outcomes = {
-        name: outcome for name, outcome, _ in evaluate_rubric(parser().parse_hidden(changed, family_id="radiation"), trace)
+        name: outcome
+        for name, outcome, _ in evaluate_rubric(parser().parse_hidden(changed, family_id="radiation"), trace)
     }
     assert changed_outcomes["NoValueForCode"] == "pass"
