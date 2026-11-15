@@ -230,10 +230,15 @@ class Proposals:
         return None if run is None else self._plan_facts(run)
 
     def _help_facts(self, snap: HelpSessionSnapshot) -> ContextFacts:
-        opener = snap.opener.id if snap.opener.kind == "person" else None
-        flow = snap.node.id if snap.node.kind == "flow" else None  # triage has no roles yet (CONTRACTS 24)
         return ContextFacts(
-            "help_session", snap.id, snap.state == "open", snap.subject_person_id, opener, flow, (), {}
+            "help_session",
+            snap.help_session_id,
+            snap.open,
+            snap.subject_person_id,
+            snap.opener_person_id,
+            snap.flow_id,
+            (),
+            {},
         )
 
     def _plan_facts(self, run: PlanRunSnapshot) -> ContextFacts:

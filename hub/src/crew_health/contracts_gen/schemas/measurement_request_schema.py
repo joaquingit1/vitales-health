@@ -18,14 +18,14 @@ class QualityNote(RootModel[str]):
 
 class Attempt(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     attempt_id: common_schema.Id
     sequence: int = Field(..., ge=1)
     adapter_id: common_schema.Id
     started_at: common_schema.Instant
     ended_at: common_schema.Instant | None
-    outcome: Literal['success', 'failed', 'rejected']
+    outcome: Literal["success", "failed", "rejected"]
     failure_reason: FailureReason | None
     observation_ids: list[common_schema.Id]
     quality_notes: list[QualityNote]
@@ -33,7 +33,7 @@ class Attempt(BaseModel):
 
 class MeasurementRequest(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     request_id: common_schema.Id
     revision: int = Field(..., ge=1)
@@ -46,15 +46,15 @@ class MeasurementRequest(BaseModel):
     operator_id: common_schema.Id | None
     consent_ref: common_schema.Id | None
     state: Literal[
-        'proposed',
-        'awaiting_acceptance',
-        'accepted',
-        'in_progress',
-        'completed',
-        'unavailable',
-        'declined',
-        'cancelled',
-        'failed',
+        "proposed",
+        "awaiting_acceptance",
+        "accepted",
+        "in_progress",
+        "completed",
+        "unavailable",
+        "declined",
+        "cancelled",
+        "failed",
     ]
     attempts: list[Attempt]
     result_observation_ids: list[common_schema.Id]

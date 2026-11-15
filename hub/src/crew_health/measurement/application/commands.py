@@ -44,6 +44,7 @@ from crew_health.measurement.application.errors import (
     MeasurementError,
     problem_of,
 )
+from crew_health.measurement.application.mapping import kit_check
 from crew_health.measurement.application.ports import (
     AdapterAssignmentPort,
     ConsentQueries,
@@ -312,7 +313,8 @@ class MeasurementService:
             environment_id=mission.active_environment_id,
             condition_ids=proposal.condition_ids,
         )
-        cause, refusal = self._gate(uow, outcome.kit_check, proposal.capability_code, subject, operator)
+        kit = kit_check(outcome.kit_check)
+        cause, refusal = self._gate(uow, kit, proposal.capability_code, subject, operator)
         request = MeasurementRequest(
             request_id=self._p.ids.new("mrq"),
             revision=1,
@@ -320,7 +322,7 @@ class MeasurementService:
             capability_code=proposal.capability_code,
             reason=proposal.reason,
             decision_affected=proposal.decision_affected,
-            kit_check=outcome.kit_check,
+            kit_check=kit,
             requester=requester,
             patient_id=subject,
             operator_id=operator,
@@ -546,7 +548,9 @@ class MeasurementService:
             environment_id=facts.active_environment_id,
             condition_ids=request.kit_check.condition_ids,
         )
-        cause, _ = self._gate(uow, outcome.kit_check, request.capability_code, request.patient_id, operator)
+        cause, _ = self._gate(
+            uow, kit_check(outcome.kit_check), request.capability_code, request.patient_id, operator
+        )
         return cause
 
     def _become_unavailable(

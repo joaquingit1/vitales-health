@@ -10,7 +10,7 @@ from . import common_schema
 
 class HazardLevel(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     hazard_id: common_schema.ConfigId
     index: int = Field(..., description="Index into the hazard's levels array.", ge=0)
@@ -22,13 +22,13 @@ class HazardLevel(BaseModel):
 
 class Clear(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    comparator: Literal['above', 'at_or_above', 'below', 'at_or_below']
+    comparator: Literal["above", "at_or_above", "below", "at_or_below"]
     value: float | None
     dwell_seconds: int = Field(
         ...,
-        description='The safe side must hold this long before the warning clears.',
+        description="The safe side must hold this long before the warning clears.",
         ge=0,
     )
     basis: common_schema.Basis
@@ -36,31 +36,29 @@ class Clear(BaseModel):
 
 class SensorLimit(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     limit_id: common_schema.ConfigId
     sensor_type_id: common_schema.ConfigId
     hazard_level: HazardLevel = Field(
         ...,
-        description='Points at one level of environment-hazards.json and copies the fields this entry relies on. The loader rejects the release (CONFIG_INVALID) when the copy differs from the file.',
+        description="Points at one level of environment-hazards.json and copies the fields this entry relies on. The loader rejects the release (CONFIG_INVALID) when the copy differs from the file.",
     )
     environments: list[common_schema.EnvironmentId] = Field(..., min_length=1)
-    role: Literal['warning', 'display_only'] = Field(
+    role: Literal["warning", "display_only"] = Field(
         ...,
-        description='display_only: drawn as a limit line or normal band, never raises a warning (every info level).',
+        description="display_only: drawn as a limit line or normal band, never raises a warning (every info level).",
     )
     level: common_schema.Level
-    comparator: Literal['above', 'at_or_above', 'below', 'at_or_below']
+    comparator: Literal["above", "at_or_above", "below", "at_or_below"]
     value: float | None
-    value_from: Literal['level_value', 'rule_text', 'pending']
-    unit: str = Field(
-        ..., description="The sensor type's canonical unit.", min_length=1
-    )
+    value_from: Literal["level_value", "rule_text", "pending"]
+    unit: str = Field(..., description="The sensor type's canonical unit.", min_length=1)
     aggregation_id: common_schema.ConfigId
     window_basis: common_schema.Basis
     min_coverage: float = Field(
         ...,
-        description='Share of the window that must hold data before the limit is evaluated; below it the status is insufficient_data.',
+        description="Share of the window that must hold data before the limit is evaluated; below it the status is insufficient_data.",
         ge=0.0,
         le=1.0,
     )
@@ -68,13 +66,13 @@ class SensorLimit(BaseModel):
     clear: Clear
     label: str = Field(
         ...,
-        description='Words for the limit line, for example limit 3 mmHg.',
+        description="Words for the limit line, for example limit 3 mmHg.",
         min_length=1,
     )
     card_mark: bool = Field(
         ...,
-        description='Drawn as the tick on the sensor card. At most one limit per sensor type and environment.',
+        description="Drawn as the tick on the sensor card. At most one limit per sensor type and environment.",
     )
-    status: Literal['active', 'threshold_pending']
+    status: Literal["active", "threshold_pending"]
     source_ids: common_schema.SourceIds
     basis: common_schema.Basis

@@ -11,14 +11,17 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from crew_health.guidance.application.ports import Fact, Known, Unknown
-from crew_health.kernel.config import TemplateRenderer
+from crew_health.kernel.config import ConfigBinding
 from crew_health.kernel.errors import FieldError
 from crew_health.kernel.uow import ReadSnapshot, UnitOfWork
+from crew_health.kitmap.application import mapping
 from crew_health.kitmap.application.errors import InvalidEnvironment, KitGateInvalid, KitMapUnavailable
 from crew_health.kitmap.application.ports import (
     GateOutcome,
     GateRow,
+    Instrument,
     InstrumentReadinessPort,
+    KitCapability,
     KitCheckFacts,
     KitMapContext,
     KitMapRelease,
@@ -30,12 +33,14 @@ from crew_health.kitmap.application.ports import (
 )
 from crew_health.kitmap.domain.model import (
     ConditionEvaluation,
-    Instrument,
-    KitCapability,
+    KitMapDoc,
     RegionSummary,
     StateCounts,
     UnknownCapabilityCode,
     UnknownConditionId,
+)
+from crew_health.kitmap.domain.model import (
+    Instrument as DomainInstrument,
 )
 from crew_health.kitmap.domain.rules import (
     count_states,
@@ -49,8 +54,9 @@ from crew_health.kitmap.domain.rules import (
 AND_JOINER = " and "
 CAN_JOINER = ", "
 OR_JOINER = " or "
-CANNOT_FIELD = "kit_check_templates.cannot"
-CAN_FIELD = "kit_check_templates.can"
+# TemplateRenderer field keys are the template's document/pointer path (SYSTEM 5.6, config/domain/templates.py).
+CANNOT_FIELD = "ui-copy/kit_check_templates/cannot"
+CAN_FIELD = "ui-copy/kit_check_templates/can"
 INSTRUMENTS_PLACEHOLDER = "instruments"
 
 
@@ -64,7 +70,7 @@ class Vocabulary:
 
 @dataclass(frozen=True, slots=True)
 class ViewResult:
-    ctx: KitMapContext
+    ctx: KitMapContext[KitMapDoc]
     evaluations: tuple[ConditionEvaluation, ...]
     counts: StateCounts
     regions: tuple[RegionSummary, ...]
@@ -77,14 +83,14 @@ class KitMapReads:
         self,
         *,
         snapshots: Callable[[], AbstractContextManager[ReadSnapshot]],
-        releases: KitMapReleaseSource,
-        renderer: TemplateRenderer,
+        releases: KitMapReleaseSource[KitMapDoc],
+        config: ConfigBinding,
         vocabulary: Vocabulary,
         gate_max_condition_ids: int,
     ) -> None:
         self._snapshots = snapshots
         self._releases = releases
-        self._renderer = renderer
+        self._config = config
         self.vocabulary = vocabulary
         self._gate_max = gate_max_condition_ids
         self.mission: MissionStatePort | None = None
@@ -93,7 +99,7 @@ class KitMapReads:
 
     # ---- context ----
 
-    def context(self, view: Snap, environment_id: str | None) -> KitMapContext:
+    def context(self, view: Snap, environment_id: str | None) -> KitMapContext[KitMapDoc]:
         release = self._releases.for_release(view.release)
         if environment_id is None:
             active = self.mission.active_environment_id(view) if self.mission is not None else None
@@ -102,7 +108,9 @@ class KitMapReads:
             environment_id = active
         if environment_id not in self.vocabulary.environments:
             raise InvalidEnvironment(environment_id)
-        return KitMapContext(snapshot=view, release=release, environment_id=environment_id, at=view.now)
+        return KitMapContext[KitMapDoc](
+            snapshot=view, release=release, environment_id=environment_id, at=view.now
+        )
 
     def snapshot(self) -> AbstractContextManager[ReadSnapshot]:
         return self._snapshots()
@@ -114,7 +122,7 @@ class KitMapReads:
             ctx = self.context(snap, environment_id)
             return self.compute_view(ctx, ctx.release.doc.kits[ctx.environment_id])
 
-    def compute_view(self, ctx: KitMapContext, kit: frozenset[str]) -> ViewResult:
+    def compute_view(self, ctx: KitMapContext[KitMapDoc], kit: frozenset[str]) -> ViewResult:
         doc = ctx.release.doc
         evaluations = evaluate_kit(doc, kit)
         return ViewResult(
@@ -122,20 +130,21 @@ class KitMapReads:
             evaluations=evaluations,
             counts=count_states(evaluations),
             regions=summarize_regions(evaluations, self.vocabulary.body_regions),
-            missing_texts=tuple(self.missing_text(ctx.release, e.missing_instruments) for e in evaluations),
+            missing_texts=tuple(self.missing_text(ctx, e.missing_instruments) for e in evaluations),
             columns=self.columns(ctx, kit, [e.row.plan_id for e in evaluations]),
         )
 
-    def missing_text(self, release: KitMapRelease, missing: Sequence[str]) -> str | None:
+    def missing_text(self, ctx: KitMapContext[KitMapDoc], missing: Sequence[str]) -> str | None:
+        release = ctx.release
         if not missing or release.templates is None:
             return None
         words = [_instrument(release, i).needs_text for i in missing]
-        return self._renderer.render(
+        return self._config.bind(ctx.snapshot).render(
             CANNOT_FIELD, release.templates.cannot, {INSTRUMENTS_PLACEHOLDER: AND_JOINER.join(words)}
         )
 
     def columns(
-        self, ctx: KitMapContext, kit: frozenset[str], plan_ids: Sequence[str | None]
+        self, ctx: KitMapContext[KitMapDoc], kit: frozenset[str], plan_ids: Sequence[str | None]
     ) -> tuple[PlanColumns, ...]:
         if not ctx.release.has_onboard_plans:
             # No onboard-plans document in this release: no plan exists here, so none is aboard (not a default).
@@ -174,7 +183,7 @@ class KitMapReads:
             if result.can
             else (templates.cannot, CANNOT_FIELD, OR_JOINER)
         )
-        text = self._renderer.render(
+        text = self._config.bind(uow).render(
             field, template, {INSTRUMENTS_PLACEHOLDER: joiner.join(result.instrument_words)}
         )
         rows = {row.condition_id: row for row in doc.conditions}
@@ -190,7 +199,7 @@ class KitMapReads:
                 kit_map_version=result.kit_map_version,
                 environment_id=result.environment_id,
             ),
-            capability=words,
+            capability=mapping.capability_words(words),
             rows=tuple(GateRow(c, rows[c].plan_id) for c in condition_ids),
         )
 
@@ -200,13 +209,17 @@ class KitMapReads:
         parsed = self._releases.for_release(snapshot.release)
         if environment_id not in self.vocabulary.environments:
             raise InvalidEnvironment(environment_id)
-        return derive_capabilities(parsed.doc, environment_id, self.vocabulary.environments)
+        return tuple(
+            mapping.capability(value)
+            for value in derive_capabilities(parsed.doc, environment_id, self.vocabulary.environments)
+        )
 
     def kit_instruments(self, view: Snap, environment_id: str) -> frozenset[str]:
         return self.context(view, environment_id).release.doc.kits[environment_id]
 
     def instrument(self, view: Snap, instrument_id: str) -> Instrument | None:
-        return self._releases.for_release(view.release).doc.instrument(instrument_id)
+        value = self._releases.for_release(view.release).doc.instrument(instrument_id)
+        return None if value is None else mapping.instrument(value)
 
     # ---- EquipmentFacts for guidance (SYSTEM 8.2) ----
 
@@ -231,12 +244,12 @@ class KitMapReads:
         return Known(release.doc.kits[active] & self.readiness.usable_now(snapshot, active))
 
 
-def _instrument(release: KitMapRelease, instrument_id: str) -> Instrument:
+def _instrument(release: KitMapRelease[KitMapDoc], instrument_id: str) -> DomainInstrument:
     found = release.doc.instrument(instrument_id)
     if found is None:
         raise KitMapUnavailable("instrument missing from a validated release")
     return found
 
 
-def as_of(ctx: KitMapContext) -> datetime:
+def as_of(ctx: KitMapContext[KitMapDoc]) -> datetime:
     return ctx.at

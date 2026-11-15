@@ -12,7 +12,7 @@ class Unit(RootModel[str]):
 
 class Answer(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     answer_id: common_schema.Id
     question_id: common_schema.ConfigId

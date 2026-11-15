@@ -10,26 +10,26 @@ from . import answer_schema, capability_gap_schema, common_schema
 
 class Onset(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     at: common_schema.Instant | None
-    precision: Literal['exact', 'hour', 'day', 'unknown']
+    precision: Literal["exact", "hour", "day", "unknown"]
 
 
 class FollowupTask(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     task_id: common_schema.Id
     action: str = Field(..., min_length=1)
     due_at: common_schema.Instant | None
     owner: common_schema.Actor
-    state: Literal['open', 'done', 'cancelled']
+    state: Literal["open", "done", "cancelled"]
 
 
 class Episode(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     episode_id: common_schema.Id
     revision: int = Field(..., ge=1)
@@ -38,16 +38,14 @@ class Episode(BaseModel):
     concern_text: str = Field(..., min_length=1)
     onset: Onset
     state: Literal[
-        'draft',
-        'open',
-        'awaiting_information',
-        'awaiting_review',
-        'followup',
-        'resolved',
+        "draft",
+        "open",
+        "awaiting_information",
+        "awaiting_review",
+        "followup",
+        "resolved",
     ]
-    urgency_state: Literal[
-        'none', 'needs_urgent_review', 'active_response', 'disposition_recorded'
-    ]
+    urgency_state: Literal["none", "needs_urgent_review", "active_response", "disposition_recorded"]
     answers: list[answer_schema.Answer]
     measurement_request_ids: list[common_schema.Id]
     capability_gaps: list[capability_gap_schema.CapabilityGap]

@@ -192,10 +192,10 @@ def build_router(api: TeachApi) -> APIRouter:
         help_session_id: str, request: Request, cursor: str | None = None, limit: int | None = None
     ) -> Response:
         def work(call: _Call, s: TeachServices) -> Response:
-            body = s.coaching.page(call.session, help_session_id, cursor, limit)
+            body, release_id = s.coaching.page(call.session, help_session_id, cursor, limit)
             headers = {
                 "X-Correlation-Id": call.correlation_id,
-                "Config-Release": s.releases.active().release_id,
+                "Config-Release": release_id,
             }
             return JSONResponse(body, headers=headers)
 

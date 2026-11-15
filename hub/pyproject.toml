@@ -13,7 +13,13 @@ dependencies = [
     "jsonschema",
     "referencing",
     "cryptography>=50.0.2",
+    "ucumvert>=0.3.3",
+    "pint>=0.26",
+    "pyyaml",
 ]
+
+[project.scripts]
+crew-health = "crew_health.app.cli:main"
 
 [dependency-groups]
 dev = ["datamodel-code-generator", "pytest", "pytest-cov", "hypothesis", "mypy", "ruff", "import-linter", "httpx", "schemathesis", "types-jsonschema", "pyyaml", "types-pyyaml"]
@@ -45,6 +51,11 @@ python_version = "3.14"
 strict = true
 mypy_path = "hub/src"
 
+[[tool.mypy.overrides]]
+# ucumvert ships no py.typed; platform/adapters/units.py narrows it to a typed Protocol at the import (SYSTEM 5.4).
+module = ["ucumvert", "ucumvert.*"]
+ignore_missing_imports = true
+
 [tool.coverage.run]
 branch = true
 source = ["crew_health"]
@@ -53,6 +64,7 @@ source = ["crew_health"]
 import-contracts = "crew_health.app.import_contracts"
 
 [tool.setuptools.package-data]
+"crew_health" = ["*/adapters/migrations/*.sql", "*/replica.schema.json", "*/schemas/*.json"]
 "crew_health.contracts_gen" = ["manifest.json"]
 
 [tool.uv.sources]

@@ -8,7 +8,7 @@ from . import sensor_limit_schema
 
 class SensorLimitsJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     notice: str = Field(
         ...,
