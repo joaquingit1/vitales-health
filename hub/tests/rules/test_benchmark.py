@@ -11,10 +11,11 @@ import copy
 import time
 
 import pytest
-import rules_harness as h
 
 from crew_health.rules.domain.definitions import parse_rules_document
 from crew_health.rules.domain.engine import evaluate
+
+from . import rules_harness as h
 
 pytestmark = [pytest.mark.E24, pytest.mark.slow]
 
@@ -25,7 +26,7 @@ TARGET_DEFINITIONS = 50
 
 def fifty_definitions() -> dict[str, object]:
     raw = h.deployment_rules()
-    definitions = list(raw["definitions"])
+    definitions = h.definitions_of(raw)
     sensor = [
         d
         for d in definitions

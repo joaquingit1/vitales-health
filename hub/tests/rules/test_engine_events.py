@@ -7,11 +7,10 @@ from __future__ import annotations
 
 import copy
 from collections.abc import Callable
-from datetime import timedelta
-from typing import Literal, cast
+from datetime import datetime, timedelta
+from typing import Literal, Unpack, cast
 
 import pytest
-import rules_harness as h
 
 from crew_health.rules.domain.decisions import (
     Attach,
@@ -37,22 +36,27 @@ from crew_health.rules.domain.vocabulary import (
     OriginMode,
     WarningState,
 )
+from crew_health.rules.domain.warning import Warning
+
+from . import rules_harness as h
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R36", "INV-E24-08", "INV-E24-17")]
 
 ALERT, ALL_CLEAR = "space_weather_alert", "space_weather_all_clear"
 
 
-def at(minutes: int):  # type: ignore[no-untyped-def]
+def at(minutes: int) -> datetime:
     return h.T0 + timedelta(minutes=minutes)
 
 
-def feed_at(world: h.World, minutes: int, event_id: str, event_type: str, **kw: object) -> tuple[object, ...]:
+def feed_at(
+    world: h.World, minutes: int, event_id: str, event_type: str, **kw: Unpack[h.EventKw]
+) -> tuple[object, ...]:
     world.now = at(minutes)
     return cast(tuple[object, ...], world.feed(world.event(event_id, event_type, at(minutes), **kw)))
 
 
-def storm(world: h.World):  # type: ignore[no-untyped-def]
+def storm(world: h.World) -> Warning | None:
     found = world.by_definition("radiation_storm_shelter")
     return found[0] if found else None
 
@@ -109,7 +113,7 @@ def test_t036_an_alert_whose_later_all_clear_is_already_recorded_raises_nothing(
     feed_at(world, 30, "evt_c", ALL_CLEAR)  # recorded first
     world.now = at(32)
     late = world.feed(world.event("evt_a_late", ALERT, at(0)))
-    assert [type(s) for s in late] == [Refuse] and late[0].code == "clear_later"
+    assert [type(s) for s in late] == [Refuse] and h.as_type(late[0], Refuse).code == "clear_later"
     assert storm(world) is None
 
 
@@ -228,7 +232,9 @@ def test_a_person_warning_is_refused_for_evidence_outside_the_persons_namespace(
     w = mars(make_world, deployment_doc)  # mission mode LIVE
     w.answer_events = (w.event("evt_land", "landing", at(-60)),)
     decision = w.feed(answer(w, "ans_1", 0, origin=origin))
-    assert [type(s) for s in decision] == [Refuse] and decision[0].code == "origin_mismatch"
+    assert [type(s) for s in decision] == [Refuse] and h.as_type(
+        decision[0], Refuse
+    ).code == "origin_mismatch"
     assert not w.warnings
 
 
@@ -241,7 +247,9 @@ def test_a_resolved_answer_warning_is_spent_and_never_reraised_by_redelivery(
     (warning,) = w.by_definition("dizzy_after_landing")
     w.finish(warning.warning_id, WarningState.RESOLVED)
     redelivered = w.feed(answer(w, "ans_1", 1))
-    assert [type(s) for s in redelivered] == [Refuse] and redelivered[0].code == "trigger_spent"
+    assert [type(s) for s in redelivered] == [Refuse] and h.as_type(
+        redelivered[0], Refuse
+    ).code == "trigger_spent"
     w.feed(answer(w, "ans_3", 2))  # a new answer raises a new warning
     assert w.by_definition("dizzy_after_landing")
 
@@ -250,10 +258,14 @@ def test_a_resolved_answer_warning_is_spent_and_never_reraised_by_redelivery(
 
 
 def fact(
-    w: h.World, value: object, minutes: int, cause: str, origin: OriginMode = OriginMode.LIVE
+    w: h.World,
+    value: bool | str | int | float,
+    minutes: int,
+    cause: str,
+    origin: OriginMode = OriginMode.LIVE,
 ) -> StateFactInput:
     w.now = at(minutes)
-    return StateFactInput("local_water_untested", value, "mars_surface", at(minutes), cause, origin)  # type: ignore[arg-type]
+    return StateFactInput("local_water_untested", value, "mars_surface", at(minutes), cause, origin)
 
 
 def test_a_state_fact_raises_and_clears_only_on_a_later_different_value_of_its_own_origin(
@@ -301,7 +313,7 @@ def scratch(
 
 def with_threshold(seconds: int | None) -> Callable[[dict[str, object]], None]:
     def mutate(raw: dict[str, object]) -> None:
-        for d in raw["definitions"]:  # type: ignore[attr-defined]
+        for d in h.definitions_of(raw):
             if d["id"] == "ground_silence":
                 d["condition"]["after_next_contact_seconds"] = seconds
 
@@ -384,15 +396,19 @@ def row(supply: str, cover: int | None, revision: int, partition: str = "part_a"
 
 
 def cover(
-    w: h.World, minutes: int, *rows: SupplyCoverRow, cause: str = "use", use_id: str | None = "use_1"
+    w: h.World,
+    minutes: int,
+    *rows: SupplyCoverRow,
+    cause: Literal["use", "release", "environment"] = "use",
+    use_id: str | None = "use_1",
 ) -> SupplyCoverInput:
     w.now = at(minutes)
-    return SupplyCoverInput("station_leo", cause, use_id, at(minutes), OriginMode.LIVE, tuple(rows))  # type: ignore[arg-type]
+    return SupplyCoverInput("station_leo", cause, use_id, at(minutes), OriginMode.LIVE, tuple(rows))
 
 
 def threshold(n: int | None) -> Callable[[dict[str, object]], None]:
     def mutate(raw: dict[str, object]) -> None:
-        for d in raw["definitions"]:  # type: ignore[attr-defined]
+        for d in h.definitions_of(raw):
             if d["id"] == "supply_cover_low":
                 d["condition"]["below_uses"] = n
 

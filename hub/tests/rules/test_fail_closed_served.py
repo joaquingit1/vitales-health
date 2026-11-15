@@ -25,13 +25,15 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Any, Literal
 
-import e23_station as base
 import pytest
-from test_station_co2 import station
 
 from crew_health.kernel.scheduler import HealthState
 from crew_health.rules.application import core
 from crew_health.rules.domain.inputs import LimitResult, SensorEvaluatedInput
+
+from . import rules_harness as h
+from . import rules_station as base
+from .test_station_co2 import station
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("INV-E24-07", "INV-E24-16", "D3", "D13", "H3", "H9")]
 
@@ -65,7 +67,7 @@ def _captured(st: base.Station, monkeypatch: pytest.MonkeyPatch) -> tuple[core.R
         original(rt, uow, inp)
 
     monkeypatch.setattr(core, "run_input", spy)
-    from test_station_co2 import feed
+    from .test_station_co2 import feed
 
     st.advance(seconds=60)
     feed(st, 4.0, 721)
@@ -125,7 +127,7 @@ def test_a_missing_origin_or_a_fault_becomes_pending_degraded_and_never_clears(
     before = _co2(st)
     assert _pending(st) == 0
     st.advance(seconds=60)
-    orphan = replace(inp, origin_mode=None, results=_holding(inp), reading_id="rdg_no_origin")  # type: ignore[arg-type]
+    orphan = h.replace_unchecked(inp, origin_mode=None, results=_holding(inp), reading_id="rdg_no_origin")
     with st.begin() as uow:
         core.run_input(rt, uow, orphan)  # converted at the isolation boundary, never propagated
     assert _co2(st) == before

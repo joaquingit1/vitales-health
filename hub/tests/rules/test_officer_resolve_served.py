@@ -16,13 +16,14 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-import e23_station as base
 import pytest
-from e24_station import activate_release, replaced
-from test_station_co2 import act, station
 
 from crew_health.contracts_gen.enums import ConfigName
 from crew_health.kernel.config import ConfigDocumentView
+
+from . import rules_station as base
+from .e24_station import activate_release, replaced
+from .test_station_co2 import act, station
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("D1", "D21")]
 

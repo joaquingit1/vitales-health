@@ -12,11 +12,9 @@ import sqlite3
 from collections.abc import Sequence
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
-import e23_station as base
 import pytest
-from e24_station import build, co2_act_hour
 
 from crew_health.app.cli import main as hub_main
 from crew_health.contracts_gen.enums import ErrorCode
@@ -36,6 +34,9 @@ from crew_health.rules.application.replication import ReplicatedWarning, apply_r
 from crew_health.rules.application.stores import PendingStore
 from crew_health.rules.domain import engine
 from crew_health.rules.domain.errors import InvariantViolation
+
+from . import rules_station as base
+from .e24_station import build, co2_act_hour
 
 pytestmark = pytest.mark.E24
 
@@ -234,7 +235,7 @@ def sleep_from(start: datetime, person: str = "per_a") -> OverlayFact:
 
 
 def session(st: base.Station, who: str) -> SessionContext:
-    return cast(SessionContext, st.security.tokens[who])
+    return st.security.tokens[who]
 
 
 @pytest.mark.trace("T-E24-080", "T-E24-081", "T-E24-099")

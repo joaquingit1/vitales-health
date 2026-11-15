@@ -12,7 +12,6 @@ from functools import lru_cache
 from typing import Any
 
 import pytest
-import rules_harness as h
 from hypothesis import given
 from hypothesis import strategies as st
 from jsonschema import Draft202012Validator
@@ -31,6 +30,8 @@ from crew_health.rules.domain.fingerprint import (
     limit_fingerprint,
     rule_fingerprint,
 )
+
+from . import rules_harness as h
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R36", "R43", "INV-E24-12", "INV-E24-15")]
 
@@ -60,7 +61,7 @@ def test_every_shipped_and_example_definition_is_schema_valid_and_parses() -> No
     for raw in (h.deployment_rules(), h.example_value("warning-rules")):
         assert validator().is_valid(raw)
         document = parse_rules_document(raw)
-        assert len(document.definitions) == len(raw["definitions"])
+        assert len(document.definitions) == len(h.definitions_of(raw))
 
 
 POOL: list[object] = [
@@ -168,7 +169,7 @@ def test_t013_a_content_edit_changes_the_content_hash_only(
     deployment_doc: RulesDocument, release_docs: ReleaseDocuments
 ) -> None:
     raw = copy.deepcopy(h.deployment_rules())
-    for d in raw["definitions"]:
+    for d in h.definitions_of(raw):
         d["content"]["title"] = d["content"]["title"] + " edited"
         d["content"]["source_ids"] = ["C25"]
     edited = parse_rules_document(raw)
@@ -184,7 +185,7 @@ def test_provenance_edits_never_change_the_rule_fingerprint(
     deployment_doc: RulesDocument, release_docs: ReleaseDocuments
 ) -> None:
     raw = copy.deepcopy(h.deployment_rules())
-    for d in raw["definitions"]:
+    for d in h.definitions_of(raw):
         d["clear"]["basis"] = "sourced" if d["clear"]["basis"] == "team default" else "team default"
         cond = d["condition"]
         for key in ("basis", "to_be_set_by"):
@@ -291,7 +292,7 @@ def test_catalog_stale_bound_aggregation_questionnaire_and_policy_dependencies(
 def test_fingerprints_do_not_depend_on_key_order(rng: random.Random) -> None:
     raw = h.deployment_rules()
     shuffled = copy.deepcopy(raw)
-    for d in shuffled["definitions"]:
+    for d in h.definitions_of(shuffled):
         for obj in (d, d["clear"], d["content"], d["condition"]):
             items = list(obj.items())
             rng.shuffle(items)

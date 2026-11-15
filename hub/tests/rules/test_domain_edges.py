@@ -12,14 +12,13 @@ from collections.abc import Callable
 from dataclasses import replace
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import cast
+from typing import Any, TypedDict, Unpack, cast
 
 import pytest
-import rules_harness as h
 
 from crew_health.kernel.units import Quantity, Unit
 from crew_health.rules.domain import clear_evidence, dwell, hold, origin, time_policy
-from crew_health.rules.domain.decisions import Clear, Refuse
+from crew_health.rules.domain.decisions import Clear, Raise, Refuse, RejectInsight
 from crew_health.rules.domain.definitions import (
     RulesDocument,
     parse_definition,
@@ -40,6 +39,7 @@ from crew_health.rules.domain.inputs import (
     ChannelRenderFacts,
     GroundLinkInput,
     LimitResult,
+    RuleInput,
     StateFactInput,
     SupplyCoverInput,
     SupplyCoverRow,
@@ -60,18 +60,21 @@ from crew_health.rules.domain.warning import (
     PersonActor,
     Resolution,
     SessionActor,
+    Warning,
     acknowledge,
     attach_overrides,
     resolve,
 )
 
+from . import rules_harness as h
+
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R36", "INV-E24-14", "INV-E24-16", "INV-E24-07")]
 
-CROSSED = {"crossed": True, "clear_holds": False}
+CROSSED: h.Crossing = {"crossed": True, "clear_holds": False}
 
 
 def at(minutes: int) -> datetime:
-    return cast(datetime, h.T0 + timedelta(minutes=minutes))
+    return h.T0 + timedelta(minutes=minutes)
 
 
 def scratch(
@@ -84,7 +87,7 @@ def scratch(
 
 def edit_definition(definition_id: str, **changes: object) -> Callable[[dict[str, object]], None]:
     def mutate(raw: dict[str, object]) -> None:
-        for d in raw["definitions"]:  # type: ignore[attr-defined]
+        for d in h.definitions_of(raw):
             if d["id"] == definition_id:
                 for key, value in changes.items():
                     d[key] = value
@@ -94,7 +97,7 @@ def edit_definition(definition_id: str, **changes: object) -> Callable[[dict[str
 
 def condition(definition_id: str, **changes: object) -> Callable[[dict[str, object]], None]:
     def mutate(raw: dict[str, object]) -> None:
-        for d in raw["definitions"]:  # type: ignore[attr-defined]
+        for d in h.definitions_of(raw):
             if d["id"] == definition_id:
                 d["condition"].update(changes)
 
@@ -126,7 +129,7 @@ def test_a_definition_without_its_fingerprints_is_never_raised(
         None,
         None,
     )
-    inputs = [
+    inputs: list[RuleInput] = [
         w.sensor(results=[h.result("co2_1h_act", **CROSSED)]),
         w.freshness_input("stale", since=h.T0),
         w.event("evt_a", "space_weather_alert", h.T0),
@@ -149,14 +152,20 @@ def test_missing_origin_words_and_missing_channel_facts_still_render_what_is_kno
     inp = replace(world.sensor(results=[h.result("co2_1h_act", **CROSSED)]), channel=bare)
     view = replace(world.view(), origin_words=None)
     (raise_step,) = evaluate(inp, view)
-    placeholders = raise_step.render.placeholders  # type: ignore[union-attr]
+    placeholders = h.as_type(raise_step, Raise).render.placeholders
     assert "location" not in placeholders and "last_received_time" not in placeholders
     event = replace(world.view(), origin_words=None)
-    storm = [s for s in evaluate(world.event("evt_a", "space_weather_alert", h.T0), event)]
-    assert storm and "source_label" not in storm[0].render.placeholders  # type: ignore[union-attr]
+    storm = [
+        s for s in evaluate(world.event("evt_a", "space_weather_alert", h.T0), event) if isinstance(s, Raise)
+    ]
+    assert storm and "source_label" not in storm[0].render.placeholders
     unknown_origin = replace(world.view(), origin_words={"SIM": "Simulated"})
-    storm = [s for s in evaluate(world.event("evt_b", "space_weather_alert", h.T0), unknown_origin)]
-    assert "source_label" not in storm[0].render.placeholders  # type: ignore[union-attr]
+    storm = [
+        s
+        for s in evaluate(world.event("evt_b", "space_weather_alert", h.T0), unknown_origin)
+        if isinstance(s, Raise)
+    ]
+    assert "source_label" not in storm[0].render.placeholders
 
 
 def test_a_crossed_result_for_another_sensor_type_or_an_unknown_limit_raises_nothing(world: h.World) -> None:
@@ -194,7 +203,7 @@ def test_a_quiet_warning_clears_only_on_fresh_evidence_after_the_raise_of_its_ow
     (quiet,) = world.by_definition("sensor_quiet")
     world.now = at(10)
 
-    def attempt(**kw: object) -> tuple[object, ...]:
+    def attempt(**kw: Unpack[h.FreshnessKw]) -> tuple[object, ...]:
         return evaluate(world.freshness_input("current", **kw), world.view())
 
     assert attempt() == ()  # no observed time at all
@@ -223,7 +232,7 @@ def test_a_stale_channel_without_a_last_reading_raises_with_no_evidence_and_a_sp
     assert quiet.evidence == ()
     world.apply((Clear(quiet.warning_id, ClearReason.CONDITION_FALSE),))
     again = world.feed(inp)
-    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"
+    assert [type(s) for s in again] == [Refuse] and h.as_type(again[0], Refuse).code == "trigger_spent"
 
 
 def test_a_replay_quiet_warning_clears_only_on_a_receive_reference_after_the_raise(world: h.World) -> None:
@@ -251,7 +260,7 @@ def test_a_person_scope_event_keys_by_person_and_refuses_a_foreign_origin(
     assert all(x.person_id == x.scope_key for x in w.warnings.values())
     assert w.feed(w.event("evt_none", "space_weather_alert", at(1))) == ()  # names nobody: nothing to key
     sim = w.feed(w.event("evt_sim", "space_weather_alert", at(2), origin=OriginMode.SIM, persons=("p3",)))
-    assert [type(s) for s in sim] == [Refuse] and sim[0].code == "origin_mismatch"
+    assert [type(s) for s in sim] == [Refuse] and h.as_type(sim[0], Refuse).code == "origin_mismatch"
     w.now = at(30)
     w.feed(w.event("evt_c", "space_weather_all_clear", at(30), persons=("p1",)))
     assert [x.scope_key for x in w.warnings.values() if x.active] == [
@@ -289,7 +298,7 @@ def test_a_state_fact_on_a_crew_scope_and_an_unscoped_person_fact(make_world: Ca
     spent = w.feed(
         StateFactInput("local_water_untested", True, "mars_surface", h.T0, "evt_1", OriginMode.LIVE)
     )
-    assert [type(s) for s in spent] == [Refuse] and spent[0].code == "trigger_spent"
+    assert [type(s) for s in spent] == [Refuse] and h.as_type(spent[0], Refuse).code == "trigger_spent"
     person = scratch(
         make_world,
         edit_definition("local_water_untested", scope="person"),
@@ -357,7 +366,7 @@ def test_ground_silence_spent_trigger_and_an_unreadable_pinned_contact_never_cle
     w.warnings[g.warning_id] = g
     w.apply((Clear(g.warning_id, ClearReason.CONDITION_FALSE),))
     again = w.feed(link)
-    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"
+    assert [type(s) for s in again] == [Refuse] and h.as_type(again[0], Refuse).code == "trigger_spent"
 
 
 def test_ground_silence_without_a_contact_time_schedules_nothing(make_world: Callable[..., h.World]) -> None:
@@ -389,7 +398,7 @@ def test_supply_quantities_and_the_release_trigger_when_no_use_is_named(
     assert "12.5 g" in s.what and "2 g" in s.what
     w.apply((Clear(s.warning_id, ClearReason.CONDITION_FALSE),))
     again = w.feed(SupplyCoverInput("station_leo", "release", None, at(2), OriginMode.LIVE, (row,)))
-    assert [type(x) for x in again] == [Refuse] and again[0].code == "trigger_spent"
+    assert [type(x) for x in again] == [Refuse] and h.as_type(again[0], Refuse).code == "trigger_spent"
     unrelated = SupplyCoverRow("zz", "x", 9, "p", 1, "r", (), None, None, None, None)
     assert w.feed(SupplyCoverInput("station_leo", "use", "u", at(3), OriginMode.LIVE, (unrelated,))) == ()
 
@@ -414,18 +423,18 @@ def test_insight_edges_unlisted_definition_policy_level_and_spent_trigger() -> N
     rejected = w.feed(
         InsightInput(h.insight_draft(level=Level.INFO), ((h.OBS_KEY, h.good_record()),), narrow)
     )
-    assert rejected[0].codes == ("level_not_allowed",)
+    assert h.as_type(rejected[0], RejectInsight).codes == ("level_not_allowed",)
     w.feed(h.insight_input())
     (first,) = w.by_definition("assistant_pattern")
     w.apply((Clear(first.warning_id, ClearReason.EXPIRED),))
     again = w.feed(h.insight_input())
-    assert [type(s) for s in again] == [Refuse] and again[0].code == "trigger_spent"
+    assert [type(s) for s in again] == [Refuse] and h.as_type(again[0], Refuse).code == "trigger_spent"
 
 
 # --- entity invariants and transitions ---------------------------------------------------------------
 
 
-def co2(world: h.World):  # type: ignore[no-untyped-def]
+def co2(world: h.World) -> Warning:
     world.feed(world.sensor(results=[h.result("co2_1h_act", **CROSSED)]))
     (found,) = world.by_definition("co2_above_limit")
     return found
@@ -446,7 +455,7 @@ def test_every_inconsistent_warning_value_is_refused(world: h.World) -> None:
     ]
     for error, change in bad:
         with pytest.raises(error):
-            replace(w, **change)
+            h.replace_unchecked(w, **change)
     with pytest.raises(InvariantViolation):
         replace(ack, acknowledgements=())  # acknowledged needs an acknowledgement
     with pytest.raises(ActionNotAllowed):  # an assistant warning is never resolved
@@ -520,27 +529,36 @@ def test_a_replay_input_without_a_data_time_is_not_evidence(world: h.World) -> N
     assert clear_evidence.eligible(inp, w, world.now).reason == "time_unknown"
 
 
+class DwellKw(TypedDict):
+    warning_id: str
+    channel_id: str
+    segment_key: str
+    dwell_seconds: int
+    gap_bound_seconds: int
+    fingerprint: str
+
+
 def test_a_marker_of_another_rule_is_void_and_replaced_or_deleted() -> None:
     marker = dwell.DwellMarker("w", "c", "old", h.T0, h.T0, "seg")
-    kw = {
-        "warning_id": "w",
-        "channel_id": "c",
-        "segment_key": "seg",
-        "dwell_seconds": 600,
-        "gap_bound_seconds": 300,
-        "fingerprint": "new",
-    }
-    replaced = dwell.step(marker, e=at(1), eligible=True, **kw)  # type: ignore[arg-type]
+    kw = DwellKw(
+        warning_id="w",
+        channel_id="c",
+        segment_key="seg",
+        dwell_seconds=600,
+        gap_bound_seconds=300,
+        fingerprint="new",
+    )
+    replaced = dwell.step(marker, e=at(1), eligible=True, **kw)
     assert (
         replaced.action == "put"
         and replaced.marker is not None
         and replaced.marker.holding_since == at(1)
         and not replaced.clear
     )
-    deleted = dwell.step(marker, e=None, eligible=False, **kw)  # type: ignore[arg-type]
+    deleted = dwell.step(marker, e=None, eligible=False, **kw)
     assert deleted.action == "delete"
-    assert dwell.step(None, e=None, eligible=False, **kw).action == "none"  # type: ignore[arg-type]
-    zero = dwell.step(None, e=at(1), eligible=True, **{**kw, "dwell_seconds": 0})  # type: ignore[arg-type]
+    assert dwell.step(None, e=None, eligible=False, **kw).action == "none"
+    zero = dwell.step(None, e=at(1), eligible=True, **(kw | {"dwell_seconds": 0}))
     assert zero.clear  # a dwell of zero clears on the first eligible evaluation
 
 
@@ -620,8 +638,10 @@ def test_level_comparison_with_a_foreign_value_is_not_implemented() -> None:
 # --- definition parser failure paths -----------------------------------------------------------------
 
 
-def base_raw() -> dict[str, object]:
-    return copy.deepcopy(next(d for d in h.deployment_rules()["definitions"] if d["id"] == "co2_above_limit"))
+def base_raw() -> dict[str, Any]:
+    return copy.deepcopy(
+        next(d for d in h.definitions_of(h.deployment_rules()) if d["id"] == "co2_above_limit")
+    )
 
 
 @pytest.mark.parametrize(
@@ -684,7 +704,7 @@ def test_parse_definition_rejects_malformed_conditions_and_scopes(
 ) -> None:
     raw = base_raw()
     mutate(raw)
-    if raw["condition"]["kind"] in {"answer", "state_fact", "ground_silence"}:  # type: ignore[index]
+    if raw["condition"]["kind"] in {"answer", "state_fact", "ground_silence"}:
         raw["raised_by"] = "rule"
     with pytest.raises(DefinitionInvalid):
         parse_definition(raw)
@@ -693,7 +713,7 @@ def test_parse_definition_rejects_malformed_conditions_and_scopes(
 def test_parse_rules_document_rejects_empty_duplicate_and_non_object_documents() -> None:
     good = copy.deepcopy(h.deployment_rules())
     empty = {**good, "definitions": []}
-    duplicate = {**good, "definitions": [good["definitions"][0], good["definitions"][0]]}
+    duplicate = {**good, "definitions": [h.definitions_of(good)[0], h.definitions_of(good)[0]]}
     bad_documents: tuple[object, ...] = (
         empty,
         duplicate,

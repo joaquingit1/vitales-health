@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-import rules_harness as h
 import yaml
 
 from crew_health.rules.domain import clear_evidence
@@ -22,7 +21,9 @@ from crew_health.rules.domain.definitions import RulesDocument
 from crew_health.rules.domain.headline import headline
 from crew_health.rules.domain.hold import route_act
 from crew_health.rules.domain.vocabulary import Level
-from crew_health.rules.domain.warning import HeadlineFields
+from crew_health.rules.domain.warning import HeadlineFields, Warning
+
+from . import rules_harness as h
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("T-E24-131", "R36", "R43")]
 
@@ -58,7 +59,7 @@ def test_every_case_kind_has_a_runner() -> None:
     }
 
 
-def raised(world: h.World, limit: str = "co2_1h_act"):  # type: ignore[no-untyped-def]
+def raised(world: h.World, limit: str = "co2_1h_act") -> Warning:
     world.feed(world.sensor(results=[h.result(limit, crossed=True, clear_holds=False)]))
     (w,) = world.by_definition("co2_above_limit")
     return w
@@ -108,7 +109,7 @@ def test_dwell_golden(case: dict[str, Any], world: h.World) -> None:
 
 @pytest.mark.parametrize("case", BY_KIND["escalation"], ids=lambda c: c["id"])
 def test_escalation_golden(case: dict[str, Any], world: h.World) -> None:
-    kw = {"sensor_type": "o2", "channel": "ch_o2"}
+    kw: h.SensorKw = {"sensor_type": "o2", "channel": "ch_o2"}
     for limit in case["input"].get("active", []):
         world.feed(world.sensor(results=[h.result(limit, crossed=True, clear_holds=False)], **kw))
         world.advance(5)
