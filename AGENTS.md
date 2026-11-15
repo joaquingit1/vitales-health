@@ -127,7 +127,17 @@ version stays active. Updates arrive as signed bundles through the ground link, 
 - **Every bug gets a failing test first,** and every fix reruns the full suite. Mars Polar Lander's touchdown sensor
   test was never repeated after a wiring fix.
 - **Hermetic.** Unit and integration tests use no network, no wall clock and no real devices. Hardware tests are marked
-  and optional.
+  and optional: by default they run against the simulated devices below, and a real device is an extra run.
+- **Every device has a simulated twin.** Any input a real device provides (camera, pulse oximeter, cuff, thermometer,
+  habitat sensors, anything the ship is assumed to carry) gets a simulated device under `simulators/<family>/` that
+  feeds realistic data at the device boundary: the same protocol bytes, stream or feed the real device emits, so the
+  real adapter, parser and pipeline run end to end. "Skipped, needs hardware" is never an acceptable gap. The
+  simulator's data model is sourced like configuration (NASA first, see section 5 rule 12; recorded NASA telemetry in
+  `docs/product/nasa-data/` is replayed where it fits) and its scenarios include the faults: motion, low signal,
+  disconnect, drift, out of range. A camera twin streams a real sample video of a person sitting still and a
+  synthetic video with a known injected pulse for ground truth. A simulated device declares itself simulated in its
+  device identity, so the hub labels its readings SIM through the normal source rule (section 1 rule 2); the pipeline
+  has no other branch for it.
 - **End to end** runs on the demo fixture, with the model stopped wherever the scenario allows (`eval/`).
 
 ## 5. How we work
@@ -179,6 +189,17 @@ version stays active. Updates arrive as signed bundles through the ground link, 
     wrong assumption, a skipped check, a source not read, work done twice), name the behaviour that caused it and write
     the rule that prevents it: in section 6 when it can happen to any agent working here, otherwise in your own tool's
     memory. Fix the cause, not only the instance.
+11. **Build the whole epic.** A missing schema, operation, configuration document, design brief, research note or
+    golden expectation is part of your work: author it with provenance, golden cases checked against the source and
+    never derived from the same configuration (section 1 rule 1). "Blocked" is only for real code another unbuilt
+    epic owns, and even then build your side against a structural copy of its port. Hardware is never a blocker
+    (section 4, simulated twins).
+12. **NASA sources first.** NASA rewards using its sources and data. Every configuration value, threshold, research
+    note and golden case cites the NASA catalog (`docs/product/NASA-SOURCES.md` with its IDs and URLs,
+    `docs/product/sources.csv`, `docs/product/nasa-data/`) by ID plus section or page, following that catalog's rules
+    on citing each source only for what it says. Read the source itself, not a summary of it. A non-NASA reference is
+    used only for what NASA does not cover, and the provenance says so. A NASA document you rely on that is not in the
+    catalog is added to it with an ID.
 
 **When you orchestrate other agents** (use whatever models and tools you prefer):
 
