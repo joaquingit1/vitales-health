@@ -7,6 +7,7 @@ step the invariants of E24 3.17 that the domain can decide must hold.
 from __future__ import annotations
 
 from datetime import timedelta
+from typing import cast
 
 import pytest
 import rules_harness as h
@@ -100,28 +101,32 @@ def build(world: h.World, op: tuple[object, ...], n: int) -> RuleInput | None:
     world.advance(delta)
     now = world.now
     if kind in {"co2", "o2"}:
-        results = [h.result(limit, crossed=c, clear_holds=k) for limit, (c, k) in op[2]]  # type: ignore[misc,union-attr]
+        limits = cast(list[tuple[str, tuple[bool | None, bool | None]]], op[2])
+        results = [h.result(limit, crossed=c, clear_holds=k) for limit, (c, k) in limits]
         sensor, channel = ("co2", "ch_co2") if kind == "co2" else ("o2", "ch_o2")
-        return world.sensor(
+        sensor_input: RuleInput = world.sensor(
             sensor_type=sensor,
             channel=channel,
             results=results,
             origin=op[3],
-            reading=f"rdg_{n}",  # type: ignore[arg-type]
+            reading=f"rdg_{n}",
             clock_state=op[4],
             freshness=op[5],
-        )  # type: ignore[arg-type]
+        )
+        return sensor_input
     if kind == "fresh":
         origin: OriginMode = op[3]  # type: ignore[assignment]
-        return world.freshness_input(
+        fresh_input: RuleInput = world.freshness_input(
             op[2],
             since=now,
-            origin=origin,  # type: ignore[arg-type]
+            origin=origin,
             obs=h.observed(now, origin=origin),
             receive_reference=now,
         )
+        return fresh_input
     if kind == "event":
-        return world.event(f"evt_{n}", str(op[2]), now, origin=op[3])  # type: ignore[arg-type]
+        event_input: RuleInput = world.event(f"evt_{n}", str(op[2]), now, origin=op[3])
+        return event_input
     if kind == "answer":
         world.answer_events = (world.event("evt_land", "landing", now - timedelta(hours=1)),)
         return AnswerInput(f"ans_{n}", "p1", "dizzy_standing", str(op[2]), now, now, op[3], "day", "09:00")  # type: ignore[arg-type]
@@ -130,7 +135,19 @@ def build(world: h.World, op: tuple[object, ...], n: int) -> RuleInput | None:
     if kind == "link":
         return GroundLinkInput(op[2], now - timedelta(minutes=5), "adapter", "station_leo", bool(op[3]), now)  # type: ignore[arg-type]
     if kind == "supply":
-        row = SupplyCoverRow("s1", "name", op[2], "part", int(op[3]), "rel_a", (), None, None, None, None)  # type: ignore[arg-type]
+        row = SupplyCoverRow(
+            "s1",
+            "name",
+            cast(int | None, op[2]),
+            "part",
+            int(cast(int, op[3])),
+            "rel_a",
+            (),
+            None,
+            None,
+            None,
+            None,
+        )
         return SupplyCoverInput("station_leo", "use", f"use_{n}", now, OriginMode.LIVE, (row,))
     if kind == "misc":
         ins = next((w for w in world.warnings.values() if w.insight_id), None)
@@ -158,7 +175,7 @@ def scratch_world() -> h.World:
     import copy
 
     raw = copy.deepcopy(raw)
-    for d in raw["definitions"]:  # type: ignore[attr-defined]
+    for d in raw["definitions"]:
         if d["id"] == "ground_silence":
             d["condition"]["after_next_contact_seconds"] = 60
         if d["id"] == "supply_cover_low":

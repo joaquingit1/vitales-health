@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import datetime, timedelta
+from typing import cast
 
 import pytest
 import rules_harness as h
@@ -28,7 +29,7 @@ def base_warning() -> Warning:
     world = h.World(parse_rules_document(h.deployment_rules()), h.release_documents())
     world.feed(world.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]))
     (w,) = world.by_definition("co2_above_limit")
-    return w
+    return cast(Warning, w)
 
 
 BASE = base_warning()
@@ -179,15 +180,15 @@ def test_t120_eligibility_implies_every_condition_of_d3(
     inp = world.sensor(
         at=when,
         origin=origin,
-        clock_state=clock_state,  # type: ignore[arg-type]
-        freshness=freshness,  # type: ignore[arg-type]
+        clock_state=clock_state,
+        freshness=freshness,
         results=[h.result("co2_1h_act", crossed=crossed, clear_holds=holds, fingerprint=fp)],
         obs=h.observed(
             when,
             origin=origin,
             uncertainty_ms=uncertainty_ms,
             state=time_state if origin is not OriginMode.REPLAY else "replay",
-        ),  # type: ignore[arg-type]
+        ),
         receive_reference=world.now,
     )
     verdict = clear_evidence.eligible(inp, w, world.now)

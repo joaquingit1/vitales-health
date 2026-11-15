@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 from collections.abc import Callable
 from pathlib import Path
+from typing import cast
 
 import pytest
 
@@ -38,7 +39,7 @@ def example_doc() -> RulesDocument:
 
 @pytest.fixture(scope="session")
 def release_docs() -> ReleaseDocuments:
-    return h.release_documents()
+    return cast(ReleaseDocuments, h.release_documents())
 
 
 @pytest.fixture
@@ -49,6 +50,6 @@ def world(deployment_doc: RulesDocument, release_docs: ReleaseDocuments) -> h.Wo
 @pytest.fixture
 def make_world(release_docs: ReleaseDocuments) -> Callable[..., h.World]:
     def build(doc: RulesDocument, **kwargs: object) -> h.World:
-        return h.World(doc, release_docs, **kwargs)  # type: ignore[arg-type]
+        return h.World(doc, release_docs, **kwargs)
 
     return build

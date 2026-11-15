@@ -59,7 +59,7 @@ def edited_documents(
     original = base._documents
 
     def documents(db: Any) -> dict[ConfigName, ConfigDocumentView]:
-        found = original(db)
+        found: dict[ConfigName, ConfigDocumentView] = original(db)
         edit(found)
         return found
 
@@ -138,3 +138,58 @@ def restart(st: base.Station) -> None:
     st.db = db
     st.app = base._app(db, st.security, base.config_artifacts(base._resources()), build_dir)
     st.client = TestClient(st.app, raise_server_exceptions=False)
+
+
+def activate_release(
+    st: base.Station,
+    release_id: str,
+    edit: Callable[[dict[ConfigName, ConfigDocumentView]], None] | None = None,
+) -> None:
+    """A second release proposed and activated through the real configuration service (E01), optionally with a
+    scratch edit of the shipped documents, then its activation events delivered."""
+    from crew_health.config.adapters.repository import ConfigRepository
+    from crew_health.config.application.activation import ReleaseActivationService
+    from crew_health.config.application.loader import ConfigLoader
+    from crew_health.contracts_gen.enums import Role
+    from crew_health.kernel.config import CandidateRelease
+    from crew_health.kernel.uow import Actor, SessionContext
+
+    editor = SessionContext(
+        "s_ed2", "editor", Actor("operator", "operator_sim"), None, frozenset({Role.EDITOR})
+    )
+    repository = ConfigRepository()
+    service = ReleaseActivationService(
+        repository,
+        ConfigLoader(
+            base._seed_checks(base.config_artifacts(base._resources())),
+            max_document_bytes=st.db.settings.integer("commands.max_bytes"),
+        ),
+        st.db.ids,
+        origin=lambda view: "SIM",
+    )
+    documents = base._documents(st.db)
+    if edit is not None:
+        edit(documents)
+    with st.db.begin(actor=editor.actor, correlation_id="e24_" + release_id) as uow:
+        service.propose(uow, editor, CandidateRelease(release_id, documents))
+        etag = repository.revision(uow, release_id).etag  # the activation generation moves with every release
+        service.activate(uow, editor, release_id=release_id, expected_etag=etag)
+    st.dispatch()
+
+
+def co2_act_hour(st: base.Station, key: str, *, channel: str = "ch_co2", value: float = 4.0) -> None:
+    """An hour of CO2 readings above the one-hour act limit, posted live through the adapter and the real E23 gate:
+    every minute the clock advances and that minute's twelve readings arrive, so the channel is never stale.
+    CO2 is the only sensor type with sourced plausibility criteria (R-E23-2); every other type is "unavailable"
+    and never evaluated, so a sensor act warning in a served test comes from CO2."""
+    for minute in range(60):
+        st.advance(seconds=60)
+        rows = [
+            base.reading(
+                channel, minute * 12 + n + 1, value + wobble("co2", 5, minute * 12 + n), "mmHg",
+                seconds(st, 60 - 5 * n),
+            )
+            for n in range(12)
+        ]  # fmt: skip
+        sent = post(st, rows, f"{key}_{minute:02d}")
+        assert sent.status_code == 200, sent.text

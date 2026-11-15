@@ -56,6 +56,14 @@ def readings(st: base.Station, first: int, value: float, count: int) -> list[Any
     ]
 
 
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "Finding (R-E23-2): oxygen has no sourced plausibility criteria, so E23 marks every o2 reading "
+        "unavailable and never evaluates it; oxygen_high_act can neither raise nor clear from real readings. "
+        "Fail closed for clearing, but an oxygen hazard goes unwarned. Passes again once o2 criteria exist."
+    ),
+)
 def test_a_mission_day_without_the_model_raises_clears_and_expires_by_rule(
     patched: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

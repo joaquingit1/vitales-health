@@ -13,6 +13,7 @@ T-E24-016, 017, 127; INV-E24-04, INV-E24-15; D1, H6, H11.
 from __future__ import annotations
 
 import copy
+from typing import cast
 
 import pytest
 import rules_harness as h
@@ -20,7 +21,7 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 from crew_health.rules.domain.decisions import Clear
-from crew_health.rules.domain.definitions import parse_rules_document
+from crew_health.rules.domain.definitions import SensorLimitCondition, parse_rules_document
 from crew_health.rules.domain.inputs import ActivationInput
 from crew_health.rules.domain.vocabulary import ConditionKind, EnvironmentId, Level
 
@@ -62,7 +63,7 @@ def test_no_release_edit_clears_lowers_or_repins_an_active_sensor_warning(
     (definition,) = [d for d in RULES.definitions if d.id == definition_id]
     environment = sorted(e.value for e in definition.environments)[0]
     world = h.World(RULES, h.release_documents(), environment=EnvironmentId(environment))
-    limit = world.limits[definition.condition.limit_id]  # type: ignore[attr-defined]
+    limit = world.limits[cast(SensorLimitCondition, definition.condition).limit_id]
     if limit.status != "active" or limit.role != "warning":
         return  # a pending limit raises nothing (T-E24-027, 028)
     where = {"sensor_type": limit.sensor_type_id, "channel": "ch_" + limit.sensor_type_id}
@@ -73,7 +74,7 @@ def test_no_release_edit_clears_lowers_or_repins_an_active_sensor_warning(
         candidate = _edited(definition_id, edit, level, environment)
     except Exception:  # noqa: BLE001 - a candidate the parser refuses never activates (last good stays)
         return
-    world.reload(candidate)  # type: ignore[arg-type]
+    world.reload(candidate)
     decision = world.feed(ActivationInput(kind, "rel_a", "rel_b", environment))  # type: ignore[arg-type]
     assert not any(isinstance(s, Clear) for s in decision)
     assert world.warnings == before  # nothing cleared, lowered or repinned by the activation

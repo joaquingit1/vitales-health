@@ -474,8 +474,8 @@ def scope_keys(scope: Scope, inp: MissionEventInput) -> list[str]:
     return [inp.location if inp.location else f"environment:{inp.environment_id}"]
 
 
-def apply_input(rt: Runtime, uow: UnitOfWork, inp: RuleInput) -> Decision:
-    facts = rt.facts(uow)
+def apply_input(rt: Runtime, uow: UnitOfWork, inp: RuleInput, facts: ReleaseFacts | None = None) -> Decision:
+    facts = rt.facts(uow) if facts is None else facts
     if isinstance(inp, MissionEventInput):
         rt.mission_events.add(uow.connection, inp)
     view = build_view(rt, uow, facts, inp)
@@ -549,8 +549,19 @@ def run_input(rt: Runtime, uow: UnitOfWork, inp: RuleInput) -> None:
 def recover_one(rt: Runtime, uow: UnitOfWork, pending_id: str, kind: str, text: str) -> None:
     """Re-run one recorded input as recorded; clears obey the dwell rules, so a backlog never clears (3.6)."""
     inp = input_codec.loads(kind, text)
-    apply_input(rt, uow, inp)
+    apply_input(rt, uow, inp, recorded_facts(rt, uow, inp))
     rt.pending.done(uow.connection, pending_id)
+
+
+def recorded_facts(rt: Runtime, uow: UnitOfWork, inp: RuleInput) -> ReleaseFacts:
+    """The facts of the release an input was evaluated under (D13: recovery re-evaluates under the original
+    release). An activation between the fault and the recovery never turns a recorded crossing into a stale one;
+    the active release's cache is left as it is."""
+    active = rt.facts(uow)
+    recorded = getattr(inp, "config_release_id", None)
+    if not isinstance(recorded, str) or recorded == active.release_id or rt.binding is None:
+        return active
+    return release_facts.build(rt.binding.bind(uow).release(recorded))
 
 
 def ids_of(items: Sequence[Warning]) -> list[str]:
