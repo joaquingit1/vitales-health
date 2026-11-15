@@ -10,6 +10,51 @@ from crew_health.kernel.errors import ProblemError
 ROOT = Path(__file__).resolve().parents[3]
 
 
+@pytest.mark.trace("T-E13-090", "T-E13-091")
+def test_copy_covers_missing_guard_and_wire_identity_states_without_literal_ui_fallbacks() -> None:
+    raw = (ROOT / "config/assistant-ui.json").read_bytes()
+    value = Copy.parse(
+        CopyDocument(raw, hashlib.sha256(raw).hexdigest(), "rel_A"), release_id="rel_A", max_bytes=65536
+    )
+    assert {
+        "action_unavailable",
+        "guidance_unavailable",
+        "assessment_link_unavailable",
+        "operator_only",
+    } <= value.notice.keys()
+    assert {
+        "snapshot",
+        "config_release",
+        "evidence_release",
+        "origin",
+        "habitat_facts",
+        "model_id",
+        "revision",
+        "sha256",
+        "prompt_version",
+        "tool_catalog_version",
+        "mode",
+        "policy_version",
+        "progress",
+        "missing_value",
+    } <= value.labels.keys()
+    assert {
+        "queued",
+        "streaming",
+        "complete",
+        "cancelled",
+        "timed_out",
+        "rejected",
+        "failed",
+        "idle",
+        "closed",
+        "active",
+        "dismissed",
+        "expired",
+        "succeeded",
+    } <= value.states.keys()
+
+
 def policy(raw: bytes) -> Policy:
     return Policy.parse(raw, max_bytes=65536, max_iterations=32, max_timeout_seconds=300)
 

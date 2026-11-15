@@ -76,6 +76,26 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 4000
+        },
+        "action_unavailable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "guidance_unavailable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "assessment_link_unavailable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "operator_only": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
         }
       },
       "required": [
@@ -88,7 +108,11 @@
         "assessment_incomplete",
         "no_supported_passage",
         "repeat_request",
-        "step_not_in_plan"
+        "step_not_in_plan",
+        "action_unavailable",
+        "guidance_unavailable",
+        "assessment_link_unavailable",
+        "operator_only"
       ],
       "additionalProperties": false
     },
@@ -224,6 +248,126 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 4000
+        },
+        "conversation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "person": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "notice": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "assessment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "snapshot": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "config_release": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "evidence_release": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "created_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "capability": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "body_region": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "model_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "prompt_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "tool_catalog_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "mode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "policy_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "habitat_facts": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "origin": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "answered": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "reload": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "progress": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "missing_value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
         }
       },
       "required": [
@@ -252,7 +396,31 @@
         "decision_affected",
         "queue_depth",
         "model_release",
-        "load_more"
+        "load_more",
+        "conversation",
+        "person",
+        "notice",
+        "assessment",
+        "snapshot",
+        "config_release",
+        "evidence_release",
+        "created_at",
+        "capability",
+        "body_region",
+        "model_id",
+        "revision",
+        "sha256",
+        "prompt_version",
+        "tool_catalog_version",
+        "mode",
+        "policy_version",
+        "habitat_facts",
+        "origin",
+        "answered",
+        "reload",
+        "message",
+        "progress",
+        "missing_value"
       ],
       "additionalProperties": false
     },
@@ -308,6 +476,71 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 4000
+        },
+        "queued": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "streaming": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "complete": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "cancelled": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "timed_out": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "rejected": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "failed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "idle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "closed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "active": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "dismissed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "expired": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "succeeded": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
         }
       },
       "required": [
@@ -320,7 +553,20 @@
         "empty",
         "error",
         "stale",
-        "withheld"
+        "withheld",
+        "queued",
+        "streaming",
+        "complete",
+        "cancelled",
+        "timed_out",
+        "rejected",
+        "failed",
+        "idle",
+        "closed",
+        "active",
+        "dismissed",
+        "expired",
+        "succeeded"
       ],
       "additionalProperties": false
     }

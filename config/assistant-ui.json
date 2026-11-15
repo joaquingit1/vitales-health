@@ -14,7 +14,11 @@
     "assessment_incomplete": "This assessment is incomplete. Information is missing.",
     "no_supported_passage": "No supported passage is available.",
     "repeat_request": "This measurement has already been requested. Choose another way.",
-    "step_not_in_plan": "This step is not in the active plan."
+    "step_not_in_plan": "This step is not in the active plan.",
+    "action_unavailable": "An authorized action link is unavailable for this session.",
+    "guidance_unavailable": "Current guidance eligibility could not be confirmed.",
+    "assessment_link_unavailable": "No authorized assessment reference was returned.",
+    "operator_only": "Only an operator can change the assistant runtime."
   },
   "labels": {
     "assistant": "Assistant",
@@ -42,7 +46,31 @@
     "decision_affected": "What this changes",
     "queue_depth": "Queued turns",
     "model_release": "Model release",
-    "load_more": "More messages"
+    "load_more": "More messages",
+    "conversation": "Conversation",
+    "person": "You",
+    "notice": "Notice",
+    "assessment": "Assessment",
+    "snapshot": "Record version",
+    "config_release": "Configuration release",
+    "evidence_release": "Evidence release",
+    "created_at": "Created",
+    "capability": "Capability",
+    "body_region": "Body region",
+    "model_id": "Model",
+    "revision": "Revision",
+    "sha256": "SHA256",
+    "prompt_version": "Prompt version",
+    "tool_catalog_version": "Tool catalog version",
+    "mode": "Mode",
+    "policy_version": "Policy version",
+    "habitat_facts": "Place facts, separate from personal evidence",
+    "origin": "Origin",
+    "answered": "Answer sent",
+    "reload": "Reload",
+    "message": "Message",
+    "progress": "Progress",
+    "missing_value": "Not recorded"
   },
   "states": {
     "stopped": "Assistant stopped. Fixed help, records and measurement cards still work.",
@@ -54,6 +82,19 @@
     "empty": "No messages yet.",
     "error": "This could not be loaded. Try again.",
     "stale": "This view changed. Reload before acting.",
-    "withheld": "Content is unavailable for this session."
+    "withheld": "Content is unavailable for this session.",
+    "queued": "Queued.",
+    "streaming": "Waiting for verified completion.",
+    "complete": "Completed.",
+    "cancelled": "Cancelled.",
+    "timed_out": "Timed out.",
+    "rejected": "Withheld because verification failed.",
+    "failed": "Failed.",
+    "idle": "Ready for your message.",
+    "closed": "Conversation closed.",
+    "active": "Active.",
+    "dismissed": "Dismissed.",
+    "expired": "Expired.",
+    "succeeded": "Work finished."
   }
 }
