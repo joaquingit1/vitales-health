@@ -64,7 +64,15 @@ def test_the_shipped_profiles_document_is_the_package_example_and_passes_its_che
     example = json.loads(
         (PRODUCT / "api/examples/config/environment-profiles.example.json").read_text(encoding="utf-8")
     )
-    assert shipped == example["value"]  # content, notice and provenance exactly as the package states them
+    # Content, notice and provenance as the package states them, except the link schedules and delay sources that
+    # E29 completed in E23's document (AGENTS 1 rule 9; docs/build/E29/DESIGN.md, sourced N07 to N11).
+    e29_fields = (("link", "sim_schedule"), ("link", "basis"), ("comms_queue", "source_ids"))
+    expected = json.loads(json.dumps(example["value"]))
+    for got, want in zip(shipped["profiles"], expected["profiles"], strict=True):
+        for section, field in e29_fields:
+            want[section][field] = got[section][field]
+    assert shipped == expected
+    assert any(p["link"]["sim_schedule"] for p in shipped["profiles"])  # E29's schedules are present
     assert shipped["notice"] == "Unreviewed draft: needs clinician review before live guidance."
     raw = {
         **documents(),
