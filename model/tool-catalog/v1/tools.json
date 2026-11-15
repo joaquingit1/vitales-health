@@ -1,0 +1,990 @@
+{
+  "tools": [
+    {
+      "name": "get_episode_context",
+      "description": "Read relevant authorized episode facts",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sections": {
+            "type": "array",
+            "description": "Requested allowed sections; item enum finalized in TDD",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "sections"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "intake",
+      "effect": "read"
+    },
+    {
+      "name": "get_observations",
+      "description": "Read accepted and explicitly qualified observations",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "codes": {
+            "type": "array",
+            "description": "Observation codes",
+            "items": {
+              "type": "string"
+            }
+          },
+          "since": {
+            "type": "string",
+            "description": "UTC lower bound"
+          },
+          "context": {
+            "type": "object",
+            "description": "Activity/gravity/source filters",
+            "properties": {},
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "codes",
+          "since",
+          "context"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "intake",
+      "effect": "read"
+    },
+    {
+      "name": "get_medication_allergy_context",
+      "description": "Read recorded relevant substances and reactions",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Clinical relevance"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "intake",
+      "effect": "read"
+    },
+    {
+      "name": "get_capabilities",
+      "description": "Read actual equipment and operator availability",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "codes": {
+            "type": "array",
+            "description": "Capability codes",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "codes"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "intake",
+      "effect": "read"
+    },
+    {
+      "name": "get_pathway",
+      "description": "Read approved applicable pathway",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "complaint_or_condition": {
+            "type": "string",
+            "description": "Registry ID"
+          },
+          "context": {
+            "type": "object",
+            "description": "Mission and clinical applicability",
+            "properties": {},
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "complaint_or_condition",
+          "context"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "assessment",
+      "effect": "read"
+    },
+    {
+      "name": "search_evidence",
+      "description": "Search approved release only",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Focused question"
+          },
+          "filters": {
+            "type": "object",
+            "description": "Applicability filters",
+            "properties": {},
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "query",
+          "filters"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "assessment",
+      "effect": "read"
+    },
+    {
+      "name": "read_source_passage",
+      "description": "Read immutable cited passage",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "passage_id": {
+            "type": "string",
+            "description": "Allowed passage ID"
+          },
+          "include_parent": {
+            "type": "boolean",
+            "description": "Expand section context"
+          }
+        },
+        "required": [
+          "passage_id",
+          "include_parent"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "assessment",
+      "effect": "read"
+    },
+    {
+      "name": "compare_observations",
+      "description": "Run registered comparison",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "observation_ids": {
+            "type": "array",
+            "description": "Authorized accepted IDs",
+            "items": {
+              "type": "string"
+            }
+          },
+          "method_id": {
+            "type": "string",
+            "description": "Versioned allowlisted method"
+          }
+        },
+        "required": [
+          "observation_ids",
+          "method_id"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "assessment",
+      "effect": "compute"
+    },
+    {
+      "name": "calculate_validated_metric",
+      "description": "Compute only a registered applicable metric",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "metric_id": {
+            "type": "string",
+            "description": "Versioned formula"
+          },
+          "input_ids": {
+            "type": "array",
+            "description": "Required accepted observations",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "metric_id",
+          "input_ids"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "assessment",
+      "effect": "compute"
+    },
+    {
+      "name": "get_environment_context",
+      "description": "Read mission-linked environment with time/origin",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "description": "UTC start"
+          },
+          "end": {
+            "type": "string",
+            "description": "UTC end"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "assessment",
+      "effect": "read"
+    },
+    {
+      "name": "get_report_findings",
+      "description": "Read confirmed findings with source spans",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "report_ids": {
+            "type": "array",
+            "description": "Authorized reports",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "report_ids"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "assessment",
+      "effect": "read"
+    },
+    {
+      "name": "propose_question",
+      "description": "Propose one relevant question",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "decision_affected": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "question_id",
+          "reason",
+          "decision_affected"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "acquisition",
+      "effect": "proposal"
+    },
+    {
+      "name": "propose_measurement",
+      "description": "Propose; controller/person authorize acquisition",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "capability_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "decision_affected": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "body_region": {
+            "anyOf": [
+              {
+                "enum": [
+                  "head",
+                  "eyes",
+                  "ear",
+                  "neck",
+                  "shoulder",
+                  "heart",
+                  "lungs",
+                  "abdomen",
+                  "flank",
+                  "back",
+                  "wrist",
+                  "hand",
+                  "legs",
+                  "knee",
+                  "ankle"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "condition_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          "source_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        },
+        "required": [
+          "capability_code",
+          "reason",
+          "decision_affected"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "acquisition",
+      "effect": "proposal"
+    },
+    {
+      "name": "propose_review",
+      "description": "Draft review task without external sending",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Concern and uncertainty"
+          },
+          "unresolved_ids": {
+            "type": "array",
+            "description": "Gaps",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "reason",
+          "unresolved_ids"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "disposition",
+      "effect": "proposal"
+    },
+    {
+      "name": "draft_assessment",
+      "description": "Propose structured evidence-based assessment",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "assessment": {
+            "type": "object",
+            "properties": {
+              "summary": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "findings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    },
+                    "body_region": {
+                      "anyOf": [
+                        {
+                          "enum": [
+                            "head",
+                            "eyes",
+                            "ear",
+                            "neck",
+                            "shoulder",
+                            "heart",
+                            "lungs",
+                            "abdomen",
+                            "flank",
+                            "back",
+                            "wrist",
+                            "hand",
+                            "legs",
+                            "knee",
+                            "ankle"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "evidence_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "enum": [
+                              "observation",
+                              "answer",
+                              "passage",
+                              "daily_check"
+                            ]
+                          },
+                          "ref_id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "ref_id"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "body_region",
+                    "evidence_refs"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "hypotheses": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    },
+                    "body_region": {
+                      "anyOf": [
+                        {
+                          "enum": [
+                            "head",
+                            "eyes",
+                            "ear",
+                            "neck",
+                            "shoulder",
+                            "heart",
+                            "lungs",
+                            "abdomen",
+                            "flank",
+                            "back",
+                            "wrist",
+                            "hand",
+                            "legs",
+                            "knee",
+                            "ankle"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "evidence_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "enum": [
+                              "observation",
+                              "answer",
+                              "passage",
+                              "daily_check"
+                            ]
+                          },
+                          "ref_id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "ref_id"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "condition_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      }
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "body_region",
+                    "evidence_refs",
+                    "condition_ids"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "contradictions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    },
+                    "evidence_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "enum": [
+                              "observation",
+                              "answer",
+                              "passage",
+                              "daily_check"
+                            ]
+                          },
+                          "ref_id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "ref_id"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "evidence_refs"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "missing_evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    },
+                    "body_region": {
+                      "anyOf": [
+                        {
+                          "enum": [
+                            "head",
+                            "eyes",
+                            "ear",
+                            "neck",
+                            "shoulder",
+                            "heart",
+                            "lungs",
+                            "abdomen",
+                            "flank",
+                            "back",
+                            "wrist",
+                            "hand",
+                            "legs",
+                            "knee",
+                            "ankle"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "capability_code": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "question_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "body_region",
+                    "capability_code",
+                    "question_id"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "next_step": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "question",
+                          "measurement",
+                          "plan_step"
+                        ]
+                      },
+                      "ref_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "ref_id"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "urgency_review_requested": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "summary",
+              "findings",
+              "hypotheses",
+              "contradictions",
+              "missing_evidence",
+              "next_step",
+              "urgency_review_requested"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "assessment"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "disposition",
+      "effect": "proposal"
+    },
+    {
+      "name": "draft_handoff",
+      "description": "Draft summary for explicit sharing approval",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "field_ids": {
+            "type": "array",
+            "description": "Allowed selected clinical fields",
+            "items": {
+              "type": "string"
+            }
+          },
+          "purpose": {
+            "type": "string",
+            "description": "Recipient purpose"
+          }
+        },
+        "required": [
+          "field_ids",
+          "purpose"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "disposition",
+      "effect": "proposal"
+    },
+    {
+      "name": "record_unresolved_gap",
+      "description": "Propose an explicit assessment gap",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "capability_or_fact": {
+            "type": "string",
+            "description": "Missing evidence"
+          },
+          "consequence": {
+            "type": "string",
+            "description": "What cannot be concluded"
+          }
+        },
+        "required": [
+          "capability_or_fact",
+          "consequence"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "disposition",
+      "effect": "proposal"
+    },
+    {
+      "name": "get_forecast",
+      "description": "Read experimental forecast",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "series_code": {
+            "type": "string",
+            "description": "Eligible indicator"
+          },
+          "forecast_version": {
+            "type": "string",
+            "description": "Pinned release"
+          }
+        },
+        "required": [
+          "series_code",
+          "forecast_version"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "assessment",
+      "effect": "compute"
+    },
+    {
+      "name": "get_plan",
+      "description": "Read the PlanView for the episode's condition, or the help session's flow, in the active environment and release (CONTRACTS section 22)",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "condition_id": {
+            "type": "string",
+            "description": "A kit-map.json condition ID named by the episode, for example ICL10"
+          },
+          "flow_id": {
+            "type": "string",
+            "description": "A responder flow ID, when the context is a help session"
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "minProperties": 1,
+        "maxProperties": 1
+      },
+      "stage": "disposition",
+      "effect": "read"
+    },
+    {
+      "name": "choose_plan_step",
+      "description": "Propose the next plan step to show, with the answer that led to it. The person sees the step text from configuration, never model text",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "description": "The plan returned by get_plan"
+          },
+          "step_id": {
+            "type": "string",
+            "description": "A step_id in that plan"
+          },
+          "because_answer_id": {
+            "type": "string",
+            "description": "The Answer or message that led to it"
+          }
+        },
+        "required": [
+          "plan_id",
+          "step_id",
+          "because_answer_id"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "disposition",
+      "effect": "proposal"
+    },
+    {
+      "name": "explain_step",
+      "description": "Read a step's authored text_first_time and the approved passages its source_ids cite, to answer why",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "description": "The plan the step belongs to"
+          },
+          "step_id": {
+            "type": "string",
+            "description": "A step_id in that plan"
+          }
+        },
+        "required": [
+          "plan_id",
+          "step_id"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "disposition",
+      "effect": "read"
+    },
+    {
+      "name": "propose_guided_check",
+      "description": "Propose a guided check for a check_another_way step: the skill, and the helper the role engine proposes",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "description": "The plan the step belongs to"
+          },
+          "step_id": {
+            "type": "string",
+            "description": "A step whose guided_check_skill_id is set"
+          },
+          "reason": {
+            "type": "string",
+            "description": "The decision the check would inform"
+          }
+        },
+        "required": [
+          "plan_id",
+          "step_id",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "acquisition",
+      "effect": "proposal"
+    },
+    {
+      "name": "get_crew_readiness",
+      "description": "Read who can do a step now, with reasons: skill freshness and availability, no health data",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "description": "The plan the step belongs to"
+          },
+          "step_id": {
+            "type": "string",
+            "description": "The step"
+          }
+        },
+        "required": [
+          "plan_id",
+          "step_id"
+        ],
+        "additionalProperties": false
+      },
+      "stage": "acquisition",
+      "effect": "read"
+    }
+  ],
+  "exposure": {
+    "intake": [
+      "get_episode_context",
+      "get_observations",
+      "get_medication_allergy_context",
+      "get_capabilities",
+      "propose_question",
+      "propose_measurement",
+      "propose_guided_check",
+      "get_crew_readiness"
+    ],
+    "assessment": [
+      "get_pathway",
+      "search_evidence",
+      "read_source_passage",
+      "compare_observations",
+      "calculate_validated_metric",
+      "get_environment_context",
+      "get_report_findings",
+      "get_forecast",
+      "draft_assessment",
+      "record_unresolved_gap"
+    ],
+    "disposition": [
+      "propose_review",
+      "draft_handoff",
+      "record_unresolved_gap",
+      "get_plan",
+      "choose_plan_step",
+      "explain_step",
+      "get_crew_readiness"
+    ],
+    "help": [
+      "get_plan",
+      "choose_plan_step",
+      "explain_step",
+      "get_capabilities",
+      "get_observations",
+      "propose_measurement",
+      "propose_guided_check",
+      "get_crew_readiness"
+    ],
+    "insight": [
+      "get_observations",
+      "get_environment_context",
+      "get_forecast",
+      "search_evidence",
+      "read_source_passage"
+    ],
+    "general": [
+      "search_evidence",
+      "read_source_passage"
+    ],
+    "verifier": []
+  },
+  "basis": "E13 3.3/3.7 and LLM-ARCHITECTURE 4.1/line142: acquisition tools belong to intake/help and draft_assessment to assessment. Exposure grouping is a team assumption pending E18 dev comparison. Assessment payload is verbatim structural fields from E13 3.7; body regions copied from common.schema.json. Legacy scope objects remain closed and empty; E12 injects authoritative scope."
+}
