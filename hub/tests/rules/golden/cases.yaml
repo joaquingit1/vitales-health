@@ -126,7 +126,7 @@ cases:
       section: "Q9"
       quote: "Goes at once to someone awake (medical officer or crew member on duty); the sleeper is woken only if nobody awake acknowledges within a configured time."
     input: {sleepers: [p3], awake: [p1], acknowledged_by: [], elapsed: 10, wake_after: 300, may_receive: true}
-    expected: {notify_now: [p1], wake_now: [], wake_after: 300}
+    expected: {notify_now: [p1], wake_now: [], wake_after: 290}  # seconds from now: 300 configured minus 10 elapsed
 
   - id: G-Q9-ACKNOWLEDGED
     kind: act_routing

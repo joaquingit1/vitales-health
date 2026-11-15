@@ -89,7 +89,7 @@ def held_items(candidates: Iterable[Warning], span: HoldSpan, *, person_id: str)
 class ActRouting:
     notify_now: tuple[str, ...]
     wake_now: tuple[str, ...]
-    wake_after_seconds: int | None  # an elapsed deadline to schedule, else `None`
+    wake_after_seconds: int | None  # seconds from now until the wake deadline, else `None`
 
 
 def route_act(
@@ -116,4 +116,6 @@ def route_act(
         return ActRouting(responders, (), None)
     if elapsed_seconds >= wake_after_seconds:
         return ActRouting(responders, asleep, None)
-    return ActRouting(responders, (), wake_after_seconds)
+    return ActRouting(
+        responders, (), wake_after_seconds - elapsed_seconds
+    )  # remaining, never the full interval

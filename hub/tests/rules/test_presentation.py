@@ -139,7 +139,8 @@ def test_q9_act_goes_at_once_to_someone_awake_and_the_sleeper_waits_for_the_conf
         wake_after_seconds=300,
         responders_may_receive=True,
     )
-    assert routing.notify_now == ("p1", "p2") and routing.wake_now == () and routing.wake_after_seconds == 300
+    # 10 of the 300 configured seconds have passed: the deadline is the remaining 290, so the wake is never late.
+    assert routing.notify_now == ("p1", "p2") and routing.wake_now == () and routing.wake_after_seconds == 290
 
 
 @pytest.mark.trace("Q9")
