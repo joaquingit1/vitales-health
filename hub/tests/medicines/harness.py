@@ -279,23 +279,6 @@ def kit_map_release() -> MemoryRelease:
     return MemoryRelease("release_1", {ConfigName.KIT_MAP: document})
 
 
-CONFIRMED_AS: frozenset[str | int | bool] = frozenset({"crew_medical_officer", "acting_medical_officer"})
-
-
-def audit_policies() -> tuple[AuditPolicy, ...]:
-    """The audit entries this module writes (m11: registered by the harness until E01's registry hooks merge)."""
-    return (
-        AuditPolicy("medicines.administered", {"confirmed_as": CONFIRMED_AS}, frozenset(), {}),
-        AuditPolicy(
-            "medicines.administered_acting",
-            {"confirmed_as": CONFIRMED_AS},
-            frozenset({"role_assignment"}),
-            {"role_assignment": frozenset({"role_assignment"})},
-        ),
-        AuditPolicy("medicines.corrected", {}, frozenset(), {}),
-    )
-
-
 def config_copy(directory: Path, edit: Callable[[dict[str, object], dict[str, object]], None]) -> Path:
     """A copy of config/ in which `edit(treatments, medicines)` changed the two medicines documents."""
     target = directory / "config"
@@ -490,8 +473,6 @@ def build_station(
     db.event_sink = EventRepository(
         settings=settings, ids=db.ids, validator=EventValidator(schema_directory=SCHEMAS)
     ).append
-    for policy in audit_policies():
-        db.register_audit_policy(policy)
     registry = DeclarationRegistry(max_ports=1024, max_hooks=1024)
     fake_mission, authority = Mission(mission if mission is not None else lunar()), Authority()
     consent, plans, corrections = Consent(), Plans(), Corrections()
@@ -507,6 +488,9 @@ def build_station(
     registry.provide(medicines_module.RequestAuthenticator, lambda _: Sessions())  # type: ignore[type-abstract]
     platform_module.register(registry)
     medicines_module.register(registry)
+    # The module's own declared audit policies, installed as E01's assembly installs them (SYSTEM 5.8).
+    for policy in registry.declarations.get("audit_policies", {}).values():
+        db.register_audit_policy(cast(AuditPolicy, policy))
     service = TaskService(
         settings=db.settings,
         repository=TaskRepository(),

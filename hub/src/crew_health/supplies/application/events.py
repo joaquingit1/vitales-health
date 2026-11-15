@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from crew_health.contracts_gen.enums import EventType, Role
-from crew_health.kernel.audit import AuditEntry
+from crew_health.contracts_gen.enums import ErrorCode, EventType, Role
+from crew_health.kernel.audit import AuditEntry, AuditPolicy
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.uow import (
@@ -33,6 +33,20 @@ USE_RECORD = "supply_use"
 REFUSAL_RECORD = "supply_use_refusal"
 AUDIT_USE = "supplies.use_recorded"
 AUDIT_REFUSED = "supplies.use_refused"
+
+
+def audit_policies() -> tuple[AuditPolicy, ...]:
+    """SYSTEM 5.8: the audit entries this module writes. The platform audit log refuses an entry whose type has no
+    registered policy (INVALID_VALUE), so module.register declares each one through registry.audit_policy."""
+    return (
+        AuditPolicy(AUDIT_USE, {}, frozenset({USE_RECORD}), {USE_RECORD: frozenset({USE_RECORD})}),
+        AuditPolicy(
+            AUDIT_REFUSED,
+            {"code": frozenset({ErrorCode.SUPPLY_BELOW_ZERO.value, ErrorCode.INVALID_VALUE.value})},
+            frozenset({REFUSAL_RECORD}),
+            {REFUSAL_RECORD: frozenset({REFUSAL_RECORD})},
+        ),
+    )
 
 
 def partition_of(partition: Partition) -> SupplyPartition:

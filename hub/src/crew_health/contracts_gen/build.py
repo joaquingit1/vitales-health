@@ -259,6 +259,22 @@ def verify_overlay(root: Path, base: Mapping[str, str]) -> Overlay | None:
     return Overlay(version, manifest_sha256, files, additions, tuple(traces), replacements)
 
 
+def _pointer_child(parent: object, part: str) -> object:
+    if isinstance(parent, dict) and part in parent:
+        child: object = parent[part]
+        return child
+    if (
+        isinstance(parent, list)
+        and re.fullmatch(r"0|[1-9][0-9]*", part) is not None
+        and len(part) <= len(str(len(parent)))
+    ):
+        index = int(part)
+        if index < len(parent):
+            child = parent[index]
+            return child
+    raise ValueError("overlay JSON pointer does not resolve")
+
+
 def replace_pointer(raw: bytes, edit: Mapping[str, object]) -> bytes:
     """Replace one existing JSON value, rejecting stale expectations and invalid pointers."""
     pointer = edit["pointer"]
@@ -271,14 +287,14 @@ def replace_pointer(raw: bytes, edit: Mapping[str, object]) -> bytes:
     document: object = json.loads(raw, object_pairs_hook=unique_object)
     parent = document
     for part in parts[:-1]:
-        if not isinstance(parent, dict) or part not in parent:
-            raise ValueError("overlay JSON pointer does not resolve")
-        parent = parent[part]
-    if not isinstance(parent, dict) or parts[-1] not in parent:
-        raise ValueError("overlay JSON pointer does not resolve")
-    if parent[parts[-1]] != edit["expected"]:
+        parent = _pointer_child(parent, part)
+    current = _pointer_child(parent, parts[-1])
+    if current != edit["expected"]:
         raise ValueError("overlay JSON pointer expectation differs")
-    parent[parts[-1]] = edit["value"]
+    if isinstance(parent, dict):
+        parent[parts[-1]] = edit["value"]
+    elif isinstance(parent, list):
+        parent[int(parts[-1])] = edit["value"]
     return (json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
 
 

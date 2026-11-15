@@ -13,7 +13,7 @@ from decimal import Decimal
 from typing import cast
 
 from crew_health.contracts_gen.enums import ErrorCode
-from crew_health.kernel.audit import AuditEntry
+from crew_health.kernel.audit import AuditEntry, AuditPolicy
 from crew_health.kernel.clock import Clock, ClockCorrections
 from crew_health.kernel.commands import (
     AcceptedReceipt,
@@ -85,6 +85,7 @@ AUDIT_ADMINISTERED_ACTING = (
     "medicines.administered_acting"  # refs the role_assignment that made the confirmer acting
 )
 AUDIT_CORRECTED = "medicines.corrected"
+CONFIRMED_AS: frozenset[str | int | bool] = frozenset({"crew_medical_officer", "acting_medical_officer"})
 ADMIN_RECORD = "medication_administration"
 _INTERNAL = frozenset({"rule_id", "lineage_id", "reason_text"})  # stored, never on the wire
 
@@ -1373,6 +1374,21 @@ def _administer(
     _audit(deps, uow, AUDIT_ADMINISTERED, a.who)
     events.administered(uow, administration_id, a.subject, a.proposal_id, a.outside_engine)
     return administration_view(deps, uow, administration_id)
+
+
+def audit_policies() -> tuple[AuditPolicy, ...]:
+    """SYSTEM 5.8: the audit entries `_audit` writes. The platform audit log refuses an entry whose type has no
+    registered policy (INVALID_VALUE), so module.register declares each one through registry.audit_policy."""
+    return (
+        AuditPolicy(AUDIT_ADMINISTERED, {"confirmed_as": CONFIRMED_AS}, frozenset(), {}),
+        AuditPolicy(
+            AUDIT_ADMINISTERED_ACTING,
+            {"confirmed_as": CONFIRMED_AS},
+            frozenset({"role_assignment"}),
+            {"role_assignment": frozenset({"role_assignment"})},
+        ),
+        AuditPolicy(AUDIT_CORRECTED, {}, frozenset(), {}),
+    )
 
 
 def _audit(deps: Deps, uow: UnitOfWork, event_type: str, who: Confirmer | None = None) -> None:

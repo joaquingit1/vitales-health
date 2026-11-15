@@ -219,7 +219,7 @@ class MedicationRecordReader(Protocol):
 # ---- consumed ----
 
 
-# Provided by E02 (crew_health.consent); structural copy until it is on main (SYSTEM 4.2 row consent, 8.3).
+# Provided by E02 (crew_health.consent), bound under this class by app/privacy.py (SYSTEM 4.2 row consent, 8.3).
 class ConsentQueries(Protocol):
     """Whether `subject_person_id` shared `scope` with `recipient` now. SYSTEM 8.3: officer status, an assignment or
     a help session never grants a chart read; absent provider, nobody but the subject reads (fail closed)."""

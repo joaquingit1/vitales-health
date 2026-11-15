@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "properties": {
+    "release_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "previous_release_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "activated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "activated_by": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "release_id",
+    "previous_release_id",
+    "activated_at",
+    "activated_by"
+  ],
+  "additionalProperties": false
+}

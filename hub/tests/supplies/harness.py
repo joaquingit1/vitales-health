@@ -35,13 +35,13 @@ from crew_health.kernel.testing import MemoryIds, MemoryRelease
 from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
 from crew_health.platform import module as platform_module
-from crew_health.platform.domain.audit import AuditPolicy
 from crew_health.platform.settings import ValidatedSettings
 from crew_health.platform.storage import SQLiteDatabase
 from crew_health.platform.testing.sqlite import test_settings
 from crew_health.supplies import module as supplies_module
 from crew_health.supplies.api.router import RequestAuthenticator
 from crew_health.supplies.application import settings as supplies_settings
+from crew_health.supplies.application.events import audit_policies
 from crew_health.supplies.application.ports import MissionFacts, MissionStatePort, PlanRunReader, RunContext
 
 with warnings.catch_warnings():  # starlette's own deprecation notice on importing its test client, not ours
@@ -195,21 +195,6 @@ class Sessions:
         if found is None:
             raise ProblemError(ErrorCode.UNAUTHENTICATED, ErrorCode.UNAUTHENTICATED.value)
         return found
-
-
-def audit_policies() -> tuple[AuditPolicy, ...]:
-    """The audit entries this module writes, registered the way E01 registers its core policies."""
-    return (
-        AuditPolicy(
-            "supplies.use_recorded", {}, frozenset({"supply_use"}), {"supply_use": frozenset({"supply_use"})}
-        ),
-        AuditPolicy(
-            "supplies.use_refused",
-            {"code": frozenset({"SUPPLY_BELOW_ZERO", "INVALID_VALUE"})},
-            frozenset({"supply_use_refusal"}),
-            {"supply_use_refusal": frozenset({"supply_use_refusal"})},
-        ),
-    )
 
 
 def open_database(

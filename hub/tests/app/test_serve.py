@@ -24,14 +24,15 @@ ROOT = Path(__file__).resolve().parents[3]
 def settings_file(tmp_path: Path) -> Path:
     entries = []
     for spec in cli.registered_settings():
-        # Integers at their registered maximum, switches off and text settings empty.
-        assert spec.kind in {"integer", "boolean", "text"} and spec.unit is None
+        # Integers at their registered maximum, switches off and text settings empty. An integer may carry its
+        # UCUM unit (E02's durations do); the document repeats the registered unit.
+        assert spec.kind in {"integer", "boolean", "text"}
         value: object = {"integer": int(spec.maximum or 0), "boolean": False, "text": ""}[spec.kind]
         entries.append(
             {
                 "key": spec.key,
                 "kind": spec.kind,
-                "unit": None,
+                "unit": None if spec.unit is None else spec.unit.code,
                 "minimum": None if spec.minimum is None else str(spec.minimum),
                 "maximum": None if spec.maximum is None else str(spec.maximum),
                 "basis": "serve test profile at each registered maximum",

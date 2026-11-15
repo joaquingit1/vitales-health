@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/ggml-org/llama.cpp",
+  "commit": "620d2225cc436ab0b001e3200e590e3b286ef9ab",
+  "build": "11669",
+  "source": "Installed llama-server --version, captured 2026-11-15",
+  "help_sha256": "9c15905aca31fd975b183f00f4dbc9c79b46b2b61df7247682d2cc2738feea8d",
+  "binary_sha256": "9dc31a8a15f81b8f252e68d1918419e0bbbf5008bd42d00dd8721a58834e384a"
+}

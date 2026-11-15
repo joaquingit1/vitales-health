@@ -23,7 +23,7 @@ from crew_health.supplies.application.wire import encode
 from crew_health.supplies.domain.errors import SuppliesError
 
 
-# Provided by E02 (crew_health.identity); structural copy until it is on main. Resolves the caller's session for one
+# Provided by E02 (crew_health.identity), bound under this class by app/privacy.py. Resolves the caller's session for one
 # operation or raises the contract's UNAUTHENTICATED problem.
 class RequestAuthenticator(Protocol):
     def session(self, request: Request, operation_id: str) -> SessionContext: ...

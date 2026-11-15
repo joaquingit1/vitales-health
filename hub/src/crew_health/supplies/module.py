@@ -16,10 +16,12 @@ from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.contracts_gen.schemas.supply_use_schema import SupplyUse
 from crew_health.guidance.application.ports import Fact, StockFact, StockFacts
 from crew_health.help.application.ports import HelpSessionReader
+from crew_health.kernel.audit import AuditPolicy
 from crew_health.kernel.commands import IdempotencyStore, canonical_json
 from crew_health.kernel.config import ActivationGuard, ConfigReleaseReader, ReleaseCheck
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import IdFactory
+from crew_health.kernel.replication import ReplicatedTable
 from crew_health.kernel.settings import HubSettings, SettingSpec
 from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import (
@@ -39,7 +41,14 @@ from crew_health.supplies.adapters.verifier import verify_ledger
 from crew_health.supplies.api.router import RequestAuthenticator, build_router
 from crew_health.supplies.application import provided
 from crew_health.supplies.application.context import BoundedCalls, Corrupt, Deps
-from crew_health.supplies.application.events import AUDIENCE_RULE, CREW_EVENT_ROLES, PROJECTION
+from crew_health.supplies.application.events import (
+    AUDIENCE_RULE,
+    CREW_EVENT_ROLES,
+    PROJECTION,
+    REFUSAL_RECORD,
+    USE_RECORD,
+    audit_policies,
+)
 from crew_health.supplies.application.ports import (
     CoverChange,
     CoverFact,
@@ -93,6 +102,8 @@ class ModuleRegistry(Protocol):
     def activation_guard(self, guard: ActivationGuard) -> None: ...
     def id_prefix(self, *, record_type: str, prefix: str) -> None: ...
     def setting(self, spec: SettingSpec) -> None: ...
+    def audit_policy(self, policy: AuditPolicy) -> None: ...
+    def replicated_table(self, table: ReplicatedTable) -> None: ...
 
 
 class CrewAudience:
@@ -279,6 +290,11 @@ def register(registry: ModuleRegistry) -> None:
     registry.id_prefix(record_type="supply_use_refusal", prefix="supr")
     for spec in specs():
         registry.setting(spec)
+    for policy in audit_policies():
+        registry.audit_policy(policy)
+    # SYSTEM 5.7: every write to these tables declares its replication in the same unit of work (events.py).
+    registry.replicated_table(ReplicatedTable("supplies_use", USE_RECORD, "supply_use_id"))
+    registry.replicated_table(ReplicatedTable("supplies_use_refused", REFUSAL_RECORD, "refusal_id"))
     rule = CrewAudience()
     registry.audience_rule(AUDIENCE_RULE, rule)
     registry.local_projection(

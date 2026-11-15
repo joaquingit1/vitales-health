@@ -15,6 +15,7 @@ from fastapi import APIRouter, Request
 
 from crew_health.app.registry import StartupPhase
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode
+from crew_health.kernel.audit import AuditPolicy
 from crew_health.kernel.clock import Clock, ClockCorrections
 from crew_health.kernel.commands import IdempotencyStore
 from crew_health.kernel.errors import ProblemError
@@ -41,7 +42,7 @@ from crew_health.medicines.application.ports import (
     WeightReader,
 )
 from crew_health.medicines.application.settings import CONFIG_DIR, ENGINE_PYTHON, read_limits, specs
-from crew_health.medicines.application.use_cases import Deps, Documents, active_medicine_names
+from crew_health.medicines.application.use_cases import Deps, Documents, active_medicine_names, audit_policies
 from crew_health.medicines.domain.documents import DocumentsInvalid
 from crew_health.roles.application.ports import ClinicalAuthorityQuery
 from crew_health.supplies.application.ports import MissionStatePort
@@ -64,9 +65,10 @@ class ModuleRegistry(Protocol):
     def audience_rule(self, name: str, rule: AudienceRule) -> None: ...
     def local_projection(self, registration: LocalProjectionRegistration) -> None: ...
     def on_startup(self, phase: StartupPhase, fn: Callable[[], None]) -> None: ...
+    def audit_policy(self, policy: AuditPolicy) -> None: ...
 
 
-# Provided by E02 (crew_health.identity); structural copy until it is on main.
+# Provided by E02 (crew_health.identity), bound under this class by app/privacy.py (its session gate).
 class RequestAuthenticator(Protocol):
     def session(self, request: Request, operation_id: str) -> SessionContext: ...
 
@@ -238,6 +240,8 @@ def register(registry: ModuleRegistry) -> None:
         registry.id_prefix(record_type=record_type, prefix=prefix)
     for spec in specs():
         registry.setting(spec)
+    for policy in audit_policies():
+        registry.audit_policy(policy)
     registry.audience_rule(events.CREW_RULE, events.CrewAudience())
     person = events.PersonAudience(runtime.consent)
     registry.audience_rule(events.PERSON_RULE, person)

@@ -1,0 +1,407 @@
+{
+  "$defs": {
+    "Acknowledge": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "acknowledge",
+          "title": "Action",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "title": "Acknowledge",
+      "type": "object"
+    },
+    "AddFollowup": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "add_followup",
+          "title": "Action",
+          "type": "string"
+        },
+        "action_text": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Action Text",
+          "type": "string"
+        },
+        "owner_person_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner Person Id"
+        },
+        "due_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Due At"
+        }
+      },
+      "required": [
+        "action",
+        "action_text"
+      ],
+      "title": "AddFollowup",
+      "type": "object"
+    },
+    "CancelFollowup": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "cancel_followup",
+          "title": "Action",
+          "type": "string"
+        },
+        "task_id": {
+          "pattern": "^[A-Za-z0-9_]+$",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "task_revision": {
+          "minimum": 1,
+          "title": "Task Revision",
+          "type": "integer"
+        },
+        "cancellation_reason": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Cancellation Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "task_id",
+        "task_revision",
+        "cancellation_reason"
+      ],
+      "title": "CancelFollowup",
+      "type": "object"
+    },
+    "CompleteFollowup": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "complete_followup",
+          "title": "Action",
+          "type": "string"
+        },
+        "task_id": {
+          "pattern": "^[A-Za-z0-9_]+$",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "task_revision": {
+          "minimum": 1,
+          "title": "Task Revision",
+          "type": "integer"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Ref"
+        }
+      },
+      "required": [
+        "action",
+        "task_id",
+        "task_revision"
+      ],
+      "title": "CompleteFollowup",
+      "type": "object"
+    },
+    "CorrectOnset": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "correct_onset",
+          "title": "Action",
+          "type": "string"
+        },
+        "onset": {
+          "$ref": "#/$defs/OnsetBody"
+        }
+      },
+      "required": [
+        "action",
+        "onset"
+      ],
+      "title": "CorrectOnset",
+      "type": "object"
+    },
+    "OnsetBody": {
+      "additionalProperties": false,
+      "properties": {
+        "at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "At"
+        },
+        "precision": {
+          "enum": [
+            "exact",
+            "hour",
+            "day",
+            "unknown"
+          ],
+          "title": "Precision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "at",
+        "precision"
+      ],
+      "title": "OnsetBody",
+      "type": "object"
+    },
+    "ReassignFollowup": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "reassign_followup",
+          "title": "Action",
+          "type": "string"
+        },
+        "task_id": {
+          "pattern": "^[A-Za-z0-9_]+$",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "task_revision": {
+          "minimum": 1,
+          "title": "Task Revision",
+          "type": "integer"
+        },
+        "owner_person_id": {
+          "pattern": "^[A-Za-z0-9_]+$",
+          "title": "Owner Person Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "task_id",
+        "task_revision",
+        "owner_person_id"
+      ],
+      "title": "ReassignFollowup",
+      "type": "object"
+    },
+    "Reopen": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "reopen",
+          "title": "Action",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "symptoms_recurred",
+            "evidence_changed",
+            "recorded_in_error"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "action",
+        "reason"
+      ],
+      "title": "Reopen",
+      "type": "object"
+    },
+    "RequestReview": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "request_review",
+          "title": "Action",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "title": "RequestReview",
+      "type": "object"
+    },
+    "Resolve": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "resolve",
+          "title": "Action",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "measurement_anomaly_not_reproduced",
+            "symptoms_reported_resolved",
+            "clinician_assessed"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "rationale": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rationale"
+        },
+        "observation_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 1000,
+          "title": "Observation Ids",
+          "type": "array"
+        },
+        "review_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Review Id"
+        }
+      },
+      "required": [
+        "action",
+        "reason"
+      ],
+      "title": "Resolve",
+      "type": "object"
+    }
+  },
+  "discriminator": {
+    "mapping": {
+      "acknowledge": "#/$defs/Acknowledge",
+      "add_followup": "#/$defs/AddFollowup",
+      "cancel_followup": "#/$defs/CancelFollowup",
+      "complete_followup": "#/$defs/CompleteFollowup",
+      "correct_onset": "#/$defs/CorrectOnset",
+      "reassign_followup": "#/$defs/ReassignFollowup",
+      "reopen": "#/$defs/Reopen",
+      "request_review": "#/$defs/RequestReview",
+      "resolve": "#/$defs/Resolve"
+    },
+    "propertyName": "action"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Acknowledge"
+    },
+    {
+      "$ref": "#/$defs/RequestReview"
+    },
+    {
+      "$ref": "#/$defs/AddFollowup"
+    },
+    {
+      "$ref": "#/$defs/CompleteFollowup"
+    },
+    {
+      "$ref": "#/$defs/CancelFollowup"
+    },
+    {
+      "$ref": "#/$defs/ReassignFollowup"
+    },
+    {
+      "$ref": "#/$defs/Resolve"
+    },
+    {
+      "$ref": "#/$defs/Reopen"
+    },
+    {
+      "$ref": "#/$defs/CorrectOnset"
+    }
+  ]
+}
