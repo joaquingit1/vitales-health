@@ -28,6 +28,8 @@ export interface BodyRenderApi {
     options: {
       breathsPerMin?: number;
       still?: boolean;
+      /** the whole figure, crown to soles, with no dissolve: every region's mark sits on the body */
+      whole?: boolean;
       onFrame?: (moved: boolean) => void;
       frame?: () => { top: number; bottom: number };
     },

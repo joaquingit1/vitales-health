@@ -97,6 +97,7 @@ function signOut(): void {
           :marks="marks"
           :focus="stage.focus"
           :stage-el="stageEl"
+          whole
         />
       </div>
       <nav

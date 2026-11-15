@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { bodyRender, type BodyHandle, type FigureMark } from "./body";
 
-const props = defineProps<{ marks: readonly FigureMark[]; focus?: string | null; stageEl?: HTMLElement | null }>();
+const props = defineProps<{ marks: readonly FigureMark[]; focus?: string | null; stageEl?: HTMLElement | null; whole?: boolean }>();
 
 /* Only a region the figure has a point for gets a mark ("whole_body" has none): an unmapped mark is skipped,
    never drawn at the canvas origin. */
@@ -55,7 +55,7 @@ onMounted(() => {
     return;
   }
   try {
-    body = api.mount(canvas.value, { breathsPerMin: 14, onFrame: place, frame });
+    body = api.mount(canvas.value, { breathsPerMin: 14, onFrame: place, frame, whole: props.whole === true });
     body.start();
     observer = new ResizeObserver(() => body?.resize());
     observer.observe(canvas.value);

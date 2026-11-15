@@ -118,29 +118,17 @@ onBeforeUnmount(() => {
     aria-label="Today"
   >
     <!-- C: the pulse check -->
-    <component
-      :is="pulseCard"
-      v-if="pulseCard"
-      class="area-pulse"
-    />
     <article
-      v-else-if="pulseSlot"
+      v-if="pulseCard || pulseSlot"
       class="card g g-sun area-pulse slot-card"
-      :data-slot="pulseSlot.id"
+      :data-slot="pulseSlot?.id ?? 'pulse'"
     >
-      <component :is="pulseSlot.component" />
+      <component :is="pulseCard ?? pulseSlot?.component" />
     </article>
 
     <!-- B: where you are and whether Earth can hear you -->
-    <component
-      :is="habitatCard"
-      v-if="habitatCard"
-      class="area-habitat"
-    />
-    <RouterLink
-      v-else
+    <article
       class="card g g-dusk habitat area-habitat"
-      :to="{ name: 'today' }"
       data-testid="habitat-card"
     >
       <div class="card-head">
@@ -165,13 +153,11 @@ onBeforeUnmount(() => {
       >
         {{ copy("designed_states.unknown") }}
       </p>
-      <p
-        v-if="link?.delay_text"
-        class="sub delay"
-      >
-        {{ link.delay_text }}
-      </p>
-    </RouterLink>
+      <component
+        :is="habitatCard"
+        v-if="habitatCard"
+      />
+    </article>
 
     <!-- A: what this kit can and can't test -->
     <RouterLink
@@ -220,37 +206,32 @@ onBeforeUnmount(() => {
       </p>
     </RouterLink>
 
-    <component
-      :is="howYouAreCard"
-      v-if="howYouAreCard"
-      class="area-howyou"
-    />
-
-    <!-- attention items -->
     <article
-      class="card paper todo area-todo"
+      v-if="howYouAreCard"
+      class="card paper area-howyou"
+    >
+      <component :is="howYouAreCard" />
+    </article>
+
+    <!-- attention items: one line while the routine is not served (E25 brings the full card) -->
+    <div
+      class="todo-row area-todo"
       data-testid="todo-card"
     >
-      <div class="card-head">
-        <h2 class="card-title">
-          {{ CHROME.todo }}
-        </h2>
-      </div>
-      <p
-        class="sub"
+      <span class="todo-title">{{ CHROME.todo }}</span>
+      <span
+        class="todo-state"
         data-testid="todo-state"
-      >
-        {{ copy("designed_states.not_available_here") }}
-      </p>
+      >{{ copy("designed_states.not_available_here") }}</span>
       <article
         v-for="slot in otherSlots"
         :key="slot.id"
-        class="inner-slot slot-card"
+        class="card paper inner-slot slot-card"
         :data-slot="slot.id"
       >
         <component :is="slot.component" />
       </article>
-    </article>
+    </div>
 
     <!-- D: someone needs help, then the plan aboard, then teach a crewmate -->
     <RouterLink
@@ -290,17 +271,19 @@ onBeforeUnmount(() => {
 <style scoped>
 .today-grid {
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.8fr);
+  grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.62fr) minmax(0, 0.62fr);
   grid-template-areas:
+    "todo todo todo todo todo todo"
     "pulse pulse pulse habitat habitat habitat"
-    "kit kit howyou howyou todo todo"
-    "help help help assistant assistant assistant";
+    "kit kit howyou howyou help help"
+    "kit kit howyou howyou assistant assistant";
 }
 .today-grid:not(:has(.area-howyou)) {
   grid-template-areas:
+    "todo todo todo todo todo todo"
     "pulse pulse pulse habitat habitat habitat"
-    "kit kit kit todo todo todo"
-    "help help help assistant assistant assistant";
+    "kit kit kit help help help"
+    "kit kit kit assistant assistant assistant";
 }
 .area-pulse { grid-area: pulse; }
 .area-habitat { grid-area: habitat; }
@@ -320,13 +303,15 @@ onBeforeUnmount(() => {
 .env-line .src {
   margin-left: 6px;
 }
-.delay { margin-top: auto; opacity: 0.85; }
 .help-card { background: rgba(180, 105, 14, 0.12); box-shadow: inset 0 0 0 1px rgba(180, 105, 14, 0.25); justify-content: center; gap: 8px; }
 .help-card:hover { background: rgba(180, 105, 14, 0.2); }
 .help-word { font-size: 30px; line-height: 36px; font-weight: 500; color: #8a4f08; }
 .help-card .sub { color: #8a4f08; }
+.todo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 10px 18px; border-radius: 16px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); }
+.todo-title { font-size: 15px; font-weight: 500; }
+.todo-state { font-size: 14px; color: var(--ink-3); }
+.inner-slot { flex: 1 1 100%; padding: 14px 16px; }
 .inner-slot:empty { display: none; }
-.inner-slot { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
 .slot-card:empty {
   display: none;
 }

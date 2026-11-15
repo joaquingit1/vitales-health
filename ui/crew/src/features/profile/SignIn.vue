@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { components } from "@crew-health/contracts";
-import { computed, inject, nextTick, onMounted, ref } from "vue";
+import { computed, inject, nextTick, onMounted, provide, ref, type Component } from "vue";
 import { useRouter } from "vue-router";
 import { CHROME } from "../../design/chrome";
 import { copy } from "../../design/copy";
 import SourceWord from "../../design/SourceWord.vue";
-import { ApiProblem } from "../../shell/api/client";
+import { ApiProblem, CREW_API, type CrewApi } from "../../shell/api/client";
 import ContextBar from "../../shell/context/ContextBar.vue";
 import { linkSimulated, type GroundLink } from "../../shell/context/missionContext";
 import { SESSION_LOCK, STATION_HEADING_ID } from "../identity/sessionLock";
@@ -43,6 +43,13 @@ const pinEl = ref<HTMLInputElement[] | HTMLInputElement | null>(null);
 
 const read = <T,>(path: string): Promise<T> =>
   station === null ? Promise.reject(new StationUnpaired()) : station.get<T>(path);
+
+/* The Today Habitat card's channel tiles (features/today/cards/HabitatCard.vue) read listSensorStatus and
+   getSensorSeries, which role station may read: on this screen they read through the station session. Only
+   `get` exists here, so nothing the station may not do can be sent from inside them. */
+const cardFiles = import.meta.glob<Component>("../today/cards/HabitatCard.vue", { eager: true, import: "default" });
+const habitatCard = cardFiles["../today/cards/HabitatCard.vue"] ?? null;
+provide(CREW_API, { get: <T,>(path: string) => read<T>(path) } as unknown as CrewApi);
 
 async function load(): Promise<void> {
   if (station === null || !station.paired) {
@@ -158,11 +165,6 @@ async function submit(): Promise<void> {
   }
 }
 
-const gapShare = computed(() =>
-  kit.value === null || kit.value.counts.total === 0
-    ? 0
-    : kit.value.counts.needs_test_not_aboard / kit.value.counts.total,
-);
 const linkLineText = computed(() => {
   if (link.value === null) {
     return copy("designed_states.unknown");
@@ -351,18 +353,28 @@ const linkLineText = computed(() => {
                 />{{ copy(`kit_map_state_words.${state}`) }}</span>
               </div>
             </div>
-            <p
-              class="fine"
-              :data-gap-share="gapShare.toFixed(2)"
-            >
-              {{ copy("context_words.plans_line", { count: kit.plans_aboard, total: kit.counts.total }) }}
-            </p>
           </template>
           <p
             v-else
             class="sub"
           >
             {{ copy("designed_states.not_available_here") }}
+          </p>
+        </section>
+
+        <section
+          v-if="kit"
+          class="card paper plans-glance"
+          data-testid="home-plans"
+        >
+          <h2 class="card-title">
+            {{ copy("context_words.plans_title") }}
+          </h2>
+          <div class="big">
+            {{ kit.plans_aboard }}<small>{{ CHROME.ofTotal.replace("{total}", String(kit.counts.total)) }}</small>
+          </div>
+          <p class="sub">
+            {{ copy("context_words.plans_line", { count: kit.plans_aboard, total: kit.counts.total }) }}
           </p>
         </section>
 
@@ -380,12 +392,10 @@ const linkLineText = computed(() => {
               :origin="linkSimulated(link) ? 'SIM' : 'LIVE'"
             />
           </p>
-          <p
-            v-if="link?.delay_text"
-            class="sub"
-          >
-            {{ link.delay_text }}
-          </p>
+          <component
+            :is="habitatCard"
+            v-if="habitatCard"
+          />
         </section>
 
         <section
@@ -406,7 +416,7 @@ const linkLineText = computed(() => {
 
 <style scoped>
 .home { min-height: 100vh; display: flex; flex-direction: column; }
-.home-grid { flex: 1; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: minmax(150px, auto) minmax(0, 1fr); gap: 14px; padding: 18px 20px 20px; }
+.home-grid { flex: 1; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto; align-content: start; gap: 14px; padding: 18px 20px 20px; }
 .card { cursor: default; }
 .card:hover { transform: none; }
 .pair { grid-column: 1 / span 2; align-self: start; gap: 12px; }
@@ -429,14 +439,17 @@ const linkLineText = computed(() => {
 .pair .pin-row { padding: 0; }
 .habitat-glance { grid-column: 2; grid-row: 1; gap: 8px; }
 .assistant-glance { grid-column: 3; grid-row: 1; gap: 8px; }
-.kit-glance { grid-column: 2 / span 2; grid-row: 2; gap: 4px; }
+.kit-glance { grid-column: 2; grid-row: 2; gap: 4px; align-self: start; }
+.plans-glance { grid-column: 3; grid-row: 2; gap: 4px; align-self: start; }
+.roster { align-self: start; }
+.help-entry { min-height: 150px; }
 .cover-bar { display: flex; width: 100%; height: 14px; gap: 3px; margin: 22px 0 18px; }
 .cover-bar i { display: block; flex-basis: 0; min-width: 4px; border-radius: 7px; }
 .cover-bar .meas { background: var(--lime); }
 .cover-bar .rep { background: var(--ink); }
 .cover-bar .gap { background: repeating-linear-gradient(135deg, var(--ink) 0 2px, transparent 2px 5px); box-shadow: inset 0 0 0 1px var(--ink); }
 .cover-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.cover-counts b { display: block; font-size: 44px; line-height: 48px; font-weight: 300; font-variant-numeric: tabular-nums; }
+.cover-counts b { display: block; font-size: 36px; line-height: 40px; font-weight: 300; font-variant-numeric: tabular-nums; }
 .cover-counts span { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-2); }
 .kit-glance .fine { margin-top: 22px; font-size: 14px; color: var(--ink-2); }
 .hab-line { font-size: 20px; line-height: 26px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }

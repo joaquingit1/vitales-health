@@ -172,10 +172,11 @@ defineExpose({ refresh });
     </div>
 
     <div
+      v-if="context?.missionDay != null"
       class="ctx-item ctx-clock"
       data-testid="ctx-clock"
     >
-      <b>{{ context?.missionDay != null ? copy("context_words.mission_day", { n: context.missionDay }) : copy("context_words.mission_day_unknown") }}</b>
+      <b>{{ copy("context_words.mission_day", { n: context.missionDay }) }}</b>
       <small v-if="context?.met">{{ copy("context_words.met", { met: context.met }) }}</small>
     </div>
 
