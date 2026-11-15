@@ -118,3 +118,11 @@ def test_unconfigured_episodes_do_not_reject_other_modules_config() -> None:
     registry.resolve()
     words_check = cast(ReleaseCheck, registry.declarations["loader_checks"]["episodes.EP6"])
     assert words_check.check(CandidateRelease("release_without_episode_provider", {})) == ()
+
+
+@pytest.mark.trace("T-E15-042", "SYSTEM.5.12")
+def test_episode_migration_is_expand_only() -> None:
+    from crew_health.platform.adapters.migrations import require_expansion
+
+    migration = Path(__file__).parents[2] / "src/crew_health/episodes/adapters/migrations/0001_episodes.sql"
+    require_expansion(migration.read_text(encoding="utf-8"))
