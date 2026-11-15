@@ -1,4 +1,3 @@
-/* eslint-disable */
 /* Body render for the crew dashboard.
    A human figure drawn as a dense cloud of points (WebGL points, no library). The shape comes from body-mesh.js,
    which must be loaded first. The cloud is filled: points are spread evenly over the skin and also through the
