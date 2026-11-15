@@ -19,6 +19,7 @@ from e23_helpers import (
     document_view,
     evaluation_input,
     sensor,
+    UCUM,
     ucum_for,
     utc,
 )
@@ -95,9 +96,15 @@ def test_shipped_sensor_documents_are_the_package_examples_and_pass_every_check(
         example = json.loads(
             (PRODUCT / "api/examples/config" / f"{name}.example.json").read_text(encoding="utf-8")
         )
-        assert (
-            shipped == example["value"]
-        )  # provenance, sources and notices exactly as the package states them
+        expected = json.loads(json.dumps(example["value"]))
+        if name == "sensor-catalog":
+            # Package correction (coordinator review of PR 5): the example accepts kPa for o2 as a plain scale of
+            # 7.50062 into mmHg, which compares an ambient ppO2 with PIO2 limits. EV01 Table 6.2-1 p.51 defines
+            # PIO2 = (PB - 47) x FIO2. The shipped catalog drops that row until the schema can name the conversion.
+            for kind in expected["sensor_types"]:
+                if kind["id"] == "o2":
+                    kind["accepted_units"] = [u for u in kind["accepted_units"] if u["unit"] != "kPa"]
+        assert shipped == expected  # provenance, sources and notices exactly as the package states them
         assert shipped["notice"] == "Unreviewed draft: needs clinician review before live guidance."
     shipped_docs = {
         **raw_documents,
@@ -125,8 +132,8 @@ def test_pending_limits_keep_their_null_value_and_sources(config: SensorConfig) 
 @pytest.mark.trace("T-E23-055", "AGENTS3")
 def test_catalog_numbers_are_exact_decimals_never_floats(config: SensorConfig) -> None:
     oxygen = sensor(config, "o2")
-    assert oxygen.accepted_unit("kPa") is not None
-    assert oxygen.accepted_unit("kPa").factor == Decimal("7.50062")  # type: ignore[union-attr]
+    assert oxygen.accepted_unit("kPa") is None  # an ambient ppO2 is not PIO2: refused until a real conversion
+    assert sensor(config, "rad").accepted_unit("mGy/h").factor == Decimal("1000")  # type: ignore[union-attr]
     assert sensor(config, "dust").display.range_for("mars_surface") == (Decimal(0), Decimal("0.15"))
     assert sensor(config, "dust").display.range_for("lunar_surface") == (Decimal(0), Decimal("0.6"))
 
@@ -342,6 +349,11 @@ def test_non_object_and_non_finite_documents_raise_config_invalid() -> None:
             lambda d: d["sensor_types"][0].__setitem__("stale_after_seconds", 4),
             "stale_after_seconds",
         ),
+        (
+            ConfigName.SENSOR_CATALOG,
+            lambda d: d["sensor_types"][0].__setitem__("stale_after_seconds", 5),  # equal to the 5 s interval
+            "stale_after_seconds",
+        ),
     ],
 )
 def test_each_loader_check_rejects_its_violation(
@@ -364,9 +376,16 @@ def test_a_unit_without_a_mapping_or_with_the_wrong_dimension_rejects_the_candid
     swapped = edited(
         raw_documents,
         ConfigName.SENSOR_CATALOG,
-        lambda d: d["sensor_types"][3]["accepted_units"][1].__setitem__("unit", "µGy/h"),
+        lambda d: d["sensor_types"][1]["accepted_units"][1].__setitem__("unit", "dBA"),
     )
-    assert any("dimension differs" in line for line in findings(swapped, units))
+
+    def flat(sensor_type_id: str, unit: str) -> str | None:  # every wire spelling of the real mapping file
+        return next((v[0] for (_, wire), v in UCUM.items() if wire == unit), None)
+
+    swapped_config = load_sensor_config(lambda name: swapped[name])
+    assert any(
+        "dimension differs" in f.message for f in check_catalog(swapped_config.sensor_types, BOUNDS, units, flat)
+    )
     unknown = MemoryUnits({"mm[Hg]": ("pressure", Decimal(1), Decimal(0))})
     assert any(
         "not a known UCUM unit" in line or "no sourced" in line for line in findings(raw_documents, unknown)

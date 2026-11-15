@@ -45,7 +45,7 @@ from crew_health.sensors.domain.buckets import (
     build_buckets,
     touched_by_insert,
 )
-from crew_health.sensors.domain.channel import AggregationSpec
+from crew_health.sensors.domain.channel import AcceptedUnit, AggregationSpec, SensorTypeFacts
 from crew_health.sensors.domain.conversion import convert_wire_reading
 from crew_health.sensors.domain.errors import (
     InvalidUnit,
@@ -165,7 +165,7 @@ def test_every_catalog_unit_maps_to_ucum_and_dimensions_agree(
     for kind in config.sensor_types:
         assert ucum_for(kind.id, kind.unit) is not None
         for accepted in kind.accepted_units:
-            assert ucum_for(kind.id, accepted.unit) in {code for code, _ in UCUM.values()}
+            assert ucum_for(kind.id, accepted.unit) in {code for code, _, _ in UCUM.values()}
 
 
 @pytest.mark.trace("T-E23-023", "C13")
@@ -673,29 +673,86 @@ def test_status_precedence_no_reading_then_stale(config: SensorConfig) -> None:
     assert all(r.crossed is None for r in stale.results)
 
 
-@pytest.mark.trace("T-E23-075", "S5.4", "D12")
-def test_near_threshold_crossing_survives_four_place_wire_rounding(
-    config: SensorConfig, release: object, converter: object
-) -> None:
+def inspired_oxygen_type(config: SensorConfig, *, vapor: Decimal | None = Decimal(47)) -> SensorTypeFacts:
+    """The o2 type with a kPa ppO2 row. The catalog schema cannot name this conversion yet (R-E23-22), so the row
+    is built here from the shipped type; PH2O 47 mmHg is EV01 Table 6.2-1 (p.51)."""
     kind = sensor(config, "o2")
-    converted = convert_wire_reading(
-        converter,
-        release,
+    row = AcceptedUnit("kPa", "ppo2_to_pio2", Decimal("7.50062"), vapor, "EV01 Table 6.2-1 p.51")
+    return replace(kind, accepted_units=(*kind.accepted_units, row))
+
+
+def ppo2_converter() -> object:
+    from crew_health.kernel.testing import MemoryWireConverter
+    from crew_health.kernel.units import ConvertedQuantity
+
+    def convert(value, indicator, rel, to, pressure):  # type: ignore[no-untyped-def]
+        # kPa to mmHg only; 7.50062 mmHg per kPa is the unit factor, the PIO2 step is not here
+        return ConvertedQuantity(value, Quantity(value.value * Decimal("7.50062"), to), "scale", "t", None, "r")
+
+    return MemoryWireConverter(convert)
+
+
+@pytest.mark.trace("T-E23-075", "S5.4", "D12", "EV01")
+def test_ambient_ppo2_becomes_inspired_oxygen_with_cabin_pressure_and_raises_at_the_limits_level(
+    config: SensorConfig, release: object
+) -> None:
+    """Golden checked by hand from EV01 Table 6.2-1 (p.51), PIO2 = (PB - 47 mmHg) x FIO2, not from the code.
+
+    8.2 psia x 6.894757 kPa/psi = 56.537 kPa x 7.50062 = 424.06 mmHg. FIO2 0.2995 gives ppO2 = 127.005 mmHg
+    (16.9322 kPa) and PIO2 = (424.06 - 47) x 0.2995 = 112.93 mmHg: below the 122 floor, so emergency, not watch.
+    """
+    kind = inspired_oxygen_type(config)
+    pressure = PressureContext(Quantity(Decimal("424.0585"), MMHG), "measured", "adapter:test", None)
+    out = convert_wire_reading(
+        ppo2_converter(),  # type: ignore[arg-type]
+        release,  # type: ignore[arg-type]
         kind,
-        value=Decimal("16.265322"),
+        value=Decimal("16.9322"),
         unit="kPa",
         canonical_unit=MMHG,
-        pressure=None,  # type: ignore[arg-type]
+        pressure=pressure,
     )
-    assert converted.wire_value == Decimal("122.0000")  # the stored wire value shows the threshold itself
-    assert converted.converted.canonical.value < Decimal(122)  # the unrounded value is below it
+    assert abs(out.converted.canonical.value - Decimal("112.93")) < Decimal("0.02")
+    assert out.converted.conversion == "ppo2_to_pio2" and out.conversion is not None
+    assert out.conversion.method == "ppo2_to_pio2" and out.conversion.pressure_basis == "measured"
     at = utc(2026, 1, 1, 12)
-    instant = Instant(at, converted.converted.canonical.value, converted.converted.canonical.value)
-    evaluation = evaluate_limits(evaluation_input(config, "o2", [instant], interval=5))
+    point_value = out.converted.canonical.value
+    evaluation = evaluate_limits(
+        evaluation_input(config, "o2", [Instant(at, point_value, point_value)], interval=5)
+    )
     assert (evaluation.status, evaluation.limit_id) == ("beyond_limit", "o2_low_emergency")
-    assert (
-        crosses("below", converted.wire_value, Decimal(122)) is False
-    )  # rounding first would have missed it
+    assert evaluation.level != "watch"
+
+
+@pytest.mark.trace("T-E23-075", "S5.4", "DE23-6", "EV01")
+def test_ppo2_without_cabin_pressure_or_a_sourced_vapor_pressure_is_not_converted(
+    config: SensorConfig, release: object
+) -> None:
+    pressure = PressureContext(Quantity(Decimal("424.0585"), MMHG), "measured", "adapter:test", None)
+    common = dict(value=Decimal("16.9322"), unit="kPa", canonical_unit=MMHG)
+    with pytest.raises(InvalidValue):
+        convert_wire_reading(
+            ppo2_converter(), release, inspired_oxygen_type(config), pressure=None, **common  # type: ignore[arg-type]
+        )
+    with pytest.raises(InvalidValue):  # a water vapor pressure that is not configured is never assumed
+        convert_wire_reading(
+            ppo2_converter(),  # type: ignore[arg-type]
+            release,  # type: ignore[arg-type]
+            inspired_oxygen_type(config, vapor=None),
+            pressure=pressure,
+            **common,  # type: ignore[arg-type]
+        )
+
+
+@pytest.mark.trace("T-E23-075", "S5.4", "D12")
+def test_near_threshold_crossing_survives_four_place_wire_rounding(config: SensorConfig) -> None:
+    """The unrounded PIO2 decides: a value that rounds to the limit on the wire still crosses it."""
+    at = utc(2026, 1, 1, 12)
+    below = Decimal("121.99996")  # shows as 122.0000 on the wire, below 122 exactly
+    assert round_wire(below) == Decimal("122.0000")
+    evaluation = evaluate_limits(evaluation_input(config, "o2", [Instant(at, below, below)], interval=5))
+    assert (evaluation.status, evaluation.limit_id) == ("beyond_limit", "o2_low_emergency")
+    assert crosses("below", round_wire(below), Decimal(122)) is False  # rounding first would have missed it
 
 
 @pytest.mark.trace("T-E23-075", "S5.4", "D12")
@@ -985,10 +1042,10 @@ def test_a_pressure_is_handed_to_the_converter_only_for_a_ppm_conversion(
     convert_wire_reading(
         spy,
         release,
-        sensor(config, "o2"),
+        sensor(config, "rad"),
         value=Decimal(1),
-        unit="kPa",
-        canonical_unit=MMHG,
+        unit="mGy/h",
+        canonical_unit=Unit("uGy/h"),
         pressure=assumed_pressure(),
     )  # type: ignore[arg-type]
     convert_wire_reading(

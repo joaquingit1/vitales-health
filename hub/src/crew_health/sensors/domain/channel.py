@@ -11,7 +11,7 @@ Freshness = Literal["current", "stale", "never_reported"]
 Level = Literal["info", "watch", "act", "emergency"]
 Comparator = Literal["above", "at_or_above", "below", "at_or_below"]
 AggregationKind = Literal["latest", "mean", "time_weighted_mean", "energy_mean", "max", "sum"]
-Conversion = Literal["identity", "scale", "ppm_to_mmhg"]
+Conversion = Literal["identity", "scale", "ppm_to_mmhg", "ppo2_to_pio2"]
 
 LEVEL_ORDER: tuple[Level, ...] = ("info", "watch", "act", "emergency")  # CONTRACTS 11 fixed vocabulary
 
@@ -25,6 +25,10 @@ class AcceptedUnit:
     unit: str
     conversion: Conversion
     factor: Decimal | None
+    # ppo2_to_pio2 only: the water vapor pressure of EV01 Table 6.2-1, PIO2 = (PB - PH2O) * FIO2. It is configuration
+    # with its citation, never a code constant; absent means the conversion cannot run (fail closed).
+    vapor_mmhg: Decimal | None = None
+    vapor_basis: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

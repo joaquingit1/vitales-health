@@ -320,7 +320,7 @@ class Check12Sensors:
     bounds: SensorBounds
     units: UnitRegistry
     resolve: UCUM_RESOLVER
-    check_id: str = CHECK_12 + ".sensors"
+    check_id: str = CHECK_12 + ".sensor"  # the contributor id E01 requires (config loader)
 
     def check(self, candidate: CandidateRelease) -> tuple[Finding, ...]:
         catalog_raw = _candidate_bytes(candidate, ConfigName.SENSOR_CATALOG)

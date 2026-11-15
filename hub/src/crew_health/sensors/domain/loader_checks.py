@@ -223,7 +223,8 @@ def _check_accepted(
     units: UnitRegistry,
     resolve: UCUM_RESOLVER,
 ) -> list[DomainFinding]:
-    if (conversion == "scale") != (factor is not None) or (factor is not None and factor <= 0):
+    needs_factor = conversion in ("scale", "ppo2_to_pio2")
+    if needs_factor != (factor is not None) or (factor is not None and factor <= 0):
         return [_find(CHECK_12, CATALOG, pointer + "/factor", "scale needs a positive factor, others none")]
     if conversion == "identity" and unit != sensor.unit:
         return [_find(CHECK_12, CATALOG, pointer + "/unit", "identity applies only to the canonical unit")]
@@ -310,13 +311,13 @@ def _check_provenance(sensor: SensorTypeFacts, pointer: str) -> list[DomainFindi
             _find(CHECK_12, CATALOG, pointer + "/interval_source_ids", "a sourced interval names its sources")
         )
     interval = sensor.expected_interval_seconds
-    if interval is not None and sensor.stale_after_seconds < interval:
+    if interval is not None and sensor.stale_after_seconds <= interval:
         found.append(
             _find(
                 CHECK_12,
                 CATALOG,
                 pointer + "/stale_after_seconds",
-                "stale before the channel is due to report",
+                "stale_after must exceed the interval, or the channel flaps stale before every sample",
             )
         )
     return found

@@ -114,6 +114,158 @@
           "decision": "D12"
         }
       ]
+    },
+    {
+      "indicator_code": "rad",
+      "wire_unit": "µGy/h",
+      "ucum_unit": "uGy/h",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/nasa-data/radiation/radlab_dostel_sample.provenance.json",
+          "line": 30,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "rad",
+      "wire_unit": "mGy/h",
+      "ucum_unit": "mGy/h",
+      "conversion": "scale",
+      "factor": "1000",
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/nasa-data/radiation/radlab_dostel_sample.provenance.json",
+          "line": 30,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "rad_day",
+      "wire_unit": "mSv/day",
+      "ucum_unit": "mSv/d",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/environment-hazards.json",
+          "line": 87,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "noise",
+      "wire_unit": "dBA",
+      "ucum_unit": "dB[A]",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/environment-hazards.json",
+          "line": 1464,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "air",
+      "wire_unit": "index",
+      "ucum_unit": "1",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/environment-hazards.json",
+          "line": 1106,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "dust",
+      "wire_unit": "mg/m3",
+      "ucum_unit": "mg/m3",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/nasa-data/habitat-environment/iss_air_inc71_anita2_monthly.provenance.json",
+          "line": 31,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "dust",
+      "wire_unit": "µg/m3",
+      "ucum_unit": "ug/m3",
+      "conversion": "scale",
+      "factor": "0.001",
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/environment-hazards.json",
+          "line": 1323,
+          "decision": "D12"
+        }
+      ]
+    },
+    {
+      "indicator_code": "water",
+      "wire_unit": "mg/L",
+      "ucum_unit": "mg/L",
+      "conversion": "identity",
+      "factor": null,
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_even"
+      },
+      "basis": "sourced",
+      "source_refs": [
+        {
+          "path": "docs/product/nasa-data/water-quality/iss_potable_water_inc71.provenance.json",
+          "line": 44,
+          "decision": "D12"
+        }
+      ]
     }
   ]
 }

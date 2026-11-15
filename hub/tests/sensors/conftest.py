@@ -45,20 +45,22 @@ NASA = PRODUCT / "nasa-data"
 BOUNDS = SensorBounds(aggregate_bucket_s=60, window_max_buckets=10080, window_scan_max_readings=20000)
 SCAN_MAX = BOUNDS.window_scan_max_readings
 
-# Test fake of D12's unit-mapping.json: wire spelling to a UCUM code and a dimension tag. Not clinical content.
-UCUM = {
-    "mmHg": ("mm[Hg]", "pressure"),
-    "kPa": ("kPa", "pressure"),
-    "ppm": ("[ppm]", "fraction"),
-    "µGy/h": ("uGy/h", "dose_rate"),
-    "mGy/h": ("mGy/h", "dose_rate"),
-    "mSv/day": ("mSv/d", "dose_per_day"),
-    "dBA": ("dB[A]", "level"),
-    "index": ("1", "index"),
-    "mg/m3": ("mg/m3", "concentration"),
-    "µg/m3": ("ug/m3", "concentration"),
-    "mg/L": ("mg/L", "mass_per_volume"),
+# The real D12 mapping (config/unit-mapping.json) is the unit table of these tests: wire spelling to UCUM code and
+# the factor of a scale row. Only the dimension tag of a UCUM code is a test fake (the registry is E01's).
+MAPPING = json.loads((ROOT / "config" / "unit-mapping.json").read_text(encoding="utf-8"))["mappings"]
+DIMENSION = {
+    "mm[Hg]": "pressure",
+    "[ppm]": "fraction",
+    "uGy/h": "dose_rate",
+    "mGy/h": "dose_rate",
+    "mSv/d": "dose_per_day",
+    "dB[A]": "level",
+    "1": "index",
+    "mg/m3": "concentration",
+    "ug/m3": "concentration",
+    "mg/L": "mass_per_volume",
 }
+UCUM = {(m["indicator_code"], m["wire_unit"]): (m["ucum_unit"], m["conversion"], m["factor"]) for m in MAPPING}
 
 
 def utc(year: int, month: int, day: int, hour: int = 0, minute: int = 0, second: int = 0) -> datetime:
@@ -73,6 +75,10 @@ def document_view(name: ConfigName, raw: bytes) -> ConfigDocumentView:
     return ConfigDocumentView(name, hashlib.sha256(raw).hexdigest(), raw)
 
 
+def config_bytes(name: str) -> bytes:
+    return (ROOT / "config" / f"{name}.json").read_bytes()
+
+
 def example_bytes(name: str) -> bytes:
     value = json.loads((EXAMPLES / f"{name}.example.json").read_text(encoding="utf-8"))["value"]
     return json.dumps(value, ensure_ascii=False).encode("utf-8")
@@ -81,9 +87,9 @@ def example_bytes(name: str) -> bytes:
 @pytest.fixture(scope="session")
 def raw_documents() -> dict[ConfigName, bytes]:
     return {
-        ConfigName.SENSOR_CATALOG: example_bytes("sensor-catalog"),
-        ConfigName.SENSOR_LIMITS: example_bytes("sensor-limits"),
-        ConfigName.ENVIRONMENT_PROFILES: example_bytes("environment-profiles"),
+        ConfigName.SENSOR_CATALOG: config_bytes("sensor-catalog"),
+        ConfigName.SENSOR_LIMITS: config_bytes("sensor-limits"),
+        ConfigName.ENVIRONMENT_PROFILES: config_bytes("environment-profiles"),
         ConfigName.ENVIRONMENT_HAZARDS: (PRODUCT / "environment-hazards.json").read_bytes(),
     }
 
@@ -102,14 +108,13 @@ def release(raw_documents: dict[ConfigName, bytes]) -> MemoryRelease:
 @pytest.fixture(scope="session")
 def units() -> MemoryUnits:
     table: dict[str, tuple[str, Decimal, Decimal]] = {}
-    for code, dimension in UCUM.values():
-        table[code] = (dimension, Decimal(1), Decimal(0))
+    for code, _, _ in UCUM.values():
+        table[code] = (DIMENSION.get(code, code), Decimal(1), Decimal(0))
     return MemoryUnits(table)
 
 
 def ucum_for(sensor_type_id: str, wire_unit: str) -> str | None:
-    del sensor_type_id
-    entry = UCUM.get(wire_unit)
+    entry = UCUM.get((sensor_type_id, wire_unit))
     return None if entry is None else entry[0]
 
 
@@ -120,20 +125,20 @@ def converter(config: SensorConfig) -> MemoryWireConverter:
     def convert(
         value: WireQuantity, indicator: str, release: object, to: Unit, pressure: PressureContext | None
     ) -> ConvertedQuantity:
-        sensor = config.sensor_type(indicator)
-        accepted = None if sensor is None else sensor.accepted_unit(value.unit)
-        if accepted is None:
-            raise AssertionError("fake converter reached with an unaccepted unit")
-        if accepted.conversion == "identity":
+        row = UCUM.get((indicator, value.unit))  # the factor comes from the mapping file, not the catalog
+        if row is None:
+            raise AssertionError("fake converter reached with an unmapped unit")
+        _, method, factor = row
+        if method == "identity":
             canonical = value.value
-        elif accepted.conversion == "scale":
-            assert accepted.factor is not None
-            canonical = value.value * accepted.factor
+        elif method == "scale":
+            assert factor is not None
+            canonical = value.value * Decimal(factor)
         else:
             assert pressure is not None
             canonical = value.value / Decimal(1_000_000) * pressure.pressure.value
         return ConvertedQuantity(
-            value, Quantity(canonical, to), accepted.conversion, "test-mapping-1", pressure, "half_even_4dp"
+            value, Quantity(canonical, to), method, "test-mapping-1", pressure, "half_even_4dp"
         )
 
     return MemoryWireConverter(convert)
