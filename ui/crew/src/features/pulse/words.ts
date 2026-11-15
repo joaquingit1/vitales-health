@@ -40,6 +40,8 @@ export const WORDS = {
   agreement: "Agreement",
   helperTitle: "Who can check",
   cardTake: "Take it at the camera station",
+  handoff: "{helper} signs in on this laptop to take the steps and tap Beat.",
+  continueCheck: "Open the steps",
 } as const;
 
 export function fill(text: string, vars: Record<string, string | number>): string {

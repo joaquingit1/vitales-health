@@ -214,11 +214,15 @@ defineExpose({ phase });
             off: phase === 'failed' || (phase === 'done' && reading?.device_id !== cam),
           }"
         >
-          <svg viewBox="0 0 24 24"><circle
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+          ><ellipse
             cx="12"
-            cy="10"
-            r="5"
-          /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
+            cy="11"
+            rx="6"
+            ry="7.5"
+          /><path d="M9.5 10h.01M14.5 10h.01M10 14.5c1.2.8 2.8.8 4 0" /></svg>
           <span>{{ cam ? deviceWords(cam) : (capability?.instrument_ids[0] ? deviceWords(capability.instrument_ids[0]) : "") }}</span>
         </div>
       </div>
@@ -327,7 +331,7 @@ defineExpose({ phase });
       <div class="swatches">
         <span class="s-sim"><i />{{ copy("origin_words.SIM") }}</span>
         <span class="s-live"><i />{{ copy("origin_words.LIVE") }}</span>
-        <span class="s-none"><i />{{ WORDS.noReadingKept }}</span>
+        <span><i style="background: var(--tile)" />{{ WORDS.noReadingKept }}</span>
       </div>
     </article>
 

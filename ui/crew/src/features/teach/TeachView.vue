@@ -16,6 +16,7 @@ import {
   type TeachSteps,
 } from "../pulse/hub";
 import { WORDS, fill } from "../pulse/words";
+import { HANDOFF_KEY } from "./handoff";
 
 const api = useCrewApi();
 const session = useSession();
@@ -137,8 +138,19 @@ const teach = (): Promise<void> =>
       ...(assignment.state === "accepted" ? { role_assignment_id: assignment.role_assignment_id } : {}),
     });
     await open(started.guided_check_id);
+    rememberHandoff(started.guided_check_id);
     await router.replace({ name: "teach", params: { id: started.guided_check_id } });
   });
+
+/** Only the helper acts on a check (E30 section 10); the id waits here for the helper's own session on this laptop. */
+function rememberHandoff(id: string): void {
+  try {
+    window.sessionStorage.setItem(HANDOFF_KEY, id);
+  } catch {
+    /* without storage the helper opens the check from the subject's link */
+  }
+}
+const isHelper = computed(() => !!check.value && session.current?.person?.person_id === check.value.helper.person_id);
 
 async function act(body: Record<string, unknown>): Promise<GuidedCheck> {
   const c = check.value;
@@ -434,11 +446,15 @@ onBeforeUnmount(() => {
           class="cam"
           :class="{ scan: check?.state === 'counting', ok: !!ref0 && ref0.value !== null, off: !!ref0 && ref0.value === null }"
         >
-          <svg viewBox="0 0 24 24"><circle
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+          ><ellipse
             cx="12"
-            cy="10"
-            r="5"
-          /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
+            cy="11"
+            rx="6"
+            ry="7.5"
+          /><path d="M9.5 10h.01M14.5 10h.01M10 14.5c1.2.8 2.8.8 4 0" /></svg>
         </div>
       </div>
       <div
