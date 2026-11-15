@@ -517,7 +517,13 @@ def habitat_replay(
 
 
 def camera_companions(
-    directory: Path, fixture: Fixture, state: dict[str, object], *, host: str, port: int
+    directory: Path,
+    fixture: Fixture,
+    state: dict[str, object],
+    *,
+    host: str,
+    port: int,
+    webcam: int | None = None,
 ) -> Callable[[Runtime], Callable[[], None]]:
     """Once the hub serves: the camera adapter's token for this listener (E02 3), the camera twin streaming its
     synthetic scene, and the camera worker reading the twin and reporting to the hub. Both stop with the hub."""
@@ -591,7 +597,11 @@ def camera_companions(
                     "name": c["name"],
                     "kind": c["kind"],
                     "subject_id": c["subject_id"],
-                    "stream": f"{listening}/cameras/{twin['scenario']}/stream.mjpg",
+                    # A local capture device declares itself LIVE (the worker's declared_origin), so `--webcam` turns
+                    # the presenter's readings Live through the normal source rule; the twin stays up for the rest.
+                    "stream": webcam
+                    if webcam is not None
+                    else f"{listening}/cameras/{twin['scenario']}/stream.mjpg",
                 }
                 for c in cast(list[dict[str, object]], section["cameras"])
             ]
@@ -655,7 +665,15 @@ def _reports(directory: Path, host: str, port: int) -> HubReports:
     return HubReports(f"http://{host}:{port}", directory / "camera" / "adapter.token", timeout_ms / 1000)
 
 
-def serve(directory: Path, *, host: str, port: int, server: Server | None = None, camera: bool = True) -> int:
+def serve(
+    directory: Path,
+    *,
+    host: str,
+    port: int,
+    server: Server | None = None,
+    camera: bool = True,
+    webcam: int | None = None,
+) -> int:
     from crew_health.app.cli import TimeConfirmation
     from crew_health.app.cli import serve as serve_hub
 
@@ -666,7 +684,9 @@ def serve(directory: Path, *, host: str, port: int, server: Server | None = None
         # instead of killing the process and leaving the twin and the worker running.
         signal.signal(signal.SIGTERM, _terminated)
     return serve_hub(
-        ready=camera_companions(directory, fixture, state, host=host, port=port) if camera else None,
+        ready=camera_companions(directory, fixture, state, host=host, port=port, webcam=webcam)
+        if camera
+        else None,
         reports=_reports(directory, host, port) if camera else None,
         database=directory / "hub.sqlite",
         settings=directory / "hub-settings.json",
@@ -876,6 +896,9 @@ def main(argv: Sequence[str]) -> int:
     serve_parser.add_argument("--host", default="127.0.0.1")
     serve_parser.add_argument("--port", type=int, default=8080)
     serve_parser.add_argument("--no-camera", action="store_true")
+    serve_parser.add_argument(
+        "--webcam", type=int, default=None, help="local capture device index read as Live"
+    )
     cue_parser = commands.add_parser("cue")
     cue_parser.add_argument("name")
     cue_parser.add_argument("--dir", type=Path, required=True)
@@ -896,7 +919,9 @@ def main(argv: Sequence[str]) -> int:
             )
             return 0
         if args.command == "serve":
-            return serve(args.dir, host=args.host, port=args.port, camera=not args.no_camera)
+            return serve(
+                args.dir, host=args.host, port=args.port, camera=not args.no_camera, webcam=args.webcam
+            )
         status, body = cue(args.dir, args.name, base_url=args.hub)
         print(json.dumps({"status": status, "body": body}, sort_keys=True))
         return 0 if 200 <= status < 300 else 1
