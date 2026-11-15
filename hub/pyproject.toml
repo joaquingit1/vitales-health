@@ -6,7 +6,17 @@ build-backend = "setuptools.build_meta"
 name = "crew-health"
 version = "0.1.0"
 requires-python = ">=3.14,<3.15"
-dependencies = ["pydantic>=2", "fastapi", "uvicorn", "jsonschema", "referencing", "ucumvert>=0.3.3", "pint>=0.26", "pyyaml"]
+dependencies = [
+    "pydantic>=2",
+    "fastapi",
+    "uvicorn",
+    "jsonschema",
+    "referencing",
+    "ucumvert>=0.3.3",
+    "pint>=0.26",
+    "pyyaml",
+    "argon2-cffi>=25.1.0",
+]
 
 [project.scripts]
 crew-health = "crew_health.app.cli:main"
@@ -56,6 +66,8 @@ import-contracts = "crew_health.app.import_contracts"
 [tool.setuptools.package-data]
 "crew_health" = ["*/adapters/migrations/*.sql", "*/replica.schema.json", "*/schemas/*.json"]
 "crew_health.contracts_gen" = ["manifest.json"]
+"crew_health.identity" = ["schemas/*.json", "adapters/migrations/*.sql"]
+"crew_health.consent" = ["adapters/migrations/*.sql"]
 
 [tool.uv.sources]
 pharmacy = { path = "..", editable = true }
