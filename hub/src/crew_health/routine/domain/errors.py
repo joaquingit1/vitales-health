@@ -75,3 +75,14 @@ class MissionUnavailable(RoutineError):
     def __init__(self, reason: str) -> None:
         self.reason = reason
         super().__init__("mission_unavailable")
+
+
+class VersionRequired(RoutineError):
+    def __init__(self) -> None:
+        super().__init__("version_required")
+
+
+class ConfigVersionMismatch(RoutineError):
+    def __init__(self, current_release_id: str) -> None:
+        self.current_release_id = current_release_id
+        super().__init__("config_version_mismatch")

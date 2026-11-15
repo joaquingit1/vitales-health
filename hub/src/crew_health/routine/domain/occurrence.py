@@ -140,10 +140,16 @@ def display_state(
 ) -> tuple[OccurrenceState, Overlay | None]:
     if occ.state in FINAL_STATES:
         return occ.state, None
-    if occ.mission_day > today:
+    if occ.state == "not_due" and occ.mission_day > today:
         return "not_due", None
     if held_kind is not None:
         return "later", held_kind
+    if occ.due_until is not None and now >= occ.due_until:
+        return "missed", None
+    if occ.state == "due":
+        return "due", None
+    if occ.mission_day > today:
+        return "not_due", None
     if (occ.due_from is not None and now < occ.due_from) or (
         occ.later_until is not None and now < occ.later_until
     ):
@@ -233,7 +239,7 @@ def miss(
 
 
 def allowed_actions(occ: Occurrence, *, session_person_id: str | None, held: bool) -> tuple[str, ...]:
-    if occ.person_id != session_person_id or occ.state in FINAL_STATES:
+    if occ.person_id != session_person_id or occ.state in FINAL_STATES or occ.state == "not_due":
         return ()
     return ("complete", "skip") if held else ("complete", "skip", "later")
 

@@ -169,15 +169,17 @@ def test_actions_and_display_follow_session_hold_and_time() -> None:
     assert allowed_actions(occ, session_person_id=occ.person_id, held=True) == ("complete", "skip")
     assert allowed_actions(occ, session_person_id=occ.person_id, held=False) == ("complete", "skip", "later")
     assert display_state(occ, now=NOW, today=1, held_kind="sleep") == ("later", "sleep")
-    assert display_state(replace(occ, mission_day=2), now=NOW, today=1, held_kind="sleep") == (
+    assert display_state(
+        replace(occ, state="not_due", mission_day=2), now=NOW, today=1, held_kind="sleep"
+    ) == (
         "not_due",
         None,
     )
     assert display_state(
-        replace(occ, due_from=NOW + timedelta(hours=1)), now=NOW, today=1, held_kind=None
+        replace(occ, state="later", due_from=NOW + timedelta(hours=1)), now=NOW, today=1, held_kind=None
     ) == ("later", None)
     assert display_state(
-        replace(occ, later_until=NOW + timedelta(hours=1)), now=NOW, today=1, held_kind=None
+        replace(occ, state="later", later_until=NOW + timedelta(hours=1)), now=NOW, today=1, held_kind=None
     ) == ("later", None)
     assert display_state(occ, now=NOW, today=1, held_kind=None) == ("due", None)
     final, _ = miss(occ, now=NOW, counted=False, reason="outage", actor_id="engine")
