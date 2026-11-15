@@ -109,3 +109,15 @@ class MissionClock(Protocol):
 
 class DayLabelPort(Protocol):
     def inline_label_at(self, instant: datetime) -> str: ...
+
+
+class SessionAuthenticator(Protocol):
+    def authenticate(self, headers: Mapping[str, str], operation_id: str) -> SessionContext | None: ...
+
+
+class CommandFingerprint(Protocol):
+    def fingerprint(self, canonical_body: bytes) -> str: ...
+
+
+class GapFacts(Protocol):
+    def for_episode(self, uow: View, episode_id: str) -> Sequence[Mapping[str, object]]: ...

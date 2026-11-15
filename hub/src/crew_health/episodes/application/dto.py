@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import ClassVar, Literal, Protocol
 
+from crew_health.kernel.uow import Actor
+
 type OriginMode = Literal["LIVE", "REPLAY", "SIM"]
 
 
@@ -61,6 +63,7 @@ class Viewer:
     kind: str
     person_id: str | None
     roles: frozenset[str]
+    actor: Actor | None = None
 
 
 @dataclass(frozen=True, slots=True)
