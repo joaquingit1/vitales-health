@@ -1,7 +1,6 @@
 /* Ported from docs/product/design/interaction-prototype.html (measure, assess and teach views), scoped to .pt. */
-.pt { display: grid; grid-template-columns: minmax(520px, 0.76fr) minmax(0, 1fr); height: 100vh; min-height: 820px; }
-.pt .stage { position: relative; min-width: 0; min-height: 0; background: radial-gradient(44% 36% at 50% 46%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 72%); }
-.pt .cards { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.86fr); gap: 12px; min-height: 0; padding: 16px 16px 16px 0; }
+.pt { display: flex; flex-direction: column; height: 100vh; min-height: 820px; }
+.pt .cards { flex: 1; display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.86fr); gap: 12px; min-height: 0; padding: 16px 16px 16px 0; }
 .pt .card { position: relative; overflow: hidden; display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 20px; border-radius: 24px; box-shadow: 0 1px 2px rgba(28, 30, 28, 0.05), 0 12px 32px rgba(28, 30, 28, 0.08); }
 .pt .paper { background: var(--paper); }
 .pt .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }

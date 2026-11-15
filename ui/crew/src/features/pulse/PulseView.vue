@@ -167,13 +167,6 @@ defineExpose({ phase });
 <template>
   <main class="pt">
     <section
-      class="stage"
-      :data-focus="phase === 'reading' || phase === 'starting' ? 'head' : capability?.body_region"
-      :data-glow="phase === 'reading' || phase === 'starting' ? 'face' : null"
-      :data-dot="phase === 'done' ? capability?.body_region : null"
-      aria-label="Body"
-    />
-    <section
       class="cards"
       aria-label="Measurement"
     >

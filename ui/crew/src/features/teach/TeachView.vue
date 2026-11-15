@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
 import { copy } from "../../design/copy";
@@ -20,6 +20,7 @@ import "../pulse/flow.css";
 const api = useCrewApi();
 const session = useSession();
 const route = useRoute();
+const router = useRouter();
 const runId = computed(() => String(route.params["id"] ?? ""));
 
 const run = ref<PlanRun | null>(null);
@@ -64,9 +65,10 @@ const left = computed(() => {
 });
 const ticks = computed(() => {
   const c = check.value;
-  if (!c?.count_started_at || !c.count_seconds) return [];
+  const seconds = c?.count_seconds ?? 0;
+  if (!c?.count_started_at || seconds <= 0) return [];
   const t0 = Date.parse(c.count_started_at);
-  return c.beats.map((b) => ((Date.parse(b) - t0) / 1000 / c.count_seconds!) * 600);
+  return c.beats.map((b) => ((Date.parse(b) - t0) / 1000 / seconds) * 600);
 });
 const officer = computed(() => helper.value?.context_reasons.find((r) => r.reason_code === "officer_on_eva") ?? null);
 const landmark = computed(() => current.value?.landmark_label ?? shown.value.map((s) => s.landmark_label).find(Boolean) ?? null);
@@ -74,16 +76,24 @@ const region = computed(() => current.value?.body_region ?? null);
 const ref0 = computed(() => check.value?.camera_reference ?? null);
 const anotherWay = ref<string | null>(null);
 
+/**
+ * `id` is a plan run (prun_: the subject's view, D9: the helper row and Teach) or a guided check (gck_: the
+ * check itself, which only its helper may act on, E30 section 10; on one laptop the helper's own session).
+ */
 async function load(): Promise<void> {
+  if (runId.value.startsWith("gck")) {
+    await open(runId.value);
+    return;
+  }
   run.value = await api.get<PlanRun>(`/v1/plan-runs/${runId.value}`);
   const roles = await api.get<{ items: RoleAssignment[] }>(`/v1/plan-runs/${runId.value}/roles`);
   helper.value = roles.items.find((r) => r.skill_id !== null && r.state !== "changed") ?? roles.items[0] ?? null;
-  const existing = run.value.steps.find((s) => s.stage_id === "check_another_way" && s.guided_check_id)?.guided_check_id;
-  if (existing) await open(existing);
   const plan = await api.get<{ stages: { stage_id: string; steps: { cannot_replace_text: string | null }[] }[] }>(
     `/v1/plans/${run.value.plan_id}`,
   );
   anotherWay.value = plan.stages.find((s) => s.stage_id === "check_another_way")?.steps[0]?.cannot_replace_text ?? null;
+  const existing = run.value.steps.find((s) => s.stage_id === "check_another_way" && s.guided_check_id)?.guided_check_id;
+  if (existing) await open(existing);
 }
 
 async function open(id: string): Promise<void> {
@@ -127,10 +137,12 @@ const teach = (): Promise<void> =>
       ...(assignment.state === "accepted" ? { role_assignment_id: assignment.role_assignment_id } : {}),
     });
     await open(started.guided_check_id);
+    await router.replace({ name: "teach", params: { id: started.guided_check_id } });
   });
 
 async function act(body: Record<string, unknown>): Promise<GuidedCheck> {
-  const c = check.value!;
+  const c = check.value;
+  if (!c) throw new Error("no check is open");
   const next = await command<GuidedCheck>(
     session,
     `/v1/guided-checks/${c.guided_check_id}/actions`,
@@ -157,7 +169,7 @@ async function beat(): Promise<void> {
       tapped = 0;
     }
     tapped += 1;
-    const id = check.value!.guided_check_id;
+    const id = check.value?.guided_check_id ?? c.guided_check_id;
     check.value = await command<GuidedCheck>(session, `/v1/guided-checks/${id}/beats`, {
       sequence: tapped,
       client_time: new Date().toISOString(),
@@ -192,12 +204,6 @@ onBeforeUnmount(() => {
 
 <template>
   <main class="pt">
-    <section
-      class="stage"
-      :data-focus="region"
-      :data-landmark="current?.landmark_id ?? null"
-      :aria-label="landmark ?? 'Body'"
-    />
     <section
       class="cards"
       aria-label="A crewmate checks"
