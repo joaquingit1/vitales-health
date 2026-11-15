@@ -24,7 +24,7 @@ Hard dependencies (✅ when built) are what an epic needs to pass its acceptance
 | E01 T1 | Platform, identities and durable records: foundation (workspaces, contract types, kernel ports and fakes, module registry) | 🔎 In review | @joaquingit1 (pipeline) | none | every epic | [tasks](E01/tasks.json) | [design](../tdd/E01.md) |
 | E01 T2 | Platform, identities and durable records: everything after the foundation | 🔎 In review | @joaquingit1 (pipeline) | E01 T1 | none | [tasks](E01/tasks.json) | [design](../tdd/E01.md) |
 | E02 | Consent, authentication and privacy | 🔨 In progress | @joaquingit1 (pipeline) | E01 | E03, E04, E05, E06, E07, E08, E09, E11, E12, E13, E15, E15-core, E16, E19, E21, E23, E26, E27, E28, E30, E31, E32, E33 | [tasks](E02/tasks.json) | [design](../tdd/E02.md) |
-| E03 | Crew experience and daily check | 🔨 In progress | @joaquingit1 | E01, E02 | E04, E22 | [tasks](E03/tasks.json) | [design](../tdd/E03.md) |
+| E03 | Crew experience and daily check | 🔨 In progress | @joaquingit1 (Ego QA: fix/ego-qa) | E01, E02 | E04, E22 | [tasks](E03/tasks.json) | [design](../tdd/E03.md) |
 | E04 | Guided complaint intake | 🔨 In progress | @joaquingit1 (pipeline) | E01, E02, E03, E23, E15-core | E15 | [tasks](E04/tasks.json) | [design](../tdd/E04.md) |
 | E05 | Capabilities and measurement workflow | 🔨 In progress | @joaquingit1 | E01, E02 | E06, E07, E08, E09, E14, E30 | [tasks](E05/tasks.json) | [design](../tdd/E05.md) |
 | E06 | Personal and station cameras | 🔨 In progress | @joaquingit1 | E01, E02, E05 | none | [tasks](E06/tasks.json) | [brief](../product/tdd/E06.md) |
