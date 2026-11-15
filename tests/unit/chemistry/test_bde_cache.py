@@ -3,6 +3,7 @@ No test here runs xTB: the autouse guard in conftest.py fails any cache miss."""
 
 import copy
 import dataclasses
+import importlib.metadata
 import json
 import math
 import os
@@ -338,10 +339,10 @@ def test_cache_key_material(bundle: ConfigBundle) -> None:
         "spin_polarization_scale": 1.0,
         "optimizer_gtol_eh_per_bohr": 1.0e-4,
         "optimizer_max_steps": 500,
-        "tblite_version": bde.tblite_version(),
+        "tblite_version": bde.tblite_version(settings),
         "rdkit_version": bde.rdkit_version(),
     }
-    assert bde.tblite_version() == "0.8.0"
+    assert bde.tblite_version(settings) == "0.8.0"
     assert bde.rdkit_version() == "2026.09.2"
     for field, value, message in (
         ("rdkit_embed_seed", 1.5, "rdkit_embed_seed must be an integer"),
@@ -496,7 +497,30 @@ def test_failed_embedding_raises(monkeypatch: pytest.MonkeyPatch) -> None:
         bde.embed_conformers(mol_from_smiles("CCO"), 20261114, 1)
 
 
+def test_without_tblite_every_committed_entry_is_found(
+    bundle: ConfigBundle, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Where tblite is not installed (Windows), keys use the version that computed the committed cache."""
+    installed = importlib.metadata.version
+
+    def version(name: str) -> str:
+        if name == "tblite":
+            raise importlib.metadata.PackageNotFoundError(name)
+        return installed(name)
+
+    monkeypatch.setattr(importlib.metadata, "version", version)
+    settings = _settings(bundle)
+    assert bde.tblite_version(settings) == settings["xtb_cache_tblite_version"]
+    label = bde._method_label(settings)
+    for path in _entries():
+        result = bde._read_cache(path, path.stem)
+        assert result.method == label
+        material = bde.cache_key_material(result.inchikey, result.site_atom, result.bond, settings)
+        assert canonical_sha256(material) == result.cache_key
+
+
 def test_optional_thread_runtime_symbols(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    pytest.importorskip("tblite.interface", reason="tblite has no Windows build")
     package = tmp_path / "tblite"
     libraries = package / ".dylibs"
     libraries.mkdir(parents=True)

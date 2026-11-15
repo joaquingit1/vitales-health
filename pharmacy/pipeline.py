@@ -21,7 +21,7 @@ from numpy.typing import NDArray
 
 import pharmacy
 from pharmacy import decision, exposure, kinetics, microclimate, uncertainty, update
-from pharmacy.chemistry import parameters, radiolysis
+from pharmacy.chemistry import bde, parameters, radiolysis
 from pharmacy.config import ConfigBundle, canonical_json_bytes, canonical_sha256, validate_instance
 from pharmacy.errors import (
     ComputationError,
@@ -507,7 +507,7 @@ def _pins(config: _Config, history: _History, seed: int, cache_keys: Sequence[st
         rng=_RNG,
         numpy_version=np.__version__,
         rdkit_version=_library_version("rdkit"),
-        tblite_version=_library_version("tblite"),
+        tblite_version=bde.tblite_version(config.settings["computed_layer"]),
         computed_cache_keys=tuple(sorted(set(cache_keys))),
     )
 

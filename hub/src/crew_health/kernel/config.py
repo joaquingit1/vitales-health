@@ -4,7 +4,8 @@ from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol
 
-from crew_health.contracts_gen.enums import ConfigName
+# Re-exported for pure domain code (SYSTEM 6.4 domain-pure).
+from crew_health.contracts_gen.enums import ConfigName as ConfigName
 
 if TYPE_CHECKING:
     from crew_health.kernel.uow import ReadSnapshot, SessionContext, UnitOfWork

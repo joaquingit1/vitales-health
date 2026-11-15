@@ -1,6 +1,6 @@
 {
   "summary": "REPLAY GET /v1/sensor-readings/rdg_co2_cabin_replay",
-  "description": "The CO2 sample at 15:36 on 7 Oct 2014 from nasa-data/eda_rr1_telemetry.csv, converted at an assumed 760 mmHg. observed_at keeps the original date. Illustrative only: not seed data.",
+  "description": "The CO2 sample at 15:36 on 7 Oct 2014 from nasa-data/habitat-environment/eda_rr1_telemetry.csv, converted at an assumed 760 mmHg. observed_at keeps the original date. Illustrative only: not seed data.",
   "x-schema": "sensor-reading.schema.json",
   "value": {
     "reading_id": "rdg_co2_cabin_replay",

@@ -1,0 +1,274 @@
+{
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "family": {
+      "type": "string",
+      "minLength": 1
+    },
+    "device_label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "calibration": {
+      "type": "string",
+      "minLength": 1
+    },
+    "hardware_evidence": {
+      "enum": [
+        "unmeasured",
+        "measured"
+      ]
+    },
+    "evidence_ref": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "provenance": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "path",
+          "note"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "minLength": 1
+          },
+          "indicator_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "units": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "range_min": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?$",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "range_max": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?$",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "saturation_low": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?$",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "saturation_high": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?$",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "max_rate_per_second": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?$",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "field",
+          "indicator_code",
+          "units",
+          "range_min",
+          "range_max",
+          "saturation_low",
+          "saturation_high",
+          "max_rate_per_second"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "min_samples": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4096
+    },
+    "rejecting_status": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "noted_status": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "panels": {
+      "type": "array",
+      "maxItems": 16,
+      "description": "Capabilities served by several component indicators at once (blood_pressure as systolic_bp and diastolic_bp, SYSTEM 7.3 LOINC 85354-9 panel with 8480-6 and 8462-4). The attempt carries one observation per component; a panel is all or none.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "capability_code": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,63}$"
+          },
+          "indicator_codes": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 8,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{0,63}$"
+            }
+          }
+        },
+        "required": [
+          "capability_code",
+          "indicator_codes"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "completion": {
+      "enum": [
+        "window",
+        "measurement"
+      ]
+    },
+    "steady_reading": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "profile_id",
+    "version",
+    "family",
+    "device_label",
+    "model",
+    "calibration",
+    "hardware_evidence",
+    "evidence_ref",
+    "provenance",
+    "components",
+    "min_samples",
+    "rejecting_status",
+    "noted_status"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "hardware_evidence": {
+            "const": "measured"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "evidence_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ]
+}

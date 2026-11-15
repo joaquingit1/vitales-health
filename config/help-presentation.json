@@ -1,0 +1,224 @@
+{
+  "notice": "Not clinically reviewed.",
+  "start_node_id": "air_safe",
+  "fixed_buttons": [
+    {
+      "id": "call_crew",
+      "label": "Call crew"
+    },
+    {
+      "id": "tell_ground",
+      "label": "Tell the ground"
+    },
+    {
+      "id": "start_over",
+      "label": "Start over"
+    }
+  ],
+  "answer_log": [
+    {
+      "node_id": "air_safe",
+      "answer_index": 0,
+      "log_template": "Air safe"
+    },
+    {
+      "node_id": "responding",
+      "answer_index": 0,
+      "log_template": "{subject_name} responding"
+    },
+    {
+      "node_id": "responding",
+      "answer_index": 1,
+      "log_template": "{subject_name} not responding"
+    },
+    {
+      "node_id": "breathing",
+      "answer_index": 0,
+      "log_template": "Breathing normally"
+    },
+    {
+      "node_id": "breathing",
+      "answer_index": 1,
+      "log_template": "Not breathing normally"
+    },
+    {
+      "node_id": "severe_bleeding_check",
+      "answer_index": 0,
+      "log_template": "Heavy bleeding"
+    },
+    {
+      "node_id": "severe_bleeding_check",
+      "answer_index": 1,
+      "log_template": "No heavy bleeding"
+    }
+  ],
+  "flow_levels": [
+    {
+      "flow_id": "not_breathing",
+      "level": "emergency",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "unresponsive_breathing",
+      "level": "emergency",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "choking",
+      "level": "emergency",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "severe_bleeding",
+      "level": "emergency",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "chest_pain",
+      "level": "emergency",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "breathing_difficulty",
+      "level": "emergency",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "seizure",
+      "level": "emergency",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "pressure_loss",
+      "level": "emergency",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "severe_allergic_reaction",
+      "level": "emergency",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "toxic_exposure",
+      "level": "emergency",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "solar_particle_event",
+      "level": "emergency",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "fainting",
+      "level": "act",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "head_injury",
+      "level": "act",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "eye_injury",
+      "level": "act",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "burns",
+      "level": "act",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "dcs_after_eva",
+      "level": "act",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "low_blood_sugar",
+      "level": "act",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "severe_abdominal_pain",
+      "level": "act",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "mental_health_crisis",
+      "level": "act",
+      "basis": "team default"
+    },
+    {
+      "flow_id": "something_else",
+      "level": "act",
+      "basis": "team default"
+    }
+  ],
+  "default_flow_level": "emergency",
+  "broadcast": {
+    "template": "{subject_name} needs help at the {place}.",
+    "helping_template": "{helper_names} helping.",
+    "nobody_helping": "Nobody has joined yet."
+  },
+  "readings_panel": {
+    "codes": [
+      "pulse",
+      "spo2",
+      "respiratory_rate"
+    ],
+    "max_age_minutes": 720,
+    "basis": "team default"
+  },
+  "log_templates": {
+    "opened": "{opener_name} pressed Someone needs help for {subject_name}",
+    "crew_called": "Crew called",
+    "joined": "{helper_name} joined",
+    "left": "{helper_name} left",
+    "step_done": "Done: {step}",
+    "step_undone": "Not done: {step}",
+    "flow_switched": "Switched to {flow_title}",
+    "started_over": "Started over",
+    "note": "Note: {note}",
+    "assistant": "Assistant: {text}",
+    "ground_message_queued": "Message for the ground queued. It goes out when the link allows",
+    "ground_message_sent": "Message for the ground sent",
+    "ground_message_acknowledged": "The ground acknowledged the message",
+    "ground_reply": "Ground: {text}",
+    "closed": "Closed: {disposition}"
+  },
+  "disposition_words": {
+    "resolved_on_board": "resolved on board",
+    "handed_to_crew_medical_officer": "handed to the crew medical officer",
+    "ground_consulted": "ground consulted",
+    "false_alarm": "false alarm",
+    "other": "other"
+  },
+  "ground_message": {
+    "header_template": "{subject_name} needs help at the {place}. {flow_title}.",
+    "answers_template": "{answers}.",
+    "steps_template": "Steps done: {steps}",
+    "crew_template": "Crew called at {time}. {helping}",
+    "queued_template": "Queued at {time}. It goes out when the link allows. Keep going: nothing here waits for it.",
+    "waiting_template": "Waiting for the next contact in {in_time}. Nothing here waits for it.",
+    "sent_template": "Sent at {time}. The ground will see it in about {delay}. Keep going: nothing here waits for a reply.",
+    "acknowledged_template": "The ground acknowledged it at {time}."
+  },
+  "assistant_line": {
+    "waiting_text": "The assistant is reading the log. The steps above do not wait for it.",
+    "stopped_text": "Assistant: stopped. Works without the assistant: the steps, the crew call and the ground message still work."
+  },
+  "red_flag_flows": [
+    {
+      "question_id": "red_chest",
+      "flow_id": "chest_pain"
+    },
+    {
+      "question_id": "red_faint",
+      "flow_id": "fainting"
+    },
+    {
+      "question_id": "red_breath",
+      "flow_id": "breathing_difficulty"
+    }
+  ]
+}

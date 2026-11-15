@@ -1,0 +1,65 @@
+{
+  "file": "iss_air_inc71_mgsc_t_values.csv",
+  "title": "ISS cabin air grab samples, Increment 71: T-values per compound and per sample",
+  "catalog_id": "N31",
+  "source_url": "https://www.nasa.gov/wp-content/uploads/2025/12/increment-71-report-including-ng-21-ingress-final.pdf",
+  "documentation": [
+    "JSC Toxicology and Environmental Chemistry Group, Memorandum TOX-SW-2025-02, 'Toxicological Assessment of ISS Air and Water Quality: March 26, 2024 to September 23, 2024 (Increment 71) Including NG-21 Ingress and Boeing-CFT Ascent', dated October 21, 2025, 13 PDF pages; source PDF sha256 96356e314a1d88d29a5e6bb55d690f225aadb1709ce00827cac03a8b1c2ef245, 1,114,979 bytes",
+    "Table S-2A, PDF page 10 (Table S-2B on page 11 repeats the NG-21 columns)"
+  ],
+  "retrieved_at_utc": "2026-11-15T01:53:07+00:00",
+  "bytes": 45810,
+  "sha256": "3c8550df76b16a8771d3cb8d686856d3947b2cd9d7608052136c318bc473db9d",
+  "mission": "ISS Increment 71",
+  "instrument": "Derived by NASA from the mGSC results: each compound's concentration divided by its SMAC",
+  "rows": 480,
+  "cadence": "Per sample",
+  "columns": {
+    "sample_id": {
+      "unit": null,
+      "description": "Analysis/Sample ID, joins to iss_air_inc71_mgsc_concentrations.csv"
+    },
+    "smac_basis": {
+      "unit": null,
+      "description": "SMAC duration used: 180-day for routine samples; 7-day and 180-day for the Starliner ascent and NG-21 ingress samples"
+    },
+    "method_group": {
+      "unit": null,
+      "description": "Analysis group heading"
+    },
+    "compound": {
+      "unit": null,
+      "description": "Compound, or 'Total T-Value'"
+    },
+    "printed": {
+      "unit": null,
+      "description": "Cell text verbatim"
+    },
+    "value": {
+      "unit": "1",
+      "description": "T-value (unitless ratio)"
+    },
+    "qualifier": {
+      "unit": null,
+      "description": "below_reporting_limit (ND), reported_by_gc_fid, not_reported"
+    },
+    "source_line": {
+      "unit": null,
+      "description": "Line in the pdftotext -layout output"
+    }
+  },
+  "preprocessing": "Transcribed from the PDF text layer (pdftotext from poppler, -layout) by transcribe_tox_inc71.py in this folder; no OCR and no reading of figures. Every printed cell is kept verbatim in 'printed'; 'value' is the number with thousands separators removed, empty when the cell is not a number; 'qualifier' names the non-numeric cases. The script stops if a table row does not have one cell per sample column.",
+  "license": "US Government work. NASA material is generally not subject to copyright in the United States (NASA media usage guidelines, https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA as the source; no NASA logo or insignia is used (NASA-SOURCES.md section 4).",
+  "provenance": "REPLAY",
+  "provenance_note": "REPLAY of published NASA results.",
+  "is_not": [
+    "NASA's summed T-value over all compounds, not the per-group toxicity index environment-hazards.json describes; a group index must be recomputed from the concentrations and SMAC groups."
+  ],
+  "consumers": [
+    {
+      "epic": "E24",
+      "component": "VOC toxicity index rule",
+      "use": "Independent expected answers for the T-value golden case (Total T-Value rows match Table 1 on PDF page 2)."
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+sample_id,return_mission,location,sample_date,method_group,analyte,units,max_contaminant_level,mcl_source,printed,value,reporting_limit,qualifier,source_line
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Physical Characteristics,Conductivity,µS/cm,,,<1,,1,below_reporting_limit,569
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Physical Characteristics,Conductivity,µS/cm,,,1,1,,,569
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Physical Characteristics,Conductivity,µS/cm,,,1,1,,,569
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Physical Characteristics,pH,pH units,4.5-8.5,41000,"5,83",,,printed_with_comma_decimal_not_parsed,570
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Physical Characteristics,pH,pH units,4.5-8.5,41000,5.76,5.76,,,570
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Physical Characteristics,pH,pH units,4.5-8.5,41000,5.66,5.66,,,570
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Iodine LCV,Total I,mg/L,6/0.2,41000 (tl I max in product water/tl I at pt of consumption),0.05,0.05,,,574
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Iodine LCV,Total I,mg/L,6/0.2,41000 (tl I max in product water/tl I at pt of consumption),<0.05,,0.05,below_reporting_limit,574
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Iodine LCV,Total I,mg/L,6/0.2,41000 (tl I max in product water/tl I at pt of consumption),<0.05,,0.05,below_reporting_limit,574
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Minerals ICPMS,Calcium,mg/L,30,41000,0.02,0.02,,,576
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Minerals ICPMS,Calcium,mg/L,30,41000,0.02,0.02,,,576
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Minerals ICPMS,Calcium,mg/L,30,41000,< 0.01,,0.01,below_reporting_limit,576
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Trace Metals ICPMS,Aluminum,µg/L,,,<1,,1,below_reporting_limit,578
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Trace Metals ICPMS,Aluminum,µg/L,,,<1,,1,below_reporting_limit,578
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Trace Metals ICPMS,Aluminum,µg/L,,,1,1,,,578
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Trace Metals ICPMS,Barium,µg/L,"10,000",SWEG&41000,<1,,1,below_reporting_limit,579
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Trace Metals ICPMS,Barium,µg/L,"10,000",SWEG&41000,2,2,,,579
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Trace Metals ICPMS,Barium,µg/L,"10,000",SWEG&41000,<1,,1,below_reporting_limit,579
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Trace Metals ICPMS,Boron,µg/L,,,10,10,,,580
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Trace Metals ICPMS,Boron,µg/L,,,<1,,1,below_reporting_limit,580
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Trace Metals ICPMS,Boron,µg/L,,,<1,,1,below_reporting_limit,580
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Trace Metals ICPMS,Nickel,µg/L,300,SWEG&41000,7,7,,,581
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Trace Metals ICPMS,Nickel,µg/L,300,SWEG&41000,1,1,,,581
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Trace Metals ICPMS,Nickel,µg/L,300,SWEG&41000,4,4,,,581
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Silicon ICPMS,Silicon,µg/L,,,"1,050",1050,,,583
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Silicon ICPMS,Silicon,µg/L,,,"1,580",1580,,,583
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Silicon ICPMS,Silicon,µg/L,,,82,82,,,583
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Total Organic Carbon-Sievers,Total Inorganic Carbon (TIC),mg/L,,,0.835,0.835,,,585
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Total Organic Carbon-Sievers,Total Inorganic Carbon (TIC),mg/L,,,0.901,0.901,,,585
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Total Organic Carbon-Sievers,Total Inorganic Carbon (TIC),mg/L,,,0.855,0.855,,,585
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Total Organic Carbon-Sievers,Total Organic Carbon (TOC),mg/L,5/3,SWEG / 41000,0.721,0.721,,,586
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Total Organic Carbon-Sievers,Total Organic Carbon (TOC),mg/L,5/3,SWEG / 41000,1.10,1.10,,,586
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Total Organic Carbon-Sievers,Total Organic Carbon (TOC),mg/L,5/3,SWEG / 41000,0.454,0.454,,,586
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Volatile Organics-Targets,Acetone,µg/L,"15,000",SWEG,<5,,5,below_reporting_limit,588
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Volatile Organics-Targets,Acetone,µg/L,"15,000",SWEG,<5,,5,below_reporting_limit,588
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Volatile Organics-Targets,Acetone,µg/L,"15,000",SWEG,7,7,,,588
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Semi-volatile Organics-Targets,Methyl sulfone,µg/L,"1,500,000",interim SWEG (06-2017),149,149,,,590
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Semi-volatile Organics-Targets,Methyl sulfone,µg/L,"1,500,000",interim SWEG (06-2017),172,172,,,590
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Semi-volatile Organics-Targets,Methyl sulfone,µg/L,"1,500,000",interim SWEG (06-2017),241,241,,,590
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Base and Neutral Extractables-EPA 625 List GCMS,Diethylphthalate,µg/L,,,<20,,20,below_reporting_limit,592
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Base and Neutral Extractables-EPA 625 List GCMS,Diethylphthalate,µg/L,,,< 20,,20,below_reporting_limit,592
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Base and Neutral Extractables-EPA 625 List GCMS,Diethylphthalate,µg/L,,,23,23,,,592
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Alcohols & Acetone GCMS,Acetone,µg/L,"15,000",SWEG,See Volatiles,,,reported_under_volatiles,594
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Alcohols & Acetone GCMS,Acetone,µg/L,"15,000",SWEG,See Volatiles,,,reported_under_volatiles,594
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Alcohols & Acetone GCMS,Acetone,µg/L,"15,000",SWEG,See Volatiles,,,reported_under_volatiles,594
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Silanols LCRI (Semi-Quantitative-NIST traceable standard not available),Monomethylsilanetriol (MMST),µg/L,"110,000",SWEG,"3,300",3300,,,596
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Silanols LCRI (Semi-Quantitative-NIST traceable standard not available),Monomethylsilanetriol (MMST),µg/L,"110,000",SWEG,"4,800",4800,,,596
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Silanols LCRI (Semi-Quantitative-NIST traceable standard not available),Monomethylsilanetriol (MMST),µg/L,"110,000",SWEG,< 1000,,1000,below_reporting_limit,596
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Summary,Organic Carbon Recovery,percent,,,63.66,63.66,,,597
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Summary,Organic Carbon Recovery,percent,,,59.9,59.9,,,597
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Summary,Organic Carbon Recovery,percent,,,17.8,17.8,,,597
+WQ240196,SpX-30,WPA xPWD Ambient,2024-04-02,Summary,Unaccounted Organic Carbon,mg/L,,,0.26,0.26,,,598
+WQ240197,SpX-30,WPA PWD Hot,2024-04-24,Summary,Unaccounted Organic Carbon,mg/L,,,0.440,0.440,,,598
+WQ240449,Crew-8,WPA xPWD Hot,2024-09-10,Summary,Unaccounted Organic Carbon,mg/L,,,0.370,0.370,,,598

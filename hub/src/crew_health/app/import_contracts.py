@@ -199,6 +199,10 @@ def _feature_edge(module: str, layer: str, target: str) -> None:
             raise ValueError("domain-pure: " + target)
     if parts[0] != "crew_health" or len(parts) < 2 or parts[1] in {module, "kernel", "contracts_gen"}:
         return
+    # SYSTEM 5.12: module.py types register(registry: ModuleRegistry) from app/registry.py;
+    # SYSTEM 5.5: routers map ProblemError through app/errors.py. app is the root, not a module.
+    if (layer, target) in {("", "crew_health.app.registry"), ("api", "crew_health.app.errors")}:
+        return
     if parts[-1] == "module":
         raise ValueError("app-only-assembles")
     if len(parts) < 4 or parts[2:4] != ["application", "ports"]:

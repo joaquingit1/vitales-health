@@ -1,0 +1,3010 @@
+{
+  "triage": [
+    {
+      "id": "air_safe",
+      "question": "Is the air safe? Look and listen for an alarm, smoke, fire, a burning or sharp smell, or hissing air.",
+      "answers": [
+        {
+          "answer": "Yes: no alarm, smoke or smell",
+          "goes_to": "responding"
+        },
+        {
+          "answer": "Smoke, fire, or a burning, sharp or chemical smell",
+          "goes_to": "toxic_exposure"
+        },
+        {
+          "answer": "Pressure alarm, hissing air, or ears popping",
+          "goes_to": "pressure_loss"
+        },
+        {
+          "answer": "Radiation alarm or solar storm warning",
+          "goes_to": "solar_particle_event"
+        },
+        {
+          "answer": "Not sure",
+          "goes_to": "toxic_exposure"
+        }
+      ]
+    },
+    {
+      "id": "responding",
+      "question": "Is the person awake and answering you? Say their name loudly and gently shake their shoulders. If you are the person who needs help, answer Yes.",
+      "answers": [
+        {
+          "answer": "Yes, they answer",
+          "goes_to": "severe_bleeding_check"
+        },
+        {
+          "answer": "No, or not sure",
+          "goes_to": "breathing"
+        }
+      ]
+    },
+    {
+      "id": "breathing",
+      "question": "Are they breathing normally? Look, listen and feel for up to 10 seconds. Gasping is not normal breathing.",
+      "answers": [
+        {
+          "answer": "Yes, breathing normally",
+          "goes_to": "unresponsive_breathing"
+        },
+        {
+          "answer": "No, gasping, or not sure",
+          "goes_to": "not_breathing"
+        }
+      ]
+    },
+    {
+      "id": "severe_bleeding_check",
+      "question": "Is there heavy bleeding? Blood pumping or pouring out, or bleeding that does not slow when you press on it.",
+      "answers": [
+        {
+          "answer": "Yes",
+          "goes_to": "severe_bleeding"
+        },
+        {
+          "answer": "No",
+          "goes_to": "what_happened"
+        }
+      ]
+    },
+    {
+      "id": "what_happened",
+      "question": "What is the main problem? Pick the closest.",
+      "answers": [
+        {
+          "answer": "Choking",
+          "goes_to": "choking"
+        },
+        {
+          "answer": "Chest pain or tightness",
+          "goes_to": "chest_pain"
+        },
+        {
+          "answer": "Trouble breathing",
+          "goes_to": "breathing_difficulty"
+        },
+        {
+          "answer": "Fainted or nearly fainted",
+          "goes_to": "fainting"
+        },
+        {
+          "answer": "Seizure, fit or jerking",
+          "goes_to": "seizure"
+        },
+        {
+          "answer": "Hit the head",
+          "goes_to": "head_injury"
+        },
+        {
+          "answer": "Eye injury, chemical or dust in the eye",
+          "goes_to": "eye_injury"
+        },
+        {
+          "answer": "Burn or scald",
+          "goes_to": "burns"
+        },
+        {
+          "answer": "Chemical, smoke or toxic air exposure",
+          "goes_to": "toxic_exposure"
+        },
+        {
+          "answer": "Symptoms after a pressure loss",
+          "goes_to": "pressure_loss"
+        },
+        {
+          "answer": "Symptoms during or after a spacewalk",
+          "goes_to": "dcs_after_eva"
+        },
+        {
+          "answer": "Radiation or solar storm",
+          "goes_to": "solar_particle_event"
+        },
+        {
+          "answer": "Allergic reaction with swelling or breathing trouble",
+          "goes_to": "severe_allergic_reaction"
+        },
+        {
+          "answer": "Shaky, sweaty, confused (low blood sugar?)",
+          "goes_to": "low_blood_sugar"
+        },
+        {
+          "answer": "Severe belly or side pain",
+          "goes_to": "severe_abdominal_pain"
+        },
+        {
+          "answer": "Mental health crisis",
+          "goes_to": "mental_health_crisis"
+        },
+        {
+          "answer": "Bleeding",
+          "goes_to": "severe_bleeding"
+        },
+        {
+          "answer": "Something else, or I don't know",
+          "goes_to": "something_else"
+        }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "not_breathing",
+      "title": "Not responding and not breathing normally",
+      "plain": "The person does not answer and is not breathing normally. Treat this as a stopped heart. Start chest compressions now. Do not wait for anyone.",
+      "entry": "First screen: not responding, and breathing is absent, gasping or not sure. Any other flow sends you here if the person stops responding and is not breathing normally.",
+      "immediate_steps": [
+        "Raise the medical alarm the way your vehicle's procedure says. Call every crewmate.",
+        "Start chest compressions now. If you are in doubt, start anyway.",
+        "Push hard and fast in the centre of the chest: 100 to 120 pushes a minute, 5 to 6 cm deep. Let the chest come back up after each push.",
+        "In weightlessness, lock yourself to them first: your left leg over their right shoulder, your right leg around their body, ankles locked behind their back. This is the Evetts-Russomano hold.",
+        "If you cannot push well that way, hold them from behind with your arms around their chest (reverse bear hug) and keep pushing.",
+        "A second crewmate brings the AED (the box that can shock the heart) and the restraint board. Attach the pads and do what the AED voice says.",
+        "Only shock when the person is strapped to the restraint board on a surface that does not carry electricity.",
+        "Once they are strapped down, keep pushing from the handstand position if the cabin allows, or from beside or across them.",
+        "If you are trained, give 2 rescue breaths after every 30 pushes. If not, keep pushing without stopping.",
+        "Do not stop to use this app. When a crewmate is free, they press Tell the ground: the log leaves at the next contact, and nothing here waits for it."
+      ],
+      "questions": [
+        "To the free crewmate: when did they collapse, or when were they last seen well?",
+        "Did anyone see what happened: an electric shock, smoke or toxic air, an injury, choking or a fall?",
+        "Is the AED attached? What did it say last?",
+        "Are they now breathing normally, moving or waking up?"
+      ],
+      "measurements": [
+        {
+          "what": "Heart rhythm",
+          "how": "The AED checks the rhythm itself. Keep hands off only while it says so.",
+          "instrument": "AED"
+        },
+        {
+          "what": "Oxygen level and pulse, only once they breathe normally again",
+          "how": "Clip on a finger, hand warm and still, wait for one steady number. Never pause compressions to do this.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Blood pressure, only once they breathe normally again",
+          "how": "Cuff on the bare upper arm, as the device instructions say. The CMO decides when.",
+          "instrument": "BP cuff"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Chest compressions: Evetts-Russomano hold first, reverse bear hug if compressions are not good enough",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS04",
+            "RS01",
+            "RS02"
+          ]
+        },
+        {
+          "step": "Rescue breaths after every 30 compressions if trained; otherwise continuous compressions",
+          "who": "any crew",
+          "kit": "face shield or pocket mask, if listed",
+          "source_ids": [
+            "RS01",
+            "RS02"
+          ]
+        },
+        {
+          "step": "Strap the person to the restraint board, then compress in the handstand position, or the standard or straddling position",
+          "who": "any crew",
+          "kit": "crew medical restraint system, if listed",
+          "source_ids": [
+            "RS04"
+          ]
+        },
+        {
+          "step": "Attach the AED and follow its voice, with the person restrained on an electrically isolated surface",
+          "who": "any crew",
+          "kit": "AED, if listed",
+          "source_ids": [
+            "RS02",
+            "RS04"
+          ]
+        },
+        {
+          "step": "Airway device, venous access and medicines, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS04",
+            "RS08"
+          ]
+        },
+        {
+          "step": "Decide when to stop CPR: the most medically qualified crewmember, with the ground while the link is up, or alone when it is not",
+          "who": "crew medical officer",
+          "kit": "none",
+          "source_ids": [
+            "RS04"
+          ]
+        },
+        {
+          "step": "Log for the ground. Voice or video support joins only while the link is up, a crewmate is free to handle it and it does not lower CPR quality. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link; voice and video while the link is up",
+          "source_ids": [
+            "RS04"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground at once, by a crewmate who is not doing compressions. It leaves at the next contact. Never slow or pause compressions for it, and never wait for the answer.",
+      "assistant_may": [
+        "Show a compression beat at 100 to 120 a minute and a clock of minutes since the start.",
+        "Ask the free crewmate one short question at a time about what happened.",
+        "Show the AED and restraint steps from the reviewed procedure.",
+        "Draft the log for the ground for a crewmate to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Ask the person doing compressions anything.",
+        "Tell the team to stop CPR. That decision belongs to the most medically qualified crewmember.",
+        "Say the heart has restarted because of a camera or oximeter number.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "heart",
+        "lungs"
+      ],
+      "environment_notes": {
+        "station_leo": "The ground is usually reachable. Use their support when it does not lower CPR quality and enough crew are present (RS04).",
+        "transit": "Same weightless holds and restraint rules as on a station. The link delay grows with distance, so the crew leads and never waits for the ground (RS41).",
+        "lunar_surface": "Partial gravity. The holds above were studied for weightlessness. A different technique has been suggested for low gravity (RS04). Which method to use here: to be set by clinical review.",
+        "mars_surface": "Each message takes 3 to 23 minutes one way, so live ground help during CPR is impractical (RS04). The crew decides alone. Method for partial gravity: to be set by clinical review.",
+        "eva": "A person in a suit cannot get chest compressions. Bring them inside as the spacewalk emergency procedure says, then start this flow. Those steps: to be set by flight rules and clinical review."
+      },
+      "source_ids": [
+        "RS01",
+        "RS02",
+        "RS04",
+        "RS07",
+        "RS08",
+        "RS41",
+        "C08"
+      ]
+    },
+    {
+      "id": "unresponsive_breathing",
+      "title": "Not responding but breathing normally",
+      "plain": "The person does not answer, but they are breathing normally. Keep their airway open and watch their breathing the whole time.",
+      "entry": "First screen: not responding, breathing normally.",
+      "immediate_steps": [
+        "Call every crewmate and the CMO (crew medical officer, the crewmate trained for medical care).",
+        "Keep watching their breathing. If it stops or turns to gasping, start chest compressions at once (Not breathing flow).",
+        "Open the airway: tilt the head back gently and lift the chin.",
+        "Where there is gravity, roll them onto their side in the recovery position. In weightlessness, how to hold or strap them: to be set by clinical review.",
+        "If a head or neck injury is possible, keep the head and neck in line with the body while you keep the airway open.",
+        "Stay with them. Do not leave them alone."
+      ],
+      "questions": [
+        "What happened just before? A blow to the head, a faint, a fit, or an alarm?",
+        "How long have they been like this?",
+        "Do they have diabetes or any known illness, or take any medicine?",
+        "Is there any injury or bleeding you can see?"
+      ],
+      "measurements": [
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Temperature",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        },
+        {
+          "what": "Breathing rate from the cameras",
+          "how": "Only if the person is already still in front of the cameras. Never delay a step for it. If it fails, the helper counts breaths and enters the number.",
+          "instrument": "camera station"
+        },
+        {
+          "what": "Blood sugar",
+          "how": "Only if the onboard kit carries a glucose meter. Use it as its instructions say and enter the number in mg/dL or mmol/L. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "glucose meter (only if carried)"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Keep the airway open; recovery position where there is gravity; head and neck in line if injury is possible",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS06"
+          ]
+        },
+        {
+          "step": "Keep checking breathing and start compressions if it becomes abnormal",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS02",
+            "RS06"
+          ]
+        },
+        {
+          "step": "Oxygen and further care, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "oxygen supply, if listed",
+          "source_ids": [
+            "RS08"
+          ]
+        },
+        {
+          "step": "Log for the ground: the cause and the next steps, for their review. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link",
+          "source_ids": [
+            "RS25",
+            "RS29"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground now: a person who does not wake up needs the flight surgeon's review. It leaves at the next contact; the crew leads, and nothing here waits for it.",
+      "assistant_may": [
+        "Remind the helper every few minutes to check breathing (interval to be set by clinical review).",
+        "Ask the helper one question at a time about what happened.",
+        "Request the oximeter reading and say why.",
+        "Draft the log for the ground for the helper to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Suggest leaving the person alone.",
+        "Suggest giving food, drink or medicine by mouth to someone who is not awake.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "head",
+        "lungs"
+      ],
+      "environment_notes": {
+        "station_leo": "The ground link is usually up: the log leaves at once. The crew still leads.",
+        "transit": "Longer link delay. The crew leads (RS41).",
+        "lunar_surface": "Partial gravity: whether the recovery position works as on Earth is to be set by clinical review.",
+        "mars_surface": "Partial gravity as on the Moon. Long link delay: the crew leads.",
+        "eva": "A suited person who stops responding: follow the spacewalk emergency procedure to bring them inside, then this flow. To be set by flight rules."
+      },
+      "source_ids": [
+        "RS02",
+        "RS06",
+        "RS08",
+        "RS25",
+        "RS29",
+        "RS41",
+        "C08"
+      ]
+    },
+    {
+      "id": "choking",
+      "title": "Choking",
+      "plain": "Something is stuck in the throat. If they can cough, let them cough. If they cannot breathe, cough or make a sound, act now.",
+      "entry": "Problem list: choking. Or the person holds their throat and cannot speak or breathe after eating or drinking.",
+      "immediate_steps": [
+        "Ask: are you choking? If they can cough, tell them to keep coughing.",
+        "If they cannot breathe, cough or make any noise, give up to 5 sharp back blows between the shoulder blades with the heel of your hand.",
+        "If that fails, give up to 5 abdominal thrusts: from behind, a fist between the belly button and the bottom of the chest, your other hand over it, pull sharply in and up.",
+        "Check the mouth after each blow and each thrust.",
+        "Repeat 5 back blows and 5 thrusts until the object comes out.",
+        "If they stop responding, start chest compressions (Not breathing flow).",
+        "In weightlessness you will push each other apart. Brace against a wall or hold them with your legs. How to brace: to be set by clinical review."
+      ],
+      "questions": [
+        "To the person: can you speak or cough?",
+        "Did the object come out?",
+        "Any pain in the throat or chest, or trouble swallowing now?",
+        "What were they eating, drinking or holding?"
+      ],
+      "measurements": [
+        {
+          "what": "Oxygen level (SpO2) and pulse, after the airway is clear",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Breathing rate from the cameras, after the airway is clear",
+          "how": "Only if the person is already still in front of the cameras. Never delay a step for it. If it fails, the helper counts breaths and enters the number.",
+          "instrument": "camera station"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Back blows and abdominal thrusts, in cycles of 5 and 5, until the object comes out",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS09",
+            "RS03",
+            "RS10"
+          ]
+        },
+        {
+          "step": "Check the mouth after each blow or thrust",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS09"
+          ]
+        },
+        {
+          "step": "Advanced airway care if the object stays stuck, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS10",
+            "RS08"
+          ]
+        },
+        {
+          "step": "Log for the ground after the event, as a routine report. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link",
+          "source_ids": [
+            "RS10"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground after the event, as a routine report, or at once if the person stopped responding at any point or breathing stays hard. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Count the back blows and thrusts on screen.",
+        "After the event, ask one question at a time about pain and swallowing.",
+        "Draft the routine report for the helper to preview."
+      ],
+      "assistant_must_never": [
+        "Ask the helper anything while they are giving blows or thrusts.",
+        "Tell anyone to sweep the mouth blindly with a finger.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "neck",
+        "lungs"
+      ],
+      "environment_notes": {
+        "station_leo": "Weightless: rescuer and person push apart. Bracing method: to be set by clinical review.",
+        "transit": "Same as the station. No time to ask the ground first (RS10).",
+        "lunar_surface": "Partial gravity: how well Earth technique works here is to be set by clinical review.",
+        "mars_surface": "As on the Moon. The link delay does not matter: the crew acts first (RS10).",
+        "eva": "Choking inside a suit is outside this flow. Follow the spacewalk emergency procedure."
+      },
+      "source_ids": [
+        "RS03",
+        "RS08",
+        "RS09",
+        "RS10",
+        "C08"
+      ]
+    },
+    {
+      "id": "severe_bleeding",
+      "title": "Severe bleeding",
+      "plain": "Blood is pouring or pumping out, or the bleeding will not slow. Press hard on it and keep pressing.",
+      "entry": "First screen: heavy bleeding. Problem list: bleeding.",
+      "immediate_steps": [
+        "Put on gloves if they are at hand. Do not wait for them.",
+        "Press hard on the wound with a dressing or a clean cloth. Keep pressing.",
+        "If something is stuck in the wound, do not pull it out. Press around it.",
+        "If blood is pumping out, or pressing does not slow it, put a tourniquet from the kit on the arm or leg: 5 to 7 cm above the wound, never over a joint. Tighten until the bleeding stops. Do not loosen it. Write down the time.",
+        "If blood soaks through, take the dressing off and press again with a new one.",
+        "In weightlessness, blood floats away as drops. Catch it with gauze or suction.",
+        "Call the CMO. Keep pressing until the CMO takes over."
+      ],
+      "questions": [
+        "Where is the bleeding? Tap the place on the body map.",
+        "What caused it: a sharp edge, a crush, a fall?",
+        "Any other injury?",
+        "Do they feel faint, cold or thirsty?"
+      ],
+      "measurements": [
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on an arm that is not injured, as the device instructions say. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Pulse from the cameras",
+          "how": "Only if the person can already sit still at the camera station. Never move them there or delay a step for it. Movement gives No reading, which is kept as a failed reading.",
+          "instrument": "camera station"
+        },
+        {
+          "what": "Temperature",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Direct pressure with a dressing or a clean cloth",
+          "who": "any crew",
+          "kit": "dressings, gloves",
+          "source_ids": [
+            "RS11",
+            "RS13"
+          ]
+        },
+        {
+          "step": "Tourniquet for limb bleeding that pressure cannot control",
+          "who": "any crew",
+          "kit": "tourniquet, if listed",
+          "source_ids": [
+            "RS12"
+          ]
+        },
+        {
+          "step": "Haemostatic dressing (a dressing that helps blood clot), as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "haemostatic dressing, if listed",
+          "source_ids": [
+            "RS12"
+          ]
+        },
+        {
+          "step": "Suction or rinsing to clear floating blood from the wound",
+          "who": "crew medical officer",
+          "kit": "suction, if listed",
+          "source_ids": [
+            "RS14"
+          ]
+        },
+        {
+          "step": "Fluids into a vein and other treatment for shock, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS14",
+            "RS08"
+          ]
+        },
+        {
+          "step": "Log for the ground: the injury and what was done. Voice and video support joins only while the link is up. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link; voice and video while the link is up",
+          "source_ids": [
+            "RS14"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground at once, and keep voice and video open while the link is up. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Start a timer when a tourniquet goes on and keep it on screen.",
+        "Ask a free crewmate for the BP and pulse and say why.",
+        "Draft the log for the ground for the helper to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Tell anyone to loosen a tourniquet.",
+        "Tell anyone to pull out an object stuck in a wound.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [],
+      "environment_notes": {
+        "station_leo": "Floating blood: catch drops with gauze or suction (RS14). The ground link is usually available.",
+        "transit": "As on the station. Longer delay: the crew leads.",
+        "lunar_surface": "Lunar dust is abrasive and can reach wounds; how to clean a dusty wound: to be set by clinical review.",
+        "mars_surface": "Martian dust is likely toxic (RS35). Keep wounds covered. Long delay: the CMO leads.",
+        "eva": "A wound with a suit leak is a suit emergency first. Follow the spacewalk emergency procedure, then treat inside."
+      },
+      "source_ids": [
+        "RS08",
+        "RS11",
+        "RS12",
+        "RS13",
+        "RS14",
+        "RS35",
+        "C07",
+        "C08"
+      ]
+    },
+    {
+      "id": "chest_pain",
+      "title": "Chest pain",
+      "plain": "Chest pain can come from the heart, the lungs or the muscles. This kit cannot tell which. Treat new or severe chest pain as serious.",
+      "entry": "Problem list: chest pain or tightness. The I feel unwell screen also opens it.",
+      "immediate_steps": [
+        "Stop all activity. Help them rest, sitting with knees bent and back supported, or held still in weightlessness.",
+        "Call the CMO.",
+        "Bring the AED close. If they stop responding and are not breathing normally, start chest compressions.",
+        "If the pain started during or after a spacewalk, also open the DCS flow.",
+        "Give no medicine unless the CMO gives it, as in the onboard procedure."
+      ],
+      "questions": [
+        "When did it start, and what were you doing?",
+        "Is it tight, crushing or squeezing? Does it spread to the arms, neck, jaw or back?",
+        "Are you short of breath, sweating, feeling sick or lightheaded?",
+        "Does it change when you breathe in or press on the chest?",
+        "Did it start during or after a spacewalk or hard exercise?"
+      ],
+      "measurements": [
+        {
+          "what": "Pulse from the cameras",
+          "how": "Only if the person can already sit still at the camera station. Never move them there or delay a step for it. Movement gives No reading, which is kept as a failed reading.",
+          "instrument": "camera station"
+        },
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Temperature",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Rest and stop all exertion",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS15",
+            "RS16"
+          ]
+        },
+        {
+          "step": "Medicines for a suspected heart attack, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS08",
+            "RS16"
+          ]
+        },
+        {
+          "step": "Diagnosis needs an ECG and blood tests. This kit has neither. Check it another way: pulse, blood pressure and oxygen, repeated on the onboard plan's cadence. They cannot replace an ECG",
+          "who": "any crew",
+          "kit": "camera station, pulse oximeter, BP cuff",
+          "source_ids": [
+            "S04",
+            "C11"
+          ]
+        },
+        {
+          "step": "Log for the ground: the symptoms, the readings and the missing tests. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link",
+          "source_ids": [
+            "RS08"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground at once if the pain is tight or squeezing, spreads to the arms, neck or jaw, or comes with breathlessness, sweating, sickness or fainting; otherwise with the next log. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Ask the questions above one at a time.",
+        "Request a camera pulse, oximeter and BP reading and say why.",
+        "Say plainly what this kit cannot test: an ECG would answer this, and this kit has none.",
+        "Draft the log for the ground for the person or helper to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Say the heart is fine because a pulse, oxygen or BP number is normal.",
+        "Tell the person to keep working or exercising.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "heart",
+        "lungs"
+      ],
+      "environment_notes": {
+        "station_leo": "The ground link is usually up; the flight surgeon can read the log quickly. The crew still leads.",
+        "transit": "Longer delay. The CMO leads; the log leaves at the next contact, and nothing waits for it.",
+        "lunar_surface": "Rest sitting. The link may be down for a day: the plan aboard runs to its end, and the log leaves at the next contact.",
+        "mars_surface": "Long delay: the CMO leads; the log leaves at the next contact, and nothing waits for it.",
+        "eva": "Chest pain during a spacewalk: report it at once and follow the flight rules for ending the spacewalk. Heart and lung signs after a spacewalk can be serious DCS (RS49)."
+      },
+      "source_ids": [
+        "RS08",
+        "RS15",
+        "RS16",
+        "RS49",
+        "C07",
+        "C08",
+        "C11",
+        "S04"
+      ]
+    },
+    {
+      "id": "breathing_difficulty",
+      "title": "Trouble breathing",
+      "plain": "Breathing is hard or fast. The cause may be the air, the lungs, the heart, an allergy or a pressure change. Check the air first.",
+      "entry": "Problem list: trouble breathing.",
+      "immediate_steps": [
+        "Check the air first. If there is an alarm, smoke or a smell, put on masks and open the Toxic air flow.",
+        "Help them sit up, or hold them upright in weightlessness.",
+        "Call the CMO.",
+        "If their lips or skin turn pale, blue or grey, they become confused, or they cannot get words out, call everyone.",
+        "If they stop responding and are not breathing normally, start chest compressions.",
+        "After a spacewalk or a pressure loss, also open the DCS flow. With swelling of the lips or face, open the Allergic reaction flow.",
+        "A normal oxygen reading does not mean the problem is gone."
+      ],
+      "questions": [
+        "Did it start suddenly or slowly?",
+        "Any chest pain, cough, or coughing blood?",
+        "Any smoke, chemical smell or alarm?",
+        "Swelling of the lips, tongue or throat, or a rash?",
+        "Did it start after a spacewalk or a pressure change?",
+        "Any blow to the chest?"
+      ],
+      "measurements": [
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review. Carbon monoxide from a fire can make this number look normal when it is not.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Breathing rate from the cameras",
+          "how": "Only if the person is already still in front of the cameras. Never delay a step for it. If it fails, the helper counts breaths and enters the number.",
+          "instrument": "camera station"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Temperature",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Sit upright and rest",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS57",
+            "RS18"
+          ]
+        },
+        {
+          "step": "Reliever inhaler, if the person has one or the kit lists one, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "inhaler, if listed",
+          "source_ids": [
+            "RS18"
+          ]
+        },
+        {
+          "step": "Oxygen, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "oxygen supply, if listed",
+          "source_ids": [
+            "RS08"
+          ]
+        },
+        {
+          "step": "Log for the ground: the cause and further care, for their review. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link",
+          "source_ids": [
+            "RS17"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground at once if breathing is very hard or suddenly worse, or comes with a tight chest, pale, blue or grey lips, or confusion. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Ask the questions above one at a time and route to the matching flow.",
+        "Request oximeter and breathing rate readings and say why.",
+        "Draft the log for the ground for the person or helper to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Say breathing is fine because the oxygen number is normal.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "lungs"
+      ],
+      "environment_notes": {
+        "station_leo": "Check the cabin air card and alarms first. The ground link is usually available.",
+        "transit": "As on the station. Longer delay: the CMO leads.",
+        "lunar_surface": "Dust brought inside can irritate the airways (RS34).",
+        "mars_surface": "Martian dust is likely toxic (RS35). Long delay: the CMO leads.",
+        "eva": "Breathing trouble in a suit is a suit emergency first. Follow the spacewalk emergency procedure."
+      },
+      "source_ids": [
+        "RS08",
+        "RS15",
+        "RS17",
+        "RS18",
+        "RS34",
+        "RS35",
+        "RS57",
+        "C08"
+      ]
+    },
+    {
+      "id": "fainting",
+      "title": "Fainting",
+      "plain": "Fainting is a short loss of consciousness. Most people wake within 30 seconds. Standing up after time in weightlessness can cause it.",
+      "entry": "Problem list: fainted or nearly fainted.",
+      "immediate_steps": [
+        "Check breathing. If they do not wake within 1 minute or are not breathing normally, go to the Not responding flows.",
+        "If they breathe normally, lay them on their back and raise their legs where there is gravity. In weightlessness, positioning: to be set by clinical review.",
+        "When they wake, keep them lying or sitting. Do not let them stand up quickly.",
+        "Call the CMO if they fainted while exercising or while lying down, have chest pain or a pounding, fluttering or irregular heartbeat, were hurt, had jerking movements, or are not fully back to normal."
+      ],
+      "questions": [
+        "What were you doing just before?",
+        "Any chest pain, or a racing, pounding or irregular heartbeat before it?",
+        "Did you hit your head?",
+        "When did you last eat and drink?",
+        "Is this soon after landing or a return to gravity?"
+      ],
+      "measurements": [
+        {
+          "what": "Pulse from the cameras",
+          "how": "Only if the person can already sit still at the camera station. Never move them there or delay a step for it. Movement gives No reading, which is kept as a failed reading.",
+          "instrument": "camera station"
+        },
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Lying, then sitting, only when the CMO asks. Follow the device instructions. Timing and the change that matters: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Temperature",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        },
+        {
+          "what": "Blood sugar",
+          "how": "Only if the onboard kit carries a glucose meter. Use it as its instructions say and enter the number in mg/dL or mmol/L. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "glucose meter (only if carried)"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Lie flat and raise the legs where there is gravity",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS19",
+            "RS20"
+          ]
+        },
+        {
+          "step": "Check for causes, including blood pressure on standing after return to gravity, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "BP cuff",
+          "source_ids": [
+            "C09"
+          ]
+        },
+        {
+          "step": "Log for the ground: the cause, for their review. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link",
+          "source_ids": [
+            "RS19"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground at once if they fainted during exercise or while lying down, did not wake within 1 minute, had chest pain or a pounding, fluttering or irregular heartbeat, a seizure, or an injury; otherwise as a routine report. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Ask the questions above one at a time.",
+        "Request a pulse, oxygen and BP reading and say why.",
+        "Draft the log for the ground for the person to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Say it was only a simple faint.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "head",
+        "heart"
+      ],
+      "environment_notes": {
+        "station_leo": "Lying down and raising the legs assumes gravity. Positioning in weightlessness: to be set by clinical review.",
+        "transit": "As on the station.",
+        "lunar_surface": "Partial gravity, and the first days after landing: standing up can cause fainting (C09).",
+        "mars_surface": "As on the Moon, after a long time in weightlessness (C09).",
+        "eva": "Fainting in a suit: follow the spacewalk emergency procedure."
+      },
+      "source_ids": [
+        "RS19",
+        "RS20",
+        "C07",
+        "C08",
+        "C09"
+      ]
+    },
+    {
+      "id": "seizure",
+      "title": "Seizure (fit)",
+      "plain": "A seizure is a burst of abnormal activity in the brain. The person may shake, stiffen or stop responding. Keep them safe and time it.",
+      "entry": "Problem list: seizure, fit or jerking movements.",
+      "immediate_steps": [
+        "Note the time it starts.",
+        "Move hard or sharp things away. In weightlessness, guide them away from hard structures.",
+        "Do not hold them down tightly or stop their movements. Do not put anything in their mouth.",
+        "Protect the head with soft padding.",
+        "When the jerking stops, open the airway and check breathing. If they breathe normally, recovery position where there is gravity.",
+        "If they are not breathing normally after it stops, start chest compressions.",
+        "Call the CMO at once if it lasts more than 5 minutes, another seizure follows, it is their first, they were hurt, or they stay unresponsive.",
+        "Give no food or drink until they are fully alert."
+      ],
+      "questions": [
+        "To the helper: how long did it last?",
+        "Has this happened before?",
+        "Any blow to the head, fever, toxic air or alarm, or missed sleep?",
+        "Do they take any medicine, or have diabetes?"
+      ],
+      "measurements": [
+        {
+          "what": "Seizure length",
+          "how": "Press start when it begins and stop when the jerking ends.",
+          "instrument": "app timer"
+        },
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Temperature",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        },
+        {
+          "what": "Blood sugar",
+          "how": "Only if the onboard kit carries a glucose meter. Use it as its instructions say and enter the number in mg/dL or mmol/L. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "glucose meter (only if carried)"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Protect from injury, time it, no tight restraint, nothing in the mouth",
+          "who": "any crew",
+          "kit": "soft padding",
+          "source_ids": [
+            "RS21",
+            "RS22",
+            "RS08"
+          ]
+        },
+        {
+          "step": "Open the airway and check breathing after the seizure; recovery position where there is gravity",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS21",
+            "RS06"
+          ]
+        },
+        {
+          "step": "Medicine to stop a long seizure, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS24",
+            "RS08"
+          ]
+        },
+        {
+          "step": "Log for the ground, for the specialists' review. Real time consultation joins only while the link is up. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link; voice and video while the link is up",
+          "source_ids": [
+            "RS24"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground after every seizure, and at once if it lasts more than 5 minutes or another follows before they recover. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Run the seizure timer and alert the helper at 5 minutes.",
+        "After it stops, ask the questions above one at a time.",
+        "Draft the log for the ground for the helper to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Tell anyone to hold the person down or put something in their mouth.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "head"
+      ],
+      "environment_notes": {
+        "station_leo": "Guide them away from hard structures; do not tightly restrain (RS08).",
+        "transit": "As on the station. Longer delay: the CMO leads.",
+        "lunar_surface": "Partial gravity: pad the head as on Earth.",
+        "mars_surface": "As on the Moon. Long delay: the CMO leads.",
+        "eva": "A seizure in a suit: follow the spacewalk emergency procedure."
+      },
+      "source_ids": [
+        "RS06",
+        "RS08",
+        "RS21",
+        "RS22",
+        "RS24",
+        "C08"
+      ]
+    },
+    {
+      "id": "head_injury",
+      "title": "Head injury",
+      "plain": "A blow to the head can hurt the brain even when the person seems fine at first. Watch them closely and do not leave them alone.",
+      "entry": "Problem list: hit the head.",
+      "immediate_steps": [
+        "If they do not respond, go to the Not responding flows. Assume a neck injury: keep the head and neck still and in line.",
+        "If they are awake, keep them still and hold something cold on the swelling.",
+        "Press gently on any bleeding wound with a clean dressing.",
+        "Check how alert they are: eyes open? Do they answer simple questions? Do they react only to pain? Not at all?",
+        "Stay with them. Do not leave them alone.",
+        "Call the CMO at once if they were knocked out, are confused or drowsy, are being sick, have a fit, have trouble seeing or hearing, clear fluid from the ears or nose, new numbness or weakness, or trouble walking, balancing or speaking."
+      ],
+      "questions": [
+        "Did you black out?",
+        "Do you remember what happened?",
+        "Do you have a headache? Is it getting worse?",
+        "Are you feeling sick or being sick?",
+        "Any double or blurred vision?",
+        "Any numbness or weakness anywhere?"
+      ],
+      "measurements": [
+        {
+          "what": "How alert they are",
+          "how": "Alert, responds to voice, responds only to pain, or unresponsive. Record the answer and the time, and repeat it.",
+          "instrument": "none"
+        },
+        {
+          "what": "Pupils",
+          "how": "Look at both pupils. Note if one is larger than the other. Take a photo for the CMO; it goes with the log for the ground.",
+          "instrument": "camera station or a light, if listed"
+        },
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Pulse from the cameras",
+          "how": "Only if the person can already sit still at the camera station. Never move them there or delay a step for it. Movement gives No reading, which is kept as a failed reading.",
+          "instrument": "camera station"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Keep head and neck still and in line if a neck injury is possible",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS26",
+            "RS06"
+          ]
+        },
+        {
+          "step": "Cold pack on the swelling; gentle pressure on a bleeding wound",
+          "who": "any crew",
+          "kit": "cold pack, dressings",
+          "source_ids": [
+            "RS26"
+          ]
+        },
+        {
+          "step": "Watch them, recheck alertness, and stay with them",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS25",
+            "RS26"
+          ]
+        },
+        {
+          "step": "Nerve and brain examination, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS28",
+            "RS08"
+          ]
+        },
+        {
+          "step": "Log for the ground with the video of the first assessment, for their review of ongoing care. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link with video",
+          "source_ids": [
+            "RS28",
+            "RS29"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground at once for any warning sign in the steps above; for a mild bump, with the next log. NASA's form expects ground video and audio even in the best case (RS28), so a crewmate repeats the checks above and the video goes with the log. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Remind the helper to recheck alertness (interval to be set by clinical review).",
+        "Ask the questions above one at a time.",
+        "Request the pupil photo and readings and say why.",
+        "Draft the log for the ground for the helper to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Say a brain injury is ruled out. This kit has no scanner.",
+        "Suggest leaving the person alone.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "head",
+        "neck"
+      ],
+      "environment_notes": {
+        "station_leo": "Ground video review is usually possible (RS28).",
+        "transit": "Longer delay. The CMO leads; the video goes with the log at the next contact.",
+        "lunar_surface": "The CMO leads; the video goes with the log at the next contact, and nothing waits for it.",
+        "mars_surface": "Long delay: the CMO leads; send video early.",
+        "eva": "A blow to the helmet: report it. After the spacewalk, check the person with this flow."
+      },
+      "source_ids": [
+        "RS06",
+        "RS08",
+        "RS25",
+        "RS26",
+        "RS27",
+        "RS28",
+        "RS29",
+        "C07",
+        "C08"
+      ]
+    },
+    {
+      "id": "eye_injury",
+      "title": "Eye injury or something in the eye",
+      "plain": "Something got into the eye or hit it. Dust from the Moon or Mars is sharp and can scratch the eye. Rinse it. Do not rub it.",
+      "entry": "Problem list: eye injury, chemical or dust in the eye.",
+      "immediate_steps": [
+        "Do not rub the eye.",
+        "If an object is stuck in the eye, do not remove it. Cover the eye with a rigid shield that rests on the bone around the eye, not on the eye.",
+        "Chemical, dust or grit in the eye: hold the eye open and rinse with lots of clean water at once, for at least 20 minutes.",
+        "In weightlessness, water and dust float. Use the onboard eye wash set. Until it is ready, rinse with a drink bag and soak up the water with towels.",
+        "Call the CMO."
+      ],
+      "questions": [
+        "What got in, or what hit the eye?",
+        "Was it a chemical, dust from outside, or a sharp object?",
+        "Can you see as well as before with that eye?",
+        "Pain, light hurting, or a gritty feeling?",
+        "Contact lenses in?"
+      ],
+      "measurements": [
+        {
+          "what": "Sight in each eye",
+          "how": "Cover the other eye. Read the same text on the screen with each eye and record any difference. Test card and distance: to be set by clinical review.",
+          "instrument": "app screen"
+        },
+        {
+          "what": "Photo of the eye",
+          "how": "A still, close photo in good light for the CMO, kept with the log for the ground. Do not touch the eye.",
+          "instrument": "camera station"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Rinse with lots of clean water",
+          "who": "any crew",
+          "kit": "eye wash set, drink bag, towels",
+          "source_ids": [
+            "RS30",
+            "RS08",
+            "RS46",
+            "RS34"
+          ]
+        },
+        {
+          "step": "Rigid shield over an eye with something stuck in it, with no pressure on the eye",
+          "who": "any crew",
+          "kit": "eye shield, if listed",
+          "source_ids": [
+            "RS32",
+            "RS30",
+            "RS31"
+          ]
+        },
+        {
+          "step": "Remove a loose particle and check the eye surface for scratches, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS32",
+            "RS08"
+          ]
+        },
+        {
+          "step": "Eye medicines, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS08"
+          ]
+        },
+        {
+          "step": "Follow up check by a crewmate: look at the eye and ask about sight at the next check (interval to be set by clinical review), with a photo kept for the log",
+          "who": "any crew",
+          "kit": "camera station",
+          "source_ids": [
+            "RS32",
+            "RS33"
+          ]
+        },
+        {
+          "step": "Log for the ground with the photos, for a later diagnosis of eye damage. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link with photos",
+          "source_ids": [
+            "RS33"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground at once for something stuck in the eye, a chemical in the eye, or any change in sight; otherwise when pain or grittiness does not settle after rinsing (how long to wait: to be set by clinical review). It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Run the 20 minute rinse timer.",
+        "Ask the questions above one at a time.",
+        "Request the eye photo and the sight check and say why.",
+        "Draft the log for the ground for the person to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Tell anyone to remove an object stuck in the eye or to press on the eye.",
+        "Say the eye is undamaged. This kit cannot examine the eye surface.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "eyes"
+      ],
+      "environment_notes": {
+        "station_leo": "Floating particles reach the eyes more easily (RS45). Use the eye wash set; soak up floating water with towels (RS08).",
+        "transit": "As on the station.",
+        "lunar_surface": "Lunar dust is very abrasive and can injure the eye (RS34). Dust carried inside can float in a vehicle in weightlessness (RS35).",
+        "mars_surface": "Martian dust is likely toxic (RS35). Rinse and report every exposure.",
+        "eva": "Something in the eye inside a helmet cannot be treated until the person is back inside. Report it and follow the spacewalk procedure."
+      },
+      "source_ids": [
+        "RS08",
+        "RS30",
+        "RS31",
+        "RS32",
+        "RS33",
+        "RS34",
+        "RS35",
+        "RS45",
+        "RS46"
+      ]
+    },
+    {
+      "id": "burns",
+      "title": "Burns",
+      "plain": "Heat, electricity or a chemical has burned the skin. Cool it fast and keep the person warm.",
+      "entry": "Problem list: burn or scald.",
+      "immediate_steps": [
+        "Make it safe first. If there is a fire, follow the fire alarm response and put on masks.",
+        "Cool the burn with cool running water for 20 minutes. Without running water, use cool water or a wet towel.",
+        "In weightlessness, water floats. Use wet towels or dressings. Method: to be set by clinical review.",
+        "Take off clothing or jewellery near the burn, unless it is stuck to the skin.",
+        "Do not use ice, creams or gels. Do not burst blisters.",
+        "When cooled, lay cling film over it. Do not wrap it around.",
+        "Keep the person warm. Do not over cool them.",
+        "Chemical powder: brush it off, then rinse. Never try to neutralise a chemical.",
+        "Call the CMO."
+      ],
+      "questions": [
+        "What caused it: flame, a hot surface, hot liquid, electricity or a chemical?",
+        "Where is it, and how big?",
+        "Is the face, mouth or throat burned, or is the voice hoarse?",
+        "Was there smoke?"
+      ],
+      "measurements": [
+        {
+          "what": "Body temperature, to avoid over cooling",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review. Carbon monoxide can make this number look normal when it is not.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Photo of the burn",
+          "how": "A still photo in good light for the CMO, kept with the log for the ground.",
+          "instrument": "camera station"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Cool with water for 20 minutes",
+          "who": "any crew",
+          "kit": "water, wet towels",
+          "source_ids": [
+            "RS36",
+            "RS38"
+          ]
+        },
+        {
+          "step": "Remove clothing and jewellery near the burn unless stuck",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS36"
+          ]
+        },
+        {
+          "step": "Cover with cling film or a clean dressing",
+          "who": "any crew",
+          "kit": "cling film or burn dressing, if listed",
+          "source_ids": [
+            "RS36"
+          ]
+        },
+        {
+          "step": "Brush off powder chemicals, then rinse",
+          "who": "any crew",
+          "kit": "water",
+          "source_ids": [
+            "RS39"
+          ]
+        },
+        {
+          "step": "Burn dressings, pain relief and fluids, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS40",
+            "RS08"
+          ]
+        },
+        {
+          "step": "Log for the ground with the photos, for their advice on further treatment. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link with photos",
+          "source_ids": [
+            "RS40"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground at once for a large or deep burn, a burn on the face, a burn from a chemical or electricity, or any smoke exposure; otherwise as a routine report. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Run the 20 minute cooling timer.",
+        "Ask the questions above one at a time.",
+        "Request the burn photo and say why.",
+        "Draft the log for the ground for the person to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Suggest ice, creams, gels, or bursting blisters.",
+        "Suggest neutralising a chemical.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [],
+      "environment_notes": {
+        "station_leo": "Fire response comes first (RS41). Floating water: cool with wet towels.",
+        "transit": "A single cabin vehicle has no clean module to retreat to after a fire (RS41).",
+        "lunar_surface": "Partial gravity: water runs off more as on Earth. Cooling method: to be set by clinical review.",
+        "mars_surface": "As on the Moon. Long delay: the CMO leads.",
+        "eva": "A burn in a suit is a suit emergency. Follow the spacewalk emergency procedure."
+      },
+      "source_ids": [
+        "RS08",
+        "RS36",
+        "RS37",
+        "RS38",
+        "RS39",
+        "RS40",
+        "RS41",
+        "C08"
+      ]
+    },
+    {
+      "id": "toxic_exposure",
+      "title": "Toxic air, chemical exposure or smoke",
+      "plain": "The air or a surface may hold something harmful: ammonia, fire smoke, carbon monoxide or a spilled chemical. Protect yourself first. Then help.",
+      "entry": "First screen: smoke, fire, a sharp or chemical smell, or not sure the air is safe. Problem list: chemical or smoke exposure. A fire or toxic air alarm.",
+      "immediate_steps": [
+        "Protect yourself first. Put on your mask before you help anyone.",
+        "Follow the vehicle's alarm response: warn, gather, then work the problem.",
+        "Station ammonia alarm: masks on, leave the affected segment, close the hatches. Treat any unexpected toxic air alarm as ammonia.",
+        "Move the person to clean air, with a mask on them too.",
+        "Chemical on the skin or in the eyes: rinse with lots of water at once.",
+        "If they are not breathing normally once you are both in clean air, start chest compressions.",
+        "Keep watching them. Signs can appear up to 2 hours later."
+      ],
+      "questions": [
+        "What was it: smoke, ammonia, another chemical, or not known?",
+        "How long were they in it? Was a mask on?",
+        "Cough, chest tightness, or trouble breathing?",
+        "Eyes burning or watering?",
+        "Headache, dizziness, feeling sick, or confusion?"
+      ],
+      "measurements": [
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review. Carbon monoxide can make this number look normal when it is not.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Breathing rate from the cameras",
+          "how": "Only if the person is already still in front of the cameras. Never delay a step for it. If it fails, the helper counts breaths and enters the number.",
+          "instrument": "camera station"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Temperature",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        },
+        {
+          "what": "Cabin air readings",
+          "how": "Read the habitat sensors for the substance, oxygen and carbon dioxide. The limits come from the vehicle's flight rules.",
+          "instrument": "habitat sensors"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Masks on and move to clean air",
+          "who": "any crew",
+          "kit": "portable breathing apparatus or masks",
+          "source_ids": [
+            "RS41",
+            "RS42",
+            "RS44"
+          ]
+        },
+        {
+          "step": "Rinse skin and eyes with lots of water",
+          "who": "any crew",
+          "kit": "water, eye wash set",
+          "source_ids": [
+            "RS46",
+            "RS42"
+          ]
+        },
+        {
+          "step": "Breathing support and oxygen, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "oxygen supply, if listed",
+          "source_ids": [
+            "RS42",
+            "RS46"
+          ]
+        },
+        {
+          "step": "Medicines, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS08"
+          ]
+        },
+        {
+          "step": "Log for the ground, for their advice on treatment and how long to watch. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link",
+          "source_ids": [
+            "RS43"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground once the crew and the person are safe in clean air, and at once if anyone has trouble breathing, chest pain, confusion or burning eyes. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Show the vehicle's protective steps first, from the reviewed procedure.",
+        "Run a 2 hour watch timer after exposure.",
+        "Ask the questions above one at a time.",
+        "Draft the log for the ground for the helper to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Tell anyone to remove a mask or go back into unsafe air.",
+        "Say the air is safe. Only the vehicle's sensors and flight rules decide that.",
+        "Treat a normal oxygen reading as proof of no harm after smoke.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "lungs",
+        "eyes"
+      ],
+      "environment_notes": {
+        "station_leo": "Segments with hatches and a return vehicle; the memorized ammonia response applies (RS41).",
+        "transit": "A single cabin vehicle has no clean module to retreat to (RS41). Masks and suits are the protection.",
+        "lunar_surface": "Habitat layout and safe haven: to be set by flight rules. Dust can also irritate the airways (RS34).",
+        "mars_surface": "As on the Moon. Martian dust is likely toxic (RS35).",
+        "eva": "Crew outside: when to come back in is set by flight rules."
+      },
+      "source_ids": [
+        "RS08",
+        "RS34",
+        "RS35",
+        "RS41",
+        "RS42",
+        "RS43",
+        "RS44",
+        "RS46",
+        "RS47",
+        "RS48",
+        "C08"
+      ]
+    },
+    {
+      "id": "pressure_loss",
+      "title": "Cabin pressure loss",
+      "plain": "Cabin pressure is dropping. Less pressure means less oxygen for the body. The signs of low oxygen are easy to miss in yourself.",
+      "entry": "First screen: pressure alarm, hissing air or ears popping. Problem list: symptoms after a pressure loss.",
+      "immediate_steps": [
+        "Follow the vehicle's depressurization response first: warn, gather, then work.",
+        "On a station: gather in the safe haven, with a clear path to the return vehicle.",
+        "On a single cabin vehicle: put on your suit at once.",
+        "Watch yourself and others for low oxygen signs: fast breathing, headache, lightheadedness, dizziness, tingling, sweating, clumsiness, poor judgement, tunnel vision, an odd good mood.",
+        "Anyone with these signs gets oxygen by mask or suit, as the vehicle procedure says.",
+        "If someone stops responding and is not breathing normally, start chest compressions once you both have air.",
+        "Afterwards, report any joint pain, tingling, itchy or blotchy skin: it may be DCS. Open the DCS flow."
+      ],
+      "questions": [
+        "Once safe: headache, dizziness, tingling or blurred vision?",
+        "Joint pain, or itchy or blotchy skin?",
+        "Ear or sinus pain?",
+        "Chest pain or trouble breathing?"
+      ],
+      "measurements": [
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Breathing rate from the cameras",
+          "how": "Only if the person is already still in front of the cameras. Never delay a step for it. If it fails, the helper counts breaths and enters the number.",
+          "instrument": "camera station"
+        },
+        {
+          "what": "Cabin pressure and oxygen",
+          "how": "Read the habitat sensors. Limits and reserve time come from the vehicle's flight rules.",
+          "instrument": "habitat sensors"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Vehicle depressurization response: warn, gather, safe haven or suits",
+          "who": "any crew",
+          "kit": "suits, masks, pressure gauge",
+          "source_ids": [
+            "RS41"
+          ]
+        },
+        {
+          "step": "Oxygen by mask or suit for low oxygen signs, as the vehicle procedure says",
+          "who": "any crew",
+          "kit": "oxygen masks or suits",
+          "source_ids": [
+            "RS41",
+            "RS50"
+          ]
+        },
+        {
+          "step": "Treatment of decompression sickness, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS49",
+            "RS51"
+          ]
+        },
+        {
+          "step": "Log for the ground once the crew is safe, for their follow up. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link",
+          "source_ids": [
+            "RS41"
+          ]
+        }
+      ],
+      "call_ground_when": "The alarm already warns the ground while the link is up. Log symptoms for the ground once the crew is safe. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Show the vehicle's own depressurization steps from the reviewed procedure.",
+        "Once the crew is safe, ask the questions above one at a time.",
+        "Draft the report for the helper to preview."
+      ],
+      "assistant_must_never": [
+        "Ask questions while the crew is working the emergency.",
+        "Say anyone is fine because they feel fine. Low oxygen dulls judgement.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "head",
+        "lungs",
+        "ear"
+      ],
+      "environment_notes": {
+        "station_leo": "Gather, work out the reserve time, and retreat to the safe haven before it runs out (RS41).",
+        "transit": "Single cabin: suits on at once (RS41).",
+        "lunar_surface": "Habitat procedure: to be set by flight rules.",
+        "mars_surface": "Habitat procedure: to be set by flight rules.",
+        "eva": "A suit pressure problem is a suit emergency. Follow the spacewalk emergency procedure."
+      },
+      "source_ids": [
+        "RS41",
+        "RS49",
+        "RS50",
+        "RS51",
+        "C08"
+      ]
+    },
+    {
+      "id": "dcs_after_eva",
+      "title": "Decompression sickness after a spacewalk",
+      "plain": "When pressure drops, gas dissolved in the body can form bubbles. This is decompression sickness (DCS, also called the bends). It can follow a spacewalk or a pressure loss.",
+      "entry": "Problem list: symptoms during or after a spacewalk. Also offered after a pressure loss.",
+      "immediate_steps": [
+        "During a spacewalk, report any symptom at once, even a mild one.",
+        "Joint or muscle pain, tingling or numbness, itchy or blotchy skin, weakness, confusion, vision change, breathing trouble or chest pain during or after a spacewalk: treat it as DCS until the CMO says otherwise.",
+        "Signs in the brain, nerves, lungs or heart (serious DCS) end the spacewalk at once.",
+        "Bring the person back to full cabin pressure and give oxygen by mask, as the procedure says.",
+        "Call the CMO."
+      ],
+      "questions": [
+        "When did the spacewalk end? Was the full prebreathe done?",
+        "When did the symptom start, and where is it?",
+        "Is it getting worse?",
+        "Any tingling, weakness, confusion, trouble breathing or chest pain?",
+        "Any marbled or blotchy skin?"
+      ],
+      "measurements": [
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Temperature",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        },
+        {
+          "what": "Breathing rate from the cameras",
+          "how": "Only if the person is already still in front of the cameras. Never delay a step for it. If it fails, the helper counts breaths and enters the number.",
+          "instrument": "camera station"
+        },
+        {
+          "what": "Photo of any blotchy skin",
+          "how": "A still photo in good light for the CMO, kept with the log for the ground.",
+          "instrument": "camera station"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Report symptoms at once; end the spacewalk for serious signs",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS49"
+          ]
+        },
+        {
+          "step": "Return to full pressure and oxygen by mask, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "oxygen mask, if listed",
+          "source_ids": [
+            "RS49",
+            "RS08"
+          ]
+        },
+        {
+          "step": "Suit pressure treatment, similar in principle to diving treatment tables, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "suit and oxygen, as in the onboard procedure",
+          "source_ids": [
+            "RS51"
+          ]
+        },
+        {
+          "step": "Log for the ground. Real time audio and video advice joins only while the link is up. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link; voice and video while the link is up",
+          "source_ids": [
+            "RS52"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground at once for any symptom during or after a spacewalk. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Ask the questions above one at a time.",
+        "Show the time since the spacewalk ended.",
+        "Request readings and the skin photo and say why.",
+        "Draft the log for the ground for the person to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Say a symptom is too mild to report.",
+        "Say DCS is ruled out. No onboard test confirms or excludes it.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "shoulder",
+        "knee",
+        "legs",
+        "head",
+        "lungs"
+      ],
+      "environment_notes": {
+        "station_leo": "Return to cabin pressure and oxygen are the main treatment; there is no hyperbaric chamber in flight (RS51).",
+        "transit": "Applies after any pressure loss.",
+        "lunar_surface": "Frequent surface walks. Suit and habitat pressures, and the prebreathe, are set by flight rules.",
+        "mars_surface": "As on the Moon. Long delay: the CMO leads.",
+        "eva": "Report at once. Serious signs end the spacewalk (RS49)."
+      },
+      "source_ids": [
+        "RS08",
+        "RS49",
+        "RS51",
+        "RS52",
+        "C08"
+      ]
+    },
+    {
+      "id": "solar_particle_event",
+      "title": "Solar particle event: take shelter",
+      "plain": "The Sun has thrown out a burst of fast particles (a solar particle event). Shelter behind as much mass as you can.",
+      "entry": "First screen: radiation alarm or solar storm warning. A warning from the ground or the onboard radiation monitors.",
+      "immediate_steps": [
+        "When the radiation alarm sounds, the onboard radiation monitors warn, or the ground tells you, go to the shelter area now.",
+        "Build the shelter: move stowage bags, equipment, food and water to put mass between you and the outside.",
+        "On the Moon, use the shelter covered with lunar soil if the base has one.",
+        "Keep your personal radiation tracker on.",
+        "How long to stay: set by flight rules and the onboard radiation monitors, with the ground's advice while the link is up."
+      ],
+      "questions": [
+        "After the event: any nausea, vomiting, headache or tiredness?",
+        "When did it start?",
+        "Any skin redness?"
+      ],
+      "measurements": [
+        {
+          "what": "Radiation dose rate",
+          "how": "Read the habitat radiation sensors and your personal tracker. The levels that call for shelter are set by flight rules.",
+          "instrument": "habitat radiation sensors, personal dosimeter"
+        },
+        {
+          "what": "Time of first vomiting",
+          "how": "If anyone vomits, record the time. The CMO and the ground use it.",
+          "instrument": "app clock"
+        },
+        {
+          "what": "Temperature",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Shelter behind stowage and equipment mass",
+          "who": "any crew",
+          "kit": "stowage bags, supplies",
+          "source_ids": [
+            "RS53",
+            "RS54"
+          ]
+        },
+        {
+          "step": "Treat nausea, vomiting and diarrhoea, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS55"
+          ]
+        },
+        {
+          "step": "Log for the ground with the dose readings, for their dose assessment and advice. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link",
+          "source_ids": [
+            "RS55",
+            "S08"
+          ]
+        }
+      ],
+      "call_ground_when": "The ground usually sends the warning while the link is up; the onboard radiation monitors do when it is down. Log anyone with nausea, vomiting or skin redness after the event. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Show the shelter steps from the reviewed procedure.",
+        "After the event, ask the questions above one at a time.",
+        "Draft the report for the person to preview."
+      ],
+      "assistant_must_never": [
+        "Say when it is safe to leave the shelter.",
+        "Estimate a radiation dose.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [],
+      "environment_notes": {
+        "station_leo": "The station orbits inside Earth's magnetic protection, and the hull helps (RS53). Activities outside may be postponed (RS53).",
+        "transit": "Beyond Earth's protection. On Orion, stowage bags make a dense shelter (RS53).",
+        "lunar_surface": "Lunar soil piled over the shelter adds protection (RS53).",
+        "mars_surface": "Shelter design: to be set by flight rules.",
+        "eva": "Return inside as the flight rules say."
+      },
+      "source_ids": [
+        "RS53",
+        "RS54",
+        "RS55",
+        "C08",
+        "S08"
+      ]
+    },
+    {
+      "id": "severe_allergic_reaction",
+      "title": "Severe allergic reaction",
+      "plain": "A severe allergic reaction (anaphylaxis) can swell the throat and drop blood pressure within minutes. Adrenaline is the first treatment.",
+      "entry": "Problem list: allergic reaction with swelling, breathing trouble or faintness.",
+      "immediate_steps": [
+        "Get the adrenaline auto-injector from the kit. It is given as in the onboard procedure.",
+        "Call the CMO and every crewmate.",
+        "Struggling to breathe: sit them up. Faint or dizzy: lay them down with legs raised where there is gravity. Do not let them stand or walk.",
+        "If they are no better after 5 minutes, the onboard procedure covers a second auto-injector.",
+        "If they stop responding and are not breathing normally, start chest compressions."
+      ],
+      "questions": [
+        "Swollen lips, mouth, tongue or throat?",
+        "Tight throat or trouble swallowing?",
+        "Breathing fast or wheezing?",
+        "A rash?",
+        "What did you eat, touch or take? Any known allergy?"
+      ],
+      "measurements": [
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Breathing rate from the cameras",
+          "how": "Only if the person is already still in front of the cameras. Never delay a step for it. If it fails, the helper counts breaths and enters the number.",
+          "instrument": "camera station"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Adrenaline auto-injector, as in the onboard procedure. Who may give it when the CMO cannot: to be set by clinical review",
+          "who": "crew medical officer",
+          "kit": "adrenaline auto-injector, if listed",
+          "source_ids": [
+            "RS56",
+            "RS57",
+            "RS08"
+          ]
+        },
+        {
+          "step": "Position: sit up for breathing trouble, lie down with legs raised if faint",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS56",
+            "RS57"
+          ]
+        },
+        {
+          "step": "Further medicines, oxygen and fluids, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS58",
+            "RS08"
+          ]
+        },
+        {
+          "step": "Log for the ground. Audio, video and telemetry support joins as close to real time as the link allows. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link; voice, video and telemetry while the link is up",
+          "source_ids": [
+            "RS58"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground at once. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Start a 5 minute timer after the first auto-injector.",
+        "Ask the questions above one at a time.",
+        "Show the person's recorded allergies (no dose advice).",
+        "Draft the log for the ground for the helper to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Tell the person to stand up or walk.",
+        "Say the reaction is over because they feel better.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "neck",
+        "lungs"
+      ],
+      "environment_notes": {
+        "station_leo": "The ground link is usually up: a free crewmate opens it at once. Nothing waits for it.",
+        "transit": "Longer delay. The CMO leads; later treatment depends on what the kit carries.",
+        "lunar_surface": "No hospital nearby: later treatment depends on what the kit carries.",
+        "mars_surface": "As on the Moon. Long delay: the CMO leads.",
+        "eva": "A reaction in a suit: follow the spacewalk emergency procedure."
+      },
+      "source_ids": [
+        "RS08",
+        "RS56",
+        "RS57",
+        "RS58",
+        "C08"
+      ]
+    },
+    {
+      "id": "low_blood_sugar",
+      "title": "Low blood sugar",
+      "plain": "Blood sugar (glucose) can drop too low. Signs come on fast: shaking, sweating, hunger, confusion, odd behaviour. It is rare in people without diabetes.",
+      "entry": "Problem list: shaky, sweaty, confused or acting oddly, or a low reading on a glucose meter.",
+      "immediate_steps": [
+        "If they do not respond, or cannot swallow safely, give nothing by mouth. Go to the Not responding flows.",
+        "If they are awake and can swallow, help them sit down and give something sugary from the food stores, as the onboard procedure says.",
+        "Check blood sugar with a meter if the kit carries one. Enter the number.",
+        "Stay with them. Call the CMO."
+      ],
+      "questions": [
+        "When did you last eat?",
+        "Hard exercise or a long task without food?",
+        "Any medicine taken?",
+        "Shaky, sweaty, hungry or confused?"
+      ],
+      "measurements": [
+        {
+          "what": "Blood sugar",
+          "how": "Only if the onboard kit carries a glucose meter. Use it as its instructions say and enter the number in mg/dL or mmol/L. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "glucose meter (only if carried)"
+        },
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Temperature",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Something sugary by mouth if awake and able to swallow; amount as in the onboard procedure",
+          "who": "any crew",
+          "kit": "food stores",
+          "source_ids": [
+            "RS60",
+            "RS59"
+          ]
+        },
+        {
+          "step": "Glucose or glucagon by injection when they cannot swallow, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS59"
+          ]
+        },
+        {
+          "step": "Log for the ground, for finding the cause. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link",
+          "source_ids": [
+            "RS59"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground after any episode: it is rare without diabetes, so the cause needs finding. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Ask the questions above one at a time.",
+        "Request a glucose reading if the kit has a meter, and say why.",
+        "Draft the log for the ground for the person to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Suggest food or drink for someone who is not fully alert.",
+        "Name an amount of sugar or glucose.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [],
+      "environment_notes": {
+        "station_leo": "Sugary items in the food stores: as the onboard procedure lists.",
+        "transit": "As on the station.",
+        "lunar_surface": "As on the station.",
+        "mars_surface": "As on the station. Long delay: the CMO leads.",
+        "eva": "Low blood sugar during a spacewalk: report it and follow the spacewalk procedure."
+      },
+      "source_ids": [
+        "RS59",
+        "RS60",
+        "RS61",
+        "C08"
+      ]
+    },
+    {
+      "id": "severe_abdominal_pain",
+      "title": "Severe belly or side pain",
+      "plain": "Severe pain in the belly or the side can have many causes, such as appendicitis or a kidney stone. This kit cannot find the cause. Keep them comfortable and get the CMO.",
+      "entry": "Problem list: severe pain in the belly, side or lower back.",
+      "immediate_steps": [
+        "Help them rest in the position that hurts least.",
+        "Call the CMO.",
+        "Call everyone and the CMO at once if the pain started suddenly and is severe, they vomit blood, their poo is black and sticky, they cannot pee or pass wind at all, or they struggle to breathe.",
+        "Give no pain medicine unless the CMO gives it, as in the onboard procedure."
+      ],
+      "questions": [
+        "Point to where it hurts on the body map. Has it moved?",
+        "When did it start? Suddenly?",
+        "Does it come in waves? Does it spread to the groin?",
+        "Fever, or feeling hot, cold or shivery?",
+        "Being sick? Any blood?",
+        "Are pee and poo normal?"
+      ],
+      "measurements": [
+        {
+          "what": "Temperature",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Pulse from the cameras",
+          "how": "Only if the person can already sit still at the camera station. Never move them there or delay a step for it. Movement gives No reading, which is kept as a failed reading.",
+          "instrument": "camera station"
+        },
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Urine",
+          "how": "Record when they last passed urine and whether they can pass it now.",
+          "instrument": "none"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Record the symptoms and when they started; watch for the warning signs",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS62",
+            "RS63"
+          ]
+        },
+        {
+          "step": "Examination, pain and sickness medicines, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS08"
+          ]
+        },
+        {
+          "step": "Diagnosis needs tests this kit lacks. Check it another way: temperature, pulse and blood pressure on the onboard plan's cadence; the CMO decides on further care, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "thermometer, BP cuff, camera station",
+          "source_ids": [
+            "S05",
+            "S09"
+          ]
+        },
+        {
+          "step": "Log for the ground: the symptoms, the readings and the missing tests. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link",
+          "source_ids": [
+            "RS08"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground at once for any warning sign in the steps above, or flank pain with a fever; otherwise with the next log. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Ask the questions above one at a time.",
+        "Request a temperature and BP reading and say why.",
+        "Say what this kit cannot test: imaging and blood or urine tests.",
+        "Draft the log for the ground for the person to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Name a diagnosis as certain.",
+        "Say appendicitis or a kidney stone is ruled out.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "abdomen",
+        "flank",
+        "back"
+      ],
+      "environment_notes": {
+        "station_leo": "The ground link is usually available.",
+        "transit": "Longer delay: the CMO leads; the log leaves at the next contact, and nothing waits for it.",
+        "lunar_surface": "The link may be down for a day: the crew leads, and the log leaves at the next contact.",
+        "mars_surface": "Long delay: the CMO leads; the log leaves at the next contact, and nothing waits for it.",
+        "eva": "Severe pain during a spacewalk: report it and follow the flight rules for ending the spacewalk."
+      },
+      "source_ids": [
+        "RS08",
+        "RS62",
+        "RS63",
+        "C07",
+        "C08",
+        "S05",
+        "S09"
+      ]
+    },
+    {
+      "id": "mental_health_crisis",
+      "title": "Mental health crisis",
+      "plain": "A crewmate is in severe distress: talking about suicide, very agitated, or out of touch with reality. Stay with them, keep them safe, and get help.",
+      "entry": "Problem list: mental health crisis, or a crewmate talks about suicide or harming someone.",
+      "immediate_steps": [
+        "Stay with them. Do not leave them alone.",
+        "Ask directly: are you thinking about suicide? Asking does not put the idea in their head.",
+        "Make the area safe: move away anything that could be used to hurt themselves or others.",
+        "Call the CMO and a second crewmate. Do not deal with a volatile person alone.",
+        "Speak calmly. Listen.",
+        "Restraint only as a last resort, as in the onboard procedure."
+      ],
+      "questions": [
+        "To the person: are you thinking about suicide?",
+        "Do you have a plan?",
+        "Have you taken anything?",
+        "What would help right now?",
+        "To the helper: has anyone been hurt?"
+      ],
+      "measurements": [
+        {
+          "what": "Pulse and blood pressure, only if the person agrees",
+          "how": "Do not insist. Use the oximeter and cuff as their instructions say.",
+          "instrument": "pulse oximeter, BP cuff"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Stay with them, ask directly, and listen",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS65"
+          ]
+        },
+        {
+          "step": "Remove the means of harm",
+          "who": "any crew",
+          "kit": "none",
+          "source_ids": [
+            "RS65"
+          ]
+        },
+        {
+          "step": "Calming, medicines, and restraint as a last resort, as in the onboard procedure",
+          "who": "crew medical officer",
+          "kit": "as in the onboard procedure",
+          "source_ids": [
+            "RS67",
+            "RS08"
+          ]
+        },
+        {
+          "step": "Log for the ground. Behavioral health consultants and a private conference, arranged by the flight surgeon, join while the link is up and are never a precondition. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link; private voice or video while the link is up",
+          "source_ids": [
+            "RS68",
+            "C14"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground at once if they talk about suicide or a plan, or if anyone cannot keep themselves or others safe. It leaves at the next contact; the crew stays with them, and nothing here waits for it.",
+      "assistant_may": [
+        "Suggest calm, plain words the helper can use.",
+        "Ask the helper one question at a time.",
+        "Draft the log for the ground for the helper to preview; the person sees it if they are able. Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Argue with, judge or diagnose the person.",
+        "Promise to keep anything secret.",
+        "Suggest leaving the person alone.",
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [
+        "head"
+      ],
+      "environment_notes": {
+        "station_leo": "The ground link is usually available. Behavioral health support is arranged through the flight surgeon (RS68).",
+        "transit": "Longer delay: the crew manages alone for longer; the CMO leads.",
+        "lunar_surface": "The link may be down for a day: the crew leads, and the log leaves at the next contact.",
+        "mars_surface": "Long delay: the crew manages alone for longer; the CMO leads.",
+        "eva": "Whether a crewmate in crisis takes part in a spacewalk: set by flight rules."
+      },
+      "source_ids": [
+        "RS08",
+        "RS64",
+        "RS65",
+        "RS66",
+        "RS67",
+        "RS68",
+        "C08",
+        "C14"
+      ]
+    },
+    {
+      "id": "something_else",
+      "title": "Something else, or not sure",
+      "plain": "Not sure what is wrong? Stay with them, take the basic readings, and let the assistant help you work it out.",
+      "entry": "Problem list: something else, or I don't know.",
+      "immediate_steps": [
+        "Stay with them. Call the CMO.",
+        "If at any time they stop responding or breathing normally, go back to the first screen.",
+        "Ask what is wrong and where. Tap the place on the body map.",
+        "Take the basic readings below while you wait."
+      ],
+      "questions": [
+        "What is wrong, in your own words?",
+        "When did it start?",
+        "Where is it?",
+        "Is it getting better or worse?",
+        "Has this happened before?"
+      ],
+      "measurements": [
+        {
+          "what": "Pulse from the cameras",
+          "how": "Only if the person can already sit still at the camera station. Never move them there or delay a step for it. Movement gives No reading, which is kept as a failed reading.",
+          "instrument": "camera station"
+        },
+        {
+          "what": "Oxygen level (SpO2) and pulse",
+          "how": "Clip it on a finger. Keep the hand warm, relaxed and still. Wait until it shows one steady number. Read it together with the symptoms: a normal number does not cancel serious symptoms. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "pulse oximeter"
+        },
+        {
+          "what": "Blood pressure",
+          "how": "Put the cuff on the bare upper arm and follow the device instructions. Keep the arm supported and still. The level that needs action: threshold to be set by clinical review.",
+          "instrument": "BP cuff"
+        },
+        {
+          "what": "Temperature",
+          "how": "Use the kit thermometer as its instructions say. Record the number and the time.",
+          "instrument": "thermometer"
+        }
+      ],
+      "treatment_steps": [
+        {
+          "step": "Assessment and next steps",
+          "who": "crew medical officer",
+          "kit": "none",
+          "source_ids": [
+            "RS68"
+          ]
+        },
+        {
+          "step": "Log for the ground, for their review. It leaves at the next contact; nothing waits for it.",
+          "who": "ground",
+          "kit": "message link",
+          "source_ids": [
+            "RS68"
+          ]
+        }
+      ],
+      "call_ground_when": "Log for the ground whenever the CMO or the helper is unsure, or the assistant routes to a flow that calls for it. It leaves at the next contact; nothing here waits for it.",
+      "assistant_may": [
+        "Ask one question at a time and route to the matching flow.",
+        "Request readings and say why.",
+        "Say plainly what this kit cannot test.",
+        "Draft the log for the ground for the person to preview; Tell the ground queues it for the next contact."
+      ],
+      "assistant_must_never": [
+        "Delay, reorder or hide the fixed steps.",
+        "Name a medicine dose. Medicines are given as in the onboard procedure.",
+        "Invent a threshold. Where none is reviewed, say: threshold to be set by clinical review.",
+        "Say a condition is ruled out without the test that rules it out.",
+        "Lower or close the urgent state."
+      ],
+      "body_regions": [],
+      "environment_notes": {
+        "station_leo": "The ground link is usually available.",
+        "transit": "Longer delay: the CMO leads.",
+        "lunar_surface": "The link may be down for a day: the crew leads, and the log leaves at the next contact.",
+        "mars_surface": "Long delay: the CMO leads.",
+        "eva": "Report any problem during a spacewalk at once and follow the spacewalk procedure."
+      },
+      "source_ids": [
+        "RS68",
+        "C07",
+        "C08"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "RS01",
+      "title": "How to do CPR (St John Ambulance; nhs.uk first aid pages now redirect here)",
+      "url": "https://www.sja.org.uk/first-aid-advice/cpr/",
+      "date": "Clinically reviewed 18 September 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS01.txt"
+    },
+    {
+      "id": "RS02",
+      "title": "Adult basic life support Guidelines 2025 (Resuscitation Council UK, based on the European Resuscitation Council Guidelines 2025)",
+      "url": "https://www.resus.org.uk/node/36437",
+      "date": "Published 27 October 2025",
+      "access": "Public page; full text captured (HTML). The ERC journal text itself was not read (publisher access)",
+      "saved_as": "research/responder/RS02.txt"
+    },
+    {
+      "id": "RS03",
+      "title": "Highlights of the 2025 American Heart Association Guidelines for CPR and ECC, Heart and Stroke Foundation of Canada edition",
+      "url": "https://cpr.heartandstroke.ca/resource/GuidelinesHighlightsEN2025",
+      "date": "2025 (guidelines published October 2025)",
+      "access": "Public PDF; full text captured. Canadian edition of the AHA Highlights; only text not marked with the Canadian asterisk is quoted. cpr.heart.org and ahajournals.org refused automated access (HTTP 403)",
+      "saved_as": "research/responder/RS03.txt"
+    },
+    {
+      "id": "RS04",
+      "title": "Cardiopulmonary resuscitation (CPR) during spaceflight, a guideline for CPR in microgravity from the German Society of Aerospace Medicine (DGLRM) and the European Society of Aerospace Medicine Space Medicine Group (ESAM-SMG). Hinkelbein J and others, Scand J Trauma Resusc Emerg Med 2020;28:108",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7607644/",
+      "date": "Published 2 November 2020",
+      "access": "Open access article; full text captured from PubMed Central",
+      "saved_as": "research/responder/RS04.txt"
+    },
+    {
+      "id": "RS05",
+      "title": "Unresponsive and not breathing: learn first aid (British Red Cross)",
+      "url": "https://www.redcross.org.uk/first-aid/learn-first-aid/unresponsive-and-not-breathing",
+      "date": "No date shown; read 14 November 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS05.txt"
+    },
+    {
+      "id": "RS06",
+      "title": "How to put someone in the recovery position (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/recovery-position/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS06.txt"
+    },
+    {
+      "id": "RS07",
+      "title": "ICL106 Sudden Cardiac Arrest Clinical Finding Form (CliFF), 2023 (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/sudden-cardiac-arrest-cliff-2023.pdf",
+      "date": "Form generated 24 July 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS07.txt"
+    },
+    {
+      "id": "RS08",
+      "title": "International Space Station Integrated Medical Group (IMG) Medical Checklist, JSC-48522-E4, ISS All Expeditions (NASA)",
+      "url": "https://newspaceeconomy.ca/wp-content/uploads/2022/11/163533main_iss_med_cl.pdf",
+      "date": "12 November 2001 (historical; superseded)",
+      "access": "Third-party mirror of a NASA PDF; full text captured. Lines made only of unmapped font codes (Russian text) removed from the saved text. Historical: some steps (compression rate and ratio, finger sweep) are superseded by RS02 and RS03. The same Loss of Signal rule is in NASA's Shuttle Medical Checklist, JSC-48031 Rev K, p. 6-2 (archived NASA copy: http://web.archive.org/web/20170212012224/https://www.nasa.gov/centers/johnson/pdf/177788main_MedicalCklist.pdf)",
+      "saved_as": "research/responder/RS08.txt"
+    },
+    {
+      "id": "RS09",
+      "title": "Choking (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/choking/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS09.txt"
+    },
+    {
+      "id": "RS10",
+      "title": "Choking/Obstructed Airway CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/choking-obstructed-airway-cliff-2023.pdf",
+      "date": "Form generated 15 June 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS10.txt"
+    },
+    {
+      "id": "RS11",
+      "title": "Severe bleeding (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/severe-bleeding/",
+      "date": "Clinically reviewed 8 September 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS11.txt"
+    },
+    {
+      "id": "RS12",
+      "title": "Life-threatening bleed (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/life-threatening-bleed/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS12.txt"
+    },
+    {
+      "id": "RS13",
+      "title": "First aid for someone bleeding heavily (British Red Cross)",
+      "url": "https://www.redcross.org.uk/first-aid/learn-first-aid/bleeding-heavily",
+      "date": "No date shown; read 14 November 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS13.txt"
+    },
+    {
+      "id": "RS14",
+      "title": "Traumatic Hypovolemic Shock CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/traumatic-hypovolemic-shock-cliff-2023.pdf",
+      "date": "Form generated 13 February 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS14.txt"
+    },
+    {
+      "id": "RS15",
+      "title": "Heart attack (NHS)",
+      "url": "https://www.nhs.uk/conditions/heart-attack/",
+      "date": "Page last reviewed 31 March 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS15.txt"
+    },
+    {
+      "id": "RS16",
+      "title": "Heart attack (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/heart-attack/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS16.txt"
+    },
+    {
+      "id": "RS17",
+      "title": "Shortness of breath (NHS)",
+      "url": "https://www.nhs.uk/symptoms/shortness-of-breath/",
+      "date": "Page last reviewed 30 January 2024",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS17.txt"
+    },
+    {
+      "id": "RS18",
+      "title": "Asthma attack (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/asthma-attack/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS18.txt"
+    },
+    {
+      "id": "RS19",
+      "title": "Fainting (NHS)",
+      "url": "https://www.nhs.uk/conditions/fainting/",
+      "date": "Page last reviewed 17 August 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS19.txt"
+    },
+    {
+      "id": "RS20",
+      "title": "Fainting (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/fainting/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS20.txt"
+    },
+    {
+      "id": "RS21",
+      "title": "Seizure (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/seizure/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS21.txt"
+    },
+    {
+      "id": "RS22",
+      "title": "First Aid for Seizures (CDC)",
+      "url": "https://www.cdc.gov/epilepsy/first-aid-for-seizures/index.html",
+      "date": "15 May 2024",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS22.txt"
+    },
+    {
+      "id": "RS23",
+      "title": "Epilepsy (NHS)",
+      "url": "https://www.nhs.uk/conditions/epilepsy/",
+      "date": "Page last reviewed 6 March 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS23.txt"
+    },
+    {
+      "id": "RS24",
+      "title": "Seizures CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/seizures-cliff-2023.pdf",
+      "date": "Form generated 22 August 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS24.txt"
+    },
+    {
+      "id": "RS25",
+      "title": "Head injury and concussion (NHS)",
+      "url": "https://www.nhs.uk/conditions/head-injury-and-concussion/",
+      "date": "Page last reviewed 29 May 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS25.txt"
+    },
+    {
+      "id": "RS26",
+      "title": "Head injury (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/head-injury/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS26.txt"
+    },
+    {
+      "id": "RS27",
+      "title": "Signs and Symptoms of Concussion (CDC HEADS UP)",
+      "url": "https://www.cdc.gov/heads-up/signs-symptoms/index.html",
+      "date": "15 September 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS27.txt"
+    },
+    {
+      "id": "RS28",
+      "title": "Minor Head Injury (Trauma) CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/trauma-minor-head.pdf",
+      "date": "Form generated 22 November 2022",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS28.txt"
+    },
+    {
+      "id": "RS29",
+      "title": "Severe Head Injury (Trauma) CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/trauma-severe-head-cliff-2023.pdf",
+      "date": "Form generated 23 August 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS29.txt"
+    },
+    {
+      "id": "RS30",
+      "title": "Eye injuries (NHS)",
+      "url": "https://www.nhs.uk/conditions/eye-injuries/",
+      "date": "Page last reviewed 12 March 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS30.txt"
+    },
+    {
+      "id": "RS31",
+      "title": "Eye injury (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/eye-injury/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS31.txt"
+    },
+    {
+      "id": "RS32",
+      "title": "Eye Foreign Body CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/eye-foreign-body-cliff-2023.pdf",
+      "date": "Form generated 23 August 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS32.txt"
+    },
+    {
+      "id": "RS33",
+      "title": "Burn Chemical Eye CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/burn-chemical-eye-cliff-2023.pdf",
+      "date": "Form generated 23 August 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS33.txt"
+    },
+    {
+      "id": "RS34",
+      "title": "Lunar Dust Exposure (EVA/Habitat) CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/dust-exposure-lunar-eva-habitat-cliff-2023.pdf",
+      "date": "Form generated 15 June 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS34.txt"
+    },
+    {
+      "id": "RS35",
+      "title": "Evidence Report: Risk of Adverse Health & Performance Effects of Celestial Dust Exposure (NASA Human Research Program)",
+      "url": "https://humanresearchroadmap.nasa.gov/Evidence/reports/Dust.pdf",
+      "date": "Approved for public release 4 August 2015",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS35.txt"
+    },
+    {
+      "id": "RS36",
+      "title": "Burns and scalds (NHS)",
+      "url": "https://www.nhs.uk/conditions/burns-and-scalds/",
+      "date": "Page last reviewed 31 March 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS36.txt"
+    },
+    {
+      "id": "RS37",
+      "title": "Burns and scalds (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/burns-and-scalds/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS37.txt"
+    },
+    {
+      "id": "RS38",
+      "title": "Severe burn (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/severe-burn/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS38.txt"
+    },
+    {
+      "id": "RS39",
+      "title": "Chemical burns (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/chemical-burn/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS39.txt"
+    },
+    {
+      "id": "RS40",
+      "title": "Burn Moderate-Severe Thermal Skin CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/burn-moderate-to-severe-thermal-cliff-2023.pdf",
+      "date": "Form generated 15 June 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS40.txt"
+    },
+    {
+      "id": "RS41",
+      "title": "Evolution of Hardware and Philosophy of Emergency Response Actions on the International Space Station and Future Spacecrafts. Tobias B, McMillan C (NASA JSC), SpaceOps 2023",
+      "url": "https://ntrs.nasa.gov/api/citations/20220019247/downloads/Emergency%20Ops%20History%20for%20SpaceOps%20Conference%202023.pdf",
+      "date": "Conference 6 to 10 March 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS41.txt"
+    },
+    {
+      "id": "RS42",
+      "title": "Toxic Exposure (Ammonia) CliFF (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/toxic-exposure-ammonia-cliff.pdf",
+      "date": "Form generated 14 May 2020",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS42.txt"
+    },
+    {
+      "id": "RS43",
+      "title": "Toxic Inhalation Exposure (Combustion Products) CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/toxic-inhalation-exposure-combustion-products-cliff-2023.pdf",
+      "date": "Form generated 15 June 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS43.txt"
+    },
+    {
+      "id": "RS44",
+      "title": "Smoke Inhalation CliFF (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/smoke-inhalation-cliff.pdf",
+      "date": "Form generated 11 May 2020",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS44.txt"
+    },
+    {
+      "id": "RS45",
+      "title": "OCHMO-TB-015 Spaceflight Toxicology, Rev B (NASA technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-015-spaceflight-toxicology.pdf",
+      "date": "30 October 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS45.txt"
+    },
+    {
+      "id": "RS46",
+      "title": "NIOSH Pocket Guide to Chemical Hazards: Ammonia (CDC/NIOSH)",
+      "url": "https://www.cdc.gov/niosh/npg/npgd0028.html",
+      "date": "Page last reviewed 30 October 2019",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS46.txt"
+    },
+    {
+      "id": "RS47",
+      "title": "Ammonia Chemical Fact Sheet (CDC Chemical Emergencies)",
+      "url": "https://www.cdc.gov/chemical-emergencies/chemical-fact-sheets/ammonia.html",
+      "date": "11 June 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS47.txt"
+    },
+    {
+      "id": "RS48",
+      "title": "Carbon Monoxide (CO) Poisoning Basics (CDC)",
+      "url": "https://www.cdc.gov/carbon-monoxide/about/index.html",
+      "date": "Updated 26 October 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS48.txt"
+    },
+    {
+      "id": "RS49",
+      "title": "Evidence Report: Risk of Reduced Crew Health and Performance due to Decompression Sickness and Hypoxia (NASA Human Research Program)",
+      "url": "https://humanresearchroadmap.nasa.gov/Evidence/other/Evidence%20Report%20Hypoxia%20and%20DCS_FINAL_1-8-2024.pdf",
+      "date": "Approved for public release 31 October 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS49.txt"
+    },
+    {
+      "id": "RS50",
+      "title": "Hypoxia: The Higher You Fly, The Less Air In The Sky (FAA pilot safety brochure OK-20-0926)",
+      "url": "https://www.faa.gov/pilots/safety/pilotsafetybrochures/media/hypoxia.pdf",
+      "date": "29 April 2020",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS50.txt"
+    },
+    {
+      "id": "RS51",
+      "title": "OCHMO-TB-037 Decompression Sickness (DCS) Risk Mitigation, Rev D (NASA technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-037-decompression-sickness.pdf",
+      "date": "Revision D, 5 October 2026",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS51.txt"
+    },
+    {
+      "id": "RS52",
+      "title": "EVA-Related Decompression Sickness CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-decompression-sickness-cliff-2023.pdf",
+      "date": "Form generated 22 August 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS52.txt"
+    },
+    {
+      "id": "RS53",
+      "title": "How NASA Will Protect Astronauts From Space Radiation at the Moon (NASA Science)",
+      "url": "https://science.nasa.gov/science-research/heliophysics/how-nasa-will-protect-astronauts-from-space-radiation-at-the-moon",
+      "date": "7 August 2019",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS53.txt"
+    },
+    {
+      "id": "RS54",
+      "title": "To Protect Artemis II Astronauts, NASA Experts Keep Eyes on Sun (NASA Science)",
+      "url": "https://science.nasa.gov/missions/artemis/artemis-2/to-protect-artemis-ii-astronauts-nasa-experts-keep-eyes-on-sun/",
+      "date": "16 March 2026 (updated 17 March 2026)",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS54.txt"
+    },
+    {
+      "id": "RS55",
+      "title": "Acute Radiation Syndrome CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/acute-radiation-syndrome-cliff-2023.pdf",
+      "date": "Form generated 22 August 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS55.txt"
+    },
+    {
+      "id": "RS56",
+      "title": "Anaphylaxis (NHS)",
+      "url": "https://www.nhs.uk/conditions/anaphylaxis/",
+      "date": "Page last reviewed 21 June 2023",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS56.txt"
+    },
+    {
+      "id": "RS57",
+      "title": "Anaphylaxis (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/anaphylaxis/",
+      "date": "Clinically reviewed 25 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS57.txt"
+    },
+    {
+      "id": "RS58",
+      "title": "Anaphylaxis CliFF (2023) (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/anaphylaxis-cliff-2023.pdf",
+      "date": "Form generated 23 August 2023",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS58.txt"
+    },
+    {
+      "id": "RS59",
+      "title": "Low blood sugar (hypoglycaemia) (NHS)",
+      "url": "https://www.nhs.uk/conditions/low-blood-sugar-hypoglycaemia/",
+      "date": "Page last reviewed 3 August 2023",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS59.txt"
+    },
+    {
+      "id": "RS60",
+      "title": "Diabetic emergencies (St John Ambulance)",
+      "url": "https://www.sja.org.uk/first-aid-advice/diabetes/",
+      "date": "Clinically reviewed 28 April 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS60.txt"
+    },
+    {
+      "id": "RS61",
+      "title": "Low Blood Glucose (Hypoglycemia) (NIDDK, NIH)",
+      "url": "https://www.niddk.nih.gov/health-information/diabetes/overview/preventing-problems/low-blood-glucose-hypoglycemia",
+      "date": "Last reviewed July 2021",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS61.txt"
+    },
+    {
+      "id": "RS62",
+      "title": "Stomach ache (NHS)",
+      "url": "https://www.nhs.uk/symptoms/stomach-ache/",
+      "date": "Page last reviewed 20 October 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS62.txt"
+    },
+    {
+      "id": "RS63",
+      "title": "Kidney stones (NHS)",
+      "url": "https://www.nhs.uk/conditions/kidney-stones/",
+      "date": "Page last reviewed 17 September 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS63.txt"
+    },
+    {
+      "id": "RS64",
+      "title": "Warning Signs of Suicide (NIMH)",
+      "url": "https://www.nimh.nih.gov/health/publications/warning-signs-of-suicide",
+      "date": "Revised 2025",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS64.txt"
+    },
+    {
+      "id": "RS65",
+      "title": "5 Action Steps to Help Someone Having Thoughts of Suicide (NIMH)",
+      "url": "https://www.nimh.nih.gov/health/publications/5-action-steps-to-help-someone-having-thoughts-of-suicide",
+      "date": "Revised 2024",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS65.txt"
+    },
+    {
+      "id": "RS66",
+      "title": "Where to get urgent help for mental health (NHS)",
+      "url": "https://www.nhs.uk/nhs-services/mental-health-services/where-to-get-urgent-help-for-mental-health/",
+      "date": "Page last reviewed 23 October 2026",
+      "access": "Public page; full text captured (HTML)",
+      "saved_as": "research/responder/RS66.txt"
+    },
+    {
+      "id": "RS67",
+      "title": "Behavioral Emergency CliFF (NASA)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/08/behavioral-emergency-cliff.pdf",
+      "date": "Form generated 11 May 2020",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS67.txt"
+    },
+    {
+      "id": "RS68",
+      "title": "OCHMO-TB-044 Medical Operations Spaceflight Considerations (NASA technical brief)",
+      "url": "https://www.nasa.gov/wp-content/uploads/2025/08/ochmo-tb-044-medical-operations.pdf",
+      "date": "13 August 2025",
+      "access": "Public PDF; full text captured",
+      "saved_as": "research/responder/RS68.txt"
+    }
+  ]
+}

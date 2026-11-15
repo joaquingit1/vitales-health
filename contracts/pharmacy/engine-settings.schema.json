@@ -110,6 +110,7 @@
       "required": [
         "rdkit_embed_seed",
         "xtb_method",
+        "xtb_cache_tblite_version",
         "xtb_accuracy",
         "xtb_electronic_temperature_k",
         "xtb_n_conformers",
@@ -129,6 +130,11 @@
           "enum": [
             "GFN2-xTB"
           ]
+        },
+        "xtb_cache_tblite_version": {
+          "description": "tblite version that computed the committed xtb cache; cache keys and pins use it where tblite is not installed (it has no Windows build).",
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
         },
         "xtb_accuracy": {
           "$ref": "common.schema.json#/$defs/SourcedValue"

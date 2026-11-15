@@ -1,0 +1,3 @@
+# NASA data files keep the bytes NASA served (several use CRLF line endings): their sha256 is pinned in the
+# provenance JSON beside each file and in package-manifest.json, so Git must not convert their line endings.
+*.csv -text

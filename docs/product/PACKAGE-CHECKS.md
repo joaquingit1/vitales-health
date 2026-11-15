@@ -29,8 +29,8 @@ What was verified in this package, and how. The counts, structure, links and wri
 
 ## Data
 
-- The replayed cabin CO2 value was recomputed from nasa-data/eda_rr1_telemetry.csv: the twelve five-minute samples after 14:36 up to 15:36 on 7 October 2014 average 4,606 ppm, 3.50 mmHg at an assumed 760 mmHg. The PRD, the interaction design, the validation fixture, the demo conditions and the prototype all use it.
-- The four files in nasa-data/ are byte-identical copies of the downloaded NASA files, with their provenance files.
+- The replayed cabin CO2 value was recomputed from nasa-data/habitat-environment/eda_rr1_telemetry.csv: the twelve five-minute samples after 14:36 up to 15:36 on 7 October 2014 average 4,606 ppm, 3.50 mmHg at an assumed 760 mmHg. The PRD, the interaction design, the validation fixture, the demo conditions and the prototype all use it.
+- The four files in nasa-data/habitat-environment/ and nasa-data/radiation/ are byte-identical copies of the downloaded NASA files, with their provenance files.
 
 ## Writing
 

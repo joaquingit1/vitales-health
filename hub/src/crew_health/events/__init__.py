@@ -1,0 +1,1 @@
+"""Durable scoped event delivery."""

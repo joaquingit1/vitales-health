@@ -1,0 +1,3493 @@
+{
+ "version": "kit-map-icl119-draft-1",
+ "example": false,
+ "notice": "Not clinically reviewed: each row was drafted by one model from NASA's Clinical Findings Forms and checked against them by another. Needs clinician review before live guidance.",
+ "instruments": [
+  {
+   "id": "camera_station",
+   "name": "camera station",
+   "capability_codes": [
+    "pulse",
+    "respiratory_rate"
+   ],
+   "method": "camera_estimate"
+  },
+  {
+   "id": "pulse_oximeter",
+   "name": "pulse oximeter",
+   "capability_codes": [
+    "spo2",
+    "pulse"
+   ]
+  },
+  {
+   "id": "bp_cuff",
+   "name": "blood pressure cuff",
+   "needs_text": "a blood pressure cuff",
+   "capability_codes": [
+    "blood_pressure"
+   ]
+  },
+  {
+   "id": "thermometer",
+   "name": "thermometer",
+   "needs_text": "a thermometer",
+   "capability_codes": [
+    "temperature"
+   ]
+  },
+  {
+   "id": "wrist_band",
+   "name": "wrist band",
+   "needs_text": "a wrist band",
+   "capability_codes": [
+    "sleep_duration",
+    "activity"
+   ],
+   "method": "device"
+  },
+  {
+   "id": "ecg_single_lead",
+   "name": "single-lead ECG",
+   "needs_text": "an ECG",
+   "capability_codes": [
+    "ecg_rhythm"
+   ]
+  },
+  {
+   "id": "ecg_12_lead",
+   "name": "12-lead ECG",
+   "needs_text": "a 12-lead ECG",
+   "capability_codes": [
+    "ecg_12_lead"
+   ]
+  },
+  {
+   "id": "troponin_poc",
+   "name": "point-of-care troponin",
+   "needs_text": "a troponin test",
+   "capability_codes": [
+    "troponin"
+   ]
+  },
+  {
+   "id": "ultrasound",
+   "name": "ultrasound, including ocular",
+   "needs_text": "an ultrasound",
+   "capability_codes": [
+    "ultrasound_imaging",
+    "ocular_ultrasound"
+   ]
+  },
+  {
+   "id": "fundoscope",
+   "name": "fundoscope",
+   "needs_text": "a fundoscope",
+   "capability_codes": [
+    "fundoscopy"
+   ]
+  },
+  {
+   "id": "oct",
+   "name": "OCT",
+   "needs_text": "an OCT",
+   "capability_codes": [
+    "optical_coherence_tomography"
+   ]
+  },
+  {
+   "id": "personal_co2_monitor",
+   "name": "personal CO2 monitor",
+   "needs_text": "a personal CO2 monitor",
+   "capability_codes": [
+    "personal_co2"
+   ]
+  },
+  {
+   "id": "urine_pregnancy_test",
+   "name": "urine pregnancy test",
+   "needs_text": "a urine pregnancy test",
+   "capability_codes": [
+    "urine_pregnancy_test"
+   ]
+  },
+  {
+   "id": "otoscope",
+   "name": "otoscope",
+   "needs_text": "an otoscope",
+   "capability_codes": [
+    "otoscope"
+   ]
+  },
+  {
+   "id": "fluorescein_uv_light",
+   "name": "fluorescein stain and UV light source",
+   "needs_text": "fluorescein stain and a UV light",
+   "capability_codes": [
+    "fluorescein_uv_light"
+   ]
+  },
+  {
+   "id": "anterior_segment_oct",
+   "name": "anterior segment OCT",
+   "needs_text": "an anterior segment OCT",
+   "capability_codes": [
+    "anterior_segment_oct"
+   ]
+  },
+  {
+   "id": "intraocular_pressure_device",
+   "name": "hand held intraocular pressure device",
+   "needs_text": "a hand held intraocular pressure device",
+   "capability_codes": [
+    "intraocular_pressure_device"
+   ]
+  },
+  {
+   "id": "audiometry",
+   "name": "inflight audiometry",
+   "needs_text": "inflight audiometry",
+   "capability_codes": [
+    "audiometry"
+   ]
+  },
+  {
+   "id": "urinalysis",
+   "name": "urinalysis",
+   "needs_text": "a urinalysis",
+   "capability_codes": [
+    "urinalysis"
+   ]
+  },
+  {
+   "id": "amylase",
+   "name": "amylase",
+   "needs_text": "an amylase test",
+   "capability_codes": [
+    "amylase"
+   ]
+  },
+  {
+   "id": "cbc",
+   "name": "CBC",
+   "needs_text": "a CBC",
+   "capability_codes": [
+    "cbc"
+   ]
+  },
+  {
+   "id": "basic_metabolic_panel",
+   "name": "BMP",
+   "needs_text": "a BMP",
+   "capability_codes": [
+    "basic_metabolic_panel"
+   ]
+  },
+  {
+   "id": "glucose",
+   "name": "glucose",
+   "needs_text": "a glucose test",
+   "capability_codes": [
+    "glucose"
+   ]
+  },
+  {
+   "id": "liver_function_panel",
+   "name": "liver function assays",
+   "needs_text": "a liver function panel",
+   "capability_codes": [
+    "liver_function_panel"
+   ]
+  },
+  {
+   "id": "blood_gas",
+   "name": "blood gasses",
+   "needs_text": "a blood gas analysis",
+   "capability_codes": [
+    "blood_gas"
+   ]
+  },
+  {
+   "id": "electrolytes",
+   "name": "electrolytes",
+   "needs_text": "an electrolyte panel",
+   "capability_codes": [
+    "electrolytes"
+   ]
+  },
+  {
+   "id": "white_blood_cell_count",
+   "name": "white blood cell count",
+   "needs_text": "a white blood cell count",
+   "capability_codes": [
+    "white_blood_cell_count"
+   ]
+  }
+ ],
+ "capabilities": [
+  {
+   "code": "pulse",
+   "label": "Pulse",
+   "body_region": "heart",
+   "operator_requirement": "self",
+   "expected_duration_seconds": 30,
+   "basis": "team default"
+  },
+  {
+   "code": "respiratory_rate",
+   "label": "Breathing rate",
+   "body_region": "lungs",
+   "operator_requirement": "self",
+   "expected_duration_seconds": 30,
+   "basis": "team default"
+  },
+  {
+   "code": "spo2",
+   "label": "Blood oxygen",
+   "body_region": "hand",
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "blood_pressure",
+   "label": "Blood pressure",
+   "body_region": "shoulder",
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default",
+   "components": [
+    "systolic_bp",
+    "diastolic_bp"
+   ]
+  },
+  {
+   "code": "temperature",
+   "label": "Temperature",
+   "body_region": null,
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "sleep_duration",
+   "label": "Sleep",
+   "body_region": "wrist",
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "activity",
+   "label": "Activity",
+   "body_region": "legs",
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "ecg_rhythm",
+   "label": "Heart rhythm (ECG)",
+   "body_region": "heart",
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "ecg_12_lead",
+   "label": "12-lead ECG",
+   "body_region": "heart",
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "troponin",
+   "label": "Troponin",
+   "body_region": null,
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "ultrasound_imaging",
+   "label": "Ultrasound",
+   "body_region": null,
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "ocular_ultrasound",
+   "label": "Ocular ultrasound",
+   "body_region": "eyes",
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "fundoscopy",
+   "label": "Fundoscopy",
+   "body_region": "eyes",
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "optical_coherence_tomography",
+   "label": "OCT",
+   "body_region": "eyes",
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "personal_co2",
+   "label": "Personal CO2",
+   "body_region": null,
+   "operator_requirement": "self",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "urine_pregnancy_test",
+   "label": "Urine pregnancy test",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "otoscope",
+   "label": "Otoscope",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "fluorescein_uv_light",
+   "label": "Fluorescein stain and UV light source",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "anterior_segment_oct",
+   "label": "Anterior segment OCT",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "intraocular_pressure_device",
+   "label": "Hand held intraocular pressure device",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "audiometry",
+   "label": "Inflight audiometry",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "urinalysis",
+   "label": "Urinalysis",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "amylase",
+   "label": "Amylase",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "cbc",
+   "label": "CBC",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "basic_metabolic_panel",
+   "label": "BMP",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "glucose",
+   "label": "Glucose",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "liver_function_panel",
+   "label": "Liver function assays",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "blood_gas",
+   "label": "Blood gasses",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "electrolytes",
+   "label": "Electrolytes",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  },
+  {
+   "code": "white_blood_cell_count",
+   "label": "White blood cell count",
+   "body_region": null,
+   "operator_requirement": "crew_medical_officer",
+   "expected_duration_seconds": null,
+   "basis": "team default"
+  }
+ ],
+ "kits": {
+  "station_leo": [
+   "camera_station",
+   "pulse_oximeter",
+   "bp_cuff",
+   "thermometer",
+   "wrist_band"
+  ],
+  "transit": [
+   "camera_station",
+   "pulse_oximeter",
+   "bp_cuff",
+   "thermometer",
+   "wrist_band"
+  ],
+  "lunar_surface": [
+   "camera_station",
+   "pulse_oximeter",
+   "bp_cuff",
+   "thermometer",
+   "wrist_band"
+  ],
+  "mars_surface": [
+   "camera_station",
+   "pulse_oximeter",
+   "bp_cuff",
+   "thermometer",
+   "wrist_band",
+   "ultrasound"
+  ]
+ },
+ "candidates": [
+  "ecg_single_lead",
+  "ultrasound",
+  "troponin_poc",
+  "personal_co2_monitor"
+ ],
+ "candidate_supplies": [],
+ "candidate_skills": [],
+ "supplies": [],
+ "stock": {
+  "station_leo": [],
+  "transit": [],
+  "lunar_surface": [],
+  "mars_surface": []
+ },
+ "conditions": [
+  {
+   "condition_id": "ICL1",
+   "name": "Abdominal Wall Hernia",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (abdominal)",
+     "instruments": []
+    },
+    {
+     "name": "Ultrasound imaging",
+     "instruments": [
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/abdominal-wall-hernia-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL2",
+   "name": "Abnormal Uterine Bleeding",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Abdominal and pelvic exam, pelvic ultrasound and urine pregnancy test",
+     "instruments": [
+      "ultrasound",
+      "urine_pregnancy_test"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/abnormal-uterine-bleeding-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL3",
+   "name": "Acute Coronary Syndrome",
+   "body_regions": [
+    "heart",
+    "lungs",
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam with vital signs, troponin, 12-lead EKG and cardiac and pulmonary ultrasound",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "troponin_poc",
+      "ecg_12_lead",
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/acute-coronary-syndrome-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL4",
+   "name": "Acute Radiation Syndrome",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/acute-radiation-syndrome-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL5",
+   "name": "Allergic Reaction (Mild To Moderate)",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam (cardiopulmonary, skin and oropharyngeal)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/allergic-reaction-mild-to-moderate-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL6",
+   "name": "Altitude Sickness",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical exam, fundoscopic exam and vital signs",
+     "instruments": [
+      "fundoscope",
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/altitude-sickness-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL7",
+   "name": "Anaphylaxis",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Vital signs and physical exam (cardiopulmonary, oropharyngeal, skin)",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/anaphylaxis-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL8",
+   "name": "Appendicitis",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Clinical examination (abdominal exam and CVA tenderness exam)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/appendicitis-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL9",
+   "name": "Arthritis, Acute",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/arthritis-acute-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL10",
+   "name": "Atrial Fibrillation/Atrial Flutter",
+   "body_regions": [
+    "heart"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Single-lead or 12-lead ECG, with history and physical",
+     "instruments": [
+      "ecg_single_lead"
+     ]
+    },
+    {
+     "name": "12-lead ECG, with history and physical",
+     "instruments": [
+      "ecg_12_lead"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/atrial-fibrillation-atrial-flutter-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL11",
+   "name": "Barotrauma (Ear/Sinus Block)",
+   "body_regions": [
+    "ear"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/barotrauma-ear-sinus-block-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL12",
+   "name": "Benzodiazapine Or Opioid Overdose",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination and medication reconciliation",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/benzodiazapine-or-opioid-overdose-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL13",
+   "name": "Bhp - Adjustment Disorder",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-adjustment-disorder-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL14",
+   "name": "Bhp - Anxiety",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-anxiety-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL15",
+   "name": "Bhp - Depression",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-depression-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL16",
+   "name": "Bhp - Grief Reaction",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-grief-reaction-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL17",
+   "name": "Bhp - Psychosis Secondary To Depression",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-psychosis-secondary-to-depression-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL18",
+   "name": "Bhp - Sleep Disturbance",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/bhp-sleep-disturbance-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL19",
+   "name": "Burn - Chemical Eye",
+   "body_regions": [
+    "eyes"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination including eye exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/burn-chemical-eye-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL20",
+   "name": "Burn - Chemical Skin",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/burn-chemical-skin-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL21",
+   "name": "Burn - Mild, Thermal",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/burn-mild-thermal-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL22",
+   "name": "Burn - Moderate To Severe, Thermal",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/burn-moderate-to-severe-thermal-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL23",
+   "name": "Cerebrovascular Accident",
+   "body_regions": [
+    "head",
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam (neurologic, cardiopulmonary, fundoscopic) with vital signs",
+     "instruments": [
+      "fundoscope",
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/cerebrovascular-accident-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL24",
+   "name": "Cerumen Impaction",
+   "body_regions": [
+    "ear"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam with an otoscope",
+     "instruments": [
+      "otoscope"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/cerumen-impaction-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL25",
+   "name": "Choking/Obstructed Airway",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Primary assessment exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/choking-obstructed-airway-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL26",
+   "name": "Cholelithiasis/Biliary Colic, Acute",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Clinical diagnosis: vital signs and abdominal exam",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/cholelithiasis-biliary-colic-acute-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": null
+  },
+  {
+   "condition_id": "ICL28",
+   "name": "Dental Abscess",
+   "body_regions": [
+    "head",
+    "neck"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam (dental, oropharyngeal, neck, skin) with vital signs",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dental-abscess-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL29",
+   "name": "Dental Crown Loss",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dental-crown-loss-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL30",
+   "name": "Dental Filling Loss",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dental-filling-loss-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL31",
+   "name": "Dental Fracture/Exposed Pulp",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Limited dental exam including bite testing",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dental-fracture-exposed-pulp-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL32",
+   "name": "Dental Luxation/Avulsion (Tooth Loss)",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Limited dental exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dental-luxation-avulsion-tooth-loss-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL33",
+   "name": "Dislocation - Finger",
+   "body_regions": [
+    "hand"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dislocation-finger-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL34",
+   "name": "Dislocation - Shoulder",
+   "body_regions": [
+    "shoulder"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dislocation-shoulder-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL35",
+   "name": "Diverticulitis, Acute",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Abdominal exam and abdominopelvic ultrasound",
+     "instruments": [
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/diverticulitis-acute-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL36A",
+   "name": "Dust Exposure - Lunar (Surface EVA)",
+   "body_regions": [
+    "eyes",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam (oropharynx, eyes, lungs)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dust-exposure-lunar-surface-eva-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL36B",
+   "name": "Dust Exposure - Lunar (EVA Habitat)",
+   "body_regions": [
+    "eyes",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam (oropharynx, eyes, lungs)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/dust-exposure-lunar-eva-habitat-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL37",
+   "name": "Ebullism",
+   "body_regions": [
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam of all organ systems",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/ebullism-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL38",
+   "name": "Epistaxis",
+   "body_regions": [
+    "head"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/epistaxis-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL39",
+   "name": "Eva Related Decompression Sickness",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-decompression-sickness-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL40",
+   "name": "Eva Related Dehydration",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (cardiac, pulmonary, skin, focused neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-dehydration-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL41",
+   "name": "Eva Related Fingernail Delamination",
+   "body_regions": [
+    "hand"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Evaluation of the hands",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-fingernail-delamination-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL42",
+   "name": "Eva Related Hand Injury",
+   "body_regions": [
+    "hand"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Evaluation of the hands and wound",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-hand-injury-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL43",
+   "name": "Eva Related Heat Illness",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Clinical exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-heat-illness-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL44",
+   "name": "Eva Related Paresthesia",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical exam including focused neurological exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-paresthesia-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL45",
+   "name": "Eva Related Shoulder Injury",
+   "body_regions": [
+    "shoulder"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Focused musculoskeletal examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-shoulder-injury-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL46",
+   "name": "Eva Related Suit Contact Injury",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eva-related-suit-contact-injury-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL47",
+   "name": "Eye - Retinal Injury",
+   "body_regions": [
+    "eyes"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Exterior, anterior and posterior eye exam with fundoscopy",
+     "instruments": [
+      "fundoscope"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eye-retinal-injury-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL48",
+   "name": "Eye Foreign Body",
+   "body_regions": [
+    "eyes"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Eye exam with fluorescein stain and UV light",
+     "instruments": [
+      "fluorescein_uv_light"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eye-foreign-body-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": null
+  },
+  {
+   "condition_id": "ICL49",
+   "name": "Eye Irritation/Corneal Abrasion/Ulceration",
+   "body_regions": [
+    "eyes"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Superficial, functional and eyelid eye exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eye-irritation-corneal-abrasion-ulceration-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL50",
+   "name": "Eyelid And Anterior Eye Infection",
+   "body_regions": [
+    "eyes"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/eyelid-and-anterior-eye-infection-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL51",
+   "name": "Fracture - Arm",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-arm-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL52",
+   "name": "Fracture - Cervical Spine",
+   "body_regions": [
+    "neck"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal, neurologic) with vital signs",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-cervical-spine-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL53",
+   "name": "Fracture - Distal Leg",
+   "body_regions": [
+    "legs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-distal-leg-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL54",
+   "name": "Fracture - Femur",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-femur-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL55",
+   "name": "Fracture - Hand",
+   "body_regions": [
+    "hand"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-hand-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL56",
+   "name": "Fracture - Wrist",
+   "body_regions": [
+    "wrist"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-wrist-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL57",
+   "name": "Fracture- Thoracic/Lumbar Spine",
+   "body_regions": [
+    "back"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal, neurologic) with vital signs",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/fracture-thoracic-lumbar-spine-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL58",
+   "name": "Gastritis/Reflux/Esophagitis",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/gastritis-reflux-esophagitis-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL59",
+   "name": "Gastroenteritis/Acute Diarrhea",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/gastroenteritis-acute-diarrhea-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL60",
+   "name": "Glaucoma, Acute Angle-Closure",
+   "body_regions": [
+    "eyes"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Eye exam with anterior segment OCT and hand held intraocular pressure measurement",
+     "instruments": [
+      "anterior_segment_oct",
+      "intraocular_pressure_device"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/glaucoma-acute-angle-closure-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL61",
+   "name": "Gravity Well - Entry Sensorimotor/Neurovestibular Disturbance",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical exam including focused neurological exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/gravity-well-entry-sensorimotor-neurovestibular-disturbance-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL62",
+   "name": "Gravity Well - Orthostatic Intolerance",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/gravity-well-orthostatic-intolerance-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL63",
+   "name": "Headache",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/headache-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL64",
+   "name": "Headache - Co2 Induced",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/headache-co2-induced-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL65",
+   "name": "Hearing Loss",
+   "body_regions": [
+    "ear"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam and inflight audiometry",
+     "instruments": [
+      "audiometry"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/hearing-loss-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL66",
+   "name": "Hearing Loss - Noise-Related",
+   "body_regions": [
+    "ear"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam and inflight audiometry",
+     "instruments": [
+      "audiometry"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/hearing-loss-noise-related.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL67",
+   "name": "Hemorrhoids",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination with digital rectal exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/hemorrhoids-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL68",
+   "name": "Herpes Zoster Reactivation (Shingles)",
+   "body_regions": [
+    "eyes"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Skin physical exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/herpes-zoster-reactivation-shingles-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL70",
+   "name": "Mouth Ulcer",
+   "body_regions": [
+    "head"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/mouth-ulcer-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL71",
+   "name": "Nephrolithiasis",
+   "body_regions": [
+    "abdomen",
+    "flank"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Urinalysis and renal ultrasound",
+     "instruments": [
+      "urinalysis",
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/nephrolithiasis-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL72",
+   "name": "Neuropathy - Central, Impingement Related",
+   "body_regions": [
+    "neck",
+    "back"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/neuropathy-central-impingement-related-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL73",
+   "name": "Otitis Externa",
+   "body_regions": [
+    "ear"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination including cranial nerve exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/otitis-externa-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL74",
+   "name": "Otitis Media",
+   "body_regions": [
+    "ear",
+    "head",
+    "neck"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam (ear, nose and throat)",
+     "instruments": []
+    },
+    {
+     "name": "Otoscopic exam",
+     "instruments": [
+      "otoscope"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/otitis-media-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL75",
+   "name": "Pancreatitis, Acute",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination and laboratory values (amylase, CBC, BMP, glucose, liver function)",
+     "instruments": [
+      "amylase",
+      "cbc",
+      "basic_metabolic_panel",
+      "glucose",
+      "liver_function_panel"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/pancreatitis-acute-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL76",
+   "name": "Pregnancy, Risk For",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Urine pregnancy test",
+     "instruments": [
+      "urine_pregnancy_test"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/pregnancy-risk-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL77",
+   "name": "Prostatitis, Acute",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam with vital signs, ultrasound (post-void residual) and urinalysis",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "ultrasound",
+      "urinalysis"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/prostatitis-acute-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL78",
+   "name": "Rash, Spaceflight Associated",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/rash-spaceflight-associated-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL80",
+   "name": "Respiratory Failure",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam with blood gasses, electrolytes, blood counts, EKG and cardiopulmonary ultrasound",
+     "instruments": [
+      "blood_gas",
+      "electrolytes",
+      "cbc",
+      "ecg_12_lead",
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/respiratory-failure-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": null
+  },
+  {
+   "condition_id": "ICL81",
+   "name": "Respiratory Tract Infection - Lower",
+   "body_regions": [
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Vital signs and physical exam",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/respiratory-tract-infection-lower-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL82",
+   "name": "Respiratory Tract Infection - Upper",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/respiratory-tract-infection-upper-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL83",
+   "name": "Seizures",
+   "body_regions": [
+    "head"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical including neurological examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/seizures-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL84",
+   "name": "Sepsis",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "SIRS criteria with an infectious source: exam, vital signs, white blood cell count and ultrasound",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "white_blood_cell_count",
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/sepsis-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL85",
+   "name": "Shock - Cardiogenic",
+   "body_regions": [
+    "heart"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Bedside exam for hypotension and poor perfusion, echocardiography and single-lead or 12-lead EKG",
+     "instruments": [
+      "bp_cuff",
+      "ultrasound",
+      "ecg_single_lead"
+     ]
+    },
+    {
+     "name": "Bedside exam for hypotension and poor perfusion, echocardiography and 12-lead EKG",
+     "instruments": [
+      "bp_cuff",
+      "ultrasound",
+      "ecg_12_lead"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/shock-cardiogenic-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL86",
+   "name": "Skin Abrasion",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination including skin examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/skin-abrasion-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL87",
+   "name": "Skin Infection - Bacterial",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination of the skin",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/skin-infection-bacterial-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL88",
+   "name": "SKIN INFECTION - VIRAL/FUNGAL",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Skin examination (diagnosed by its description)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/skin-infection-cliff.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL89",
+   "name": "Skin Laceration",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Skin, wound and basic neurological exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/skin-laceration-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL90",
+   "name": "Small Bowel Obstruction",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Primary assessment and abdominal exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/small-bowel-obstruction-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL91",
+   "name": "Space Adaptation - Back Pain",
+   "body_regions": [
+    "back"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-back-pain-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL92",
+   "name": "Space Adaptation - Constipation",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-constipation-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL93",
+   "name": "Space Adaptation - Epistaxis",
+   "body_regions": [
+    "head"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-epistaxis-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL94",
+   "name": "Space Adaptation - Headache",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-headache-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL95",
+   "name": "Space Adaptation - Insomnia",
+   "body_regions": [
+    "heart",
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Mental status exam with psychiatric history",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-insomnia-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL96",
+   "name": "Space Adaptation - Nasal Congestion",
+   "body_regions": [
+    "head"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Ear, nose and throat examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-nasal-congestion-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL97",
+   "name": "Space Adaptation - Space Motion Sickness",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-space-motion-sickness-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL98",
+   "name": "Space Adaptation - Urinary Retention",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Abdominal exam confirmed with abdominal ultrasound",
+     "instruments": [
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-urinary-retention-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL99",
+   "name": "Space Adaptation - Urinary Incontinence",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Abdominal exam and urinalysis",
+     "instruments": [
+      "urinalysis"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-adaptation-urinary-incontinence-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL100",
+   "name": "Space Flight Associated Neuro-Ocular Syndrome (Sans)",
+   "body_regions": [
+    "eyes"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Ophthalmic exam: fundoscopy, vision, OCT, intraocular pressure and ophthalmic ultrasound",
+     "instruments": [
+      "fundoscope",
+      "oct",
+      "intraocular_pressure_device",
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/space-flight-associated-neuro-ocular-syndrome-sans-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL101",
+   "name": "Sprain/Strain - Back",
+   "body_regions": [
+    "back"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal, neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/sprain-strain-back-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL102",
+   "name": "Sprain/Strain - Lower Extremity",
+   "body_regions": [
+    "ankle",
+    "knee"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Focused musculoskeletal and neurologic exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/sprain-strain-lower-extremity-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL103",
+   "name": "Sprain/Strain - Neck",
+   "body_regions": [
+    "neck"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal, neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/sprain-strain-neck-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL104",
+   "name": "Sprain/Strain - Upper Extremity",
+   "body_regions": [
+    "shoulder",
+    "wrist"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Focused musculoskeletal and neurologic exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/sprain-strain-upper-extremity-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL105",
+   "name": "Streptococcal Pharyngitis",
+   "body_regions": [
+    "neck"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (ENT, cardiopulmonary, abdominal) with vital signs",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/streptococcal-pharyngitis-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL106",
+   "name": "Sudden Cardiac Arrest",
+   "body_regions": [
+    "heart"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Pulse check: no palpable pulse on physical exam",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/sudden-cardiac-arrest-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL107",
+   "name": "Tendinopathy/Enthesopathy/Bursitis/Over-Use Injuries - Lower Extremity",
+   "body_regions": [
+    "legs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/tendinopathy-enthesopathy-bursitis-over-use-injuries-lower-extremity-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL108",
+   "name": "Tendinopathy/Enthesopathy/Bursitis/Over-Use Injuries - Upper Extremity",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (musculoskeletal and neurologic)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/tendinopathy-enthesopathy-bursitis-over-use-injuries-upper-extremity-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL109",
+   "name": "Toxic Dermal Exposure",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/toxic-dermal-exposure-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL110",
+   "name": "Toxic Inhalation Exposure",
+   "body_regions": [
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (cardiopulmonary)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/toxic-inhalation-exposure-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL111",
+   "name": "Toxic Inhalation Exposure - Combustion Products",
+   "body_regions": [
+    "lungs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination (cardiopulmonary)",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/toxic-inhalation-exposure-combustion-products-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL112",
+   "name": "Trauma - Abdominal Injury (Blunt)",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Primary and secondary survey with vital signs and EFAST ultrasound",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/trauma-abdominal-injury-blunt-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL113",
+   "name": "Trauma - Chest Injury (Blunt)",
+   "body_regions": [
+    "heart"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical exam: primary and secondary trauma survey with vital signs",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/trauma-chest-injury-blunt-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": null
+  },
+  {
+   "condition_id": "ICL114",
+   "name": "Trauma - Minor Head",
+   "body_regions": [
+    "head"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Primary assessment, physical exam with vital signs and neurological exam",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/trauma-minor-head.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL115",
+   "name": "Trauma - Severe Head",
+   "body_regions": [
+    "head"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Physical examination and ultrasound studies",
+     "instruments": [
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/trauma-severe-head-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL116",
+   "name": "Traumatic Hypovolemic Shock",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Primary assessment with vital signs, secondary survey and RUSH ultrasound",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/traumatic-hypovolemic-shock-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL117",
+   "name": "Urinary Tract Infection",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Abdominal and costovertebral angle exam with urinalysis",
+     "instruments": [
+      "urinalysis"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/urinary-tract-infection-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL118",
+   "name": "Vaginal Yeast Infection",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical exam for vulvar and discharge signs",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/vaginal-yeast-infection-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL119",
+   "name": "Venous Thromboembolism",
+   "body_regions": [
+    "heart",
+    "lungs",
+    "legs"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Vital signs, cardiac, pulmonary and extremity exam and compression ultrasound",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/venous-thromboembolism-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL122",
+   "name": "Gravity Well Entry Motion Sickness",
+   "body_regions": [],
+   "confirming_tests": [
+    {
+     "name": "Physical examination",
+     "instruments": []
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/gravity-well-entry-motion-sickness-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": "model:claude-sonnet-5-5"
+  },
+  {
+   "condition_id": "ICL123",
+   "name": "Pregnancy",
+   "body_regions": [
+    "abdomen"
+   ],
+   "confirming_tests": [
+    {
+     "name": "Vital signs, abdominal/pelvic exam, pregnancy test and ultrasound",
+     "instruments": [
+      "bp_cuff",
+      "thermometer",
+      "pulse_oximeter",
+      "urine_pregnancy_test",
+      "ultrasound"
+     ]
+    }
+   ],
+   "cliff_url": "https://www.nasa.gov/wp-content/uploads/2026/08/pregnancy-cliff-2023.pdf",
+   "plan_id": null,
+   "ground_needs": null,
+   "treatment_scope": null,
+   "rtdc": null,
+   "source_ids": [
+    "S13"
+   ],
+   "review_state": "unreviewed",
+   "written_by": "model:claude-opus-5-5",
+   "checked_by": null
+  }
+ ]
+}

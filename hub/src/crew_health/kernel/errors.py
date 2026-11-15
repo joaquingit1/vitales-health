@@ -4,7 +4,9 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Literal
 
-from crew_health.contracts_gen.enums import ERROR_RETRYABLE, ERROR_STATUS, ErrorCode
+# ErrorCode is re-exported so pure domain code reaches it through the kernel (SYSTEM 6.4 domain-pure).
+from crew_health.contracts_gen.enums import ERROR_RETRYABLE, ERROR_STATUS
+from crew_health.contracts_gen.enums import ErrorCode as ErrorCode
 
 
 @dataclass(frozen=True, slots=True)

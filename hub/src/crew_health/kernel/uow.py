@@ -6,7 +6,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, ClassVar, Literal, Protocol
 
-from crew_health.contracts_gen.enums import EventType, Role
+# Re-exported for pure domain code (SYSTEM 6.4 domain-pure).
+from crew_health.contracts_gen.enums import EventType as EventType
+from crew_health.contracts_gen.enums import Role as Role
 from crew_health.kernel.clock import require_utc
 
 if TYPE_CHECKING:

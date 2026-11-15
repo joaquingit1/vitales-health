@@ -1,0 +1,682 @@
+{
+ "checked_by": "model:claude-sonnet-5-5",
+ "rows": [
+  {
+   "condition_id": "ICL1",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL2",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL3",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL4",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL5",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL6",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL7",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL8",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL9",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL10",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL11",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL12",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL13",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL14",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL15",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL16",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL17",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL18",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL19",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL20",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL21",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL22",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL23",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL24",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL25",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL26",
+   "verdict": "disagrees",
+   "reason": "Page 8 Diagnostic Scope names abdominal ultrasound with its sensitivity and specificity and page 6 says diagnosis is augmented via right upper quadrant ultrasound; the form does not mark it optional. Row should add a second test 'Right upper quadrant or abdominal ultrasound' (candidates 3, 4) with [ultrasound]; the clinical test (vital signs and abdominal exam) stays."
+  },
+  {
+   "condition_id": "ICL28",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL29",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL30",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL31",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL32",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL33",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL34",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL35",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL36A",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL36B",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL37",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL38",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL39",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL40",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL41",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL42",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL43",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL44",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL45",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL46",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL47",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL48",
+   "verdict": "agrees",
+   "reason": "Agrees; undecided flag is honest (form says fluorescein is likely unnecessary in the mildest case but included in both), no better supported alternative."
+  },
+  {
+   "condition_id": "ICL49",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL50",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL51",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL52",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL53",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL54",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL55",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL56",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL57",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL58",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL59",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL60",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL61",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL62",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL63",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL64",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL65",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL66",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL67",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL68",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL70",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL71",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL72",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL73",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL74",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL75",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL76",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL77",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL78",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL80",
+   "verdict": "agrees",
+   "reason": "Agrees; page 7 requires the labs, EKG and cardiopulmonary ultrasound workup in both cases; undecided flag is honest."
+  },
+  {
+   "condition_id": "ICL81",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL82",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL83",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL84",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL85",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL86",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL87",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL88",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL89",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL90",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL91",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL92",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL93",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL94",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL95",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL96",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL97",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL98",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL99",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL100",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL101",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL102",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL103",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL104",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL105",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL106",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL107",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL108",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL109",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL110",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL111",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL112",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL113",
+   "verdict": "disagrees",
+   "reason": "Page 8 best-case paragraph says that in flight ultrasound is used to evaluate for gross injury (pneumothorax, hemothorax, tamponade) in place of chest X-ray or CT, and EFAST is included for life threatening injuries; only the CBC is stated as worst case. Draft wrongly excludes candidates 2 and 3 as worst case. Row should add a test 'Primary and secondary survey with vital signs and EFAST ultrasound' (candidates 1, 2, 3) with [bp_cuff, thermometer, pulse_oximeter, ultrasound], as ICL112 does; EKG stays differential."
+  },
+  {
+   "condition_id": "ICL114",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL115",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL116",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL117",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL118",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL119",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL122",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "condition_id": "ICL123",
+   "verdict": "disagrees",
+   "reason": "Instrument pregnancy_test duplicates urine_pregnancy_test (ICL76); the form's best case is a pregnancy test (serum bHCG is worst case), so the same urine test applies. Row should use urine_pregnancy_test in place of pregnancy_test; tests and candidates are otherwise right."
+  }
+ ],
+ "instruments": [
+  {
+   "id": "urine_pregnancy_test",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "otoscope",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "fluorescein_uv_light",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "anterior_segment_oct",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "intraocular_pressure_device",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "audiometry",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "urinalysis",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "amylase",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "cbc",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "basic_metabolic_panel",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "glucose",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "liver_function_panel",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "blood_gas",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "electrolytes",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "white_blood_cell_count",
+   "verdict": "agrees",
+   "reason": ""
+  },
+  {
+   "id": "pregnancy_test",
+   "verdict": "disagrees",
+   "reason": "Same test as urine_pregnancy_test; reuse that id (needs_text 'a urine pregnancy test') and drop this entry."
+  }
+ ]
+}

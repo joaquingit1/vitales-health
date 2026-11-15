@@ -1,0 +1,8 @@
+{
+  "base_inventory_sha256": "4fa0e9c2ac888b1931039d5ed769aabeab7420a5dc3ac0c75fea3b474cdf3450",
+  "files": {
+    "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
+    "part-a.json": "51d6fe596f1a31bcf6e1256d4184d485d5d9ab2f51a2f66789742152aeadc468"
+  },
+  "version": "part-a-d12-1"
+}

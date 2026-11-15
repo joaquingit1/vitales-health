@@ -10,8 +10,8 @@
     },
     {
       "path": "CONTRACTS.md",
-      "bytes": 174408,
-      "sha256": "4d8085fb55083f5bc5c0579d247b12040177b2139131b69ffd7fc01f032c7c21"
+      "bytes": 174448,
+      "sha256": "7ea599049f13a702a4ae3d677fda656ef9532b821e5eae07c964b2e08eba9f77"
     },
     {
       "path": "Crew Health Check - Complete Hackathon Handbook.docx",
@@ -45,8 +45,8 @@
     },
     {
       "path": "KICKOFF.md",
-      "bytes": 20977,
-      "sha256": "d7566c83304ba09d975ec8e3d6bdfba28b3a6240274d6902759b6f8d1ece4b70"
+      "bytes": 21154,
+      "sha256": "12bb43a8f9c8ac63f9c1546468c5c2d375bee59f51fedaa2aa85a73a78b1e908"
     },
     {
       "path": "LLM-ARCHITECTURE.html",
@@ -65,8 +65,8 @@
     },
     {
       "path": "NASA-SOURCES.md",
-      "bytes": 113202,
-      "sha256": "526554f922d8a4c8e86cc14debdc88f018a0ef1f36af2fec4486eff12979090a"
+      "bytes": 122354,
+      "sha256": "74fc3751d85b2dd41b92153a5bb5795d9f5761be80de004d182928fc2b75700a"
     },
     {
       "path": "PACKAGE-CHECKS.html",
@@ -75,8 +75,8 @@
     },
     {
       "path": "PACKAGE-CHECKS.md",
-      "bytes": 6964,
-      "sha256": "10a443f883b1c9be0d630bdbf3a1d9144b66e76125652aeef32a41fff7201359"
+      "bytes": 7054,
+      "sha256": "f4dfc287638489adb3f628da30fc7ea269f42e5517ebf643d446fc5b6e4346d6"
     },
     {
       "path": "PITCH.html",
@@ -85,8 +85,8 @@
     },
     {
       "path": "PITCH.md",
-      "bytes": 44937,
-      "sha256": "b16f4047f9dabe5a3a842ed1b990dd2645fd0dae026b781c01b62b403a700fbc"
+      "bytes": 43006,
+      "sha256": "224a8da3a61a44065be802d63321f20eb9825b13bf1fa47cc6f97795b84c699b"
     },
     {
       "path": "PRD.docx",
@@ -100,8 +100,8 @@
     },
     {
       "path": "PRD.md",
-      "bytes": 119364,
-      "sha256": "a351476452f851dc985023d594b2dcc80bd6b3a40fd434ea28202e543eec1cb3"
+      "bytes": 119404,
+      "sha256": "e46ed76e6a53f33eec2c4b99c4557a37d7fcfcd0e20447656362e641c240fb04"
     },
     {
       "path": "README.html",
@@ -110,8 +110,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 8154,
-      "sha256": "97ffb20e13f2d6a2821e86949d6db7ad478fba4a4f1a4de885ab8a5fcf732f67"
+      "bytes": 8543,
+      "sha256": "7d4760622055569e996dec4cf82d0bb0e9a542b8756e76cee06b47c23ff852b0"
     },
     {
       "path": "RESEARCH-ANNEX.html",
@@ -170,8 +170,8 @@
     },
     {
       "path": "VALIDATION.md",
-      "bytes": 48019,
-      "sha256": "373d04c29d119ec069fb9f8f3f9768a9f30a825e739a1f4b35dfa3bcc575fbfa"
+      "bytes": 48079,
+      "sha256": "a3847245fc211bb0f87fb0c6fb27736a15cf027fbf5d20572f94121ac7ae29c0"
     },
     {
       "path": "api/README.md",
@@ -385,8 +385,8 @@
     },
     {
       "path": "api/examples/config/indicator-catalog.example.json",
-      "bytes": 3795,
-      "sha256": "0e4f0a88d85e80e3c5484d886ff0158f72d93205fdd31f2c269f31108648218a"
+      "bytes": 6419,
+      "sha256": "dc4a5bdd21838631fafb81eae42cf92ee332330faa7547a0daf8077a0d1fa2f1"
     },
     {
       "path": "api/examples/config/onboard-plans.example.json",
@@ -820,8 +820,8 @@
     },
     {
       "path": "api/examples/kit-map.example.json",
-      "bytes": 14726,
-      "sha256": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b"
+      "bytes": 14803,
+      "sha256": "3f98f1855025d41ad54b162dd98eea66acab250b4fd9c1acf29ebf7c20ed0850"
     },
     {
       "path": "api/examples/kit-map/view-mars.json",
@@ -1255,18 +1255,18 @@
     },
     {
       "path": "api/examples/sensors/reading-co2-replay.json",
-      "bytes": 1586,
-      "sha256": "a39f19638edec4a460fccc5c24006522418c199bfc02d81677600453fd254b50"
+      "bytes": 1606,
+      "sha256": "d843b9c1e44480ebe9c191e8d9ca86ec427ff2fce1e6547efbfd7f0674e0e838"
     },
     {
       "path": "api/examples/sensors/series-co2-replay.json",
-      "bytes": 3565,
-      "sha256": "d932bd99ba1bf86740ec700a7f4f8200d4c3879f91d736bac5d55b7adbfa337f"
+      "bytes": 3585,
+      "sha256": "f36f7b58b1e9333e6fe9a5c4417cf0b58cf1f9787fd22a727d6519f311141aec"
     },
     {
       "path": "api/examples/sensors/series-rad-replay.json",
-      "bytes": 1435,
-      "sha256": "35c76b27c4295e7bcc3dd263f208565e3dac834ec71b6ccb5a56f09b4fa2c5b0"
+      "bytes": 1445,
+      "sha256": "695ac05db23e812b72acdf86fd6930f8a388ddd6f97f07db95f51d1abb706db8"
     },
     {
       "path": "api/examples/sensors/status-co2-station.json",
@@ -1515,13 +1515,13 @@
     },
     {
       "path": "api/schemas/config-indicator-catalog.schema.json",
-      "bytes": 3145,
-      "sha256": "14d366a5735851512c90608954b1af92fca5ed36f504a91f33fc061ad7171ef0"
+      "bytes": 4985,
+      "sha256": "3a03eb8efcb0ed700fe53bc315a110fcb29410ae26bacff25f52f28e72a04e42"
     },
     {
       "path": "api/schemas/config-kit-map.schema.json",
-      "bytes": 16427,
-      "sha256": "d9dcdc2d269e3682f5294cbd7b4fdd39ddf7df6c94132051e91453311a77e379"
+      "bytes": 16916,
+      "sha256": "3961e6fd22467e40e1075df84584e9a6d09cf3a4589071a063aefab8ca446f8c"
     },
     {
       "path": "api/schemas/config-onboard-plans.schema.json",
@@ -2109,24 +2109,244 @@
       "sha256": "23dcdfad5edd18cc2f4ccd25e8d0c91cad14559edef52994913406697daaa479"
     },
     {
-      "path": "nasa-data/eda_rr1_provenance.json",
-      "bytes": 4796,
-      "sha256": "1664c33e90669b5ef82db981a6ad883d53ec32df4b7b8a351568e33ba56b3d7b"
+      "path": "nasa-data/.gitattributes",
+      "bytes": 229,
+      "sha256": "1c316675fe1f5a3d57e33a8acfce90da22c3ef58c0e565160ac40cf34942e994"
     },
     {
-      "path": "nasa-data/eda_rr1_telemetry.csv",
+      "path": "nasa-data/README.md",
+      "bytes": 12724,
+      "sha256": "16fdabed756182986b1c7aa71b24975de5f2ca31eb08f875de2a77305c7e58f9"
+    },
+    {
+      "path": "nasa-data/acoustics/build_iss_acoustic_levels.py",
+      "bytes": 10170,
+      "sha256": "72e71eb8ae2091dfa86ca8660fddf1739878f760b9e596bf855f8bd38c6790bf"
+    },
+    {
+      "path": "nasa-data/acoustics/iss_acoustic_levels.csv",
+      "bytes": 7540,
+      "sha256": "6133f3ae071b0b49169ec27188e601b13206d8a5c54f28da5fbd39bc948d8bc2"
+    },
+    {
+      "path": "nasa-data/acoustics/iss_acoustic_levels.provenance.json",
+      "bytes": 4633,
+      "sha256": "068e120c4fd3fd4789861185db16f889a2a5b86a73cb33ab529828ef6f2fb4cd"
+    },
+    {
+      "path": "nasa-data/cases/apollo13-lm-co2-cold-uti/apollo13_mission_report_values.csv",
+      "bytes": 3058,
+      "sha256": "560eb8a4be4edc2aca2243f5fb1fd66fef409d23d93c7b6a3fcea5b650e56ce7"
+    },
+    {
+      "path": "nasa-data/cases/apollo13-lm-co2-cold-uti/apollo13_mission_report_values.provenance.json",
+      "bytes": 1934,
+      "sha256": "52f4ed05d574e323504a8d0af44dcdb92048363376965b5f75dc0cf6c1a4dffb"
+    },
+    {
+      "path": "nasa-data/cases/apollo13-lm-co2-cold-uti/outcome.json",
+      "bytes": 5912,
+      "sha256": "927d4ad39afcae09356cb2260e689b032de074e75cdfa96abd3355fe5b9583e3"
+    },
+    {
+      "path": "nasa-data/cases/apollo15-cardiac-arrhythmia-potassium/apollo15_cardiac_events.csv",
+      "bytes": 2848,
+      "sha256": "f3e7c481e8f26231aaeb7a40b6d121de822a40e184954c0fa9d6c6c7b7c3d7a6"
+    },
+    {
+      "path": "nasa-data/cases/apollo15-cardiac-arrhythmia-potassium/apollo15_cardiac_events.provenance.json",
+      "bytes": 1776,
+      "sha256": "4a314fb009e2a2eb55d4c8218f223ed965f35145dd5e1d8277fffb84087b6ebc"
+    },
+    {
+      "path": "nasa-data/cases/apollo15-cardiac-arrhythmia-potassium/outcome.json",
+      "bytes": 4411,
+      "sha256": "8103b2d8ad77affa6393f36f152b155b0115142134fc40e60ca9e090c405c872"
+    },
+    {
+      "path": "nasa-data/cases/iss-co2-symptom-reports-2001-2009/co2_symptom_reports.csv",
+      "bytes": 1674,
+      "sha256": "ce504e59d320fa24bbc938094d020a9c0165b29c3d8c1e86209981a8c0236240"
+    },
+    {
+      "path": "nasa-data/cases/iss-co2-symptom-reports-2001-2009/co2_symptom_reports.provenance.json",
+      "bytes": 1595,
+      "sha256": "74b6686aea4ef94a55817434292cad82ecc960b99749ea419cd7c0cb7be4a521"
+    },
+    {
+      "path": "nasa-data/cases/iss-co2-symptom-reports-2001-2009/outcome.json",
+      "bytes": 5079,
+      "sha256": "ed1c0b5246f8888519f44909f12ddac836ce5e7c1e8d007ce7300422c98c7c69"
+    },
+    {
+      "path": "nasa-data/cases/iss-ijv-thrombosis-anticoagulant-supply/anticoagulant_stock_and_regimen.csv",
+      "bytes": 1537,
+      "sha256": "b5b99e7f864534a4830650ba78f389c1f44954b828241051f245e62e97b1689e"
+    },
+    {
+      "path": "nasa-data/cases/iss-ijv-thrombosis-anticoagulant-supply/anticoagulant_stock_and_regimen.provenance.json",
+      "bytes": 1563,
+      "sha256": "359078fd337f6293ec9358658d86c081e0f0eeaafefff28885561d77de3d61ab"
+    },
+    {
+      "path": "nasa-data/cases/iss-ijv-thrombosis-anticoagulant-supply/outcome.json",
+      "bytes": 4570,
+      "sha256": "435919b8870fa58645e44e03eb63bef7099cfc5a80f5f4e94595806e0944f95d"
+    },
+    {
+      "path": "nasa-data/cases/iss-sans-viip-cases-2012/outcome.json",
+      "bytes": 4006,
+      "sha256": "2ca624ab6c8c58833c7f9de365503cf97565bc6e7c263c8ba477b342486144be"
+    },
+    {
+      "path": "nasa-data/cases/iss-sans-viip-cases-2012/viip_cases_2012.csv",
+      "bytes": 2733,
+      "sha256": "7d7e8e915870c8566830164e0e6b11288c18e78c974278b8b28b6e6d50ba08dd"
+    },
+    {
+      "path": "nasa-data/cases/iss-sans-viip-cases-2012/viip_cases_2012.provenance.json",
+      "bytes": 1854,
+      "sha256": "2c36d0067cd2519ee07c34a5eb1a35cea9e48988f0856be59256a911cfdde17c"
+    },
+    {
+      "path": "nasa-data/cases/restricted-and-not-found.json",
+      "bytes": 4748,
+      "sha256": "3438a2b8414c759f7ec850deb186f6434bce8af56f8a125cd57a7907d35ca2a6"
+    },
+    {
+      "path": "nasa-data/cases/spe-2017-09-iss-columbus/outcome.json",
+      "bytes": 7196,
+      "sha256": "b2bd013a9b11f8227bbd1299336905b9164ad6e21400986a4cb7922cb212705b"
+    },
+    {
+      "path": "nasa-data/cases/spe-2017-09-mars-surface/outcome.json",
+      "bytes": 5889,
+      "sha256": "d8415747d2d2400614ecfd27138bc6bdfd2d33243313741a95a509ad747ff24d"
+    },
+    {
+      "path": "nasa-data/cases/spe-2017-09-mars-surface/radlab_msl_rad_surface_20170905_20170919.csv",
+      "bytes": 88852,
+      "sha256": "5bb00b16536f4ba4fa132f8a9765383e7734537179b63781e1f59d01fe3de0a0"
+    },
+    {
+      "path": "nasa-data/cases/spe-2017-09-mars-surface/radlab_msl_rad_surface_20170905_20170919.provenance.json",
+      "bytes": 2129,
+      "sha256": "ed3ae18714eb6062cab8662fc05047c0a6a0391c869b5d2572e7998f6af39c8b"
+    },
+    {
+      "path": "nasa-data/crew-physiology/i4_osd569_cbc.csv",
+      "bytes": 26138,
+      "sha256": "10a878b009eb2ea11a13fe92ad698098858639e8ed02f5ee849431313b9457d3"
+    },
+    {
+      "path": "nasa-data/crew-physiology/i4_osd569_cbc.provenance.json",
+      "bytes": 4237,
+      "sha256": "ef749d39fa1d54dbfc4ca3ff641af8108d34a6b19386325fd4867caa4e0f903e"
+    },
+    {
+      "path": "nasa-data/crew-physiology/i4_osd575_cmp.csv",
+      "bytes": 25275,
+      "sha256": "dab247eb794edab59aaaa683c85fd1f2dbf4ae3684872739338e10ead4192a0c"
+    },
+    {
+      "path": "nasa-data/crew-physiology/i4_osd575_cmp.provenance.json",
+      "bytes": 4306,
+      "sha256": "db993a3641c8f56b6825ded544ca958a31a0cfa2837e56a584b0b77d9e3f30c9"
+    },
+    {
+      "path": "nasa-data/habitat-environment/eda_rr1_provenance.json",
+      "bytes": 7234,
+      "sha256": "5e5381cdfdb3166cebf1faab322152e9d9a302618b416b1a9f9b56fe78fa879e"
+    },
+    {
+      "path": "nasa-data/habitat-environment/eda_rr1_telemetry.csv",
       "bytes": 566212,
       "sha256": "2d03645b927eae08b275be09ee168b829ac647c0db608ba08cda5e6af494b787"
     },
     {
-      "path": "nasa-data/radlab_dostel_sample.csv",
+      "path": "nasa-data/habitat-environment/eda_rr5_telemetry.csv",
+      "bytes": 900468,
+      "sha256": "c1a21b96136a0489f0a4531609f3fada1f7037c8167f7b800827a7d5aba45d81"
+    },
+    {
+      "path": "nasa-data/habitat-environment/eda_rr5_telemetry.provenance.json",
+      "bytes": 3954,
+      "sha256": "63af8e2568fbfa11be18c9f9c339051ed78ee210eee806c7e5a6166b4a13dde1"
+    },
+    {
+      "path": "nasa-data/habitat-environment/iss_air_inc71_anita2_monthly.csv",
+      "bytes": 4466,
+      "sha256": "f7de2b014b35fab397ef460b8bde03bbe8c16633aa3ba90dcec052b2ee556bf8"
+    },
+    {
+      "path": "nasa-data/habitat-environment/iss_air_inc71_anita2_monthly.provenance.json",
+      "bytes": 3792,
+      "sha256": "5b6193c380bfbf87796c072f1f5f4dcf26a6491e0c71618b89787899c55dad62"
+    },
+    {
+      "path": "nasa-data/habitat-environment/iss_air_inc71_mgsc_concentrations.csv",
+      "bytes": 63320,
+      "sha256": "beb536509795c3582e8dce795f56c5b6a538b6ddfd7ffc209cc17ece4adaffa8"
+    },
+    {
+      "path": "nasa-data/habitat-environment/iss_air_inc71_mgsc_concentrations.provenance.json",
+      "bytes": 4706,
+      "sha256": "a427544552af64b541b398cff582ac36cf289f9b627f77e57752324460617dd4"
+    },
+    {
+      "path": "nasa-data/habitat-environment/iss_air_inc71_mgsc_t_values.csv",
+      "bytes": 45810,
+      "sha256": "3c8550df76b16a8771d3cb8d686856d3947b2cd9d7608052136c318bc473db9d"
+    },
+    {
+      "path": "nasa-data/habitat-environment/iss_air_inc71_mgsc_t_values.provenance.json",
+      "bytes": 3281,
+      "sha256": "e79eb8f575c161132af384c8e61319d3844edf3fcb8db2b43868696fc3151bc0"
+    },
+    {
+      "path": "nasa-data/habitat-environment/transcribe_tox_inc71.py",
+      "bytes": 8379,
+      "sha256": "c20409d3bb13766a7789f1c078864b349453abef931ed5e5e995fb1e1019bdab"
+    },
+    {
+      "path": "nasa-data/radiation/cdaweb_iss_tepc_2017-09_spe.csv",
+      "bytes": 1347767,
+      "sha256": "881a5c45fe8f2b76fc381fd0bcc86ee8195d41d03b8231a5516c9712c0e0b7ad"
+    },
+    {
+      "path": "nasa-data/radiation/cdaweb_iss_tepc_2017-09_spe.provenance.json",
+      "bytes": 5087,
+      "sha256": "5fe39695e7c14c7aea13d8207220839bfd9ccefb5b921431d8a4d31e4452432d"
+    },
+    {
+      "path": "nasa-data/radiation/radlab_dostel_sample.csv",
       "bytes": 14412,
       "sha256": "67b2faab53ad1427f34e75933113c09f6a0542cc07334bbe1033ed9562eb9631"
     },
     {
-      "path": "nasa-data/radlab_dostel_sample.provenance.json",
-      "bytes": 695,
-      "sha256": "bccdd20d8ea271f0f4f3ef35f30e3d1c6b6b45930cee56f2bbf0d778b8226639"
+      "path": "nasa-data/radiation/radlab_dostel_sample.provenance.json",
+      "bytes": 2625,
+      "sha256": "8aceca3a0e8b3aeb3e83d7d67c5065fefba7b29da614bcb7823a0f5482edd9e5"
+    },
+    {
+      "path": "nasa-data/radiation/radlab_iss_2017-09_spe.csv",
+      "bytes": 2205961,
+      "sha256": "5631a9bd60b6ae5e79c87ae87abaceb499612ad82375af9e1faaf6d81d18aad5"
+    },
+    {
+      "path": "nasa-data/radiation/radlab_iss_2017-09_spe.provenance.json",
+      "bytes": 5970,
+      "sha256": "454d3be5e964195a3beb761ba8957321c10d7e0ee65ca10435fcc2dd00d2e055"
+    },
+    {
+      "path": "nasa-data/water-quality/iss_potable_water_inc71.csv",
+      "bytes": 6760,
+      "sha256": "a3076496ebca266b8ecadfc10d730a4cbfbfc7508568df66a3428a3f4fa33657"
+    },
+    {
+      "path": "nasa-data/water-quality/iss_potable_water_inc71.provenance.json",
+      "bytes": 4176,
+      "sha256": "459d1bfce04c371229273ca0e7a6730d9b0aadbc6675faf865b6fda3d7d41124"
     },
     {
       "path": "research/environment/C09.txt",

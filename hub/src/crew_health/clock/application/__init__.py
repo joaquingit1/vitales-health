@@ -1,0 +1,1 @@
+"""Snapshot-bound clock services."""

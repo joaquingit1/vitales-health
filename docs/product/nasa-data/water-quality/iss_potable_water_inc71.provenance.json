@@ -1,0 +1,94 @@
+{
+  "file": "iss_potable_water_inc71.csv",
+  "title": "ISS potable water archive samples, Increment 71 (April to September 2024)",
+  "catalog_id": "N31",
+  "source_url": "https://www.nasa.gov/wp-content/uploads/2025/12/increment-71-report-including-ng-21-ingress-final.pdf",
+  "documentation": [
+    "JSC Toxicology and Environmental Chemistry Group, Memorandum TOX-SW-2025-02, 'Toxicological Assessment of ISS Air and Water Quality: March 26, 2024 to September 23, 2024 (Increment 71) Including NG-21 Ingress and Boeing-CFT Ascent', dated October 21, 2025, 13 PDF pages; source PDF sha256 96356e314a1d88d29a5e6bb55d690f225aadb1709ce00827cac03a8b1c2ef245, 1,114,979 bytes",
+    "Table S-3A, PDF page 12; Table 3A (summary), PDF page 5"
+  ],
+  "retrieved_at_utc": "2026-11-15T01:53:07+00:00",
+  "bytes": 6760,
+  "sha256": "a3076496ebca266b8ecadfc10d730a4cbfbfc7508568df66a3428a3f4fa33657",
+  "mission": "ISS Increment 71; returned on SpX-30 and Crew-8",
+  "instrument": "Archive water samples from the US Potable Water Dispenser (PWD) and the Exploration PWD (xPWD), analyzed on the ground",
+  "rows": 54,
+  "cadence": "Three samples: 2024-04-02 (xPWD ambient), 2024-04-24 (PWD hot), 2024-09-10 (xPWD hot)",
+  "columns": {
+    "sample_id": {
+      "unit": null,
+      "description": "Analysis/Sample ID"
+    },
+    "return_mission": {
+      "unit": null,
+      "description": "Return flight"
+    },
+    "location": {
+      "unit": null,
+      "description": "Sample location"
+    },
+    "sample_date": {
+      "unit": null,
+      "description": "ISO date"
+    },
+    "method_group": {
+      "unit": null,
+      "description": "Analysis group heading"
+    },
+    "analyte": {
+      "unit": null,
+      "description": "As printed"
+    },
+    "units": {
+      "unit": null,
+      "description": "Unit as printed per row: mg/L, ug/L (printed as µg/L), uS/cm, pH units, percent"
+    },
+    "max_contaminant_level": {
+      "unit": null,
+      "description": "Potable Water Maximum Contaminant Level as printed, in the row's unit ('5/3' is SWEG/SSP 41000 for TOC)"
+    },
+    "mcl_source": {
+      "unit": null,
+      "description": "Source of the limit as printed (SWEG, 41000 = SSP 41000)"
+    },
+    "printed": {
+      "unit": null,
+      "description": "Cell text verbatim"
+    },
+    "value": {
+      "unit": null,
+      "description": "Number in the row's unit"
+    },
+    "reporting_limit": {
+      "unit": null,
+      "description": "For '<x' cells"
+    },
+    "qualifier": {
+      "unit": null,
+      "description": "below_reporting_limit, reported_under_volatiles, printed_with_comma_decimal_not_parsed (one pH cell printed '5,83')"
+    },
+    "source_line": {
+      "unit": null,
+      "description": "Line in the pdftotext -layout output"
+    }
+  },
+  "preprocessing": "Transcribed from the PDF text layer (pdftotext from poppler, -layout) by transcribe_tox_inc71.py in this folder; no OCR and no reading of figures. Every printed cell is kept verbatim in 'printed'; 'value' is the number with thousands separators removed, empty when the cell is not a number; 'qualifier' names the non-numeric cases. The script stops if a table row does not have one cell per sample column.",
+  "license": "US Government work. NASA material is generally not subject to copyright in the United States (NASA media usage guidelines, https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA as the source; no NASA logo or insignia is used (NASA-SOURCES.md section 4).",
+  "provenance": "REPLAY",
+  "provenance_note": "REPLAY of published NASA laboratory results.",
+  "is_not": [
+    "Ground laboratory results of returned samples, not in-flight sensor readings; microbial results are in a separate NASA report and not here."
+  ],
+  "consumers": [
+    {
+      "epic": "E24",
+      "component": "water_quality limits",
+      "use": "Golden case: TOC 0.454 to 1.10 mg/L against the 5 mg/L SWEG level in environment-hazards.json must stay at info; total iodine at or below 0.05 mg/L."
+    },
+    {
+      "epic": "E25",
+      "component": "routine checks",
+      "use": "Example values for a recorded water-sample check with the units and limits as NASA prints them."
+    }
+  ]
+}

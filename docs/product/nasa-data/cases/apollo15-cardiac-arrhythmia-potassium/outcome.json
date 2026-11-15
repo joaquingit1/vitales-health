@@ -1,0 +1,85 @@
+{
+  "case_id": "apollo15-cardiac-arrhythmia-potassium",
+  "case_type": "qualitative",
+  "case_type_reason": "Times and heart rates are printed values in a narrative; the ECG data and in-flight electrolytes are not public.",
+  "title": "Apollo 15: nodal bigeminy in the Lunar Module Pilot at 179:07 GET, postflight potassium deficit",
+  "environment_id": "lunar_surface (event after return to the command module in lunar orbit)",
+  "input_data": [
+    {
+      "path": "apollo15_cardiac_events.csv",
+      "use": "Event times, approximate heart rates and the crewman's report"
+    }
+  ],
+  "documented_outcome": [
+    {
+      "quote": "When questioned during the postflight medical debriefing, the Lunar Module Pilot recollected experiencing the sensation of extreme fatigue during the time when the bigeminal rhythm was noted. In fact, he required a short period of rest before he was able to carry on his assigned duties.",
+      "source": "sp368",
+      "location": "Section II Chapter 1, Cardiac Arrhythmias, printed page 72, PDF page 75"
+    },
+    {
+      "quote": "Throughout the flight, the Lunar Module Pilot did not experience any symptoms referable to his heart, such as palpitations, sternal pressure or pain, and he was completely unaware that an arrhythmia had occurred.",
+      "source": "sp368",
+      "location": "printed page 72, PDF page 75"
+    },
+    {
+      "quote": "Of principal interest is the magnitude of the total body potassium deficit and hypokalemia measured postflight.",
+      "source": "sp368",
+      "location": "printed page 72, PDF page 75"
+    },
+    {
+      "quote": "As a precaution, antiarrhythmic medications were included in the Apollo 16 medical kit for the first time.",
+      "source": "sp368",
+      "location": "printed page 73, PDF page 76 (OCR reads 'tile first time')"
+    },
+    {
+      "quote": "No medically significant arrhythmias occurred during either flight.",
+      "source": "sp368",
+      "location": "printed page 73, PDF page 76 (Apollo 16 and 17, after a high potassium diet)"
+    },
+    {
+      "quote": "It must be noted that one of the Apollo 15 crewmembers who experienced a cardiac arrhythmia had undetected coronary artery disease at the time of the mission.",
+      "source": "sp368",
+      "location": "printed page 73, PDF page 76"
+    }
+  ],
+  "onset_relative_to_data": "Arrhythmia at 179:07 GET, about 1 hour after five ventricular prematurities at 178 hours and 1.5 minutes after a 20 second heart rate peak of 120 per minute. Potassium deficit measured only after the flight.",
+  "expected_product_output": [
+    {
+      "assessment_family": "rhythm",
+      "reason": "Unexplained extreme fatigue during work, with a pulse device available: the product should route to the heart rhythm family (ECG needed) and never call the rhythm normal from a pulse rate. No ICL entry in condition-assessments-119.json covers nodal bigeminy or premature beats; ICL10 (atrial fibrillation or flutter) does not apply and must not be suggested as the finding."
+    },
+    {
+      "trend": "E14 heart rate deviation: a 20 second peak of 120 per minute against a surrounding rate of about 95 is visible only at second resolution; a five minute average would hide it."
+    },
+    {
+      "supplies": "E32: antiarrhythmics added to the next mission's kit after the event (documented)."
+    }
+  ],
+  "consumers": [
+    {
+      "epic": "E07",
+      "use": "Device twins and their limits"
+    },
+    {
+      "epic": "E32",
+      "use": "Kit contents"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenario"
+    }
+  ],
+  "is_not": "Not evidence that potassium caused the arrhythmia: the source calls the etiology unclear and names undetected coronary artery disease as a factor.",
+  "sources": {
+    "sp368": {
+      "title": "Biomedical Results of Apollo, NASA SP-368 (1975), Section II Chapter 1, Clinical Aspects of Crew Health, W. Royce Hawkins and John F. Zieglschmid",
+      "ntrs_record": "https://ntrs.nasa.gov/citations/19760005580",
+      "url": "https://ntrs.nasa.gov/api/citations/19760005580/downloads/19760005580.pdf",
+      "bytes_of_copy_read": 103914217,
+      "sha256_of_copy_read": "4313d75619c81d781a8adbf42ddec58a71b26ecb7c704b754fc8a5b8a1d306de",
+      "text_note": "Scanned book, 579 PDF pages; text read from the NTRS OCR layer, word spacing restored when quoting.",
+      "is_nasa": "NASA",
+      "catalog_id": "N36"
+    }
+  }
+}
