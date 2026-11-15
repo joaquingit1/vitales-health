@@ -37,7 +37,7 @@ class KeyedCommandFingerprint:
 
 def _load_or_create(path: Path) -> bytes:
     try:
-        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0), 0o600)
     except FileExistsError:
         return path.read_bytes()
     try:

@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from conftest import evaluation_input, point
 from e23_helpers import sensor, utc
 from e23_station import ADAPTER, START, Station, build_station, channel, reading
 from hypothesis import HealthCheck, given, settings
@@ -30,6 +29,8 @@ from crew_health.sensors.domain.plausibility import (
     assess,
 )
 from crew_health.sensors.domain.reading import ReadingFact
+
+from .conftest import evaluation_input, point
 
 pytestmark = [pytest.mark.e23, pytest.mark.trace("R-E23-2", "DE23-11", "T-E23-025", "AGENTS-2")]
 PATH = "/v1/adapters/" + ADAPTER + "/readings"
