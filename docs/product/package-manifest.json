@@ -1585,8 +1585,8 @@
     },
     {
       "path": "api/schemas/config-ui-copy.schema.json",
-      "bytes": 39716,
-      "sha256": "8716b4a7bef0997f6bdbf165c92f43bc4b8ca7244e3cbe0a7b9ea80f07e633f2"
+      "bytes": 45172,
+      "sha256": "3017911a7ad011f8548da40bbc19724900c6b97b025211dc1ed209535550fa50"
     },
     {
       "path": "api/schemas/config-warning-rules.schema.json",
