@@ -27,8 +27,39 @@ _INTEGERS: tuple[tuple[str, int, int, str], ...] = (
         3600,
         "SYSTEM C2 team default 60: a stored medicines time this far past the hub clock is a discontinuity",
     ),
+    (
+        "medicines.assessment_timeout_seconds",
+        1,
+        86_400,
+        "E32 11 default 600: the potency child is killed at this deadline and the run is timed_out",
+    ),
+    (
+        "medicines.worker_memory_limit_bytes",
+        1,
+        64 * 1024**3,
+        "E32 11 default 4 GiB: a child whose peak resident memory passes this fails the run memory_limit",
+    ),
+    (
+        "medicines.memory_sample_ms",
+        10,
+        60_000,
+        "E32 11 default 1000: how often the child samples its peak resident memory",
+    ),
+    (
+        "medicines.retained_unreferenced_runs",
+        0,
+        10_000,
+        "E32 5.2 default 20: newer unreferenced runs kept with their inputs before an older run's inputs are pruned",
+    ),
+    (
+        "medicines.max_inputs_bytes",
+        1024,
+        1024**3,
+        "E32 11 default 128 MiB: an engine inputs document over this fails the run input_limit_exceeded",
+    ),
 )
 CONFIG_DIR = "medicines.config_dir"
+ENGINE_PYTHON = "medicines.engine_python"
 
 
 def specs() -> tuple[SettingSpec, ...]:
@@ -53,7 +84,17 @@ def specs() -> tuple[SettingSpec, ...]:
         max_text_bytes=4096,
         basis="interim until ConfigName carries treatments and medicines: the configuration directory read at start",
     )
-    return (*integers, directory)
+    python = SettingSpec(
+        key=ENGINE_PYTHON,
+        kind="text",
+        unit=None,
+        minimum=None,
+        maximum=None,
+        max_text_bytes=4096,
+        basis="E32 5.3: absolute path of the interpreter that carries pharmacy and numpy; empty means no engine "
+        "on this hub, and every run fails engine_unavailable",
+    )
+    return (*integers, directory, python)
 
 
 def read_limits(settings: HubSettings) -> Limits:
@@ -62,4 +103,6 @@ def read_limits(settings: HubSettings) -> Limits:
         max_window_rows=settings.integer("medicines.max_window_rows"),
         future_tolerance_seconds=settings.integer("medicines.future_tolerance_seconds"),
         clock_backward_tolerance_seconds=settings.integer("medicines.clock_backward_tolerance_seconds"),
+        retained_unreferenced_runs=settings.integer("medicines.retained_unreferenced_runs"),
+        max_inputs_bytes=settings.integer("medicines.max_inputs_bytes"),
     )

@@ -7,9 +7,10 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from typing import Protocol
+from typing import Literal, Protocol
 
 from crew_health.kernel.uow import ReadSnapshot, SessionContext, UnitOfWork
+from crew_health.medicines.domain.model import LotSummary, WeightObservation
 
 type View = UnitOfWork | ReadSnapshot
 
@@ -78,6 +79,104 @@ class MedicinesRepository(Protocol):
     def add_correction(
         self, uow: UnitOfWork, administration_id: str, reason: str, by_id: str, key: str
     ) -> None: ...
+
+
+@dataclass(frozen=True, slots=True)
+class RunStart:
+    """What a run ran on (E32 5.2): the hub clock at its start, the active bundle and the stored inputs artifact."""
+
+    as_of: datetime
+    bundle_sha256: str
+    inputs_sha256: str
+
+
+@dataclass(frozen=True, slots=True)
+class RunRow:
+    """One potency assessment run: scheduled with its trigger, then started (`start`) by the worker."""
+
+    run_id: str
+    mission_id: str
+    origin_mode: str
+    trigger: str
+    task_id: str
+    process_epoch: str
+    at: datetime
+    by_id: str
+    command_key: str | None
+    start: RunStart | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class RunResult:
+    run_id: str
+    result_sha256: str
+    engine_version: str
+    summaries_json: str
+
+
+class ArtifactCorrupt(Exception):
+    """Stored bytes no longer hash to their key: the run fails `artifact_corrupt`, never uses the bytes."""
+
+
+class PotencyStore(Protocol):
+    """Artifacts, pharmacy bundles and assessment runs (E32 5.2). Every read is bounded; reads re-hash."""
+
+    def put_artifact(self, uow: UnitOfWork, kind: str, data: bytes) -> str: ...
+    def artifact(self, view: View, sha256: str) -> bytes | None: ...
+    def has_artifact(self, view: View, sha256: str) -> bool: ...
+    def prune_artifact(self, uow: UnitOfWork, sha256: str, run_id: str) -> None: ...
+    def add_bundle(self, uow: UnitOfWork, bundle_sha256: str, by_id: str) -> None: ...
+    def has_bundle(self, view: View, bundle_sha256: str) -> bool: ...
+    def activate_bundle(self, uow: UnitOfWork, bundle_sha256: str, by_id: str) -> None: ...
+    def active_bundle(self, view: View) -> str | None: ...
+    def add_run(self, uow: UnitOfWork, run: RunRow) -> None: ...
+    def start_run(self, uow: UnitOfWork, run_id: str, start: RunStart) -> None: ...
+    def run(self, view: View, run_id: str) -> RunRow | None: ...
+    def run_by_key(self, view: View, command_key: str) -> RunRow | None: ...
+    def runs(self, view: View, mission_id: str, origin_mode: str, *, limit: int) -> tuple[RunRow, ...]: ...
+    def add_run_event(self, uow: UnitOfWork, run_id: str, status: str, error_code: str | None) -> None: ...
+    def run_status(self, view: View, run_id: str) -> tuple[str, str | None]: ...
+    def unfinished_runs(self, view: View, *, limit: int) -> tuple[str, ...]: ...
+    def add_result(self, uow: UnitOfWork, result: RunResult) -> None: ...
+    def result(self, view: View, run_id: str) -> RunResult | None: ...
+    def latest_completed(self, view: View, mission_id: str, origin_mode: str) -> RunRow | None: ...
+    def referenced_runs(self, view: View, *, limit: int) -> frozenset[str]: ...
+    def net_by_partition(self, view: View, *, limit: int) -> Mapping[tuple[str, str, str, str], Decimal]: ...
+
+
+@dataclass(frozen=True, slots=True)
+class RunOutcome:
+    """One engine run in the child process (E32 5.3): `completed` with the canonical result bytes, or `failed`
+    (engine code, `memory_limit`, `artifact_corrupt`, `engine_unavailable`) or `timed_out`, never an exception."""
+
+    status: Literal["completed", "failed", "timed_out"]
+    result: bytes | None
+    error_code: str | None
+    detail: str
+
+
+class PotencyEngine(Protocol):
+    """The pharmacy pipeline behind a process boundary (AGENTS section 10: consumed, never edited)."""
+
+    def assess(self, bundle: Mapping[str, bytes], inputs: bytes) -> RunOutcome: ...
+    def replay(self, bundle: Mapping[str, bytes], inputs: bytes, recorded: bytes) -> RunOutcome: ...
+    def summaries(self, run_id: str, result: bytes) -> Mapping[str, LotSummary]: ...
+
+
+class BundleCheck(Protocol):
+    """pharmacy's own `load_bundle` over the files, behind the adapter: None when it loads, else the reason."""
+
+    def check(self, files: Mapping[str, bytes]) -> str | None: ...
+
+
+class WeightReader(Protocol):
+    """The subject's latest accepted body mass observations in this mission and mode, newest first, in kilograms
+    (E32 3.5 step 2; records' query port behind adapters.weights). Absent provider or no observation: weight is
+    absent and a per-kilogram rule refuses `weight_missing`, never a default weight."""
+
+    def weights(
+        self, view: View, person_id: str, *, mission_id: str, origin_mode: str, limit: int
+    ) -> tuple[WeightObservation, ...]: ...
 
 
 # ---- provided (E32 4.3) ----

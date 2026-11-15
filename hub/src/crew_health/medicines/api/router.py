@@ -20,6 +20,7 @@ from crew_health.contracts_gen.schemas.requests_schema import (
     LotMovementCreate,
     ManualAdministrationCreate,
     MedicationContextCreate,
+    MedicineAssayCreate,
     MedicineInspectionCreate,
     WorkingDiagnosisCreate,
 )
@@ -95,6 +96,13 @@ def _amount(value: Mapping[str, object], field: str) -> Amount:
     return Amount(Decimal(number), str(raw.get("ucum")))
 
 
+def _number(value: Mapping[str, object], field: str) -> Decimal:
+    number = value.get(field)
+    if isinstance(number, bool) or not isinstance(number, int | Decimal):
+        raise malformed(f"{field} is a number", f"/{field}")
+    return Decimal(number)
+
+
 def _key(request: Request) -> str:
     key = request.headers.get("Idempotency-Key")
     if key is None or not _KEY_MIN <= len(key) <= _KEY_MAX:
@@ -164,17 +172,40 @@ def build_router(deps: DepsOf, authenticate: Authenticate) -> APIRouter:
         )
         return _reply(result, correlation)
 
-    def unavailable(operation: str, roles: frozenset[Role]) -> Callable[[Request], Awaitable[Response]]:
-        """Assays and scheduled assessments are not built in this release (gaps in the E32 report): refused, never
-        accepted and dropped."""
+    @guarded
+    async def assay(request: Request, correlation: str) -> Response:
+        d, session, cmd, body, value = await command(
+            request, correlation, "recordMedicineAssay", CMO, MedicineAssayCreate
+        )
+        result = uc.record_assay(
+            d,
+            session,
+            cmd,
+            uc.Assay(
+                lot_id=body.lot_id,
+                ingredient_id=body.ingredient_id,
+                measured_at=body.measured_at.root,
+                measurand=body.measurand,
+                value_percent=_number(value, "value_percent"),
+                sd_percent=_number(value, "sd_percent"),
+                site=body.site,
+                method=body.method,
+                laboratory=body.laboratory,
+                note=body.note or "",
+            ),
+            body.client_time.root,
+        )
+        return _reply(result, correlation)
 
-        async def refuse(request: Request, correlation: str) -> Response:
-            _session(authenticate, request, operation, roles)
-            raise ProblemError(
-                ErrorCode.CAPABILITY_UNAVAILABLE, "not available in this release", retryable=False
-            )
-
-        return guarded(refuse)
+    @guarded
+    async def assessment(request: Request, correlation: str) -> Response:
+        """No body: the Idempotency-Key names the request; the empty body hashes as itself."""
+        raw = await request.body()
+        session = _session(authenticate, request, "scheduleMedicineAssessment", CMO_OPERATOR)
+        if raw.strip() not in (b"", b"{}"):
+            raise malformed("this operation takes no body", "/")
+        cmd = uc.Command(_key(request), hashlib.sha256(b"").hexdigest(), correlation)
+        return _reply(uc.schedule_assessment(deps(), session, cmd), correlation)
 
     @guarded
     async def context_create(request: Request, correlation: str) -> Response:
@@ -322,13 +353,8 @@ def build_router(deps: DepsOf, authenticate: Authenticate) -> APIRouter:
     routes: tuple[tuple[str, str, str, Callable[[Request], Awaitable[Response]]], ...] = (
         ("GET", "/v1/medicines/lots", "listMedicineLots", list_lots),
         ("POST", "/v1/medicines/inspections", "recordMedicineInspection", inspection),
-        ("POST", "/v1/medicines/assays", "recordMedicineAssay", unavailable("recordMedicineAssay", CMO)),
-        (
-            "POST",
-            "/v1/medicines/assessments",
-            "scheduleMedicineAssessment",
-            unavailable("scheduleMedicineAssessment", CMO_OPERATOR),
-        ),
+        ("POST", "/v1/medicines/assays", "recordMedicineAssay", assay),
+        ("POST", "/v1/medicines/assessments", "scheduleMedicineAssessment", assessment),
         ("POST", "/v1/people/{person_id}/medication-context", "recordMedicationContext", context_create),
         ("GET", "/v1/people/{person_id}/medication-context", "getMedicationContext", context_get),
         ("POST", "/v1/episodes/{episode_id}/working-diagnoses", "recordWorkingDiagnosis", diagnosis),

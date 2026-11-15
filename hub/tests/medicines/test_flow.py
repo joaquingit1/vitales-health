@@ -195,7 +195,7 @@ def test_a_changed_context_supersedes_the_proposal_and_the_supersede_is_kept(st:
     adverse = _post(
         st,
         "/v1/medicines/inspections",
-        {"lot_id": "lot-apap-001", "finding": "discoloration", "client_time": CLIENT_TIME},
+        {"lot_id": "lot-apap-001", "finding": "color_change", "client_time": CLIENT_TIME},
     )
     assert adverse.status_code == 201
     response = _confirm(st, proposal)
@@ -337,11 +337,9 @@ def test_the_medication_context_is_private_to_the_subject_and_the_officers(st: S
 
 
 @pytest.mark.trace("B07", "T-68")
-def test_fhir_export_and_assays_are_refused_not_dropped(st: Station) -> None:
+def test_fhir_export_is_refused_not_dropped(st: Station) -> None:
     fhir = st.client.get("/v1/medication-administrations/meda_1/fhir", headers=headers())
     assert fhir.status_code == 422 and fhir.json()["code"] == "CONTEXT_INAPPLICABLE"
-    assay = _post(st, "/v1/medicines/assays", {})
-    assert assay.json()["code"] == "CAPABILITY_UNAVAILABLE"
 
 
 @pytest.mark.trace("M-L6", "INV-M2")

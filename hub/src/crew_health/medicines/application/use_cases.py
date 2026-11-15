@@ -23,8 +23,10 @@ from crew_health.kernel.commands import (
 )
 from crew_health.kernel.errors import FieldError, ProblemError
 from crew_health.kernel.ids import IdFactory
+from crew_health.kernel.tasks import TaskQueue
 from crew_health.kernel.units import Quantity, Unit
 from crew_health.kernel.uow import ReadSnapshotFactory, SessionContext, UnitOfWork, UnitOfWorkFactory
+from crew_health.medicines.application import events, scheduling
 from crew_health.medicines.application.codec import (
     amount_json,
     context_part,
@@ -32,15 +34,18 @@ from crew_health.medicines.application.codec import (
     parse_instant,
     proposal_wire,
     summary_from,
-    summary_json,
 )
 from crew_health.medicines.application.ports import (
     ActingOfficerPort,
+    BundleCheck,
     MedicinesRepository,
     Movement,
     Partition,
+    PotencyEngine,
+    PotencyStore,
     RecordRow,
     View,
+    WeightReader,
 )
 from crew_health.medicines.domain.documents import activation_findings
 from crew_health.medicines.domain.eligibility import Confirmer, may_confirm, may_override, may_record_manual
@@ -94,6 +99,9 @@ class Limits:
     max_window_rows: int
     future_tolerance_seconds: int
     clock_backward_tolerance_seconds: int
+    retained_unreferenced_runs: int = 20
+    max_inputs_bytes: int = 128 * 1024 * 1024
+    max_weights: int = 8
 
 
 @dataclass(frozen=True, slots=True)
@@ -108,6 +116,11 @@ class Deps:
     documents: Callable[[], Documents]
     limits: Limits
     process_epoch: str
+    store: PotencyStore
+    engine: PotencyEngine
+    bundle_check: BundleCheck
+    tasks: TaskQueue | None
+    weights: WeightReader | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -243,14 +256,14 @@ def _current_zone(lot: Mapping[str, object], now: datetime) -> str | None:
 def latest_summaries(
     deps: Deps, view: View, partition: Partition
 ) -> tuple[str | None, Mapping[str, LotSummary]]:
-    runs = deps.repository.records(
-        view, "assessment", replace(partition, environment_id=""), limit=deps.limits.max_rows
-    )
-    for row in reversed(runs):
-        if row.body.get("status") == "completed":
-            lots = cast(Mapping[str, Mapping[str, object]], row.body["lots"])
-            return row.record_id, {k: summary_from(v) for k, v in lots.items()}
-    return None, {}
+    """The lots of the partition's latest completed assessment (E32 DD9: a failed or timed out run never replaces
+    it); none before the first one completes."""
+    run = deps.store.latest_completed(view, partition.mission_id, partition.origin_mode)
+    result = None if run is None else deps.store.result(view, run.run_id)
+    if run is None or result is None:
+        return None, {}
+    lots = cast(Mapping[str, Mapping[str, object]], json.loads(result.summaries_json))
+    return run.run_id, {k: summary_from(v) for k, v in lots.items()}
 
 
 def lot_views(deps: Deps, view: View, partition: Partition, docs: Documents) -> tuple[LotView, ...]:
@@ -355,6 +368,17 @@ def assemble(
     lots = lot_views(deps, view, partition, docs)
     context, statement_ids = _context(deps, view, partition, subject)
     history = _history(deps, view, partition, subject)
+    weights = (
+        ()
+        if deps.weights is None
+        else deps.weights.weights(
+            view,
+            subject,
+            mission_id=partition.mission_id,
+            origin_mode=partition.origin_mode,
+            limit=deps.limits.max_weights,
+        )
+    )
     ctx = DoseContext(
         now=view.now,
         mode=cast(Mode, partition.origin_mode),
@@ -364,7 +388,7 @@ def assemble(
         lots=lots,
         history=history,
         context=context,
-        weights=(),
+        weights=weights,
         clock_discontinuity=_discontinuity(deps, view.now, [h.at for h in history]),
         max_window_rows=deps.limits.max_window_rows,
     )
@@ -387,6 +411,7 @@ def assemble(
         ),
         "history": sorted(h.administration_id for h in history),
         "context": list(statement_ids),
+        "weights": [w.observation_id for w in weights],
     }
     digest = hashlib.sha256(json.dumps(material, sort_keys=True, default=str).encode()).hexdigest()
     return Assembled(ctx, digest)
@@ -422,6 +447,7 @@ def record_inspection(
             "finding": finding,
             "note": note,
             "at": instant(uow.now),
+            "inspector_role": CMO if CMO in roles else "crew",
         }
         deps.repository.add_record(
             uow,
@@ -439,10 +465,162 @@ def record_inspection(
                 body,
             ),
         )
+        _schedule_after(deps, uow, partition, "inspection")  # an adverse finding already excludes the lot
         return Result(201, record_id, body)
 
     return _run_command(
         deps, session, cmd, "recordMedicineInspection", lot_id, apply, lambda v, r: _body(deps, v, r)
+    )
+
+
+def _schedule_after(deps: Deps, uow: UnitOfWork, partition: Partition, trigger: str) -> None:
+    """Inspections and assays schedule a coalesced run when the hub has a task queue (E32 4.4)."""
+    if deps.tasks is not None:
+        scheduling.schedule(
+            deps.store,
+            deps.tasks,
+            deps.ids,
+            deps.process_epoch,
+            uow,
+            mission_id=partition.mission_id,
+            origin_mode=partition.origin_mode,
+            trigger=trigger,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class Assay:
+    lot_id: str
+    ingredient_id: str
+    measured_at: datetime
+    measurand: str
+    value_percent: Decimal
+    sd_percent: Decimal
+    site: str
+    method: str
+    laboratory: str
+    note: str
+
+
+def record_assay(
+    deps: Deps, session: SessionContext, cmd: Command, assay: Assay, client_time: datetime
+) -> Result:
+    """RecordAssay (E32 4.4): the crew medical officer records a measured assay of one ingredient of a lot in this
+    environment; it reaches the engine as a pharmacy AssayRecord at the next run, which it schedules."""
+    if CMO not in {str(r) for r in session.roles}:
+        raise _problem(ErrorCode.UNAUTHORIZED_SCOPE, "/", "the crew medical officer records assays")
+
+    def apply(uow: UnitOfWork, partition: Partition, key: str) -> Result:
+        _future(deps, client_time, uow.now, "/client_time")
+        _future(deps, assay.measured_at, uow.now, "/measured_at")
+        docs = deps.documents()
+        lot = next((x for x in lot_views(deps, uow, partition, docs) if x.lot_id == assay.lot_id), None)
+        if lot is None:
+            raise _problem(ErrorCode.NOT_FOUND, "/lot_id", "no such lot in this environment")
+        product = docs.formulary.get(lot.product_id)
+        if product is None or assay.ingredient_id not in {i.ingredient_id for i in product.ingredients}:
+            raise _problem(
+                ErrorCode.INVALID_VALUE, "/ingredient_id", "not an ingredient of this lot's product"
+            )
+        record_id = deps.ids.new("medy")
+        body = {
+            "assay_id": record_id,
+            "lot_id": assay.lot_id,
+            "ingredient_id": assay.ingredient_id,
+            "measured_at": instant(assay.measured_at),
+            "measurand": assay.measurand,
+            "value_percent": assay.value_percent,
+            "sd_percent": assay.sd_percent,
+            "site": assay.site,
+            "method": assay.method,
+            "laboratory": assay.laboratory,
+            "note": assay.note,
+            "at": instant(uow.now),
+        }
+        deps.repository.add_record(
+            uow,
+            RecordRow(
+                record_id,
+                "assay",
+                partition.mission_id,
+                partition.origin_mode,
+                None,
+                assay.lot_id,
+                partition.environment_id,
+                uow.now,
+                session.actor.id,
+                key,
+                body,
+            ),
+        )
+        _schedule_after(deps, uow, partition, "assay")
+        return Result(201, record_id, body)
+
+    return _run_command(
+        deps, session, cmd, "recordMedicineAssay", assay.lot_id, apply, lambda v, r: _body(deps, v, r)
+    )
+
+
+_JOB_STATE = {
+    "queued": "queued",
+    "running": "running",
+    "completed": "succeeded",
+    "failed": "failed",
+    "timed_out": "failed",
+    "interrupted": "failed",
+}
+
+
+def job_view(deps: Deps, view: View, run_id: str) -> dict[str, object]:
+    """The Job of job.schema.json for one assessment run (`job_id` is the run ID)."""
+    run = deps.store.run(view, run_id)
+    if run is None:
+        raise _problem(ErrorCode.NOT_FOUND, "/job_id", "no such assessment")
+    status, error_code = deps.store.run_status(view, run_id)
+    error = (
+        None
+        if error_code is None
+        else {"code": ErrorCode.INTERNAL_ERROR.value, "message": error_code, "retryable": True}
+    )
+    return {
+        "job_id": run_id,
+        "kind": "assessment",
+        "state": _JOB_STATE[status],
+        "progress": 1 if status in ("completed", "failed", "timed_out", "interrupted") else 0,
+        "result_ref": None,
+        "error": error,
+        "created_at": instant(run.at),
+        "updated_at": instant(view.now),
+    }
+
+
+def schedule_assessment(deps: Deps, session: SessionContext, cmd: Command) -> Result:
+    """scheduleMedicineAssessment: coalesced per mission and mode; CAPABILITY_UNAVAILABLE without a task queue."""
+    if deps.tasks is None:
+        raise scheduling.unavailable()
+
+    def apply(uow: UnitOfWork, partition: Partition, key: str) -> Result:
+        done = scheduling.schedule(
+            deps.store,
+            deps.tasks,
+            deps.ids,
+            deps.process_epoch,
+            uow,
+            mission_id=partition.mission_id,
+            origin_mode=partition.origin_mode,
+            trigger="operator",
+            command_key=key,
+        )
+        return Result(202, done.run.run_id, job_view(deps, uow, done.run.run_id))
+
+    return _run_command(
+        deps,
+        session,
+        cmd,
+        "scheduleMedicineAssessment",
+        "assessment",
+        apply,
+        lambda v, r: job_view(deps, v, r),
     )
 
 
@@ -685,6 +863,7 @@ def create_proposal(
                 {"wire": wire, "internal": internal},
             ),
         )
+        events.proposal_changed(uow, record_id, subject, "proposed" if state == "proposed" else "refused")
         return Result(201, record_id, wire)
 
     return _run_command(
@@ -711,6 +890,7 @@ def _supersede_open(
             deps.repository.add_terminal(
                 uow, row.record_id, "superseded", "a newer proposal for the same ingredients"
             )
+            events.proposal_changed(uow, row.record_id, subject, "superseded")
 
 
 def proposal_view(deps: Deps, view: View, proposal_id: str) -> dict[str, object]:
@@ -895,6 +1075,7 @@ def confirm_proposal(
         )
         body = _administer(deps, uow, partition, session, key, administered)
         deps.repository.add_terminal(uow, proposal_id, "confirmed", str(body["administration_id"]))
+        events.proposal_changed(uow, proposal_id, subject, "confirmed")
         return Result(201, str(body["administration_id"]), body)
 
     return _run_command(
@@ -918,6 +1099,9 @@ def _replay_any(deps: Deps, view: View, record_id: str) -> Mapping[str, object]:
 
 def _terminal(deps: Deps, uow: UnitOfWork, proposal_id: str, state: str, reason: str) -> Result:
     deps.repository.add_terminal(uow, proposal_id, state, reason)
+    row = deps.repository.record(uow, proposal_id)
+    if row is not None and row.subject_person_id is not None:
+        events.proposal_changed(uow, proposal_id, row.subject_person_id, state)
     return Result(409, proposal_id, proposal_view(deps, uow, proposal_id))
 
 
@@ -1026,6 +1210,7 @@ def _administer(
     )
     deps.repository.add_movement(uow, movement)
     _audit(deps, uow, AUDIT_ADMINISTERED)
+    events.administered(uow, administration_id, a.subject, a.proposal_id, a.outside_engine)
     return administration_view(deps, uow, administration_id)
 
 
@@ -1155,6 +1340,7 @@ def correct_administration(
             )
         deps.repository.add_correction(uow, administration_id, reason_text, session.actor.id, key)
         _audit(deps, uow, AUDIT_CORRECTED)
+        events.corrected(uow, administration_id, str(row.subject_person_id))
         return Result(201, administration_id, administration_view(deps, uow, administration_id))
 
     return _run_command(
@@ -1226,8 +1412,7 @@ def lots_view(deps: Deps, session: SessionContext, environment_id: str | None) -
         if environment_id is not None:
             partition = replace(partition, environment_id=environment_id)
         docs = deps.documents()
-        run_id, _ = latest_summaries(deps, view, partition)
-        run = deps.repository.record(view, run_id) if run_id else None
+        run = deps.store.latest_completed(view, partition.mission_id, partition.origin_mode)
         lots = []
         for lot in lot_views(deps, view, partition, docs):
             product = docs.formulary.get(lot.product_id)
@@ -1259,11 +1444,11 @@ def lots_view(deps: Deps, session: SessionContext, environment_id: str | None) -
             {
                 "environment_id": partition.environment_id,
                 "assessment": None
-                if run is None
+                if run is None or run.start is None
                 else {
-                    "run_id": run.record_id,
-                    "as_of": run.body["as_of"],
-                    "status": run.body["status"],
+                    "run_id": run.run_id,
+                    "as_of": instant(run.start.as_of),
+                    "status": "completed",
                     "origin_mode": run.origin_mode,
                 },
                 "lots": lots,
@@ -1276,43 +1461,6 @@ def _board_context(now: datetime, mode: str, docs: Documents) -> DoseContext:
     return DoseContext(
         now, cast(Mode, mode), docs.treatments, docs.policy, docs.formulary, (), (), MedicationContext()
     )
-
-
-def store_assessment(
-    deps: Deps,
-    session: SessionContext,
-    status: str,
-    as_of: datetime,
-    summaries: Mapping[str, LotSummary],
-    detail: str,
-) -> str:
-    """RunAssessment's write: one append-only record per run, `completed` with its lots or `failed`/`timed_out`."""
-    with deps.uow.begin(actor=session.actor, correlation_id=deps.ids.new("corr")) as uow:
-        partition = _partition(deps, uow)
-        record_id = deps.ids.new("medr")
-        body = {
-            "status": status,
-            "as_of": instant(as_of),
-            "detail": detail,
-            "lots": {k: summary_json(v) for k, v in sorted(summaries.items())},
-        }
-        deps.repository.add_record(
-            uow,
-            RecordRow(
-                record_id,
-                "assessment",
-                partition.mission_id,
-                partition.origin_mode,
-                None,
-                None,
-                "",
-                uow.now,
-                session.actor.id,
-                None,
-                body,
-            ),
-        )
-        return record_id
 
 
 def active_medicine_names(deps: Deps, session: SessionContext, subject: str) -> tuple[str, ...]:

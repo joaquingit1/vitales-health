@@ -13,8 +13,8 @@ import pytest
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
-from crew_health.medicines.adapters.documents import load
-from crew_health.medicines.adapters.potency import ChildProcessPotencyEngine, summaries
+from crew_health.medicines.adapters.documents import load, read_pharmacy
+from crew_health.medicines.adapters.potency import PotencyWorker, summaries
 from crew_health.medicines.domain.documents import DocumentsInvalid
 from crew_health.medicines.domain.engine import propose
 
@@ -142,21 +142,22 @@ def test_the_recorded_engine_run_maps_to_lot_summaries_in_fractions() -> None:
     assert pmz.engine_version == "0.1.0"
 
 
+def _worker(python: Path | None, timeout: float = 5) -> PotencyWorker:
+    return PotencyWorker(python, timeout_seconds=timeout, memory_limit_bytes=4 * 1024**3, memory_sample_ms=50)
+
+
 @pytest.mark.trace("T-72", "DD9")
 def test_an_engine_that_cannot_start_is_a_failed_run_never_an_exception(tmp_path: Path) -> None:
-    engine = ChildProcessPotencyEngine(
-        tmp_path / "no-python", CONFIG / "pharmacy", timeout_seconds=5, cwd=tmp_path
-    )
-    outcome = engine.assess({})
-    assert outcome.status == "failed" and outcome.result is None
+    bundle = read_pharmacy(CONFIG / "pharmacy")
+    for python in (None, tmp_path / "no-python"):
+        outcome = _worker(python).assess(bundle, b"{}")
+        assert (outcome.status, outcome.error_code, outcome.result) == ("failed", "engine_unavailable", None)
 
 
 @pytest.mark.trace("T-72", "DD9")
 def test_an_engine_past_its_deadline_is_timed_out(tmp_path: Path) -> None:
-    engine = ChildProcessPotencyEngine(
-        Path(sys.executable), CONFIG / "pharmacy", timeout_seconds=0.001, cwd=tmp_path
-    )
-    assert engine.assess({}).status in {"timed_out", "failed"}
+    outcome = _worker(Path(sys.executable), timeout=0.001).assess(read_pharmacy(CONFIG / "pharmacy"), b"{}")
+    assert outcome.status == "timed_out" and outcome.error_code == "timed_out"
 
 
 def test_harness_headers_name_a_session() -> None:

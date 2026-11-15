@@ -11,32 +11,44 @@ import shutil
 import sqlite3
 import warnings
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any, cast
 
 from fastapi import FastAPI, Request
 from fastapi.routing import APIRouter
 
 from crew_health.app.registry import DeclarationRegistry, Resolver
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode, Role
-from crew_health.kernel.clock import Clock
+from crew_health.events.adapters.repository import EventRepository, EventValidator
+from crew_health.kernel.clock import Clock, TimeInput
 from crew_health.kernel.config import ConfigDocumentView
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.settings import HubSettings
+from crew_health.kernel.tasks import TaskQueue, TaskRegistration
 from crew_health.kernel.testing import MemoryIds, MemoryRelease
 from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
 from crew_health.medicines import module as medicines_module
 from crew_health.medicines.application import settings as medicines_settings
-from crew_health.medicines.application.ports import ActingOfficerPort, MedicationRecordReader
+from crew_health.medicines.application.ports import (
+    ActingOfficerPort,
+    MedicationRecordReader,
+    PotencyEngine,
+    RunOutcome,
+)
 from crew_health.medicines.application.use_cases import Deps
+from crew_health.medicines.domain.model import LotSummary
 from crew_health.platform import module as platform_module
+from crew_health.platform.adapters.tasks import TaskRepository
+from crew_health.platform.application.tasks import TaskService
 from crew_health.platform.domain.audit import AuditPolicy
 from crew_health.platform.settings import ValidatedSettings
 from crew_health.platform.storage import SQLiteDatabase
 from crew_health.platform.testing.sqlite import test_settings
+from crew_health.records.application.ports import RecordsStore
 from crew_health.supplies.application.ports import MissionFacts, MissionStatePort
 
 with warnings.catch_warnings():  # starlette's own deprecation notice on importing its test client, not ours
@@ -47,27 +59,37 @@ REPO = Path(__file__).resolve().parents[3]
 CONFIG = REPO / "config"
 SCHEMAS = REPO / "contracts/api/schemas"
 MIGRATION = REPO / "hub/src/crew_health/medicines/adapters/migrations/0001_medicines.sql"
+EVENTS_MIGRATION = REPO / "hub/src/crew_health/events/adapters/migrations/0001_events.sql"
+FIXTURE = Path(__file__).parent / "fixtures/engine-run.json"
+ENGINE_PYTHON = REPO / ".venv/bin/python"  # the root environment carries pharmacy, numpy and scipy
 NOW = datetime(
     2028, 3, 1, 8, 0, tzinfo=UTC
 )  # every lot sits in moon_base_pharmacy, before any labeled expiry
 CMO, CREW_B, SUBJECT, OPERATOR = "person_cmo", "person_b", "person_a", "person_op"
 
 
-def medicines_values(config_dir: Path) -> dict[str, object]:
+def medicines_values(config_dir: Path, engine_python: str = "") -> dict[str, object]:
     return {
         "medicines.max_window_rows": 1000,
         "medicines.future_tolerance_seconds": 300,
         "medicines.clock_backward_tolerance_seconds": 60,
         "medicines.config_dir": str(config_dir),
+        "medicines.engine_python": engine_python,
+        "medicines.assessment_timeout_seconds": 120,
+        "medicines.worker_memory_limit_bytes": 4 * 1024**3,
+        "medicines.memory_sample_ms": 50,
+        "medicines.retained_unreferenced_runs": 2,
+        "medicines.max_inputs_bytes": 1024 * 1024,
     }
 
 
 class Settings:
     """E01's hermetic test settings plus the medicines.* settings validated against this module's own specs."""
 
-    def __init__(self, config_dir: Path) -> None:
+    def __init__(self, config_dir: Path, engine_python: str = "", **own: object) -> None:
         self.base = test_settings()
-        self.own = ValidatedSettings(medicines_settings.specs(), medicines_values(config_dir))
+        values = {**medicines_values(config_dir, engine_python), **own}
+        self.own = ValidatedSettings(medicines_settings.specs(), values)
 
     def _pick(self, key: str) -> HubSettings:
         return self.own if key.startswith("medicines.") else self.base
@@ -175,6 +197,36 @@ def lunar(mode: str = "SIM") -> MissionFacts:
 
 
 @dataclass
+class FakeEngine:
+    """PotencyEngine stand-in: answers every run with `outcome` (default: the recorded run of the fixture, whose
+    inputs had no assays, inspections or readings) and counts the runs."""
+
+    outcome: RunOutcome | None = None
+    runs: int = 0
+
+    def assess(self, bundle: Mapping[str, bytes], inputs: bytes) -> RunOutcome:
+        self.runs += 1
+        if self.outcome is not None:
+            return self.outcome
+        result = json.loads(FIXTURE.read_text(encoding="utf-8"))["result"]
+        as_of = json.loads(inputs)["as_of_utc"]
+        for assessment in result["assessments"]:  # as a run at this hub clock would state it
+            assessment["decision"]["as_of_utc"] = as_of
+        return RunOutcome("completed", json.dumps(result, sort_keys=True).encode(), None, "")
+
+    def replay(self, bundle: Mapping[str, bytes], inputs: bytes, recorded: bytes) -> RunOutcome:
+        return RunOutcome("completed", b'{"match":true}', None, "")
+
+    def check(self, bundle: Mapping[str, bytes]) -> RunOutcome:
+        return RunOutcome("completed", b'{"ok":true}', None, "")
+
+    def summaries(self, run_id: str, result: bytes) -> Mapping[str, LotSummary]:
+        from crew_health.medicines.adapters.potency import summaries
+
+        return summaries(run_id, json.loads(result))
+
+
+@dataclass
 class Station:
     db: SQLiteDatabase
     clock: StepClock
@@ -183,10 +235,53 @@ class Station:
     resolver: Resolver
     client: TestClient
     runtime_deps: Callable[[], Deps]
+    tasks: TaskService
+    registry: DeclarationRegistry = field(
+        default_factory=lambda: DeclarationRegistry(max_ports=1, max_hooks=1)
+    )
 
     @property
     def deps(self) -> Deps:
         return self.runtime_deps()
+
+    def use_engine(self, engine: PotencyEngine) -> None:
+        """Swap the bound worker (white box: tests that do not spawn the pharmacy child)."""
+        self.rebind(engine=engine)
+
+    def rebind(self, **changes: object) -> None:
+        runtime = self.resolver.require(MedicationRecordReader)._runtime  # type: ignore[type-abstract,attr-defined]
+        runtime.deps = replace(runtime.deps, **changes)
+
+    def drain(self, *, limit: int = 8) -> int:
+        """The production supervisor's loop (E01 adds it): claim, execute outside a transaction, complete."""
+        done = 0
+        for _ in range(limit):
+            with self.db.begin(actor=Actor("engine", "supervisor"), correlation_id="claim") as uow:
+                leases = self.tasks.claim(
+                    uow, worker_id="worker_1", handlers=frozenset({"medicines.assessment"}), limit=1
+                )
+            if not leases:
+                return done
+            (lease,) = leases
+            registration = self.registrations[lease.task.handler]
+            result = registration.handler.execute(lease)
+            with self.db.begin(actor=Actor("engine", "supervisor"), correlation_id="complete") as uow:
+                self.tasks.complete(uow, lease, result)
+            done += 1
+        return done
+
+    @property
+    def registrations(self) -> Mapping[str, TaskRegistration]:
+        found = self.registry.declarations["tasks"]
+        return {str(k): v for k, v in found.items()}  # type: ignore[misc]
+
+    def events(self, prefix: str = "medic") -> list[dict[str, Any]]:
+        """The stored envelopes of every medicines event, in order."""
+        rows = self.rows("SELECT envelope FROM events_outbox ORDER BY seq")
+        found = [json.loads(cast(bytes, r[0])) for r in rows]
+        for event in found:
+            event["data"] = json.loads(event["data_json"])
+        return [e for e in found if str(e["type"]).startswith(prefix)]
 
     def rows(self, sql: str) -> list[tuple[object, ...]]:
         with sqlite3.connect(self.db.path) as connection:
@@ -199,13 +294,21 @@ def build_station(
     config_dir: Path = CONFIG,
     mission: MissionFacts | None = None,
     clock: StepClock | None = None,
+    engine: PotencyEngine | None = None,
+    engine_python: str = "",
+    queue: bool = True,
+    records: object | None = None,
+    own: Mapping[str, object] | None = None,
 ) -> Station:
     clock = clock or StepClock()
-    settings = Settings(config_dir)
+    settings = Settings(config_dir, engine_python, **(own or {}))
+    directory.mkdir(parents=True, exist_ok=True)
+    starts = len(list(directory.glob("start-*")))  # a restart continues the ID sequence, as UUID7 IDs would
+    (directory / f"start-{starts}").touch()
     db = SQLiteDatabase(
         directory / "hub.sqlite",
         clock=clock,
-        ids=MemoryIds(identifiers=tuple(str(i) for i in range(100_000))),
+        ids=MemoryIds(identifiers=tuple(str(i) for i in range(starts * 100_000, (starts + 1) * 100_000))),
         release=kit_map_release(),
         settings=settings,
         origin_node_id="node_1",
@@ -214,6 +317,11 @@ def build_station(
     )
     raw = MIGRATION.read_text(encoding="utf-8")
     db.migrate_tracked("medicines.0001", hashlib.sha256(raw.encode()).hexdigest(), raw)
+    events = EVENTS_MIGRATION.read_text(encoding="utf-8")
+    db.migrate_tracked("events.0001", hashlib.sha256(events.encode()).hexdigest(), events)
+    db.event_sink = EventRepository(
+        settings=settings, ids=db.ids, validator=EventValidator(schema_directory=SCHEMAS)
+    ).append
     for policy in audit_policies():
         db.register_audit_policy(policy)
     registry = DeclarationRegistry(max_ports=1024, max_hooks=1024)
@@ -227,13 +335,31 @@ def build_station(
     registry.provide(medicines_module.RequestAuthenticator, lambda _: Sessions())  # type: ignore[type-abstract]
     platform_module.register(registry)
     medicines_module.register(registry)
+    service = TaskService(
+        settings=db.settings,
+        repository=TaskRepository(),
+        ids=db.ids,
+        registrations=tuple(registry.declarations["tasks"].values()),  # type: ignore[arg-type]
+        authorize=lambda view, session, task: session.actor == task.actor,
+        authorize_completion=lambda uow, task: True,
+        capture=lambda at: TimeInput(at, "source", "segment", 1, "source_raw", "SIM"),
+        elapsed=lambda view, a, b: b.original_at - a.original_at,
+    )
+    if queue:
+        registry.provide(TaskQueue, lambda _: service)  # type: ignore[type-abstract]
+    if records is not None:
+        registry.provide(cast(type[object], RecordsStore), lambda _: records)
     resolver = registry.resolve()
     app = FastAPI()
     for router in registry.declarations["routers"].values():
         if isinstance(router, APIRouter):
             app.include_router(router)
-    deps = _runtime_deps(resolver)
-    return Station(db, clock, fake_mission, acting, resolver, TestClient(app), deps)
+    station = Station(
+        db, clock, fake_mission, acting, resolver, TestClient(app), _runtime_deps(resolver), service, registry
+    )
+    if engine is not None or not engine_python:  # with an interpreter the real worker stays bound
+        station.use_engine(engine if engine is not None else FakeEngine())
+    return station
 
 
 def _runtime_deps(resolver: Resolver) -> Callable[[], Deps]:

@@ -3,7 +3,6 @@ reaching the dose path, the potency gate switches, and unit conversion (E32 3.4 
 
 from __future__ import annotations
 
-import json
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -15,13 +14,13 @@ from hypothesis import given as hypothesis_given
 from hypothesis import strategies as hs
 
 from crew_health.medicines.adapters.documents import load
-from crew_health.medicines.adapters.potency import summaries
-from crew_health.medicines.application.use_cases import active_medicine_names, store_assessment
+from crew_health.medicines.application.ports import RunOutcome
+from crew_health.medicines.application.use_cases import active_medicine_names
 from crew_health.medicines.domain.documents import DocumentsInvalid
 from crew_health.medicines.domain.engine import propose
 from crew_health.medicines.domain.units import Amount, UnitIncompatible, convert, display, text
 
-from .harness import SESSIONS, SUBJECT, Station, build_station, config_copy, headers
+from .harness import SESSIONS, SUBJECT, FakeEngine, Station, build_station, config_copy, headers
 from .kit import ask, assessed, complete_context, condition_ids, given, lot, part, switched
 from .test_flow import CLIENT_TIME, _confirm, _context, _diagnose, _post, _propose
 
@@ -52,11 +51,10 @@ def test_treatment_options_list_the_reviewed_formulary_lines_with_usable_lots(st
 
 @pytest.mark.trace("T-72", "DD9", "R-E32-10")
 def test_a_stored_engine_assessment_reaches_the_board_and_the_dose_path(st: Station) -> None:
-    recorded = json.loads(FIXTURE.read_text(encoding="utf-8"))
-    mapped = summaries("medr_run", recorded["result"])
-    as_of = datetime(2028, 3, 1, 7, 0, tzinfo=UTC)
-    mapped = {k: replace(v, as_of=as_of, run_id="pending") for k, v in mapped.items()}
-    run_id = store_assessment(st.deps, SESSIONS["cmo"], "completed", as_of, mapped, "")
+    scheduled = st.client.post("/v1/medicines/assessments", headers=headers("operator"))
+    assert scheduled.status_code == 202 and scheduled.json()["state"] == "queued"
+    run_id = scheduled.json()["job_id"]
+    assert st.drain() == 1
     board = st.client.get("/v1/medicines/lots", headers=headers()).json()
     assert board["assessment"]["run_id"] == run_id and board["assessment"]["status"] == "completed"
     (pmz,) = [x for x in board["lots"] if x["lot_id"] == "lot-pmz-tab-001"]
@@ -86,8 +84,8 @@ def test_a_stored_engine_assessment_reaches_the_board_and_the_dose_path(st: Stat
 
 @pytest.mark.trace("R-E32-04")
 def test_a_failed_assessment_leaves_the_last_completed_one_in_use(st: Station) -> None:
-    as_of = datetime(2028, 3, 1, 7, 0, tzinfo=UTC)
-    store_assessment(st.deps, SESSIONS["cmo"], "failed", as_of, {}, "engine unavailable")
+    st.use_engine(FakeEngine(RunOutcome("failed", None, "engine_error", "ValueError: no")))
+    assert st.drain() == 1
     assert st.client.get("/v1/medicines/lots", headers=headers()).json()["assessment"] is None
 
 

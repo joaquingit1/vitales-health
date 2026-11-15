@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Protocol, cast
 
@@ -18,14 +18,30 @@ from crew_health.kernel.commands import IdempotencyStore
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.settings import HubSettings, SettingSpec
-from crew_health.kernel.uow import ReadSnapshotFactory, SessionContext, UnitOfWorkFactory
-from crew_health.medicines.adapters.documents import load
+from crew_health.kernel.tasks import TaskQueue, TaskRegistration
+from crew_health.kernel.uow import (
+    Actor,
+    AudienceRule,
+    LocalProjectionRegistration,
+    ReadSnapshotFactory,
+    SessionContext,
+    UnitOfWorkFactory,
+)
+from crew_health.medicines.adapters.documents import parse, read_documents, read_pharmacy
+from crew_health.medicines.adapters.potency import PharmacyBundleCheck, PotencyWorker
+from crew_health.medicines.adapters.runs import SqlitePotencyStore
 from crew_health.medicines.adapters.sqlite import SqliteMedicines
+from crew_health.medicines.adapters.weights import RecordsObservations, RecordsWeightReader
 from crew_health.medicines.api.router import build_router
-from crew_health.medicines.application.ports import ActingOfficerPort, MedicationRecordReader
-from crew_health.medicines.application.settings import CONFIG_DIR, read_limits, specs
+from crew_health.medicines.application import assessments, events, scheduling
+from crew_health.medicines.application.ports import ActingOfficerPort, MedicationRecordReader, WeightReader
+from crew_health.medicines.application.settings import CONFIG_DIR, ENGINE_PYTHON, read_limits, specs
 from crew_health.medicines.application.use_cases import Deps, Documents, active_medicine_names
+from crew_health.medicines.domain.documents import DocumentsInvalid
+from crew_health.records.application.ports import RecordsStore
 from crew_health.supplies.application.ports import MissionStatePort
+
+STARTUP = Actor("engine", "medicines.startup")
 
 
 class Resolver(Protocol):
@@ -41,6 +57,9 @@ class ModuleRegistry(Protocol):
     ) -> None: ...
     def id_prefix(self, *, record_type: str, prefix: str) -> None: ...
     def setting(self, spec: SettingSpec) -> None: ...
+    def task(self, registration: TaskRegistration) -> None: ...
+    def audience_rule(self, name: str, rule: AudienceRule) -> None: ...
+    def local_projection(self, registration: LocalProjectionRegistration) -> None: ...
 
 
 # Provided by E02 (crew_health.identity); structural copy until it is on main.
@@ -56,31 +75,76 @@ def condition_ids(snapshots: ReadSnapshotFactory) -> frozenset[str]:
     return frozenset(str(c["condition_id"]) for c in conditions)
 
 
-def build_deps(resolver: Resolver) -> Deps:
-    """Fails loudly (DocumentsInvalid) on any invalid medicines document: the hub does not start a medicines module
-    on configuration it could not check."""
+class DocumentsHolder:
+    """The documents over the active pharmacy bundle; replaced only by a successful import."""
+
+    def __init__(self) -> None:
+        self.current: Documents | None = None
+
+    def __call__(self) -> Documents:
+        if self.current is None:
+            raise ProblemError(ErrorCode.INTERNAL_ERROR, "medicines documents not loaded", retryable=True)
+        return self.current
+
+
+def _weights(resolver: Resolver) -> WeightReader | None:
+    store = resolver.optional(cast(type[object], RecordsStore))
+    return None if store is None else RecordsWeightReader(cast(RecordsObservations, store))
+
+
+def build_deps(resolver: Resolver, documents: DocumentsHolder) -> Deps:
     settings = resolver.require(HubSettings)
-    snapshots = resolver.require(ReadSnapshotFactory)
-    conditions = condition_ids(snapshots)
-    loaded = load(Path(settings.text(CONFIG_DIR)), conditions)
-    documents = Documents(loaded.treatments, loaded.policy, loaded.formulary, loaded.lots, conditions)
     mission = resolver.optional(MissionStatePort)
     if mission is None:
         raise ProblemError(
             ErrorCode.INTERNAL_ERROR, "medicines needs the mission state port", retryable=False
         )
+    python = settings.text(ENGINE_PYTHON)
+    limits = read_limits(settings)
+    engine = PotencyWorker(
+        Path(python) if python else None,
+        timeout_seconds=settings.integer("medicines.assessment_timeout_seconds"),
+        memory_limit_bytes=settings.integer("medicines.worker_memory_limit_bytes"),
+        memory_sample_ms=settings.integer("medicines.memory_sample_ms"),
+    )
     return Deps(
         uow=resolver.require(UnitOfWorkFactory),
-        snapshots=snapshots,
+        snapshots=resolver.require(ReadSnapshotFactory),
         ids=resolver.require(IdFactory),
         idempotency=resolver.require(IdempotencyStore),
         repository=SqliteMedicines(),
         mission=mission,
         acting=resolver.optional(ActingOfficerPort),
-        documents=lambda: documents,
-        limits=read_limits(settings),
+        documents=documents,
+        limits=limits,
         process_epoch=resolver.require(Clock).process_epoch(),
+        store=SqlitePotencyStore(max_rows=limits.max_rows),
+        engine=engine,
+        bundle_check=PharmacyBundleCheck(engine),
+        tasks=resolver.optional(TaskQueue),
+        weights=_weights(resolver),
     )
+
+
+def start(deps: Deps, documents: DocumentsHolder, config_dir: Path, conditions: frozenset[str]) -> None:
+    """ImportPharmacyBundle at start-up from the configured directory; when it is refused the last good stored
+    bundle stays, and with none the hub does not start a medicines module (DocumentsInvalid or CONFIG_INVALID).
+    Then every unfinished run is marked interrupted and one run is scheduled."""
+    treatments, policy = read_documents(config_dir)
+
+    def documents_of(files: Mapping[str, bytes]) -> Documents:
+        loaded = parse(treatments, policy, files, conditions)
+        return Documents(loaded.treatments, loaded.policy, loaded.formulary, loaded.lots, conditions)
+
+    try:
+        documents.current = assessments.import_bundle(
+            deps, STARTUP, read_pharmacy(config_dir / "pharmacy"), documents_of
+        )
+    except ProblemError, DocumentsInvalid:
+        documents.current = assessments.active_documents(deps, documents_of)
+        if documents.current is None:
+            raise
+    assessments.recover(deps, STARTUP)
 
 
 class MedicinesRuntime:
@@ -113,13 +177,18 @@ class MedicinesProvided:
 
 def register(registry: ModuleRegistry) -> None:
     runtime = MedicinesRuntime()
+    documents = DocumentsHolder()
 
     def bind(resolver: Resolver) -> None:
         runtime.authenticator = resolver.optional(RequestAuthenticator)
-        runtime.deps = build_deps(resolver)
+        deps = build_deps(resolver, documents)
+        settings = resolver.require(HubSettings)
+        start(deps, documents, Path(settings.text(CONFIG_DIR)), condition_ids(deps.snapshots))
+        runtime.deps = deps
 
     for record_type, prefix in (
         ("medicine_inspection", "medi"),
+        ("medicine_assay", "medy"),
         ("medication_context", "medc"),
         ("working_diagnosis", "medd"),
         ("dose_proposal", "medp"),
@@ -130,6 +199,19 @@ def register(registry: ModuleRegistry) -> None:
         registry.id_prefix(record_type=record_type, prefix=prefix)
     for spec in specs():
         registry.setting(spec)
+    registry.audience_rule(events.CREW_RULE, events.CrewAudience())
+    registry.audience_rule(events.PERSON_RULE, events.PersonAudience())
+    for projection in events.projections():
+        registry.local_projection(projection)
+    registry.task(
+        TaskRegistration(
+            scheduling.HANDLER,
+            scheduling.HANDLER_VERSION,
+            assessments.AssessmentHandler(runtime.need),
+            None,
+            None,
+        )
+    )
     registry.router(build_router(runtime.need, runtime.authenticate))
     registry.provide(MedicationRecordReader, lambda _: MedicinesProvided(runtime))
     registry.bind("medicines", bind)

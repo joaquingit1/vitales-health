@@ -1,6 +1,6 @@
 """Loads the medicines configuration at start (AGENTS 3: flight tables): treatments.json and medicines.json from the
-configuration directory, the pharmacy formulary, lots and storage zones beside them. Each document is checked
-against its generated contract model, then by the domain checks M-L1 to M-L9; any failure raises DocumentsInvalid and
+configuration directory, the pharmacy formulary, lots and storage zones of the pharmacy bundle. Each document is
+checked against its generated contract model, then by the domain checks M-L1 to M-L9; any failure raises DocumentsInvalid and
 nothing loads. Interim: ConfigName does not carry these two documents yet, so they are read here, not through the
 release (gap listed in the E32 report)."""
 
@@ -18,6 +18,7 @@ from pydantic import BaseModel, ValidationError
 
 from crew_health.contracts_gen.schemas.config_medicines_schema import MedicinesJson
 from crew_health.contracts_gen.schemas.config_treatments_schema import TreatmentsJson
+from crew_health.medicines.adapters.potency import BUNDLE_FILES
 from crew_health.medicines.domain.documents import (
     DocumentsInvalid,
     Finding,
@@ -44,7 +45,7 @@ def _no_constant(text: str) -> object:
     raise ValueError("NaN or infinity: " + text)
 
 
-def _read(path: Path) -> tuple[Json, str]:
+def _bytes(path: Path) -> bytes:
     try:
         raw = path.read_bytes()
     except OSError as error:
@@ -53,12 +54,18 @@ def _read(path: Path) -> tuple[Json, str]:
         ) from error
     if len(raw) > _MAX_BYTES:
         raise DocumentsInvalid((Finding("M-LOAD", path.name, "larger than the document bound"),))
+    return raw
+
+
+def _parse(raw: bytes, name: str) -> tuple[Json, str]:
+    if len(raw) > _MAX_BYTES:
+        raise DocumentsInvalid((Finding("M-LOAD", name, "larger than the document bound"),))
     try:
         value = json.loads(raw, parse_float=Decimal, parse_constant=_no_constant)
     except (ValueError, UnicodeError) as error:
-        raise DocumentsInvalid((Finding("M-LOAD", path.name, "not JSON"),)) from error
+        raise DocumentsInvalid((Finding("M-LOAD", name, "not JSON"),)) from error
     if not isinstance(value, dict):
-        raise DocumentsInvalid((Finding("M-LOAD", path.name, "not an object"),))
+        raise DocumentsInvalid((Finding("M-LOAD", name, "not an object"),))
     return value, hashlib.sha256(raw).hexdigest()
 
 
@@ -75,12 +82,25 @@ def _shape(model: type[BaseModel], value: Json, name: str) -> None:
         raise DocumentsInvalid(findings) from error
 
 
-def load(config_dir: Path, condition_ids: frozenset[str]) -> Loaded:
-    treatments_raw, treatments_sha = _read(config_dir / "treatments.json")
-    policy_raw, policy_sha = _read(config_dir / "medicines.json")
-    formulary_raw, _ = _read(config_dir / "pharmacy" / "formulary.json")
-    lots_raw, _ = _read(config_dir / "pharmacy" / "lots.json")
-    zones_raw, _ = _read(config_dir / "pharmacy" / "storage-zones.json")
+def read_pharmacy(directory: Path) -> dict[str, bytes]:
+    """Every pharmacy bundle member's bytes from a directory (the import reads them once, then works on bytes)."""
+    return {member: _bytes(directory / name) for member, name in BUNDLE_FILES.items()}
+
+
+def read_documents(config_dir: Path) -> tuple[bytes, bytes]:
+    """treatments.json and medicines.json of the configuration directory."""
+    return _bytes(config_dir / "treatments.json"), _bytes(config_dir / "medicines.json")
+
+
+def parse(
+    treatments: bytes, policy: bytes, pharmacy: Mapping[str, bytes], condition_ids: frozenset[str]
+) -> Loaded:
+    """The two medicines documents against the formulary, lots and storage zones of one pharmacy bundle."""
+    treatments_raw, treatments_sha = _parse(treatments, "treatments.json")
+    policy_raw, policy_sha = _parse(policy, "medicines.json")
+    formulary_raw, _ = _parse(pharmacy["formulary"], "formulary.json")
+    lots_raw, _ = _parse(pharmacy["lots"], "lots.json")
+    zones_raw, _ = _parse(pharmacy["storage-zones"], "storage-zones.json")
     _shape(TreatmentsJson, treatments_raw, "treatments.json")
     _shape(MedicinesJson, policy_raw, "medicines.json")
     formulary = formulary_products(formulary_raw)
@@ -95,3 +115,8 @@ def load(config_dir: Path, condition_ids: frozenset[str]) -> Loaded:
         formulary=formulary,
         lots=lots,
     )
+
+
+def load(config_dir: Path, condition_ids: frozenset[str]) -> Loaded:
+    treatments, policy = read_documents(config_dir)
+    return parse(treatments, policy, read_pharmacy(config_dir / "pharmacy"), condition_ids)
