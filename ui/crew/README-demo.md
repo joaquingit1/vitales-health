@@ -72,3 +72,16 @@ The figure stays mounted across stage routes, so it builds from points only once
 
 `/` sign in (crew person id + credential, E02 session), `/today` (To do, Habitat with the ground link line,
 This kit, then the Today card slots) and `/kit` (shot A: counts, rows, figure marks from `/v1/kit-map`).
+
+## Station home and the station credential
+
+`/` is the shared screen's station view. It signs in as the hub's station principal (`kind: "station"`, E02
+3.4) and reads only what role station may read: the roster, the ground link, the kit map and the assistant
+state. Provision the station credential at launch with `VITE_CREW_STATION_CREDENTIAL` (the demo hub writes it to
+`credentials.json` under the station's id, `stn_galley` in demo-mara-fd19); without it the screen shows a
+pairing card that asks for it once per tab. The station token never enters the personal session store.
+
+## Today grid places
+
+`features/today/TodayView.vue` picks up `features/today/cards/HabitatCard.vue`, `HowYouAreCard.vue` and
+`PulseCard.vue` by file name: each takes its grid area (habitat, how you are, pulse) as soon as it exists.

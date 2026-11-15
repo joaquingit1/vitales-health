@@ -4,6 +4,7 @@ import "./design/tokens.css";
 import "./design/app.css";
 import { SESSION_LOCK, SessionLock, bindBrowser, stationScreen } from "./features/identity/sessionLock";
 import { CREW_API, CrewApi } from "./shell/api/client";
+import { STATION, StationLink } from "./features/identity/station";
 import App from "./shell/App.vue";
 import { createCrewRouter } from "./shell/router";
 import { SESSION, SessionStore } from "./shell/session";
@@ -44,4 +45,14 @@ const lock = new SessionLock({
 });
 bindBrowser(lock, window, document);
 
-createApp(App).provide(SESSION, session).provide(CREW_API, api).provide(SESSION_LOCK, lock).use(router).mount("#app");
+function tabStorage(): Storage | null {
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
+const provisioned = (import.meta.env["VITE_CREW_STATION_CREDENTIAL"] as string | undefined) ?? null;
+const station = new StationLink(window.location.origin, (request) => window.fetch(request), provisioned, tabStorage());
+
+createApp(App).provide(SESSION, session).provide(CREW_API, api).provide(SESSION_LOCK, lock).provide(STATION, station).use(router).mount("#app");

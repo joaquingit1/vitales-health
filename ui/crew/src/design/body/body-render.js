@@ -472,8 +472,8 @@ void main(){
       gl.viewport(0, 0, canvas.width, canvas.height);
       const room = typeof opts.frame === "function" ? opts.frame() : opts.frame;
       if (room) {
-        /* fit what shows of the figure, crown to the end of the dissolve, between the two margins */
-        const ppm = Math.min(Math.max(120, cam.H - room.top - room.bottom) / (K.crown - GONE), cam.W * 0.74 / 0.56);
+        /* fit what shows of the figure, crown to the end of the dissolve (to the soles when whole), between the two margins */
+        const ppm = Math.min(Math.max(120, cam.H - room.top - room.bottom) / (K.crown - (opts.whole ? K.ground : GONE)), cam.W * 0.74 / 0.56);
         REST.viewH = cam.H / ppm;
         REST.cy = K.crown - (cam.H / 2 - room.top) / ppm;
         setFade();

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, type Component } from "vue";
 import { RouterLink } from "vue-router";
 import { CHROME, fill } from "../../design/chrome";
 import { copy } from "../../design/copy";
@@ -13,6 +13,16 @@ import { linkLine, linkOrigin, type GroundLink } from "./groundLink";
 import { placeOf } from "./place";
 import { ASSISTANT_TITLE } from "../help/labels";
 import { assistantWords } from "../help/helpModel";
+
+/* The cards the Today cards work fills (features/today/cards/HabitatCard.vue, HowYouAreCard.vue, PulseCard.vue):
+   each takes its place in the grid as soon as its file exists; until then the place shows this view's own card. */
+const cardFiles = import.meta.glob<Component>("./cards/*.vue", { eager: true, import: "default" });
+function card(name: string): Component | null {
+  return cardFiles[`./cards/${name}.vue`] ?? null;
+}
+const habitatCard = card("HabitatCard");
+const howYouAreCard = card("HowYouAreCard");
+const pulseCard = card("PulseCard");
 
 const api = useCrewApi();
 const stage = useStage();
@@ -40,14 +50,8 @@ const name = computed(() => {
 });
 const line = computed(() => (link.value === null ? "" : linkLine(link.value, hubNow.value)));
 
-/* Slot positions in the reference grid: the prototype's How you are and Daily check places. The Assistant place
-   holds the assistant card. A reading about you takes the How you are card's sun gradient (UX-DESIGN 1.5). */
-const SLOT_AREAS = ["11 / span 14 | 1", "9 / span 7 | 3"];
-const SLOT_KIND = ["g g-sun", "paper"];
-function slotStyle(index: number): Record<string, string> {
-  const [column = "auto", row = "auto"] = (SLOT_AREAS[index] ?? "auto | auto").split(" | ");
-  return { gridColumn: column, gridRow: row };
-}
+const pulseSlot = slots.find((slot) => slot.id === "pulse") ?? null;
+const otherSlots = slots.filter((slot) => slot.id !== "pulse");
 
 function setStage(): void {
   stage.marks = [];
@@ -109,29 +113,22 @@ onBeforeUnmount(() => {
 
 <template>
   <section
-    class="cards"
+    class="cards today-grid"
     data-view="today"
     aria-label="Today"
   >
+    <!-- C: the pulse check -->
     <article
-      class="card paper todo"
-      data-testid="todo-card"
+      v-if="pulseCard || pulseSlot"
+      class="card g g-sun area-pulse slot-card"
+      :data-slot="pulseSlot?.id ?? 'pulse'"
     >
-      <div class="card-head">
-        <h2 class="card-title">
-          {{ CHROME.todo }}
-        </h2>
-      </div>
-      <p
-        class="sub"
-        data-testid="todo-state"
-      >
-        {{ copy("designed_states.not_available_here") }}
-      </p>
+      <component :is="pulseCard ?? pulseSlot?.component" />
     </article>
 
+    <!-- B: where you are and whether Earth can hear you -->
     <article
-      class="card g g-dusk habitat"
+      class="card g g-dusk habitat area-habitat"
       data-testid="habitat-card"
     >
       <div class="card-head">
@@ -156,10 +153,15 @@ onBeforeUnmount(() => {
       >
         {{ copy("designed_states.unknown") }}
       </p>
+      <component
+        :is="habitatCard"
+        v-if="habitatCard"
+      />
     </article>
 
+    <!-- A: what this kit can and can't test -->
     <RouterLink
-      class="card paper kit-card"
+      class="card paper kit-card area-kit"
       :to="{ name: 'kit' }"
       data-testid="kit-card"
     >
@@ -195,9 +197,6 @@ onBeforeUnmount(() => {
             :class="STATE_MK[state]"
           />{{ kit.counts[state] }} {{ copy(`kit_map_state_words.${state}`).toLowerCase() }}</span>
         </div>
-        <p class="kit-note">
-          {{ copy(kit.plans_to_write.length > 0 ? "plan_lines.plans_to_write" : "plan_lines.plans_aboard", { count: kit.plans_aboard, total: kit.counts.total, missing: kit.plans_to_write.length }) }}
-        </p>
       </template>
       <p
         v-else-if="kitFailed"
@@ -208,19 +207,53 @@ onBeforeUnmount(() => {
     </RouterLink>
 
     <article
-      v-for="(slot, index) in slots"
-      :key="slot.id"
-      class="card slot-card"
-      :class="SLOT_KIND[index] ?? 'paper'"
-      :style="slotStyle(index)"
-      :data-slot="slot.id"
+      v-if="howYouAreCard"
+      class="card paper area-howyou"
     >
-      <component :is="slot.component" />
+      <component :is="howYouAreCard" />
     </article>
 
+    <!-- attention items: one line while the routine is not served (E25 brings the full card) -->
+    <div
+      class="todo-row area-todo"
+      data-testid="todo-card"
+    >
+      <span class="todo-title">{{ CHROME.todo }}</span>
+      <span
+        class="todo-state"
+        data-testid="todo-state"
+      >{{ copy("designed_states.not_available_here") }}</span>
+      <article
+        v-for="slot in otherSlots"
+        :key="slot.id"
+        class="card paper inner-slot slot-card"
+        :data-slot="slot.id"
+      >
+        <component :is="slot.component" />
+      </article>
+    </div>
+
+    <!-- D: someone needs help, then the plan aboard, then teach a crewmate -->
+    <RouterLink
+      class="card help-card area-help"
+      :to="{ name: 'help' }"
+      data-testid="today-help"
+    >
+      <h2 class="help-word">
+        {{ CHROME.someoneNeedsHelp }}
+      </h2>
+      <p
+        v-if="kit"
+        class="sub"
+      >
+        {{ copy("context_words.plans_line", { count: kit.plans_aboard, total: kit.counts.total }) }}
+      </p>
+    </RouterLink>
+
+    <!-- E: the assistant's true state -->
     <article
       v-if="assistant"
-      class="card g g-deep assistant"
+      class="card g g-deep assistant area-assistant"
       data-testid="assistant-card"
     >
       <div class="card-head">
@@ -236,19 +269,50 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.kit-card {
+.today-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.62fr) minmax(0, 0.62fr);
+  grid-template-areas:
+    "todo todo todo todo todo todo"
+    "pulse pulse pulse habitat habitat habitat"
+    "kit kit howyou howyou help help"
+    "kit kit howyou howyou assistant assistant";
+}
+.today-grid:not(:has(.area-howyou)) {
+  grid-template-areas:
+    "todo todo todo todo todo todo"
+    "pulse pulse pulse habitat habitat habitat"
+    "kit kit kit help help help"
+    "kit kit kit assistant assistant assistant";
+}
+.area-pulse { grid-area: pulse; }
+.area-habitat { grid-area: habitat; }
+.area-kit { grid-area: kit; }
+.area-howyou { grid-area: howyou; }
+.area-todo { grid-area: todo; }
+.area-help { grid-area: help; }
+.area-assistant { grid-area: assistant; }
+.kit-card,
+.habitat,
+.help-card {
   color: inherit;
   text-decoration: none;
 }
+.habitat { color: #fff; }
+.env-line { font-size: 20px; line-height: 26px; margin-top: 8px; }
 .env-line .src {
   margin-left: 6px;
 }
-/* a feature card with nothing to show today leaves its place empty, never an empty frame */
+.help-card { background: rgba(180, 105, 14, 0.12); box-shadow: inset 0 0 0 1px rgba(180, 105, 14, 0.25); justify-content: center; gap: 8px; }
+.help-card:hover { background: rgba(180, 105, 14, 0.2); }
+.help-word { font-size: 30px; line-height: 36px; font-weight: 500; color: #8a4f08; }
+.help-card .sub { color: #8a4f08; }
+.todo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 10px 18px; border-radius: 16px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); }
+.todo-title { font-size: 15px; font-weight: 500; }
+.todo-state { font-size: 14px; color: var(--ink-3); }
+.inner-slot { flex: 1 1 100%; padding: 14px 16px; }
+.inner-slot:empty { display: none; }
 .slot-card:empty {
   display: none;
-}
-/* with the Daily check place empty, the assistant closes the row up to This kit */
-.cards:not(:has(.slot-card[data-slot="teach"]:not(:empty))) .assistant {
-  grid-column: 9 / span 16;
 }
 </style>

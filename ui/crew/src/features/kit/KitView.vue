@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-import { RouterLink } from "vue-router";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { RouterLink, useRoute } from "vue-router";
 import { CHROME, fill } from "../../design/chrome";
 import { copy } from "../../design/copy";
 import { useCrewApi } from "../../shell/api/client";
@@ -13,10 +13,33 @@ const stage = useStage();
 const session = useSession();
 const kit = ref<KitMapView | null>(null);
 const failed = ref(false);
-const filter = ref<KitState | "all">("all");
+const route = useRoute();
+/* the body panel's legend and readings open this view filtered: ?state=<kit state>, ?region=<body region> */
+function askedState(): KitState | "all" {
+  const asked = route.query["state"];
+  return typeof asked === "string" && (KIT_STATES as readonly string[]).includes(asked) ? (asked as KitState) : "all";
+}
+function askedRegion(): string | null {
+  const asked = route.query["region"];
+  return typeof asked === "string" ? asked : null;
+}
+const filter = ref<KitState | "all">(askedState());
+const region = ref<string | null>(askedRegion());
+watch(
+  () => route.query,
+  () => {
+    filter.value = askedState();
+    region.value = askedRegion();
+    stage.focus = region.value;
+  },
+);
 
 const rows = computed(() =>
-  (kit.value?.conditions ?? []).filter((row) => filter.value === "all" || row.state === filter.value),
+  (kit.value?.conditions ?? []).filter(
+    (row) =>
+      (filter.value === "all" || row.state === filter.value) &&
+      (region.value === null || (row.body_regions as readonly string[]).includes(region.value)),
+  ),
 );
 const instrumentName = ref<Map<string, string>>(new Map());
 
@@ -75,7 +98,7 @@ onMounted(async () => {
   const current = session.state.value.session;
   stage.subline = current?.person?.display_name ?? current?.actor.display_name ?? "";
   stage.headline = CHROME.kitHeadline;
-  stage.focus = null;
+  stage.focus = region.value;
   try {
     const view = await loadKitMap(api);
     instrumentName.value = await instrumentNames(api, view);
