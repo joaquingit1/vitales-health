@@ -3,7 +3,10 @@ middleware has already matched `x-roles`); every failure is the ErrorEnvelope. R
 
 from __future__ import annotations
 
+import base64
+import binascii
 import hashlib
+import json
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -30,10 +33,6 @@ from crew_health.sensors.application.queries import (
 from crew_health.sensors.application.runtime import Runtime
 from crew_health.sensors.domain.errors import SensorDomainError
 
-import base64
-import binascii
-import json
-
 DEFAULT_PAGE = 50
 
 
@@ -57,7 +56,11 @@ def _session(request: Request) -> SessionContext:
 
 
 def _reply(body: object, view: object, status: int = 200) -> JSONResponse:
-    content = body.model_dump(mode="json", by_alias=True, exclude_unset=True) if hasattr(body, "model_dump") else body  # type: ignore[union-attr]
+    content = (
+        body.model_dump(mode="json", by_alias=True, exclude_unset=True)
+        if hasattr(body, "model_dump")
+        else body
+    )
     release = view.release.release_id  # type: ignore[attr-defined]
     return JSONResponse(content, status_code=status, headers={"Config-Release": release})
 
@@ -80,13 +83,19 @@ def _cursor(request: Request, page_max: int) -> tuple[str | None, int]:
     return after, min(limit, page_max)
 
 
-def _page(keys: list[str], items: list[dict[str, object]], after: str | None, limit: int) -> dict[str, object]:
+def _page(
+    keys: list[str], items: list[dict[str, object]], after: str | None, limit: int
+) -> dict[str, object]:
     start = 0 if after is None else (keys.index(after) + 1 if after in keys else len(keys))
     window = items[start : start + limit]
     more = start + limit < len(items)
     nxt = None
     if more and window:
-        nxt = base64.urlsafe_b64encode(json.dumps({"after": keys[start + limit - 1]}).encode()).decode().rstrip("=")
+        nxt = (
+            base64.urlsafe_b64encode(json.dumps({"after": keys[start + limit - 1]}).encode())
+            .decode()
+            .rstrip("=")
+        )
     return {"items": window, "page": {"next_cursor": nxt}}
 
 
@@ -100,7 +109,22 @@ def _instant(request: Request, name: str) -> datetime | None:
         raise ProblemError(ErrorCode.INVALID_VALUE, ErrorCode.INVALID_VALUE.value) from error
 
 
-def _identity(request: Request, session: SessionContext, adapter_id: str, batch_raw: bytes) -> CommandIdentity:
+def _positive(request: Request, name: str) -> int | None:
+    raw = request.query_params.get(name)
+    if raw is None:
+        return None
+    try:
+        value = int(raw)
+    except ValueError as error:
+        raise ProblemError(ErrorCode.INVALID_VALUE, ErrorCode.INVALID_VALUE.value) from error
+    if value < 1:
+        raise ProblemError(ErrorCode.INVALID_VALUE, ErrorCode.INVALID_VALUE.value)
+    return value
+
+
+def _identity(
+    request: Request, session: SessionContext, adapter_id: str, batch_raw: bytes
+) -> CommandIdentity:
     parameters = canonical_json(
         {
             "Config-Release": request.headers.get("Config-Release"),
@@ -157,16 +181,23 @@ def build_router(api: SensorsApi) -> APIRouter:
                 raise ProblemError(ErrorCode.CONTEXT_INAPPLICABLE, ErrorCode.CONTEXT_INAPPLICABLE.value)
             return _reply(status_model(rt, view, sensor_type_id), view)
 
-    router.add_api_route("/v1/sensors/{sensor_type_id}", sensor, methods=["GET"], operation_id="getSensorStatus")
+    router.add_api_route(
+        "/v1/sensors/{sensor_type_id}", sensor, methods=["GET"], operation_id="getSensorStatus"
+    )
 
     def series(request: Request, sensor_type_id: str) -> JSONResponse:
         _session(request)
         rt, snapshots, _ = api.bound()
         since, until = _instant(request, "from"), _instant(request, "to")
+        bucket = _positive(request, "bucket_seconds")
         with snapshots.snapshot() as view:
-            return _reply(series_model(rt, view, sensor_type_id, since=since, until=until), view)
+            return _reply(
+                series_model(rt, view, sensor_type_id, since=since, until=until, bucket_seconds=bucket), view
+            )
 
-    router.add_api_route("/v1/sensors/{sensor_type_id}/series", series, methods=["GET"], operation_id="getSensorSeries")
+    router.add_api_route(
+        "/v1/sensors/{sensor_type_id}/series", series, methods=["GET"], operation_id="getSensorSeries"
+    )
 
     def channels(request: Request) -> JSONResponse:
         _session(request)
@@ -191,7 +222,9 @@ def build_router(api: SensorsApi) -> APIRouter:
                 raise ProblemError(ErrorCode.NOT_FOUND, ErrorCode.NOT_FOUND.value)
             return _reply(reading_model(record, state, rt.config_of(view.release)), view)
 
-    router.add_api_route("/v1/sensor-readings/{reading_id}", reading, methods=["GET"], operation_id="getSensorReading")
+    router.add_api_route(
+        "/v1/sensor-readings/{reading_id}", reading, methods=["GET"], operation_id="getSensorReading"
+    )
 
     def ingest_route(request: Request, adapter_id: str) -> JSONResponse:
         session = _session(request)
@@ -215,7 +248,9 @@ def build_router(api: SensorsApi) -> APIRouter:
         with snapshots.snapshot() as view:
             return _reply(_result(done[0]), view)
 
-    router.add_api_route("/v1/adapters/{adapter_id}/readings", ingest_route, methods=["POST"], operation_id="ingestReadings")
+    router.add_api_route(
+        "/v1/adapters/{adapter_id}/readings", ingest_route, methods=["POST"], operation_id="ingestReadings"
+    )
     return router
 
 

@@ -73,7 +73,9 @@ def _item(index: int, item: object) -> tuple[dict[str, Any], str | None]:
             {**static, "last_received_at": None, "last_observed_at": None, "freshness": "never_reported"}
         )
     except ValidationError as error:
-        raise RegistryRejected((pointer + ": fails SensorChannel (" + str(error.error_count()) + " errors)",)) from error
+        raise RegistryRejected(
+            (pointer + ": fails SensorChannel (" + str(error.error_count()) + " errors)",)
+        ) from error
     return item, health
 
 
@@ -137,7 +139,9 @@ def parse_registry(
         if item["channel_id"] in seen:
             findings.append(f"/channels/{index}/channel_id: duplicate")
         seen.add(item["channel_id"])
-        problems = _cross_check(index, item, by_id.get(item["sensor_type_id"]), criteria_available=criteria_available)
+        problems = _cross_check(
+            index, item, by_id.get(item["sensor_type_id"]), criteria_available=criteria_available
+        )
         findings.extend(problems)
         if problems:
             continue

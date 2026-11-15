@@ -17,7 +17,6 @@ from crew_health.kernel.config import ReleaseHandle
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.met import MissionClock
 from crew_health.kernel.uow import ReadSnapshot, ReadSnapshotFactory, UnitOfWork
-from crew_health.mission.adapters.config_reader import MissionConfig
 from crew_health.mission.application.ports import (
     MissionFacts,
     OriginMode,
@@ -27,6 +26,7 @@ from crew_health.mission.application.ports import (
     Snap,
 )
 from crew_health.mission.application.queries import MissionReader, MissionState
+from crew_health.mission.domain.config import MissionConfig
 from crew_health.mission.domain.day import DayLabelFacts
 
 
@@ -42,7 +42,9 @@ class LiveMissionState:
         options = {
             p.template.environment_id: None
             if p.return_option is None
-            else ReturnOption(p.return_option.trip_text, p.return_option.source_ids, p.return_option.to_be_set_by)
+            else ReturnOption(
+                p.return_option.trip_text, p.return_option.source_ids, p.return_option.to_be_set_by
+            )
             for p in config.profiles
         }
 

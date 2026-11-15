@@ -687,7 +687,9 @@ def ppo2_converter() -> object:
 
     def convert(value, indicator, rel, to, pressure):  # type: ignore[no-untyped-def]
         # kPa to mmHg only; 7.50062 mmHg per kPa is the unit factor, the PIO2 step is not here
-        return ConvertedQuantity(value, Quantity(value.value * Decimal("7.50062"), to), "scale", "t", None, "r")
+        return ConvertedQuantity(
+            value, Quantity(value.value * Decimal("7.50062"), to), "scale", "t", None, "r"
+        )
 
     return MemoryWireConverter(convert)
 
@@ -732,7 +734,11 @@ def test_ppo2_without_cabin_pressure_or_a_sourced_vapor_pressure_is_not_converte
     common = dict(value=Decimal("16.9322"), unit="kPa", canonical_unit=MMHG)
     with pytest.raises(InvalidValue):
         convert_wire_reading(
-            ppo2_converter(), release, inspired_oxygen_type(config), pressure=None, **common  # type: ignore[arg-type]
+            ppo2_converter(),
+            release,
+            inspired_oxygen_type(config),
+            pressure=None,
+            **common,  # type: ignore[arg-type]
         )
     with pytest.raises(InvalidValue):  # a water vapor pressure that is not configured is never assumed
         convert_wire_reading(

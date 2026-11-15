@@ -25,7 +25,15 @@ def station(tmp_path: Path) -> Station:
         registry={
             "channels": [
                 channel("ch_co2", "co2", "co2", "SIM", "mmHg", stale_after_seconds=STALE),
-                channel("ch_rad", "rad", "radiation", "REPLAY", "µGy/h", expected_interval_seconds=None, stale_after_seconds=600),
+                channel(
+                    "ch_rad",
+                    "rad",
+                    "radiation",
+                    "REPLAY",
+                    "µGy/h",
+                    expected_interval_seconds=None,
+                    stale_after_seconds=600,
+                ),
             ]
         },
     )
@@ -35,7 +43,9 @@ def station(tmp_path: Path) -> Station:
 
 
 def push(st: Station, rows: list[Any], key: str) -> Any:
-    return st.client.post(PATH, json={"batch_id": "b_" + key, "readings": rows}, headers=st.headers("adapter", key))
+    return st.client.post(
+        PATH, json={"batch_id": "b_" + key, "readings": rows}, headers=st.headers("adapter", key)
+    )
 
 
 def state(st: Station, channel_id: str = "ch_co2") -> str:
@@ -46,7 +56,9 @@ def state(st: Station, channel_id: str = "ch_co2") -> str:
 def events(st: Station, kind: str) -> int:
     connection = sqlite3.connect(st.db.path)
     try:
-        return connection.execute("SELECT count(*) FROM events_outbox WHERE event_type = ?", (kind,)).fetchone()[0]
+        return connection.execute(
+            "SELECT count(*) FROM events_outbox WHERE event_type = ?", (kind,)
+        ).fetchone()[0]
     except sqlite3.Error:
         return -1
     finally:
@@ -72,11 +84,15 @@ def test_the_scheduled_deadline_records_the_transition_and_emits_quiet(station: 
     station.advance(seconds=STALE + 5)
     assert station.dispatch() >= 1  # the generation checked job fires
     assert events(station, "sensor.quiet") == SCOPES
-    assert events(station, "sensor.quiet") == SCOPES and station.dispatch() == 0  # a completed generation never repeats
+    assert (
+        events(station, "sensor.quiet") == SCOPES and station.dispatch() == 0
+    )  # a completed generation never repeats
 
 
 @pytest.mark.trace("T-E23-019", "T-E23-079", "R35")
-def test_with_every_deadline_deleted_the_independent_sweep_still_records_the_transition(station: Station) -> None:
+def test_with_every_deadline_deleted_the_independent_sweep_still_records_the_transition(
+    station: Station,
+) -> None:
     feed(station, 1, "key_00001")
     connection = sqlite3.connect(station.db.path)
     connection.execute("DELETE FROM platform_schedule")
@@ -90,7 +106,9 @@ def test_with_every_deadline_deleted_the_independent_sweep_still_records_the_tra
 
 
 @pytest.mark.trace("T-E23-053", "T-E23-077", "D3")
-def test_a_stale_channel_never_becomes_current_from_a_clock_jump_only_new_data_resumes_it(station: Station) -> None:
+def test_a_stale_channel_never_becomes_current_from_a_clock_jump_only_new_data_resumes_it(
+    station: Station,
+) -> None:
     feed(station, 1, "key_00001")
     station.advance(seconds=STALE + 5)
     station.sweep()
@@ -113,7 +131,9 @@ def test_a_late_arrival_cannot_pull_the_newest_observation_backward_or_rejuvenat
     assert push(station, [old], "key_00003").status_code == 200  # kept as a real reading
     assert state(station) == "stale"  # but it is older than E: it neither advances E nor resets freshness
     connection = sqlite3.connect(station.db.path)
-    last = connection.execute("SELECT last_observed_at, window_end FROM sensors_channel WHERE channel_id = 'ch_co2'").fetchone()
+    last = connection.execute(
+        "SELECT last_observed_at, window_end FROM sensors_channel WHERE channel_id = 'ch_co2'"
+    ).fetchone()
     connection.close()
     assert last[1] is not None and last[0] == last[1]
 
@@ -131,7 +151,9 @@ def test_replay_freshness_follows_the_receive_reference_and_keeps_the_original_d
 
 
 @pytest.mark.trace("T-E23-079", "R-E23-1", "DE23-13")
-def test_an_environment_switch_keeps_old_readings_out_of_the_new_place_and_watches_quiet(station: Station) -> None:
+def test_an_environment_switch_keeps_old_readings_out_of_the_new_place_and_watches_quiet(
+    station: Station,
+) -> None:
     feed(station, 1, "key_00001")
     proposal = station.client.post(
         "/v1/environment/changes",

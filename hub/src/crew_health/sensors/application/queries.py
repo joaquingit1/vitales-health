@@ -16,13 +16,20 @@ from crew_health.contracts_gen.schemas.sensor_reading_schema import SensorReadin
 from crew_health.contracts_gen.schemas.sensor_series_schema import SensorSeries
 from crew_health.contracts_gen.schemas.sensor_status_schema import SensorStatus
 from crew_health.kernel.errors import ProblemError
-from crew_health.sensors.adapters.config_reader import SensorConfig
 from crew_health.sensors.application.evaluate import stored_evaluation
 from crew_health.sensors.application.runtime import Runtime
 from crew_health.sensors.application.store import ChannelState, EnvironmentRow, ReadingRecord, View
-from crew_health.sensors.domain.aggregation import DirectWindows
+from crew_health.sensors.domain.aggregation import DirectWindows, coverage
+from crew_health.sensors.domain.buckets import bucket_index
 from crew_health.sensors.domain.card import CardInput, ChannelView, compose_card
-from crew_health.sensors.domain.evaluation import Evaluation, EvaluationInput, evaluate_limits, limits_for, no_reading_evaluation
+from crew_health.sensors.domain.config import SensorConfig
+from crew_health.sensors.domain.evaluation import (
+    Evaluation,
+    EvaluationInput,
+    evaluate_limits,
+    limits_for,
+    no_reading_evaluation,
+)
 from crew_health.sensors.domain.freshness import FreshnessDecision, TimeFacts, decide_freshness
 from crew_health.sensors.domain.reading import round_wire
 
@@ -46,9 +53,16 @@ def decide_now(
     reference = channel.reference
     anchor: TimeFacts | None = None
     if environment is not None:
-        if reference is not None and reference.corrected_at is not None and reference.corrected_at < environment.activated_at:
+        if (
+            reference is not None
+            and reference.corrected_at is not None
+            and reference.corrected_at < environment.activated_at
+        ):
             reference = None  # a reading before activation is never current in the new place (DE23-13)
-        if channel.quiet_anchor_at is not None and channel.quiet_anchor_environment == environment.environment_id:
+        if (
+            channel.quiet_anchor_at is not None
+            and channel.quiet_anchor_environment == environment.environment_id
+        ):
             anchor = TimeFacts("known", channel.quiet_anchor_at, 0)
     decision = decide_freshness(
         now=view.now,
@@ -58,7 +72,9 @@ def decide_now(
         quiet_anchor=anchor,
     )
     if sticky and channel.freshness == "stale" and decision.state == "current":
-        return FreshnessDecision("stale", decision.clock_state, channel.stale_since, None, "stale_until_new_data")
+        return FreshnessDecision(
+            "stale", decision.clock_state, channel.stale_since, None, "stale_until_new_data"
+        )
     return decision
 
 
@@ -153,12 +169,22 @@ def _channel_view(
     stored = stored_evaluation(rt, view, channel, env.profile_id, release_id)
     if stored is None or decision.state != "current":
         shell = EvaluationInput(
-            kind, channel.facts, env.environment_id, limits,
+            kind,
+            channel.facts,
+            env.environment_id,
+            limits,
             DirectWindows((), channel.facts.expected_interval_seconds, rt.limits.window_scan_max_readings),
             channel.window_end if stored is not None else None,
-            decision.state, False, decision.clock_state == "trusted", view.now,
+            decision.state,
+            False,
+            decision.clock_state == "trusted",
+            view.now,
         )
-        evaluation = evaluate_limits(shell) if stored is not None else no_reading_evaluation(limits, kind.id, env.environment_id, view.now)
+        evaluation = (
+            evaluate_limits(shell)
+            if stored is not None
+            else no_reading_evaluation(limits, kind.id, env.environment_id, view.now)
+        )
     else:
         evaluation = stored
     trace = _trace(rt, view, channel)
@@ -171,7 +197,9 @@ def _trace(rt: Runtime, view: View, channel: ChannelState) -> str | None:
     return f"Replay of {channel.facts.dataset}, original dates kept." if channel.facts.dataset else None
 
 
-def status_model(rt: Runtime, view: View, sensor_type_id: str, *, release_id: str | None = None) -> SensorStatus:
+def status_model(
+    rt: Runtime, view: View, sensor_type_id: str, *, release_id: str | None = None
+) -> SensorStatus:
     env = rt.store.environment(view)
     release = view.release
     config = rt.config_of(release)
@@ -180,7 +208,11 @@ def status_model(rt: Runtime, view: View, sensor_type_id: str, *, release_id: st
         raise ProblemError(ErrorCode.NOT_FOUND, ErrorCode.NOT_FOUND.value)
     if env is None:
         raise ProblemError(ErrorCode.INTERNAL_ERROR, "mission_not_initialized", retryable=True)
-    channels = [c for c in rt.store.channels(view) if c.facts.sensor_type_id == kind.id and env.environment_id in c.facts.environment_ids]
+    channels = [
+        c
+        for c in rt.store.channels(view)
+        if c.facts.sensor_type_id == kind.id and env.environment_id in c.facts.environment_ids
+    ]
     views = tuple(_channel_view(rt, view, config, c, env, release_id or release.release_id) for c in channels)
     hazard = config.hazard(kind.hazard_id)
     if hazard is None:
@@ -188,11 +220,24 @@ def status_model(rt: Runtime, view: View, sensor_type_id: str, *, release_id: st
     unsupported = _unsupported(release)
     card = compose_card(
         CardInput(
-            kind, env.environment_id, views, config.limits, hazard, config.effect_filters, (), unsupported,
-            env.mission_mode, "No channel", view.now,
+            kind,
+            env.environment_id,
+            views,
+            config.limits,
+            hazard,
+            config.effect_filters,
+            (),
+            unsupported,
+            env.mission_mode,
+            "No channel",
+            view.now,
         )
     )
-    latest = None if card.reading_state == "no_reading" else _latest(rt, view, card.channel_id, channels, config, env)
+    latest = (
+        None
+        if card.reading_state == "no_reading"
+        else _latest(rt, view, card.channel_id, channels, config, env)
+    )
     ev = card.evaluation
     return SensorStatus.model_validate(
         {
@@ -205,7 +250,11 @@ def status_model(rt: Runtime, view: View, sensor_type_id: str, *, release_id: st
             "channel_id": card.channel_id,
             "reading_state": card.reading_state,
             "latest_reading": None if latest is None else latest.model_dump(mode="json", exclude_unset=True),
-            "display_value": {"value": number(card.display_value.value), "unit": card.display_value.unit, "text": card.display_value.text},
+            "display_value": {
+                "value": number(card.display_value.value),
+                "unit": card.display_value.unit,
+                "text": card.display_value.text,
+            },
             "context_label": card.context_label,
             "source_label": card.source_label,
             "origin_mode": card.origin_mode,
@@ -214,7 +263,14 @@ def status_model(rt: Runtime, view: View, sensor_type_id: str, *, release_id: st
             "linked_warning_ids": list(card.linked_warning_ids),
             "display_range": [float(card.display_range[0]), float(card.display_range[1])],
             "limit_marks": [
-                {"limit_id": m.limit_id, "value": float(m.value), "unit": m.unit, "comparator": m.comparator, "role": m.role, "label": m.label}
+                {
+                    "limit_id": m.limit_id,
+                    "value": float(m.value),
+                    "unit": m.unit,
+                    "comparator": m.comparator,
+                    "role": m.role,
+                    "label": m.label,
+                }
                 for m in card.limit_marks
             ],
             "stale_since": opt(card.stale_since),
@@ -230,19 +286,40 @@ def status_model(rt: Runtime, view: View, sensor_type_id: str, *, release_id: st
 
 def _unsupported(release: Any) -> str:
     try:
-        return str(json.loads(release.document(ConfigName.UI_COPY).raw)["designed_states"]["not_available_here"])
+        return str(
+            json.loads(release.document(ConfigName.UI_COPY).raw)["designed_states"]["not_available_here"]
+        )
     except (ValueError, KeyError, TypeError) as error:
-        raise ProblemError(ErrorCode.CONFIG_INVALID, "ui-copy has no designed_states.not_available_here", retryable=True) from error
+        raise ProblemError(
+            ErrorCode.CONFIG_INVALID, "ui-copy has no designed_states.not_available_here", retryable=True
+        ) from error
 
 
-def _latest(rt: Runtime, view: View, channel_id: str | None, channels: Sequence[ChannelState], config: SensorConfig, env: EnvironmentRow) -> SensorReading | None:
+def _latest(
+    rt: Runtime,
+    view: View,
+    channel_id: str | None,
+    channels: Sequence[ChannelState],
+    config: SensorConfig,
+    env: EnvironmentRow,
+) -> SensorReading | None:
     if channel_id is None:
         return None
     state = next((c for c in channels if c.facts.channel_id == channel_id), None)
     if state is None:
         return None
-    records = [r for r in rt.store.readings_since(view, channel_id, since=None, up_to_rev=None, limit=rt.limits.window_scan_max_readings) if r.quality_status != "rejected" and _after_activation(r, env)]
-    return None if not records else reading_model(max(records, key=lambda r: (r.observed_at, r.rev or 0)), state, config)
+    records = [
+        r
+        for r in rt.store.readings_since(
+            view, channel_id, since=None, up_to_rev=None, limit=rt.limits.window_scan_max_readings
+        )
+        if r.quality_status != "rejected" and _after_activation(r, env)
+    ]
+    return (
+        None
+        if not records
+        else reading_model(max(records, key=lambda r: (r.observed_at, r.rev or 0)), state, config)
+    )
 
 
 def _after_activation(record: ReadingRecord, env: EnvironmentRow) -> bool:
@@ -251,7 +328,15 @@ def _after_activation(record: ReadingRecord, env: EnvironmentRow) -> bool:
     return basis is not None and basis >= env.activated_at
 
 
-def series_model(rt: Runtime, view: View, sensor_type_id: str, *, since: datetime | None, until: datetime | None) -> SensorSeries:
+def series_model(
+    rt: Runtime,
+    view: View,
+    sensor_type_id: str,
+    *,
+    since: datetime | None,
+    until: datetime | None,
+    bucket_seconds: int | None = None,
+) -> SensorSeries:
     env = rt.store.environment(view)
     config = rt.config_of(view.release)
     kind = config.sensor_type(sensor_type_id)
@@ -263,15 +348,47 @@ def series_model(rt: Runtime, view: View, sensor_type_id: str, *, since: datetim
     if status.channel_id is None:
         raise ProblemError(ErrorCode.NOT_FOUND, ErrorCode.NOT_FOUND.value)
     limit = rt.limits.series_max_points
-    records = [r for r in rt.store.readings_since(view, status.channel_id.root, since=since, up_to_rev=None, limit=limit) if r.quality_status != "rejected" and r.time_state in ("known", "replay") and _after_activation(r, env)]
+    records = [
+        r
+        for r in rt.store.readings_since(
+            view, status.channel_id.root, since=since, up_to_rev=None, limit=limit
+        )
+        if r.quality_status != "rejected"
+        and r.time_state in ("known", "replay")
+        and _after_activation(r, env)
+    ]
     if len(records) > limit:
         raise ProblemError(ErrorCode.INVALID_VALUE, "series above sensors.series_max_points")
     spec = kind.aggregation(kind.display_aggregation_id)
-    points = [
-        {"t": iso(r.observed_at), "value": float(round_wire(r.canonical)), "coverage": 1.0}
-        for r in records
-        if until is None or r.observed_at <= until
-    ]
+    width = bucket_seconds or rt.limits.aggregate_bucket_s
+    chosen = [r for r in records if until is None or r.observed_at <= until]
+    groups: dict[int, list[ReadingRecord]] = {}
+    for record in chosen:
+        groups.setdefault(bucket_index(record.observed_at, width), []).append(record)
+    interval = next(
+        (
+            c.facts.expected_interval_seconds
+            for c in rt.store.channels(view)
+            if c.facts.channel_id == status.channel_id.root
+        ),
+        None,
+    )
+    points = []
+    for index in sorted(groups):
+        members = groups[index]
+        last = members[
+            -1
+        ]  # the last accepted reading of the bucket; its coverage is the bucket's, never an invented 1
+        cover = coverage(
+            len(members),
+            first_at=members[0].observed_at,
+            last_at=last.observed_at,
+            window_seconds=width,
+            expected_interval_seconds=interval,
+        )
+        points.append(
+            {"t": iso(last.observed_at), "value": float(round_wire(last.canonical)), "coverage": float(cover)}
+        )
     start = records[0].observed_at if records else view.now
     end = records[-1].observed_at if records else view.now
     return SensorSeries.model_validate(

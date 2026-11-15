@@ -114,7 +114,7 @@ def _parse_row(row: Any) -> tuple[Reading, Decimal, Decimal | None] | None:
         value = row["value"] if isinstance(row["value"], Decimal) else Decimal(str(row["value"]))
         pressure = row.get("cabin_pressure_mmhg")
         exact = None if pressure is None else Decimal(str(pressure["value"]))
-    except (ValidationError, KeyError, InvalidOperation, TypeError):
+    except ValidationError, KeyError, InvalidOperation, TypeError:
         return None
     if not value.is_finite():
         return None
@@ -127,7 +127,9 @@ def _row_hash(row: dict[str, Any]) -> str:
     return hashlib.sha256(json.dumps(shaped, sort_keys=True, default=str).encode()).hexdigest()
 
 
-def _observed(rt: Runtime, uow: UnitOfWork, adapter: str, sequence: int, at: datetime, origin: str) -> tuple[NormalizedTime, TimeInput | None, str | None]:
+def _observed(
+    rt: Runtime, uow: UnitOfWork, adapter: str, sequence: int, at: datetime, origin: str
+) -> tuple[NormalizedTime, TimeInput | None, str | None]:
     unknown = NormalizedTime(at, None, None, None, "unknown")
     if rt.corrections is None or rt.segments is None:
         return unknown, None, None
@@ -145,7 +147,14 @@ def _receive(rt: Runtime, uow: UnitOfWork) -> TimeFacts:
     segment = rt.segments.for_sequence(uow, source_clock_id=rt.hub_source_clock_id, sequence=2**53 - 1)
     if segment is None:
         return TimeFacts("unknown", None, None)
-    stamp = TimeInput(uow.now, rt.hub_source_clock_id, segment.segment_id, segment.capture_offset_version, "hub_corrected", "LIVE")
+    stamp = TimeInput(
+        uow.now,
+        rt.hub_source_clock_id,
+        segment.segment_id,
+        segment.capture_offset_version,
+        "hub_corrected",
+        "LIVE",
+    )
     n = rt.corrections.normalize(uow, stamp)
     return TimeFacts(n.state, n.corrected_at, n.uncertainty_ms)
 
@@ -181,7 +190,15 @@ class _Batch:
         else:
             self._admit(index, row, model, value, pressure_value, channel)
 
-    def _admit(self, index: int, row: dict[str, Any], model: Reading, value: Decimal, pressure_value: Decimal | None, channel: ChannelState) -> None:
+    def _admit(
+        self,
+        index: int,
+        row: dict[str, Any],
+        model: Reading,
+        value: Decimal,
+        pressure_value: Decimal | None,
+        channel: ChannelState,
+    ) -> None:
         rt, uow = self.rt, self.uow
         sequence = model.adapter_sequence
         body_hash = _row_hash(row)
@@ -200,9 +217,22 @@ class _Batch:
             return
         pressure = None
         if model.cabin_pressure_mmhg is not None and pressure_value is not None:
-            pressure = PressureContext(Quantity(pressure_value, Unit("mm[Hg]")), model.cabin_pressure_mmhg.basis, "adapter:" + self.adapter_id, None)
+            pressure = PressureContext(
+                Quantity(pressure_value, Unit("mm[Hg]")),
+                model.cabin_pressure_mmhg.basis,
+                "adapter:" + self.adapter_id,
+                None,
+            )
         try:
-            converted = convert_wire_reading(rt.need_converter(), uow.release, kind, value=value, unit=model.unit, canonical_unit=Unit(kind.unit), pressure=pressure)
+            converted = convert_wire_reading(
+                rt.need_converter(),
+                uow.release,
+                kind,
+                value=value,
+                unit=model.unit,
+                canonical_unit=Unit(kind.unit),
+                pressure=pressure,
+            )
         except InvalidUnit:
             self.reject(index, "INVALID_UNIT", row)
             return
@@ -214,25 +244,64 @@ class _Batch:
     def _store(self, index, row, model, value, channel, kind, converted, body_hash) -> None:  # type: ignore[no-untyped-def]
         rt, uow = self.rt, self.uow
         observed_at = model.observed_at.root
-        normalized, stamp, segment_id = _observed(rt, uow, self.adapter_id, model.adapter_sequence, observed_at, channel.facts.origin_mode)
-        fact = ReadingFact("", channel.facts.channel_id, model.adapter_sequence, normalized.corrected_at, uow.now, normalized.state, converted.converted.canonical.value, model.quality_status.root, channel.facts.origin_mode, segment_id)
+        normalized, stamp, segment_id = _observed(
+            rt, uow, self.adapter_id, model.adapter_sequence, observed_at, channel.facts.origin_mode
+        )
+        fact = ReadingFact(
+            "",
+            channel.facts.channel_id,
+            model.adapter_sequence,
+            normalized.corrected_at,
+            uow.now,
+            normalized.state,
+            converted.converted.canonical.value,
+            model.quality_status.root,
+            channel.facts.origin_mode,
+            segment_id,
+        )
         verdict = assess(kind, fact)
         conflict = self._conflict(channel, normalized, converted.converted.canonical.value)
         aggregation = model.aggregation
         record = ReadingRecord(
             rt.ids.derived("rdg", channel.facts.channel_id, str(model.adapter_sequence)),
-            channel.facts.channel_id, self.adapter_id, model.adapter_sequence, self.batch_id,
-            converted.wire_value, kind.unit, converted.converted.canonical.value,
-            value, model.unit,
+            channel.facts.channel_id,
+            self.adapter_id,
+            model.adapter_sequence,
+            self.batch_id,
+            converted.wire_value,
+            kind.unit,
+            converted.converted.canonical.value,
+            value,
+            model.unit,
             None if converted.conversion is None else _conversion_json(converted.conversion),
             converted.converted.mapping_version,
             "sample" if aggregation is None else aggregation.kind,
-            None if aggregation is None or aggregation.window_seconds is None else aggregation.window_seconds.root,
-            observed_at, None if model.window_start is None else model.window_start.root, uow.now,
-            channel.facts.origin_mode, model.quality_status.root, normalized.state, normalized.corrected_at,
-            normalized.uncertainty_ms, segment_id, None if stamp is None else stamp.source_clock_version,
-            None if model.replay is None else json.dumps({"dataset": model.replay.dataset, "original_observed_at": observed_at.strftime("%Y-%m-%dT%H:%M:%SZ"), "time_basis": model.replay.time_basis}),
-            verdict.reason if verdict.status != "passed" else None, conflict, body_hash, uow.release.release_id,
+            None
+            if aggregation is None or aggregation.window_seconds is None
+            else aggregation.window_seconds.root,
+            observed_at,
+            None if model.window_start is None else model.window_start.root,
+            uow.now,
+            channel.facts.origin_mode,
+            model.quality_status.root,
+            normalized.state,
+            normalized.corrected_at,
+            normalized.uncertainty_ms,
+            segment_id,
+            None if stamp is None else stamp.source_clock_version,
+            None
+            if model.replay is None
+            else json.dumps(
+                {
+                    "dataset": model.replay.dataset,
+                    "original_observed_at": observed_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "time_basis": model.replay.time_basis,
+                }
+            ),
+            verdict.reason if verdict.status != "passed" else None,
+            conflict,
+            body_hash,
+            uow.release.release_id,
         )
         rev = rt.store.insert_reading(uow, record)
         self.accepted += 1
@@ -244,21 +313,41 @@ class _Batch:
     def _conflict(self, channel: ChannelState, normalized: NormalizedTime, canonical: Decimal) -> bool:
         if normalized.corrected_at is None:
             return False
-        peers = self.rt.store.instant_peers(self.uow, channel.facts.channel_id, normalized.corrected_at, channel.facts.origin_mode, channel.facts.dataset)
+        peers = self.rt.store.instant_peers(
+            self.uow,
+            channel.facts.channel_id,
+            normalized.corrected_at,
+            channel.facts.origin_mode,
+            channel.facts.dataset,
+        )
         if any(p.canonical != canonical for p in peers):
             self.rt.fault(INSTANT_CONFLICT, self.uow.now)
             return True
         return False
 
-    def _advance(self, record: ReadingRecord, channel: ChannelState, normalized: NormalizedTime, stamp: TimeInput | None) -> None:
+    def _advance(
+        self,
+        record: ReadingRecord,
+        channel: ChannelState,
+        normalized: NormalizedTime,
+        stamp: TimeInput | None,
+    ) -> None:
         rt, uow = self.rt, self.uow
         before = _signature(rt, uow, channel)
         window_end = channel.window_end
         reference, reference_at = channel.reference, channel.reference_at
         eligible_time = record.corrected_at
-        if eligible_time is not None and record.time_state in ("known", "replay") and (window_end is None or eligible_time > window_end):
+        if (
+            eligible_time is not None
+            and record.time_state in ("known", "replay")
+            and (window_end is None or eligible_time > window_end)
+        ):
             window_end = advance_window_end(window_end, eligible_time)
-            reference = _receive(rt, uow) if channel.facts.origin_mode == "REPLAY" else TimeFacts(normalized.state, normalized.corrected_at, normalized.uncertainty_ms)
+            reference = (
+                _receive(rt, uow)
+                if channel.facts.origin_mode == "REPLAY"
+                else TimeFacts(normalized.state, normalized.corrected_at, normalized.uncertainty_ms)
+            )
             reference_at = eligible_time
         updated = replace(
             channel,
@@ -288,20 +377,42 @@ class _Batch:
         rt.store.save_input(
             uow,
             EvaluationInputRow(
-                input_ref, channel.facts.channel_id, profile, mission, channel.facts.origin_mode, channel.facts.dataset,
+                input_ref,
+                channel.facts.channel_id,
+                profile,
+                mission,
+                channel.facts.origin_mode,
+                channel.facts.dataset,
                 rt.ids.derived("prt", mission, profile, channel.facts.channel_id, channel.facts.origin_mode),
-                record.rev or 0, uow.release.release_id, EVALUATOR_VERSION, observed, channel.window_end, 0,
+                record.rev or 0,
+                uow.release.release_id,
+                EVALUATOR_VERSION,
+                observed,
+                channel.window_end,
+                0,
             ),
         )
         if environment is None:
             return  # series only: never evaluated under a guessed profile
-        stamp = TimeInput(record.observed_at, channel.facts.adapter_id, record.segment_id or "unmapped", record.source_clock_version or 0, "source_raw", channel.facts.origin_mode)
+        stamp = TimeInput(
+            record.observed_at,
+            channel.facts.adapter_id,
+            record.segment_id or "unmapped",
+            record.source_clock_version or 0,
+            "source_raw",
+            channel.facts.origin_mode,
+        )
         result = rt.need_isolation().run(
             uow,
             KernelInput(
-                EVALUATOR, EVALUATOR_VERSION, input_ref, stamp, uow.release.release_id,
+                EVALUATOR,
+                EVALUATOR_VERSION,
+                input_ref,
+                stamp,
+                uow.release.release_id,
                 rt.ids.derived("prt", mission, profile, channel.facts.channel_id, channel.facts.origin_mode),
-                record.rev or 0, rt.ids.derived("cmp", EVALUATOR, EVALUATOR_VERSION, input_ref),
+                record.rev or 0,
+                rt.ids.derived("cmp", EVALUATOR, EVALUATOR_VERSION, input_ref),
             ),
         )
         if result == "pending":
@@ -309,18 +420,52 @@ class _Batch:
 
     def finish(self) -> IngestOutcome:
         rt, uow = self.rt, self.uow
-        changed = sorted({t for c, (t, before) in self.touched.items() if before != _signature(rt, uow, rt.store.channel(uow, c))})
-        rt.store.save_batch(uow, BatchRow(self.adapter_id, self.batch_id, self.accepted, self.duplicates, json.dumps([{"index": r.index, "code": r.code, "raw": r.raw} for r in self.rejected]), uow.now))
-        uow.audit(AuditEntry(rt.ids.new("aud"), "sensors.batch_ingested", 1, uow.actor, {"batch": self.adapter_id + ":" + self.batch_id}, uow.correlation_id, None, {}))
-        rejected = tuple((r.index, r.code, self.messages.get(r.code) or r.code) for r in sorted(self.rejected, key=lambda r: r.index))
-        return IngestOutcome(self.batch_id, self.accepted, self.duplicates, tuple(self.ids), rejected, tuple(changed))
+        changed = sorted(
+            {
+                t
+                for c, (t, before) in self.touched.items()
+                if before != _signature(rt, uow, rt.store.channel(uow, c))
+            }
+        )
+        rt.store.save_batch(
+            uow,
+            BatchRow(
+                self.adapter_id,
+                self.batch_id,
+                self.accepted,
+                self.duplicates,
+                json.dumps([{"index": r.index, "code": r.code, "raw": r.raw} for r in self.rejected]),
+                uow.now,
+            ),
+        )
+        uow.audit(
+            AuditEntry(
+                rt.ids.new("aud"),
+                "sensors.batch_ingested",
+                1,
+                uow.actor,
+                {"batch": self.adapter_id + ":" + self.batch_id},
+                uow.correlation_id,
+                None,
+                {},
+            )
+        )
+        rejected = tuple(
+            (r.index, r.code, self.messages.get(r.code) or r.code)
+            for r in sorted(self.rejected, key=lambda r: r.index)
+        )
+        return IngestOutcome(
+            self.batch_id, self.accepted, self.duplicates, tuple(self.ids), rejected, tuple(changed)
+        )
 
 
 def _conversion_json(conversion: Any) -> str:
     return json.dumps(
         {
             "method": conversion.method,
-            "cabin_pressure_mmhg": None if conversion.cabin_pressure is None else float(conversion.cabin_pressure.value),
+            "cabin_pressure_mmhg": None
+            if conversion.cabin_pressure is None
+            else float(conversion.cabin_pressure.value),
             "pressure_basis": conversion.pressure_basis,
             "factor": None if conversion.factor is None else float(conversion.factor),
         }
@@ -334,7 +479,9 @@ def _signature(rt: Runtime, uow: UnitOfWork, channel: ChannelState | None) -> st
     return channel.freshness + "|" + "|".join(r.profile_id + ":" + r.status for r in rows)
 
 
-def ingest(rt: Runtime, uow: UnitOfWork, *, adapter_id: str, batch_id: str, rows: Sequence[Any]) -> IngestOutcome:
+def ingest(
+    rt: Runtime, uow: UnitOfWork, *, adapter_id: str, batch_id: str, rows: Sequence[Any]
+) -> IngestOutcome:
     """One accepted row at a time, in request order. A rejected row never stops its neighbors."""
     batch = _Batch(rt, uow, adapter_id, batch_id)
     for index, row in enumerate(rows):

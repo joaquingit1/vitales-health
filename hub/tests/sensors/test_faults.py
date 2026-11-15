@@ -28,7 +28,9 @@ def make(tmp: Path, **kw: Any) -> Station:
 
 def send(st: Station, key: str, seq: int = 1) -> Any:
     row = reading("ch_co2", seq, 2.5, "mmHg", st.clock.at - timedelta(seconds=3))
-    return st.client.post(PATH, json={"batch_id": "b_" + key, "readings": [row]}, headers=st.headers("adapter", key))
+    return st.client.post(
+        PATH, json={"batch_id": "b_" + key, "readings": [row]}, headers=st.headers("adapter", key)
+    )
 
 
 def count(st: Station, table: str) -> int:
@@ -40,7 +42,9 @@ def count(st: Station, table: str) -> int:
 
 
 @pytest.mark.trace("T-E23-051", "T-E23-054", "R35", "AGENTS-6")
-def test_disk_full_at_the_outbox_aborts_the_whole_command_and_a_retry_with_the_same_key_succeeds(tmp_path: Path) -> None:
+def test_disk_full_at_the_outbox_aborts_the_whole_command_and_a_retry_with_the_same_key_succeeds(
+    tmp_path: Path,
+) -> None:
     st = make(tmp_path)
     original = st.db.event_sink
     calls = {"n": 0}
@@ -67,7 +71,9 @@ def test_a_crash_after_the_effects_but_before_the_commit_leaves_no_trace(tmp_pat
     boom = RuntimeError("process killed before commit")
     original = st.db.audit_policies.get("sensors.batch_ingested")
     assert original is not None
-    real = st.resolver().require(__import__("crew_health.kernel.commands", fromlist=["IdempotencyStore"]).IdempotencyStore)
+    real = st.resolver().require(
+        __import__("crew_health.kernel.commands", fromlist=["IdempotencyStore"]).IdempotencyStore
+    )
     saved = real.record
 
     def kill(uow: Any, identity: Any, result: Any) -> None:
@@ -93,7 +99,11 @@ def test_a_corrupt_registry_is_rejected_and_the_last_good_one_stays_loaded(tmp_p
     with st.begin() as uow:
         from crew_health.sensors.application.registry import install_file
 
-        live = st.resolver().require(__import__("crew_health.sensors.application.ports", fromlist=["FreshnessSweeper"]).FreshnessSweeper)
+        live = st.resolver().require(
+            __import__(
+                "crew_health.sensors.application.ports", fromlist=["FreshnessSweeper"]
+            ).FreshnessSweeper
+        )
         runtime = live._live.need()  # type: ignore[attr-defined]
         assert install_file(runtime, uow, str(st.registry_file), source="registry") == 0
     assert count(st, "sensors_channel") == 1  # nothing partly accepted, nothing removed
@@ -106,8 +116,12 @@ def test_a_corrupt_registry_is_rejected_and_the_last_good_one_stays_loaded(tmp_p
 @pytest.mark.trace("T-E23-057", "T-E23-091", "AGENTS-2")
 def test_a_missing_optional_part_degrades_only_its_feature(tmp_path: Path) -> None:
     st = make(tmp_path)
-    assert send(st, "key_00003").status_code == 200  # no E24, no E29, no model, no ground: capture still works
-    assert st.client.get("/v1/mission", headers=st.headers("crew_a")).status_code == 500  # E29 absent: loud, retryable
+    assert (
+        send(st, "key_00003").status_code == 200
+    )  # no E24, no E29, no model, no ground: capture still works
+    assert (
+        st.client.get("/v1/mission", headers=st.headers("crew_a")).status_code == 500
+    )  # E29 absent: loud, retryable
     assert st.client.get("/v1/mission", headers=st.headers("crew_a")).json()["retryable"] is True
     assert st.client.get("/v1/sensors/co2", headers=st.headers("crew_a")).status_code == 200
 
@@ -118,7 +132,9 @@ def test_health_carries_the_sensors_fault_code_after_a_conflicting_instant(tmp_p
     at = st.clock.at - timedelta(seconds=3)
     first = reading("ch_co2", 1, 2.5, "mmHg", at)
     second = reading("ch_co2", 2, 3.5, "mmHg", at)  # the same instant, another value
-    st.client.post(PATH, json={"batch_id": "b1", "readings": [first, second]}, headers=st.headers("adapter", "key_00004"))
+    st.client.post(
+        PATH, json={"batch_id": "b1", "readings": [first, second]}, headers=st.headers("adapter", "key_00004")
+    )
     health = st.resolver().require(HealthState).snapshot()
     sensors = next(c for c in health.components if c.component == "sensors")
     assert health.status == "degraded" and sensors.code == "INSTANT_CONFLICT"
@@ -131,6 +147,10 @@ def test_the_migration_is_tracked_and_a_second_start_applies_nothing_twice(tmp_p
 
     st = make(tmp_path)
     assert send(st, "key_00005").status_code == 200
-    factory = st.resolver().require(__import__("crew_health.kernel.uow", fromlist=["UnitOfWorkFactory"]).UnitOfWorkFactory)
-    apply_migration(factory, "adapters/migrations/0001_sensors.sql", name="sensors.0001")  # a restart runs it again
+    factory = st.resolver().require(
+        __import__("crew_health.kernel.uow", fromlist=["UnitOfWorkFactory"]).UnitOfWorkFactory
+    )
+    apply_migration(
+        factory, "adapters/migrations/0001_sensors.sql", name="sensors.0001"
+    )  # a restart runs it again
     assert count(st, "sensors_reading") == 1 and count(st, "sensors_channel") == 1

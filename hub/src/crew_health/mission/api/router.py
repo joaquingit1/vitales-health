@@ -49,7 +49,7 @@ from crew_health.mission.application.use_cases import (
     propose_change,
     record_event,
 )
-from crew_health.mission.domain.errors import MissionDomainError, NotFound
+from crew_health.mission.domain.errors import NotFound
 from crew_health.mission.domain.profile import ProfileRecord
 
 _ETAG = re.compile(r'^"([1-9][0-9]{0,17})"$')
@@ -165,14 +165,20 @@ def decode_cursor(cursor: str | None) -> str | None:
 
 
 def _reply(
-    body: BaseModel | dict[str, object], snapshot: ReadSnapshot, *, status: int = 200, extra: dict[str, str] | None = None
+    body: BaseModel | dict[str, object],
+    snapshot: ReadSnapshot,
+    *,
+    status: int = 200,
+    extra: dict[str, str] | None = None,
 ) -> JSONResponse:
     content = body.model_dump(mode="json") if isinstance(body, BaseModel) else body
     headers = {"Config-Release": snapshot.release.release_id, **(extra or {})}
     return JSONResponse(content, status_code=status, headers=headers)
 
 
-def _record_reply(record: ProfileRecord, snapshot: ReadSnapshot, session: SessionContext, status: int) -> JSONResponse:
+def _record_reply(
+    record: ProfileRecord, snapshot: ReadSnapshot, session: SessionContext, status: int
+) -> JSONResponse:
     is_crew = any(role.value == "crew" for role in session.roles)
     model = profile_model(record, is_crew=is_crew, person_id=session.person_id)
     extra = {"ETag": f'"{record.revision}"'}
@@ -181,7 +187,9 @@ def _record_reply(record: ProfileRecord, snapshot: ReadSnapshot, session: Sessio
     return _reply(model, snapshot, status=status, extra=extra)
 
 
-def _page_of[T](items: list[T], position: Callable[[T], str], limit: int, after: str | None) -> tuple[list[T], str | None]:
+def _page_of[T](
+    items: list[T], position: Callable[[T], str], limit: int, after: str | None
+) -> tuple[list[T], str | None]:
     start = 0
     if after is not None:
         keys = [position(item) for item in items]
@@ -254,7 +262,11 @@ def build_router(api: MissionApi) -> APIRouter:  # noqa: C901 - one flat list of
             return _record_reply(record, snapshot, session, 201)
 
     router.add_api_route(
-        "/v1/environment/changes", propose, methods=["POST"], operation_id="proposeEnvironmentChange", status_code=201
+        "/v1/environment/changes",
+        propose,
+        methods=["POST"],
+        operation_id="proposeEnvironmentChange",
+        status_code=201,
     )
 
     def act(request: Request, profile_id: str) -> JSONResponse:
@@ -263,7 +275,10 @@ def build_router(api: MissionApi) -> APIRouter:  # noqa: C901 - one flat list of
         body = _body(request, EnvironmentChangeAction)
         revision = _revision(request)
         identity = _identity(
-            request, session, "actOnEnvironmentChange", "/v1/environment/changes/" + require_id(profile_id) + "/actions"
+            request,
+            session,
+            "actOnEnvironmentChange",
+            "/v1/environment/changes/" + require_id(profile_id) + "/actions",
         )
 
         def apply(uow: UnitOfWork) -> Applied:
@@ -290,7 +305,10 @@ def build_router(api: MissionApi) -> APIRouter:  # noqa: C901 - one flat list of
             return _record_reply(record, snapshot, session, 200)
 
     router.add_api_route(
-        "/v1/environment/changes/{profile_id}/actions", act, methods=["POST"], operation_id="actOnEnvironmentChange"
+        "/v1/environment/changes/{profile_id}/actions",
+        act,
+        methods=["POST"],
+        operation_id="actOnEnvironmentChange",
     )
     _overlay_routes(router, api)
     _event_routes(router, api)
@@ -305,7 +323,9 @@ def _stale_with_state(api: MissionApi, profile_id: str, session: SessionContext)
         state: dict[str, object] | None = None
         if record is not None:
             is_crew = any(role.value == "crew" for role in session.roles)
-            state = profile_model(record, is_crew=is_crew, person_id=session.person_id).model_dump(mode="json")
+            state = profile_model(record, is_crew=is_crew, person_id=session.person_id).model_dump(
+                mode="json"
+            )
     return ProblemError(ErrorCode.STALE_VERSION, ErrorCode.STALE_VERSION.value, current_state=state)
 
 
@@ -315,8 +335,12 @@ def _overlay_routes(router: APIRouter, api: MissionApi) -> None:
         _, reader, snapshots, _, _ = api.bound()
         cursor, limit = _page_args(request, api.page_max)
         with snapshots.snapshot() as snapshot:
-            owned = [] if session.person_id is None else list(reader.overlays_of(snapshot, (session.person_id,)))
-            records = sorted(owned, key=lambda r: (r.started_at is None, r.started_at, r.overlay_id), reverse=True)
+            owned = (
+                [] if session.person_id is None else list(reader.overlays_of(snapshot, (session.person_id,)))
+            )
+            records = sorted(
+                owned, key=lambda r: (r.started_at is None, r.started_at, r.overlay_id), reverse=True
+            )
             window, nxt = _page_of(records, lambda r: r.overlay_id, limit, decode_cursor(cursor))
             items = [overlay_model(r).model_dump(mode="json") for r in window]
             return _reply({"items": items, "page": {"next_cursor": nxt}}, snapshot)
@@ -355,14 +379,18 @@ def _overlay_routes(router: APIRouter, api: MissionApi) -> None:
                 extra={"ETag": f'"{record.revision}"', "Location": "/v1/overlays/" + record.overlay_id},
             )
 
-    router.add_api_route("/v1/overlays", create, methods=["POST"], operation_id="createOverlay", status_code=201)
+    router.add_api_route(
+        "/v1/overlays", create, methods=["POST"], operation_id="createOverlay", status_code=201
+    )
 
     def end(request: Request, overlay_id: str) -> JSONResponse:
         session = _session(request)
         services, _, snapshots, platform, _ = api.bound()
         body = _body(request, OverlayEnd)
         revision = _revision(request)
-        identity = _identity(request, session, "endOverlay", "/v1/overlays/" + require_id(overlay_id) + "/end")
+        identity = _identity(
+            request, session, "endOverlay", "/v1/overlays/" + require_id(overlay_id) + "/end"
+        )
 
         def apply(uow: UnitOfWork) -> Applied:
             record = end_overlay(
@@ -386,7 +414,9 @@ def _overlay_routes(router: APIRouter, api: MissionApi) -> None:
 
 
 def _event_routes(router: APIRouter, api: MissionApi) -> None:
-    def visible(record_note_owner: str, session: SessionContext, model: dict[str, object]) -> dict[str, object]:
+    def visible(
+        record_note_owner: str, session: SessionContext, model: dict[str, object]
+    ) -> dict[str, object]:
         if record_note_owner != session.actor.id:
             model["note"] = None  # a free text note stays with the one who wrote it
         return model
@@ -396,10 +426,14 @@ def _event_routes(router: APIRouter, api: MissionApi) -> None:
         _, reader, snapshots, _, _ = api.bound()
         cursor, limit = _page_args(request, api.page_max)
         with snapshots.snapshot() as snapshot:
-            records = list(reader.events_before(snapshot, before_event_id=decode_cursor(cursor), limit=limit + 1))
+            records = list(
+                reader.events_before(snapshot, before_event_id=decode_cursor(cursor), limit=limit + 1)
+            )
             window = records[:limit]
             nxt = encode_cursor(window[-1].event_id) if len(records) > limit and window else None
-            items = [visible(r.recorded_by_id, session, event_model(r).model_dump(mode="json")) for r in window]
+            items = [
+                visible(r.recorded_by_id, session, event_model(r).model_dump(mode="json")) for r in window
+            ]
             return _reply({"items": items, "page": {"next_cursor": nxt}}, snapshot)
 
     router.add_api_route("/v1/mission-events", list_events, methods=["GET"], operation_id="listMissionEvents")
@@ -432,7 +466,9 @@ def _event_routes(router: APIRouter, api: MissionApi) -> None:
         execute(platform, session, identity, apply, release_header=request.headers.get("Config-Release"))
         with snapshots.snapshot() as snapshot:
             found = [
-                r for r in reader.events_before(snapshot, before_event_id=None, limit=api.page_max) if r.event_id == made[0]
+                r
+                for r in reader.events_before(snapshot, before_event_id=None, limit=api.page_max)
+                if r.event_id == made[0]
             ]
             if not found:
                 raise problem_of(NotFound(made[0]))
@@ -461,4 +497,3 @@ def _unavailable_routes(router: APIRouter) -> None:
     router.add_api_route("/v1/mission", mission, methods=["GET"], operation_id="getMission")
     router.add_api_route("/v1/context", mission, methods=["GET"], operation_id="getContext")
     router.add_api_route("/v1/views/habitat", mission, methods=["GET"], operation_id="getHabitatView")
-

@@ -32,7 +32,14 @@ from crew_health.kernel.config import CandidateRelease, ConfigDocumentView
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.evaluation import EvaluationIsolation
 from crew_health.kernel.testing import MemoryClock, MemoryReleaseCheck, MemoryUnits, MemoryWireConverter
-from crew_health.kernel.units import ConvertedQuantity, Quantity, Unit, UnitRegistry, WireQuantity, WireUnitConverter
+from crew_health.kernel.units import (
+    ConvertedQuantity,
+    Quantity,
+    Unit,
+    UnitRegistry,
+    WireQuantity,
+    WireUnitConverter,
+)
 from crew_health.kernel.uow import Actor, Audience, ReadSnapshot, SessionContext
 from crew_health.mission import module as mission_module
 from crew_health.mission.application.ports import MissionInitializer, RosterPort
@@ -61,13 +68,27 @@ class Security:
 
     def __init__(self) -> None:
         self.tokens: dict[str, SessionContext] = {
-            "operator": SessionContext("s_op", "operator", Actor("operator", "operator_sim"), None, frozenset({Role.OPERATOR})),
-            "crew_a": SessionContext("s_a", "crew", Actor("person", "per_a"), "per_a", frozenset({Role.CREW})),
-            "crew_b": SessionContext("s_b", "crew", Actor("person", "per_b"), "per_b", frozenset({Role.CREW})),
-            "cmo": SessionContext("s_c", "crew", Actor("person", "per_a"), "per_a", frozenset({Role.CREW_MEDICAL_OFFICER})),
-            "adapter": SessionContext("s_ad", "adapter", Actor("adapter", ADAPTER), None, frozenset({Role.ADAPTER})),
-            "other_adapter": SessionContext("s_ad2", "adapter", Actor("adapter", "adp_other"), None, frozenset({Role.ADAPTER})),
-            "ground": SessionContext("s_g", "ground", Actor("ground", "ground_sim"), None, frozenset({Role.GROUND})),
+            "operator": SessionContext(
+                "s_op", "operator", Actor("operator", "operator_sim"), None, frozenset({Role.OPERATOR})
+            ),
+            "crew_a": SessionContext(
+                "s_a", "crew", Actor("person", "per_a"), "per_a", frozenset({Role.CREW})
+            ),
+            "crew_b": SessionContext(
+                "s_b", "crew", Actor("person", "per_b"), "per_b", frozenset({Role.CREW})
+            ),
+            "cmo": SessionContext(
+                "s_c", "crew", Actor("person", "per_a"), "per_a", frozenset({Role.CREW_MEDICAL_OFFICER})
+            ),
+            "adapter": SessionContext(
+                "s_ad", "adapter", Actor("adapter", ADAPTER), None, frozenset({Role.ADAPTER})
+            ),
+            "other_adapter": SessionContext(
+                "s_ad2", "adapter", Actor("adapter", "adp_other"), None, frozenset({Role.ADAPTER})
+            ),
+            "ground": SessionContext(
+                "s_g", "ground", Actor("ground", "ground_sim"), None, frozenset({Role.GROUND})
+            ),
         }
 
     def authenticate(self, request: Request) -> SessionContext:
@@ -94,14 +115,18 @@ def _documents() -> dict[ConfigName, ConfigDocumentView]:
         elif hazard.is_file():
             raw = hazard.read_bytes()
         else:
-            suffix = "api/examples/kit-map.example.json" if name == ConfigName.KIT_MAP else f"api/examples/config/{name.value}.example.json"
+            suffix = (
+                "api/examples/kit-map.example.json"
+                if name == ConfigName.KIT_MAP
+                else f"api/examples/config/{name.value}.example.json"
+            )
             wrapped = json.loads((ROOT / "docs/product" / suffix).read_bytes())
             raw = json.dumps(wrapped if name == ConfigName.KIT_MAP else wrapped["value"]).encode()
         views[name] = ConfigDocumentView(name, hashlib.sha256(raw).hexdigest(), raw)
     return views
 
 
-def _settings(tmp: Path, registry_file: Path) -> ValidatedSettings:
+def _settings(tmp: Path, registry_file: Path, overrides: dict[str, object]) -> ValidatedSettings:
     from crew_health.clock.settings import specifications as clock_specs
     from crew_health.config.settings import specifications as config_specs
     from crew_health.events.settings import specifications as event_specs
@@ -115,6 +140,7 @@ def _settings(tmp: Path, registry_file: Path) -> ValidatedSettings:
     values.update(SENSOR_DEFAULTS)
     values["sensors.channel_registry_path"] = str(registry_file)
     values["sensors.unit_mapping_path"] = str(ROOT / "config/unit-mapping.json")
+    values.update(overrides)
     return ValidatedSettings(specs, values)
 
 
@@ -124,7 +150,9 @@ def _mapping_converter() -> MemoryWireConverter:
         for m in json.loads((ROOT / "config/unit-mapping.json").read_text(encoding="utf-8"))["mappings"]
     }
 
-    def convert(value: WireQuantity, code: str, release: object, to: Unit, pressure: Any) -> ConvertedQuantity:
+    def convert(
+        value: WireQuantity, code: str, release: object, to: Unit, pressure: Any
+    ) -> ConvertedQuantity:
         method, factor = rows[(code, value.unit)]
         if method == "identity":
             canonical = value.value
@@ -132,7 +160,9 @@ def _mapping_converter() -> MemoryWireConverter:
             canonical = value.value * Decimal(str(factor))
         else:
             canonical = value.value / Decimal(1_000_000) * pressure.pressure.value
-        return ConvertedQuantity(value, Quantity(canonical, to), method, "test-mapping", pressure, "half_even_4dp")
+        return ConvertedQuantity(
+            value, Quantity(canonical, to), method, "test-mapping", pressure, "half_even_4dp"
+        )
 
     return MemoryWireConverter(convert)
 
@@ -164,12 +194,22 @@ class Station:
         return self.app.state.runtime.resolver
 
     def initialize(self, mode: str = "SIM", environment_id: str = "station_leo") -> str:
-        return self.resolver().require(MissionInitializer).initialize(
-            operator_id="operator_sim", mission_mode=mode, planned_length_days=None, site_node_id="node_1", environment_id=environment_id
+        return (
+            self.resolver()
+            .require(MissionInitializer)
+            .initialize(
+                operator_id="operator_sim",
+                mission_mode=mode,
+                planned_length_days=None,
+                site_node_id="node_1",
+                environment_id=environment_id,
+            )
         )
 
     def begin(self, actor: Actor | None = None) -> Any:
-        return self.db.begin(actor=actor or Actor("operator", "operator_sim"), correlation_id="test_" + self.db.ids.new("t"))
+        return self.db.begin(
+            actor=actor or Actor("operator", "operator_sim"), correlation_id="test_" + self.db.ids.new("t")
+        )
 
     def dispatch(self) -> int:
         with self.begin(Actor("engine", "scheduler")) as uow:
@@ -179,24 +219,40 @@ class Station:
         return self.resolver().require(FreshnessSweeper).sweep_once()
 
 
-def build_station(tmp_path: Path, *, registry: dict[str, Any] | None = None, build_app: bool = True) -> Station:
+def build_station(
+    tmp_path: Path,
+    *,
+    registry: dict[str, Any] | None = None,
+    build_app: bool = True,
+    settings: dict[str, object] | None = None,
+) -> Station:
     tmp_path.mkdir(parents=True, exist_ok=True)
     state = tmp_path / "state"
     registry_file = tmp_path / "sensor-channels.json"
     if registry is not None:
         registry_file.write_text(json.dumps(registry), encoding="utf-8")
     db = database(state)
-    db.settings = _settings(tmp_path, registry_file)
+    db.settings = _settings(tmp_path, registry_file, settings or {})
     db.clock = MemoryClock(START, 0, "epoch_1")  # type: ignore[assignment]
     for module in ("config", "clock", "events", "records"):
-        db.migrate((ROOT / "hub/src/crew_health" / module / "adapters/migrations" / f"0001_{module}.sql").read_text())
+        db.migrate(
+            (ROOT / "hub/src/crew_health" / module / "adapters/migrations" / f"0001_{module}.sql").read_text()
+        )
     artifacts, security, repository = E01["fixture_artifacts"](), Security(), ConfigRepository()
-    editor = SessionContext("s_ed", "editor", Actor("operator", "operator_sim"), None, frozenset({Role.EDITOR}))
-    event_repository = EventRepository(settings=db.settings, ids=db.ids, validator=EventValidator(schema_directory=ROOT / "contracts/api/schemas"))
+    editor = SessionContext(
+        "s_ed", "editor", Actor("operator", "operator_sim"), None, frozenset({Role.EDITOR})
+    )
+    event_repository = EventRepository(
+        settings=db.settings,
+        ids=db.ids,
+        validator=EventValidator(schema_directory=ROOT / "contracts/api/schemas"),
+    )
     db.event_sink = event_repository.append
     service = ReleaseActivationService(
         repository,
-        ConfigLoader(E01["counterpart_checks"](artifacts), max_document_bytes=db.settings.integer("commands.max_bytes")),
+        ConfigLoader(
+            E01["counterpart_checks"](artifacts), max_document_bytes=db.settings.integer("commands.max_bytes")
+        ),
         db.ids,
         origin=lambda view: "SIM",
     )
@@ -221,7 +277,10 @@ def _allow_sensor_inputs(db: SQLiteDatabase) -> None:
             "evaluation." + result,
             {},
             frozenset({"input", "completion"}),
-            {"input": frozenset({"observation", "answer", "sensors_evaluation_input"}), "completion": frozenset({"evaluation"})},
+            {
+                "input": frozenset({"observation", "answer", "sensors_evaluation_input"}),
+                "completion": frozenset({"evaluation"}),
+            },
         )
 
 
@@ -229,7 +288,9 @@ def _open_clocks(db: SQLiteDatabase) -> PersistentClocks:
     from crew_health.clock.adapters.repository import SqlClockRepository
 
     clocks = PersistentClocks(
-        repository=SqlClockRepository(settings=db.settings, node_id=db.origin_node_id, incarnation_id=db.origin_incarnation),
+        repository=SqlClockRepository(
+            settings=db.settings, node_id=db.origin_node_id, incarnation_id=db.origin_incarnation
+        ),
         settings=db.settings,
         ids=db.ids,
     )
@@ -241,28 +302,68 @@ def _open_clocks(db: SQLiteDatabase) -> PersistentClocks:
             clocks.apply(
                 uow,
                 ClockCorrection(
-                    "cor_" + source, source, source + "_seg", version, datetime(1990, 1, 1, tzinfo=UTC), None, 0, 0, uow.now, "operator"
+                    "cor_" + source,
+                    source,
+                    source + "_seg",
+                    version,
+                    datetime(1990, 1, 1, tzinfo=UTC),
+                    None,
+                    0,
+                    0,
+                    uow.now,
+                    "operator",
                 ),
             )
         from crew_health.kernel.met import MissionClockVersion
 
         clocks.repository.append_mission_version(
             uow.connection,
-            MissionClockVersion("clock_v1", 1, datetime(2026, 11, 1, tzinfo=UTC), datetime(2026, 11, 1, tzinfo=UTC), None, "Day {day}"),
+            MissionClockVersion(
+                "clock_v1",
+                1,
+                datetime(2026, 11, 1, tzinfo=UTC),
+                datetime(2026, 11, 1, tzinfo=UTC),
+                None,
+                "Day {day}",
+            ),
         )
     return clocks
 
 
 def _app(db: SQLiteDatabase, security: Security, artifacts: Any, tmp_path: Path) -> Any:
-    summaries = {ConfigName(r["name"]): r["basis_summary"] for r in json.loads((ROOT / "docs/product/api/examples/configuration/index.json").read_bytes())["value"]["documents"]}
-    dimensions = {"mm[Hg]": "pressure", "[ppm]": "fraction", "uGy/h": "dose_rate", "mGy/h": "dose_rate", "mSv/d": "dose_per_day", "dB[A]": "level", "1": "index", "mg/m3": "concentration", "ug/m3": "concentration", "mg/L": "mass_per_volume"}
-    codes = {m["ucum_unit"] for m in json.loads((ROOT / "config/unit-mapping.json").read_text(encoding="utf-8"))["mappings"]}
+    summaries = {
+        ConfigName(r["name"]): r["basis_summary"]
+        for r in json.loads((ROOT / "docs/product/api/examples/configuration/index.json").read_bytes())[
+            "value"
+        ]["documents"]
+    }
+    dimensions = {
+        "mm[Hg]": "pressure",
+        "[ppm]": "fraction",
+        "uGy/h": "dose_rate",
+        "mGy/h": "dose_rate",
+        "mSv/d": "dose_per_day",
+        "dB[A]": "level",
+        "1": "index",
+        "mg/m3": "concentration",
+        "ug/m3": "concentration",
+        "mg/L": "mass_per_volume",
+    }
+    codes = {
+        m["ucum_unit"]
+        for m in json.loads((ROOT / "config/unit-mapping.json").read_text(encoding="utf-8"))["mappings"]
+    }
     units = MemoryUnits({code: (dimensions.get(code, code), Decimal(1), Decimal(0)) for code in codes})
     holder: dict[str, Any] = {}
 
     def configure(registry: ModuleRegistry) -> None:
         registry.provide(E01["ConfigArtifacts"], lambda r: artifacts)
-        registry.provide(ConfigHttpMetadata, lambda r: ConfigHttpMetadata(summaries, lambda view: "SIM", E01["FixtureVisibility"](E01["SimSecurity"]())))
+        registry.provide(
+            ConfigHttpMetadata,
+            lambda r: ConfigHttpMetadata(
+                summaries, lambda view: "SIM", E01["FixtureVisibility"](E01["SimSecurity"]())
+            ),
+        )
         registry.provide(EventAccess, lambda r: EventAccess(security, (), {"config.release": security}))
         for identifier in sorted(required_contributors() - {"1", "2", "9", "13"} - MINE):
             registry.loader_check(MemoryReleaseCheck(identifier, lambda candidate: ()))
@@ -276,7 +377,9 @@ def _app(db: SQLiteDatabase, security: Security, artifacts: Any, tmp_path: Path)
                 db.settings,
                 db.ids,
                 repository=EvaluationRepository(),
-                capture=lambda uow: TimeInput(uow.now, HUB_CLOCK, HUB_CLOCK + "_seg", 1, "hub_corrected", "LIVE"),
+                capture=lambda uow: TimeInput(
+                    uow.now, HUB_CLOCK, HUB_CLOCK + "_seg", 1, "hub_corrected", "LIVE"
+                ),
                 fault_codes=frozenset({"NON_FINITE_COMPUTATION"}),
             )
 
@@ -319,7 +422,9 @@ class _Roster:
         return ROSTER
 
 
-def channel(channel_id: str, sensor_type_id: str, hazard_id: str, origin: str, unit: str, **extra: Any) -> dict[str, Any]:
+def channel(
+    channel_id: str, sensor_type_id: str, hazard_id: str, origin: str, unit: str, **extra: Any
+) -> dict[str, Any]:
     """A registry item from the catalog's own values; the cadence and staleness are passed in by the test."""
     item: dict[str, Any] = {
         "channel_id": channel_id,
@@ -343,7 +448,15 @@ def channel(channel_id: str, sensor_type_id: str, hazard_id: str, origin: str, u
     return item
 
 
-def reading(channel_id: str, sequence: int, value: float, unit: str, observed_at: datetime, origin: str = "SIM", **extra: Any) -> dict[str, Any]:
+def reading(
+    channel_id: str,
+    sequence: int,
+    value: float,
+    unit: str,
+    observed_at: datetime,
+    origin: str = "SIM",
+    **extra: Any,
+) -> dict[str, Any]:
     row: dict[str, Any] = {
         "channel_id": channel_id,
         "adapter_sequence": sequence,

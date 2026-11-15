@@ -14,8 +14,8 @@ from datetime import datetime
 from crew_health.guidance.application.ports import Known, Unknown
 from crew_health.help.application.ports import MissionFacts as HelpMissionFacts
 from crew_health.kernel.uow import ReadSnapshot, UnitOfWork
-from crew_health.measurement.application.ports import MissionFacts as MeasurementMissionFacts
 from crew_health.mission.adapters.live_state import LiveMissionState
+from crew_health.mission.application.ports import MissionFacts
 from crew_health.roles.application.ports import MissionFacts as RolesMissionFacts
 from crew_health.roles.application.ports import OverlayFact as RolesOverlayFact
 
@@ -23,22 +23,15 @@ PROVIDER = "environment"
 
 
 class MeasurementMission:
-    """measurement.application.ports.MissionStatePort."""
+    """measurement.application.ports.MissionStatePort. Not registered by this module: measurement's ports module
+    imports its own domain, which the import contracts forbid mission to reach. The composition root registers
+    this adapter under that port (SYSTEM 5.12). It answers with mission's MissionFacts, the same five fields."""
 
     def __init__(self, state: LiveMissionState) -> None:
         self._state = state
 
-    def current(self, uow: UnitOfWork | ReadSnapshot | None = None) -> MeasurementMissionFacts | None:
-        facts = self._state.current(uow)
-        if facts is None:
-            return None
-        return MeasurementMissionFacts(
-            facts.mission_id,
-            facts.mission_mode,
-            facts.active_environment_id,
-            facts.planned_length_days,
-            facts.site_node_id,
-        )
+    def current(self, uow: UnitOfWork | ReadSnapshot | None = None) -> MissionFacts | None:
+        return self._state.current(uow)
 
 
 class HelpMission:
@@ -52,7 +45,8 @@ class HelpMission:
 
 
 class KitmapMission:
-    """kitmap.application.ports.MissionStatePort."""
+    """kitmap.application.ports.MissionStatePort. Registered by the composition root, for the same reason as
+    MeasurementMission."""
 
     def __init__(self, state: LiveMissionState) -> None:
         self._state = state
@@ -97,7 +91,14 @@ class RolesOverlays:
         return {
             person: tuple(
                 RolesOverlayFact(
-                    f.overlay_id, f.person_id, f.kind, f.state, f.planned_start, f.started_at, f.ended_at, None
+                    f.overlay_id,
+                    f.person_id,
+                    f.kind,
+                    f.state,
+                    f.planned_start,
+                    f.started_at,
+                    f.ended_at,
+                    None,
                 )
                 for f in facts
             )

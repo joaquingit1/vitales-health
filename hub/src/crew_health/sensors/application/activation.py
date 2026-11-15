@@ -31,7 +31,9 @@ class SensorActivation:
             return  # no mission, no environment: sensors stay series only
         activated: datetime = profile.activated_at.root if profile.activated_at is not None else uow.now
         environment_id = profile.environment_id.root
-        rt.store.save_environment(uow, EnvironmentRow(profile.profile_id.root, environment_id, facts.mission_mode, activated))
+        rt.store.save_environment(
+            uow, EnvironmentRow(profile.profile_id.root, environment_id, facts.mission_mode, activated)
+        )
         self._demo(uow, facts.mission_mode)
         for channel in rt.store.channels(uow):
             if environment_id not in channel.facts.environment_ids or not channel.has_history:
@@ -40,7 +42,18 @@ class SensorActivation:
             rt.store.save_channel(uow, watched)
             refresh(rt, uow, watched, cause="activation")
             schedule_deadline(rt, uow, watched, anchor=None, at=uow.now)
-        uow.audit(AuditEntry(rt.ids.new("aud"), "sensors.environment_activated", 1, uow.actor, {"environment": "current"}, uow.correlation_id, None, {}))
+        uow.audit(
+            AuditEntry(
+                rt.ids.new("aud"),
+                "sensors.environment_activated",
+                1,
+                uow.actor,
+                {"environment": "current"},
+                uow.correlation_id,
+                None,
+                {},
+            )
+        )
 
     def _demo(self, uow: UnitOfWork, mission_mode: str) -> None:
         """The demo registry exists only in the demo profile and a SIM or REPLAY mission, loaded in this same unit

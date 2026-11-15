@@ -27,21 +27,16 @@ from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.met import MissionClock
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.uow import Actor, ReadSnapshotFactory, UnitOfWork, UnitOfWorkFactory
-from crew_health.kitmap.application.ports import MissionStatePort as KitmapMissionStatePort
-from crew_health.measurement.application.ports import MissionStatePort as MeasurementMissionStatePort
 from crew_health.mission.adapters.audit_policy import POLICIES, register_policies
 from crew_health.mission.adapters.config_reader import (
     Check7Profiles,
     Check12EffectFilters,
-    MissionConfig,
     lists_for,
     load_mission_config,
 )
 from crew_health.mission.adapters.consumers import (
     GuidanceEnvironment,
     HelpMission,
-    KitmapMission,
-    MeasurementMission,
     RolesDayLabel,
     RolesLocation,
     RolesMission,
@@ -53,8 +48,8 @@ from crew_health.mission.adapters.sqlite_repository import SqliteMissionStore, t
 from crew_health.mission.api.router import MissionApi, build_router
 from crew_health.mission.application.commands import Platform
 from crew_health.mission.application.deadlines import sweep_overdue
-from crew_health.mission.application.init import initialize_mission
 from crew_health.mission.application.hub_time import event_time
+from crew_health.mission.application.init import initialize_mission
 from crew_health.mission.application.ports import (
     ActivationParticipant,
     DayLabelPort,
@@ -68,13 +63,14 @@ from crew_health.mission.application.ports import (
 )
 from crew_health.mission.application.use_cases import (
     ACTIVATE_HANDLER,
-    Caller,
     POST_EVA_HANDLER,
+    Caller,
     EventTimeFacts,
     Services,
     activate_due,
     end_post_eva,
 )
+from crew_health.mission.domain.config import MissionConfig
 from crew_health.mission.domain.loader_checks import CHECK_7, CHECK_12, MissionBounds
 from crew_health.mission.domain.profile import ProfileLists
 from crew_health.mission.settings import specifications
@@ -107,7 +103,9 @@ class _Live:
         return self.api.services
 
 
-def _shared_state(resolver: Resolver, config_of: Callable[[ReleaseHandle], MissionConfig]) -> LiveMissionState:
+def _shared_state(
+    resolver: Resolver, config_of: Callable[[ReleaseHandle], MissionConfig]
+) -> LiveMissionState:
     store = SqliteMissionStore(row_limit=resolver.require(HubSettings).integer("mission.max_overlay_rows"))
     return LiveMissionState(
         store,
@@ -151,7 +149,9 @@ def _bind(live: _Live) -> Callable[[Resolver], None]:
             found = resolver.optional(ActivationParticipant)
             return () if found is None else (found,)
 
-        def stamped(uow: UnitOfWork, at: datetime, origin: Literal["LIVE", "REPLAY", "SIM"]) -> EventTimeFacts:
+        def stamped(
+            uow: UnitOfWork, at: datetime, origin: Literal["LIVE", "REPLAY", "SIM"]
+        ) -> EventTimeFacts:
             return event_time(corrections, segments, uow, source_clock_id=hub_id, at=at, origin_mode=origin)
 
         api.services = Services(
@@ -206,7 +206,9 @@ def _checks(resolver: Resolver) -> tuple[Check7Profiles, Check12EffectFilters]:
     return Check7Profiles(bounds), Check12EffectFilters()
 
 
-def _consumer(registry: ModuleRegistry, port: type[object], build: Callable[[LiveMissionState], object]) -> None:
+def _consumer(
+    registry: ModuleRegistry, port: type[object], build: Callable[[LiveMissionState], object]
+) -> None:
     holder: dict[str, LiveMissionState] = {}
 
     def factory(resolver: Resolver) -> object:
@@ -266,9 +268,7 @@ def register(registry: ModuleRegistry) -> None:
         (LocationPort, lambda s: s),
         (DayLabelPort, lambda s: s),
         (EnvironmentFacts, lambda s: s),
-        (MeasurementMissionStatePort, MeasurementMission),
         (HelpMissionStatePort, HelpMission),
-        (KitmapMissionStatePort, KitmapMission),
         (RolesMissionStatePort, RolesMission),
         (RolesOverlayPort, RolesOverlays),
         (RolesLocationPort, RolesLocation),
@@ -313,7 +313,9 @@ def _sweep_hook(live: _Live) -> Callable[[], None]:
                 return  # before mission init there is nothing to finish
         roster = resolver.optional(RosterPort)
         people = () if roster is None else tuple(sorted(roster.person_ids()))
-        with uows.begin(actor=Actor("engine", "mission_sweep"), correlation_id="mission_startup_sweep") as uow:
+        with uows.begin(
+            actor=Actor("engine", "mission_sweep"), correlation_id="mission_startup_sweep"
+        ) as uow:
             sweep_overdue(services, uow, people=people)
 
     return sweep

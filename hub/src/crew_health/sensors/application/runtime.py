@@ -22,8 +22,8 @@ from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.units import WireUnitConverter
 from crew_health.kernel.uow import UnitOfWork
 from crew_health.mission.application.ports import MissionStatePort
-from crew_health.sensors.adapters.config_reader import SensorConfig
 from crew_health.sensors.application.store import SensorStore
+from crew_health.sensors.domain.config import SensorConfig
 
 EVALUATOR = "sensors.evaluate"
 EVALUATOR_VERSION = "1"

@@ -23,6 +23,7 @@ from crew_health.contracts_gen.schemas.config_sensor_limits_schema import Sensor
 from crew_health.contracts_gen.schemas.config_warning_rules_schema import WarningRulesJson
 from crew_health.kernel.config import CandidateRelease, Finding
 from crew_health.kernel.errors import ProblemError
+from crew_health.mission.domain.config import MissionConfig, ProfileConfig, ReturnOptionFacts
 from crew_health.mission.domain.day import DayLabelFacts
 from crew_health.mission.domain.events import EventTypeFacts
 from crew_health.mission.domain.loader_checks import (
@@ -77,38 +78,6 @@ def _document(name: ConfigName, raw: bytes) -> Json:
 
 def strip_source_ids(text: str) -> str:
     return _SPACE.sub(" ", _GROUP.sub("", text)).strip()
-
-
-@dataclass(frozen=True, slots=True)
-class ReturnOptionFacts:
-    trip_text: str
-    source_ids: tuple[str, ...]
-    to_be_set_by: str | None
-
-
-@dataclass(frozen=True, slots=True)
-class ProfileConfig:
-    template: ProfileTemplate
-    day_label: DayLabelFacts
-    sensor_type_ids: tuple[str, ...]
-    overlays: tuple[str, ...]
-    return_option: ReturnOptionFacts | None
-
-
-@dataclass(frozen=True, slots=True)
-class MissionConfig:
-    notice: str
-    confirmations_required: int
-    event_types: tuple[EventTypeFacts, ...]
-    state_facts: tuple[StateFactConfig, ...]
-    effect_filters: tuple[FilterFacts, ...]
-    profiles: tuple[ProfileConfig, ...]
-
-    def profile(self, environment_id: str) -> ProfileConfig | None:
-        return next((p for p in self.profiles if p.template.environment_id == environment_id), None)
-
-    def event_type(self, event_type_id: str) -> EventTypeFacts | None:
-        return next((t for t in self.event_types if t.id == event_type_id), None)
 
 
 def _profile(item: Json, delays: dict[str, str]) -> ProfileConfig:

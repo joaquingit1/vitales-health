@@ -89,7 +89,9 @@ def convert_wire_reading(
         raise InvalidUnit(unit)
     record = _wire_conversion(accepted.conversion, accepted.factor, pressure)
     if accepted.conversion == "ppo2_to_pio2":
-        return _convert_ppo2(converter, release, sensor_type, accepted, value, unit, canonical_unit, pressure, record)
+        return _convert_ppo2(
+            converter, release, sensor_type, accepted, value, unit, canonical_unit, pressure, record
+        )
     converted = converter.convert(
         WireQuantity(value, unit),
         indicator_code=sensor_type.id,
@@ -117,7 +119,11 @@ def _convert_ppo2(
     """The unit conversion (kPa to mmHg) is the converter's; the inspired-oxygen step needs cabin pressure."""
     context = _usable_pressure(pressure)
     ambient = converter.convert(
-        WireQuantity(value, unit), indicator_code=sensor_type.id, release=release, to=canonical_unit, pressure=None
+        WireQuantity(value, unit),
+        indicator_code=sensor_type.id,
+        release=release,
+        to=canonical_unit,
+        pressure=None,
     )
     inspired = _pio2(require_finite(ambient.canonical.value), accepted, context)
     converted = ConvertedQuantity(

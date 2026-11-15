@@ -61,7 +61,9 @@ DIMENSION = {
     "ug/m3": "concentration",
     "mg/L": "mass_per_volume",
 }
-UCUM = {(m["indicator_code"], m["wire_unit"]): (m["ucum_unit"], m["conversion"], m["factor"]) for m in MAPPING}
+UCUM = {
+    (m["indicator_code"], m["wire_unit"]): (m["ucum_unit"], m["conversion"], m["factor"]) for m in MAPPING
+}
 
 
 def utc(year: int, month: int, day: int, hour: int = 0, minute: int = 0, second: int = 0) -> datetime:
@@ -229,7 +231,9 @@ class CsvRow:
 
 def read_rr1_ppm() -> list[CsvRow]:
     """RR-1 ISS CO2 in ppm (column co2_iss), time as in the source file, read as UTC."""
-    with (NASA / "habitat-environment" / "eda_rr1_telemetry.csv").open(newline="", encoding="utf-8") as handle:
+    with (NASA / "habitat-environment" / "eda_rr1_telemetry.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
         return [
             CsvRow(datetime.fromisoformat(r["time"]).replace(tzinfo=UTC), Decimal(r["co2_iss"]))
             for r in csv.DictReader(handle)

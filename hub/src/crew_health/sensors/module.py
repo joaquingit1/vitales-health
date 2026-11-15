@@ -21,11 +21,9 @@ from crew_health.contracts_gen.schemas.config_unit_mapping_schema import UnitMap
 from crew_health.kernel.clock import ClockCorrections, ClockSegments
 from crew_health.kernel.commands import CommandReceipts, IdempotencyStore
 from crew_health.kernel.config import (
-    ActivationGuard,
     CandidateRelease,
     ConfigReleaseReader,
     Finding,
-    ReleaseCheck,
     ReleaseHandle,
 )
 from crew_health.kernel.errors import ProblemError
@@ -41,7 +39,6 @@ from crew_health.sensors.adapters.config_reader import (
     Check4SensorLimits,
     Check12Sensors,
     ScanBoundGuard,
-    SensorConfig,
     load_sensor_config,
 )
 from crew_health.sensors.adapters.migration import apply_migration, replicated_tables_of
@@ -52,7 +49,12 @@ from crew_health.sensors.application.activation import SensorActivation
 from crew_health.sensors.application.commands import Platform
 from crew_health.sensors.application.deadlines import freshness_job, status_job
 from crew_health.sensors.application.evaluate import SensorEvaluator
-from crew_health.sensors.application.ports import FreshnessSweeper, ProvenanceStreamsPort, SensorSeriesReader, SensorStateQuery
+from crew_health.sensors.application.ports import (
+    FreshnessSweeper,
+    ProvenanceStreamsPort,
+    SensorSeriesReader,
+    SensorStateQuery,
+)
 from crew_health.sensors.application.providers import SensorProviders
 from crew_health.sensors.application.registry import install_file
 from crew_health.sensors.application.runtime import (
@@ -65,6 +67,7 @@ from crew_health.sensors.application.runtime import (
     Runtime,
 )
 from crew_health.sensors.application.sweep import FreshnessSweep
+from crew_health.sensors.domain.config import SensorConfig
 from crew_health.sensors.domain.loader_checks import SensorBounds
 from crew_health.sensors.settings import specifications
 
@@ -77,7 +80,7 @@ _PREFIXES: tuple[tuple[str, str], ...] = (
     ("sensor_schedule", "sch"),
 )
 _MIGRATION = "adapters/migrations/0001_sensors.sql"
-_ENGINE = Actor("engine", "sensors")
+_ENGINE_ID = "sensors"
 
 
 @dataclass
@@ -132,7 +135,7 @@ def _config_of(release: ReleaseHandle) -> SensorConfig:
 def _messages_of(release: ReleaseHandle) -> Mapping[str, str]:
     try:
         found = json.loads(release.document(ConfigName.UI_COPY).raw)["error_messages"]
-    except (ValueError, KeyError, TypeError):
+    except ValueError, KeyError, TypeError:
         return {}
     return {str(k): str(v) for k, v in found.items() if isinstance(v, str)}
 
@@ -143,7 +146,7 @@ def _mapping_resolver(path: str) -> Callable[[str, str], str | None] | None:
         return None
     try:
         document = UnitMappingJson.model_validate_json(_read(path))
-    except (OSError, ValueError):
+    except OSError, ValueError:
         return None
     table = {(m.indicator_code, m.wire_unit): m.ucum_unit for m in document.mappings}
     return lambda sensor_type_id, wire: table.get((sensor_type_id, wire))
@@ -153,7 +156,9 @@ def _read(path: str) -> bytes:
     return Path(path).read_bytes()
 
 
-def _bind(live: _Live, check4: _Late, check12: _Late, guard: _Late, evaluator_ready: list[bool]) -> Callable[[Resolver], None]:
+def _bind(
+    live: _Live, check4: _Late, check12: _Late, guard: _Late, evaluator_ready: list[bool]
+) -> Callable[[Resolver], None]:
     api = live.api
 
     def bind(resolver: Resolver) -> None:
@@ -202,7 +207,15 @@ def _bind(live: _Live, check4: _Late, check12: _Late, guard: _Late, evaluator_re
     return bind
 
 
-def _bind_checks(resolver: Resolver, settings: HubSettings, store: SqliteSensorStore, limits: Limits, check4: _Late, check12: _Late, guard: _Late) -> None:
+def _bind_checks(
+    resolver: Resolver,
+    settings: HubSettings,
+    store: SqliteSensorStore,
+    limits: Limits,
+    check4: _Late,
+    check12: _Late,
+    guard: _Late,
+) -> None:
     units = resolver.optional(UnitRegistry)
     bounds = SensorBounds(
         settings.integer("sensors.aggregate_bucket_s"),
@@ -214,7 +227,14 @@ def _bind_checks(resolver: Resolver, settings: HubSettings, store: SqliteSensorS
     def sensor_check(candidate: CandidateRelease) -> tuple[Finding, ...]:
         resolve = _mapping_resolver(settings.text("sensors.unit_mapping_path"))
         if units is None or resolve is None:
-            return (Finding(check12.check_id, ConfigName.SENSOR_CATALOG, "", "unit registry or unit mapping unavailable"),)
+            return (
+                Finding(
+                    check12.check_id,
+                    ConfigName.SENSOR_CATALOG,
+                    "",
+                    "unit registry or unit mapping unavailable",
+                ),
+            )
         return Check12Sensors(bounds, units, resolve).check(candidate)
 
     check12.build = sensor_check
@@ -224,7 +244,9 @@ def _bind_checks(resolver: Resolver, settings: HubSettings, store: SqliteSensorS
         for c in store.channels(uow):
             if c.facts.expected_interval_seconds is not None:
                 kind = c.facts.sensor_type_id
-                found[kind] = min(found.get(kind, c.facts.expected_interval_seconds), c.facts.expected_interval_seconds)
+                found[kind] = min(
+                    found.get(kind, c.facts.expected_interval_seconds), c.facts.expected_interval_seconds
+                )
         return found
 
     guard.build_guard = ScanBoundGuard(limits.window_scan_max_readings, intervals).check
@@ -249,19 +271,21 @@ def _sweep_hook(live: _Live) -> Callable[[], None]:
         settings = resolver.require(HubSettings)
         uows = resolver.require(UnitOfWorkFactory)
         path = settings.text("sensors.channel_registry_path")
-        with uows.begin(actor=_ENGINE, correlation_id="sensors_startup") as uow:
+        with uows.begin(actor=Actor("engine", _ENGINE_ID), correlation_id="sensors_startup") as uow:
             if path:
                 install_file(rt, uow, path, source="registry")
             sweep.tick(uow)
         if settings.boolean("sensors.sweep_timer_enabled"):
+
             def tick() -> None:
-                with uows.begin(actor=_ENGINE, correlation_id="sensors_sweep") as unit:
+                with uows.begin(actor=Actor("engine", _ENGINE_ID), correlation_id="sensors_sweep") as unit:
                     sweep.tick(unit)
 
             def failed() -> None:
                 if rt.faults is not None:
-                    from crew_health.sensors.application.runtime import SCHEDULER_LAG
                     from datetime import UTC, datetime
+
+                    from crew_health.sensors.application.runtime import SCHEDULER_LAG
 
                     rt.faults.mark(SCHEDULER_LAG, datetime.now(UTC))
 
@@ -284,10 +308,10 @@ def register(registry: ModuleRegistry) -> None:
     registry.provide(ActivationParticipant, lambda _: _Participant(live))
     registry.provide(FreshnessSweeper, lambda _: _Sweeper(live))
     check4, check12, guard = _Late("4"), _Late("12.sensor"), _Late("12.scan_bound")
-    registry.loader_check(check4)  # type: ignore[arg-type]
-    registry.loader_check(check12)  # type: ignore[arg-type]
-    registry.activation_guard(guard)  # type: ignore[arg-type]
-    registry.evaluator(EvaluatorRegistration(EVALUATOR, EVALUATOR_VERSION, _LateEvaluator(live)))  # type: ignore[arg-type]
+    registry.loader_check(check4)
+    registry.loader_check(check12)
+    registry.activation_guard(guard)
+    registry.evaluator(EvaluatorRegistration(EVALUATOR, EVALUATOR_VERSION, _LateEvaluator(live)))
     registry.scheduler_handler(FRESHNESS_HANDLER, lambda uow, job: freshness_job(live.need(), uow, job))
     registry.scheduler_handler(STATUS_HANDLER, lambda uow, job: status_job(live.need(), uow, job))
     registry.bind("sensors", _bind(live, check4, check12, guard, []))
@@ -332,7 +356,9 @@ class _Sweeper:
         resolver, sweep = self._live.resolver, self._live.sweep
         if resolver is None or sweep is None:
             raise ProblemError(ErrorCode.INTERNAL_ERROR, "sensors_not_bound", retryable=True)
-        with resolver.require(UnitOfWorkFactory).begin(actor=_ENGINE, correlation_id="sensors_sweep") as uow:
+        with resolver.require(UnitOfWorkFactory).begin(
+            actor=Actor("engine", _ENGINE_ID), correlation_id="sensors_sweep"
+        ) as uow:
             return sweep.tick(uow)
 
 

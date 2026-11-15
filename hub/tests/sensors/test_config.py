@@ -15,11 +15,11 @@ from e23_helpers import (
     BOUNDS,
     PRODUCT,
     ROOT,
+    UCUM,
     channel_for,
     document_view,
     evaluation_input,
     sensor,
-    UCUM,
     ucum_for,
     utc,
 )
@@ -384,7 +384,8 @@ def test_a_unit_without_a_mapping_or_with_the_wrong_dimension_rejects_the_candid
 
     swapped_config = load_sensor_config(lambda name: swapped[name])
     assert any(
-        "dimension differs" in f.message for f in check_catalog(swapped_config.sensor_types, BOUNDS, units, flat)
+        "dimension differs" in f.message
+        for f in check_catalog(swapped_config.sensor_types, BOUNDS, units, flat)
     )
     unknown = MemoryUnits({"mm[Hg]": ("pressure", Decimal(1), Decimal(0))})
     assert any(

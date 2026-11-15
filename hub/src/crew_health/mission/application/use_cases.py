@@ -30,7 +30,6 @@ from crew_health.kernel.uow import (
     ReplicationChange,
     UnitOfWork,
 )
-from crew_health.mission.adapters.config_reader import MissionConfig
 from crew_health.mission.application.ports import ActivationParticipant, OriginMode
 from crew_health.mission.application.queries import (
     MissionIdentity,
@@ -43,6 +42,7 @@ from crew_health.mission.domain import events as event_rules
 from crew_health.mission.domain import overlay as overlay_rules
 from crew_health.mission.domain import profile as profile_rules
 from crew_health.mission.domain import state_facts as fact_rules
+from crew_health.mission.domain.config import MissionConfig
 from crew_health.mission.domain.errors import (
     InvalidValue,
     NotFound,
@@ -163,12 +163,16 @@ def replicate_local(
 
 def put_profile(services: Services, uow: UnitOfWork, record: ProfileRecord) -> None:
     services.store.save_profile(uow, record)
-    replicate_local(uow, "mission_environment", record.profile_id, "create" if record.revision == 1 else "version")
+    replicate_local(
+        uow, "mission_environment", record.profile_id, "create" if record.revision == 1 else "version"
+    )
 
 
 def put_overlay(services: Services, uow: UnitOfWork, record: OverlayRecord) -> None:
     services.store.save_overlay(uow, record)
-    replicate_local(uow, "mission_overlay", record.overlay_id, "create" if record.revision == 1 else "version")
+    replicate_local(
+        uow, "mission_overlay", record.overlay_id, "create" if record.revision == 1 else "version"
+    )
 
 
 def put_event(services: Services, uow: UnitOfWork, record: EventRecord) -> None:

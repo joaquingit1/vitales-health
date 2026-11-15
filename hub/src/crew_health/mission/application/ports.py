@@ -107,7 +107,6 @@ class RosterPort(Protocol):
     def person_ids(self) -> frozenset[str]: ...
 
 
-
 class MissionInitializer(Protocol):
     """UC-M0 for an operator surface (the CLI of E23 5, UC-M0): one unit of work, one initialization, ever."""
 

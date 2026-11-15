@@ -27,6 +27,7 @@ _PROFILE = TypeAdapter(ProfileRecord)
 _OVERLAY = TypeAdapter(OverlayRecord)
 _EVENT = TypeAdapter(EventRecord)
 _FACT = TypeAdapter(FactState)
+_MODES: dict[str, OriginMode] = {"LIVE": "LIVE", "REPLAY": "REPLAY", "SIM": "SIM"}
 _MAX_RECORDS = 100000  # row ceiling of one read; the StorageSession also bounds it by storage.max_rows
 
 
@@ -69,9 +70,11 @@ class SqliteMissionStore:
         if not rows:
             return None
         mission_id, mode, days, site, created = rows[0]
-        if mode not in ("LIVE", "REPLAY", "SIM") or (days is not None and not isinstance(days, int)):
+        mission_mode = _MODES.get(_text(mode))
+        if mission_mode is None:
             raise IntegrityViolation("stored mission identity")
-        mission_mode: OriginMode = mode  # narrowed by the check above
+        if days is not None and not isinstance(days, int):
+            raise IntegrityViolation("stored mission identity")
         return MissionIdentity(
             _text(mission_id),
             mission_mode,
@@ -102,7 +105,9 @@ class SqliteMissionStore:
 
     def profiles(self, view: View) -> Sequence[ProfileRecord]:
         rows = view.connection.rows(
-            "SELECT record_json FROM mission_environment ORDER BY proposed_at, profile_id", (), limit=self._limit
+            "SELECT record_json FROM mission_environment ORDER BY proposed_at, profile_id",
+            (),
+            limit=self._limit,
         )
         return tuple(_PROFILE.validate_json(_text(row[0])) for row in rows)
 
@@ -210,7 +215,9 @@ class SqliteMissionStore:
         parameters: tuple[SqlValue, ...] = () if key is None else (key[0], key[0], key[1])
         clause = "" if key is None else "WHERE occurred_at < ? OR (occurred_at = ? AND event_id < ?) "
         found = view.connection.rows(
-            "SELECT record_json FROM mission_event " + clause + "ORDER BY occurred_at DESC, event_id DESC LIMIT ?",
+            "SELECT record_json FROM mission_event "
+            + clause
+            + "ORDER BY occurred_at DESC, event_id DESC LIMIT ?",
             (*parameters, limit),
             limit=limit,
         )
@@ -240,10 +247,13 @@ class SqliteMissionStore:
         key = _fact_key(fact.fact, fact.environment_id)
         body = _FACT.dump_json(fact).decode()
         if uow.connection.rows("SELECT 1 FROM mission_state_fact WHERE fact_key = ?", (key,), limit=1):
-            uow.connection.execute("UPDATE mission_state_fact SET record_json = ? WHERE fact_key = ?", (body, key))
+            uow.connection.execute(
+                "UPDATE mission_state_fact SET record_json = ? WHERE fact_key = ?", (body, key)
+            )
         else:  # no UPSERT: E01's replicated-table triggers use INSERT OR IGNORE, which an outer ON CONFLICT overrides
             uow.connection.execute(
-                "INSERT INTO mission_state_fact VALUES (?, ?, ?, ?)", (key, fact.fact, fact.environment_id, body)
+                "INSERT INTO mission_state_fact VALUES (?, ?, ?, ?)",
+                (key, fact.fact, fact.environment_id, body),
             )
 
 

@@ -14,8 +14,13 @@ INTEGERS: tuple[tuple[str, int, int], ...] = (
     ("mission.max_event_types", 128, 1),
     ("mission.max_state_facts", 128, 1),
 )
-TEXTS: tuple[tuple[str, int], ...] = (("mission.hub_source_clock_id", 128),)  # the hub's own capture stream (S5.2)
-DEFAULTS: dict[str, object] = {**{key: seed for key, seed, _ in INTEGERS}, "mission.hub_source_clock_id": "hub_clock"}
+TEXTS: tuple[tuple[str, int], ...] = (
+    ("mission.hub_source_clock_id", 128),
+)  # the hub's own capture stream (S5.2)
+DEFAULTS: dict[str, object] = {
+    **{key: seed for key, seed, _ in INTEGERS},
+    "mission.hub_source_clock_id": "hub_clock",
+}
 
 
 def specifications() -> tuple[SettingSpec, ...]:

@@ -21,7 +21,9 @@ class FreshnessSweep:
         environment = rt.store.environment(uow)
         if environment is None:
             return 0
-        channels = [c for c in rt.store.channels(uow) if c.facts.channel_id > self._after][: rt.limits.sweep_page]
+        channels = [c for c in rt.store.channels(uow) if c.facts.channel_id > self._after][
+            : rt.limits.sweep_page
+        ]
         self._after = channels[-1].facts.channel_id if len(channels) == rt.limits.sweep_page else ""
         lagging = False
         for channel in channels:

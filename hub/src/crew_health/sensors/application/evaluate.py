@@ -20,8 +20,10 @@ from crew_health.sensors.application.runtime import (
     WINDOW_SCAN_BOUND,
     Runtime,
 )
-from crew_health.sensors.application.store import ChannelState, EvaluationRow, ReadingRecord
+from crew_health.sensors.application.store import ChannelState, EnvironmentRow, EvaluationRow, ReadingRecord
 from crew_health.sensors.domain.aggregation import DirectWindows
+from crew_health.sensors.domain.channel import SensorTypeFacts
+from crew_health.sensors.domain.config import SensorConfig
 from crew_health.sensors.domain.errors import ConfigInconsistent, WindowScanBound
 from crew_health.sensors.domain.evaluation import (
     Evaluation,
@@ -82,8 +84,10 @@ class SensorEvaluator:
         kind = config.sensor_type(channel.facts.sensor_type_id)
         if kind is None:
             raise ConfigInconsistent("sensor type is not in the release: " + channel.facts.sensor_type_id)
-        evaluation = self._compute(rt, uow, config, kind, channel, row.high_rev, environment, value)
-        evaluation_key = evaluation_id(rt, channel.facts.channel_id, environment.profile_id, release.release_id)
+        evaluation = self._compute(rt, uow, config, kind, channel, row.high_rev, environment)
+        evaluation_key = evaluation_id(
+            rt, channel.facts.channel_id, environment.profile_id, release.release_id
+        )
         rt.store.save_evaluation(
             uow,
             EvaluationRow(
@@ -99,11 +103,28 @@ class SensorEvaluator:
         )
 
     def _compute(
-        self, rt: Runtime, uow: UnitOfWork, config, kind, channel: ChannelState, high_rev: int, environment, value: KernelInput  # type: ignore[no-untyped-def]
+        self,
+        rt: Runtime,
+        uow: UnitOfWork,
+        config: SensorConfig,
+        kind: SensorTypeFacts,
+        channel: ChannelState,
+        high_rev: int,
+        environment: EnvironmentRow,
     ) -> Evaluation:
         windowed = [a.window_seconds for a in kind.aggregations if a.window_seconds is not None]
-        since = None if channel.window_end is None else channel.window_end - timedelta(seconds=max(windowed, default=0)) - _MARGIN
-        records = rt.store.readings_since(uow, channel.facts.channel_id, since=since, up_to_rev=high_rev, limit=rt.limits.window_scan_max_readings)
+        since = (
+            None
+            if channel.window_end is None
+            else channel.window_end - timedelta(seconds=max(windowed, default=0)) - _MARGIN
+        )
+        records = rt.store.readings_since(
+            uow,
+            channel.facts.channel_id,
+            since=since,
+            up_to_rev=high_rev,
+            limit=rt.limits.window_scan_max_readings,
+        )
         facts = [fact_of(r) for r in records]
         shell = EvaluationInput(
             kind,
@@ -130,7 +151,9 @@ class SensorEvaluator:
         advanced = end is not None and (len(instants) < 2 or instants[-2].at < end)
         full = replace(
             shell,
-            windows=DirectWindows(instants, channel.facts.expected_interval_seconds, rt.limits.window_scan_max_readings),
+            windows=DirectWindows(
+                instants, channel.facts.expected_interval_seconds, rt.limits.window_scan_max_readings
+            ),
             window_end=end,
             window_advanced=advanced,
         )
@@ -140,10 +163,23 @@ class SensorEvaluator:
 def _placeholder(channel: ChannelState) -> ReadingFact:
     from decimal import Decimal
 
-    return ReadingFact("none", channel.facts.channel_id, 0, None, None, "unknown", Decimal(0), "not_assessed", channel.facts.origin_mode, None)
+    return ReadingFact(
+        "none",
+        channel.facts.channel_id,
+        0,
+        None,
+        None,
+        "unknown",
+        Decimal(0),
+        "not_assessed",
+        channel.facts.origin_mode,
+        None,
+    )
 
 
-def stored_evaluation(rt: Runtime, view: UnitOfWork | ReadSnapshot, channel: ChannelState, profile_id: str, release_id: str) -> Evaluation | None:
+def stored_evaluation(
+    rt: Runtime, view: UnitOfWork | ReadSnapshot, channel: ChannelState, profile_id: str, release_id: str
+) -> Evaluation | None:
     row = rt.store.evaluation(view, channel.facts.channel_id, profile_id, release_id)
     return None if row is None else EVALUATION.validate_json(row.evaluation_json)
 

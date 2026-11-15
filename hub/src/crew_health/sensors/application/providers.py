@@ -6,6 +6,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from datetime import datetime
 
+from crew_health.kernel.units import Quantity, Unit
 from crew_health.kernel.uow import ReadSnapshot, ReadSnapshotFactory, UnitOfWork
 from crew_health.sensors.application.ports import (
     Freshness,
@@ -15,7 +16,6 @@ from crew_health.sensors.application.ports import (
 )
 from crew_health.sensors.application.queries import decide_now
 from crew_health.sensors.application.runtime import Runtime
-from crew_health.kernel.units import Quantity, Unit
 from crew_health.sensors.domain.errors import InvalidValue
 
 
@@ -51,18 +51,31 @@ class SensorProviders:
                 raise InvalidValue("unknown sensor type")
             records = [
                 r
-                for r in rt.store.readings_since(view, channel_id, since=None, up_to_rev=None, limit=rt.limits.window_scan_max_readings)
-                if r.quality_status == "accepted" and r.time_state in ("known", "replay") and r.observed_at <= until
+                for r in rt.store.readings_since(
+                    view, channel_id, since=None, up_to_rev=None, limit=rt.limits.window_scan_max_readings
+                )
+                if r.quality_status == "accepted"
+                and r.time_state in ("known", "replay")
+                and r.observed_at <= until
             ]
         records.sort(key=lambda r: (r.observed_at, r.rev or 0))
         chosen = records[-limit:]
         points = tuple(
-            SeriesPoint(r.observed_at, Quantity(r.canonical, Unit(kind.unit)), r.quality_status, r.origin_mode) for r in chosen
+            SeriesPoint(
+                r.observed_at, Quantity(r.canonical, Unit(kind.unit)), r.quality_status, r.origin_mode
+            )
+            for r in chosen
         )
         return SeriesSlice(points, len(records) > limit)
 
     def habitat_streams(self, snapshot: ReadSnapshot) -> Sequence[HabitatStream]:
         return tuple(
-            HabitatStream(c.facts.channel_id, c.facts.sensor_type_id, c.facts.origin_mode, c.facts.source_label, c.facts.dataset)
+            HabitatStream(
+                c.facts.channel_id,
+                c.facts.sensor_type_id,
+                c.facts.origin_mode,
+                c.facts.source_label,
+                c.facts.dataset,
+            )
             for c in self._rt.store.channels(snapshot)
         )

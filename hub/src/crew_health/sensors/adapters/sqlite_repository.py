@@ -33,10 +33,17 @@ from crew_health.sensors.application.store import (
     StatusRow,
     View,
 )
-from crew_health.sensors.domain.channel import ChannelFacts, Origin
+from crew_health.sensors.domain.channel import ChannelFacts, Freshness, Origin
 from crew_health.sensors.domain.errors import SensorDomainError
-from crew_health.sensors.domain.freshness import TimeFacts
+from crew_health.sensors.domain.freshness import ClockState, TimeFacts
 
+_FRESHNESS: dict[str, Freshness] = {
+    "current": "current",
+    "stale": "stale",
+    "never_reported": "never_reported",
+}
+_CLOCKS: dict[str, ClockState] = {"trusted": "trusted", "uncertain": "uncertain", "unknown": "unknown"}
+_ORIGINS: dict[str, Origin] = {"LIVE": "LIVE", "REPLAY": "REPLAY", "SIM": "SIM"}
 READING_PROJECTION = ProjectionKey("sensors", "reading", 1)
 LOCAL_AUDIENCE = "sensors.local"
 _CHANNEL_COLUMNS = (
@@ -105,12 +112,25 @@ def _opt_int(value: SqlValue) -> int | None:
     return None if value is None else _int(value)
 
 
+def _freshness(value: SqlValue) -> Freshness:
+    found = _FRESHNESS.get(_text(value))
+    if found is None:
+        raise StoredSensorError("freshness")
+    return found
+
+
+def _clock(value: SqlValue) -> ClockState:
+    found = _CLOCKS.get(_text(value))
+    if found is None:
+        raise StoredSensorError("clock state")
+    return found
+
+
 def _origin(value: SqlValue) -> Origin:
-    text = _text(value)
-    if text not in ("LIVE", "REPLAY", "SIM"):
+    found = _ORIGINS.get(_text(value))
+    if found is None:
         raise StoredSensorError("origin")
-    origin: Origin = text  # narrowed above
-    return origin
+    return found
 
 
 def declare(
@@ -162,14 +182,10 @@ def _channel(row: tuple[SqlValue, ...]) -> ChannelState:
     )
     state = _opt_text(row[23])
     reference = (
-        None
-        if state is None
-        else TimeFacts(state, _when(row[24]), _opt_int(row[25]))  # type: ignore[arg-type]
+        None if state is None else TimeFacts(state, _when(row[24]), _opt_int(row[25]))  # type: ignore[arg-type]
     )
-    freshness = _text(row[17])
-    clock = _text(row[30])
-    if freshness not in ("current", "stale", "never_reported") or clock not in ("trusted", "uncertain", "unknown"):
-        raise StoredSensorError("channel enum")
+    freshness = _freshness(row[17])
+    clock = _clock(row[30])
     return ChannelState(
         facts,
         _text(row[4]),
@@ -484,7 +500,9 @@ class SqliteSensorStore:
             _int(r[12]),
         )
 
-    def evaluation(self, view: View, channel_id: str, profile_id: str, release_id: str) -> EvaluationRow | None:
+    def evaluation(
+        self, view: View, channel_id: str, profile_id: str, release_id: str
+    ) -> EvaluationRow | None:
         rows = view.connection.rows(
             "SELECT evaluation_id, channel_id, profile_id, config_release_id, input_rev, high_water_at, status, "
             "evaluation_json FROM sensors_evaluation WHERE channel_id = ? AND profile_id = ? "
@@ -513,8 +531,16 @@ class SqliteSensorStore:
         if not held:
             uow.connection.execute(
                 "INSERT INTO sensors_evaluation VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (row.evaluation_id, row.channel_id, row.profile_id, row.config_release_id, row.input_rev,
-                 _opt(row.high_water_at), row.status, row.evaluation_json),
+                (
+                    row.evaluation_id,
+                    row.channel_id,
+                    row.profile_id,
+                    row.config_release_id,
+                    row.input_rev,
+                    _opt(row.high_water_at),
+                    row.status,
+                    row.evaluation_json,
+                ),
             )
         elif _int(held[0][0]) <= row.input_rev:
             uow.connection.execute(
@@ -562,7 +588,15 @@ class SqliteSensorStore:
             return  # the first record of a batch id is the one kept
         uow.connection.execute(
             "INSERT INTO sensors_batch VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (key, row.adapter_id, row.batch_id, row.accepted, row.duplicates, row.rejected_json, stamp(row.received_at)),
+            (
+                key,
+                row.adapter_id,
+                row.batch_id,
+                row.accepted,
+                row.duplicates,
+                row.rejected_json,
+                stamp(row.received_at),
+            ),
         )
         declare(uow, "sensors_batch", key, "create")
 
@@ -582,8 +616,15 @@ class SqliteSensorStore:
         return _schedule(view, key)
 
     def save_environment(self, uow: UnitOfWork, row: EnvironmentRow) -> None:
-        held = uow.connection.rows("SELECT 1 FROM sensors_environment WHERE environment_key = 'current'", (), limit=1)
-        values: tuple[SqlValue, ...] = (row.profile_id, row.environment_id, row.mission_mode, stamp(row.activated_at))
+        held = uow.connection.rows(
+            "SELECT 1 FROM sensors_environment WHERE environment_key = 'current'", (), limit=1
+        )
+        values: tuple[SqlValue, ...] = (
+            row.profile_id,
+            row.environment_id,
+            row.mission_mode,
+            stamp(row.activated_at),
+        )
         if held:
             uow.connection.execute(
                 "UPDATE sensors_environment SET profile_id = ?, environment_id = ?, mission_mode = ?, "
