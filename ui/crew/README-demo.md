@@ -15,7 +15,7 @@ These placeholders already exist and render only their route name:
 | `/plan/:id`  | `plan`  | `features/plan` (ui-plan-help)      |
 | `/help`      | `help`  | `features/help` (ui-plan-help)      |
 
-To ship the real screen, replace `features/<name>/<Name>Placeholder.vue` (e.g. `PulsePlaceholder.vue`) (or point `routes.ts` at your own
+To ship the real screen, replace `features/<name>/Placeholder.vue` (or point `routes.ts` at your own
 component). Keep `meta: { private: true }`: the router sends a signed-out visitor to the sign-in station.
 
 ## Today card slot

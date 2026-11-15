@@ -1,4 +1,3 @@
-/* eslint-disable */
 /* Body shape for body-render.js.
    Geometry: the MakeHuman base mesh (the body and the two eyeballs), which its copyright holders released as CC0 in September 2020
    (github.com/makehumancommunity/makehuman, makehuman/data/3dobjs/base.obj). The body is shaped as an adult man with MakeHuman's own targets, also CC0
