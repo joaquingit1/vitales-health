@@ -139,6 +139,20 @@ def test_the_camera_reads_ready_as_soon_as_its_worker_answers(served: Served) ->
     assert camera_only["status"] == "available" and waited < 2, (waited, camera_only)
 
 
+def test_health_lists_the_camera_adapter_from_its_worker_probe(served: Served) -> None:
+    """GET /v1/health adapters comes from the camera worker's last probe: the configured camera adapter, connected
+    once the worker described itself (Health.adapters, contracts health.schema.json)."""
+    deadline = time.monotonic() + 240
+    while True:
+        status, health = served.hub.call("GET", "/v1/health")
+        assert status == 200 and isinstance(health, dict), health
+        if health["adapters"] == [{"adapter_id": "adp_camera", "state": "connected"}]:
+            break
+        assert health["adapters"] == [{"adapter_id": "adp_camera", "state": "disconnected"}], health
+        assert time.monotonic() < deadline, health
+        time.sleep(0.2)
+
+
 def test_the_hub_serves_ready_with_the_presenter_and_tomas_signed_in(served: Served) -> None:
     status, health = served.hub.call("GET", "/v1/health")
     assert status == 200 and isinstance(health, dict) and health["status"] == "ok"

@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Protocol
 
@@ -36,6 +36,8 @@ from crew_health.camera.application.ports import (
     AdapterAssignment,
     AdapterAssignmentPort,
     AdapterReadinessPort,
+    AdapterState,
+    AdapterStatesPort,
     AttemptReports,
     CameraReferencePort,
     MissionStatePort,
@@ -164,6 +166,8 @@ class Live:
     dispatcher: Dispatcher | None = None
     tasks: CameraTasks | None = None
     loop: CameraLoop | None = None
+    link: WorkerLink | None = None
+    adapter_id: str | None = None
 
 
 class _Task:
@@ -193,6 +197,22 @@ class _Readiness:
     def ready_methods(self, view: View) -> frozenset[str] | None:
         bound = self._live.assignments
         return None if bound is None else bound.ready_methods(view)
+
+
+class _States:
+    """Health.adapters: the configured camera adapter is connected while its worker's last probe is fresh and names
+    that adapter, disconnected otherwise; an unbound or disabled camera lists nothing."""
+
+    def __init__(self, live: Live) -> None:
+        self._live = live
+
+    def adapter_states(self, now: datetime) -> tuple[AdapterState, ...]:
+        link, adapter_id = self._live.link, self._live.adapter_id
+        if link is None or adapter_id is None:
+            return ()
+        probe = link.fresh(now)
+        connected = probe is not None and probe.adapter_id == adapter_id
+        return (AdapterState(adapter_id, "connected" if connected else "disconnected"),)
 
 
 class _Assignment:
@@ -260,6 +280,8 @@ def _bind(live: Live) -> Callable[[Resolver], None]:
             timeout_ms=value("workers.camera.timeout_ms"),
             stale_ms=value("workers.camera.stale_ms"),
         )
+        if enabled:  # Health.adapters lists the camera adapter only when the hub is configured to use it
+            live.link, live.adapter_id = link, adapter_id
         live.assignments = CameraAssignments(
             link,
             store,
@@ -337,5 +359,6 @@ def register(registry: Registry, live: Live | None = None) -> None:
         registry.task(TaskRegistration(name, TASK_VERSION, _Task(state, name), None, None))
     registry.provide(AdapterReadinessPort, lambda _: _Readiness(state))
     registry.provide(AdapterAssignmentPort, lambda _: _Assignment(state))
+    registry.provide(AdapterStatesPort, lambda _: _States(state))
     registry.provide(CameraReferencePort, lambda _: _Reference(state))
     registry.bind("camera", _bind(state))

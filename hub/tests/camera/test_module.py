@@ -379,3 +379,28 @@ def test_the_startup_probes_are_bounded_when_the_worker_never_answers(tmp_path: 
         assert (
             _port(registry, AdapterReadinessPort).ready_methods(view) is None
         )  # never ready without an answer
+
+
+def test_health_states_follow_the_probe_and_a_disabled_camera_lists_nothing(tmp_path: Path) -> None:
+    from crew_health.camera.application.ports import AdapterState, AdapterStatesPort
+
+    transport = ScriptedTransport()  # the worker does not answer yet
+    (tmp_path / "t").write_text("token", encoding="utf-8")
+    texts = {"workers.camera.url": "http://127.0.0.1:9", "workers.camera.token_file": str(tmp_path / "t")}
+    registry, live, store = _bound(tmp_path, transport, enabled=True, texts=texts)
+    states = _port(registry, AdapterStatesPort)
+    try:
+        assert live.link is not None
+        live.link.probe()
+        with store.uows.snapshot() as view:
+            assert states.adapter_states(view.now) == (AdapterState(ADAPTER, "disconnected"),)
+        transport.fallback = describe()
+        live.link.probe()
+        with store.uows.snapshot() as view:
+            assert states.adapter_states(view.now) == (AdapterState(ADAPTER, "connected"),)
+    finally:
+        assert live.loop is not None and live.loop.stop_within(5.0)
+    (tmp_path / "off").mkdir()
+    disabled, _, _ = _bound(tmp_path / "off", ScriptedTransport())
+    with store.uows.snapshot() as view:
+        assert _port(disabled, AdapterStatesPort).adapter_states(view.now) == ()

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -21,6 +22,7 @@ from crew_health.app.maintenance import build_supervisor, guard_clock, wire_cloc
 from crew_health.app.middleware import HubMiddleware, OperationCatalog
 from crew_health.app.registry import DeclarationRegistry, ModuleRegistry, Resolver, StartupPhase
 from crew_health.app.workers import ModuleWorkers
+from crew_health.camera.application.ports import AdapterStatesPort
 from crew_health.clock.application.clock import ClockIdentity, PersistentClocks
 from crew_health.clock.module import register as register_clock
 from crew_health.config.api.router import ConfigHttpCommands
@@ -776,6 +778,21 @@ def _degraded(runtime: Runtime, view: ReadSnapshot) -> bool:
     return bool(pending) or not resolver.require(PersistentClocks).clearing_allowed(view)
 
 
+def _adapters(runtime: Runtime) -> tuple[list[dict[str, str]], bool]:
+    """Health.adapters from the adapter modules' own state (the camera worker's last probe), and whether reading it
+    failed. A failing source never fails health: it lists nothing and reports degraded, never a made-up state."""
+    resolver = runtime.resolver
+    if resolver is None:
+        return [], False
+    try:
+        source = resolver.optional(AdapterStatesPort)  # type: ignore[type-abstract]
+        states = () if source is None else source.adapter_states(runtime.database.clock.now())
+    except Exception:  # noqa: BLE001  # contained: health keeps answering, degraded (AGENTS 2)
+        logging.getLogger(__name__).warning("health_adapters_unavailable")
+        return [], True
+    return [{"adapter_id": s.adapter_id, "state": s.state} for s in states], False
+
+
 def _correlation(request: Request, ids: IdFactory) -> str:
     value: object = getattr(request.state, "correlation_id", None)
     return value if isinstance(value, str) else ids.new("correlation")
@@ -826,13 +843,15 @@ def create_app(
             # A transient read fault (busy, io) reports degraded for this request only; it never latches the hub
             # out of service (AGENTS: contain failures). The next healthy read reports the real state again.
             degraded = True
+        adapters, unreadable = _adapters(runtime)
+        degraded = degraded or unreadable
         body = Health.model_validate(
             {
                 "status": "degraded" if degraded or not runtime.serving else "ok",
                 "hub_version": hub_version,
                 "config_release_id": release_id,
                 "assistant_state": "unavailable",
-                "adapters": [],
+                "adapters": adapters,
                 "server_time": database.clock.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
             }
         )
