@@ -255,6 +255,7 @@ class KitMapFake:
                     ),
                     kit_status="available" if ids else "unavailable",
                     kit_reason=None if ids else "not_in_kit",
+                    components=tuple(capability.get("components", ())),
                 )
             )
         return tuple(result)

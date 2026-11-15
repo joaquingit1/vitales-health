@@ -156,6 +156,7 @@ def derive_capabilities(
                 ),
                 kit_status="available" if aboard else "unavailable",
                 kit_reason=None if aboard else "not_in_kit",
+                components=words.components,
             )
         )
     return tuple(result)

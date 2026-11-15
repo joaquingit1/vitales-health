@@ -159,6 +159,7 @@ def _capability(item: Json) -> CapabilityWords:
         operator_requirement=cast(Operator, operator),
         expected_duration_seconds=duration,
         basis=_str(item["basis"]),
+        components=tuple(_str(c) for c in _list(item.get("components", []))),
     )
 
 

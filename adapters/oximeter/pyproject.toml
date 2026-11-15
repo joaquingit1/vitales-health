@@ -1,0 +1,104 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crew-health-adapter-oximeter"
+version = "0.1.0"
+requires-python = ">=3.14,<3.15"
+dependencies = ["crew-health", "httpx", "fastapi", "uvicorn", "jsonschema", "referencing", "pydantic>=2"]
+
+[project.optional-dependencies]
+ble = ["bleak"]
+sim = ["crew-health-sim-clinical"]
+
+[dependency-groups]
+dev = ["crew-health-sim-clinical", "pytest", "pytest-cov", "hypothesis", "mypy", "ruff", "import-linter", "types-jsonschema"]
+
+[tool.uv.sources]
+crew-health-sim-clinical = { path = "../../simulators/clinical", editable = true }
+crew-health = { path = "../../hub", editable = true }
+pharmacy = { path = "../..", editable = true }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+crew_health_device = ["schemas/*.json", "py.typed"]
+crew_health_adapter_oximeter = ["schemas/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers --strict-config --import-mode=importlib"
+xfail_strict = true
+markers = ["trace(*ids): requirements and invariants", "hardware: optional physical hardware", "slow: bounded long running validation"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["crew_health_device", "crew_health_adapter_oximeter", "crew_health"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+mypy_path = "src"
+
+# Generated models are typed, but the upstream distribution lacks its py.typed marker.
+[[tool.mypy.overrides]]
+module = ["crew_health.contracts_gen", "crew_health.contracts_gen.*"]
+follow_untyped_imports = true
+
+[[tool.mypy.overrides]]
+module = ["bleak", "bleak.*"]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+branch = true
+source = ["crew_health_device", "crew_health_adapter_oximeter"]
+data_file = "adapters/oximeter/.coverage"
+
+[tool.coverage.report]
+fail_under = 95
+
+[tool.importlinter]
+root_packages = ["crew_health_device", "crew_health_adapter_oximeter", "crew_health"]
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Shared runtime layers"
+type = "layers"
+layers = ["crew_health_device.api", "crew_health_device.adapters", "crew_health_device.application", "crew_health_device.domain"]
+
+[[tool.importlinter.contracts]]
+name = "Family layers"
+type = "layers"
+layers = ["(crew_health_adapter_oximeter.api)", "(crew_health_adapter_oximeter.adapters)", "(crew_health_adapter_oximeter.application)", "(crew_health_adapter_oximeter.domain)"]
+
+[[tool.importlinter.contracts]]
+name = "Hub remains an HTTP boundary"
+type = "forbidden"
+source_modules = ["crew_health_device", "crew_health_adapter_oximeter"]
+forbidden_modules = ["crew_health.app", "crew_health.kernel", "crew_health.platform", "crew_health.config", "crew_health.clock", "crew_health.events", "crew_health.records", "crew_health.measurement", "crew_health.help", "crew_health.kitmap", "crew_health.guidance", "crew_health.teach", "crew_health.roles"]
+unmatched_ignore_imports_alerting = "error"
+
+[[tool.importlinter.contracts]]
+name = "Domain is pure"
+type = "forbidden"
+source_modules = ["crew_health_device.domain", "crew_health_adapter_oximeter.fhir_import.domain"]
+forbidden_modules = ["httpx", "fastapi", "bleak", "sqlite3"]
+
+[[tool.importlinter.contracts]]
+name = "Family composition above decoder"
+type = "layers"
+layers = ["crew_health_adapter_oximeter.family", "crew_health_adapter_oximeter.plx"]
+
+[[tool.importlinter.contracts]]
+name = "Clinical import layers"
+type = "layers"
+layers = ["crew_health_adapter_oximeter.fhir_import.service", "crew_health_adapter_oximeter.fhir_import.mapping", "crew_health_adapter_oximeter.fhir_import.domain"]

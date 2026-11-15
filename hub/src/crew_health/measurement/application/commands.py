@@ -588,7 +588,9 @@ class MeasurementService:
             if request is None:
                 raise _problem(ErrorCode.NOT_FOUND)
             binding = self._trusted_binding(uow, request, session.actor.id)
-            quantities = self._validate_attempt(request, attempt, binding)
+            capability = self._caps.get(uow, request.capability_code)
+            panel = () if capability is None else capability.components
+            quantities = self._validate_attempt(request, attempt, binding, panel)
             existing = next((a for a in request.attempts if a.sequence == attempt.sequence), None)
             if existing is not None:
                 if existing.fingerprint == attempt.fingerprint and existing.adapter_id == session.actor.id:
@@ -700,7 +702,11 @@ class MeasurementService:
         return tuple(ids)
 
     def _validate_attempt(
-        self, request: MeasurementRequest, attempt: AttemptInput, binding: AcquisitionBinding
+        self,
+        request: MeasurementRequest,
+        attempt: AttemptInput,
+        binding: AcquisitionBinding,
+        panel: tuple[str, ...] = (),
     ) -> tuple[Quantity, ...]:
         """All-or-none boundary validation before any write (E05 4, 5)."""
         lim = self._limits
@@ -718,13 +724,27 @@ class MeasurementService:
             raise InvalidInput("/quality_notes", "measurement.max_notes")
         for index, note in enumerate(attempt.quality_notes):
             self._text(note, f"/quality_notes/{index}")
-        return tuple(
-            self._validate_value(request, binding, o, f"/observations/{i}")
+        quantities = tuple(
+            self._validate_value(request, binding, o, f"/observations/{i}", panel)
             for i, o in enumerate(attempt.observations)
         )
+        # A panel capability (config-kit-map `components`) is recorded all or none: a successful attempt carries
+        # each component exactly once, never half a panel.
+        if (
+            panel
+            and attempt.outcome == "success"
+            and sorted(o.code for o in attempt.observations) != sorted(panel)
+        ):
+            raise IdentityMismatch("/observations", "panel_incomplete")
+        return quantities
 
     def _validate_value(
-        self, request: MeasurementRequest, binding: AcquisitionBinding, o: ObservationInput, at: str
+        self,
+        request: MeasurementRequest,
+        binding: AcquisitionBinding,
+        o: ObservationInput,
+        at: str,
+        panel: tuple[str, ...] = (),
     ) -> Quantity:
         if o.patient_id != request.patient_id:
             raise IdentityMismatch(at + "/patient_id", "patient_mismatch")
@@ -734,7 +754,7 @@ class MeasurementService:
             raise IdentityMismatch(at + "/measurement_request_id", "request_mismatch")
         if o.origin_mode != request.origin_mode:
             raise IdentityMismatch(at + "/origin_mode", ErrorCode.ORIGIN_MISMATCH.value)
-        if o.code != request.capability_code:
+        if o.code not in (panel or (request.capability_code,)):
             raise IdentityMismatch(at + "/code", "code_not_requested")
         if o.acquisition_method not in request.methods or o.acquisition_method != binding.method:
             raise IdentityMismatch(at + "/acquisition_method", "method_not_assigned")
