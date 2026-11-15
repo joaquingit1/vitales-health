@@ -57,7 +57,7 @@ def server(
             self.end_headers()
             try:
                 self.wfile.write(body)
-            except BrokenPipeError:
+            except ConnectionError:
                 pass
 
         def log_message(self, format: str, *args: object) -> None:
@@ -147,17 +147,16 @@ def test_oversize_body_and_http_error_are_typed_unavailable() -> None:
 
 
 @pytest.mark.trace("E14-03", "V32", "V69")
-def test_timeout_and_unreachable_worker_are_typed_unavailable() -> None:
+def test_timeout_and_unreachable_worker_are_typed_unavailable(monkeypatch: pytest.MonkeyPatch) -> None:
     with server(b"{}", delay=0.2) as (url, _):
         assert HttpForecastWorker(url, "secret", 100, 4096).forecast(request()) == WorkerUnavailable(
             "worker_timeout"
         )
-    with socket.socket() as sock:
-        sock.bind(("127.0.0.1", 0))
-        port = sock.getsockname()[1]
-    assert HttpForecastWorker(f"http://127.0.0.1:{port}", "secret", 100, 4096).forecast(
-        request()
-    ) == WorkerUnavailable("worker_unreachable")
+    # A closed port can time out on Windows; an explicit refusal proves this distinct transport result.
+    fake(monkeypatch, ConnectionRefusedError())
+    assert HttpForecastWorker(WORKER, "secret", 100, 4096).forecast(request()) == WorkerUnavailable(
+        "worker_unreachable"
+    )
 
 
 class BoundedResponse:
@@ -366,13 +365,18 @@ def test_proxy_environment_never_receives_the_bearer_token_or_series(monkeypatch
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv("http_proxy", f"http://127.0.0.1:{proxy.getsockname()[1]}")
     monkeypatch.setenv("HTTP_PROXY", f"http://127.0.0.1:{proxy.getsockname()[1]}")
-    with socket.socket() as closed:
-        closed.bind(("127.0.0.1", 0))
-        port = closed.getsockname()[1]
-    result = HttpForecastWorker(f"http://127.0.0.1:{port}", "s3cret-token", 1000, 4096).forecast(request())
+    with server(json.dumps(forecast_response()).encode()) as (url, received):
+        result = HttpForecastWorker(url, "s3cret-token", 1000, 4096).forecast(request())
     thread.join(2)
     proxy.close()
-    assert result == WorkerUnavailable("worker_unreachable")
+    assert isinstance(result, WorkerForecast)
+    assert result.steps[0].median == Quantity(Decimal("5"), Unit("1"))
+    assert received == [
+        (
+            "Bearer s3cret-token",
+            b'{"policy_version":null,"request_id":"request_1","series":[{"mission_day":1,"value":"5"}],"unit":"1"}',
+        )
+    ]
     assert seen == []
 
 

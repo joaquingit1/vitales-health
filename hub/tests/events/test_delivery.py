@@ -52,7 +52,9 @@ def session(person="person_A"):
 @pytest.fixture
 def station(tmp_path):
     db = database(tmp_path)
-    db.migrate(Path("hub/src/crew_health/events/adapters/migrations/0001_events.sql").read_text())
+    db.migrate(
+        Path("hub/src/crew_health/events/adapters/migrations/0001_events.sql").read_text(encoding="utf-8")
+    )
     repository = EventRepository(
         settings=db.settings,
         ids=db.ids,

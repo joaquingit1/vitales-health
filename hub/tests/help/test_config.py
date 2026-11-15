@@ -51,7 +51,7 @@ def test_documents_trace_to_the_package_specifications() -> None:
     assert dig(authored, "assistant_line", "waiting_text") == dig(package, "assistant_line", "waiting_text")
     flows = json.loads(config_raw("responder-flows"))
     source_ids = {s["id"] for s in flows["sources"]}
-    shared = (REPO / "docs/product/RESPONDER-FLOWS.md").read_text()
+    shared = (REPO / "docs/product/RESPONDER-FLOWS.md").read_text(encoding="utf-8")
     for flow in flows["flows"]:
         assert set(flow["source_ids"]) & source_ids, flow["id"]
         for outside in set(flow["source_ids"]) - source_ids:

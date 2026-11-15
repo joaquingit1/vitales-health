@@ -20,7 +20,9 @@ ROOT = Path(__file__).resolve().parents[3]
 
 def declarations() -> dict[str, list[ast.ClassDef | ast.FunctionDef | ast.TypeAlias]]:
     result: dict[str, list[str]] = {}
-    for block in re.findall(r"```python\n(.*?)```", (ROOT / "docs/SYSTEM.md").read_text(), re.S):
+    for block in re.findall(
+        r"```python\n(.*?)```", (ROOT / "docs/SYSTEM.md").read_text(encoding="utf-8"), re.S
+    ):
         current = ""
         for line in block.splitlines():
             match = re.match(r"# crew_health/(kernel/\w+|app/registry)\.py", line)
@@ -105,7 +107,7 @@ def test_kernel_import_closure() -> None:
 )
 def test_forbidden_kernel_imports(tmp_path: Path, source: str) -> None:
     (tmp_path / "kernel").mkdir()
-    (tmp_path / "kernel/ids.py").write_text(source)
+    (tmp_path / "kernel/ids.py").write_text(source, encoding="utf-8")
     with pytest.raises(ValueError):
         check_kernel(tmp_path)
 
@@ -113,8 +115,10 @@ def test_forbidden_kernel_imports(tmp_path: Path, source: str) -> None:
 def test_transitive_framework_import(tmp_path: Path) -> None:
     (tmp_path / "kernel").mkdir()
     (tmp_path / "contracts_gen").mkdir()
-    (tmp_path / "kernel/ids.py").write_text("from crew_health.contracts_gen.enums import ErrorCode")
-    (tmp_path / "contracts_gen/enums.py").write_text("from fastapi import FastAPI")
+    (tmp_path / "kernel/ids.py").write_text(
+        "from crew_health.contracts_gen.enums import ErrorCode", encoding="utf-8"
+    )
+    (tmp_path / "contracts_gen/enums.py").write_text("from fastapi import FastAPI", encoding="utf-8")
     with pytest.raises(ValueError):
         check_kernel(tmp_path)
 
@@ -122,15 +126,15 @@ def test_transitive_framework_import(tmp_path: Path) -> None:
 def test_discovery_and_manifest_are_exact(tmp_path: Path) -> None:
     module = tmp_path / "new_feature"
     module.mkdir()
-    (module / "__init__.py").write_text("")
-    (module / "module.py").write_text("def register(registry):\n    pass\n")
+    (module / "__init__.py").write_text("", encoding="utf-8")
+    (module / "module.py").write_text("def register(registry):\n    pass\n", encoding="utf-8")
     inventory = discover(tmp_path, max_modules=2)
     assert tuple(inventory) == ("crew_health.new_feature.module",)
     verify_modules(tmp_path, inventory, max_modules=2)
     rules = generate_contracts(tmp_path, max_modules=2)
     assert "new_feature-layers" in rules
     assert "new_feature" in rules
-    (module / "module.py").write_text("changed")
+    (module / "module.py").write_text("changed", encoding="utf-8")
     with pytest.raises(ValueError):
         verify_modules(tmp_path, inventory, max_modules=2)
     with pytest.raises(ValueError):
@@ -269,11 +273,12 @@ def test_discovered_module_contributes_all_registration_kinds(
     package = tmp_path / "crew_health"
     feature = package / "temporary_feature"
     feature.mkdir(parents=True)
-    (feature / "__init__.py").write_text("")
+    (feature / "__init__.py").write_text("", encoding="utf-8")
     for layer in ["domain", "application", "adapters", "api"]:
         (feature / layer).mkdir()
-        (feature / layer / "__init__.py").write_text("")
-    (feature / "module.py").write_text("""
+        (feature / layer / "__init__.py").write_text("", encoding="utf-8")
+    (feature / "module.py").write_text(
+        """
 from decimal import Decimal
 from hashlib import sha256
 from fastapi import APIRouter
@@ -297,7 +302,9 @@ def register(registry):
     registry.private_records("temporary_feature", MemoryPrivateWriter())
     registry.setting(SettingSpec("temporary_feature.count", "integer", None, Decimal(1), Decimal(2),
         None, "SYSTEM 5.11 test-only bound"))
-""")
+""",
+        encoding="utf-8",
+    )
     inventory = discover(package, max_modules=1)
     assert tuple(inventory) == ("crew_health.temporary_feature.module",)
     monkeypatch.setattr(crew_health, "__path__", [*crew_health.__path__, str(package)])
@@ -351,11 +358,11 @@ def test_feature_architecture_rejects_forbidden_ingress(tmp_path: Path, path: st
     for name in ["first", "second", "rules", "assistant", "groundlink"]:
         module = tmp_path / name
         module.mkdir()
-        (module / "__init__.py").write_text("")
-        (module / "module.py").write_text("def register(registry):\n    pass\n")
+        (module / "__init__.py").write_text("", encoding="utf-8")
+        (module / "module.py").write_text("def register(registry):\n    pass\n", encoding="utf-8")
     target = tmp_path / path
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(source)
+    target.write_text(source, encoding="utf-8")
     with pytest.raises(ValueError):
         generate_contracts(tmp_path, max_modules=8)
 
@@ -435,7 +442,7 @@ def test_runtime_signature_parameter_kinds_and_defaults() -> None:
 )
 def test_kernel_cannot_use_io_through_allowlisted_modules(tmp_path: Path, source: str) -> None:
     (tmp_path / "kernel").mkdir()
-    (tmp_path / "kernel/value.py").write_text(source)
+    (tmp_path / "kernel/value.py").write_text(source, encoding="utf-8")
     with pytest.raises(ValueError):
         check_kernel(tmp_path)
 

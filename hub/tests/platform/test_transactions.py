@@ -188,7 +188,9 @@ def task_station(tmp_path, *, public=False, grant=None, elapsed=None):
     if public:
         from crew_health.events.adapters.repository import EventRepository, EventValidator
 
-        db.migrate(Path("hub/src/crew_health/events/adapters/migrations/0001_events.sql").read_text())
+        db.migrate(
+            Path("hub/src/crew_health/events/adapters/migrations/0001_events.sql").read_text(encoding="utf-8")
+        )
         events = EventRepository(
             settings=db.settings,
             ids=db.ids,

@@ -649,7 +649,7 @@ GitHub Actions, one workflow per concern; every gate produces its evidence as an
 |---|---|---|
 | `contracts` | Base contract SHA guard plus D12 decision-overlay traceability and effective-schema checks; regenerate Pydantic and TypeScript types and diff against committed; validate every configuration document and `knowledge/**` against schemas; no en or em dash in owned files | Any drift or invalid document |
 | `lint` | `ruff check`, `ruff format --check`, `mypy --strict` per package, `lint-imports`, `eslint`, `prettier --check`, `vue-tsc` | Any warning (AGENTS.md code rule 10) |
-| `hub-tests` | `pytest` with branch coverage on Ubuntu, macOS and Windows runners (the ISS and Orion fleets are Windows [VC03] [VC25]) | Failures; branch coverage below 95% on `domain` and `application` |
+| `hub-tests` | `pytest` with branch coverage on Ubuntu, macOS and Windows runners (the ISS and Orion fleets are Windows [VC03] [VC25]) | Failures; actual per-file branch coverage regressions on `domain` and `application`, or new-file coverage below 95% (D31, explicit owner decision 2026-11-15). The legacy target remains95%. |
 | `property` | Hypothesis and fast-check suites for parsers, rule engines and unit conversions | Failures |
 | `faults` | Fault injection: kill during write, disk full, clock jump, corrupt configuration, model stopped, devices absent, link down | Any accepted record lost; any safety function unavailable |
 | `ui-tests` | `pnpm -C ui/crew typecheck && test`, the same for `ui/ground` | Failures |
