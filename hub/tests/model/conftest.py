@@ -132,5 +132,6 @@ def manifest() -> dict[str, Any]:
 def store(tmp_path: Path, manifest: dict[str, Any]) -> ManifestStore:
     root = tmp_path / "model"
     shutil.copytree(ROOT / "model", root, ignore=shutil.ignore_patterns(".venv", "__pycache__"))
+    (root / "releases").mkdir(exist_ok=True)
     (root / "releases/model_candidate.json").write_text(json.dumps(manifest), encoding="utf-8")
     return ManifestStore(root, tmp_path / "data", profile="eval")

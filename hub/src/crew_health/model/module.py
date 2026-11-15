@@ -39,9 +39,11 @@ from crew_health.model.application.ports import (
     RetrievalSettings,
     RuntimeProbe,
     RuntimeSettings,
+    StepCancelled,
     StepProgress,
     StepRequest,
     StepResult,
+    StepTimedOut,
     StepUnavailable,
     StubInstallation,
     SupervisorControl,
@@ -201,19 +203,41 @@ class ModelServices:
         cancel: CancelToken,
         progress: Callable[[StepProgress], None],
     ) -> StepResult:
+        interrupted = self._interrupted(deadline, cancel)
+        if interrupted is not None:
+            return interrupted
         if self.stub is not None and self.stub_release_id == request.release_id:
             if self._store().fingerprint(request.release_id) != self.stub_fingerprint:
                 return StepUnavailable("release_changed")
             return self.stub.run_step(request, deadline=deadline, cancel=cancel, progress=progress)
         if self.runtime is None or self.limits is None or self.runtime.release_id != request.release_id:
             return StepUnavailable("model_unavailable")
-        checked = self.probe(timeout_s=self.limits.connect_timeout_s)
+        checked = self.runtime.probe(
+            timeout_s=self.limits.connect_timeout_s,
+            deadline=deadline,
+            cancel=cancel,
+            cancel_poll_s=self.limits.cancel_poll_s,
+        )
+        interrupted = self._interrupted(deadline, cancel)
+        if interrupted is not None:
+            return interrupted
         if not (checked.healthy and checked.identity_ok and checked.adapters_empty):
-            return StepUnavailable("model_identity_mismatch")
+            return StepUnavailable(checked.detail_code)
         client = LlamaClient(
             port=self.runtime.port, api_key=self.runtime.key, tokens=self._counter(), limits=self.limits
         )
         return client.run_step(request, deadline=deadline, cancel=cancel, progress=progress)
+
+    @staticmethod
+    def _interrupted(deadline: Deadline, cancel: CancelToken) -> StepCancelled | StepTimedOut | None:
+        if cancel.is_cancelled():
+            return StepCancelled()
+        now = deadline.clock.monotonic_ns()
+        if now >= deadline.total_ns:
+            return StepTimedOut("total")
+        if now >= deadline.first_token_ns:
+            return StepTimedOut("first_token")
+        return None
 
 
 def register(registry: Registry) -> None:
