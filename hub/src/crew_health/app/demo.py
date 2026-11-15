@@ -43,6 +43,7 @@ from crew_health.identity.application.admin import IdentityAdmin
 from crew_health.identity.application.ports import OperatorProof
 from crew_health.identity.domain.roster import ProvisionedPrincipal, RosterBootstrap, RosterMember
 from crew_health.kernel.uow import Actor
+from crew_health.model.application.ports import ModelInstallation
 
 FIXTURE = "fixtures/demo-mara-fd19/fixture.json"
 COPIED = ("contracts", "config", "docs/product", "docs/requests")
@@ -535,8 +536,22 @@ def serve(directory: Path, *, host: str, port: int, server: Server | None = None
         confirmation=TimeConfirmation(0, fixture.uncertainty_ms, fixture.operator_id),
         demo=fixture.presenter(),
         mission=fixture.mission(directory),
-        **({} if server is None else {"server": server}),
+        model=_model_installation(),
+        **({} if server is None else {"server": server}),  # type: ignore[arg-type]
     )
+
+
+def _model_installation() -> ModelInstallation | None:
+    """The demo node's staged E17 release, when the presenter names one (DEPLOYMENT: the model is optional).
+    CREW_HEALTH_MODEL_DIR holds model/ (artifacts with releases/) and data/ (weights and the active pointer);
+    CREW_HEALTH_LLAMA_SERVER is the llama.cpp server binary E17's launch check pins; CREW_HEALTH_MODEL_PORT its
+    loopback port. Unset, the hub serves with the assistant unavailable and every safety function unchanged."""
+    staged, binary = os.environ.get("CREW_HEALTH_MODEL_DIR"), os.environ.get("CREW_HEALTH_LLAMA_SERVER")
+    if not staged or not binary:
+        return None
+    base = Path(staged)
+    port = int(os.environ.get("CREW_HEALTH_MODEL_PORT", "18090"))
+    return ModelInstallation(str(base / "model"), str(base / "data"), "demo", binary, port)
 
 
 # Cues ----------------------------------------------------------------------------------------------------------

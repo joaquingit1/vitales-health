@@ -35,6 +35,12 @@ class EpisodeMaintenance:
                 self.health.mark_degraded("episodes_effects", "WORKER_FAILED", uow.now)
             # Submission is bounded to one worker. All optional E13 reads run on that worker after this lock releases.
             self.future = self.pool.submit(self.effects.run)
+        # The schedule row outlives the process and a fired job: replace it under its current generation, the
+        # scheduler's compare-and-set token (the same read platform evaluation uses), so a restart or a tick
+        # re-arms the tick instead of failing STALE_VERSION.
+        rows = uow.connection.rows(
+            "SELECT generation FROM platform_schedule WHERE key=?", ("episodes.maintenance",), limit=1
+        )
         uow.schedule(
             ScheduledJob(
                 "episodes.maintenance",
@@ -43,7 +49,7 @@ class EpisodeMaintenance:
                 {},
                 None,
             ),
-            expected_generation=None,
+            expected_generation=int(str(rows[0][0])) if rows else None,
         )
 
     def close(self) -> None:

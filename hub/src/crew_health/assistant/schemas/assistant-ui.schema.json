@@ -1,0 +1,612 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Pinned assistant interface copy",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "classification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "classification",
+        "basis"
+      ],
+      "additionalProperties": false
+    },
+    "notice": {
+      "type": "object",
+      "properties": {
+        "cancelled": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "stale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "timed_out": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "rejected": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "unavailable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "assessment_started": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "assessment_incomplete": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "no_supported_passage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "repeat_request": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "step_not_in_plan": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "action_unavailable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "guidance_unavailable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "assessment_link_unavailable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "operator_only": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "cancelled",
+        "stale",
+        "timed_out",
+        "rejected",
+        "unavailable",
+        "assessment_started",
+        "assessment_incomplete",
+        "no_supported_passage",
+        "repeat_request",
+        "step_not_in_plan",
+        "action_unavailable",
+        "guidance_unavailable",
+        "assessment_link_unavailable",
+        "operator_only"
+      ],
+      "additionalProperties": false
+    },
+    "labels": {
+      "type": "object",
+      "properties": {
+        "assistant": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "send": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "cancel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "retry": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "dismiss": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "start": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "stop": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "draft": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "stale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "reviewed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "incomplete": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "not_clinically_reviewed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "help": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "limitations": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "findings": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "hypotheses": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "contradictions": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "missing_evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "next_step": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "decision_affected": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "queue_depth": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "model_release": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "load_more": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "conversation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "person": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "notice": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "assessment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "snapshot": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "config_release": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "evidence_release": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "created_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "capability": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "body_region": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "model_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "prompt_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "tool_catalog_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "mode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "policy_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "habitat_facts": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "origin": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "answered": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "reload": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "progress": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "missing_value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "waiting_time": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "seconds": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "open": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "more_insights": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "observed_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "assistant",
+        "send",
+        "cancel",
+        "retry",
+        "why",
+        "dismiss",
+        "start",
+        "stop",
+        "draft",
+        "stale",
+        "reviewed",
+        "incomplete",
+        "not_clinically_reviewed",
+        "help",
+        "evidence",
+        "limitations",
+        "findings",
+        "hypotheses",
+        "contradictions",
+        "missing_evidence",
+        "next_step",
+        "reason",
+        "decision_affected",
+        "queue_depth",
+        "model_release",
+        "load_more",
+        "conversation",
+        "person",
+        "notice",
+        "assessment",
+        "snapshot",
+        "config_release",
+        "evidence_release",
+        "created_at",
+        "capability",
+        "body_region",
+        "model_id",
+        "revision",
+        "sha256",
+        "prompt_version",
+        "tool_catalog_version",
+        "mode",
+        "policy_version",
+        "habitat_facts",
+        "origin",
+        "answered",
+        "reload",
+        "message",
+        "progress",
+        "missing_value",
+        "waiting_time",
+        "seconds",
+        "open",
+        "more_insights",
+        "observed_at"
+      ],
+      "additionalProperties": false
+    },
+    "states": {
+      "type": "object",
+      "properties": {
+        "stopped": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "loading": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "running": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "unavailable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "waiting": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "offline": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "empty": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "error": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "stale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "withheld": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "queued": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "streaming": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "complete": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "cancelled": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "timed_out": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "rejected": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "failed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "idle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "closed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "active": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "dismissed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "expired": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "succeeded": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "stopped",
+        "loading",
+        "running",
+        "unavailable",
+        "waiting",
+        "offline",
+        "empty",
+        "error",
+        "stale",
+        "withheld",
+        "queued",
+        "streaming",
+        "complete",
+        "cancelled",
+        "timed_out",
+        "rejected",
+        "failed",
+        "idle",
+        "closed",
+        "active",
+        "dismissed",
+        "expired",
+        "succeeded"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version",
+    "provenance",
+    "notice",
+    "labels",
+    "states"
+  ],
+  "additionalProperties": false
+}

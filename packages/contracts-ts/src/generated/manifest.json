@@ -262,7 +262,7 @@
     "api/schemas/clinical-review.schema.json": "95ed730f49678ea3839314d84148b20cb552d46a743d556be78c1e1b70a88401",
     "api/schemas/coaching-sample.schema.json": "cfbb38606ad660e42c7ea3a562810a4c12c1bbcb70bb19ed9d3d3765d530f423",
     "api/schemas/common.schema.json": "7ec449438be4775762e1734503516efd3e95906e0b7d73ed7a7e61b42cbe3593",
-    "api/schemas/config-assistant-policy.schema.json": "9ddb704dfb9573e8c1526dc0eb10382f3801bedd509d5a37bf475e68d5d75f85",
+    "api/schemas/config-assistant-policy.schema.json": "1d9c6276e23b47e5e5441af24239dbf2d7db0122fb32331af7c1a19d49e3156b",
     "api/schemas/config-document.schema.json": "0ee93b6963cb53b9644bb70acf7770f554e7950359b97414bc79dda649b46840",
     "api/schemas/config-environment-hazards.schema.json": "4ebbac9039d9e18595a2f8f9b8505f0ff37c6987b7115b07a4b6c33725ee246b",
     "api/schemas/config-environment-profiles.schema.json": "2a266af8b6facf0087ec8a66b6bddd2390156093a82bea87a146ebf15595ed58",
@@ -281,7 +281,7 @@
     "api/schemas/config-sensor-catalog.schema.json": "e3778838f7a083e0b38781f3170e0b576021a5728410e7b29a85b81c137ca11e",
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
-    "api/schemas/config-ui-copy.schema.json": "048ee63e7699e201d96a97216dd809b3bf227310547dc5decb6d39647a17ee4e",
+    "api/schemas/config-ui-copy.schema.json": "8716b4a7bef0997f6bdbf165c92f43bc4b8ca7244e3cbe0a7b9ea80f07e633f2",
     "api/schemas/config-warning-rules.schema.json": "a237eac14f8cc5b2bc1d3d19019847a56d07261d84e59cbec0df1eee3ac522b3",
     "api/schemas/context.schema.json": "0fd66549c0b915548ec3f89b9650f3c84e3fe72e8f5c98c1671349cf53494a2b",
     "api/schemas/conversation.schema.json": "ac49ee869418d9b553264ef66207c29f40dd954500c9bbf433ddfde1e00d876b",
@@ -617,7 +617,7 @@
     "api/schemas/clinical-review.schema.json": "95ed730f49678ea3839314d84148b20cb552d46a743d556be78c1e1b70a88401",
     "api/schemas/coaching-sample.schema.json": "cfbb38606ad660e42c7ea3a562810a4c12c1bbcb70bb19ed9d3d3765d530f423",
     "api/schemas/common.schema.json": "9f156ee00c34bbc9fd52053af18493d74ae5a3298cf5098f36e90d2386b5e6b9",
-    "api/schemas/config-assistant-policy.schema.json": "9ddb704dfb9573e8c1526dc0eb10382f3801bedd509d5a37bf475e68d5d75f85",
+    "api/schemas/config-assistant-policy.schema.json": "1d9c6276e23b47e5e5441af24239dbf2d7db0122fb32331af7c1a19d49e3156b",
     "api/schemas/config-document.schema.json": "0ee93b6963cb53b9644bb70acf7770f554e7950359b97414bc79dda649b46840",
     "api/schemas/config-environment-hazards.schema.json": "4ebbac9039d9e18595a2f8f9b8505f0ff37c6987b7115b07a4b6c33725ee246b",
     "api/schemas/config-environment-profiles.schema.json": "2a266af8b6facf0087ec8a66b6bddd2390156093a82bea87a146ebf15595ed58",
@@ -636,7 +636,7 @@
     "api/schemas/config-sensor-catalog.schema.json": "e3778838f7a083e0b38781f3170e0b576021a5728410e7b29a85b81c137ca11e",
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
-    "api/schemas/config-ui-copy.schema.json": "048ee63e7699e201d96a97216dd809b3bf227310547dc5decb6d39647a17ee4e",
+    "api/schemas/config-ui-copy.schema.json": "8716b4a7bef0997f6bdbf165c92f43bc4b8ca7244e3cbe0a7b9ea80f07e633f2",
     "api/schemas/config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
     "api/schemas/config-warning-rules.schema.json": "a237eac14f8cc5b2bc1d3d19019847a56d07261d84e59cbec0df1eee3ac522b3",
     "api/schemas/context.schema.json": "0fd66549c0b915548ec3f89b9650f3c84e3fe72e8f5c98c1671349cf53494a2b",
@@ -711,10 +711,11 @@
     "reference/input-dictionary.json": "23dcdfad5edd18cc2f4ccd25e8d0c91cad14559edef52994913406697daaa479"
   },
   "modules": {
+    "crew_health.assistant.module": "5cb5bb4f68a9a811fb0df7fa9829947b74b97b0408229a9e7bab660780bbe99d",
     "crew_health.camera.module": "3b6a5508ea4b6bf2642a4a2cfe169209c8b5b9894d059d9e3f9a1995ad0a6d29",
     "crew_health.catchup.module": "637c2ef8c1fb3c739356156a61a0a34a94fe298aaaf5cb123c0cedb350630452",
-    "crew_health.clock.module": "0020a6efc5fd66be224f70aa76c7bce80d9ec85a0b94d4d5a738934a17670fa9",
-    "crew_health.config.module": "0fd8fc4cec098708aa98fee188a084796ea77c1cc52493ec5f9846c6ee1f1a64",
+    "crew_health.clock.module": "66ab238568e281b1d3e47625c6f469407da400ce3db6e609ee16628d2e51500d",
+    "crew_health.config.module": "6e59c3ce55869440769fd365faac3186d79964d73006e94a0a80be412402efe5",
     "crew_health.consent.module": "60501e11021686a0b8e9494f6f32828e3d0a5a0aaf40fa3cf5995c230ac5c9c0",
     "crew_health.episodes.module": "5c3e26fb7e09c7f2a07cb779ff780d69e3fee181e0a3714e077832f4195db58f",
     "crew_health.events.module": "9c658bf7cc77a7b35ce219fcf6284a7bd4d4391995057ee598597bc10a995953",
@@ -730,6 +731,7 @@
     "crew_health.records.module": "3968a31d83b37fd272da432a56e542b0acd506781d08a65f2b2ab533524c5f33",
     "crew_health.roles.module": "d063de3b56e106f5c71268658f078ff61379c1bc8896afa634fc7904ee1ad5ef",
     "crew_health.teach.module": "62cf5db048c52aa3a25ababbf10c928e46c96373ad6e2fa3c04c962946d81664",
+    "crew_health.tools.module": "8b52a4ef350d323284aa250f0b61ef6c4723c59597c46de9d3ee69355bf66ec7",
     "crew_health.trends.module": "3d88fcc4fa6773f33cfcb1ebe2dd5d36c3af86ea43265de938076add8645c568"
   },
   "outputs": {
@@ -741,7 +743,7 @@
       "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
       "part-a.json": "35de455967b4a02825bdaaaac5a641cd7247cf763f89c8f1a09ce0a56aed246c"
     },
-    "manifest_sha256": "df738a59529d115d1447398351638aa5fc28aab6680f80bb0f42f4e1b48ec38c",
+    "manifest_sha256": "279064c390f7c53a21f58f573416f456da31ff70ecc7ab21adbeb3d21ab77438",
     "traces": [
       {
         "a3": [

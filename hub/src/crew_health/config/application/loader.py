@@ -169,5 +169,14 @@ class TextRulesService:
         release.document(ConfigName.ASSISTANT_POLICY)
         if len(text.encode("utf-8")) > self.rules.max_text_bytes:
             raise ConfigInvalid("text byte bound exceeded")
-        # R-E01-27 leaves the release-pinned medicine vocabulary unallocated.
-        return TextMatches(release.release_id, "unavailable", ())
+        # R-E01-27: the vocabulary is pinned in the release's assistant-policy `medicine_terms`. A release without it
+        # answers unavailable, which every consumer treats as a failed check, never as a clean no-match.
+        policy = parse_document(release.document(ConfigName.ASSISTANT_POLICY).raw)
+        terms = policy.get("medicine_terms") if isinstance(policy, dict) else None
+        if (
+            not isinstance(terms, list)
+            or not terms
+            or not all(isinstance(t, str) and t.strip() for t in terms)
+        ):
+            return TextMatches(release.release_id, "unavailable", ())
+        return TextMatches(release.release_id, "checked", self.rules.find_terms(text, tuple(terms)))

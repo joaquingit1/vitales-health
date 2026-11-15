@@ -3,7 +3,7 @@
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, RootModel
 
 from . import common_schema
 
@@ -28,6 +28,10 @@ class ForbiddenOutputItem(BaseModel):
     rule: str = Field(..., min_length=1)
 
 
+class MedicineTerm(RootModel[str]):
+    root: str = Field(..., max_length=64, min_length=2)
+
+
 class AssistantPolicyJson(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -46,3 +50,9 @@ class AssistantPolicyJson(BaseModel):
     timeouts_basis: common_schema.Basis
     insight_topics: list[InsightTopic] = Field(..., min_length=1)
     forbidden_output: list[ForbiddenOutputItem] = Field(..., min_length=1)
+    medicine_terms: list[MedicineTerm] | None = Field(
+        None,
+        description="Release-pinned medicine vocabulary for the shared text checks (E01 TextRulesPort, R-E01-27). Matched as whole words, case-insensitive, plural s allowed.",
+        max_length=500,
+        min_length=1,
+    )

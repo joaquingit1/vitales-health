@@ -1,0 +1,264 @@
+[
+  {
+    "owner_path": "hub/src/crew_health/pathways/application/dto.py",
+    "owner_commit": "59fab40ad73a8fe84dffb3d8d4519d0a4e6fc40a",
+    "source_sha256": "0c12e2880821a1258a7d661212943623d0685d39e61dc395a98b7e699a9f95cf",
+    "consumer_file": "ports.py",
+    "classes": {
+      "UrgencyToken": {
+        "fields": {
+          "episode_id": "str",
+          "cycle": "int",
+          "revision": "int"
+        },
+        "methods": {}
+      },
+      "TurnContext": {
+        "fields": {
+          "kind": "str",
+          "person_id": "str | None",
+          "episode_id": "str | None"
+        },
+        "methods": {}
+      },
+      "Proceed": {
+        "fields": {
+          "token": "UrgencyToken | None",
+          "urgent_review_pending": "bool",
+          "review_intent_pending": "bool"
+        },
+        "methods": {}
+      },
+      "Interrupted": {
+        "fields": {
+          "help_session_ids": "tuple[str, ...]"
+        },
+        "methods": {}
+      },
+      "RedFlagsPending": {
+        "fields": {
+          "missing": "tuple[str, ...]"
+        },
+        "methods": {}
+      },
+      "Refused": {
+        "fields": {
+          "reason": "str"
+        },
+        "methods": {}
+      }
+    }
+  },
+  {
+    "owner_path": "hub/src/crew_health/pathways/application/ports.py",
+    "owner_commit": "59fab40ad73a8fe84dffb3d8d4519d0a4e6fc40a",
+    "source_sha256": "a0e2134d64e449e643bbfa9f9231400c78d8b1bb1a304dedeb21e33bef50c9bb",
+    "consumer_file": "ports.py",
+    "classes": {
+      "InferenceGate": {
+        "fields": {},
+        "methods": {
+          "before_turn": {
+            "arguments": "self, uow: UnitOfWork, ctx: TurnContext",
+            "returns": "GateDecision"
+          },
+          "still_valid": {
+            "arguments": "self, uow: UnitOfWork, token: UrgencyToken",
+            "returns": "bool"
+          }
+        }
+      },
+      "AssistantTurnControl": {
+        "fields": {},
+        "methods": {
+          "cancel_episode_turns": {
+            "arguments": "self, episode_id: str, reason: str",
+            "returns": "None"
+          }
+        }
+      }
+    }
+  },
+  {
+    "owner_path": "hub/src/crew_health/tools/domain/scope.py",
+    "owner_commit": "af3cf85f78f48b67646cc47d363b93b0f1bcb98c",
+    "source_sha256": "e26cd4450941b844a18765e84e78f8256706fb9c46eb202eab71d86d537b32bf",
+    "consumer_file": "tools_copies.py",
+    "classes": {
+      "ToolScope": {
+        "fields": {
+          "session": "SessionContext",
+          "subject_person_id": "str | None",
+          "mission_id": "str",
+          "origin_mode": "Literal['LIVE', 'REPLAY', 'SIM']",
+          "episode_id": "str | None",
+          "help_session_id": "str | None",
+          "plan_run_id": "str | None",
+          "turn_id": "str",
+          "conversation_id": "str",
+          "config_release_id": "str",
+          "evidence_release_id": "str",
+          "model_release_id": "str",
+          "phase": "Phase",
+          "source_revision": "int",
+          "generation": "int",
+          "deadline": "ElapsedDeadline"
+        },
+        "methods": {}
+      }
+    }
+  },
+  {
+    "owner_path": "hub/src/crew_health/tools/domain/context.py",
+    "owner_commit": "af3cf85f78f48b67646cc47d363b93b0f1bcb98c",
+    "source_sha256": "4c61b190a8c4b118a39440bf077bb12f07dc73e4864f3d4105ff7bd176bcc824",
+    "consumer_file": "tools_copies.py",
+    "classes": {
+      "ContextBudget": {
+        "fields": {
+          "max_tokens": "int",
+          "output_reserve": "int",
+          "section_order": "tuple[str, ...]"
+        },
+        "methods": {}
+      },
+      "ContextSnapshot": {
+        "fields": {
+          "sections": "bytes",
+          "included_ids": "tuple[str, ...]",
+          "omitted_sections": "tuple[str, ...]",
+          "config_release_id": "str",
+          "evidence_release_id": "str",
+          "model_release_id": "str",
+          "source_revision": "int",
+          "snapshot_fingerprint": "str"
+        },
+        "methods": {}
+      }
+    }
+  },
+  {
+    "owner_path": "hub/src/crew_health/tools/domain/tool_result.py",
+    "owner_commit": "af3cf85f78f48b67646cc47d363b93b0f1bcb98c",
+    "source_sha256": "4155a5276df2f04c6f4df672d04d90c295e6a6caf496a0adaadcd8fd0fb8fe07",
+    "consumer_file": "tools_copies.py",
+    "classes": {
+      "ToolCall": {
+        "fields": {
+          "tool_call_id": "str",
+          "name": "str",
+          "arguments": "bytes"
+        },
+        "methods": {}
+      },
+      "PendingEffect": {
+        "fields": {
+          "turn_id": "str",
+          "tool_call_id": "str",
+          "generation": "int",
+          "source_revision": "int",
+          "arguments": "bytes",
+          "references": "tuple[str, ...]"
+        },
+        "methods": {}
+      },
+      "ToolResult": {
+        "fields": {
+          "tool_call_id": "str",
+          "status": "ToolStatus",
+          "data": "bytes | None",
+          "provenance_ids": "tuple[str, ...]",
+          "observed_at": "datetime | None",
+          "generated_at": "datetime",
+          "limitations": "tuple[str, ...]",
+          "error_code": "ToolsErrorCode | None"
+        },
+        "methods": {}
+      }
+    }
+  },
+  {
+    "owner_path": "hub/src/crew_health/tools/application/ports.py",
+    "owner_commit": "af3cf85f78f48b67646cc47d363b93b0f1bcb98c",
+    "source_sha256": "0da80b88fbcd076ef4b6b6b10948162efe2134781bb08ee3de1ff8ca67d308e1",
+    "consumer_file": "tools_copies.py",
+    "classes": {
+      "ToolGateway": {
+        "fields": {},
+        "methods": {
+          "execute": {
+            "arguments": "self, uow: UnitOfWork, scope: ToolScope, call: ToolCall",
+            "returns": "ToolResult"
+          }
+        }
+      },
+      "ScopeAuthority": {
+        "fields": {},
+        "methods": {
+          "require_current": {
+            "arguments": "self, uow: UnitOfWork, scope: ToolScope",
+            "returns": "bool"
+          },
+          "authorize_arguments": {
+            "arguments": "self, uow: UnitOfWork, scope: ToolScope, name: str, arguments: Mapping[str, object]",
+            "returns": "bool"
+          },
+          "authorize_result": {
+            "arguments": "self, uow: UnitOfWork, scope: ToolScope, name: str, data: Mapping[str, object]",
+            "returns": "bool"
+          }
+        }
+      },
+      "ContextBuilderPort": {
+        "fields": {},
+        "methods": {
+          "build": {
+            "arguments": "self, uow: UnitOfWork, scope: ToolScope, phase: Phase, budget: ContextBudget",
+            "returns": "ContextSnapshot"
+          }
+        }
+      },
+      "EffectApplier": {
+        "fields": {},
+        "methods": {
+          "apply": {
+            "arguments": "self, uow: UnitOfWork, scope: ToolScope, effects: tuple[PendingEffect, ...], idempotency_prefix: str",
+            "returns": "AppliedEffects"
+          }
+        }
+      },
+      "TextField": {
+        "fields": {
+          "field": "str",
+          "text": "str",
+          "source_ref": "str | None"
+        },
+        "methods": {}
+      },
+      "TurnData": {
+        "fields": {
+          "release": "ReleaseHandle",
+          "source_revision": "int",
+          "authored_fields": "tuple[TextField, ...]"
+        },
+        "methods": {}
+      },
+      "PolicyVerdict": {
+        "fields": {
+          "allowed": "bool",
+          "error_code": "ToolsErrorCode | None"
+        },
+        "methods": {}
+      },
+      "OutputPolicyPort": {
+        "fields": {},
+        "methods": {
+          "check": {
+            "arguments": "self, fields: Sequence[TextField], scope: ToolScope, turn: TurnData",
+            "returns": "PolicyVerdict"
+          }
+        }
+      }
+    }
+  }
+]
