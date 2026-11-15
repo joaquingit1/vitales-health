@@ -46,6 +46,7 @@ from crew_health.rules.domain.definitions import (
     WarningDefinition,
     WithinDays,
 )
+from crew_health.rules.domain.errors import InvalidInput
 from crew_health.rules.domain.inputs import (
     ActivationInput,
     AnswerInput,
@@ -87,9 +88,26 @@ from crew_health.rules.domain.warning import (
     Warning,
 )
 
+_PLACED = (
+    SensorEvaluatedInput,
+    FreshnessInput,
+    MissionEventInput,
+    StateFactInput,
+    AnswerInput,
+    SupplyCoverInput,
+)
+
+
+def _require_origin(inp: RuleInput) -> None:
+    """Evidence the engine cannot place by origin (LIVE, REPLAY, SIM) is refused with a typed error, never evaluated:
+    the isolation boundary records it as a pending evaluation, clears freeze and health degrades (AGENTS 2, D13)."""
+    if isinstance(inp, _PLACED) and not isinstance(inp.origin_mode, OriginMode):
+        raise InvalidInput("an input without an origin mode is never evaluated")
+
 
 def evaluate(inp: RuleInput, view: EngineView) -> Decision:
     """The decision for one input under one view."""
+    _require_origin(inp)
     match inp:
         case SensorEvaluatedInput():
             return _sensor(inp, view)
