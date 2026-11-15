@@ -99,3 +99,29 @@ def test_gate_requires_typed_identity_and_numeric_metrics(
     gate.update(change)
     with pytest.raises(ModelRefused):
         check_gate("model_candidate", gate, policy)
+
+
+@pytest.mark.trace("R22", "R23", "T-E17-001", "T-E17-034")
+@pytest.mark.parametrize(
+    "path, value",
+    [
+        ("release_id", "../escape"),
+        ("status", "rogue"),
+        ("thinking_mode", "off"),
+        ("runtime.parallel_slots", 2),
+        ("runtime.context_tokens", 0),
+        ("basis", {}),
+    ],
+)
+def test_release_refuses_unsafe_identity_runtime_or_missing_numeric_basis(
+    path: str, value: object, manifest: dict[str, object]
+) -> None:
+    from crew_health.model.domain.release import object_value
+
+    if "." in path:
+        parent, key = path.split(".")
+        object_value(manifest[parent])[key] = value
+    else:
+        manifest[path] = value
+    with pytest.raises(ModelRefused):
+        validate_manifest(manifest, profile="eval")

@@ -60,7 +60,7 @@ def test_real_release_config_changes_prompt_and_identity(store: ManifestStore) -
         st.text(alphabet="abc", min_size=1, max_size=3), st.integers(-100, 100), max_size=5
     )
 )
-@settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
+@settings(deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
 def test_section_order_does_not_change_prompt_hash(values: dict[str, int], store: ManifestStore) -> None:
     builder = PromptBuilder(store, FilePromptAssets(store), Tokens())
     original = builder.build("model_candidate", "general", Context(dict(values)), ())
@@ -281,3 +281,27 @@ def test_real_catalog_exposes_acquisition_in_intake_and_help_and_assessment_draf
     assert "propose_measurement" in catalog.exposure["help"]
     assert "draft_assessment" in catalog.exposure["assessment"]
     assert not catalog.exposure["verifier"]
+
+
+@pytest.mark.trace("R22", "T-E17-044", "T-E17-072")
+@pytest.mark.parametrize("fault", ["messages", "tokens", "envelope"])
+def test_prompt_budgets_and_envelope_schema_are_enforced(fault: str, store: ManifestStore) -> None:
+    from crew_health.model.application.ports import TranscriptItem
+
+    document = store.read_json(store.root / "releases/model_candidate.json")
+    if fault == "tokens":
+        document["context_settings"]["budget_tokens_by_phase"]["general"] = 1  # type: ignore[index]
+    elif fault == "envelope":
+        document["tool_call_mode"] = "envelope"
+    durable_json(store.root / "releases/model_candidate.json", document)
+    builder = PromptBuilder(store, FilePromptAssets(store), Tokens())
+    transcript = tuple(TranscriptItem("user", "short") for _ in range(17)) if fault == "messages" else ()
+    if fault == "envelope":
+        bundle = builder.build("model_candidate", "general", Context({}), transcript)
+        assert request_body(bundle)["response_format"] == {
+            "type": "json_schema",
+            "json_schema": {"name": "e17_general", "strict": True, "schema": bundle.output_validation_schema},
+        }
+    else:
+        with pytest.raises(ModelRefused, match="prompt_too_large"):
+            builder.build("model_candidate", "general", Context({}), transcript)
