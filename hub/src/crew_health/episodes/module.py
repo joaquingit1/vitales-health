@@ -36,7 +36,9 @@ from crew_health.episodes.application.queries import (
 )
 from crew_health.episodes.application.rules import EpisodeRulesSource
 from crew_health.episodes.application.use_cases import EpisodeService, Limits, Providers
+from crew_health.episodes.domain.loader_checks import EpisodeWordsCheck
 from crew_health.kernel.commands import IdempotencyStore
+from crew_health.kernel.config import ReleaseCheck
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.scheduler import HealthState, ScheduledJob
 from crew_health.kernel.settings import HubSettings, SettingSpec
@@ -60,6 +62,7 @@ class StartupPhase(IntEnum):
 
 
 class Registry(Protocol):
+    def loader_check(self, check: ReleaseCheck) -> None: ...
     def scheduler_handler(self, name: str, fn: Callable[[UnitOfWork, ScheduledJob], None]) -> None: ...
     def on_startup(self, phase: StartupPhase, fn: Callable[[], None]) -> None: ...
     def provide[P](
@@ -191,6 +194,7 @@ def _bind(live: Live, api: EpisodeApi) -> Callable[[Resolver], None]:
 def register(registry: Registry) -> None:
     live = Live()
     api = EpisodeApi()
+    registry.loader_check(EpisodeWordsCheck())
     for spec in setting_specs():
         registry.setting(spec)
     for prefix in ("epi", "ack", "rev", "rop", "res", "tsk", "etl", "efx"):

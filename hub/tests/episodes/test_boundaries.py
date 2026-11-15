@@ -427,3 +427,35 @@ def test_owned_rules_schema_and_semantic_loader_reject_unknown_fields() -> None:
     assert list(Draft202012Validator(schema).iter_errors(data))
     with pytest.raises(ProblemError):
         parse_rules(json.dumps(data).encode())
+
+
+@pytest.mark.trace("T-E15-042", "R43")
+def test_loader_ep6_rejects_missing_words_without_touching_e03_config() -> None:
+    import hashlib
+
+    from crew_health.episodes.domain.loader_checks import EpisodeWordsCheck
+    from crew_health.episodes.domain.types import REOPEN_REASONS, EpisodeState, ResolutionReason
+    from crew_health.kernel.config import CandidateRelease, ConfigDocumentView, ConfigName
+
+    check = EpisodeWordsCheck()
+    assert check.check(CandidateRelease("release_empty", {}))
+    data = {
+        "episode_words": {"state": {state.value: "token" for state in EpisodeState}},
+        "resolution_reason_words": {reason.value: "token" for reason in ResolutionReason},
+        "reopen_reason_words": {
+            key: "token"
+            for key in REOPEN_REASONS
+            | frozenset({"answer_after_resolution", "urgency_raised", "new_activity", "review_unresolved"})
+        },
+        "task_kind_words": {key: "token" for key in ("review", "review_item", "custom")},
+        "review_decision_words": {
+            key: "token" for key in ("agree", "disagree", "needs_more", "not_assessed")
+        },
+    }
+    raw = json.dumps(data).encode()
+    doc = ConfigDocumentView(ConfigName.UI_COPY, hashlib.sha256(raw).hexdigest(), raw)
+    assert check.check(CandidateRelease("release_complete", {ConfigName.UI_COPY: doc})) == ()
+    raw = (ROOT / "config/ui-copy.json").read_bytes()
+    doc = ConfigDocumentView(ConfigName.UI_COPY, hashlib.sha256(raw).hexdigest(), raw)
+    findings = check.check(CandidateRelease("release_missing_words", {ConfigName.UI_COPY: doc}))
+    assert any(f.pointer == "/episode_words/state/open" for f in findings)
