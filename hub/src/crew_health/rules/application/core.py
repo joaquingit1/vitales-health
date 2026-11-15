@@ -20,7 +20,7 @@ from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.scheduler import AbsoluteDeadline, HealthState, ScheduledJob
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.uow import ReadSnapshot, ReplicationChange, UnitOfWork
-from crew_health.mission.application.ports import MissionStatePort
+from crew_health.mission.application.ports import DayLabelPort, MissionStatePort
 from crew_health.rules.application import facts as release_facts
 from crew_health.rules.application import input_codec
 from crew_health.rules.application.codec import dumps as warning_json
@@ -102,6 +102,7 @@ class Runtime:
     binding: ConfigBinding | None
     health: HealthState | None
     record_facts: RecordFactsPort | None = None
+    day_labels: DayLabelPort | None = None
     warnings: WarningStore = field(default_factory=WarningStore)
     occurrences: OccurrenceStore = field(default_factory=OccurrenceStore)
     dwell: DwellStore = field(default_factory=DwellStore)
@@ -142,6 +143,15 @@ class Runtime:
         if current is None or not current.site_node_id:
             raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, "rules_node_unknown", retryable=True)
         return current.site_node_id
+
+    def day_label(self, instant: datetime) -> str | None:
+        """The mission's short day label at an instant (`{day_short}`, `{answer_day_label}`); absent stays absent."""
+        if self.day_labels is None:
+            return None
+        try:
+            return self.day_labels.inline_label_at(instant) or None
+        except ProblemError:
+            return None
 
     def renderer(self, uow: UnitOfWork) -> TemplateRenderer:
         if self.binding is None:
@@ -252,7 +262,16 @@ def build_view(rt: Runtime, uow: UnitOfWork, facts: ReleaseFacts, inp: RuleInput
         clock_regressed=bool(regressed and regressed.get("on")),
         origin_words=facts.origin_words,
         duration_words=facts.duration_words,
+        context_placeholders=_context(rt, uow, inp),
     )
+
+
+def _context(rt: Runtime, uow: UnitOfWork, inp: RuleInput) -> dict[str, str]:
+    """Placeholders about "today" that only an answer's warning words use; looked up for no other input."""
+    if not isinstance(inp, AnswerInput):
+        return {}
+    today = rt.day_label(uow.now)
+    return {} if today is None else {"day_short": today}
 
 
 _FIELDS = {

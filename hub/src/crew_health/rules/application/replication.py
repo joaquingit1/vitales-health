@@ -46,5 +46,5 @@ def apply_replica(rt: Runtime, uow: UnitOfWork, entry: ReplicatedWarning) -> boo
         now=uow.now,
     )
     if stored:
-        note_audit(rt, uow, "warning.replica_applied", {"warning": entry.warning_id}, {})
+        note_audit(rt, uow, "warning.replica_applied", {}, {})  # a foreign id is no local reference
     return stored

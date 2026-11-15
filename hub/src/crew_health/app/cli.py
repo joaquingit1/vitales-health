@@ -187,7 +187,8 @@ def rules_command(arguments: Sequence[str]) -> int:
         return 2
     try:
         console = RulesConsole(sys.stdout, sys.stderr, known.operator, db.ids.new("correlation"))
-        return rules_run(rest, db, db.ids, console)
+        bound = min(db.settings.integer("rules.pending_max_rows") + 1, db.settings.integer("storage.max_rows"))
+        return rules_run(rest, db, db.ids, console, limit=bound)
     finally:
         db.close()
 

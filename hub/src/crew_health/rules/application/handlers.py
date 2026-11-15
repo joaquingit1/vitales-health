@@ -44,7 +44,8 @@ def on_answer(rt: Runtime, uow: UnitOfWork, event: AnswerAcceptedFact) -> None:
     inp = AnswerInput(
         answer_id=event.answer_id, person_id=event.patient_id, question_id=event.question_id,
         presence=event.presence, answered_at=event.answered_at, answered_corrected_at=None,
-        origin_mode=OriginMode(event.origin_mode), day_label=f"{event.answered_at:%Y-%m-%d}",
+        origin_mode=OriginMode(event.origin_mode),
+        day_label=rt.day_label(event.answered_at) or f"{event.answered_at:%Y-%m-%d}",
         time_label=f"{event.answered_at:%H:%M}",
     )  # fmt: skip
     core.run_input(rt, uow, inp)

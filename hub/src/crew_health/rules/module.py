@@ -40,6 +40,7 @@ from crew_health.kernel.uow import (
     UnitOfWorkFactory,
 )
 from crew_health.mission.application.ports import (
+    DayLabelPort,
     MissionEventRecorded,
     MissionStatePort,
     OverlayPort,
@@ -91,12 +92,11 @@ def audit_policies() -> tuple[AuditPolicy, ...]:
     warning_ref = ({"warning"}, {"warning": frozenset({"warning"})})
     lifecycle = tuple(
         AuditPolicy("warning." + kind, {}, frozenset(warning_ref[0]), warning_ref[1])
-        for kind in ("raised", "cleared", "updated", "occurrence_attached", "replica_applied")
+        for kind in ("raised", "cleared", "updated", "occurrence_attached")
     )
     coded = (
-        AuditPolicy(
-            "rules.pending_quarantined", {}, frozenset({"pending"}), {"pending": frozenset({"rules_pending"})}
-        ),
+        AuditPolicy("rules.pending_quarantined", {}, frozenset(), {}),
+        AuditPolicy("warning.replica_applied", {}, frozenset(), {}),
         AuditPolicy("warning.refused", {"code": frozenset(_REFUSALS)}, frozenset(), {}),
         AuditPolicy("insight.rejected", {"code": frozenset(_INSIGHT_CODES)}, frozenset(), {}),
         AuditPolicy("warning.assistant_rejected", {"code": frozenset(_ASSISTANT_CODES)}, frozenset(), {}),
@@ -141,6 +141,7 @@ def _bind(live: _Live) -> Callable[[Resolver], None]:
             binding=resolver.optional(ConfigBinding),
             health=resolver.optional(HealthState),
             record_facts=resolver.optional(RecordFactsPort),
+            day_labels=resolver.optional(DayLabelPort),
         )
         live.runtime = rt
         snapshots = resolver.require(ReadSnapshotFactory)

@@ -17,7 +17,7 @@ from typing import Any
 import e23_station as base
 import pytest
 import rules_harness as h
-from e24_station import RECORD_FACTS, build, edited_documents, replaced
+from e24_station import RECORD_FACTS, build, edited_documents, post, replaced, seconds
 
 from crew_health.contracts_gen.enums import ConfigName, EventType
 from crew_health.events.application.subscriptions import DurableSubscriptions
@@ -429,3 +429,42 @@ def test_without_the_records_owner_no_insight_can_be_verified_and_none_is_stored
             insight_module.InsightPort(rt).validate_and_raise(uow, draft)
     assert caught.value.retryable
     assert rows(st, "SELECT count(*) FROM rules_warning") == [(0,)]
+
+
+# --- sensor continuity (3.6, T-E24-024, 048) -----------------------------------------------------------
+
+
+def minute_of_readings(st: base.Station, first: int, value: float, key: str) -> int:
+    st.advance(seconds=60)
+    batch = [
+        base.reading("ch_o2", first + n, value, "mmHg", st.clock.at - timedelta(seconds=5 * (12 - n)))
+        for n in range(12)
+    ]
+    sent = post(st, batch, key)
+    assert sent.status_code == 200, sent.text
+    return first + 12
+
+
+@pytest.mark.trace("T-E24-048", "T-E24-024")
+def test_a_stale_channel_voids_the_dwell_and_the_warning_stays_until_a_full_new_dwell(
+    patched: None, tmp_path: Path
+) -> None:
+    st = build(tmp_path, registry={"channels": [base.channel("ch_o2", "o2", "oxygen", "SIM", "mmHg")]})
+    st.initialize("SIM", "station_leo")
+    st.advance(seconds=3600)
+    assert post(st, [base.reading("ch_o2", 1, 400.0, "mmHg", seconds(st, 5))], "hi").status_code == 200
+    assert warnings_of(st, "oxygen_high_act")[0][1] == "raised"
+    n = 2
+    for minute in range(3):  # three minutes back in range: a dwell begins, 600 s are needed
+        n = minute_of_readings(st, n, 200.0, f"a{minute}")
+    assert rows(st, "SELECT count(*) FROM rules_dwell") == [(1,)]
+    st.advance(seconds=301)  # silence past the channel's stale bound
+    st.sweep()
+    assert rows(st, "SELECT count(*) FROM rules_dwell") == [(0,)]  # continuity is proved, never assumed
+    assert warnings_of(st, "oxygen_high_act")[0][1] == "raised"
+    for minute in range(9):  # nine fresh minutes are still short of a full dwell of 600 s
+        n = minute_of_readings(st, n, 200.0, f"b{minute}")
+    assert warnings_of(st, "oxygen_high_act")[0][1] == "raised"
+    for minute in range(2):
+        n = minute_of_readings(st, n, 200.0, f"c{minute}")
+    assert warnings_of(st, "oxygen_high_act")[0][1:4] == ("cleared", 2, "condition_false")

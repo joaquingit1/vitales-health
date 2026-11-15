@@ -3,6 +3,8 @@ the wire mapper and the loader check. Inputs come from the configuration through
 
 from __future__ import annotations
 
+import hashlib
+import json
 import sqlite3
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -177,9 +179,6 @@ def test_release_facts_wire_and_loader_check() -> None:
         ConfigName.UI_COPY: {"origin_words": {"LIVE": "Live"}, "designed_states": {}},
         ConfigName.ROUTINE_RULES: h.example_value("routine-rules"),
     }
-    import hashlib
-    import json
-
     raw = {n: json.dumps(v).encode() for n, v in docs.items()}
     views = {n: ConfigDocumentView(n, hashlib.sha256(b).hexdigest(), b) for n, b in raw.items()}
     release = MemoryRelease("rel_x", views)
@@ -196,3 +195,74 @@ def test_release_facts_wire_and_loader_check() -> None:
     _, warning = raised("rdg_abc")
     wire = wire_json(warning, steps=warning.steps, allowed=())
     assert wire["evidence"][0]["summary"] == "rdg_abc" and wire["allowed_actions"] == []  # type: ignore[index]
+
+
+# --- stored data that is not what was written is refused, never repaired (AGENTS 6: integrity errors fail loud) --
+
+
+@pytest.mark.trace("INV-E24-11")
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda r: r.update(warning_id=7),  # text expected
+        lambda r: r.update(revision="1"),  # integer expected
+        lambda r: r.update(revision=True),  # a bool is not an integer
+        lambda r: r.update(steps="not a list"),
+        lambda r: r.update(citation=["not", "an", "object"]),
+        lambda r: r.update(raised_at=5),  # an instant is text
+        lambda r: r.update(raised_at="2026-11-14T09:00:00"),  # and carries its offset
+        lambda r: r.update(level="severe"),  # an enum is the whole enum
+        lambda r: r.update(source_revision="x"),
+    ],
+    ids=["text", "integer", "bool", "list", "object", "instant_type", "instant_zone", "enum", "optional_int"],
+)
+def test_a_corrupt_stored_warning_is_refused(mutate) -> None:  # type: ignore[no-untyped-def]
+    _, warning = raised()
+    stored = codec.to_raw(warning)
+    mutate(stored)
+    with pytest.raises(Exception) as caught:  # noqa: PT011 - the type is part of the corruption under test
+        codec.from_raw(stored)
+    assert not isinstance(caught.value, KeyError)  # a typed refusal, not an accident of lookup
+
+
+@pytest.mark.trace("INV-E24-11")
+def test_a_corrupt_pending_input_is_refused_and_an_unsupported_one_is_never_written() -> None:
+    w, _ = raised()
+    kind, text = input_codec.dumps(w.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]))
+    body = json.loads(text)
+    for bad in (
+        {**body, "results": "nope"},  # a list expected
+        {**body, "channel": ["nope"]},  # an object expected
+        {**body, "origin_mode": "ELSEWHERE"},  # the whole enum
+    ):
+        with pytest.raises(Exception):  # noqa: B017, PT011
+            input_codec.loads(kind, json.dumps(bad))
+    with pytest.raises(Exception, match="unsupported"):
+        input_codec.dumps(object())  # type: ignore[arg-type]
+    deep: object = 1
+    for _ in range(20):
+        deep = (deep,)
+    with pytest.raises(Exception, match="bound"):
+        input_codec.dumps(deep)  # type: ignore[arg-type]
+
+
+@pytest.mark.trace("INV-E24-14")
+def test_the_loader_check_names_a_missing_or_unreadable_document_and_never_passes_it() -> None:
+    docs = {
+        ConfigName.WARNING_RULES: h.deployment_rules(),
+        ConfigName.SENSOR_LIMITS: h.example_value("sensor-limits"),
+        ConfigName.ENVIRONMENT_HAZARDS: h.hazards_document(),
+        ConfigName.ASSISTANT_POLICY: h.example_value("assistant-policy"),
+    }
+    raw = {n: json.dumps(v).encode() for n, v in docs.items()}
+    views = {n: ConfigDocumentView(n, hashlib.sha256(b).hexdigest(), b) for n, b in raw.items()}
+    assert WarningRulesCheck(500).check(CandidateRelease("rel_ok", views)) == ()
+    for name in (ConfigName.SENSOR_LIMITS, ConfigName.ENVIRONMENT_HAZARDS, ConfigName.ASSISTANT_POLICY):
+        without = {k: v for k, v in views.items() if k is not name}
+        assert WarningRulesCheck(500).check(CandidateRelease("rel_x", without)), name
+    garbage = dict(views)
+    garbage[ConfigName.WARNING_RULES] = ConfigDocumentView(ConfigName.WARNING_RULES, "x", b"{not json")
+    assert WarningRulesCheck(500).check(CandidateRelease("rel_g", garbage))
+    array = dict(views)
+    array[ConfigName.WARNING_RULES] = ConfigDocumentView(ConfigName.WARNING_RULES, "x", b"[]")
+    assert WarningRulesCheck(500).check(CandidateRelease("rel_a", array))

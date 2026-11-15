@@ -2,7 +2,8 @@
 
 Lists the rows of `rules_pending`, the `evaluation_pending` marker of SYSTEM 8.6, one JSON line each. With
 `--quarantine <pending_id>` an operator marks a stuck row reviewed so that clears resume; the row stays and health
-stays degraded until it re-evaluates. The command is audited and never deletes a row. Exit status: 0 done, 1 refused
+stays degraded until it re-evaluates. The command is audited (who and when; a pending row is no replicated record,
+so it cannot be an audit reference) and never deletes a row. Exit status: 0 done, 1 refused
 (unknown or not stuck row), 2 unusable input.
 """
 
@@ -18,8 +19,6 @@ from crew_health.kernel.audit import AuditEntry
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.uow import Actor, UnitOfWorkFactory
 from crew_health.rules.application.stores import PendingStore
-
-_LIST_LIMIT = 10000  # the bound of rules.pending_max_rows (5.4); one extra overflow row may exist
 
 
 @dataclass(frozen=True, slots=True)
@@ -55,7 +54,8 @@ def _line(row: tuple[str, str, str, int, str, str, str | None]) -> dict[str, obj
     }  # fmt: skip
 
 
-def run(argv: Sequence[str], uows: UnitOfWorkFactory, ids: IdFactory, console: Console) -> int:
+def run(argv: Sequence[str], uows: UnitOfWorkFactory, ids: IdFactory, console: Console, *, limit: int) -> int:
+    """`limit` is the listing bound: rules.pending_max_rows plus the one overflow row, never above storage.max_rows."""
     try:
         args = _parser().parse_args(list(argv))
     except UsageError as error:
@@ -72,9 +72,9 @@ def run(argv: Sequence[str], uows: UnitOfWorkFactory, ids: IdFactory, console: C
             uow.audit(
                 AuditEntry(
                     ids.new("aud"), "rules.pending_quarantined", 1, uow.actor,
-                    {"pending": args.quarantine}, uow.correlation_id, None, {},
+                    {}, uow.correlation_id, None, {},
                 )
             )  # fmt: skip
-        for row in store.rows(uow.connection, limit=_LIST_LIMIT):
+        for row in store.rows(uow.connection, limit=limit):
             console.stdout.write(json.dumps(_line(row), sort_keys=True) + "\n")
     return 0
