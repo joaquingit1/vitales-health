@@ -7,9 +7,15 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import ClassVar, Literal, Protocol
 
-from crew_health.assistant.application.content import CopyDocument
 from crew_health.kernel.task_results import TaskFailureResults as TaskFailureResults
 from crew_health.kernel.uow import ReadSnapshot, SessionContext, UnitOfWork
+
+
+@dataclass(frozen=True, slots=True)
+class CopyDocument:
+    raw: bytes
+    sha256: str
+    config_release_id: str
 
 
 class SessionAuthenticator(Protocol):

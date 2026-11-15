@@ -8,6 +8,7 @@ from types import MappingProxyType
 
 from pydantic import ValidationError
 
+from crew_health.assistant.application.ports import CopyDocument as CopyDocument
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.contracts_gen.schemas.config_assistant_policy_schema import AssistantPolicyJson
 from crew_health.kernel.errors import ProblemError
@@ -49,13 +50,6 @@ class Policy:
             value.tool_timeout_seconds,
             tuple(topic.model_dump(mode="json") for topic in value.insight_topics),
         )
-
-
-@dataclass(frozen=True, slots=True)
-class CopyDocument:
-    raw: bytes
-    sha256: str
-    config_release_id: str
 
 
 @dataclass(frozen=True, slots=True)
