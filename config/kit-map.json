@@ -509,7 +509,32 @@
  ],
  "candidate_supplies": [],
  "candidate_skills": [],
- "supplies": [],
+ "supplies": [
+  {
+   "supply_id": "eye_rinse_water",
+   "name": "Clean water for an eye rinse",
+   "unit": "rinse",
+   "consumable": true
+  },
+  {
+   "supply_id": "eye_shield",
+   "name": "Rigid eye shield",
+   "unit": "shield",
+   "consumable": true
+  },
+  {
+   "supply_id": "eye_wash_set",
+   "name": "Eye wash set",
+   "unit": "set",
+   "consumable": false
+  },
+  {
+   "supply_id": "towels",
+   "name": "Towels",
+   "unit": "towel",
+   "consumable": true
+  }
+ ],
  "stock": {
   "station_leo": [],
   "transit": [],
