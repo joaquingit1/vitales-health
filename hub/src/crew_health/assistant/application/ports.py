@@ -198,3 +198,69 @@ class InferenceGate(Protocol):
 
 class AssistantTurnControl(Protocol):
     def cancel_episode_turns(self, episode_id: str, reason: str) -> None: ...
+
+
+@dataclass(frozen=True, slots=True)
+class DeliveredAssessment:
+    handoff_id: str
+    delivery_id: str
+    assessment_id: str
+    episode_id: str
+    subject_person_id: str
+    recipient_id: str
+    selected_fields: frozenset[str]
+    content_sha256: str
+    body_json: bytes
+    config_release_id: str
+    evidence_release_id: str
+    model_release_id: str | None
+    source_revision: int
+    delivered_at: datetime
+
+
+class DeliveredAssessmentSource(Protocol):
+    """E16 host bridge: exact approved delivered bytes, after a fresh recipient field-grant check.
+
+    Never enrich this source projection from current E13 or E15 rows.
+    """
+
+    def read(
+        self,
+        view: ReadSnapshot | UnitOfWork,
+        session: SessionContext,
+        *,
+        assessment_id: str,
+        fields: frozenset[str],
+    ) -> DeliveredAssessment | None: ...
+
+
+@dataclass(frozen=True, slots=True)
+class SelectedAssessment:
+    assessment_id: str
+    episode_id: str
+    subject_person_id: str
+    source_revision: int
+    validation_status: Literal["draft", "stale", "reviewed"]
+    config_release_id: str
+    evidence_release_id: str
+    model_release_id: str | None
+    selected_fields: frozenset[str]
+    content_sha256: str
+    body_json: bytes
+
+
+class SelectedAssessmentFacts(Protocol):
+    """E16 consumes the selected current owner fields for an explicit human sharing preview.
+
+    source_revision is the assessment record's own mutation revision, not an episode revision.
+    body_json contains exactly selected_fields. Identity and lineage stay outside the selected body.
+    """
+
+    def read(
+        self,
+        view: ReadSnapshot | UnitOfWork,
+        session: SessionContext,
+        *,
+        assessment_id: str,
+        fields: frozenset[str],
+    ) -> SelectedAssessment: ...
