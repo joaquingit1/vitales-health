@@ -1,0 +1,27 @@
+{
+  "summary": "SIM request POST /v1/adapters/adp_replay_osdr/readings",
+  "description": "One replayed CO2 sample in ppm with the assumed cabin pressure. Illustrative only: not seed data.",
+  "x-schema": "requests.schema.json#/$defs/AdapterReadingBatch",
+  "value": {
+    "batch_id": "bat_replay_5033",
+    "readings": [
+      {
+        "channel_id": "ch_co2_cabin_replay",
+        "adapter_sequence": 5033,
+        "value": 4646.0,
+        "unit": "ppm",
+        "observed_at": "2014-10-07T15:36:00Z",
+        "origin_mode": "REPLAY",
+        "quality_status": "accepted",
+        "replay": {
+          "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+          "time_basis": "Times as in the source file, read as UTC."
+        },
+        "cabin_pressure_mmhg": {
+          "value": 760,
+          "basis": "assumed"
+        }
+      }
+    ]
+  }
+}
