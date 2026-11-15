@@ -149,6 +149,12 @@ class LlamaClient:
             return StepUnavailable("prompt_too_large")
         connection.connect()
         if connection.sock is not None:
+            # The connect timeout bounds only the connect. Reads (prompt prefill can take seconds before the first
+            # byte) are bounded by the step's total deadline; the caller shuts the socket down on cancel or expiry.
+            remaining = (deadline.total_ns - deadline.clock.monotonic_ns()) / 1e9
+            if remaining <= 0:
+                return StepTimedOut("total")
+            connection.sock.settimeout(remaining)
             active_socket.append(connection.sock)
         if stopped.is_set():
             return StepCancelled()

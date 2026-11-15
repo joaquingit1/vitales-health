@@ -31,6 +31,7 @@ from crew_health.guidance.application.ports import (
     Fact,
     Known,
 )
+from crew_health.identity.application.ports import OperatorProof
 from crew_health.identity.application.admin import IdentityAdmin
 from crew_health.identity.application.service import IdentityService
 from crew_health.identity.domain.roster import ProvisionedPrincipal, RosterBootstrap, RosterMember
@@ -56,7 +57,7 @@ from tests.app.test_composition import Station, station
 MODEL_RELEASE = "model_candidate"  # the release id of hub/tests/model/conftest.py's manifest
 EVIDENCE_RELEASE = "evr_sim_a"
 USE: AllowedUse = "risk_context"
-OPERATOR = Actor("operator", "operator_sim")
+OPERATOR = OperatorProof(Actor("operator", "operator_sim"), None)
 MISSION = "mission_e12_sim"
 CREW = (
     RosterMember("person_sim", "Ana", 0, 1, None, 1),
@@ -302,7 +303,7 @@ def sign_in(resolver: object, person_id: str) -> SessionContext:
     """E02's own operator path: the roster document, a credential, then the crew member's sign-in."""
     admin: IdentityAdmin = resolver.require(IdentityAdmin)  # type: ignore[attr-defined]
     identity: IdentityService = resolver.require(IdentityService)  # type: ignore[attr-defined]
-    roster = RosterBootstrap(MISSION, "SIM", CREW, (ProvisionedPrincipal("stn_sim", "station", "Station"),))
+    roster = RosterBootstrap(MISSION, "SIM", CREW, (ProvisionedPrincipal("stn_sim", "station", "Station"), ProvisionedPrincipal("operator_sim", "operator", "Operator")))
     try:
         admin.apply_roster(roster, expected_revision=0, operator=OPERATOR, correlation_id="sim_roster")
     except ProblemError as error:
