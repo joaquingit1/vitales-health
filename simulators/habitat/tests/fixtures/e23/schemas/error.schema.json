@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "error.schema.json",
+  "title": "ErrorEnvelope",
+  "description": "The standard error envelope (CONTRACTS section 5). Every non-2xx response except 304 carries it.",
+  "type": "object",
+  "properties": {
+    "code": {
+      "enum": [
+        "MALFORMED_REQUEST",
+        "UNAUTHENTICATED",
+        "UNAUTHORIZED_SCOPE",
+        "CONSENT_REQUIRED",
+        "ACTION_NOT_ALLOWED",
+        "ADAPTER_NOT_TRUSTED",
+        "AGGREGATE_ONLY",
+        "NOT_FOUND",
+        "STALE_VERSION",
+        "INVALID_TRANSITION",
+        "DUPLICATE_COMMAND",
+        "SESSION_CLOSED",
+        "CONFIG_VERSION_MISMATCH",
+        "CONFIRMATION_REQUIRED",
+        "CURSOR_EXPIRED",
+        "PAYLOAD_TOO_LARGE",
+        "UNSUPPORTED_MEDIA_TYPE",
+        "INVALID_UNIT",
+        "INVALID_VALUE",
+        "IDENTITY_MISMATCH",
+        "ORIGIN_MISMATCH",
+        "KIT_CANNOT_PERFORM",
+        "CAPABILITY_UNAVAILABLE",
+        "CONTEXT_INAPPLICABLE",
+        "SOURCE_NOT_APPROVED",
+        "REPORT_UNCONFIRMED",
+        "LEVEL_NOT_ALLOWED",
+        "APPROVAL_REQUIRED",
+        "CONFIG_INVALID",
+        "STEP_NOT_AVAILABLE",
+        "SUPPLY_BELOW_ZERO",
+        "ROLE_NOT_ELIGIBLE",
+        "VERSION_REQUIRED",
+        "INTERNAL_ERROR",
+        "MALFORMED_MODEL_OUTPUT",
+        "MODEL_OUTPUT_REJECTED",
+        "MODEL_UNAVAILABLE",
+        "MODEL_TIMEOUT"
+      ]
+    },
+    "message": {
+      "type": "string",
+      "description": "Plain words for a developer log. The client shows its own copy from ui-copy, keyed by code.",
+      "minLength": 1
+    },
+    "retryable": {
+      "type": "boolean",
+      "description": "True when the same request may succeed later without change (MODEL_TIMEOUT, MODEL_UNAVAILABLE, INTERNAL_ERROR)."
+    },
+    "field_errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "JSON pointer into the request body.",
+            "minLength": 1
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "field",
+          "code",
+          "message"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "correlation_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "current_state": {
+      "description": "For STALE_VERSION, INVALID_TRANSITION and SESSION_CLOSED: the current object as GET would return it. For KIT_CANNOT_PERFORM: the recorded MeasurementRequest with its kit_check. Otherwise null.",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "supported_alternative": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "minLength": 1
+            },
+            "href": {
+              "type": "string",
+              "minLength": 1
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "action",
+            "text"
+          ],
+          "additionalProperties": false,
+          "description": "What the client can offer instead, for example the kit oximeter when the camera is unavailable."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "code",
+    "message",
+    "retryable",
+    "field_errors",
+    "correlation_id",
+    "current_state",
+    "supported_alternative"
+  ],
+  "additionalProperties": false
+}

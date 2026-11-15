@@ -1,0 +1,465 @@
+{
+  "plan_id": "plan_severe_abdominal_pain",
+  "title": "Severe belly or side pain",
+  "scope": {
+    "flow_id": "severe_abdominal_pain"
+  },
+  "written_for": "flow",
+  "mode": "stabilize",
+  "environments": [
+    "station_leo",
+    "transit",
+    "lunar_surface",
+    "mars_surface"
+  ],
+  "stages": [
+    {
+      "stage_id": "do_now",
+      "steps": [
+        {
+          "step_id": "abd_rest",
+          "text": "Help them rest in the position that hurts least.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "abd_redflags",
+          "text": "Call everyone and the medical officer at once if the pain started suddenly and is severe, they vomit blood, their poo is black and sticky, they cannot pee or pass wind at all, or they struggle to breathe.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "abd_record",
+          "text": "Record where it hurts and whether it has moved, when it started and whether suddenly, whether it comes in waves or spreads to the groin, any fever or shivering, being sick or any blood, and whether pee and poo are normal.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "abdomen",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS62",
+            "RS63"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "abd_no_pain_medicine",
+          "text": "Give no pain medicine unless the medical officer gives it, as in the onboard procedure.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": {
+            "named_as": "as in the onboard procedure"
+          },
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "watch",
+      "steps": [
+        {
+          "step_id": "abd_recheck_readings",
+          "text": "Repeat the temperature, pulse and blood pressure readings and note each number with its time. Read the pulse at the camera station only if they are already sitting still there. Never move them there or delay care for it.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "thermometer",
+              "camera_station",
+              "bp_cuff"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": "It cannot replace the tests this kit lacks.",
+          "recheck": {
+            "cadence": null,
+            "n": null,
+            "interval_seconds": null,
+            "basis": "team default",
+            "to_be_set_by": "clinical review"
+          },
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "S05",
+            "S09"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "abd_watch_pain",
+          "text": "Watch whether the pain moves, gets worse or comes in waves, and note any change.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "abdomen",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "abd_temp",
+          "text": "Take their temperature with the kit thermometer as its instructions say. Record the number and the time. Never delay or stop resting them and calling for help for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "thermometer"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": "It cannot replace the tests this kit lacks.",
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "S05",
+            "S09"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "abd_bp",
+          "text": "Put the cuff on the bare upper arm and follow the device instructions, arm supported and still. The level that needs action: to be set by clinical review. Never delay or stop resting them and calling for help for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "bp_cuff"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": "It cannot replace the tests this kit lacks.",
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "S05",
+            "S09"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "abd_cam_pulse",
+          "text": "If they can already sit still at the camera station, read their pulse there. Never move them or delay a step for it. Movement gives No reading, which is kept as a failed reading. Never delay or stop resting them and calling for help for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "camera_station"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": "It cannot replace the tests this kit lacks.",
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "S05",
+            "S09"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "abd_spo2",
+          "text": "Clip the oximeter on a finger, hand warm, relaxed and still, until it shows one steady number. A normal number does not cancel serious symptoms. The level that needs action: to be set by clinical review. Never delay or stop resting them and calling for help for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "pulse_oximeter"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "abd_urine",
+          "text": "Record when they last passed urine and whether they can pass it now. Never delay or stop resting them and calling for help for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "if_worse",
+      "steps": [
+        {
+          "step_id": "abd_worse_reopen",
+          "text": "If the pain starts suddenly and is severe, they vomit blood, their poo is black and sticky, they cannot pee or pass wind at all, they struggle to breathe, or flank pain comes with a fever, call everyone and open Someone needs help again.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": true,
+          "opens_flow_id": "severe_abdominal_pain",
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "medical_officer",
+      "steps": [
+        {
+          "step_id": "abd_mo_exam",
+          "text": "Examination, pain relief and sickness medicines, as in the onboard procedure.",
+          "text_first_time": null,
+          "who": "crew_medical_officer",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": {
+            "named_as": "as in the onboard procedure"
+          },
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS08"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "abd_mo_decide",
+          "text": "Decide on further care from the readings, as in the onboard procedure.",
+          "text_first_time": null,
+          "who": "crew_medical_officer",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "S05",
+            "S09"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "ground_log",
+      "blocking": false,
+      "items": [
+        {
+          "text": "The symptoms, the readings with their times, and the tests this kit lacks.",
+          "source_ids": [
+            "RS08"
+          ]
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "RS08",
+    "RS62",
+    "RS63",
+    "S05",
+    "S09"
+  ],
+  "review_state": "unreviewed",
+  "written_by": "model:claude-sonnet-5-5",
+  "checked_by": null
+}

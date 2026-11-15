@@ -1,0 +1,404 @@
+{
+  "plan_id": "plan_not_breathing",
+  "title": "Not responding and not breathing normally",
+  "scope": {
+    "flow_id": "not_breathing"
+  },
+  "written_for": "flow",
+  "mode": "stabilize",
+  "environments": [
+    "station_leo",
+    "transit",
+    "lunar_surface",
+    "mars_surface"
+  ],
+  "stages": [
+    {
+      "stage_id": "do_now",
+      "steps": [
+        {
+          "step_id": "nbr_keep_compressions",
+          "text": "Keep doing chest compressions. Use the lock-in hold first, and the hold from behind if your pushes are not good enough.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": [
+            "station_leo",
+            "transit"
+          ],
+          "body_region": "heart",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS04",
+            "RS01",
+            "RS02"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "nbr_compressions_partial_gravity",
+          "text": "Keep doing chest compressions. The holds above were studied for weightlessness, and which method to use in partial gravity: to be set by clinical review.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": [
+            "lunar_surface",
+            "mars_surface"
+          ],
+          "body_region": "heart",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS04"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "nbr_breaths_if_trained",
+          "text": "If you are trained, give rescue breaths after every 30 pushes, with a face shield or pocket mask if the kit lists one. If not, keep pushing without stopping.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "lungs",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS01",
+            "RS02"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "nbr_position",
+          "text": "If the kit lists a crew medical restraint system, strap the person to it first, then compress in the handstand, standard or straddling position. Without it, keep using the hold above.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": [
+            "station_leo",
+            "transit"
+          ],
+          "body_region": "heart",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS04"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "nbr_aed",
+          "text": "If the kit lists an AED, attach the pads and do what its voice says. Shock only with the person restrained on a surface that does not carry electricity.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "heart",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS02",
+            "RS04"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "nbr_free_crew_notes",
+          "text": "A crewmate who is not pushing writes down when they collapsed or were last seen well, what happened (an electric shock, smoke or toxic air, an injury, choking or a fall), and what the AED said last.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "watch",
+      "steps": [
+        {
+          "step_id": "nbr_watch_recovery",
+          "text": "A crewmate who is not pushing watches for normal breathing, movement or waking up.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "nbr_spo2_after",
+          "text": "Only once they breathe normally again: clip the oximeter on a finger, hand warm and still, until it shows one steady number. Never pause compressions to do this. Never delay or stop chest compressions for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "pulse_oximeter"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "lungs",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "if_worse",
+      "steps": [
+        {
+          "step_id": "nbr_worse_reopen",
+          "text": "If they stop responding or stop breathing normally again, open Someone needs help again.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": true,
+          "opens_flow_id": "not_breathing",
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "medical_officer",
+      "steps": [
+        {
+          "step_id": "nbr_mo_airway",
+          "text": "If the kit lists an airway device, venous access and medicines, use them as in the onboard procedure. Without them, keep up compressions.",
+          "text_first_time": null,
+          "who": "crew_medical_officer",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": {
+            "named_as": "as in the onboard procedure"
+          },
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS04",
+            "RS08"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "nbr_mo_stop_cpr",
+          "text": "Decide when to stop CPR, as the most medically qualified crewmember.",
+          "text_first_time": null,
+          "who": "crew_medical_officer",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS04"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "nbr_mo_bp",
+          "text": "Only once they breathe normally again: decide when to take their blood pressure, with the cuff on the bare upper arm as the device instructions say.",
+          "text_first_time": null,
+          "who": "crew_medical_officer",
+          "needs": {
+            "instruments": [
+              "bp_cuff"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": null,
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "ground_log",
+      "blocking": false,
+      "items": [
+        {
+          "text": "Time of the collapse or when they were last seen well, what was seen, what the AED said last, and any change since.",
+          "source_ids": [
+            "RS04"
+          ]
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "RS01",
+    "RS02",
+    "RS04",
+    "RS08"
+  ],
+  "review_state": "unreviewed",
+  "written_by": "model:claude-sonnet-5-5",
+  "checked_by": null
+}

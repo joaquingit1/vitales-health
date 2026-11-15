@@ -1,0 +1,432 @@
+{
+  "plan_id": "plan_eye_injury",
+  "title": "Eye injury or something in the eye",
+  "scope": {
+    "flow_id": "eye_injury"
+  },
+  "written_for": "flow",
+  "mode": "resolve",
+  "environments": [
+    "station_leo",
+    "transit",
+    "lunar_surface",
+    "mars_surface"
+  ],
+  "stages": [
+    {
+      "stage_id": "do_now",
+      "steps": [
+        {
+          "step_id": "eyi_no_rub",
+          "text": "Do not rub the eye.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "eyes",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS31"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "eyi_object_stuck",
+          "text": "If an object is stuck in the eye, do not remove it and put no pressure on the eye. Any cover must rest on the bone around the eye, not on the eye.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "eyes",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS32",
+            "RS30",
+            "RS31"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "eyi_rinse",
+          "text": "Chemical, dust or grit in the eye: keep the eye open and keep rinsing with plenty of clean water for at least 20 minutes.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [
+              {
+                "supply_id": "eye_rinse_water",
+                "per_use": null,
+                "basis": "sourced",
+                "to_be_set_by": "clinical review"
+              }
+            ],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "eyes",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS33",
+            "RS30",
+            "RS46",
+            "RS34"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "eyi_rinse_weightless",
+          "text": "In weightlessness, water and dust float. Keep rinsing and soak up the floating water as you go.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [
+              {
+                "supply_id": "eye_rinse_water",
+                "per_use": null,
+                "basis": "sourced",
+                "to_be_set_by": "clinical review"
+              }
+            ],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": [
+            "station_leo",
+            "transit"
+          ],
+          "body_region": "eyes",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS08",
+            "RS45"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "eyi_ask",
+          "text": "Ask what got in or hit the eye, whether it was a chemical, dust or a sharp object, whether they can see as well as before, whether light hurts or it feels gritty, and whether contact lenses are in.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "eyes",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "watch",
+      "steps": [
+        {
+          "step_id": "eyi_followup",
+          "text": "A crewmate repeats the sight check and the photo, and keeps both for the log.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "camera_station"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "eyes",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": {
+            "cadence": null,
+            "n": null,
+            "interval_seconds": null,
+            "basis": "team default",
+            "to_be_set_by": "clinical review"
+          },
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS32",
+            "RS33"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "eyi_pain_persists",
+          "text": "Pain or a gritty feeling that does not settle after rinsing: tell the medical officer. How long to give it: to be set by clinical review.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "eyes",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "eyi_sight_check",
+          "text": "Only once the rinse is done. Cover the other eye. Read the same text on the screen with each eye and record any difference. Test card and distance: to be set by clinical review. Never delay or stop rinsing for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "eyes",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "eyi_photo",
+          "text": "Only once the rinse is done. Take a still, close photo of the eye in good light, kept for the medical officer and the log. Do not touch the eye. Never delay or stop rinsing for this.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [
+              "camera_station"
+            ],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "eyes",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "if_worse",
+      "steps": [
+        {
+          "step_id": "eyi_worse_reopen",
+          "text": "Something stuck in the eye, a chemical in the eye, or any change in sight: call the medical officer at once and open Someone needs help again.",
+          "text_first_time": null,
+          "who": "any_crew",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "eyes",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": true,
+          "opens_flow_id": "eye_injury",
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [],
+          "basis": "team default",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "medical_officer",
+      "steps": [
+        {
+          "step_id": "eyi_mo_remove_check",
+          "text": "Remove a loose particle and check the eye surface for scratches, as in the onboard procedure.",
+          "text_first_time": null,
+          "who": "crew_medical_officer",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "eyes",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": null,
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS32",
+            "RS08"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        },
+        {
+          "step_id": "eyi_mo_medicines",
+          "text": "Eye medicines, as in the onboard procedure.",
+          "text_first_time": null,
+          "who": "crew_medical_officer",
+          "needs": {
+            "instruments": [],
+            "supplies": [],
+            "skills": []
+          },
+          "substitute_step_id": null,
+          "substitute_only": false,
+          "environments": null,
+          "body_region": "eyes",
+          "landmark_id": null,
+          "guided_check_skill_id": null,
+          "cannot_replace_text": null,
+          "recheck": null,
+          "opens_help": false,
+          "opens_flow_id": null,
+          "medicine": {
+            "named_as": "as in the onboard procedure"
+          },
+          "replaces_ground_task": null,
+          "source_ids": [
+            "RS08"
+          ],
+          "basis": "sourced",
+          "review_state": "unreviewed"
+        }
+      ]
+    },
+    {
+      "stage_id": "ground_log",
+      "blocking": false,
+      "items": [
+        {
+          "text": "The photos of the eye, the sight checks and what got into the eye, for a later diagnosis of eye damage.",
+          "source_ids": [
+            "RS33"
+          ]
+        },
+        {
+          "text": "Any exposure to dust.",
+          "source_ids": [
+            "RS35"
+          ]
+        }
+      ]
+    }
+  ],
+  "source_ids": [
+    "RS08",
+    "RS30",
+    "RS31",
+    "RS32",
+    "RS33",
+    "RS34",
+    "RS35",
+    "RS45",
+    "RS46"
+  ],
+  "review_state": "unreviewed",
+  "written_by": "model:claude-sonnet-5-5",
+  "checked_by": null
+}

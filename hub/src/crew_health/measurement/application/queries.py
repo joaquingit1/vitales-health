@@ -46,6 +46,7 @@ def overlay(capability: KitCapability, ready_methods: frozenset[str] | None) -> 
         unavailable_reason=reason,
         expected_duration_seconds=capability.expected_duration_seconds,
         body_region=capability.body_region,
+        components=capability.components,
     )
 
 

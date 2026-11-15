@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "provenance": {
+    "source": "docs/tdd/E15.md section 7; SYSTEM 8.3/8.4; coordinator Q16",
+    "classification": "team-authored interface copy, no clinical thresholds"
+  },
+  "states": {
+    "draft": "Draft",
+    "open": "Open",
+    "awaiting_information": "Awaiting information",
+    "awaiting_review": "Awaiting review",
+    "followup": "Follow-up",
+    "resolved": "Resolved"
+  },
+  "origins": {
+    "LIVE": "Live",
+    "REPLAY": "Replay",
+    "SIM": "Simulation"
+  },
+  "taskStates": {
+    "open": "Open",
+    "done": "Done",
+    "cancelled": "Cancelled"
+  },
+  "actions": {
+    "acknowledge": "Acknowledge",
+    "request_review": "Request review",
+    "add_followup": "Add follow-up",
+    "complete_followup": "Complete follow-up",
+    "cancel_followup": "Cancel follow-up",
+    "reassign_followup": "Reassign follow-up",
+    "resolve": "Resolve",
+    "reopen": "Reopen",
+    "correct_onset": "Correct onset",
+    "record_review": "Record review",
+    "retry": "Retry",
+    "more_timeline": "More history",
+    "more_reviews": "More reviews"
+  },
+  "errors": {
+    "unknown": "Unavailable"
+  },
+  "overdue": "Overdue",
+  "duePending": "To be set by clinical review",
+  "stale": "Last seen information. Reconnect before acting.",
+  "offline": "Episode unavailable",
+  "withheld": "Answers withheld",
+  "timeline": "History",
+  "concern": "Concern",
+  "reviewRoles": {
+    "crew_medical_officer": "Crew medical officer",
+    "acting_medical_officer": "Acting medical officer",
+    "ground": "Ground advice"
+  },
+  "groundAdvice": "Advice from the ground",
+  "reviewDecisions": {
+    "agree": "Agree",
+    "disagree": "Disagree",
+    "needs_more": "Needs more information",
+    "not_assessed": "Not assessed"
+  },
+  "editor": {
+    "submit": "Record",
+    "cancel": "Cancel",
+    "addDecision": "Add decision",
+    "fields": {
+      "action_text": "Follow-up action",
+      "owner_person_id": "Owner",
+      "due_at": "Due time (local time)",
+      "note": "Note",
+      "cancellation_reason": "Reason for cancellation",
+      "reason": "Reason",
+      "rationale": "Rationale",
+      "observation_ids": "Observation evidence",
+      "review_id": "Signed review",
+      "precision": "Onset precision",
+      "at": "Onset time (local time)",
+      "item": "Review item",
+      "decision": "Decision",
+      "unresolved": "Unresolved items (one per line)"
+    },
+    "resolutionReasons": {
+      "measurement_anomaly_not_reproduced": "Measurement anomaly not reproduced",
+      "symptoms_reported_resolved": "Symptoms reported resolved",
+      "clinician_assessed": "Clinician assessed"
+    },
+    "reopenReasons": {
+      "symptoms_recurred": "Symptoms recurred",
+      "evidence_changed": "Evidence changed",
+      "recorded_in_error": "Recorded in error"
+    },
+    "onsetPrecisions": {
+      "exact": "Exact time",
+      "hour": "Hour",
+      "day": "Day",
+      "unknown": "Unknown"
+    }
+  },
+  "timelineKinds": {
+    "created": "Created",
+    "answer": "Answer",
+    "answer_corrected": "Answer corrected",
+    "acknowledged": "Acknowledged",
+    "review_requested": "Review requested",
+    "followup_opened": "Followup opened",
+    "followup_completed": "Followup completed",
+    "followup_cancelled": "Followup cancelled",
+    "followup_reassigned": "Followup reassigned",
+    "onset_corrected": "Onset corrected",
+    "resolved": "Resolved",
+    "reopened": "Reopened",
+    "reviewed": "Reviewed",
+    "new_activity": "New activity",
+    "measurement_request": "Measurement request",
+    "assessment": "Assessment",
+    "capability_gap": "Capability gap",
+    "observation": "Observation",
+    "plan_run": "Plan run",
+    "guided_check": "Guided check",
+    "handoff": "Handoff",
+    "help_session": "Help session",
+    "urgency": "Urgency",
+    "urgency_raised": "Urgency raised",
+    "evidence_changed": "Evidence changed",
+    "followup_overdue": "Followup overdue",
+    "effect_failed": "Effect failed",
+    "route_recorded": "Route recorded",
+    "link_refused": "Link refused"
+  },
+  "lateEntry": "Recorded later than the event"
+}

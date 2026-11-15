@@ -1,0 +1,455 @@
+{
+  "checked_by": "model:gpt-6.1-sol",
+  "checked_at": "2026-11-14",
+  "method": "Compared each family plan with its condition row, verbatim assessment-family fields and citations, source-registry support, family template, E28 design and CONTRACTS section 22 using scripted fidelity checks and individual condition safety judgments.",
+  "plans": {
+    "plan_icl1": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent assessment for obstruction or strangulation; do_now.text and watch.text do not identify that trigger, and if_worse.text makes help conditional on further change or worry."
+    },
+    "plan_icl2": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Appropriate clinician examination with consent; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl4": {
+      "verdict": "disagrees",
+      "reason": "do_now.text names a Dosimeter in Useful details, contrary to the no-instrument-names check; needs.instruments is empty."
+    },
+    "plan_icl5": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical assessment of systemic involvement; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl6": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Urgent trained assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl7": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires immediate recognition and urgent response to anaphylaxis; do_now.text starts documentation and watch.text permits observation before help, with escalation conditional in if_worse.text."
+    },
+    "plan_icl8": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl9": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical musculoskeletal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl11": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Otoscopy and relevant oral/nasal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl12": {
+      "verdict": "disagrees",
+      "reason": "The overdose family exam requires urgent trained assessment; do_now.text and watch.text permit documenting and watching an overdose before help unless if_worse.text is triggered."
+    },
+    "plan_icl13": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl15": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl16": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl17": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent mental-status and safety assessment for psychosis; watch.text delays notification until persistence or worsening, and if_worse.text supplies no unconditional urgent route."
+    },
+    "plan_icl19": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires immediate chemical-eye assessment without upload delay; do_now.text starts documentation and if_worse.text does not call for help immediately for the existing exposure."
+    },
+    "plan_icl20": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical assessment of extent, depth and systemic effects; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl21": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical assessment of extent, depth and systemic effects; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl22": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent burn and systemic assessment; do_now.text and watch.text permit documentation and observation first, with no immediate help instruction for the existing severe burn."
+    },
+    "plan_icl23": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent neurologic assessment tied to last-known-well time; do_now.text and watch.text can defer response, while if_worse.text only conditionally opens help."
+    },
+    "plan_icl24": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Otoscopy and relevant oral/nasal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl25": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires immediate obstruction recognition and limitations forbids data-collection delay; do_now.text asks for writing first and if_worse.text lacks an unconditional immediate help instruction."
+    },
+    "plan_icl26": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl28": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Dental and oral examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl29": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Dental and oral examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl30": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Dental and oral examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl31": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Dental and oral examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl32": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Dental and oral examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl33": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained injury and neurovascular assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl34": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained injury and neurovascular assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl35": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl36a": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Respiratory, eye and skin assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl36b": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Respiratory, eye and skin assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl37": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires immediate consciousness, breathing and circulation assessment after pressure loss; do_now.text and watch.text can delay that response until conditional escalation in if_worse.text."
+    },
+    "plan_icl38": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Otoscopy and relevant oral/nasal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl39": {
+      "verdict": "disagrees",
+      "reason": "The pressure family exam requires urgent trained assessment; do_now.text and watch.text allow recording and observing decompression sickness before help unless if_worse.text is triggered."
+    },
+    "plan_icl40": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical hydration/nutrition assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl41": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained injury and neurovascular assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl42": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained injury and neurovascular assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl43": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical assessment of extent, depth and systemic effects; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl44": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical neurologic examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl45": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained injury and neurovascular assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl46": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained injury and neurovascular assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl47": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent dilated retinal assessment; watch.text permits waiting for persistence or worsening, and if_worse.text does not require immediate help for the existing retinal injury."
+    },
+    "plan_icl48": {
+      "verdict": "disagrees",
+      "reason": "do_now.cannot_replace_text names a consumer camera and specialist eye equipment, contrary to the no-instrument-names check."
+    },
+    "plan_icl49": {
+      "verdict": "disagrees",
+      "reason": "do_now.cannot_replace_text names a consumer camera and specialist eye equipment, contrary to the no-instrument-names check."
+    },
+    "plan_icl50": {
+      "verdict": "disagrees",
+      "reason": "do_now.cannot_replace_text names a consumer camera and specialist eye equipment, contrary to the no-instrument-names check."
+    },
+    "plan_icl51": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained trauma and neurovascular assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl52": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained trauma and neurovascular assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl53": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained trauma and neurovascular assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl54": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent trauma assessment and evaluation of associated bleeding; do_now.text and watch.text allow observation first, and if_worse.text makes help conditional."
+    },
+    "plan_icl55": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained trauma and neurovascular assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl56": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained trauma and neurovascular assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl57": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained trauma and neurovascular assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl58": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical abdominal assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl59": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical abdominal assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl60": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent qualified eye assessment for acute angle closure; watch.text permits waiting and if_worse.text does not require immediate help for the existing presentation."
+    },
+    "plan_icl61": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained vestibular/neurologic assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl62": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Supervised position-related assessment only when gravity and condition permit; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl63": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical neurologic and eye examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl65": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires prompt specialist assessment for sudden hearing loss; watch.text permits waiting for persistence or worsening, and if_worse.text does not explicitly cover sudden loss already present."
+    },
+    "plan_icl66": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Otoscopy and hearing assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl67": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical abdominal assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl68": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical skin/wound examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl70": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Otoscopy and relevant oral/nasal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl71": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl72": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical neurologic examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl73": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Otoscopy and relevant oral/nasal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl74": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Otoscopy and relevant oral/nasal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl75": {
+      "verdict": "agrees",
+      "reason": ""
+    },
+    "plan_icl76": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Appropriate clinician examination with consent; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl77": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl78": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical skin/wound examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl80": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent respiratory assessment and limitations forbids data-collection delay; do_now.text starts writing and if_worse.text makes help conditional despite existing respiratory failure."
+    },
+    "plan_icl81": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Respiratory and throat examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl82": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Respiratory and throat examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl83": {
+      "verdict": "disagrees",
+      "reason": "The neuro family exam requires urgent neurologic and consciousness assessment; do_now.text and watch.text can defer seizure response until conditional escalation in if_worse.text."
+    },
+    "plan_icl84": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent assessment for infection and organ dysfunction; do_now.text and watch.text can defer that response, and if_worse.text makes immediate help conditional."
+    },
+    "plan_icl85": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires immediate perfusion assessment and limitations requires urgent human response; do_now.text starts writing and if_worse.text does not unconditionally route existing shock to help."
+    },
+    "plan_icl86": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical skin/wound examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl87": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical skin/wound examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl88": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical skin/wound examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl89": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical skin/wound examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl90": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent abdominal assessment for bowel obstruction; do_now.text and watch.text allow documentation and observation first, with only conditional escalation in if_worse.text."
+    },
+    "plan_icl91": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical musculoskeletal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl92": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical abdominal assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl93": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Otoscopy and relevant oral/nasal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl94": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical neurologic and eye examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl96": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Otoscopy and relevant oral/nasal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl97": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained vestibular/neurologic assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl98": {
+      "verdict": "disagrees",
+      "reason": "do_now.cannot_replace_text names a bladder scanner, contrary to the no-instrument-names check."
+    },
+    "plan_icl99": {
+      "verdict": "disagrees",
+      "reason": "do_now.cannot_replace_text names a bladder scanner, contrary to the no-instrument-names check."
+    },
+    "plan_icl101": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical musculoskeletal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl102": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical musculoskeletal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl103": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical musculoskeletal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl104": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical musculoskeletal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl105": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Respiratory and throat examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl106": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires immediate recognition of arrest with no app test first; do_now.text starts documentation and if_worse.text does not require immediate help for existing unresponsiveness or abnormal breathing."
+    },
+    "plan_icl107": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical musculoskeletal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl108": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical musculoskeletal examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl109": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Exposure-specific clinical examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl110": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Exposure-specific clinical examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl111": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent assessment after combustion exposure; do_now.text and watch.text allow documentation and observation first, with no unconditional immediate help instruction in if_worse.text."
+    },
+    "plan_icl112": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent trained abdominal-trauma examination; do_now.text and watch.text can defer that response, and if_worse.text only conditionally routes to help."
+    },
+    "plan_icl113": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires urgent respiratory and chest-trauma examination; do_now.text and watch.text can defer that response, and if_worse.text only conditionally routes to help."
+    },
+    "plan_icl114": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Urgent neurologic and consciousness assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl115": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires immediate trauma and neurologic assessment without model delay; do_now.text starts documentation and if_worse.text does not unconditionally route existing severe head trauma to help."
+    },
+    "plan_icl116": {
+      "verdict": "disagrees",
+      "reason": "clinical_assessment requires immediate trauma and perfusion assessment, and limitations requires urgent human response; do_now.text and watch.text permit delay before conditional escalation in if_worse.text."
+    },
+    "plan_icl117": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical examination; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl118": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Appropriate clinician examination with consent; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl119": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Clinical vascular and respiratory assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl122": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Trained vestibular/neurologic assessment; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    },
+    "plan_icl123": {
+      "verdict": "disagrees",
+      "reason": "medical_officer.text specifies Appropriate clinician examination with consent; source_ids cites S01, registered only for inventory/modeling, while row.workup_source_ids is PLANNING_REVIEW_REQUIRED, so clinical support is unverified."
+    }
+  }
+}
