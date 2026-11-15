@@ -45,6 +45,7 @@ from crew_health.measurement.application.ports import ConsentQueries as Measurem
 from crew_health.measurement.application.ports import SessionAuthenticator as MeasurementAuthenticator
 from crew_health.plans.api.router import RequestAuthenticator as PlansAuthenticator
 from crew_health.records.application.seams import RecordsStore
+from crew_health.reports.application.ports import RecordOrigin as ReportOrigin
 from crew_health.roles.api.router import RequestAuthenticator as RolesAuthenticator
 from crew_health.roles.application.ports import RosterMember as RolesMember
 from crew_health.roles.application.ports import RosterPort as RolesRoster
@@ -333,6 +334,7 @@ def compose(
         (KitmapRoster, lambda r: KitmapRosterAdapter(identity(r)), on_identity),
         (PersonDirectory, lambda r: PeopleAdapter(identity(r)), on_identity),
         (RecordRouting, lambda r: RoutingAdapter(identity(r)), on_identity),
+        (ReportOrigin, lambda r: RoutingAdapter(identity(r)), on_identity),
         (CatchupConsent, consent, (ConsentService,)),
         (MeasurementConsent, consent, (ConsentService,)),
         (
