@@ -24,7 +24,7 @@ Hard dependencies (✅ when built) are what an epic needs to pass its acceptance
 | E01 T1 | Platform, identities and durable records: foundation (workspaces, contract types, kernel ports and fakes, module registry) | 🔎 In review | @joaquingit1 (pipeline) | none | every epic | [tasks](E01/tasks.json) | [design](../tdd/E01.md) |
 | E01 T2 | Platform, identities and durable records: everything after the foundation | 🔎 In review | @joaquingit1 (pipeline) | E01 T1 | none | [tasks](E01/tasks.json) | [design](../tdd/E01.md) |
 | E02 | Consent, authentication and privacy | 🔨 In progress | @joaquingit1 (pipeline) | E01 | E03, E04, E05, E06, E07, E08, E09, E11, E12, E13, E15, E15-core, E16, E19, E21, E23, E26, E27, E28, E30, E31, E32, E33 | [tasks](E02/tasks.json) | [design](../tdd/E02.md) |
-| E03 | Crew experience and daily check | ⬜ Open (queue #1) | @joaquingit1 | E01, E02 | E04, E22 | [tasks](E03/tasks.json) | [design](../tdd/E03.md) |
+| E03 | Crew experience and daily check | ⬜ Open (queue #1) | | E01, E02 | E04, E22 | [tasks](E03/tasks.json) | [design](../tdd/E03.md) |
 | E04 | Guided complaint intake | ⬜ Open (queue #13) |  | E01, E02, E03, E23, E15-core | E15 | [tasks](E04/tasks.json) | [design](../tdd/E04.md) |
 | E05 | Capabilities and measurement workflow | 🔨 In progress | @joaquingit1 | E01, E02 | E06, E07, E08, E09, E14, E30 | [tasks](E05/tasks.json) | [design](../tdd/E05.md) |
 | E06 | Personal and station cameras | ⬜ Open (queue #4) | @joaquingit1 | E01, E02, E05 | none | [tasks](E06/tasks.json) | [brief](../product/tdd/E06.md) |
@@ -35,7 +35,7 @@ Hard dependencies (✅ when built) are what an epic needs to pass its acceptance
 | E11 | Urgent handling and pathway engine | ⬜ Open (queue #14) |  | E01, E02, E15-core, E27-guidance | E13 | [tasks](E11/tasks.json) | [design](../tdd/E11.md) |
 | E12 | Retrieval and typed tool gateway | ⬜ Open (queue #2) |  | E01, E02, E10, E27-guidance | E13, E17 | [tasks](E12/tasks.json) | [design](../tdd/E12.md) |
 | E13 | Local reasoning and assessment | ⬜ Open (queue #17) |  | E01, E02, E11, E12, E27-guidance | none | [tasks](E13/tasks.json) | [design](../tdd/E13.md) |
-| E14 | Trends, environment and Chronos-2 | ⬜ Open (queue #8) |  | E01, E05 | none | [tasks](E14/tasks.json) | [brief](../product/tdd/E14.md) |
+| E14 | Trends, environment and Chronos-2 | ⬜ Open (queue #8) | @joaquingit1 | E01, E05 | none | [tasks](E14/tasks.json) | [brief](../product/tdd/E14.md) |
 | E15 | Episodes, follow-up and clinical review | ⬜ Open (queue #18) |  | E01, E02, E04, E15-core | E04, E11, E15, E16 | [tasks](E15/tasks.json) | [design](../tdd/E15.md) |
 | E16 | Ground console and delayed handoff | ⬜ Open (queue #20) |  | E01, E02, E15 | none | [tasks](E16/tasks.json) | [brief](../product/tdd/E16.md) |
 | E17 | Model integration and tool-use optimization | ⬜ Open (queue #9) |  | E01, E12 | none | [tasks](E17/tasks.json) | [design](../tdd/E17.md) |
