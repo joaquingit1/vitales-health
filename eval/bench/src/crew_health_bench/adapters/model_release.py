@@ -37,7 +37,10 @@ def load_release(
         raise BenchError("release_unreadable") from error
     if release.mode != "live" and not self_test:
         raise BenchError("release_unreadable")
-    if release.weights.file_name != release.weights.weights_sha256 + ".gguf":
+    weights = release.weights
+    if weights is None:
+        raise BenchError("release_unreadable", detail="a stub release has no weights to evaluate")
+    if weights.file_name != weights.weights_sha256 + ".gguf":
         raise BenchError("model_identity_mismatch")
     _basis(document, release.basis)
     decoding = release.decoding
@@ -71,7 +74,7 @@ def load_release(
     return ModelReleaseRef(
         release.release_id,
         release.model.model_id,
-        release.weights.weights_sha256,
+        weights.weights_sha256,
         release.runtime.context_tokens,
         settings,
         Quantity(Decimal(str(release.evaluated_with.turn_timeout_seconds)), Unit("s")),

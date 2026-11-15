@@ -26,80 +26,10 @@ def settings() -> BenchSettings:
 
 
 def fixture() -> dict[str, object]:
-    phases = dict.fromkeys(
-        ("intake", "assessment", "disposition", "help", "insight", "general", "verifier"), 1
-    )
-    doc: dict[str, object] = {
-        "release_id": "protocol-release",
-        "created_at": "2026-11-14T00:00:00Z",
-        "status": "candidate",
-        "mode": "live",
-        "model": {
-            "model_id": "protocol-model",
-            "hf_repo": "protocol",
-            "revision": "protocol",
-            "license": "protocol",
-            "license_sha256": "a" * 64,
-            "files": [],
-        },
-        "weights": {
-            "file_name": "b" * 64 + ".gguf",
-            "weights_sha256": "b" * 64,
-            "size_bytes": 1,
-            "quantization": "protocol",
-            "lineage": {
-                "source_files_sha256": [],
-                "bf16_gguf_sha256": "c" * 64,
-                "equivalence_report_sha256": "d" * 64,
-                "reproducibility_report_sha256": "e" * 64,
-                "llama_cpp_commit": "protocol",
-            },
-        },
-        "runtime": {
-            "engine": "llama.cpp",
-            "build": "protocol",
-            "commit": "protocol",
-            "backend": "protocol",
-            "context_tokens": 1,
-            "kv_cache_type": "protocol",
-            "parallel_slots": 1,
-            "threads": 1,
-            "gpu_layers": 0,
-            "load_timeout_seconds": 1,
-            "max_queued_turns": 1,
-            "max_preemptions": 0,
-        },
-        "decoding": {
-            "temperature": 0,
-            "top_p": 1,
-            "top_k": 1,
-            "min_p": 0,
-            "seed": 1,
-            "max_tokens_by_phase": phases,
-            "reasoning_format": "deepseek",
-        },
-        "tokenizer_sha256": "f" * 64,
-        "chat_template_sha256": "a" * 64,
-        "thinking_mode": "on",
-        "tool_call_mode": "native",
-        "prompt_version": "protocol",
-        "tool_catalog_version": "protocol",
-        "evaluated_with": {
-            "evidence_release_id": "protocol",
-            "config_release_id": "protocol",
-            "turn_timeout_seconds": 1,
-        },
-    }
-    basis: dict[str, str] = {}
-    stack: list[tuple[str, object]] = [("", doc)]
-    while stack:
-        path, value = stack.pop()
-        if isinstance(value, dict):
-            stack.extend((path + "/" + str(key), item) for key, item in value.items())
-        elif isinstance(value, int | float):
-            basis[path] = "team default: synthetic protocol fixture, no model claim"
-    doc["basis"] = basis
-    return doc
+    """The synthetic live release shared by every bench test; it conforms to E17's model-release schema."""
+    document = json.loads((ROOT / "fixtures/model-release.json").read_bytes())
+    assert isinstance(document, dict)
+    return document
 
 
 @pytest.mark.trace("R22", "R23", "invariant")
@@ -149,10 +79,14 @@ def test_release_controls_decoding_and_endpoint_identity(tmp_path: Path) -> None
         assert sent[1]["max_tokens"] == 7
         assert sent[0]["messages"] == [{"role": "user", "content": "protocol"}]
     document["mode"] = "stub"
+    del document["weights"]
+    document["basis"] = {
+        path: text for path, text in dict(document["basis"]).items() if not path.startswith("/weights/")
+    }
     source.write_text(json.dumps(document), encoding="utf-8")
-    with pytest.raises(BenchError, match="release_unreadable"):
-        load_release(source, SCHEMA, max_file_bytes=1048576)
-    assert load_release(source, SCHEMA, max_file_bytes=1048576, self_test=True)
+    for self_test in (False, True):
+        with pytest.raises(BenchError, match="release_unreadable"):
+            load_release(source, SCHEMA, max_file_bytes=1048576, self_test=self_test)
 
 
 @pytest.mark.trace("R22", "R23", "invariant")
