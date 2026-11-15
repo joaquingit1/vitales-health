@@ -10,13 +10,13 @@ from . import common_schema
 
 class Role(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     role_assignment_id: common_schema.Id
     role_id: common_schema.ConfigId
     label: str = Field(..., min_length=1)
     person: common_schema.PersonRef
-    state: Literal['proposed', 'accepted', 'changed']
+    state: Literal["proposed", "accepted", "changed"]
 
 
 class Place(RootModel[str]):
@@ -25,12 +25,12 @@ class Place(RootModel[str]):
 
 class CrewBroadcast(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     broadcast_id: common_schema.Id
     help_session_id: common_schema.Id
-    state: Literal['active', 'ended']
-    level: Literal['act', 'emergency']
+    state: Literal["active", "ended"]
+    level: Literal["act", "emergency"]
     subject: common_schema.PersonRef | None
     helpers: list[common_schema.PersonRef]
     roles: list[Role] = Field(

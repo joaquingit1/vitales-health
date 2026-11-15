@@ -10,19 +10,19 @@ from . import common_schema
 
 class Adapter(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     adapter_id: common_schema.Id
-    state: Literal['connected', 'quiet', 'disconnected']
+    state: Literal["connected", "quiet", "disconnected"]
 
 
 class Health(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    status: Literal['ok', 'degraded']
+    status: Literal["ok", "degraded"]
     hub_version: str = Field(..., min_length=1)
     config_release_id: common_schema.Id | None
-    assistant_state: Literal['running', 'stopped', 'loading', 'unavailable']
+    assistant_state: Literal["running", "stopped", "loading", "unavailable"]
     adapters: list[Adapter]
     server_time: common_schema.Instant

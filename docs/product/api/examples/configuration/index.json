@@ -1,6 +1,6 @@
 {
   "summary": "SIM GET /v1/config",
-  "description": "The active release and the 18 documents it pins. Versions of the three research files are the SHA-256 of the files in this package; the team documents are the examples in examples/config and examples/kit-map.example.json. Illustrative only: not seed data.",
+  "description": "The active release and the 19 documents it pins. Versions of the three research files are the SHA-256 of the files in this package; the team documents are the examples in examples/config and examples/kit-map.example.json. Illustrative only: not seed data.",
   "x-schema": "config-index.schema.json",
   "value": {
     "release_id": "rel_20261113_a",
@@ -149,6 +149,14 @@
         "href": "/v1/config/role-rules",
         "basis_summary": "Team document. Roles, eligibility and the medical officer cascade; team defaults.",
         "bytes": 3617
+      },
+      {
+        "name": "unit-mapping",
+        "version": "4b357addfa9b87926cc3612ea810b25c525b493e77371876b9d34e336def2283",
+        "schema": "config-unit-mapping.schema.json",
+        "href": "/v1/config/unit-mapping",
+        "basis_summary": "Decision D12. Wire unit to UCUM unit for each indicator; cabin CO2 in mmHg per NASA-STD-3001 Volume 2.",
+        "bytes": 1773
       }
     ],
     "model_release_id": "mdl_huatuo_3_9b_1"

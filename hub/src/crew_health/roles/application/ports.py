@@ -11,8 +11,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal, Protocol
 
+from crew_health.help.application.ports import HelpSessionReader as HelpSessionReader
+from crew_health.help.application.ports import HelpSessionSnapshot as HelpSessionSnapshot
 from crew_health.kernel.units import Quantity
-from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
+from crew_health.kernel.uow import ReadSnapshot, UnitOfWork
 
 type OriginMode = Literal["LIVE", "REPLAY", "SIM"]  # internal enum
 
@@ -74,36 +76,6 @@ class MissionStatePort(Protocol):
 # Provided by E23 (crew_health.mission); structural copy until it is on main.
 class DayLabelPort(Protocol):
     def inline_label_at(self, instant: datetime) -> str: ...
-
-
-# Provided by E26 (crew_health.help); structural copy until it is on main.
-@dataclass(frozen=True, slots=True)
-class NodeRef:
-    kind: Literal["triage", "flow"]
-    id: str
-
-
-# Provided by E26 (crew_health.help); structural copy until it is on main.
-@dataclass(frozen=True, slots=True)
-class HelpSessionSnapshot:
-    id: str
-    state: Literal["open", "closed"]
-    revision: int
-    subject_person_id: str | None
-    opener: Actor
-    helper_ids: tuple[str, ...]
-    node: NodeRef
-    place: str | None
-    opened_at: datetime
-    closed_at: datetime | None
-    close_disposition: str | None
-
-
-# Provided by E26 (crew_health.help); structural copy until it is on main. SYSTEM 4.4 names it HelpSessionReader;
-# the methods are E26 section 4.3's `snapshot` (for E31) and `readable_by` (E30 X13).
-class HelpSessionReader(Protocol):
-    def snapshot(self, help_session_id: str) -> HelpSessionSnapshot | None: ...
-    def readable_by(self, session: SessionContext, help_session_id: str) -> bool: ...
 
 
 # Provided by E28 (crew_health.plans); structural copy until it is on main (E28 4.2 PlanRunQueryPort.state).

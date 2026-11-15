@@ -64,7 +64,7 @@ class ConfigHttpCommands:
                 active[name] = ConfigDocumentView(name, hashlib.sha256(raw).hexdigest(), raw)
             release_id = self.ids.new("release")
             self.service.propose(uow, session, CandidateRelease(release_id, active), note=body.note)
-            return self._result(request, uow, "createConfigRelease", release_id, 201)
+            return self._result(identity, uow, release_id, 201)
 
         identity = self._identity(
             request, session, "createConfigRelease", "/v1/config/releases", body.model_dump(mode="json")
@@ -78,7 +78,7 @@ class ConfigHttpCommands:
         def apply(uow: UnitOfWork) -> StoredResult:
             self._release_header(request, uow)
             self.service.activate(uow, session, release_id=release_id, expected_etag=expected_etag)
-            return self._result(request, uow, "activateConfigRelease", release_id, 200)
+            return self._result(identity, uow, release_id, 200)
 
         identity = self._identity(
             request,
@@ -119,16 +119,13 @@ class ConfigHttpCommands:
         )
 
     def _result(
-        self, request: Request, uow: UnitOfWork, operation: str, release_id: str, status: int
+        self, identity: CommandIdentity, uow: UnitOfWork, release_id: str, status: int
     ) -> StoredResult:
+        """The receipt names the canonical command target of the identity (SYSTEM 5.8), never the raw URL."""
         body = canonical_json(self.repository.wire(uow, release_id))
         ConfigRelease.model_validate_json(body)
         receipt = AcceptedReceipt(
-            request.headers["Idempotency-Key"],
-            operation,
-            str(request.url.path),
-            self.ids.new("receipt"),
-            uow.now,
+            identity.key, identity.operation, identity.target, self.ids.new("receipt"), uow.now
         )
         # Configuration is P0/P1. The ledger may retain this validated public response.
         return StoredResult(receipt, status, release_id, self.repository.revision(uow, release_id).etag, body)

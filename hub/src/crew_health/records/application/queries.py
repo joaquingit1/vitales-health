@@ -6,10 +6,29 @@ from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.kernel.ids import require_id
 from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.uow import ReadSnapshot, SessionContext, UnitOfWork
-from crew_health.records.application.ports import RecordAuthorization, RecordsStore
+from crew_health.records.application.seams import RecordAuthorization, RecordsStore
 from crew_health.records.domain.answers import AnswerRecord
 from crew_health.records.domain.errors import RecordError
 from crew_health.records.domain.observations import ObservationRecord, OriginMode
+
+_HISTORY_STATES = ("known", "replay")
+
+
+class ObservationHistory(tuple[ObservationRecord, ...]):
+    """One page of history. It is the R-E01-17 `Sequence[ObservationRef]` itself, so a consumer that iterates the
+    page (E14 trends) binds unchanged; `has_more` is True when older matching rows exist, so a short page is never
+    mistaken for the complete history."""
+
+    has_more: bool
+
+    def __new__(cls, items: Sequence[ObservationRecord], has_more: bool) -> ObservationHistory:
+        page = super().__new__(cls, items)
+        page.has_more = has_more
+        return page
+
+    @property
+    def items(self) -> tuple[ObservationRecord, ...]:
+        return tuple(self)
 
 
 class RecordsQueries:
@@ -44,13 +63,22 @@ class RecordsQueries:
         mission_id: str,
         origin_mode: OriginMode,
         limit: int,
-    ) -> tuple[ObservationRecord, ...]:
+    ) -> ObservationHistory:
+        """Accepted observations with a known or replay time, newest first. The time filter runs in SQL before
+        the LIMIT, and `has_more` says whether older matching history exists beyond this page."""
         self._bounds(person_id, mission_id, origin_mode, limit)
         self.authorization.require_read(
             view, session, object_ref=person_id, patient_id=person_id, fields=frozenset({"observation"})
         )
-        results = self.repository.observations(
-            view, person_id=person_id, mission_id=mission_id, origin_mode=origin_mode, code=code, limit=limit
+        store = self.repository
+        results = store.observations(
+            view,
+            person_id=person_id,
+            mission_id=mission_id,
+            origin_mode=origin_mode,
+            code=code,
+            limit=limit,
+            states=_HISTORY_STATES,
         )
         for result in results:
             self.authorization.require_read(
@@ -60,7 +88,18 @@ class RecordsQueries:
                 patient_id=result.patient_id,
                 fields=frozenset({"observation"}),
             )
-        return tuple(result for result in results if result.normalized.state in ("known", "replay"))
+            if result.normalized.state not in _HISTORY_STATES:
+                raise RecordError(ErrorCode.INTERNAL_ERROR)
+        more = len(results) == limit and store.has_more_observations(
+            view,
+            person_id=person_id,
+            mission_id=mission_id,
+            origin_mode=origin_mode,
+            code=code,
+            after=limit,
+            states=_HISTORY_STATES,
+        )
+        return ObservationHistory(results, more)
 
     def answers(
         self,

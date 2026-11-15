@@ -14,7 +14,7 @@ class Line(RootModel[str]):
 
 class GroundMessagePreview(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     help_session_id: common_schema.Id
     session_revision: int = Field(..., ge=1)
@@ -26,7 +26,7 @@ class GroundMessagePreview(BaseModel):
     leaves_at: common_schema.Instant | None
     status_text: str = Field(
         ...,
-        description='help-presentation ground_message queued_template with the link up or delayed, waiting_template with it down.',
+        description="help-presentation ground_message queued_template with the link up or delayed, waiting_template with it down.",
         min_length=1,
     )
     computed_at: common_schema.Instant

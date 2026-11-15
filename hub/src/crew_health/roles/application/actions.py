@@ -80,7 +80,7 @@ class RoleActions:
                 raise ContextNotFound(context_id)
             if not call("help_sessions", lambda: self.deps.help_sessions.readable_by(session, context_id)):
                 raise NotVisible(context_id)
-            return ContextView(snap.state == "open", snap.subject_person_id)
+            return ContextView(snap.open, snap.subject_person_id)
         reader = self.deps.plan_runs
         if reader is None:
             raise ContextNotFound(context_id)

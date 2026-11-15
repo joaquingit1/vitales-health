@@ -31,7 +31,24 @@ class CompatibilityVerifier(Protocol):
     def verify(self, proof: bytes) -> MigrationAuthorization: ...
 
 
-def require_expansion(sql: str) -> None:
+_GUARD_TRIGGER = re.compile(
+    r"\s*CREATE\s+TRIGGER\s+(?:IF\s+NOT\s+EXISTS\s+)?\w+\s+BEFORE\s+(?:INSERT|UPDATE|DELETE)\s+ON\s+"
+    r'(?:"(?P<quoted>[^";]+)"|(?P<table>\w+))'
+    r"(?:\s+WHEN\s+(?:(?!\bBEGIN\b)[\s\S])+?)?\s+BEGIN\s+SELECT\s+RAISE\s*\(\s*ABORT\s*,\s*\)\s*;\s*END\s*;?\s*",
+    re.I,
+)
+# Tables a module owns beyond its <module>_ prefix (the E01 replication log predates the prefix rule).
+_EXTRA_TABLES = {"platform": frozenset({"repl_log"})}
+
+
+def _owned(module: str, table: str) -> bool:
+    return table.startswith(module + "_") or table in _EXTRA_TABLES.get(module, frozenset())
+
+
+def require_expansion(sql: str, *, module: str | None = None) -> None:
+    """Expand-only (AGENTS 6): new tables, indexes, columns and seed rows. A trigger is allowed only as a guard
+    (BEFORE, body exactly RAISE(ABORT, ...)), so a migration can refuse writes but never drop or rewrite them;
+    given `module`, the guarded table must be that module's own."""
     for statement in SQLiteDatabase._statements(sql):
         scrubbed = re.sub(r"'(?:''|[^'])*'|--[^\n]*|/\*[\s\S]*?\*/", " ", statement)
         if re.search(
@@ -42,7 +59,13 @@ def require_expansion(sql: str) -> None:
             raise fail(ErrorCode.CONFIG_INVALID)
         if re.search(r"(?:;|\bBEGIN\b)\s*(?:DELETE|UPDATE)\b", scrubbed, re.I):
             raise fail(ErrorCode.CONFIG_INVALID)
-        if re.match(r"\s*CREATE\s+(?:TABLE|(?:UNIQUE\s+)?INDEX|TRIGGER)\b", scrubbed, re.I):
+        if re.match(r"\s*CREATE\s+TRIGGER\b", scrubbed, re.I):
+            guard = _GUARD_TRIGGER.fullmatch(scrubbed.strip() + " ")
+            table = None if guard is None else guard["quoted"] or guard["table"]
+            if table is None or (module is not None and not _owned(module, table)):
+                raise fail(ErrorCode.CONFIG_INVALID)
+            continue
+        if re.match(r"\s*CREATE\s+(?:TABLE|(?:UNIQUE\s+)?INDEX)\b", scrubbed, re.I):
             continue
         if re.match(
             r'\s*ALTER\s+TABLE\s+(?:"[^";]+"|\w+)\s+ADD\s+(?:COLUMN\s+)?(?:"[^";]+"|\w+)\b', scrubbed, re.I

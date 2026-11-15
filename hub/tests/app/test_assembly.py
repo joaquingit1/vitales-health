@@ -11,15 +11,25 @@ pytestmark = [pytest.mark.E01, pytest.mark.trace("T-E01-02", "T-E01-20", "R01")]
 ROOT = Path(__file__).resolve().parents[3]
 
 
+SOURCE = ROOT / "hub/src/crew_health"
+
+
 def test_missing_required_providers_keeps_health_and_denies_mutation(tmp_path: Path) -> None:
-    db = database(tmp_path)
+    """The verified installed catalog registers every module, then resolution fails because no ConfigArtifacts,
+    SessionAuthorizer or pending epic port is provided: the fault is the missing providers, not the catalog."""
+    catalog = BuildCatalog.installed(SOURCE)
+    catalog.verify(128)  # the catalog itself is sound
+    registered: list[bool] = []
     app = create_app(
-        database=db,
-        build=BuildCatalog.core(ROOT / "hub/src/crew_health"),
+        database=database(tmp_path),
+        build=catalog,
         contract_path=ROOT / "contracts/api/openapi.yaml",
         schema_directory=ROOT / "contracts/api/schemas",
+        configure=lambda registry: registered.append(True),
     )
-    assert not app.state.runtime.serving
+    runtime = app.state.runtime
+    assert registered == [True]  # verification and registration passed
+    assert not runtime.serving and runtime.resolver is None and runtime.completed_phases == []
 
     async def run() -> None:
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://station") as client:
@@ -33,21 +43,26 @@ def test_missing_required_providers_keeps_health_and_denies_mutation(tmp_path: P
 
 
 def test_unknown_added_module_or_catalog_hash_fails_closed(tmp_path: Path) -> None:
-    db = database(tmp_path)
-    catalog = BuildCatalog.core(ROOT / "hub/src/crew_health")
+    catalog = BuildCatalog.installed(SOURCE)
+    catalog.verify(128)
     bad = BuildCatalog(
         catalog.root,
         {**catalog.inventory, "crew_health.not_installed.module": "0" * 64},
         catalog.registrations,
     )
+    with pytest.raises(ValueError, match="differ"):
+        bad.verify(128)
+    registered: list[bool] = []
     app = create_app(
-        database=db,
+        database=database(tmp_path),
         build=bad,
         contract_path=ROOT / "contracts/api/openapi.yaml",
         schema_directory=ROOT / "contracts/api/schemas",
+        configure=lambda registry: registered.append(True),
     )
     assert not app.state.runtime.serving
     assert app.state.runtime.fault_code == "INTERNAL_ERROR"
+    assert registered == []  # refused at verification, before any module registered
 
 
 def test_all_startup_phases_complete_for_explicit_sim_profile(tmp_path: Path) -> None:

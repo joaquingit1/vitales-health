@@ -72,6 +72,16 @@ class TemplateRenderer(Protocol):
     def render(self, field_key: str, template: str, values: Mapping[str, str]) -> str: ...
 
 
+class BoundConfig(ConfigReleaseReader, ConfigReader, TemplateRenderer, Protocol):
+    """The configuration readers bound to one UnitOfWork or ReadSnapshot (SYSTEM 5.6). `active()` and an unpinned
+    `document(name)` answer the release that view saw at its start, so one command sees one active release however
+    many reads it makes; `render` fills a missing value with that release's unknown text."""
+
+
+class ConfigBinding(Protocol):
+    def bind(self, view: ReadSnapshot | UnitOfWork) -> BoundConfig: ...
+
+
 @dataclass(frozen=True, slots=True)
 class ReleaseRevision:
     release_id: str

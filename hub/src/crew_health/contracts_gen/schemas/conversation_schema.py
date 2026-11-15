@@ -10,21 +10,21 @@ from . import assistant_message_schema, common_schema
 
 class Context(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['general', 'episode', 'help_session', 'warning', 'reading', 'insight']
+    kind: Literal["general", "episode", "help_session", "warning", "reading", "insight"]
     ref_id: common_schema.Id | None
 
 
 class Conversation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     conversation_id: common_schema.Id
     revision: int = Field(..., ge=1)
     person_id: common_schema.Id
     context: Context
-    state: Literal['open', 'closed']
+    state: Literal["open", "closed"]
     model_release_id: common_schema.Id | None
     config_release_id: common_schema.Id
     created_at: common_schema.Instant

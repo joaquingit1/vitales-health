@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS records_observation_source_history ON records_observation(patient_id,mission_id,origin_mode,code,json_extract(CAST(payload AS TEXT),'$.acquisition_method'),json_extract(CAST(payload AS TEXT),'$.device_id'),observed_at DESC,observation_id) WHERE json_extract(CAST(payload AS TEXT),'$.normalized.corrected_at') IS NOT NULL;

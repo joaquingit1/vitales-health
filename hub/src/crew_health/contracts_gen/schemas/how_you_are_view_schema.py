@@ -10,7 +10,7 @@ from . import common_schema
 
 class TrendItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     mission_day: common_schema.MissionDay
     value: float | None
@@ -18,7 +18,7 @@ class TrendItem(BaseModel):
 
 class ExtraItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     code: common_schema.ConfigId
     label: str = Field(..., min_length=1)
@@ -28,16 +28,14 @@ class ExtraItem(BaseModel):
 
 class Indicator(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     code: common_schema.ConfigId
     label: str = Field(..., min_length=1)
     today: common_schema.NumberDisplay
     usual: common_schema.NumberDisplay | None
     delta_text: str = Field(..., min_length=1)
-    state: Literal[
-        'within_usual', 'below_usual', 'above_usual', 'no_baseline', 'no_reading'
-    ]
+    state: Literal["within_usual", "below_usual", "above_usual", "no_baseline", "no_reading"]
     trend: list[TrendItem]
     extra: list[ExtraItem]
     origin_mode: common_schema.OriginMode
@@ -47,7 +45,7 @@ class Indicator(BaseModel):
 
 class Vital(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     code: common_schema.ConfigId
     label: str = Field(..., min_length=1)
@@ -56,13 +54,13 @@ class Vital(BaseModel):
     observed_at: common_schema.Instant | None
     origin_mode: common_schema.OriginMode | None
     body_region: common_schema.BodyRegionOrNull | None
-    mark: Literal['measurement', 'reported', 'gap', 'none']
+    mark: Literal["measurement", "reported", "gap", "none"]
     occurrence_id: common_schema.Id | None
 
 
 class Why(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     text: str = Field(..., min_length=1)
     citation: common_schema.Citation
@@ -71,7 +69,7 @@ class Why(BaseModel):
 
 class HowYouAreView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person_id: common_schema.Id
     as_of: common_schema.Instant

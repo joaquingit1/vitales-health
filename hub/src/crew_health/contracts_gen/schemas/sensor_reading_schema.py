@@ -10,11 +10,11 @@ from . import common_schema
 
 class Conversion(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    method: Literal['scale', 'ppm_to_mmhg']
+    method: Literal["scale", "ppm_to_mmhg"]
     cabin_pressure_mmhg: float | None
-    pressure_basis: Literal['measured', 'assumed'] | None
+    pressure_basis: Literal["measured", "assumed"] | None
     factor: float | None
 
 
@@ -24,15 +24,15 @@ class WindowSeconds(RootModel[int]):
 
 class Aggregation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['sample', 'mean', 'time_weighted_mean', 'energy_mean', 'max']
+    kind: Literal["sample", "mean", "time_weighted_mean", "energy_mean", "max"]
     window_seconds: WindowSeconds | None
 
 
 class Replay(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     dataset: str = Field(..., min_length=1)
     original_observed_at: common_schema.Instant
@@ -41,16 +41,14 @@ class Replay(BaseModel):
 
 class SensorReading(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     reading_id: common_schema.Id
     channel_id: common_schema.Id
     sensor_type_id: common_schema.ConfigId
     hazard_id: common_schema.ConfigId
     value: float
-    unit: str = Field(
-        ..., description='Canonical unit of the sensor type.', min_length=1
-    )
+    unit: str = Field(..., description="Canonical unit of the sensor type.", min_length=1)
     original_value: float
     original_unit: str = Field(..., min_length=1)
     conversion: Conversion | None

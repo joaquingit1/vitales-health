@@ -87,11 +87,11 @@ def test_stored_events_reach_the_handlers(tmp_path: Path) -> None:
     h.facts.walk("ilya")
     h.facts.walk("sofia")
     snap = help_session("hls_wire_1", subject="mara", flow="not_breathing", opener="mara")
-    h.facts.help[snap.id] = snap
+    h.facts.help[snap.help_session_id] = snap
     body = help_payload(snap)
     with h.uow.begin(actor=ENGINE, correlation_id="cor_t") as uow:
         dispatch_event(h.proposals, h.skills, uow, _event(EventType.HELP_SESSION_CHANGED, body, 2), body)
     assert h.proposals.run_due() == 1
-    status, page = h.get(f"/v1/help-sessions/{snap.id}/roles", "mara")
+    status, page = h.get(f"/v1/help-sessions/{snap.help_session_id}/roles", "mara")
     assert status == 200, page
     assert "tomas" in {person_of(row) for row in assignments(page)}

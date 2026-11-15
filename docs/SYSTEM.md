@@ -1592,6 +1592,8 @@ class ModuleRegistry(Protocol):
     def on_startup(self, phase: StartupPhase, fn: Callable[[], None]) -> None: ...
     def id_prefix(self, *, record_type: str, prefix: str) -> None: ...
     def setting(self, spec: SettingSpec) -> None: ...
+    def audit_policy(self, policy: AuditPolicy) -> None: ...
+    def replicated_table(self, table: ReplicatedTable) -> None: ...
 
 # each crew_health/<module>/module.py owns these entry functions
 def register(registry: ModuleRegistry) -> None: ...
@@ -1602,6 +1604,12 @@ sorted module name. The signed build manifest lists their hashes; no configurati
 import path. Build-time discovery generates the static import list and import-linter rules (6.4); installation verifies
 it against actual packages, rejecting missing/unlisted plugins. An epic plugs in by adding its owned module file;
 assembly and hub/pyproject.toml never need an epic edit. Module import has no I/O or registration side effects.
+A module's SQL migrations are found by the same convention, `crew_health/<name>/adapters/migrations/NNNN_<name>.sql`
+numbered from 0001 without gaps; each module's manifest hash covers its module.py and every migration, and the STORAGE
+phase applies them expand-only, platform first, before any provider or binding runs. A module declares the audit event
+types it writes with `audit_policy` (kernel AuditPolicy) and its replicated tables with `replicated_table` (kernel
+ReplicatedTable: table, record type, key column, export projection and the leaf JSON pointers it may carry); assembly
+installs both in storage before bindings run and builds the only projection allowlist (ReplicationAllowlist) from them.
 
 Pass 1 invokes every `register` to declare factories and named bindings; `register` cannot call `require` or construct
 another provider. Pass 2 resolves the explicit provide.requires graph by a deterministic, bounded iterative topological walk.

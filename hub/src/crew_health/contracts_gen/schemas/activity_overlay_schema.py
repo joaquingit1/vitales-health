@@ -14,21 +14,21 @@ class Location(RootModel[str]):
 
 class Source(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['person', 'mission_event', 'adapter', 'operator']
+    kind: Literal["person", "mission_event", "adapter", "operator"]
     ref_id: common_schema.Id | None
 
 
 class ActivityOverlay(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     overlay_id: common_schema.Id
     revision: int = Field(..., ge=1)
     person_id: common_schema.Id
     overlay: common_schema.Overlay
-    state: Literal['planned', 'active', 'ended']
+    state: Literal["planned", "active", "ended"]
     planned_start: common_schema.Instant | None
     started_at: common_schema.Instant | None
     ended_at: common_schema.Instant | None

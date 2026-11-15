@@ -14,7 +14,7 @@ class Hint(RootModel[str]):
 
 class Scale(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     min: int
     max: int
@@ -27,28 +27,28 @@ class Unit(RootModel[str]):
 
 class Choice(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     label: str = Field(..., min_length=1)
     presence: common_schema.Presence | None
-    opens: Literal['concern', 'help_flow', 'correction'] | None
+    opens: Literal["concern", "help_flow", "correction"] | None
     flow_id: common_schema.ConfigId | None = None
 
 
 class Question(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     text: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     hint: Hint | None
-    kind: Literal['presence', 'scale', 'duration', 'choice', 'confirm_estimate']
+    kind: Literal["presence", "scale", "duration", "choice", "confirm_estimate"]
     answer_code: common_schema.ConfigId | None
     scale: Scale | None
     unit: Unit | None
@@ -58,7 +58,7 @@ class Question(BaseModel):
 
 class DailyCheck(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     question_ids: list[common_schema.ConfigId] = Field(..., min_length=1)
     required_question_ids: list[common_schema.ConfigId] = Field(..., min_length=1)
@@ -68,7 +68,7 @@ class DailyCheck(BaseModel):
 
 class RedFlags(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     intro: str = Field(..., min_length=1)
     after: str = Field(..., min_length=1)
@@ -77,22 +77,22 @@ class RedFlags(BaseModel):
 
 class QuestionSet(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     title: str = Field(..., min_length=1)
     question_ids: list[common_schema.ConfigId] = Field(..., min_length=1)
     reason_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
 class QuestionnairesJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     notice: str = Field(
         ...,
