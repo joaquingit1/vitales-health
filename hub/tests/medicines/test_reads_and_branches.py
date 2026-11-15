@@ -88,7 +88,7 @@ def test_a_failed_assessment_leaves_the_last_completed_one_in_use(st: Station) -
     assert st.client.get("/v1/medicines/lots", headers=headers()).json()["assessment"] is None
 
 
-@pytest.mark.trace("T-63", "E32-4.3")
+@pytest.mark.trace("T-75", "E32-4.3")
 def test_proposals_administrations_and_names_follow_the_record_grant(st: Station) -> None:
     _context(
         st,
@@ -160,7 +160,7 @@ def _authorization(product_id: str) -> dict[str, object]:
     }
 
 
-@pytest.mark.trace("T-70", "M-L1", "M-L2", "M-L5", "M-L8", "M-L9", "M-SRC")
+@pytest.mark.trace("E32-8.4", "M-L1", "M-L2", "M-L5", "M-L8", "M-L9", "M-SRC")
 @pytest.mark.parametrize(
     ("edit", "check"),
     [

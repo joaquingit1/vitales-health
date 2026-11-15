@@ -320,7 +320,7 @@ def test_lot_movements_never_take_a_lot_below_zero(st: Station) -> None:
     assert _stock(st, "lot-apap-001") == 13
 
 
-@pytest.mark.trace("T-63", "AGENTS-7")
+@pytest.mark.trace("T-75", "AGENTS-7")
 def test_the_medication_context_is_private_to_the_subject_and_the_officers(st: Station) -> None:
     path = f"/v1/people/{SUBJECT}/medication-context"
     assert st.client.get(path, headers=headers("crew_b")).status_code == 404
@@ -336,7 +336,7 @@ def test_the_medication_context_is_private_to_the_subject_and_the_officers(st: S
     )
 
 
-@pytest.mark.trace("B07", "T-64")
+@pytest.mark.trace("B07", "T-68")
 def test_fhir_export_and_assays_are_refused_not_dropped(st: Station) -> None:
     fhir = st.client.get("/v1/medication-administrations/meda_1/fhir", headers=headers())
     assert fhir.status_code == 422 and fhir.json()["code"] == "CONTEXT_INAPPLICABLE"

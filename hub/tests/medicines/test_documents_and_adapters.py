@@ -37,7 +37,7 @@ def _validator(directory: Path, name: str) -> Draft202012Validator:
     return Draft202012Validator(schema, registry=registry)
 
 
-@pytest.mark.trace("T-70", "M-SCHEMA")
+@pytest.mark.trace("E32-8.4", "M-SCHEMA")
 @pytest.mark.parametrize(
     ("document", "schema"),
     [
@@ -51,13 +51,13 @@ def test_the_medicines_documents_match_their_contract_schemas(document: str, sch
     assert errors == []
 
 
-@pytest.mark.trace("T-70")
+@pytest.mark.trace("E32-8.4")
 def test_the_repository_configuration_passes_every_check() -> None:
     loaded = load(CONFIG, condition_ids())
     assert set(loaded.treatments.rules) == {"apap_pain", "ibu_pain", "pmz_nausea"}
 
 
-@pytest.mark.trace("T-70", "M-SRC")
+@pytest.mark.trace("E32-8.4", "M-SRC")
 def test_every_dose_value_cites_a_source_and_nasa_sources_come_first() -> None:
     raw = json.loads((CONFIG / "treatments.json").read_text(encoding="utf-8"))
     nasa = {s["source_id"] for s in raw["sources"] if s.get("nasa")}
@@ -85,7 +85,7 @@ def _edit_rule(edit: str) -> object:
     return apply
 
 
-@pytest.mark.trace("T-70", "M-L1", "M-L2", "M-L4", "M-L5", "M-L8")
+@pytest.mark.trace("E32-8.4", "M-L1", "M-L2", "M-L4", "M-L5", "M-L8")
 @pytest.mark.parametrize(
     ("edit", "check"),
     [
@@ -103,14 +103,14 @@ def test_an_invalid_document_is_rejected_with_its_check(tmp_path: Path, edit: st
     assert check in {f.check for f in raised.value.findings}
 
 
-@pytest.mark.trace("T-70")
+@pytest.mark.trace("E32-8.4")
 def test_the_module_does_not_start_on_an_invalid_document(tmp_path: Path) -> None:
     directory = config_copy(tmp_path, _edit_rule("cap_below_dose"))  # type: ignore[arg-type]
     with pytest.raises(DocumentsInvalid):
         build_station(tmp_path / "hub", config_dir=directory)
 
 
-@pytest.mark.trace("T-70", "AGENTS-1")
+@pytest.mark.trace("E32-8.4", "AGENTS-1")
 def test_a_configuration_edit_changes_the_words_with_no_code_change(tmp_path: Path) -> None:
     def words(treatments: dict[str, object], policy: dict[str, object]) -> None:
         treatments["unit_display"]["{tbl}"] = "pills"  # type: ignore[index]
