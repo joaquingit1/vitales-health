@@ -236,6 +236,51 @@ def test_shot_c_a_camera_pulse_request_reaches_the_twin_and_records_a_sim_readin
     assert payload["quantity"]["unit"] == "/min"
 
 
+def test_shot_d_the_icl10_plan_runs_from_help_and_the_guided_check_refuses_without_guidance_facts(
+    served: Served,
+) -> None:
+    """Shot D on the served hub: Mara presses Someone needs help, the ICL10 plan run starts from that help session
+    (E28: a help session in place of an episode, since E04 is not merged) and lists its pulse_check_wrist step.
+    The guided check Mara asks Tomas to do is refused: guidance eligibility (SYSTEM 8.2) fails closed because its
+    content facts (E10 knowledge), environment facts (E23) and operator presence (E31 over E23's overlays) have
+    no provider yet, so no teach step reaches the crew (AGENTS 6, fail closed)."""
+    mara = served.sign_in("mara")
+    opened_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+    status, session = served.post(
+        "/v1/help-sessions",
+        mara,
+        {"subject": {"kind": "self"}, "entry": {"kind": "button"}, "client_opened_at": opened_at},
+    )
+    assert status == 201, session
+    status, run = served.post(
+        "/v1/plan-runs",
+        mara,
+        {"plan_id": "plan_icl10", "subject_person_id": "mara", "help_session_id": session["help_session_id"]},
+    )
+    assert status == 201, run
+    assert (run["state"], run["help_session_id"], run["episode_id"]) == (
+        "active",
+        session["help_session_id"],
+        None,
+    )
+    steps = run["steps"]
+    assert isinstance(steps, list)
+    assert {"step_id": "icl10_pulse_by_crewmate", "state": "open"}.items() <= steps[0].items()
+    status, roles = served.get(f"/v1/plan-runs/{run['plan_run_id']}/roles", mara)
+    assert status == 200 and roles["items"] == []
+    status, refused = served.post(
+        "/v1/guided-checks",
+        mara,
+        {
+            "skill_id": "pulse_check_wrist",
+            "helper_person_id": "tomas",
+            "subject_person_id": "mara",
+            "plan_run_id": run["plan_run_id"],
+        },
+    )
+    assert (status, refused["code"]) == (422, "CONTEXT_INAPPLICABLE"), refused
+
+
 def test_shot_e_help_opens_with_the_model_stopped(served: Served) -> None:
     """Someone needs help on the served hub (AGENTS 1 rule 3): no model is running, the session opens and reads
     back. setAssistantRuntime is not on main, so model-stop is refused as absent and the assistant stays as

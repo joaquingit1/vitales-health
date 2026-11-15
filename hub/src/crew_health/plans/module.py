@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from typing import Literal, Protocol
+from typing import Literal, Protocol, get_args
 
 from fastapi import APIRouter, Request
 
@@ -14,6 +14,7 @@ from crew_health.catchup.application.ports import PlanCatchUpInputs, PlanCatchUp
 from crew_health.contracts_gen.enums import ErrorCode, EventType
 from crew_health.guidance.application.ports import GuidanceEligibility, SkillFacts
 from crew_health.help.application.ports import HelpSessionReader
+from crew_health.kernel.audit import AuditPolicy
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import (
     CommandIntents,
@@ -78,6 +79,7 @@ from crew_health.plans.application.teach_copies import (
 )
 from crew_health.plans.application.tools import PlanTools
 from crew_health.plans.application.world import PlansWorld
+from crew_health.plans.domain.run import EventKind
 from crew_health.roles.application import ports as roles_ports
 
 
@@ -100,6 +102,14 @@ class ModuleRegistry(Protocol):
     def command_resumer(self, name: str, resumer: CommandResumer) -> None: ...
     def id_prefix(self, *, record_type: str, prefix: str) -> None: ...
     def setting(self, spec: SettingSpec) -> None: ...
+    def audit_policy(self, policy: AuditPolicy) -> None: ...
+
+
+def audit_policies() -> tuple[AuditPolicy, ...]:
+    """SYSTEM 5.8: the audit entry PlansWorld.persist writes for each run change, one per event kind it emits. It
+    names only the run, whose reference the same unit of work replicates first; it carries no metadata."""
+    run = {"plan_run_id": frozenset({"plan_run"})}
+    return tuple(AuditPolicy(kind, {}, frozenset(run), run) for kind in get_args(EventKind))
 
 
 def build_world(resolver: Resolver) -> PlansWorld:
@@ -235,6 +245,8 @@ def register(registry: ModuleRegistry) -> None:
 
     for spec in PlansSettings.specs():
         registry.setting(spec)
+    for policy in audit_policies():
+        registry.audit_policy(policy)
     registry.id_prefix(record_type="plan_run", prefix="prun")
     registry.id_prefix(record_type="escalation_intent", prefix="pes")
     registry.loader_check(PlansReleaseCheck(lambda: runtime.need().settings, runtime.mission_mode))
