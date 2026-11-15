@@ -1,7 +1,5 @@
 import type { RouteRecordRaw } from "vue-router";
-import Placeholder from "./Placeholder.vue";
+import PlanView from "./PlanView.vue";
 
-/** Placeholder route owned by the plan builder: replace Placeholder.vue (or this file) with the real screen. */
-export const routes: RouteRecordRaw[] = [
-  { path: "/plan/:id", name: "plan", component: Placeholder, meta: { private: true } },
-];
+/** The plan aboard (E28): /plan/ICL10, /plan/plan_icl10 or /plan/<plan_run_id>. */
+export const routes: RouteRecordRaw[] = [{ path: "/plan/:id", name: "plan", component: PlanView, meta: { private: true } }];
