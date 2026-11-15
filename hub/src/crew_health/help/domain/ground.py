@@ -58,6 +58,7 @@ class HelpLogSnapshot:
     pins: tuple[ConfigPin, ...]
     environment_id: str | None
     queued_at: datetime
+    subject_person_id: str | None = None
 
 
 def build_snapshot(
@@ -91,6 +92,7 @@ def build_snapshot(
         pins=docs.pins,
         environment_id=session.environment_id,
         queued_at=at,
+        subject_person_id=session.subject_person_id,
     )
 
 
