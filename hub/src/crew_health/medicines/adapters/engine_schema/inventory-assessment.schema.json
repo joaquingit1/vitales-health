@@ -1,0 +1,1526 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://crew-health-check.invalid/schemas/pharmacy/inventory-assessment.schema.json",
+  "title": "Engine output: every lot assessed at one as_of, ordered.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "as_of_utc",
+    "assessments"
+  ],
+  "properties": {
+    "as_of_utc": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+    },
+    "assessments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/LotAssessment"
+      }
+    }
+  },
+  "$defs": {
+    "AdjustmentEligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The engine-level part of decision 9 (the dose-rule part is the dose layer's).",
+      "required": [
+        "eligible",
+        "checks",
+        "estimate_bases",
+        "assay_ids_used",
+        "degradant_profile_reviewed"
+      ],
+      "properties": {
+        "eligible": {
+          "type": "boolean"
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EligibilityCheck"
+          }
+        },
+        "estimate_bases": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "measured_model",
+                  "assay_updated",
+                  "computed",
+                  "class_prior"
+                ]
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "assay_ids_used": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "degradant_profile_reviewed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ConfigPin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "version",
+        "sha256"
+      ],
+      "properties": {
+        "document_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "CoverageInterval": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "JCGM 101 coverage interval (never called a confidence interval).",
+      "required": [
+        "probability",
+        "low",
+        "high",
+        "kind"
+      ],
+      "properties": {
+        "probability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "low": {
+          "type": "number"
+        },
+        "high": {
+          "type": "number"
+        },
+        "kind": {
+          "enum": [
+            "probabilistically_symmetric"
+          ]
+        }
+      }
+    },
+    "DegradantEstimate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "degradant_id",
+        "name",
+        "pathway_id",
+        "unit",
+        "quantiles",
+        "mean",
+        "limit_percent",
+        "p_above_limit",
+        "toxicity_flag",
+        "product_specific"
+      ],
+      "properties": {
+        "degradant_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pathway_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "unit": {
+          "enum": [
+            "percent_of_label_api_mass"
+          ]
+        },
+        "quantiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QuantileValue"
+          }
+        },
+        "mean": {
+          "type": "number"
+        },
+        "limit_percent": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "p_above_limit": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "toxicity_flag": {
+          "enum": [
+            "toxic",
+            "not_toxic",
+            "unknown"
+          ]
+        },
+        "product_specific": {
+          "type": "boolean"
+        },
+        "identification": {
+          "$ref": "#/$defs/DegradantIdentification",
+          "default": {
+            "identified": false,
+            "evidence_kind": null,
+            "evidence_id": null,
+            "source_ids": []
+          }
+        }
+      }
+    },
+    "DegradantIdentification": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Evidence specific to a degradant's forming pathway (spec 5.6). An identified prediction names the model or anchor and its sources. Total assay loss alone supplies no identification. Defaults represent unidentified loss.",
+      "required": [],
+      "properties": {
+        "identified": {
+          "type": "boolean",
+          "default": false
+        },
+        "evidence_kind": {
+          "anyOf": [
+            {
+              "enum": [
+                "measured_model",
+                "anchor"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "evidence_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          },
+          "default": []
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "identified"
+            ],
+            "properties": {
+              "identified": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "evidence_kind",
+              "evidence_id",
+              "source_ids"
+            ],
+            "properties": {
+              "evidence_kind": {
+                "enum": [
+                  "measured_model",
+                  "anchor"
+                ]
+              },
+              "evidence_id": {
+                "type": "string"
+              },
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "evidence_kind": {
+                "type": "null"
+              },
+              "evidence_id": {
+                "type": "null"
+              },
+              "source_ids": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "EligibilityCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "passed",
+        "detail"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "detail": {
+          "type": "string"
+        }
+      }
+    },
+    "ExposureSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Pharmacist-facing summaries (display only; potency never uses MKT).",
+      "required": [
+        "t_start_utc",
+        "t_end_utc",
+        "duration_s",
+        "mkt_k",
+        "mkt_activation_energy_j_per_mol",
+        "mkt_windows",
+        "mean_temperature_k",
+        "min_temperature_k",
+        "max_temperature_k",
+        "time_above",
+        "cumulative_absorbed_dose_gy",
+        "visible_dose_lux_h",
+        "uv_dose_w_h_per_m2",
+        "coverage",
+        "longest_gap_s"
+      ],
+      "properties": {
+        "t_start_utc": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+        },
+        "t_end_utc": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+        },
+        "duration_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "mkt_k": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mkt_activation_energy_j_per_mol": {
+          "type": "number"
+        },
+        "mkt_windows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WindowMkt"
+          }
+        },
+        "mean_temperature_k": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "min_temperature_k": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "max_temperature_k": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "time_above": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TimeAbove"
+          }
+        },
+        "cumulative_absorbed_dose_gy": {
+          "type": "number",
+          "minimum": 0
+        },
+        "visible_dose_lux_h": {
+          "type": "number",
+          "minimum": 0
+        },
+        "uv_dose_w_h_per_m2": {
+          "type": "number",
+          "minimum": 0
+        },
+        "coverage": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QuantityCoverage"
+          }
+        },
+        "longest_gap_s": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "Forecast": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "When the ``quantile_probability`` quantile of potency crosses the lower limit under the declared projection of future conditions (spec 11.4).",
+      "required": [
+        "forecast_id",
+        "lot_id",
+        "ingredient_id",
+        "as_of_utc",
+        "as_of_s",
+        "quantile_probability",
+        "lower_limit_percent",
+        "projection",
+        "status",
+        "crossing_utc",
+        "crossing_s",
+        "horizon_s",
+        "crossing_delay_quantiles_s",
+        "pins"
+      ],
+      "properties": {
+        "forecast_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lot_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "ingredient_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "as_of_utc": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+        },
+        "as_of_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "quantile_probability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "lower_limit_percent": {
+          "type": "number"
+        },
+        "projection": {
+          "$ref": "#/$defs/Projection"
+        },
+        "status": {
+          "enum": [
+            "already_crossed",
+            "within_horizon",
+            "beyond_horizon"
+          ]
+        },
+        "crossing_utc": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "crossing_s": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "horizon_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "crossing_delay_quantiles_s": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QuantileValue"
+          }
+        },
+        "pins": {
+          "$ref": "#/$defs/Pins"
+        }
+      }
+    },
+    "LotAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lot_id",
+        "as_of_utc",
+        "estimates",
+        "forecasts",
+        "decision"
+      ],
+      "properties": {
+        "lot_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "as_of_utc": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+        },
+        "estimates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PotencyEstimate"
+          }
+        },
+        "forecasts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Forecast"
+          }
+        },
+        "decision": {
+          "$ref": "#/$defs/LotDecision"
+        }
+      }
+    },
+    "LotDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_id",
+        "lot_id",
+        "product_id",
+        "as_of_utc",
+        "as_of_s",
+        "state",
+        "reasons",
+        "ordering_key",
+        "estimate_ids",
+        "forecast_ids",
+        "adjustment",
+        "alternative_lot_ids",
+        "alternative_product_ids",
+        "past_labeled_expiry",
+        "pins"
+      ],
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lot_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "product_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "as_of_utc": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+        },
+        "as_of_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "state": {
+          "enum": [
+            "in_specification",
+            "adjust",
+            "do_not_use"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reason"
+          }
+        },
+        "ordering_key": {
+          "$ref": "#/$defs/OrderingKey"
+        },
+        "estimate_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          }
+        },
+        "forecast_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          }
+        },
+        "adjustment": {
+          "$ref": "#/$defs/AdjustmentEligibility"
+        },
+        "alternative_lot_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          }
+        },
+        "alternative_product_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          }
+        },
+        "past_labeled_expiry": {
+          "type": "boolean"
+        },
+        "pins": {
+          "$ref": "#/$defs/Pins"
+        }
+      }
+    },
+    "MonteCarloReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "n_draws",
+        "n_batches",
+        "batch_size",
+        "converged",
+        "n_dig",
+        "numerical_tolerance",
+        "coverage_probability",
+        "effective_sample_size",
+        "seed_hex"
+      ],
+      "properties": {
+        "n_draws": {
+          "type": "integer"
+        },
+        "n_batches": {
+          "type": "integer"
+        },
+        "batch_size": {
+          "type": "integer"
+        },
+        "converged": {
+          "type": "boolean"
+        },
+        "n_dig": {
+          "type": "integer"
+        },
+        "numerical_tolerance": {
+          "type": "number"
+        },
+        "coverage_probability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "effective_sample_size": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "seed_hex": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        }
+      }
+    },
+    "OrderingKey": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Lot ordering (decision 8). Sort ascending by (state_rank, primary is None, primary if not None else 0.0, lot_id); see spec 11.5.",
+      "required": [
+        "state_rank",
+        "primary",
+        "lot_id"
+      ],
+      "properties": {
+        "state_rank": {
+          "type": "integer"
+        },
+        "primary": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lot_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        }
+      }
+    },
+    "ParameterLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "layer",
+        "method"
+      ],
+      "properties": {
+        "name": {
+          "enum": [
+            "ln_k_ref_per_s",
+            "ea_j_per_mol",
+            "b_per_percent_rh",
+            "ln_k_vis_per_lux_h",
+            "ln_k_uv_per_w_h_per_m2",
+            "ln_k_dose_per_gy",
+            "ln_k_dose_frozen_per_gy",
+            "ln_frozen_rate_multiplier"
+          ]
+        },
+        "layer": {
+          "enum": [
+            "measured_model",
+            "computed",
+            "class_prior"
+          ]
+        },
+        "method": {
+          "type": "string"
+        }
+      }
+    },
+    "PathwayContribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pathway_id",
+        "reaction_class_id",
+        "driver",
+        "role",
+        "share_nominal",
+        "contributes",
+        "layer",
+        "parameter_layers"
+      ],
+      "properties": {
+        "pathway_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "reaction_class_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "driver": {
+          "enum": [
+            "thermal",
+            "light",
+            "radiation"
+          ]
+        },
+        "role": {
+          "enum": [
+            "destructive",
+            "racemization"
+          ]
+        },
+        "share_nominal": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "contributes": {
+          "type": "boolean"
+        },
+        "layer": {
+          "enum": [
+            "measured_model",
+            "computed",
+            "class_prior"
+          ]
+        },
+        "parameter_layers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ParameterLayer"
+          }
+        }
+      }
+    },
+    "Pins": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Everything needed to reproduce an output bit for bit (decision 12).",
+      "required": [
+        "engine_version",
+        "config",
+        "sensor_series",
+        "observations_sha256",
+        "seed_hex",
+        "rng",
+        "numpy_version",
+        "rdkit_version",
+        "tblite_version",
+        "computed_cache_keys"
+      ],
+      "properties": {
+        "engine_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "config": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConfigPin"
+          }
+        },
+        "sensor_series": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SeriesPin"
+          }
+        },
+        "observations_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "seed_hex": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "rng": {
+          "enum": [
+            "numpy.PCG64"
+          ]
+        },
+        "numpy_version": {
+          "type": "string"
+        },
+        "rdkit_version": {
+          "type": "string"
+        },
+        "tblite_version": {
+          "type": "string"
+        },
+        "computed_cache_keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Placard": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "NASA-STD-7009B [M&S 26] style warning: type of limit, extent, consequence.",
+      "required": [
+        "kind",
+        "extent",
+        "unit",
+        "duration_s",
+        "share_nominal",
+        "message"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "temperature_range",
+            "humidity_range",
+            "time_extrapolation",
+            "regime_frozen",
+            "regime_phase_change",
+            "coverage",
+            "monte_carlo",
+            "assay_conflict"
+          ]
+        },
+        "extent": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "duration_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "share_nominal": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "PotencyEstimate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Remaining active ingredient of one ingredient of one lot at ``as_of``. ``quantiles``, ``mean`` and ``coverage_interval`` are in percent of label claim of the active measurand (for racemizing ingredients the active enantiomer; ``total_quantiles`` then gives total drug). ``estimate_basis`` is the weakest layer that contributed to the reported interval; ``prior_basis`` is the same ignoring assays; ``assay_ids_used`` lists the assays the update used (spec 9.6 and 10).",
+      "required": [
+        "estimate_id",
+        "lot_id",
+        "product_id",
+        "ingredient_id",
+        "as_of_utc",
+        "as_of_s",
+        "unit",
+        "quantiles",
+        "mean",
+        "standard_uncertainty",
+        "coverage_interval",
+        "total_quantiles",
+        "specification",
+        "p_within_spec",
+        "p_below_lower",
+        "p_above_upper",
+        "degradants",
+        "radiation",
+        "exposure",
+        "flags",
+        "estimate_basis",
+        "prior_basis",
+        "assay_ids_used",
+        "inspection_ids_used",
+        "inspection_override",
+        "pathway_contributions",
+        "placards",
+        "monte_carlo",
+        "pins",
+        "trace"
+      ],
+      "properties": {
+        "estimate_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lot_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "product_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "ingredient_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "as_of_utc": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+        },
+        "as_of_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "unit": {
+          "enum": [
+            "percent_label_claim"
+          ]
+        },
+        "quantiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QuantileValue"
+          }
+        },
+        "mean": {
+          "type": "number"
+        },
+        "standard_uncertainty": {
+          "type": "number"
+        },
+        "coverage_interval": {
+          "$ref": "#/$defs/CoverageInterval"
+        },
+        "total_quantiles": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/QuantileValue"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "specification": {
+          "$ref": "#/$defs/SpecificationLimits"
+        },
+        "p_within_spec": {
+          "type": "number"
+        },
+        "p_below_lower": {
+          "type": "number"
+        },
+        "p_above_upper": {
+          "type": "number"
+        },
+        "degradants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DegradantEstimate"
+          }
+        },
+        "radiation": {
+          "$ref": "#/$defs/RadiationReport"
+        },
+        "exposure": {
+          "$ref": "#/$defs/ExposureSummary"
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "outside_validated_range",
+              "coverage_low",
+              "computed_only",
+              "mc_not_converged",
+              "assay_model_conflict",
+              "assay_reanchored",
+              "inspection_override",
+              "regime_switch",
+              "radiosensitive_dose_exceeded",
+              "degradant_profile_not_reviewed"
+            ]
+          }
+        },
+        "estimate_basis": {
+          "enum": [
+            "measured_model",
+            "assay_updated",
+            "computed",
+            "class_prior"
+          ]
+        },
+        "prior_basis": {
+          "enum": [
+            "measured_model",
+            "computed",
+            "class_prior"
+          ]
+        },
+        "assay_ids_used": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inspection_ids_used": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inspection_override": {
+          "anyOf": [
+            {
+              "enum": [
+                "no_change",
+                "color_change",
+                "cracking",
+                "crystals",
+                "cloudiness",
+                "precipitate",
+                "particles",
+                "swollen_package",
+                "phase_separation",
+                "other"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pathway_contributions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PathwayContribution"
+          }
+        },
+        "placards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Placard"
+          }
+        },
+        "monte_carlo": {
+          "$ref": "#/$defs/MonteCarloReport"
+        },
+        "pins": {
+          "$ref": "#/$defs/Pins"
+        },
+        "trace": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TraceEntry"
+          }
+        }
+      }
+    },
+    "Projection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "window_s",
+        "zone_id",
+        "package_id"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "repeat_last_window",
+            "declared_constant"
+          ]
+        },
+        "window_s": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "zone_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "package_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        }
+      }
+    },
+    "QuantileValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "probability",
+        "value"
+      ],
+      "properties": {
+        "probability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "value": {
+          "type": "number"
+        }
+      }
+    },
+    "QuantityCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "zone_id",
+        "quantity",
+        "measured_s",
+        "held_s",
+        "gap_s",
+        "declared_s",
+        "not_applicable_s",
+        "longest_gap_s",
+        "coverage_fraction"
+      ],
+      "properties": {
+        "zone_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "quantity": {
+          "enum": [
+            "temperature_k",
+            "relative_humidity",
+            "dose_rate_gy_per_s",
+            "illuminance_lux",
+            "uv_w_per_m2"
+          ]
+        },
+        "measured_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "held_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "gap_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "declared_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "not_applicable_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "longest_gap_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "coverage_fraction": {
+          "type": "number"
+        }
+      }
+    },
+    "RadiationReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cumulative_absorbed_dose_gy",
+        "included_in_potency",
+        "central_loss_fraction_median",
+        "upper_bound_loss_fraction",
+        "upper_bound_k_per_gy",
+        "dose_rate_safety_factor",
+        "method",
+        "radiosensitive",
+        "radiosensitive_threshold_gy",
+        "threshold_exceeded"
+      ],
+      "properties": {
+        "cumulative_absorbed_dose_gy": {
+          "type": "number",
+          "minimum": 0
+        },
+        "included_in_potency": {
+          "type": "boolean"
+        },
+        "central_loss_fraction_median": {
+          "type": "number"
+        },
+        "upper_bound_loss_fraction": {
+          "type": "number"
+        },
+        "upper_bound_k_per_gy": {
+          "type": "number",
+          "minimum": 0
+        },
+        "dose_rate_safety_factor": {
+          "type": "number"
+        },
+        "method": {
+          "enum": [
+            "g_value_direct",
+            "g_value_indirect",
+            "none"
+          ]
+        },
+        "radiosensitive": {
+          "type": "boolean"
+        },
+        "radiosensitive_threshold_gy": {
+          "type": "number",
+          "minimum": 0
+        },
+        "threshold_exceeded": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Reason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "ingredient_id",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "enum": [
+            "within_specification",
+            "below_lower_limit",
+            "above_upper_limit",
+            "degradant_above_limit",
+            "degradant_unidentified_above_limit",
+            "inspection_found_change",
+            "adjustment_not_allowed_by_product",
+            "fixed_dose_device",
+            "toxic_degradant",
+            "estimate_outside_validated_range",
+            "estimate_coverage_low",
+            "degradant_profile_not_reviewed",
+            "computed_only",
+            "assay_model_conflict",
+            "regime_switch",
+            "radiosensitive_dose_exceeded",
+            "mc_not_converged",
+            "past_labeled_expiry"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "blocking",
+            "warning",
+            "info"
+          ]
+        },
+        "ingredient_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "degradant_unidentified_above_limit"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "severity": {
+                "const": "warning"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "SeriesPin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "series_id",
+        "sha256"
+      ],
+      "properties": {
+        "series_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "SpecificationLimits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lower_percent",
+        "upper_percent"
+      ],
+      "properties": {
+        "lower_percent": {
+          "type": "number"
+        },
+        "upper_percent": {
+          "type": "number"
+        }
+      }
+    },
+    "TimeAbove": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "threshold_k",
+        "seconds"
+      ],
+      "properties": {
+        "threshold_k": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "seconds": {
+          "type": "number"
+        }
+      }
+    },
+    "TraceEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One traced number: what it is, its value and unit, where it came from (config document and JSON pointer, or the computation that produced it) and its sources.",
+      "required": [
+        "quantity",
+        "value",
+        "unit",
+        "origin",
+        "source_ids",
+        "note"
+      ],
+      "properties": {
+        "quantity": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "origin": {
+          "type": "string"
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/SourceId"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "WindowMkt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "window_id",
+        "duration_s",
+        "mkt_k"
+      ],
+      "properties": {
+        "window_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "duration_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "mkt_k": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

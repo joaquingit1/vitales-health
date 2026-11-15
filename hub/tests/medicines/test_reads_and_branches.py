@@ -20,7 +20,16 @@ from crew_health.medicines.domain.documents import DocumentsInvalid
 from crew_health.medicines.domain.engine import propose
 from crew_health.medicines.domain.units import Amount, UnitIncompatible, convert, display, text
 
-from .harness import SESSIONS, SUBJECT, FakeEngine, Station, build_station, config_copy, headers
+from .harness import (
+    SESSIONS,
+    SUBJECT,
+    FakeEngine,
+    Station,
+    build_station,
+    config_copy,
+    fixture_config,
+    headers,
+)
 from .kit import ask, assessed, complete_context, condition_ids, given, lot, part, switched
 from .test_flow import CLIENT_TIME, _confirm, _context, _diagnose, _post, _propose
 
@@ -50,7 +59,9 @@ def test_treatment_options_list_the_reviewed_formulary_lines_with_usable_lots(st
 
 
 @pytest.mark.trace("T-72", "DD9", "R-E32-10")
-def test_a_stored_engine_assessment_reaches_the_board_and_the_dose_path(st: Station) -> None:
+def test_a_stored_engine_assessment_reaches_the_board_and_the_dose_path(tmp_path: Path) -> None:
+    st = build_station(tmp_path, config_dir=fixture_config(tmp_path / "config-fixture-lots"))
+    _context(st)
     scheduled = st.client.post("/v1/medicines/assessments", headers=headers("operator"))
     assert scheduled.status_code == 202 and scheduled.json()["state"] == "queued"
     run_id = scheduled.json()["job_id"]

@@ -76,7 +76,9 @@ def test_no_proposal_ever_exceeds_a_dose_or_the_24_hour_limit(
         return
     assert proposal.amount is not None
     (line,) = proposal.ingredients
-    upper = max(Decimal(1), median + spread) if adjust else Decimal(1)  # E32 3.6 Acc_i(a) = a * S_i * max(1, u_i)
+    upper = (
+        max(Decimal(1), median + spread) if adjust else Decimal(1)
+    )  # E32 3.6 Acc_i(a) = a * S_i * max(1, u_i)
     assert line.accounting.value == proposal.amount.value * Decimal(325) * upper
     used = sum((Decimal(mg) for h, mg in history if 0 <= h < 24), Decimal(0))
     assert line.accounting.value <= APAP_MAX_DOSE_MG * upper

@@ -26,6 +26,7 @@ from crew_health.medicines.application.codec import summary_json
 from crew_health.medicines.application.ports import (
     ArtifactCorrupt,
     Partition,
+    ResultInvalid,
     RunOutcome,
     RunResult,
     RunRow,
@@ -258,10 +259,17 @@ def record_outcome(deps: Deps, uow: UnitOfWork, run_id: str, outcome: RunOutcome
             outcome.error_code,
         )
         return
+    start = run.start
     try:
-        lots = deps.engine.summaries(run_id, outcome.result)
-    except ValueError, KeyError, TypeError, ArithmeticError:
-        _finish(deps, uow, run_id, "failed", "result_unmapped")
+        if start is None:
+            raise ResultInvalid("the run has no start")
+        files = bundle_files(deps, uow, start.bundle_sha256)
+        lots = deps.engine.summaries(run_id, outcome.result, files, start.as_of)
+    except ResultInvalid:
+        _finish(deps, uow, run_id, "failed", "result_invalid")
+        return
+    except ArtifactCorrupt:
+        _finish(deps, uow, run_id, "failed", "artifact_corrupt")
         return
     result_sha = deps.store.put_artifact(uow, "result", outcome.result)
     version = next((s.engine_version for s in lots.values()), "unknown")

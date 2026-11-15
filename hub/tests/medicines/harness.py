@@ -32,6 +32,8 @@ from crew_health.kernel.testing import MemoryIds, MemoryRelease
 from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
 from crew_health.medicines import module as medicines_module
+from crew_health.medicines.adapters import engine_result
+from crew_health.medicines.adapters.potency import BUNDLE_FILES
 from crew_health.medicines.adapters.weights import RecordsObservations, RecordsWeightReader
 from crew_health.medicines.application import settings as medicines_settings
 from crew_health.medicines.application.ports import (
@@ -63,6 +65,7 @@ SCHEMAS = REPO / "contracts/api/schemas"
 MIGRATION = REPO / "hub/src/crew_health/medicines/adapters/migrations/0001_medicines.sql"
 EVENTS_MIGRATION = REPO / "hub/src/crew_health/events/adapters/migrations/0001_events.sql"
 FIXTURE = Path(__file__).parent / "fixtures/engine-run.json"
+SCHEMA = engine_result.validator()
 ENGINE_PYTHON = REPO / ".venv/bin/python"  # the root environment carries pharmacy, numpy and scipy
 NOW = datetime(
     2028, 3, 1, 8, 0, tzinfo=UTC
@@ -194,6 +197,15 @@ def config_copy(directory: Path, edit: Callable[[dict[str, object], dict[str, ob
     return target
 
 
+def fixture_config(target: Path) -> Path:
+    """config/ with the pharmacy inventory narrowed to the recorded run's lots, so the default FakeEngine run is a
+    complete, valid assessment of the bundle (E32 5.3: every lot of the bundle is assessed)."""
+    if not target.exists():
+        shutil.copytree(CONFIG, target)
+        (target / "pharmacy" / "lots.json").write_bytes(fixture_bundle()["lots"])
+    return target
+
+
 def lunar(mode: str = "SIM") -> MissionFacts:
     return MissionFacts("mission_1", mode, "lunar_surface", 180, "node_1")  # type: ignore[arg-type]
 
@@ -215,13 +227,17 @@ class FakeEngine:
             return self.outcome
         result = json.loads(FIXTURE.read_text(encoding="utf-8"))["result"]
         as_of = json.loads(inputs)["as_of_utc"]
+        result["as_of_utc"] = as_of
         for assessment in result["assessments"]:  # as a run at this hub clock would state it
             assessment["decision"]["as_of_utc"] = as_of
             for estimate in assessment["estimates"]:
                 for quantile in estimate["quantiles"]:
                     quantile["value"] *= self.scale
                 interval = estimate["coverage_interval"]
-                interval["low"], interval["high"] = interval["low"] * self.scale, interval["high"] * self.scale
+                interval["low"], interval["high"] = (
+                    interval["low"] * self.scale,
+                    interval["high"] * self.scale,
+                )
         return RunOutcome("completed", json.dumps(result, sort_keys=True).encode(), None, "")
 
     def replay(self, bundle: Mapping[str, bytes], inputs: bytes, recorded: bytes) -> RunOutcome:
@@ -230,10 +246,28 @@ class FakeEngine:
     def check(self, bundle: Mapping[str, bytes]) -> RunOutcome:
         return RunOutcome("completed", b'{"ok":true}', None, "")
 
-    def summaries(self, run_id: str, result: bytes) -> Mapping[str, LotSummary]:
-        from crew_health.medicines.adapters.potency import summaries
+    def summaries(
+        self, run_id: str, result: bytes, bundle: Mapping[str, bytes], as_of: datetime
+    ) -> Mapping[str, LotSummary]:
+        return engine_result.summaries(SCHEMA, run_id, result, bundle, as_of)
 
-        return summaries(run_id, json.loads(result))
+
+FIXTURE_LOTS = ("lot-apap-001", "lot-pmz-tab-001")  # the lots the recorded engine run assessed
+
+
+def fixture_bundle(config_dir: Path = REPO / "config") -> dict[str, bytes]:
+    """The pharmacy bundle with lots.json narrowed to the recorded run's two lots."""
+    files = {member: (config_dir / "pharmacy" / name).read_bytes() for member, name in BUNDLE_FILES.items()}
+    lots = json.loads(files["lots"])
+    lots["lots"] = [lot for lot in lots["lots"] if lot["lot_id"] in FIXTURE_LOTS]
+    files["lots"] = json.dumps(lots).encode()
+    return files
+
+
+def fixture_summaries(run_id: str) -> Mapping[str, LotSummary]:
+    result = json.loads(FIXTURE.read_text(encoding="utf-8"))["result"]
+    as_of = datetime.fromisoformat(result["as_of_utc"].replace("Z", "+00:00"))
+    return engine_result.summaries(SCHEMA, run_id, json.dumps(result).encode(), fixture_bundle(), as_of)
 
 
 @dataclass
@@ -301,7 +335,7 @@ class Station:
 def build_station(
     directory: Path,
     *,
-    config_dir: Path = CONFIG,
+    config_dir: Path | None = None,
     mission: MissionFacts | None = None,
     clock: StepClock | None = None,
     engine: PotencyEngine | None = None,
@@ -311,8 +345,9 @@ def build_station(
     own: Mapping[str, object] | None = None,
 ) -> Station:
     clock = clock or StepClock()
-    settings = Settings(config_dir, engine_python, **(own or {}))
     directory.mkdir(parents=True, exist_ok=True)
+    config_dir = config_dir or CONFIG
+    settings = Settings(config_dir, engine_python, **(own or {}))
     starts = len(list(directory.glob("start-*")))  # a restart continues the ID sequence, as UUID7 IDs would
     (directory / f"start-{starts}").touch()
     db = SQLiteDatabase(

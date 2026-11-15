@@ -21,7 +21,7 @@ from crew_health.contracts_gen.enums import EventType, Role
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.uow import Actor, Audience, SessionContext
 from crew_health.medicines.adapters.documents import parse, read_documents, read_pharmacy
-from crew_health.medicines.adapters.potency import BUNDLE_FILES, PotencyWorker, summaries
+from crew_health.medicines.adapters.potency import BUNDLE_FILES, PotencyWorker
 from crew_health.medicines.adapters.weights import RecordsObservations, RecordsWeightReader
 from crew_health.medicines.application import assessments, events
 from crew_health.medicines.application.ports import Partition, RunOutcome
@@ -31,7 +31,6 @@ from crew_health.records.application.ports import RecordsStore
 from .harness import (
     CONFIG,
     ENGINE_PYTHON,
-    FIXTURE,
     REPO,
     SESSIONS,
     SUBJECT,
@@ -39,6 +38,8 @@ from .harness import (
     Station,
     StepClock,
     build_station,
+    fixture_config,
+    fixture_summaries,
     headers,
     lunar,
 )
@@ -120,7 +121,7 @@ def _config(tmp_path: Path, lots: Callable[[list[dict[str, Any]]], list[dict[str
 @pytest.mark.trace("T-57", "INV-M7", "E32-4.4", "E32-5.3")
 def test_an_assay_and_an_inspection_reach_the_next_run_of_their_partition_only(tmp_path: Path) -> None:
     engine = Recording()
-    st = build_station(tmp_path, engine=engine)
+    st = build_station(tmp_path, engine=engine, config_dir=_lots(tmp_path))
     assay = _post(st, "/v1/medicines/assays", ASSAY)
     assert assay.status_code == 201 and assay.json()["assay_id"].startswith("medy")
     inspection = _post(
@@ -165,9 +166,14 @@ def test_an_assay_is_refused_for_a_foreign_ingredient_a_future_time_another_lot_
     assert st.rows("SELECT count(*) FROM med_record WHERE kind='assay'") == [(0,)]
 
 
+def _lots(tmp_path: Path) -> Path:
+    """The recorded run's two lots as the whole inventory, so the default FakeEngine answer is complete."""
+    return fixture_config(tmp_path / "config-fixture-lots")
+
+
 @pytest.fixture
 def st_plain(tmp_path: Path) -> Station:
-    return build_station(tmp_path)
+    return build_station(tmp_path, config_dir=_lots(tmp_path))
 
 
 @pytest.mark.trace("E32-4.4", "E32-9")
@@ -187,7 +193,7 @@ def test_runs_coalesce_while_queued_and_a_trigger_during_a_run_queues_exactly_on
     tmp_path: Path,
 ) -> None:
     engine = Recording()
-    st = build_station(tmp_path, engine=engine)
+    st = build_station(tmp_path, engine=engine, config_dir=_lots(tmp_path))
     first = _schedule(st)
     assert _schedule(st)["job_id"] == first["job_id"]  # coalesced into the start-up run
     during: list[str] = []
@@ -207,12 +213,12 @@ def test_runs_coalesce_while_queued_and_a_trigger_during_a_run_queues_exactly_on
 
 @pytest.mark.trace("T-71", "E32-5.2", "C5")
 def test_a_restart_marks_unfinished_runs_interrupted_and_schedules_one_run(tmp_path: Path) -> None:
-    st = build_station(tmp_path)
+    st = build_station(tmp_path, config_dir=_lots(tmp_path))
     (queued,) = _runs(st)
     with st.db.begin(actor=STARTUP, correlation_id="claim") as uow:
         st.tasks.claim(uow, worker_id="worker_1", handlers=frozenset({"medicines.assessment"}), limit=1)
     assert assessments.start(st.deps, queued, STARTUP) is not None  # running, then the process dies
-    restarted = build_station(tmp_path, clock=st.clock)
+    restarted = build_station(tmp_path, clock=st.clock, config_dir=_lots(tmp_path))
     old, new = _runs(restarted)
     assert old == queued and _status(restarted, old) == ("interrupted", None)
     assert _status(restarted, new) == ("queued", None)
@@ -244,7 +250,7 @@ def test_a_failed_then_timed_out_run_keeps_the_last_completed_assessment(st_plai
 
 @pytest.mark.trace("T-76", "E32-11")
 def test_inputs_over_the_bound_fail_the_run_input_limit_exceeded(tmp_path: Path) -> None:
-    st = build_station(tmp_path, own={"medicines.max_inputs_bytes": 1024})
+    st = build_station(tmp_path, own={"medicines.max_inputs_bytes": 1024}, config_dir=_lots(tmp_path))
     for n in range(12):
         assert _post(st, "/v1/medicines/assays", {**ASSAY, "note": "x" * 100 + str(n)}).status_code == 201
     (run,) = _runs(st)
@@ -320,7 +326,7 @@ def test_a_run_replays_bit_for_bit_after_the_bundle_changes_late_readings_arrive
     assert st.drain() == 1 and _status(st, run) == ("completed", None)
     with st.db.snapshot() as view:
         _, mapped = latest_summaries(st.deps, view, Partition("mission_1", "SIM", ""))
-    recorded = summaries("fixture", json.loads(FIXTURE.read_text(encoding="utf-8"))["result"])
+    recorded = fixture_summaries("fixture")
     # The worker's run states what the recorded pipeline run of the same bundle and inputs stated (T-72); the
     # quantiles agree to 0.1 % of label claim (the fixture predates later pharmacy model data).
     assert {k: v.state for k, v in mapped.items()} == {k: v.state for k, v in recorded.items()}
@@ -569,7 +575,7 @@ def test_a_per_kilogram_rule_refuses_without_a_weight_and_uses_the_latest_accept
     tmp_path: Path,
 ) -> None:
     records = _Records([])
-    st = build_station(tmp_path, records=records)
+    st = build_station(tmp_path, records=records, config_dir=_lots(tmp_path))
     weighted, _ = _weighted()
     documents = replace(st.deps.documents(), treatments=weighted.treatments)
     st.rebind(documents=lambda: documents)

@@ -118,6 +118,11 @@ class ArtifactCorrupt(Exception):
     """Stored bytes no longer hash to their key: the run fails `artifact_corrupt`, never uses the bytes."""
 
 
+class ResultInvalid(Exception):
+    """The engine exited cleanly but its result is not a valid assessment of the run's lots: the run fails
+    `result_invalid` and nothing of it is published."""
+
+
 class PotencyStore(Protocol):
     """Artifacts, pharmacy bundles and assessment runs (E32 5.2). Every read is bounded; reads re-hash."""
 
@@ -160,7 +165,11 @@ class PotencyEngine(Protocol):
 
     def assess(self, bundle: Mapping[str, bytes], inputs: bytes) -> RunOutcome: ...
     def replay(self, bundle: Mapping[str, bytes], inputs: bytes, recorded: bytes) -> RunOutcome: ...
-    def summaries(self, run_id: str, result: bytes) -> Mapping[str, LotSummary]: ...
+    def summaries(
+        self, run_id: str, result: bytes, bundle: Mapping[str, bytes], as_of: datetime
+    ) -> Mapping[str, LotSummary]:
+        """Every lot of `bundle`, validated (raises ResultInvalid, never a partial mapping)."""
+        ...
 
 
 class BundleCheck(Protocol):

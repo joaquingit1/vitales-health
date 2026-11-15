@@ -14,11 +14,11 @@ from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
 from crew_health.medicines.adapters.documents import load, read_pharmacy
-from crew_health.medicines.adapters.potency import PotencyWorker, summaries
+from crew_health.medicines.adapters.potency import PotencyWorker
 from crew_health.medicines.domain.documents import DocumentsInvalid
 from crew_health.medicines.domain.engine import propose
 
-from .harness import CONFIG, REPO, SCHEMAS, build_station, config_copy, headers
+from .harness import CONFIG, REPO, SCHEMAS, build_station, config_copy, fixture_summaries, headers
 from .kit import ask, condition_ids, given
 
 FIXTURE = Path(__file__).parent / "fixtures/engine-run.json"
@@ -131,7 +131,7 @@ def test_the_recorded_engine_run_maps_to_lot_summaries_in_fractions() -> None:
     recorded = json.loads(FIXTURE.read_text(encoding="utf-8"))
     validator = _validator(REPO / "contracts/pharmacy", "inventory-assessment.schema.json")
     assert sorted(validator.iter_errors(recorded["result"]), key=str) == []
-    mapped = summaries("medr_1", recorded["result"])
+    mapped = fixture_summaries("medr_1")
     pmz, apap = mapped["lot-pmz-tab-001"], mapped["lot-apap-001"]
     assert pmz.state == "adjust" and pmz.adjustment_eligible
     # quantiles of the recorded run, percent of label claim: 0.025 -> 90.63, 0.5 -> 97.45, 0.975 -> 101.17

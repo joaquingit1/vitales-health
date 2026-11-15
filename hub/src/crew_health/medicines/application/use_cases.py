@@ -1448,12 +1448,23 @@ def lots_view(deps: Deps, session: SessionContext, environment_id: str | None) -
                 else {
                     "run_id": run.run_id,
                     "as_of": instant(run.start.as_of),
-                    "status": "completed",
+                    "status": _assessment_status(deps, view, partition),
                     "origin_mode": run.origin_mode,
                 },
                 "lots": lots,
             }
         )
+
+
+def _assessment_status(deps: Deps, view: View, partition: Partition) -> str:
+    """`completed` while the newest finished run is the one in use; `unknown` when a newer run ended without a
+    valid result (failed, timed out, interrupted, result_invalid): the last completed lots and their exclusions stay
+    in use, and the board says the current state is not known."""
+    for run in deps.store.runs(view, partition.mission_id, partition.origin_mode, limit=deps.limits.max_rows):
+        status = deps.store.run_status(view, run.run_id)[0]
+        if status not in {"queued", "running"}:
+            return "completed" if status == "completed" else "unknown"
+    return "unknown"
 
 
 def _board_context(now: datetime, mode: str, docs: Documents) -> DoseContext:

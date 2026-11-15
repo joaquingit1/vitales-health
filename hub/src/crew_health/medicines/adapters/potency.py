@@ -13,14 +13,14 @@ import json
 import os
 import subprocess
 import tempfile
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from datetime import datetime
-from decimal import Decimal
 from pathlib import Path
 from typing import cast
 
+from crew_health.medicines.adapters import engine_result
 from crew_health.medicines.application.ports import RunOutcome
-from crew_health.medicines.domain.model import LotState, LotSummary, Potency
+from crew_health.medicines.domain.model import LotSummary
 
 type Json = Mapping[str, object]
 
@@ -67,6 +67,7 @@ class PotencyWorker:
     ) -> None:
         self.python, self.timeout = python, timeout_seconds
         self.memory_limit, self.sample_ms = memory_limit_bytes, memory_sample_ms
+        self.schema = engine_result.validator()
 
     def assess(self, bundle: Mapping[str, bytes], inputs: bytes) -> RunOutcome:
         return self._run("assess", bundle, b'{"inputs":' + inputs + b"}")
@@ -77,8 +78,10 @@ class PotencyWorker:
     def check(self, bundle: Mapping[str, bytes]) -> RunOutcome:
         return self._run("check", bundle, b"{}")
 
-    def summaries(self, run_id: str, result: bytes) -> Mapping[str, LotSummary]:
-        return summaries(run_id, cast(Json, json.loads(result)))
+    def summaries(
+        self, run_id: str, result: bytes, bundle: Mapping[str, bytes], as_of: datetime
+    ) -> Mapping[str, LotSummary]:
+        return engine_result.summaries(self.schema, run_id, result, bundle, as_of)
 
     def _run(self, mode: str, bundle: Mapping[str, bytes], payload: bytes) -> RunOutcome:
         if self.python is None or not self.python.is_file():
@@ -154,63 +157,3 @@ def _outcome(code: int, out: bytes, err: bytes) -> RunOutcome:
             "failed", None, "engine_error", f"{reason.get('error')}: {reason.get('detail', '')}"
         )
     return RunOutcome("failed", None, "engine_crashed", f"exit status {code}")
-
-
-def _fraction(value: object) -> Decimal:
-    return Decimal(str(value)) / Decimal(100)
-
-
-def _instant(text: object) -> datetime:
-    return datetime.fromisoformat(str(text).replace("Z", "+00:00"))
-
-
-def _list(value: object) -> Sequence[Json]:
-    return cast(Sequence[Json], value) if isinstance(value, list) else ()
-
-
-def summaries(run_id: str, inventory: Json) -> dict[str, LotSummary]:
-    """Map an InventoryAssessment (contracts/pharmacy/inventory-assessment.schema.json) to one LotSummary per lot.
-    Potency uses the outermost reported quantiles as low and high and the 0.5 quantile as median, as fractions of
-    label claim; a lot whose estimate lacks the median is left without potency (never a guessed value)."""
-    out: dict[str, LotSummary] = {}
-    for assessment in _list(inventory.get("assessments")):
-        decision = cast(Json, assessment["decision"])
-        adjustment = cast(Json, decision["adjustment"])
-        potency: dict[str, Potency] = {}
-        declared = False
-        for estimate in _list(assessment.get("estimates")):
-            quantiles = sorted(
-                _list(estimate.get("quantiles")), key=lambda q: float(cast(float, q["probability"]))
-            )
-            median = [q for q in quantiles if float(cast(float, q["probability"])) == 0.5]
-            if quantiles and median:
-                potency[str(estimate["ingredient_id"])] = Potency(
-                    low=_fraction(quantiles[0]["value"]),
-                    median=_fraction(median[0]["value"]),
-                    high=_fraction(quantiles[-1]["value"]),
-                )
-            exposure = cast(Json, estimate.get("exposure") or {})
-            for row in _list(exposure.get("coverage")):
-                if (
-                    float(cast(float, row.get("declared_s", 0))) > 0
-                    or float(cast(float, row.get("gap_s", 0))) > 0
-                ):
-                    declared = True
-        pins = cast(Json, decision.get("pins") or {})
-        out[str(assessment["lot_id"])] = LotSummary(
-            run_id=run_id,
-            as_of=_instant(decision["as_of_utc"]),
-            state=cast(LotState, decision["state"]),
-            potency=potency,
-            adjustment_eligible=bool(adjustment["eligible"]),
-            assay_used=bool(_list(adjustment.get("assay_ids_used"))),
-            custody_declared_or_gapped=declared,
-            engine_version=str(pins.get("engine_version") or "unknown"),
-            alternative_lot_ids=tuple(
-                str(x) for x in cast(list[object], decision.get("alternative_lot_ids") or [])
-            ),
-            alternative_product_ids=tuple(
-                str(x) for x in cast(list[object], decision.get("alternative_product_ids") or [])
-            ),
-        )
-    return out
