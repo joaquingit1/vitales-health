@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import copy
 import json
-from decimal import Decimal
 
 import pytest
 import rules_harness as h
@@ -35,10 +34,6 @@ EXPECTED_DIFFERENCES = {
     # E24 3.8: a rule warning ends by evidence or a resolution, never by a notification expiry.
     ("dizzy_after_landing", "clear.expires_after_seconds"),
 }
-
-
-def _flatten(prefix: str, value: object) -> dict[str, object]:
-    return {prefix: value}
 
 
 def _differences(a: dict[str, object], b: dict[str, object]) -> set[tuple[str, str]]:
@@ -184,5 +179,4 @@ def test_no_definition_changes_a_safety_mapping_when_content_is_edited(deploymen
 def test_json_file_is_valid_utf8_without_dashes() -> None:
     text = (h.ROOT / "config" / "warning-rules.json").read_text(encoding="utf-8")
     json.loads(text)
-    assert "—" not in text and "–" not in text
-    assert Decimal("0") == 0
+    assert chr(0x2014) not in text and chr(0x2013) not in text

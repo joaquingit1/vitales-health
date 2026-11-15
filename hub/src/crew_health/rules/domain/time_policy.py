@@ -53,7 +53,7 @@ def answer_window_satisfied(
     occurred_corrected_at: datetime | None,
     days: int,
 ) -> bool:
-    """`0 <= answered - occurred <= days x 86400 s`, on the recorded and the corrected difference.
+    """the difference from the event to the answer lies between zero and `days` x 86400 seconds, on the recorded and the corrected difference.
 
     It holds when either difference satisfies it, so a correction never hides a warning.
     """
