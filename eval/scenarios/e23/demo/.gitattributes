@@ -1,0 +1,2 @@
+# The NASA CSV copies are byte copies guarded by SHA-256 (provenance.json): no line-ending conversion.
+*.csv -text
