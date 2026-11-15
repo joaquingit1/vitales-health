@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
+import { useStage } from "../../shell/stage";
 import { copy } from "../../design/copy";
 import SourceWord from "../../design/SourceWord.vue";
 import {
@@ -196,8 +197,18 @@ onMounted(() => {
   }, 250);
   void guard(load);
 });
+/** The stage: the step's region in focus and its landmark lit. */
+const stage = useStage();
+watchEffect(() => {
+  const at = region.value ?? shown.value.map((s) => s.body_region).find(Boolean) ?? null;
+  stage.headline = landmark.value ?? steps.value?.card_title_text ?? helper.value?.task_text ?? "";
+  stage.focus = at;
+  stage.marks = at ? [{ region: at, kind: "dot" }] : [];
+});
 onBeforeUnmount(() => {
   window.clearInterval(ticker);
+  stage.marks = [];
+  stage.focus = null;
 });
 </script>
 

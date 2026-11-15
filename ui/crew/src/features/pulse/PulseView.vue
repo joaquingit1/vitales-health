@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
+import { useStage } from "../../shell/stage";
 import { copy } from "../../design/copy";
 import SourceWord from "../../design/SourceWord.vue";
 import GapCard from "./GapCard.vue";
@@ -66,8 +67,24 @@ onMounted(async () => {
     problem.value = refusal(failure);
   }
 });
+/** The stage: the face lights while the cameras read; the measured dot lands on the region, beside the test not aboard. */
+const stage = useStage();
+watchEffect(() => {
+  const region = capability.value?.body_region ?? null;
+  const reading = phase.value === "reading" || phase.value === "starting" || phase.value === "failed";
+  stage.headline = reading ? deviceWords(capability.value?.instrument_ids[0]) : WORDS.pulseTitle;
+  stage.focus = reading ? "head" : region;
+  stage.marks =
+    phase.value === "done" && region
+      ? [{ region, kind: "dot" }, { region, kind: "open" }]
+      : !reading && region
+        ? [{ region, kind: "hollow" }]
+        : [];
+});
 onBeforeUnmount(() => {
   alive = false;
+  stage.marks = [];
+  stage.focus = null;
 });
 
 /** E05: propose the request, then walk its own allowed actions (submit, accept, start) with If-Match. */
