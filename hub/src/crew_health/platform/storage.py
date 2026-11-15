@@ -419,6 +419,11 @@ class SQLiteDatabase:
                 timeout=self.settings.integer("storage.busy_timeout_ms") / 1000,
                 isolation_level=None,
             )
+            # Every unit of work and read snapshot opens its own connection. By default the last one to close
+            # checkpoints the WAL and deletes it under an exclusive lock, and a reader opening meanwhile waits on
+            # that lock: with synchronous=FULL on a slow disk the wait outlasts the busy timeout and a plain read
+            # fails "locked" while writes run (E32 load test, CI). Checkpoints still run on commit (autocheckpoint).
+            connection.setconfig(sqlite3.SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE, True)
             connection.execute("PRAGMA journal_mode=WAL")
             connection.execute("PRAGMA synchronous=FULL")
             connection.execute("PRAGMA foreign_keys=ON")
