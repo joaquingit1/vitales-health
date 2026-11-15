@@ -45,9 +45,15 @@ def _peak_bytes() -> int:
         counters = Counters()
         counters.cb = ctypes.sizeof(Counters)
         windll = ctypes.windll  # type: ignore[attr-defined,unused-ignore]  # only on Windows
-        windll.psapi.GetProcessMemoryInfo(
-            windll.kernel32.GetCurrentProcess(), ctypes.byref(counters), counters.cb
-        )
+        # Typed calls: untyped, ctypes passes the pseudo handle as a 32 bit int, the call fails and the counters
+        # stay zero, so the limit was never reached on Windows (CI: an over-limit child reported engine_error).
+        current = windll.kernel32.GetCurrentProcess
+        current.restype, current.argtypes = wintypes.HANDLE, []
+        info = windll.psapi.GetProcessMemoryInfo
+        info.restype = wintypes.BOOL
+        info.argtypes = [wintypes.HANDLE, ctypes.POINTER(Counters), wintypes.DWORD]
+        if not info(current(), ctypes.byref(counters), counters.cb):
+            return sys.maxsize  # memory that cannot be measured counts as over the limit (fail closed)
         return int(counters.PeakWorkingSetSize)
     import resource
 
