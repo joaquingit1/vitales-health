@@ -31,8 +31,6 @@ from crew_health.participation.domain.types import ViewOrigin
 ENGINE = Actor("engine", "participation")
 LOCAL_AUDIENCE = "participation.local"
 _PROJECTION = AudienceProjectionKey("participation", "reference", 1)
-# The minimum number of members who must count before the crew goal shows any total (see queries.crew_goal).
-MIN_COUNTING_MEMBERS = 2
 
 
 @dataclass(frozen=True, slots=True)

@@ -44,7 +44,7 @@ class ConsentState:
 
 def _owner(session: SessionContext) -> str:
     """Only the authenticated owner reads or changes their consent."""
-    if session.person_id is None:
+    if session.kind != "crew" or session.actor.kind != "person" or session.person_id is None:
         raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, ErrorCode.UNAUTHORIZED_SCOPE.value)
     return session.person_id
 
