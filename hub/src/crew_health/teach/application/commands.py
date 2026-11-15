@@ -35,6 +35,7 @@ from crew_health.kernel.uow import (
     EventScope,
     OutboxEvent,
     ReadSnapshotFactory,
+    ReplicationChange,
     SessionContext,
     UnitOfWork,
     UnitOfWorkFactory,
@@ -174,8 +175,26 @@ class TeachCore:
 
     def remember(self, uow: UnitOfWork, identity: CommandIdentity, check: GuidedCheck, status: int) -> None:
         receipt = self.p.receipts.accepted(uow, identity)
-        result = StoredResult(receipt, status, check.guided_check_id, "ok", None)
+        result = StoredResult(
+            receipt, status, check.guided_check_id, "accepted", None
+        )  # SYSTEM 5.8 ledger code
         self.p.idempotency.record(uow, identity, result)
+
+    def register(self, uow: UnitOfWork, check: GuidedCheck) -> None:
+        """SYSTEM 5.7: register the new check's local record reference atomically, so the reference-only audit
+        entries that name it resolve (as plans does for its runs). No export projection exists for checks."""
+        uow.replicate(
+            ReplicationChange(
+                None,
+                "guided_check",
+                check.guided_check_id,
+                "create",
+                canonical_json({"guided_check_id": check.guided_check_id}),
+                (),
+                uow.release.release_id,
+                Audience(AUDIENCE_RULE, check.guided_check_id, AUDIENCE_PROJECTION, POLICY_VERSION),
+            )
+        )
 
     def save(self, uow: UnitOfWork, check: GuidedCheck) -> None:
         expected = check.revision
@@ -186,7 +205,8 @@ class TeachCore:
 
     def audit(self, uow: UnitOfWork, session: SessionContext, event: str, check: GuidedCheck) -> None:
         refs = {"guided_check_id": check.guided_check_id, "session_id": session.session_id}
-        metadata: dict[str, str | int | bool] = {"state": check.state, "revision": check.revision}
+        # SYSTEM 5.8: enumerated values only (module.audit_policies); the revision is on the check itself.
+        metadata: dict[str, str | int | bool] = {"state": check.state}
         if check.result is not None:
             metadata["result"] = check.result
         uow.audit(

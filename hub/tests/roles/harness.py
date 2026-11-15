@@ -123,6 +123,7 @@ class SqliteUow:
         self._now = factory.clock.now()
         self.events: list[OutboxEvent] = []
         self.audits: list[AuditEntry] = []
+        self.replications: list[ReplicationChange] = []
 
     @property
     def connection(self) -> SqliteSession:
@@ -164,6 +165,12 @@ class SqliteUow:
         )
 
     def audit(self, entry: AuditEntry) -> None:
+        # SYSTEM 5.8: an entry with a registered policy must carry what that policy allows.
+        from crew_health.roles.module import audit_policies
+
+        for policy in audit_policies():
+            if policy.event_type == entry.event_type:
+                policy.validate(entry)
         self.audits.append(entry)
 
     def schedule(self, job: ScheduledJob, *, expected_generation: int | None) -> int:
@@ -173,7 +180,8 @@ class SqliteUow:
         raise NotImplementedError
 
     def replicate(self, change: ReplicationChange) -> ReplicationRef:
-        raise NotImplementedError
+        self.replications.append(change)
+        return ReplicationRef("node_test", "inc_test", len(self.replications))
 
     def savepoint(self, name: str) -> AbstractContextManager[None]:
         raise NotImplementedError
@@ -259,11 +267,14 @@ class SqliteIdempotency:
             raise ProblemError(ErrorCode.DUPLICATE_COMMAND, ErrorCode.DUPLICATE_COMMAND.value)
         r = json.loads(str(receipt))
         accepted = AcceptedReceipt(r[0], r[1], r[2], r[3], datetime.fromisoformat(r[4]))
-        if not isinstance(status, int) or not isinstance(body, bytes):
+        if not isinstance(status, int) or body is not None:
             raise TypeError("stored result")
-        return StoredResult(accepted, status, None if ref is None else str(ref), str(code), body)
+        return StoredResult(accepted, status, None if ref is None else str(ref), str(code), None)
 
     def record(self, uow: UnitOfWork, identity: CommandIdentity, result: StoredResult) -> None:
+        # As the platform ledger (SYSTEM 5.8): a response body is never kept for these commands.
+        if result.safe_body is not None:
+            raise ProblemError(ErrorCode.INVALID_VALUE, ErrorCode.INVALID_VALUE.value)
         receipt = result.receipt
         uow.connection.execute(
             "INSERT INTO test_idempotency VALUES (?, ?, ?, ?, ?, ?, ?, ?)",

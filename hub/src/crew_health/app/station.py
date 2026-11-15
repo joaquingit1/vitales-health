@@ -303,11 +303,18 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
     from crew_health.clock.application.clock import ClockIdentity
     from crew_health.groundlink.module import provide_mission as ground_mission
     from crew_health.help.application.ports import MissionStatePort as HelpMission
+    from crew_health.kernel.met import MissionClock
     from crew_health.measurement.application.ports import MissionStatePort as MeasurementMission
     from crew_health.records.application.seams import MissionStatePort as RecordsMission
 
+    clock = cast(type[object], MissionClock)
+
     def bound(resolver: object) -> object:
-        return replace(mission, site_node_id=resolver.require(ClockIdentity).node_id)  # type: ignore[attr-defined]
+        return replace(
+            mission,
+            site_node_id=resolver.require(ClockIdentity).node_id,  # type: ignore[attr-defined]
+            clock=resolver.require(MissionClock),  # type: ignore[attr-defined]
+        )
 
     for port in (
         CameraMission,
@@ -321,10 +328,10 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
         # E22/E23's mission module declares some of these consumer ports too. The demo profile keeps its own
         # mission facts there (its cues write the environment and the surface walk overlays), so it replaces them.
         if isinstance(registry, DeclarationRegistry) and cast(type[object], port) in registry.providers:
-            registry.replace(cast(type[object], port), bound, requires=(ClockIdentity,))
+            registry.replace(cast(type[object], port), bound, requires=(ClockIdentity, clock))
         else:
-            registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))
-    ground_mission(registry, bound, requires=(ClockIdentity,))
+            registry.provide(cast(type[object], port), bound, requires=(ClockIdentity, clock))
+    ground_mission(registry, bound, requires=(ClockIdentity, clock))
 
 
 def _camera_f1(registry: ModuleRegistry, provided: Mapping[object, object], reports: object | None) -> None:

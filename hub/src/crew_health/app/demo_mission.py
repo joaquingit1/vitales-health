@@ -22,6 +22,7 @@ from typing import Literal
 
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.kernel.errors import ProblemError
+from crew_health.kernel.met import MissionClock
 from crew_health.roles.application.ports import OverlayFact
 
 type Origin = Literal["LIVE", "REPLAY", "SIM"]  # internal enum
@@ -92,6 +93,7 @@ class DemoMission:
     mode: Origin
     planned_length_days: int | None
     site_node_id: str
+    clock: MissionClock | None = None
 
     def _environment(self) -> str:
         try:
@@ -137,6 +139,10 @@ class DemoMission:
                 found.setdefault(fact.person_id, []).append(fact)
         return {person: tuple(facts) for person, facts in sorted(found.items())}
 
-    # roles MissionStatePort: day boundaries need E23's environment day, which is not modeled here
+    # roles MissionStatePort: the end of the mission day holding `instant`, from the hub's mission clock (SYSTEM 5.3
+    # day_bounds, the absolute boundary E23 4.2 names); no clock bound fails closed
     def day_end(self, instant: datetime) -> datetime:
-        raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, ErrorCode.CAPABILITY_UNAVAILABLE.value)
+        if self.clock is None:
+            raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, ErrorCode.CAPABILITY_UNAVAILABLE.value)
+        version = self.clock.version_at(instant).clock_version
+        return self.clock.day_bounds(self.clock.mission_day(instant, version=version), version=version)[1]

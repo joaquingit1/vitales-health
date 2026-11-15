@@ -17,6 +17,7 @@ from fastapi import APIRouter, Request
 from crew_health.contracts_gen.enums import ErrorCode, EventType
 from crew_health.guidance.application.ports import Fact, OperatorFact, SkillFacts
 from crew_health.help.application.ports import BroadcastRole, BroadcastRolesSource
+from crew_health.kernel.audit import AuditPolicy
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import IdempotencyStore
 from crew_health.kernel.config import ConfigReader, ReleaseCheck
@@ -101,6 +102,39 @@ class ModuleRegistry(Protocol):
     def loader_check(self, check: ReleaseCheck) -> None: ...
     def id_prefix(self, *, record_type: str, prefix: str) -> None: ...
     def setting(self, spec: SettingSpec) -> None: ...
+    def audit_policy(self, policy: AuditPolicy) -> None: ...
+
+
+def audit_policies() -> tuple[AuditPolicy, ...]:
+    """SYSTEM 5.8: the audit entries roles writes for proposals and assignments, each naming only records whose
+    references the same unit of work registered (the run or help session, the assignment, the crew principal), with
+    enumerated metadata, and for drills the drill (who took part is on the drill record, not in the audit)."""
+    retire = frozenset(
+        {"ineligible_subject", "ineligible_eva", "need_changed", "not_on_roster", "no_candidate", "replaced"}
+    )
+    context = {"context_id": frozenset({"plan_run", "help_session"})}
+    assignment = {"role_assignment_id": frozenset({"role_assignment"})}
+    actor = {**assignment, "person_id": frozenset({"identity.principal"})}
+    drill = {"drill_id": frozenset({"drill"})}
+    ended = retire | {"context_closed", "officer_available", "degraded", "reassigned"}
+    return (
+        AuditPolicy("roles.proposed", {}, frozenset(context), context),
+        AuditPolicy(
+            "roles.proposal_degraded",
+            {"why": frozenset({"capacity", "overdue"})},
+            frozenset(context),
+            context,
+        ),
+        AuditPolicy("roles.retired", {"reason": retire}, frozenset(assignment), assignment),
+        AuditPolicy("roles.acting_started", {}, frozenset(assignment), assignment),
+        AuditPolicy("roles.acting_ended", {"why": ended}, frozenset(assignment), assignment),
+        AuditPolicy("roles.accept", {}, frozenset(actor), actor),
+        AuditPolicy("roles.reassign", {}, frozenset(actor), actor),
+        *(
+            AuditPolicy(kind, {}, frozenset(drill), drill)
+            for kind in ("roles.drill_started", "roles.drill_completed", "roles.drill_abandoned")
+        ),
+    )
 
 
 def build_deps(resolver: Resolver, configs: ConfigCache) -> Deps:
@@ -324,6 +358,8 @@ def register(registry: ModuleRegistry) -> None:
     for spec in RolesSettings.specs():
         registry.setting(spec)
     registry.loader_check(RolesReleaseCheck())
+    for policy in audit_policies():
+        registry.audit_policy(policy)
     registry.router(build_router(runtime, runtime, runtime.authenticate))
     registry.provide(ClinicalAuthorityQuery, provided)
     registry.provide(RoleQueryPort, provided)

@@ -21,6 +21,7 @@ from crew_health.kernel.uow import (
     EventScope,
     OutboxEvent,
     ReadSnapshotFactory,
+    ReplicationChange,
     UnitOfWork,
     UnitOfWorkFactory,
 )
@@ -238,5 +239,22 @@ def audit(
             correlation_id=uow.correlation_id,
             causation_id=None,
             safe_metadata=meta,
+        )
+    )
+
+
+def register_reference(uow: UnitOfWork, record_type: str, record_id: str, event_type: EventType) -> None:
+    """SYSTEM 5.7: register the local record reference atomically, as plans does for its runs, so the
+    reference-only audit entries that name it (SYSTEM 5.8) resolve. No export projection exists for roles."""
+    uow.replicate(
+        ReplicationChange(
+            None,
+            record_type,
+            record_id,
+            "create",
+            json.dumps({record_type + "_id": record_id}).encode("utf-8"),
+            (),
+            uow.release.release_id,
+            Audience("roles.crew", record_id, AudienceProjectionKey("roles", event_type.value, 1), "1"),
         )
     )

@@ -36,6 +36,7 @@ ACTIVE_STATES = ("teaching", "counting", "retry")
 MAX_BEATS_READ = (
     6000  # bound of one attempt's beats: teach.max_count_seconds 600 times max_beats_per_second 10
 )
+BEATS_PAGE = 500  # one read stays under storage.max_rows (registered maximum 1000)
 
 
 def _at(value: datetime) -> str:
@@ -158,12 +159,18 @@ class SqliteGuidedChecks:
             raise ProblemError(ErrorCode.INTERNAL_ERROR, ErrorCode.INTERNAL_ERROR.value)
         a = rows[0]
         window = CountWindow(_int(a[1]), _when(a[2]), _int(a[3]), _text(a[4]), _int(a[5]), _when(a[6]))
-        beats = db.rows(
-            "SELECT sequence, elapsed_ns, at_utc, body_sha256 FROM teach_beat"
-            " WHERE guided_check_id = ? AND attempt_no = ? ORDER BY sequence",
-            (guided_check_id, attempt_no),
-            limit=MAX_BEATS_READ,
-        )
+        beats: list[tuple[SqlValue, ...]] = []
+        while len(beats) < MAX_BEATS_READ:
+            after = -1 if not beats else _int(beats[-1][0])
+            page = db.rows(
+                "SELECT sequence, elapsed_ns, at_utc, body_sha256 FROM teach_beat"
+                " WHERE guided_check_id = ? AND attempt_no = ? AND sequence > ? ORDER BY sequence",
+                (guided_check_id, attempt_no, after),
+                limit=BEATS_PAGE,
+            )
+            beats.extend(page)
+            if len(page) < BEATS_PAGE:
+                break
         return Attempt(
             window=window,
             beats={_int(b[0]): Beat(_int(b[0]), _int(b[1]), _when(b[2]), _text(b[3])) for b in beats},

@@ -213,8 +213,9 @@ class RolesProvided:
 
     # RoleAssignmentReader (E30 X12)
     def get(self, role_assignment_id: str) -> AssignmentRecord | None:
-        with self.deps.uow.begin(actor=_ENGINE, correlation_id=self.deps.ids.new("cor")) as uow:
-            a = self.deps.repository(uow.connection).get(role_assignment_id)
+        # A pure read (SYSTEM 5.7): E30 asks inside its own write transaction, so a second one would wait on it.
+        with self.deps.snapshots.snapshot() as view:
+            a = self.deps.repository(view.connection).get(role_assignment_id)
         if a is None:
             return None
         return AssignmentRecord(

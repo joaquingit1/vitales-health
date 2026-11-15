@@ -166,6 +166,7 @@ CAMERA_SETTINGS: Mapping[str, int] = {
     "workers.camera.timeout_ms": 2000,
     "workers.camera.health_ms": 1000,
     "workers.camera.stale_ms": 5000,
+    "workers.camera.startup_probe_ms": 100,
     "workers.camera.dispatch_batch": 8,
     "workers.camera.dispatch_deadline_ms": 30_000,
     "workers.camera.acquisition_ttl_ms": 120_000,

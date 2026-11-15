@@ -27,6 +27,7 @@ from crew_health.roles.application.world import (
     label_at,
     read_world,
     record_for,
+    register_reference,
 )
 from crew_health.roles.domain.acting import officer_statuses
 from crew_health.roles.domain.engine import (
@@ -407,6 +408,7 @@ class Proposals:
                 config_release_id=uow.release.release_id,
             )
             repo.insert(new, seq)
+            register_reference(uow, "role_assignment", new.role_assignment_id, EventType.ROLE_PROPOSED)
             emit(
                 uow, EventType.ROLE_PROPOSED, wire.assignment(new, []), scope=CREW, ref=new.role_assignment_id
             )
@@ -432,7 +434,7 @@ class Proposals:
             )
         )
         if changed:
-            audit(uow, self.deps, "roles.proposed", {facts.kind + "_id": facts.context_id}, {"seq": seq})
+            audit(uow, self.deps, "roles.proposed", {"context_id": facts.context_id}, {})
 
     def _end(
         self, uow: UnitOfWork, repo: RolesRepository, old: Assignment, reason: str, successor: str | None
@@ -508,7 +510,7 @@ class Proposals:
         repo.set_unfilled(row.kind, row.context_id, unfilled)
         if ctx is not None:
             repo.put_context(replace(ctx, degraded_at=uow.now))
-        audit(uow, self.deps, "roles.proposal_degraded", {row.kind + "_id": row.context_id}, {"why": why})
+        audit(uow, self.deps, "roles.proposal_degraded", {"context_id": row.context_id}, {"why": why})
 
 
 def _render(cfg: RolesConfig, draft: ReasonDraft) -> str:

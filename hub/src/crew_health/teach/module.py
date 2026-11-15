@@ -12,6 +12,7 @@ from typing import Protocol
 
 from fastapi import APIRouter
 
+from crew_health.kernel.audit import AuditPolicy
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import CommandReceipts, IdempotencyStore
 from crew_health.kernel.config import ConfigBinding, ConfigReader, ConfigReleaseReader, ReleaseCheck
@@ -76,6 +77,7 @@ class ModuleRegistry(Protocol):
     def loader_check(self, check: ReleaseCheck) -> None: ...
     def id_prefix(self, *, record_type: str, prefix: str) -> None: ...
     def setting(self, spec: SettingSpec) -> None: ...
+    def audit_policy(self, policy: AuditPolicy) -> None: ...
 
 
 class PlansComposition:
@@ -114,6 +116,22 @@ class PlansComposition:
             )
 
 
+def audit_policies() -> tuple[AuditPolicy, ...]:
+    """SYSTEM 5.8: the audit entries a guided check writes (TeachPorts.audit), naming the check, whose reference
+    its start registered, and the session that acted, with the check's state and result as enumerated values."""
+    refs = {"guided_check_id": frozenset({"guided_check"}), "session_id": frozenset({"identity.session"})}
+    metadata = {
+        "state": frozenset({"teaching", "counting", "checked", "retry", "cancelled"}),
+        "result": frozenset({"agree", "disagree", "no_reference"}),
+    }
+    events = ("started", "step_done", "start_count", "retry", "answer", "cancel", "incomplete", "finished")
+    kinds = [f"teach.guided_check_{event}" for event in events] + [
+        "teach.beat_refused",
+        "teach.beat_accepted",
+    ]
+    return tuple(AuditPolicy(kind, metadata, frozenset(refs), refs) for kind in kinds)
+
+
 def register(registry: ModuleRegistry) -> None:
     api = TeachApi()
     coaching = CoachingAudience()
@@ -122,6 +140,8 @@ def register(registry: ModuleRegistry) -> None:
     for spec in SPECS:
         registry.setting(spec)
     registry.loader_check(SkillsCatalogCheck())
+    for policy in audit_policies():
+        registry.audit_policy(policy)
     registry.audience_rule(AUDIENCE_RULE, GuidedCheckAudience(checks))
     registry.audience_rule(COACHING_RULE, coaching)
     registry.id_prefix(record_type="guided_check", prefix="gck")

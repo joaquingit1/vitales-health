@@ -13,6 +13,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import cast
 
 import pytest
 import uvicorn
@@ -120,6 +121,43 @@ def served(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Served]:
         for instance in started:
             instance.should_exit = True
         thread.join(60)
+
+
+def test_the_camera_reads_ready_as_soon_as_its_worker_answers(served: Served) -> None:
+    """The worker starts after the hub serves; the hub probes it every workers.camera.startup_probe_ms until it
+    answers, so the camera-only capability turns available within that, not one 5 s health interval later."""
+    state = json.loads((served.directory / demo.STATE).read_text(encoding="utf-8"))
+    token = served.sign_in("mara")
+    deadline = time.monotonic() + 240
+    while time.monotonic() < deadline:
+        with socket.socket() as probe:
+            if probe.connect_ex(("127.0.0.1", int(state["camera_port"]))) == 0:
+                break
+        time.sleep(0.05)
+    listening = time.monotonic()
+    while True:
+        items = served.get("/v1/capabilities", token)[1]["items"]
+        assert isinstance(items, list)
+        camera_only = next(item for item in items if item["methods"] == ["camera_estimate"])
+        waited = time.monotonic() - listening
+        if camera_only["status"] == "available" or waited > 5:
+            break
+        time.sleep(0.05)
+    assert camera_only["status"] == "available" and waited < 2, (waited, camera_only)
+
+
+def test_health_lists_the_camera_adapter_from_its_worker_probe(served: Served) -> None:
+    """GET /v1/health adapters comes from the camera worker's last probe: the configured camera adapter, connected
+    once the worker described itself (Health.adapters, contracts health.schema.json)."""
+    deadline = time.monotonic() + 240
+    while True:
+        status, health = served.hub.call("GET", "/v1/health")
+        assert status == 200 and isinstance(health, dict), health
+        if health["adapters"] == [{"adapter_id": "adp_camera", "state": "connected"}]:
+            break
+        assert health["adapters"] == [{"adapter_id": "adp_camera", "state": "disconnected"}], health
+        assert time.monotonic() < deadline, health
+        time.sleep(0.2)
 
 
 def test_the_hub_serves_ready_with_the_presenter_and_tomas_signed_in(served: Served) -> None:
@@ -267,17 +305,13 @@ def test_shot_d_eva_ilya_puts_the_medical_officer_on_a_surface_walk(served: Serv
         assert isinstance(who, list) and who and "ilya" not in {p["person_id"] for p in who}
 
 
-def test_shot_d_the_icl10_plan_runs_from_help_and_the_guided_check_refuses_without_a_skill_holder(
-    served: Served,
-) -> None:
-    """Shot D on the served hub: Mara presses Someone needs help, the ICL10 plan run starts from that help session
-    (E28: a help session in place of an episode, since E04 is not merged) and lists its pulse_check_wrist step.
-    Guidance now has its content, environment and operator facts, so what still refuses is the plan itself: the
-    step's operator is skill:pulse_check_wrist and nobody holds a fresh or due practice record, so the step is
-    needs_skill_holder, not runnable, and teach refuses the guided check (run_closed, CONTEXT_INAPPLICABLE). Roles
-    proposes nobody: its recompute pass writes the roles.proposed audit entry, which has no registered AuditPolicy
-    (SYSTEM 5.8), so the pass fails with INVALID_VALUE before any proposal is stored."""
-    mara = served.sign_in("mara")
+def test_shot_d_roles_propose_tomas_on_the_icl10_run_and_his_guided_check_starts(served: Served) -> None:
+    """Shot D on the served hub. `demo cue drill-tomas-pulse` runs E31's own drill commands as Tomas, so his SIM
+    practice makes him a pulse_check_wrist holder, and Ilya is on her walk (the eva-ilya shot above). Mara presses
+    Someone needs help, the ICL10 run starts from that help session, E31 proposes Tomas as its helper (freshest
+    holder, with Ilya named as the officer on the walk), Tomas accepts, and the guided check starts for that run."""
+    assert served.cue("drill-tomas-pulse") == 0
+    mara, tomas = served.sign_in("mara"), served.sign_in("tomas")
     opened_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     status, session = served.post(
         "/v1/help-sessions",
@@ -299,9 +333,43 @@ def test_shot_d_the_icl10_plan_runs_from_help_and_the_guided_check_refuses_witho
     steps = run["steps"]
     assert isinstance(steps, list)
     assert {"step_id": "icl10_pulse_by_crewmate", "state": "open"}.items() <= steps[0].items()
-    status, roles = served.get(f"/v1/plan-runs/{run['plan_run_id']}/roles", mara)
-    assert status == 200 and roles["items"] == []
-    status, refused = served.post(
+    path = f"/v1/plan-runs/{run['plan_run_id']}/roles"
+    deadline = time.monotonic() + 60
+    items: list[dict[str, object]] = []
+    while not items and time.monotonic() < deadline:
+        status, roles = served.get(path, mara)
+        assert status == 200, roles
+        items = cast(list[dict[str, object]], roles["items"])
+        if not items:
+            time.sleep(0.5)
+    assert len(items) == 1, items
+    helper = items[0]
+    assert (helper["role_id"], helper["skill_id"], helper["state"]) == (
+        "lead_helper",
+        "pulse_check_wrist",
+        "proposed",
+    )
+    assert helper["person"] == {"person_id": "tomas", "display_name": "Tomas Lind"}
+    assert helper["reason_code"] == "freshest_skill"
+    reasons = cast(list[dict[str, object]], helper["context_reasons"])
+    assert [r["reason_code"] for r in reasons] == ["officer_on_eva"]
+    revision = helper["revision"]
+    assert isinstance(revision, int)
+    status, accepted = served.hub.call(
+        "POST",
+        path,
+        token=tomas,
+        body={
+            "action": "accept",
+            "role_assignment_id": helper["role_assignment_id"],
+            "client_time": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        },
+        release=served.release(),
+        if_match=revision,
+    )
+    assert status == 200 and isinstance(accepted, dict), accepted
+    assert accepted["state"] == "accepted"
+    status, check = served.post(
         "/v1/guided-checks",
         mara,
         {
@@ -309,9 +377,44 @@ def test_shot_d_the_icl10_plan_runs_from_help_and_the_guided_check_refuses_witho
             "helper_person_id": "tomas",
             "subject_person_id": "mara",
             "plan_run_id": run["plan_run_id"],
+            "role_assignment_id": helper["role_assignment_id"],
         },
     )
-    assert (status, refused["code"]) == (422, "CONTEXT_INAPPLICABLE"), refused
+    assert status == 201, check
+    assert (check["state"], check["teach_step_no"]) == ("teaching", 1)
+    assert check["helper"] == {"person_id": "tomas", "display_name": "Tomas Lind"}
+    # Tomas works through the teach steps, starts the 60 s count and taps Beat; the hub records each tap.
+    checks = f"/v1/guided-checks/{check['guided_check_id']}"
+
+    def act(body: dict[str, object]) -> dict[str, object]:
+        _, current = served.get(checks, tomas)
+        revision = current["revision"]
+        assert isinstance(revision, int)
+        status, reply = served.hub.call(
+            "POST",
+            checks + "/actions",
+            token=tomas,
+            body={**body, "client_time": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")},
+            release=served.release(),
+            if_match=revision,
+        )
+        assert status == 200 and isinstance(reply, dict), reply
+        return reply
+
+    for step_no in (1, 2, 3):
+        assert act({"action": "step_done", "step_no": step_no})["teach_step_no"] == step_no + 1
+    counting = act({"action": "start_count"})
+    assert (counting["state"], counting["count_seconds"]) == ("counting", 60)
+    for sequence in (1, 2, 3):
+        status, beat = served.post(
+            checks + "/beats",
+            tomas,
+            {"sequence": sequence, "client_time": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")},
+        )
+        assert status == 200, beat
+        time.sleep(0.8)
+    status, now_counting = served.get(checks, tomas)
+    assert status == 200 and now_counting["beat_count"] == 3, now_counting
 
 
 def test_shot_e_help_opens_with_the_model_stopped(served: Served) -> None:
