@@ -22,9 +22,9 @@ from crew_health.tools.application.retrieval_service import PublicQueryBoundary,
 from crew_health.tools.domain.errors import ToolsInvalid
 from crew_health.tools.domain.retrieval import RetrievalResult, RetrievalSettings
 from crew_health.tools.settings import setting_specs
-from tests.tools.test_bounds import settings_values
-from tests.tools.test_context_builder import Tokens
-from tests.tools.test_gateway import View, scope
+from tests.tools.test_bounds import settings_values  # type: ignore[import-not-found]
+from tests.tools.test_context_builder import Tokens  # type: ignore[import-not-found]
+from tests.tools.test_gateway import View, scope  # type: ignore[import-not-found]
 
 PIN = "evr_a"
 USE: AllowedUse = "risk_context"

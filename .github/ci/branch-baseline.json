@@ -1,0 +1,1468 @@
+{
+  "decision": "D31, explicit user authorization 2026-11-15",
+  "files": {
+    "hub/src/crew_health/camera/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/camera/application/assignments.py": {
+      "covered": 10,
+      "source_sha256": "822ab884384af3651c1566535bdffee22739f9eafaef635ee76408082702a4e6",
+      "total": 10
+    },
+    "hub/src/crew_health/camera/application/dispatch.py": {
+      "covered": 44,
+      "source_sha256": "8fa5807be87ac92a428c807b517d098421416fe9c89f19ab96c51b4bf9eab3ed",
+      "total": 50
+    },
+    "hub/src/crew_health/camera/application/link.py": {
+      "covered": 22,
+      "source_sha256": "735f6f70966ff2255c8491605e76a64079d30d2d4915e7fcae1648d877eec375",
+      "total": 26
+    },
+    "hub/src/crew_health/camera/application/loop.py": {
+      "covered": 4,
+      "source_sha256": "2a07ce5fc039fa27f83ec8377aa0a98288b41aa8d3d4f5d6de38a89213e0ddee",
+      "total": 6
+    },
+    "hub/src/crew_health/camera/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "541d15dd10d9cff744b617b777ff102e951e31bdc531d876591946638e11e6df",
+      "total": 0
+    },
+    "hub/src/crew_health/camera/application/reference.py": {
+      "covered": 57,
+      "source_sha256": "3aba0d5ed5f17a2ac137f8607223d4d3a73cd5f6be75c4f10aa67bcf65ce311a",
+      "total": 62
+    },
+    "hub/src/crew_health/camera/application/tasks.py": {
+      "covered": 27,
+      "source_sha256": "4621928859139c9bc8ddd1a20b08b2df2f84e05df721f82a668d666d509e65ea",
+      "total": 34
+    },
+    "hub/src/crew_health/catchup/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/catchup/application/bounded.py": {
+      "covered": 11,
+      "source_sha256": "e88d63184d2871585d09c61dd25d021feade67f69e8e1df9211a56d3e4c9226a",
+      "total": 12
+    },
+    "hub/src/crew_health/catchup/application/composer.py": {
+      "covered": 23,
+      "source_sha256": "eb62a0207ed16bf4f2b1fb93b5cd1863365b91aac16b910a521091e4bd68cd57",
+      "total": 24
+    },
+    "hub/src/crew_health/catchup/application/config.py": {
+      "covered": 9,
+      "source_sha256": "cb48878ed5c2c0e8c5c3a5d390b19446fb1ca51da6f7cf87acd1a885da5e81ab",
+      "total": 10
+    },
+    "hub/src/crew_health/catchup/application/log.py": {
+      "covered": 20,
+      "source_sha256": "5fbef29f00541a221c0c97e0ffbe054effa2f8849ec86b0c6119005599e2fe64",
+      "total": 22
+    },
+    "hub/src/crew_health/catchup/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "c84b0463d361ac840cab5928bb38c9f8e22b61541ead066f233efbf4f37093ff",
+      "total": 0
+    },
+    "hub/src/crew_health/catchup/application/quarantine.py": {
+      "covered": 5,
+      "source_sha256": "2875a7c41a39b90ebaee153a5de69d07f5c29088fc571b5afb7d6f828a77c504",
+      "total": 6
+    },
+    "hub/src/crew_health/catchup/application/repository.py": {
+      "covered": 0,
+      "source_sha256": "32abe3e53181a0d482aaddb7378909440c4488df151c75635745dce61da88d11",
+      "total": 0
+    },
+    "hub/src/crew_health/catchup/application/settings.py": {
+      "covered": 0,
+      "source_sha256": "5bf6a862b9fff4baf56208ab580425d54061f8fd5f0408912076ef7acc5b0020",
+      "total": 0
+    },
+    "hub/src/crew_health/catchup/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/catchup/domain/compose.py": {
+      "covered": 4,
+      "source_sha256": "2c0c1568f2b12026bc926846e79fed4e11965dedfaa26c8ed2209edc5dd674d7",
+      "total": 4
+    },
+    "hub/src/crew_health/catchup/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "9cd755b253349d14c9dcf0e65737d012f75c185c31abf55dda440a802d9a1f59",
+      "total": 0
+    },
+    "hub/src/crew_health/catchup/domain/log.py": {
+      "covered": 8,
+      "source_sha256": "7ed02b5489d0705e8871da7a8f41125e1fb55f38e3bdc04705c949d94eaa37b2",
+      "total": 8
+    },
+    "hub/src/crew_health/catchup/domain/render.py": {
+      "covered": 0,
+      "source_sha256": "969a94b6e9a62e9f542f4d601b80c5e04c3b7d394936e558235cea6ffcb22d82",
+      "total": 0
+    },
+    "hub/src/crew_health/clock/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "857cd62669302a821fc0719cbb50490d23d62150f149dca4abcf0945dbf9c3bf",
+      "total": 0
+    },
+    "hub/src/crew_health/clock/application/clock.py": {
+      "covered": 42,
+      "source_sha256": "ca7b2fcfa6e2a340e2c81fb448c034e1e016adac5bfe8ad32bd663142d61c889",
+      "total": 50
+    },
+    "hub/src/crew_health/clock/application/history.py": {
+      "covered": 1,
+      "source_sha256": "5d32b8ccc270a1674df96591dd6f831cc8abb6cbc27c989559b39627063a0201",
+      "total": 2
+    },
+    "hub/src/crew_health/clock/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "2959be87b55df41944cfd7f4299af8b5a5437ea9d1478814b1b05455fa3d3d09",
+      "total": 0
+    },
+    "hub/src/crew_health/clock/domain/corrections.py": {
+      "covered": 13,
+      "source_sha256": "fa8f6098f2ecea06cb5ab19a22693590322383969fc80f1f25edf1b2a2e71cb7",
+      "total": 16
+    },
+    "hub/src/crew_health/clock/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "93cf1a6fcae9e56a321bc9664d0beba5e438545af8a381c8a59b53d5f915103c",
+      "total": 0
+    },
+    "hub/src/crew_health/clock/domain/hlc.py": {
+      "covered": 14,
+      "source_sha256": "a1d33efa214e708d0a5b55eab3df4e199e9d2d13689db443eb47303f53dd599c",
+      "total": 16
+    },
+    "hub/src/crew_health/clock/domain/met.py": {
+      "covered": 7,
+      "source_sha256": "f1dd0f03ca8de4bd18bf57504c53031a2a14de10bfeff11304105bcb1b3a506a",
+      "total": 8
+    },
+    "hub/src/crew_health/config/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/config/application/activation.py": {
+      "covered": 34,
+      "source_sha256": "3d5a202502d4f52c7150c824f6102cf035269d854babd88b508eacf4ca3f5340",
+      "total": 38
+    },
+    "hub/src/crew_health/config/application/loader.py": {
+      "covered": 26,
+      "source_sha256": "2a3f3da031b1d063c54c1735dcf1d9c9747355594d1a411a6b85e2fed1d82e5a",
+      "total": 26
+    },
+    "hub/src/crew_health/config/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "316f4a9c70c7ba6e428e40f3c5e07d4cc0eb6227df88368c7f46fac18f1e9620",
+      "total": 0
+    },
+    "hub/src/crew_health/config/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/config/domain/checks.py": {
+      "covered": 41,
+      "source_sha256": "6385e3cdf22042cc154d5805cb9f97ce1cae973cad7ccade3bd31f714431133d",
+      "total": 42
+    },
+    "hub/src/crew_health/config/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "d50a0c63b9f6ce4be08ef84594cd23761f3da16fe8d7d3c351099579176120b1",
+      "total": 0
+    },
+    "hub/src/crew_health/config/domain/package_checks.py": {
+      "covered": 242,
+      "source_sha256": "f2c703bc1e67a62cd607fbfcf77b670d23da2a62846e62c6e65d041c4c0f9e48",
+      "total": 290
+    },
+    "hub/src/crew_health/config/domain/templates.py": {
+      "covered": 36,
+      "source_sha256": "b69151c344f58fb1ad8f609c3b2389009975393a90af40888403445a6e0ce5c9",
+      "total": 36
+    },
+    "hub/src/crew_health/config/domain/text_rules.py": {
+      "covered": 8,
+      "source_sha256": "649d0d15d0496cd5f018704b60599814adf9c965a6ce4eb3d9597c4c81f30fa0",
+      "total": 8
+    },
+    "hub/src/crew_health/consent/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/consent/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "a1972ac37464d8626bce42dd8dd24459f10876a08e8a1fdd579bd06378a60c47",
+      "total": 0
+    },
+    "hub/src/crew_health/consent/application/records.py": {
+      "covered": 15,
+      "source_sha256": "9544eeb3cf75b8ee5a8d6f6b3d4e0822047039dd8763e5e17487883ddfcf9ab9",
+      "total": 18
+    },
+    "hub/src/crew_health/consent/application/service.py": {
+      "covered": 45,
+      "source_sha256": "3a7c634cae7cef2e0cb0a3ab642211d29c7a1d20761d24551744d6c7b1e21283",
+      "total": 50
+    },
+    "hub/src/crew_health/consent/application/settings.py": {
+      "covered": 2,
+      "source_sha256": "d5aed699efd2b8f6272c442bf72991bb19433eedc5cf2312a3953201a9d8cdbb",
+      "total": 2
+    },
+    "hub/src/crew_health/consent/application/store.py": {
+      "covered": 0,
+      "source_sha256": "6924666d4c9694e6af4b11ce01f0a9f8e0e496fb75cca357f40e7762f769a0df",
+      "total": 0
+    },
+    "hub/src/crew_health/consent/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/consent/domain/grants.py": {
+      "covered": 30,
+      "source_sha256": "4a161ec279802dece813c884c141448996ce634761a27c196926bb6e9f0c2cae",
+      "total": 32
+    },
+    "hub/src/crew_health/episodes/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/episodes/application/codec.py": {
+      "covered": 10,
+      "source_sha256": "924f797d60a5f509b4f995abd334e7f6d32b2feaf3cb60e03fe1ccc8de8ae911",
+      "total": 10
+    },
+    "hub/src/crew_health/episodes/application/dto.py": {
+      "covered": 0,
+      "source_sha256": "6e34e3a95431085cde160750b6b34357456f4d521949670be5a04ca2ac3f5870",
+      "total": 0
+    },
+    "hub/src/crew_health/episodes/application/effects.py": {
+      "covered": 25,
+      "source_sha256": "242f3eb0f2b5c3e3884d18720bb640b78d1bb045762c51b2db18f8d0156fd639",
+      "total": 28
+    },
+    "hub/src/crew_health/episodes/application/handlers.py": {
+      "covered": 26,
+      "source_sha256": "874fef23f72eccd4637fa4baa7ae9251a7df360883568928a8c4331c77424681",
+      "total": 30
+    },
+    "hub/src/crew_health/episodes/application/maintenance.py": {
+      "covered": 2,
+      "source_sha256": "641a7d59503766593056d983f38eaa581121cf63b345033300aac45e41ccc649",
+      "total": 4
+    },
+    "hub/src/crew_health/episodes/application/overdue.py": {
+      "covered": 2,
+      "source_sha256": "8b9d87be4300bfec24d10dd430813922052d235720518bd4a347a4fac7234077",
+      "total": 2
+    },
+    "hub/src/crew_health/episodes/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "a0bd1807f43107b54473ce4f2885fb4675891c6939002c6798af73cf801cc164",
+      "total": 0
+    },
+    "hub/src/crew_health/episodes/application/queries.py": {
+      "covered": 99,
+      "source_sha256": "38d243a5f027f23bda9be30983a546f62d9459070f414f3437fef7e328ee29b1",
+      "total": 122
+    },
+    "hub/src/crew_health/episodes/application/repository.py": {
+      "covered": 0,
+      "source_sha256": "7a5907dafd1c5787e553dfb6cf9d497317c014df9afadb645f4cde9608fa7473",
+      "total": 0
+    },
+    "hub/src/crew_health/episodes/application/rules.py": {
+      "covered": 44,
+      "source_sha256": "d54651af1aa83b8ad0351d14ae86771d3ed13860e18d52da880fe666e8cdb926",
+      "total": 44
+    },
+    "hub/src/crew_health/episodes/application/selection.py": {
+      "covered": 20,
+      "source_sha256": "725e4ae6252e370df423b748dded2345d06a13a440f657d8c04e6cfabc171b3c",
+      "total": 22
+    },
+    "hub/src/crew_health/episodes/application/use_cases.py": {
+      "covered": 135,
+      "source_sha256": "679d77c97be07f143bfe233ff1ca0a2ca76fb26fbdfbca22579093f382609902",
+      "total": 148
+    },
+    "hub/src/crew_health/episodes/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/episodes/domain/derivation.py": {
+      "covered": 6,
+      "source_sha256": "657e01ae813545cbdd1ed246f9d650ca6f0c433e632c0a0a6e25f7c6222eae7a",
+      "total": 6
+    },
+    "hub/src/crew_health/episodes/domain/due_policy.py": {
+      "covered": 24,
+      "source_sha256": "ba4e64135e2cb76666589980ae6b15d0bac46af43f2138ca33de7e11d0d58bfd",
+      "total": 24
+    },
+    "hub/src/crew_health/episodes/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "2a6b61f11805f5b46c8f586fe96179996a2655948cc9fb24ee97a75c81cff691",
+      "total": 0
+    },
+    "hub/src/crew_health/episodes/domain/followup.py": {
+      "covered": 8,
+      "source_sha256": "0edc7d20e7df345ccf4bd5977fae03194152c1b76c8e7d0592c0b385f5e03519",
+      "total": 10
+    },
+    "hub/src/crew_health/episodes/domain/loader_checks.py": {
+      "covered": 10,
+      "source_sha256": "45bfdfa2be7d0db751d8fc2865d7311118a70133c20ba5ac3ad22c1b4927839e",
+      "total": 10
+    },
+    "hub/src/crew_health/episodes/domain/onset.py": {
+      "covered": 6,
+      "source_sha256": "92776dc28b239674b4f21cb89a3a727648e5ab55f0dbe904eb9d60ebc279be09",
+      "total": 6
+    },
+    "hub/src/crew_health/episodes/domain/resolution.py": {
+      "covered": 30,
+      "source_sha256": "b3ec98953718e261699ed6e95b56e60059fcfeac9f64623697121ae1b3899ed8",
+      "total": 30
+    },
+    "hub/src/crew_health/episodes/domain/state_machine.py": {
+      "covered": 6,
+      "source_sha256": "482a9c7e7505289fe7e8a75b18e532fc0fd2aadaa0e3ee714d1ea63561a96b3c",
+      "total": 6
+    },
+    "hub/src/crew_health/episodes/domain/types.py": {
+      "covered": 0,
+      "source_sha256": "4f90d3eb0d3875926d068318973eac272030b0b6a84fb06a09c47590460543d1",
+      "total": 0
+    },
+    "hub/src/crew_health/episodes/domain/visibility.py": {
+      "covered": 8,
+      "source_sha256": "51524b83ffd175de39075c7b36ba0d30f91e213495a2115fc5c6fef8e2fb4e64",
+      "total": 8
+    },
+    "hub/src/crew_health/events/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "6bcdcf7eac29d1b90de4d452c1c25f2a3ddc37dba2470509bae2b2a59afd04e5",
+      "total": 0
+    },
+    "hub/src/crew_health/events/application/delivery.py": {
+      "covered": 25,
+      "source_sha256": "70d3f16a9ad2b7b589f5bb8d71487c9f56abf5a8d88513fda9129d7a52c4236b",
+      "total": 38
+    },
+    "hub/src/crew_health/events/application/retention.py": {
+      "covered": 9,
+      "source_sha256": "9c01b662ad7355b418d3ea29f978733678956dc5490334425b53390cec1d413e",
+      "total": 10
+    },
+    "hub/src/crew_health/events/application/subscriptions.py": {
+      "covered": 13,
+      "source_sha256": "155b3a1901e175fd7d8cb4a10960e8ba1400cd8c78da168f8279053134cd8d54",
+      "total": 18
+    },
+    "hub/src/crew_health/events/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "ee5307c4e4a6226df6b4f1adcff511ee96a4dbdf9e963888916d7d222c9af8c8",
+      "total": 0
+    },
+    "hub/src/crew_health/events/domain/cursor.py": {
+      "covered": 12,
+      "source_sha256": "c9e9fa8a692aea0014989e0b849183e04314b70c2650041b616be4fd096c5af9",
+      "total": 14
+    },
+    "hub/src/crew_health/events/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "cd0685706fdcfae06e875e1a32ad936904b41603b6b750bc5c09ddbdf9b1d874",
+      "total": 0
+    },
+    "hub/src/crew_health/groundlink/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/groundlink/application/agent.py": {
+      "covered": 41,
+      "source_sha256": "f34d2f93c17e6a20782b3878275972b39f933c53584b8a0777b3cee321259284",
+      "total": 46
+    },
+    "hub/src/crew_health/groundlink/application/checks.py": {
+      "covered": 7,
+      "source_sha256": "652f0171db4b8c35c90f918d6ec851121f7c5fb80fe17fc348aa9cdd24d150c4",
+      "total": 8
+    },
+    "hub/src/crew_health/groundlink/application/config.py": {
+      "covered": 4,
+      "source_sha256": "1bc4b090f632dd4c394d0df88509c40f7f506f840eb421fa64f6e7c70ba0c638",
+      "total": 6
+    },
+    "hub/src/crew_health/groundlink/application/owner.py": {
+      "covered": 14,
+      "source_sha256": "aa7662830ae60de516b5adf3f5b3ff3861eee8a4ae3995bda17550a1aea2e622",
+      "total": 14
+    },
+    "hub/src/crew_health/groundlink/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "08b785f6d97c559f6ce7ce3fb8b8eaa6c0a44033024460ae72e2c6d018c9be6c",
+      "total": 0
+    },
+    "hub/src/crew_health/groundlink/application/repository.py": {
+      "covered": 0,
+      "source_sha256": "300fa1c180a12fc88e7bcb021edac0d1a46181e7e4d5a7c8db1712e50bf34bd1",
+      "total": 0
+    },
+    "hub/src/crew_health/groundlink/application/runtime.py": {
+      "covered": 0,
+      "source_sha256": "77daea637aa6f782d49252bdad26463d2e4c7dd82dda5e0e2b5c937e96930fb4",
+      "total": 0
+    },
+    "hub/src/crew_health/groundlink/application/service.py": {
+      "covered": 41,
+      "source_sha256": "b44db831058681d365cb1982d3c1aa54ef3d6f99b3e894ba7305afbb51593a53",
+      "total": 44
+    },
+    "hub/src/crew_health/groundlink/application/settings.py": {
+      "covered": 0,
+      "source_sha256": "68179ab7613aa70e6667079f11af0261f491b06546c4f990f73562de05d80f26",
+      "total": 0
+    },
+    "hub/src/crew_health/groundlink/application/subscriber.py": {
+      "covered": 2,
+      "source_sha256": "df57bc7b9e8b8af83da8e77af548feb98707469e5f3a591a25bdbe9236997250",
+      "total": 2
+    },
+    "hub/src/crew_health/groundlink/application/wire.py": {
+      "covered": 0,
+      "source_sha256": "61ee4b58136c8fcbc7363708d26e8637d41579d6f73b99bdd75c870dd86acb93",
+      "total": 0
+    },
+    "hub/src/crew_health/groundlink/application/worker.py": {
+      "covered": 5,
+      "source_sha256": "d090ebfc6135ea799518a4496d4d166dbc474e86d81b8140e055910dfd05d347",
+      "total": 6
+    },
+    "hub/src/crew_health/groundlink/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/groundlink/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "393a81a9dbdfc12ee9caba9adfb1fdc874ed266569c3cea7733c2ad7f61c086f",
+      "total": 0
+    },
+    "hub/src/crew_health/groundlink/domain/link.py": {
+      "covered": 43,
+      "source_sha256": "7d01edc6fd37dec957a1950f57d8d514c088008466407021505898a872eebe66",
+      "total": 44
+    },
+    "hub/src/crew_health/groundlink/domain/queue.py": {
+      "covered": 10,
+      "source_sha256": "355a26a084346f132abc1da6f4336059c25d67b01217ba96d0c5e7ff4087de93",
+      "total": 12
+    },
+    "hub/src/crew_health/guidance/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/guidance/application/facade.py": {
+      "covered": 23,
+      "source_sha256": "f3d48dca2cad62015d5f44c9a52c4eb81415e0a34dc264fc03eedef13ce0a975",
+      "total": 26
+    },
+    "hub/src/crew_health/guidance/application/model.py": {
+      "covered": 0,
+      "source_sha256": "729177f04dfb0426dc52b3e60c9bb273febd5edf187304228b0b1f5ccd801a51",
+      "total": 0
+    },
+    "hub/src/crew_health/guidance/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "2a1a499853f45449dcde4086cdd221912d90ea9139de4715388245ae7d99e5ed",
+      "total": 0
+    },
+    "hub/src/crew_health/guidance/application/rule.py": {
+      "covered": 80,
+      "source_sha256": "106e26ee8f10ed8f31e872ca4f1d53f363c76dec093060910bed73ba221de487",
+      "total": 80
+    },
+    "hub/src/crew_health/help/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/help/application/acting.py": {
+      "covered": 23,
+      "source_sha256": "5cbcd1b22d11c1ab2ac6597ac997378b50d8fba709e7778e62ae6c85f0753163",
+      "total": 26
+    },
+    "hub/src/crew_health/help/application/assistant_flow.py": {
+      "covered": 14,
+      "source_sha256": "69eb659524bee43e49566acf4c1e4e29a62289eaec7c2d8a50fee7c51c09b99b",
+      "total": 20
+    },
+    "hub/src/crew_health/help/application/ground_flow.py": {
+      "covered": 30,
+      "source_sha256": "d21bec4f4046f9841b46839d32ca735b02427f5f871b187934f96ca24f4af9f4",
+      "total": 38
+    },
+    "hub/src/crew_health/help/application/opening.py": {
+      "covered": 48,
+      "source_sha256": "6802016b0cca34f25948600cfc54b465b668f35beeca0c26d925559d56629591",
+      "total": 66
+    },
+    "hub/src/crew_health/help/application/optional.py": {
+      "covered": 8,
+      "source_sha256": "6de3562200d288b2b4019c736f1881fe7abb3b65fc9ce0872a486ce3ce3de2ee",
+      "total": 10
+    },
+    "hub/src/crew_health/help/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "5e354bc56c4e9349cb3b10d880c5a25bb2b71b192fade081cce97782347ef48a",
+      "total": 0
+    },
+    "hub/src/crew_health/help/application/provided.py": {
+      "covered": 4,
+      "source_sha256": "22b88eb58fba0dc328d3441d412ec5d34addef8ca98ab6d34c29cfd441459125",
+      "total": 4
+    },
+    "hub/src/crew_health/help/application/queries.py": {
+      "covered": 21,
+      "source_sha256": "8bf880937a622149c24244e7a364daffe7f5545f75ec4802d8ef65072a1a7658",
+      "total": 32
+    },
+    "hub/src/crew_health/help/application/repositories.py": {
+      "covered": 0,
+      "source_sha256": "6229255e10b1f24f9bcf6c78c897e70a80baacbe570842cfa5550f51ffe7b7b8",
+      "total": 0
+    },
+    "hub/src/crew_health/help/application/service.py": {
+      "covered": 0,
+      "source_sha256": "5047e12f7d400e8cfbef0677f5fd1163313f340824fd091836407f601b5332f0",
+      "total": 0
+    },
+    "hub/src/crew_health/help/application/settings.py": {
+      "covered": 0,
+      "source_sha256": "8846372dfd42cfeae57bc68497c16a491099d1cae9aca75e8decf9b9bcb0db46",
+      "total": 0
+    },
+    "hub/src/crew_health/help/application/support.py": {
+      "covered": 28,
+      "source_sha256": "23883e96a67f3b079b3265f1c21424c5200df10a7ea17fcf8762c67bcf9ad069",
+      "total": 30
+    },
+    "hub/src/crew_health/help/application/work.py": {
+      "covered": 5,
+      "source_sha256": "6477f7ad775ac1bc2bf57d99e699eb87e368c699141cd3b15d484e297e85063c",
+      "total": 8
+    },
+    "hub/src/crew_health/help/application/worker.py": {
+      "covered": 26,
+      "source_sha256": "7cf71b374d013eec1c2c1aeabda3492e316bbaeb0f1344cfc7e026de81d297b8",
+      "total": 38
+    },
+    "hub/src/crew_health/help/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/help/domain/access.py": {
+      "covered": 12,
+      "source_sha256": "2b68e870590f26323321a4ffad8a2d27d5621e6ab9111e2d632002be974b478a",
+      "total": 14
+    },
+    "hub/src/crew_health/help/domain/broadcast.py": {
+      "covered": 4,
+      "source_sha256": "fd54a4032cddae1fbb52c8cc7833ed1b70f55bb8e21eb3266343fbcd697d98e1",
+      "total": 4
+    },
+    "hub/src/crew_health/help/domain/docs.py": {
+      "covered": 103,
+      "source_sha256": "d1c1ccaaa3a5dde635593656d50cee81c9b961d10598d38ee7a68a027cc1586f",
+      "total": 128
+    },
+    "hub/src/crew_health/help/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "8245a5840445a513f58bd06ad80e68aee124e623dbce297a4a64fbc7403df908",
+      "total": 0
+    },
+    "hub/src/crew_health/help/domain/ground.py": {
+      "covered": 50,
+      "source_sha256": "eed41cbff13457e15443b79da69302842f556b5a49714ed93e7abfbeeabfc754",
+      "total": 64
+    },
+    "hub/src/crew_health/help/domain/render.py": {
+      "covered": 0,
+      "source_sha256": "7da2b48fa350140fc2122c2a42b3d8ddefd5e9dc645aaca6188fc92e9e95f57b",
+      "total": 0
+    },
+    "hub/src/crew_health/help/domain/replay.py": {
+      "covered": 15,
+      "source_sha256": "82092207b7916598a0e6171337716d1e983282ff90ee79324553827909445bc3",
+      "total": 18
+    },
+    "hub/src/crew_health/help/domain/session.py": {
+      "covered": 95,
+      "source_sha256": "88da94342de5fcbe94f896ae39ce3450c7b62bc86edcbd33d2e2f5a07754719c",
+      "total": 110
+    },
+    "hub/src/crew_health/help/domain/turn_guard.py": {
+      "covered": 77,
+      "source_sha256": "e47e66e537d2162daac780001d725163838fc266054fa61fce65bcb98af8dcd1",
+      "total": 80
+    },
+    "hub/src/crew_health/help/domain/turns.py": {
+      "covered": 17,
+      "source_sha256": "14827e553f0a1e13a8e0eb7775bd94e51ed3486a91d4e342f65cd79628a9b3d1",
+      "total": 20
+    },
+    "hub/src/crew_health/help/domain/views.py": {
+      "covered": 4,
+      "source_sha256": "192a95833c2791020c26e9cd7cbe0f870d6d9c6372d1c5c1dc1acb83734563cb",
+      "total": 4
+    },
+    "hub/src/crew_health/identity/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/identity/application/admin.py": {
+      "covered": 36,
+      "source_sha256": "7c722ce6999abdfaf1daf5ef42cf8952db410579b6de23cb57308b99f22ed434",
+      "total": 40
+    },
+    "hub/src/crew_health/identity/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "cb272daac8435dd850ef13022871f1da1f22553624de1512c464e234878f13fe",
+      "total": 0
+    },
+    "hub/src/crew_health/identity/application/service.py": {
+      "covered": 69,
+      "source_sha256": "e923eb35f075b4e52ca44baa82bfaa5dc6846be751772d0d5648ffa94e62525a",
+      "total": 82
+    },
+    "hub/src/crew_health/identity/application/settings.py": {
+      "covered": 2,
+      "source_sha256": "99ef1270491f07edb93b998997a9baa78b6fd2a6711ffdcd8e995b9874eec45e",
+      "total": 2
+    },
+    "hub/src/crew_health/identity/application/store.py": {
+      "covered": 0,
+      "source_sha256": "2c62d04d83b11589d6fb891bcbef8725e1c80ee5829ad95b630e6ff375012d04",
+      "total": 0
+    },
+    "hub/src/crew_health/identity/application/support.py": {
+      "covered": 9,
+      "source_sha256": "a646b2d8ec8760504cb7e23f967464245230766ee9ba18c0ad3aadc5f9e1246b",
+      "total": 14
+    },
+    "hub/src/crew_health/identity/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/identity/domain/limits.py": {
+      "covered": 17,
+      "source_sha256": "b8ac057fcd254c458cf78c36390b50819a51051641a1cc18caf0f3fc26117b28",
+      "total": 18
+    },
+    "hub/src/crew_health/identity/domain/roster.py": {
+      "covered": 23,
+      "source_sha256": "4110a15f3b69abb059a5a412d7d0be25abebcfccbfb5763fcfa394c9a39f0422",
+      "total": 24
+    },
+    "hub/src/crew_health/identity/domain/routing.py": {
+      "covered": 4,
+      "source_sha256": "97fa2e263cc6886508186e82d2b7eb5354cb7be25120cff900d75bc1639ed61f",
+      "total": 4
+    },
+    "hub/src/crew_health/identity/domain/session.py": {
+      "covered": 35,
+      "source_sha256": "f4c1c32dfe867dcbd5ccfc465ae0cffd22bfcab51219f2d6b1a549c20b8c3926",
+      "total": 38
+    },
+    "hub/src/crew_health/kitmap/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/kitmap/application/errors.py": {
+      "covered": 0,
+      "source_sha256": "b0ad66947ad81fdc64bac64217bf68df9736bd7ab77df254af5176b0d7c475b1",
+      "total": 0
+    },
+    "hub/src/crew_health/kitmap/application/mapping.py": {
+      "covered": 0,
+      "source_sha256": "e1f1e24729cd9b664eef33f5d1dbb4f4b0b99a8b549c93b0645b00f3369c9902",
+      "total": 0
+    },
+    "hub/src/crew_health/kitmap/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "d0147c193af4412b705b9a69db92e6273fa08e876fea86f2776cec0bbe595467",
+      "total": 0
+    },
+    "hub/src/crew_health/kitmap/application/queries.py": {
+      "covered": 26,
+      "source_sha256": "7649843ee932a69d8779d6e6085cec2deb350377d4c01bc4b30073ef9735f139",
+      "total": 30
+    },
+    "hub/src/crew_health/kitmap/application/whatif.py": {
+      "covered": 21,
+      "source_sha256": "0793738e5a02eb2b9d55a2893af8c8f037f47bac9a11e6f50114868ced6646c9",
+      "total": 26
+    },
+    "hub/src/crew_health/kitmap/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/kitmap/domain/document.py": {
+      "covered": 73,
+      "source_sha256": "011b89cbbef9017878751d023c34d54165f5ea6f8963c685759e2dff3dac4ea2",
+      "total": 78
+    },
+    "hub/src/crew_health/kitmap/domain/model.py": {
+      "covered": 4,
+      "source_sha256": "3cc865f6c4f797df5e06e7cd60e0399e795a59f1a927828520b5b09f0ed8884f",
+      "total": 4
+    },
+    "hub/src/crew_health/kitmap/domain/rules.py": {
+      "covered": 19,
+      "source_sha256": "cde1ffdb88f4fe20474990c4b6ce58d32a729e577b234ef39971d16b16df46f8",
+      "total": 20
+    },
+    "hub/src/crew_health/measurement/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/measurement/application/access.py": {
+      "covered": 7,
+      "source_sha256": "96bdb63e54c37f554ac35514f9e83f4496675c6b51327595ad6f4a651293b5e0",
+      "total": 8
+    },
+    "hub/src/crew_health/measurement/application/commands.py": {
+      "covered": 135,
+      "source_sha256": "b05ee1ffa965ac4c8a0e5e21d2bc281d5ee8a40c2825b4711ed4d88ac5ea7fbf",
+      "total": 172
+    },
+    "hub/src/crew_health/measurement/application/errors.py": {
+      "covered": 3,
+      "source_sha256": "604910f7f255347826e60bd44ee0155a49e7b122460268958a743f5ca10b241b",
+      "total": 4
+    },
+    "hub/src/crew_health/measurement/application/mapping.py": {
+      "covered": 0,
+      "source_sha256": "45bde08b271dbbc27aa355ac735400a6efe84be5b28c8fb78b887eaebf70314f",
+      "total": 0
+    },
+    "hub/src/crew_health/measurement/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "6d58122ecfa188a97493b84b8d93a7afe604146c7bd18a430c8a85e5c19a3777",
+      "total": 0
+    },
+    "hub/src/crew_health/measurement/application/queries.py": {
+      "covered": 24,
+      "source_sha256": "c275a906a316afb95ca5c85a732f7855a8bc0152fa8053a82b27a2d4911393bb",
+      "total": 28
+    },
+    "hub/src/crew_health/measurement/application/representation.py": {
+      "covered": 0,
+      "source_sha256": "077a4e6a2e0fe91d161fa41cf7bf8b39343755bd49537d00843c8b1e353320c4",
+      "total": 0
+    },
+    "hub/src/crew_health/measurement/application/store.py": {
+      "covered": 0,
+      "source_sha256": "adcd0bdf2b7abf73ae730a68391f2ba98072d07ff460b4f320f9ab78237c6cf2",
+      "total": 0
+    },
+    "hub/src/crew_health/measurement/application/wire.py": {
+      "covered": 4,
+      "source_sha256": "122a3911f7a9ff22c2c4f3d326b78ca19db94cfd5fa79f2d0a8cc31d1c68649e",
+      "total": 6
+    },
+    "hub/src/crew_health/measurement/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/measurement/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "351727563009374647e8e5605a0ee5c98f62769057cf8dbb89bdd17638862881",
+      "total": 0
+    },
+    "hub/src/crew_health/measurement/domain/model.py": {
+      "covered": 65,
+      "source_sha256": "2dd0b519ec2db617d85f41d2f2160297922a4e54e6267a1c568c41b976659920",
+      "total": 70
+    },
+    "hub/src/crew_health/model/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/model/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "8c0b9a7b90a4acb65c963b9465283ea2baa3f189e51bd9ab5caf894dee16cf47",
+      "total": 0
+    },
+    "hub/src/crew_health/model/application/promotion.py": {
+      "covered": 4,
+      "source_sha256": "138f33b3abd45e8125ce28ebcabaac57f2ad1ad77ae71e39e46e39fd647eba28",
+      "total": 6
+    },
+    "hub/src/crew_health/model/application/prompt_builder.py": {
+      "covered": 8,
+      "source_sha256": "75fc43f6ff4ba1d3ef76690baebb2b97760acec7493cb0dc076cfa9f083b0568",
+      "total": 8
+    },
+    "hub/src/crew_health/model/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/model/domain/policy.py": {
+      "covered": 12,
+      "source_sha256": "839000a713f5a9cf6e8da6990ca91c0f6a5f4ff6343425f859d8dbf703108aa5",
+      "total": 12
+    },
+    "hub/src/crew_health/model/domain/release.py": {
+      "covered": 48,
+      "source_sha256": "56496bb256208c848056cb7a3b19d7bf1c3cc50955d8c017b19fde23529de689",
+      "total": 52
+    },
+    "hub/src/crew_health/plans/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "f94de49ce623bbb386558733f82862c86fd10fa78e81224b65556179a1d42bec",
+      "total": 0
+    },
+    "hub/src/crew_health/plans/application/act.py": {
+      "covered": 72,
+      "source_sha256": "3a12c9e0f36e061ea6d7d908733047cb1206ce9d7a4b884aaeaff86eb87f82d0",
+      "total": 78
+    },
+    "hub/src/crew_health/plans/application/assistant_copies.py": {
+      "covered": 0,
+      "source_sha256": "b843bf71d71af131eff33a8665d8185f3d9d7195acd876bd117eb787898e6b33",
+      "total": 0
+    },
+    "hub/src/crew_health/plans/application/audience.py": {
+      "covered": 2,
+      "source_sha256": "da91fa5043f9e144cd789667ba9db9ef5d5c8d9021ff5ca4f029b029ea6eb461",
+      "total": 2
+    },
+    "hub/src/crew_health/plans/application/consumers.py": {
+      "covered": 30,
+      "source_sha256": "71a6965b9ffe68b0d4fea344b8164d2f43bd55f1d049736be005ac7157eec7ce",
+      "total": 34
+    },
+    "hub/src/crew_health/plans/application/eligibility.py": {
+      "covered": 2,
+      "source_sha256": "e97203bc8f17a525fbc603bf01df4076ad09ad2e22ce214b7676becaa2c890d1",
+      "total": 2
+    },
+    "hub/src/crew_health/plans/application/environment.py": {
+      "covered": 10,
+      "source_sha256": "d7598300fa55281a1888f7a2c323c6cf276d9e0a96dc7c9d481ea0e2f7805d3f",
+      "total": 10
+    },
+    "hub/src/crew_health/plans/application/errors.py": {
+      "covered": 10,
+      "source_sha256": "def55cb53c1c54434f3f07d3ad5002c0196e670e1af4d70ba98444e7ad2ac07c",
+      "total": 10
+    },
+    "hub/src/crew_health/plans/application/ground_log.py": {
+      "covered": 10,
+      "source_sha256": "2ed0821f08c7f1a41b2147e5fa1881d6d8eee3b10cbe2a2a229a2562208071e4",
+      "total": 10
+    },
+    "hub/src/crew_health/plans/application/kitmap_copies.py": {
+      "covered": 0,
+      "source_sha256": "fa5eac3f7e03a01f0ec6ea30e3cbca240887121e707f0dbf3063a084039a9cec",
+      "total": 0
+    },
+    "hub/src/crew_health/plans/application/measurement_copies.py": {
+      "covered": 0,
+      "source_sha256": "3c3cfa490d16bc56fee0e5dfe18fabd0800c5dc7bf8aa8ec406506ad075bc3bb",
+      "total": 0
+    },
+    "hub/src/crew_health/plans/application/pinning.py": {
+      "covered": 24,
+      "source_sha256": "d45d5f42efec6fed075b63668f0927343aa3d46af86b4e7f35d09a935760c758",
+      "total": 28
+    },
+    "hub/src/crew_health/plans/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "a90460b58ee484cad6a177378f85fd4a2de1907f139844dbcf25ede93facc70d",
+      "total": 0
+    },
+    "hub/src/crew_health/plans/application/provided.py": {
+      "covered": 68,
+      "source_sha256": "46d00c52a78ec2cd19e793bdc432991ee2099ec126a3ba0de453de042a69841f",
+      "total": 72
+    },
+    "hub/src/crew_health/plans/application/release.py": {
+      "covered": 57,
+      "source_sha256": "74fd150b53aa27eb5db879feca04e0ac2ef68b23dcbcb288829bb8b29bc7bd0d",
+      "total": 66
+    },
+    "hub/src/crew_health/plans/application/release_check.py": {
+      "covered": 32,
+      "source_sha256": "ae469783d4c5394d42a040849185ed4d06704737ad30fec5d589091d5dce986f",
+      "total": 32
+    },
+    "hub/src/crew_health/plans/application/repository.py": {
+      "covered": 0,
+      "source_sha256": "acad72c0c1dbd392cc7f38ff7c395c7e386907a7dd98ab442d52e89efa189a5c",
+      "total": 0
+    },
+    "hub/src/crew_health/plans/application/runs.py": {
+      "covered": 31,
+      "source_sha256": "41c76e79068a6264e4d1fc80f3649be06d9a6f56241f654ec1fb56b2262367dc",
+      "total": 36
+    },
+    "hub/src/crew_health/plans/application/settings.py": {
+      "covered": 4,
+      "source_sha256": "7f3e6aa434a984ab7a95f1ba07ed9bd8a073b050efec1058cde97112c60d2ffc",
+      "total": 4
+    },
+    "hub/src/crew_health/plans/application/teach_copies.py": {
+      "covered": 0,
+      "source_sha256": "0e90b5a9a6ba301a504267837a2cfd01d12b3bc1d1c1675e33137a26a686ca54",
+      "total": 0
+    },
+    "hub/src/crew_health/plans/application/tools.py": {
+      "covered": 37,
+      "source_sha256": "755e87052e1861d4e1630aa74c299fbf8ca697a9f4ecdd41918993805c7efe8b",
+      "total": 38
+    },
+    "hub/src/crew_health/plans/application/view_steps.py": {
+      "covered": 16,
+      "source_sha256": "7179777edd6573bb03f22ab00d3dfacff87aaadcb1e287c5322b5c4804f08d62",
+      "total": 20
+    },
+    "hub/src/crew_health/plans/application/views.py": {
+      "covered": 24,
+      "source_sha256": "80c7bc7b0c91e68a3ab4d136fb28cfef44f9246ec98597a18f53b98b9d70bbba",
+      "total": 24
+    },
+    "hub/src/crew_health/plans/application/wire.py": {
+      "covered": 0,
+      "source_sha256": "270ba431c70c05a5fec46afc025da41629ee990159c187f3e2d9b2d3ebd89b21",
+      "total": 0
+    },
+    "hub/src/crew_health/plans/application/world.py": {
+      "covered": 54,
+      "source_sha256": "27e3d999f45ff48ecab37f7cc20edc4cd2efd97325d83dc58751f5a2dcc91de4",
+      "total": 58
+    },
+    "hub/src/crew_health/plans/application/world_errors.py": {
+      "covered": 0,
+      "source_sha256": "44e4169bcf04f06f727aeb262cf4b7d7e2bb97d40c95d44dd958362cc248d926",
+      "total": 0
+    },
+    "hub/src/crew_health/plans/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "f4f27d0846836410caec99bb08d91ef4a6b1298dc66d88d8bcd731421950da3b",
+      "total": 0
+    },
+    "hub/src/crew_health/plans/domain/availability.py": {
+      "covered": 26,
+      "source_sha256": "2688e7b6bce4a286d987f607ae1ccfff1ccfaf6fc314db94c04219ab55fe561f",
+      "total": 26
+    },
+    "hub/src/crew_health/plans/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "e317b4a967fbdfdff3aa02dc53b39b226bd0c2d087f83fbc941c510d5897a954",
+      "total": 0
+    },
+    "hub/src/crew_health/plans/domain/model.py": {
+      "covered": 81,
+      "source_sha256": "9a0bdaca52a6fe27e81fff3ae39ae85adf6e661d8bcfdb2d017c4b15fb0b116e",
+      "total": 84
+    },
+    "hub/src/crew_health/plans/domain/recheck.py": {
+      "covered": 12,
+      "source_sha256": "95cd52b9b13027b4a6b0189cb207c1250d350bed8212be0fa8f13e2ffda4a599",
+      "total": 12
+    },
+    "hub/src/crew_health/plans/domain/release_checks.py": {
+      "covered": 94,
+      "source_sha256": "2a1520e72091b1a0c64707ebc8bddc127fd7d1318d234fc12558f675acb9745b",
+      "total": 96
+    },
+    "hub/src/crew_health/plans/domain/run.py": {
+      "covered": 81,
+      "source_sha256": "bd2cd11991e84f1ecbdb88d831887d2beb5357b427a384d4df71703185fd68c9",
+      "total": 82
+    },
+    "hub/src/crew_health/plans/domain/text_check.py": {
+      "covered": 0,
+      "source_sha256": "eab4b8e3fffc136ba8eb8a4bfa8a17c4b152294958c7b73eaea707ade573c85b",
+      "total": 0
+    },
+    "hub/src/crew_health/plans/domain/tool_rules.py": {
+      "covered": 14,
+      "source_sha256": "6792fe32d35b599993a55a66a2fcda6e4e3cc65179128aca58c1607a1ec1837b",
+      "total": 14
+    },
+    "hub/src/crew_health/plans/domain/view.py": {
+      "covered": 26,
+      "source_sha256": "1c5fb06b199bc27d0c54d6f1dd90af8f0cd12a4529f99aaa471e3838673906c9",
+      "total": 26
+    },
+    "hub/src/crew_health/platform/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/platform/application/commands.py": {
+      "covered": 10,
+      "source_sha256": "1ac88b72002ae6d6eff02c719b1e07d8f65684f14842308730d07ccde9b35f43",
+      "total": 16
+    },
+    "hub/src/crew_health/platform/application/evaluation.py": {
+      "covered": 11,
+      "source_sha256": "e8289f5f66bbdd5b2c8c8b9f5b19cd49fcd4523d6e9d30b63771bc22bb9e6106",
+      "total": 16
+    },
+    "hub/src/crew_health/platform/application/health.py": {
+      "covered": 2,
+      "source_sha256": "e0cbe16abc73dcad864e9b5fd90d9d9ab89cf62a6cddc9e3c1f95c2b684bec17",
+      "total": 4
+    },
+    "hub/src/crew_health/platform/application/intents.py": {
+      "covered": 0,
+      "source_sha256": "5b0a0a53b1ff9ff859a240ee43260ff93814685538c0e724341b2609eb62cadf",
+      "total": 0
+    },
+    "hub/src/crew_health/platform/application/ownership.py": {
+      "covered": 36,
+      "source_sha256": "6e1b3ed6d2f4273fc6345773c18892c89c671c2187181501a7626c951d143394",
+      "total": 50
+    },
+    "hub/src/crew_health/platform/application/private.py": {
+      "covered": 83,
+      "source_sha256": "21b9d92222e400a4cc76e4a643273ef7283588b7644db04bc550b59524a1465b",
+      "total": 112
+    },
+    "hub/src/crew_health/platform/application/private_deletions.py": {
+      "covered": 1,
+      "source_sha256": "d067e32b2b801da0823fa2830a101ce923f298142877b4f2435f0a21f8685ce0",
+      "total": 2
+    },
+    "hub/src/crew_health/platform/application/recovery.py": {
+      "covered": 3,
+      "source_sha256": "5b8f024d97700e175c3be1f9486570292b36894553dd5f0a88d0ebcac128bd27",
+      "total": 12
+    },
+    "hub/src/crew_health/platform/application/replication.py": {
+      "covered": 66,
+      "source_sha256": "527233b50046a3f0ff0258cc7449905c9ef3bf2d6b34eb33f5a36aaa49ceeeab",
+      "total": 84
+    },
+    "hub/src/crew_health/platform/application/scheduler.py": {
+      "covered": 34,
+      "source_sha256": "b4b38d956a4549045d09550ed5e9b0b7676d9b3be190215c708635a8341db7ef",
+      "total": 54
+    },
+    "hub/src/crew_health/platform/application/supervisor.py": {
+      "covered": 10,
+      "source_sha256": "795861279af4f21bd6e6a2168fa192395dba8b0dad1dc3766f2a33c3fbc63d3b",
+      "total": 12
+    },
+    "hub/src/crew_health/platform/application/tasks.py": {
+      "covered": 64,
+      "source_sha256": "a39096e5338b23ee4783a67d8ba57b608a08db9e55303ec2e9e63f33f8fd9ec1",
+      "total": 90
+    },
+    "hub/src/crew_health/platform/application/uow.py": {
+      "covered": 11,
+      "source_sha256": "81f2be162a78447e96104a3412404d99d4ae904f9ea28e9a20a5346393bb366a",
+      "total": 16
+    },
+    "hub/src/crew_health/platform/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/platform/domain/audit.py": {
+      "covered": 6,
+      "source_sha256": "60c325b8c2d5c14c28b17cc1d18754d7d4642f6a9175b5cd9115034b9b45a374",
+      "total": 6
+    },
+    "hub/src/crew_health/platform/domain/commands.py": {
+      "covered": 0,
+      "source_sha256": "781c8dea39374722fb666a92b837313f64a447ee143abba89535f169c26f2249",
+      "total": 0
+    },
+    "hub/src/crew_health/platform/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "dc36de8cb2fa120f8523a76f2f4f729c8f88aaa600600bb966d445fbc70bacdd",
+      "total": 0
+    },
+    "hub/src/crew_health/platform/domain/replication.py": {
+      "covered": 77,
+      "source_sha256": "9e5012ae035da85127c1a61040312d02d41f6e0342ad6e798a96144f15d5d8ee",
+      "total": 96
+    },
+    "hub/src/crew_health/records/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/records/application/commands.py": {
+      "covered": 29,
+      "source_sha256": "3ab9cf13f9f2d914a7cc25b502588f5c69f03e581fa5860136c4487de8e474b9",
+      "total": 52
+    },
+    "hub/src/crew_health/records/application/evaluation.py": {
+      "covered": 1,
+      "source_sha256": "f872b0ecbf7f9cf048c17d217926956ad03569da400069e9f1079177f8e8e451",
+      "total": 2
+    },
+    "hub/src/crew_health/records/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "3785efbe38081627b76a1e82a4a8fba7d9257e4de89757d145d1827fbe82200d",
+      "total": 0
+    },
+    "hub/src/crew_health/records/application/producers.py": {
+      "covered": 30,
+      "source_sha256": "2c64b4781b9250a8664da3d80aad0dab92e02f1b232dd4ac8426938e0b8f5019",
+      "total": 34
+    },
+    "hub/src/crew_health/records/application/queries.py": {
+      "covered": 5,
+      "source_sha256": "0174060a06f066e7dc3d69e61482e5f2f7c2e2f7be94e324c5a2f773529bb2fa",
+      "total": 16
+    },
+    "hub/src/crew_health/records/application/seams.py": {
+      "covered": 0,
+      "source_sha256": "d3dbee750a2a90d476c693522041b7308afb378ce9774b5dedb4f8ab872e3657",
+      "total": 0
+    },
+    "hub/src/crew_health/records/application/visibility.py": {
+      "covered": 3,
+      "source_sha256": "18b53d245f4b14f769dbf3e6b6218400638a23e20144bb4ddd0df4eaf8794f7c",
+      "total": 4
+    },
+    "hub/src/crew_health/records/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/records/domain/answers.py": {
+      "covered": 26,
+      "source_sha256": "09b1625ec34bec4a10c99cd827697573005fbbd07cf7efcd8951eb3b452fb9f5",
+      "total": 34
+    },
+    "hub/src/crew_health/records/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "8e3646898070429386555e6a41e70eb6f01502787b1c54e0c295b491931e6f38",
+      "total": 0
+    },
+    "hub/src/crew_health/records/domain/lineage.py": {
+      "covered": 7,
+      "source_sha256": "cc568bf377c3d7e75cf4faa09086ab8ca04871a6a5fe31b7c083d65f7df2bbe4",
+      "total": 8
+    },
+    "hub/src/crew_health/records/domain/observations.py": {
+      "covered": 15,
+      "source_sha256": "0adf9cdd4746317ea60ad987acd29fc2c155b02d37894e72de7b69c61531289f",
+      "total": 16
+    },
+    "hub/src/crew_health/roles/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/roles/application/actions.py": {
+      "covered": 34,
+      "source_sha256": "e43b0a9d0b12a9e7dbdedb3478e9e56dd5e9b7cf78b0c41af8fe6652f552b12c",
+      "total": 44
+    },
+    "hub/src/crew_health/roles/application/config.py": {
+      "covered": 12,
+      "source_sha256": "2d210a5536dc091c2af05df0ac41a30dbd749c3a4432954ba4ffeb6c268e8b2b",
+      "total": 14
+    },
+    "hub/src/crew_health/roles/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "c61e6407422c5e535832c9ad7ac11dadf3874900b4515742afb79dcb213b30bd",
+      "total": 0
+    },
+    "hub/src/crew_health/roles/application/proposals.py": {
+      "covered": 74,
+      "source_sha256": "1da3acf734ae1db4dcc49f9f018088cde60588bbc942880ef19933ab8d20629f",
+      "total": 96
+    },
+    "hub/src/crew_health/roles/application/provided.py": {
+      "covered": 22,
+      "source_sha256": "1e2dc11b5d6f6700ed2bda842ff3fc4fc67cb3834aef47aaeef48c3ba401f6aa",
+      "total": 28
+    },
+    "hub/src/crew_health/roles/application/repository.py": {
+      "covered": 0,
+      "source_sha256": "e696a4f531b79b0266a71e127bade45e8ffd3cacd4a66e9857923987aa10d4bb",
+      "total": 0
+    },
+    "hub/src/crew_health/roles/application/settings.py": {
+      "covered": 4,
+      "source_sha256": "1c039721d46e9e8f8786cab9ff79ccc3441a6d080d574b3735eeb7e8f1c64aaf",
+      "total": 6
+    },
+    "hub/src/crew_health/roles/application/skills.py": {
+      "covered": 64,
+      "source_sha256": "e1f4c7a59608f57c2fcc614e3fa2ac69963a0ed94356722bf42bbae17ca41c24",
+      "total": 84
+    },
+    "hub/src/crew_health/roles/application/wire.py": {
+      "covered": 1,
+      "source_sha256": "81d725b533669d7b1022f72a0b0f8ab5ac7f24aadda502862946999c9e3cb127",
+      "total": 2
+    },
+    "hub/src/crew_health/roles/application/world.py": {
+      "covered": 15,
+      "source_sha256": "d68bb6228757cdec0ba9a99031021689fe81d45801fbb2f51530fd80515d0fc1",
+      "total": 20
+    },
+    "hub/src/crew_health/roles/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/roles/domain/acting.py": {
+      "covered": 20,
+      "source_sha256": "9eee679224e7fc6e2fb085a21075ba0755b757eaaa9997206af74034b8afab2e",
+      "total": 26
+    },
+    "hub/src/crew_health/roles/domain/drill.py": {
+      "covered": 24,
+      "source_sha256": "d63cc75f89d957fe6d627b96dfb4e4f007824adfd111920583ca17e24acf0185",
+      "total": 30
+    },
+    "hub/src/crew_health/roles/domain/engine.py": {
+      "covered": 66,
+      "source_sha256": "325cbf6b1b3c67acea3657518338bae033ef25c214c7a7b18da1591494d97d0f",
+      "total": 74
+    },
+    "hub/src/crew_health/roles/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "ad44ff1ca11d5e986c513ed8beeb7b12f6351271a98fafbd1e65f3c1706c439e",
+      "total": 0
+    },
+    "hub/src/crew_health/roles/domain/freshness.py": {
+      "covered": 5,
+      "source_sha256": "a573c11809693e6e3b295ce5beb5f710d084dfe4a49daae73cbaefc1c74f64e3",
+      "total": 10
+    },
+    "hub/src/crew_health/roles/domain/lifecycle.py": {
+      "covered": 18,
+      "source_sha256": "1747ddd10fe80a295095b6e151f204424532d3e1dfdd52c58e434754c4feff6c",
+      "total": 18
+    },
+    "hub/src/crew_health/roles/domain/rules.py": {
+      "covered": 55,
+      "source_sha256": "0232a828e09423b651c725be79ebb6ec99f7ab5ee80a281e23dd927dc6efeb82",
+      "total": 66
+    },
+    "hub/src/crew_health/teach/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/teach/application/access.py": {
+      "covered": 15,
+      "source_sha256": "543d45826f7657f1f053ea2bfa9c100caacd9d98a2f8b5088bc810df1b1a427a",
+      "total": 18
+    },
+    "hub/src/crew_health/teach/application/actions.py": {
+      "covered": 32,
+      "source_sha256": "b7324ca7650ed0739ded5e52a4ca8b94bfa4c04706fd42240deae5d6092383f6",
+      "total": 42
+    },
+    "hub/src/crew_health/teach/application/audience.py": {
+      "covered": 0,
+      "source_sha256": "964ca54b545b5eed57e725d5afab2f573113c025c8e77116ef6cd6743a825e49",
+      "total": 0
+    },
+    "hub/src/crew_health/teach/application/beats.py": {
+      "covered": 8,
+      "source_sha256": "896e225228aaf8e54b0c392cce514006067a9058ad1c021b99bf21809732567c",
+      "total": 10
+    },
+    "hub/src/crew_health/teach/application/commands.py": {
+      "covered": 15,
+      "source_sha256": "70ad3a784069919cdf20adaa0ae71f1b14e258103819b60e53d9bb2d64a4966e",
+      "total": 16
+    },
+    "hub/src/crew_health/teach/application/content.py": {
+      "covered": 22,
+      "source_sha256": "b67759224a4bec8f830ab0d0a84f8e3ce0b219be35a5828df641cf6cf8d92d53",
+      "total": 30
+    },
+    "hub/src/crew_health/teach/application/errors.py": {
+      "covered": 1,
+      "source_sha256": "9e7bb7d447ea837394ccb7fe9093ace153c2ee3c9bf81b9fe46e117715b8487b",
+      "total": 2
+    },
+    "hub/src/crew_health/teach/application/finish.py": {
+      "covered": 28,
+      "source_sha256": "ddff9b5b2d909c759ad8ec08638bf8c12f36282ed2c2eda7c6e9e7a717dc1f1c",
+      "total": 38
+    },
+    "hub/src/crew_health/teach/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "95c8bc08c3d000802862178c0ad0ea7d3b15c49d7f61a0413ff95ac61dba5da0",
+      "total": 0
+    },
+    "hub/src/crew_health/teach/application/queries.py": {
+      "covered": 8,
+      "source_sha256": "6592bbbf158ff6f2a0e9b62c05c865f33372cd9cb8db2bb937373821b5c97695",
+      "total": 12
+    },
+    "hub/src/crew_health/teach/application/reads.py": {
+      "covered": 10,
+      "source_sha256": "a0ed6d2fffef17c0670cac7cb2451018f2ff4192de4d6d555c44c4f71990e7bd",
+      "total": 14
+    },
+    "hub/src/crew_health/teach/application/settings.py": {
+      "covered": 0,
+      "source_sha256": "411c6c29205bb9c9018f872a8529c78b55bb91ca176e289ae69d29761a649473",
+      "total": 0
+    },
+    "hub/src/crew_health/teach/application/start.py": {
+      "covered": 41,
+      "source_sha256": "a9f4dac9865733e2964495b82e98d9de5010d34204232b4ae9deb9531ac96d77",
+      "total": 52
+    },
+    "hub/src/crew_health/teach/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/teach/domain/agreement.py": {
+      "covered": 15,
+      "source_sha256": "4f601b7cf776614dbc365a0ee0f623b178eb81d28855e5213b0c8fc3233654bb",
+      "total": 16
+    },
+    "hub/src/crew_health/teach/domain/capture.py": {
+      "covered": 13,
+      "source_sha256": "068f84d032d91fd85c59582740512969229ddb6ca23bddf972023ffeba2ff28c",
+      "total": 14
+    },
+    "hub/src/crew_health/teach/domain/catalog.py": {
+      "covered": 50,
+      "source_sha256": "bff52666b9d1f1aca1a264d65afc727e6703f198921eb9633d7e4dd1156b67a3",
+      "total": 78
+    },
+    "hub/src/crew_health/teach/domain/coaching.py": {
+      "covered": 13,
+      "source_sha256": "d479b7f07f4d3658f6876320beae0f01f1639c88f683bc25b44dee19472b5658",
+      "total": 14
+    },
+    "hub/src/crew_health/teach/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "0b86a4c1ac922770552569c5855ba76d790e478e231e87509040ece10ef870ed",
+      "total": 0
+    },
+    "hub/src/crew_health/teach/domain/guided_check.py": {
+      "covered": 66,
+      "source_sha256": "19003cf4e04209b552fe758b5f53938e9c85a3d2100dcb63faa8f161b12387b9",
+      "total": 80
+    },
+    "hub/src/crew_health/trends/application/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/trends/application/catalog.py": {
+      "covered": 1,
+      "source_sha256": "68a2a8b92eac4f78e9e0a02be5359235ba946ccb90f4086625ab0e426be91795",
+      "total": 2
+    },
+    "hub/src/crew_health/trends/application/environment.py": {
+      "covered": 6,
+      "source_sha256": "9d0a4124af7e1c208f594a017acbf41168e7e23d30e566382888198d923c06f3",
+      "total": 6
+    },
+    "hub/src/crew_health/trends/application/forecast.py": {
+      "covered": 60,
+      "source_sha256": "017b49147c1613a81c61e3ba393862c148971e793732d5538148a0f841a51487",
+      "total": 68
+    },
+    "hub/src/crew_health/trends/application/ports.py": {
+      "covered": 0,
+      "source_sha256": "64652652e9ac507ff1b4adc669ba3b1606d7a14b9f120df0afa0a9dd178e250f",
+      "total": 0
+    },
+    "hub/src/crew_health/trends/application/summary.py": {
+      "covered": 44,
+      "source_sha256": "f5e79ea434e7324df684b8b131fcbd40b0f6bede1eb0c037f548e17827ddf648",
+      "total": 46
+    },
+    "hub/src/crew_health/trends/domain/__init__.py": {
+      "covered": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "total": 0
+    },
+    "hub/src/crew_health/trends/domain/baseline.py": {
+      "covered": 52,
+      "source_sha256": "fc0634b326dd95f651b0a235148af26527c7d06c3a6acf1cb2a84ee192aa5289",
+      "total": 56
+    },
+    "hub/src/crew_health/trends/domain/environment.py": {
+      "covered": 2,
+      "source_sha256": "50b95784001c3c1d5bb8ca07c065421a6f7e1e9e8848c0e2de685a890bbf132e",
+      "total": 2
+    },
+    "hub/src/crew_health/trends/domain/errors.py": {
+      "covered": 0,
+      "source_sha256": "9e2878cb7ebdbd92673a8c0ea0a1a1d678a7931b3a813ed89a60e32d5dd51b1c",
+      "total": 0
+    },
+    "hub/src/crew_health/trends/domain/forecast.py": {
+      "covered": 16,
+      "source_sha256": "7d4cad5ab15364dc4c847f94eafed233c104526ea00bf56d685bd7c55d7ccc94",
+      "total": 16
+    },
+    "hub/src/crew_health/trends/domain/model.py": {
+      "covered": 0,
+      "source_sha256": "2ae6a9b4c0a0d942744e5d6441acb11612be6c8d8abef49518d1335534f43625",
+      "total": 0
+    },
+    "hub/src/crew_health/trends/domain/trend.py": {
+      "covered": 18,
+      "source_sha256": "3f435e83eff7c9782b11554d826eb58ec4c2c7f158038d3512904e9123b211a5",
+      "total": 18
+    }
+  },
+  "metric": "covered_branches / num_branches, per source file",
+  "provenance": {
+    "artifact_xml_sha256": "ca70c332dd394dc6d202f8fada5e4c9ecc6c88fe2082abd039869911fc1c4ed8",
+    "head": "b036a47ff089278e9d25170c5d2025f9161e9a0f",
+    "job": "https://github.com/fedegutman/vitales/actions/runs/43730835232/job/132862729763",
+    "note": "Ubuntu measured baseline; macOS identical branch totals. Windows must meet this same file-level floor."
+  },
+  "target_percent": 95
+}

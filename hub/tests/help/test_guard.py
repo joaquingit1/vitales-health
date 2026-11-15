@@ -9,7 +9,6 @@ from pathlib import Path
 
 import pytest
 from help_support import Assistant, Driver, Providers, build, dig, json_of, open_body, rows
-from test_domain import DOCS, LIMITS
 
 from crew_health.help.application.ports import HelpTurnCandidate, ToolCall
 from crew_health.help.domain.turn_guard import (
@@ -20,6 +19,8 @@ from crew_health.help.domain.turn_guard import (
     ToolCallView,
     check,
 )
+
+from .test_domain import DOCS, LIMITS
 
 FLOW = DOCS.flows.flow("eye_injury")
 assert FLOW is not None

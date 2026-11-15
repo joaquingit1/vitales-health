@@ -15,9 +15,9 @@ from crew_health.tools.domain.context import ContextBudget, ContextSection
 from crew_health.tools.domain.errors import ToolsInvalid
 from crew_health.tools.domain.support import SupportItem
 from crew_health.tools.settings import setting_specs
-from tests.tools.fakes import identity
-from tests.tools.test_bounds import settings_values
-from tests.tools.test_gateway import Authority, View, scope
+from tests.tools.fakes import identity  # type: ignore[import-not-found]
+from tests.tools.test_bounds import settings_values  # type: ignore[import-not-found]
+from tests.tools.test_gateway import Authority, View, scope  # type: ignore[import-not-found]
 
 
 def observation() -> SupportItem:

@@ -47,7 +47,7 @@ def test_invalid_approval_cannot_enable_patient_instructions(field: str, value: 
     review = Review(
         "review_1", "extract_1", "a" * 64, "technical_check", "pass", "editor_b", None, ("receipt_1",)
     )
-    assert not eligible(replace(approval(), **{field: value}), (review,)).allowed
+    assert not eligible(replace(approval(), **{field: value}), (review,)).allowed  # type: ignore[arg-type]
 
 
 def test_omitted_or_failed_review_head_cannot_be_hidden() -> None:

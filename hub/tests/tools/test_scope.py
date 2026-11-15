@@ -65,7 +65,7 @@ def test_module_error_uses_generated_sanitized_error_envelope() -> None:
 def test_scope_rejects_invalid_controller_values(changes: dict[str, Any]) -> None:
     from dataclasses import replace
 
-    from tests.tools.test_gateway import scope
+    from tests.tools.test_gateway import scope  # type: ignore[import-not-found]
 
     with pytest.raises(ToolsInvalid):
         replace(scope(), **changes)

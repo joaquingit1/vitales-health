@@ -199,7 +199,7 @@ def test_catalog_requires_guarded_hash_and_complete_security(tmp_path):
     assert original.requires_ledger("recordObservation")
     assert original.match("GET", "/v1/observations/obs_1").security == "sessionToken"
     assert original.match("POST", "/v1/adapters/adapter_1/readings").security == "adapterToken"
-    raw = yaml.safe_load(Path("contracts/api/openapi.yaml").read_text())
+    raw = yaml.safe_load(Path("contracts/api/openapi.yaml").read_text(encoding="utf-8"))
     raw["paths"]["/v1/health"]["get"]["security"] = [{"unknown": []}]
     altered = yaml.safe_dump(raw).encode()
     path = tmp_path / "openapi.yaml"

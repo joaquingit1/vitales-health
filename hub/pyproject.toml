@@ -34,7 +34,7 @@ ignore = ["E501"]
 
 [tool.ruff.lint.isort]
 # Fixed here so isort agrees whether ruff runs from hub/ or from the root with --config.
-known-first-party = ["crew_health"]
+known-first-party = ["crew_health", "tests"]
 
 [tool.mypy]
 python_version = "3.14"

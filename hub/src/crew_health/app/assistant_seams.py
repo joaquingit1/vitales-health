@@ -16,7 +16,8 @@ from crew_health.app.registry import ModuleRegistry, Resolver
 from crew_health.assistant.adapters.conversations import EpisodeAccess, PersonOrigin, TurnAnchor
 from crew_health.assistant.application import tools_copies as copies
 from crew_health.assistant.application.ports import CommandFingerprint as AssistantFingerprint
-from crew_health.episodes.application.ports import EpisodeFacts, OriginNamespace
+from crew_health.episodes.application.ports import CommandFingerprint as EpisodesFingerprint
+from crew_health.episodes.application.ports import CurrentMission, EpisodeFacts, OriginNamespace
 from crew_health.identity.application.service import IdentityService
 from crew_health.kernel.clock import Clock, ClockCorrections, ClockSegment, TimeInput
 from crew_health.kernel.uow import Actor, ReadSnapshotFactory, UnitOfWork
@@ -207,6 +208,14 @@ class _EpisodeOrigin:
         return partition[1]
 
 
+class _CurrentMission:
+    def __init__(self, identity: IdentityService) -> None:
+        self.identity = identity
+
+    def current(self, uow: UnitOfWork) -> tuple[str, str] | None:
+        return self.identity.partition(uow)
+
+
 def compose(registry: ModuleRegistry, segment: Callable[[], ClockSegment | None]) -> None:
     providers: Mapping[type[object], object] = getattr(registry, "providers", {})
     entries: tuple[tuple[object, Callable[[Resolver], object], tuple[object, ...]], ...] = (
@@ -227,7 +236,9 @@ def compose(registry: ModuleRegistry, segment: Callable[[], ClockSegment | None]
         ),
         (PersonOrigin, lambda r: _Origins(r.require(IdentityService)), (IdentityService,)),
         (OriginNamespace, lambda r: _EpisodeOrigin(r.require(IdentityService)), (IdentityService,)),
+        (CurrentMission, lambda r: _CurrentMission(r.require(IdentityService)), (IdentityService,)),
         (measurement.EpisodeFacts, lambda r: _MeasurementEpisodes(r.require(EpisodeFacts)), (EpisodeFacts,)),
+        (EpisodesFingerprint, lambda r: r.require(KeyedCommandFingerprint), (KeyedCommandFingerprint,)),
         (
             AssistantFingerprint,
             lambda r: r.require(KeyedCommandFingerprint),

@@ -12,7 +12,7 @@ from crew_health.kernel.settings import HubSettings
 from crew_health.kernel.testing import MemoryClock, MemoryIds, MemorySettings
 from crew_health.tools.module import register
 from crew_health.tools.settings import setting_specs
-from tests.tools.test_bounds import settings_values
+from tests.tools.test_bounds import settings_values  # type: ignore[import-not-found]
 
 
 @pytest.fixture
@@ -33,10 +33,10 @@ def tools_declarations(tools_settings: MemorySettings) -> DeclarationRegistry:
 @pytest.fixture(scope="session")
 def station_resources(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """E01's station resources (hub/tests/app/conftest.py) for the tools composition tests."""
-    from tests.app.conftest import copy_station_resources
+    from tests.app.conftest import copy_station_resources  # type: ignore[import-not-found]
 
-    return copy_station_resources(tmp_path_factory.mktemp("station") / "resources")
+    return Path(copy_station_resources(tmp_path_factory.mktemp("station") / "resources"))
 
 
 # E17's installed-release fixtures (its candidate manifest and a ManifestStore over a copy of model/).
-from tests.model.conftest import manifest, store  # noqa: E402, F401
+from tests.model.conftest import manifest, store  # type: ignore[import-not-found]  # noqa: E402, F401

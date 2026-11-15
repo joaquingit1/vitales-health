@@ -38,3 +38,8 @@ data/pharmacy/xtb-cache/
 # OS
 .DS_Store
 
+
+# CI collection, coverage and duration artifacts
+/evidence/
+/artifacts/
+/collection/

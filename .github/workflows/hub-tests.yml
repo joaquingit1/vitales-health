@@ -1,0 +1,146 @@
+# D31: every test runs on every supported OS. Actual branch coverage is combined per OS, never across OSes.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hub-tests-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  UV_PYTHON_PREFERENCE: only-managed
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+
+jobs:
+  quality:
+    uses: ./.github/workflows/lint.yml
+
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/locked-setup
+      - name: Collect every hub and eval test and partition once
+        run: |
+          mkdir -p evidence
+          set -o pipefail
+          uv run --project hub --locked python scripts/ci_suite.py collect | tee evidence/collect.log
+      - name: Keep the exact collection
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: collection-plan
+          path: evidence/
+          if-no-files-found: error
+
+  tests:
+    needs: collect
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        group: [core-0, core-1, core-2, core-3, contracts, wheel]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/locked-setup
+        with:
+          javascript: ${{ matrix.group == 'contracts' && 'true' || 'false' }}
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: collection-plan
+          path: collection
+      - name: Verify the selected collection, run tests and retain durations
+        run: |
+          mkdir -p evidence/${{ matrix.group }}
+          set -o pipefail
+          uv run --project hub --locked python scripts/ci_suite.py run \
+            --manifest collection/plan.json --group '${{ matrix.group }}' \
+            --evidence evidence/${{ matrix.group }} 2>&1 | tee evidence/${{ matrix.group }}/pytest.log
+      - name: Keep evidence even if a test fails or the job is cancelled
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: hub-${{ matrix.os }}-${{ matrix.group }}
+          path: evidence/
+          if-no-files-found: error
+
+  branch-coverage:
+    needs: [collect, tests]
+    if: ${{ always() && needs.collect.result == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/locked-setup
+      - name: Fetch the trusted event base for the coverage policy
+        id: base
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || github.event.repository.default_branch }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          echo "sha=$(git rev-parse FETCH_HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: collection-plan
+          path: collection
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          pattern: hub-${{ matrix.os }}-*
+          path: artifacts
+      - name: Combine all six shards and enforce actual per-file branch coverage
+        run: |
+          mkdir -p evidence
+          set -o pipefail
+          uv run --project hub --locked python scripts/ci_suite.py coverage \
+            --manifest collection/plan.json --base-ref '${{ steps.base.outputs.sha }}' \
+            2>&1 | tee evidence/branch-coverage.log
+      - name: Keep the actual branch report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: branches-${{ matrix.os }}
+          path: evidence/
+          if-no-files-found: error
+
+  complete:
+    needs: [collect, tests, branch-coverage, quality]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every supported OS, coverage report and quality gate
+        env:
+          COLLECT: ${{ needs.collect.result }}
+          TESTS: ${{ needs.tests.result }}
+          COVERAGE: ${{ needs.branch-coverage.result }}
+          QUALITY: ${{ needs.quality.result }}
+        run: |
+          test "$COLLECT" = success
+          test "$TESTS" = success
+          test "$COVERAGE" = success
+          test "$QUALITY" = success

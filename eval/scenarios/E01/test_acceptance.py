@@ -364,7 +364,7 @@ def explicit_sim_station(tmp_path: Path, *, missing: str | None = None) -> SimSt
         db.migrate(
             (
                 ROOT / "hub/src/crew_health" / module / "adapters/migrations" / ("0001_" + module + ".sql")
-            ).read_text()
+            ).read_text(encoding="utf-8")
         )
     artifacts, security, repository = fixture_artifacts(), SimSecurity(), ConfigRepository()
     event_repository = EventRepository(

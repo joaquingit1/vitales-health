@@ -14,8 +14,8 @@ from crew_health.tools.application.effects import Effects
 from crew_health.tools.domain.errors import ToolsInvalid
 from crew_health.tools.domain.tool_result import PendingEffect
 from crew_health.tools.settings import setting_specs
-from tests.tools.test_bounds import settings_values
-from tests.tools.test_gateway import Authority, View, scope
+from tests.tools.test_bounds import settings_values  # type: ignore[import-not-found]
+from tests.tools.test_gateway import Authority, View, scope  # type: ignore[import-not-found]
 
 
 class Validator:
