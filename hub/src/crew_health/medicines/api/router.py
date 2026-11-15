@@ -163,6 +163,14 @@ def build_router(deps: DepsOf, authenticate: Authenticate) -> APIRouter:
         return _ok(uc.lots_view(deps(), session, environment_id), correlation)
 
     @guarded
+    async def lot_estimates(request: Request, correlation: str) -> Response:
+        session = _session(authenticate, request, "listMedicineLotEstimates", CMO_CREW_OPERATOR)
+        environment_id = request.query_params.get("environment_id")
+        if environment_id is not None and environment_id not in ENVIRONMENTS:
+            raise malformed("environment_id is not an environment", "/environment_id")
+        return _ok(uc.lot_estimates_view(deps(), session, environment_id), correlation)
+
+    @guarded
     async def inspection(request: Request, correlation: str) -> Response:
         d, session, cmd, body, _ = await command(
             request, correlation, "recordMedicineInspection", CMO_CREW, MedicineInspectionCreate
@@ -352,6 +360,7 @@ def build_router(deps: DepsOf, authenticate: Authenticate) -> APIRouter:
 
     routes: tuple[tuple[str, str, str, Callable[[Request], Awaitable[Response]]], ...] = (
         ("GET", "/v1/medicines/lots", "listMedicineLots", list_lots),
+        ("GET", "/v1/medicines/lots/estimates", "listMedicineLotEstimates", lot_estimates),
         ("POST", "/v1/medicines/inspections", "recordMedicineInspection", inspection),
         ("POST", "/v1/medicines/assays", "recordMedicineAssay", assay),
         ("POST", "/v1/medicines/assessments", "scheduleMedicineAssessment", assessment),

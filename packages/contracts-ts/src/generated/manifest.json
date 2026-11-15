@@ -249,7 +249,7 @@
     "api/examples/warnings/list-station.json": "2263951d48ea791d42a64e459ed573f5f4dc878df40cea95fdcefc51c4e9f583",
     "api/examples/warnings/list-transit.json": "07ae53f71772ce114b12caa193d9901e5f365a5be4ca2b8a0ceeb37dd7bed6b9",
     "api/examples/warnings/sensor-quiet.json": "15b92023dc4652a061da315b15ed581426b12e53d64c6912c4be4675924db0b7",
-    "api/openapi.yaml": "ebdedb19a828fb347d82e30435d6db8e23283d3060f803c336f306fc24ad184a",
+    "api/openapi.yaml": "af8c62f26c64c4540f4873b45f6b707ab5b122876587135c34ea19a28c113dc3",
     "api/schemas/activity-overlay.schema.json": "0df5936b3c98da1f3cba2077a53a1ee0915ecc2ee4c0013292d549ddc2938f94",
     "api/schemas/answer.schema.json": "044a50b73e397425ed8e022030601a404a7be10d25dfe684d1386230f8d9c3a4",
     "api/schemas/assessment.schema.json": "63c347d367fd9017848839c762bbee6ea3dc01a46497e380313b2cff1c3b69e6",
@@ -283,7 +283,7 @@
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
     "api/schemas/config-treatments.schema.json": "733cbd7df5ace54ff9b0656e71d8c2a06d14c074bd645416520d42056daf03cc",
-    "api/schemas/config-ui-copy.schema.json": "78c096cb16cb472343437d37982f3f4e9863ac36e4709265bb5f54d9de0b02aa",
+    "api/schemas/config-ui-copy.schema.json": "158c01d3a4d4eaed11e2ecb731ae288834580ced28588ea768754b466cf7a54a",
     "api/schemas/config-warning-rules.schema.json": "a237eac14f8cc5b2bc1d3d19019847a56d07261d84e59cbec0df1eee3ac522b3",
     "api/schemas/context.schema.json": "0fd66549c0b915548ec3f89b9650f3c84e3fe72e8f5c98c1671349cf53494a2b",
     "api/schemas/conversation.schema.json": "ac49ee869418d9b553264ef66207c29f40dd954500c9bbf433ddfde1e00d876b",
@@ -610,7 +610,7 @@
     "api/examples/warnings/list-station.json": "2263951d48ea791d42a64e459ed573f5f4dc878df40cea95fdcefc51c4e9f583",
     "api/examples/warnings/list-transit.json": "07ae53f71772ce114b12caa193d9901e5f365a5be4ca2b8a0ceeb37dd7bed6b9",
     "api/examples/warnings/sensor-quiet.json": "15b92023dc4652a061da315b15ed581426b12e53d64c6912c4be4675924db0b7",
-    "api/openapi.yaml": "ebdedb19a828fb347d82e30435d6db8e23283d3060f803c336f306fc24ad184a",
+    "api/openapi.yaml": "af8c62f26c64c4540f4873b45f6b707ab5b122876587135c34ea19a28c113dc3",
     "api/schemas/activity-overlay.schema.json": "0df5936b3c98da1f3cba2077a53a1ee0915ecc2ee4c0013292d549ddc2938f94",
     "api/schemas/answer.schema.json": "044a50b73e397425ed8e022030601a404a7be10d25dfe684d1386230f8d9c3a4",
     "api/schemas/assessment.schema.json": "63c347d367fd9017848839c762bbee6ea3dc01a46497e380313b2cff1c3b69e6",
@@ -644,7 +644,7 @@
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
     "api/schemas/config-treatments.schema.json": "733cbd7df5ace54ff9b0656e71d8c2a06d14c074bd645416520d42056daf03cc",
-    "api/schemas/config-ui-copy.schema.json": "78c096cb16cb472343437d37982f3f4e9863ac36e4709265bb5f54d9de0b02aa",
+    "api/schemas/config-ui-copy.schema.json": "158c01d3a4d4eaed11e2ecb731ae288834580ced28588ea768754b466cf7a54a",
     "api/schemas/config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
     "api/schemas/config-warning-rules.schema.json": "a237eac14f8cc5b2bc1d3d19019847a56d07261d84e59cbec0df1eee3ac522b3",
     "api/schemas/context.schema.json": "0fd66549c0b915548ec3f89b9650f3c84e3fe72e8f5c98c1671349cf53494a2b",
@@ -755,7 +755,7 @@
     "crew_health.trends.module": "3d88fcc4fa6773f33cfcb1ebe2dd5d36c3af86ea43265de938076add8645c568"
   },
   "outputs": {
-    "api.ts": "5a6fe9697b0853adfa743185e23613aab541e5324a04ee59f710a5a3671c5b21",
+    "api.ts": "79c8721ee55ace9565032a830f126e49b770bf0a9f3ad0f3e1030f0ed6724321",
     "client.ts": "f48fd6a6611d11359f179e95e8a2bb9dc36e201b96ca97183c2af4cf1abae142"
   },
   "overlay": {
@@ -763,7 +763,7 @@
       "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
       "part-a.json": "35de455967b4a02825bdaaaac5a641cd7247cf763f89c8f1a09ce0a56aed246c"
     },
-    "manifest_sha256": "aa6c757341864b07323f0f586dfc25b3c1b4d33e762367cc27a21a2771d52475",
+    "manifest_sha256": "636569641e584562a8195bae5e19f02a62f1118e38b27a75babb89daa31f6cce",
     "traces": [
       {
         "a3": [
