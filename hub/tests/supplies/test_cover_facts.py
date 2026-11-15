@@ -4,12 +4,17 @@ with every change of the stock facts (M4), and facts that stay unknown when the 
 from __future__ import annotations
 
 import copy
+import sqlite3
 from dataclasses import replace
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
 
 from crew_health.contracts_gen.enums import ConfigName
+from crew_health.guidance.application.ports import Known, StockFacts, Unknown
+from crew_health.kernel.units import Quantity, Unit
+from crew_health.roles.application.ports import SupplyAboardPort
 from crew_health.supplies.application.ports import (
     CoverFact,
     SupplyCoverChanged,
@@ -78,3 +83,41 @@ def test_the_use_batch_is_sorted_by_supply_and_split_at_the_batch_setting(tmp_pa
     assert ids == sorted(ids) and len(set(ids)) == 6
     assert {batch.partition for batch in seen} == {LUNAR_SIM}
     assert replace(seen[0], rows=()) == replace(seen[1], rows=())  # one use: one cause, one partition
+
+
+@pytest.mark.trace("M5", "AGENTS rule 5", "SYSTEM 8.5")
+def test_stock_facts_for_a_named_patient_location_are_unknown(tmp_path: Path) -> None:
+    station = build_station(tmp_path)
+    facts = station.resolver.require(StockFacts)  # type: ignore[type-abstract]
+    asked = {"eye_rinse_water": Quantity(Decimal(1), Unit("rinse"))}
+    for location in (
+        "rover_bay_2",
+        "station_leo",
+    ):  # another environment's ID is not read as the patient's place
+        with station.db.snapshot() as snapshot:
+            fact = facts.stock(snapshot, location, asked)["eye_rinse_water"]
+        assert fact == Unknown("supplies", "location_not_resolvable")
+    with station.db.snapshot() as snapshot:
+        assert isinstance(facts.stock(snapshot, None, asked)["eye_rinse_water"], Known)
+
+
+@pytest.mark.trace("m2", "AGENTS rule 5", "fail closed")
+def test_a_supply_whose_ledger_failed_verification_is_unknown_and_not_aboard(tmp_path: Path) -> None:
+    station = build_station(tmp_path)
+    station.sessions.by_token["crew"] = crew_session()
+    assert station.client.post(USES, headers=headers(), json=use_body(6)).status_code == 201
+    with sqlite3.connect(station.db.path) as connection:  # a torn write: sequence 3 with no sequence 2
+        row = list(connection.execute("SELECT * FROM supplies_use").fetchone())
+        row[0], row[8], row[19] = "sup_torn", 3, "api:torn"
+        connection.execute(f"INSERT INTO supplies_use VALUES ({','.join('?' * len(row))})", row)
+    restarted = build_station(tmp_path)
+    facts = restarted.resolver.require(StockFacts)  # type: ignore[type-abstract]
+    with restarted.db.snapshot() as snapshot:
+        answer = facts.stock(snapshot, None, {"eye_rinse_water": None, "towels": None})
+    assert answer["eye_rinse_water"] == Unknown("supplies", "supply ledger failed verification")
+    assert isinstance(answer["towels"], Known)  # only the broken pair is unknown
+    aboard = restarted.resolver.require(SupplyAboardPort)  # type: ignore[type-abstract]
+    assert aboard.aboard(["eye_rinse_water", "towels"], "lunar_surface") == {
+        "eye_rinse_water": False,
+        "towels": True,
+    }

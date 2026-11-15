@@ -51,6 +51,8 @@ PROVIDER = "supplies"
 NOT_LISTED = "supply not in the kit map"
 NO_MISSION = "no current mission"
 NOT_READABLE = "supplies not readable"
+NOT_VERIFIED = "supply ledger failed verification"
+LOCATION_NOT_RESOLVABLE = "location_not_resolvable"  # the reason kitmap's EquipmentFacts gives
 OVERLAY_BASIS = "team default"  # INV-S11: a row the what-if adds has the not-aboard basis of INV-S5
 
 
@@ -104,10 +106,14 @@ def stock_levels(deps: Deps, environment_id: str) -> Mapping[str, StockLevel]:
 def stock_facts(
     deps: Deps, snapshot: ReadSnapshot, location_id: str | None, supplies: Mapping[str, Quantity | None]
 ) -> Mapping[str, Fact[StockFact]]:
-    """guidance StockFacts: the location is the environment until custody locations exist (SYSTEM 8.5)."""
+    """guidance StockFacts over the active environment. A named patient location is not resolvable until custody
+    locations exist (SYSTEM 8.5 interim, as kitmap's EquipmentFacts answers), and a supply whose ledger failed
+    verification is unknown: neither is ever answered as known stock."""
+    if location_id is not None:
+        return {key: Unknown(PROVIDER, LOCATION_NOT_RESOLVABLE) for key in sorted(supplies)}
     try:
         facts = current_mission(deps, snapshot)
-        where = partition(facts, location_id or facts.active_environment_id)
+        where = partition(facts, facts.active_environment_id)
         rows = {r.supply.supply_id: r for r in _rows(deps, snapshot, where)}
     except MissionUnknown:
         return {key: Unknown(PROVIDER, NO_MISSION) for key in sorted(supplies)}
@@ -118,6 +124,9 @@ def stock_facts(
         row = rows.get(key)
         if row is None:
             out[key] = Unknown(PROVIDER, NOT_LISTED)
+            continue
+        if deps.corrupt.has(where, key):
+            out[key] = Unknown(PROVIDER, NOT_VERIFIED)
             continue
         asked = supplies[key]
         per_use = (
@@ -130,14 +139,15 @@ def stock_facts(
 
 
 def aboard(deps: Deps, supply_ids: Collection[str], environment_id: str) -> Mapping[str, bool]:
-    """roles SupplyAboardPort: not aboard whenever it is not known to be aboard (fail closed)."""
+    """roles SupplyAboardPort: not aboard whenever it is not known to be aboard (fail closed), a supply whose
+    ledger failed verification included."""
     try:
         with deps.snapshots.snapshot() as view:
             where = partition(current_mission(deps, view), environment_id)
             rows = {r.supply.supply_id: r for r in _rows(deps, view, where)}
     except SuppliesError:
         return dict.fromkeys(sorted(supply_ids), False)
-    return {s: (rows[s].aboard if s in rows else False) for s in sorted(supply_ids)}
+    return {s: (s in rows and rows[s].aboard and not deps.corrupt.has(where, s)) for s in sorted(supply_ids)}
 
 
 def uses_after_one(
