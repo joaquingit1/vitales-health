@@ -30,7 +30,12 @@ from crew_health.kernel.uow import (
     ReplicationChange,
     UnitOfWork,
 )
-from crew_health.mission.application.ports import ActivationParticipant, OriginMode
+from crew_health.mission.application.ports import (
+    ActivationParticipant,
+    MissionEventRecorded,
+    OriginMode,
+    StateFactChanged,
+)
 from crew_health.mission.application.queries import (
     MissionIdentity,
     MissionReader,
@@ -182,6 +187,16 @@ def put_event(services: Services, uow: UnitOfWork, record: EventRecord) -> None:
 
 def put_fact(services: Services, uow: UnitOfWork, fact: FactState) -> None:
     services.store.save_fact(uow, fact)
+    uow.publish(
+        StateFactChanged(
+            fact.fact,
+            fact.value,
+            fact.environment_id,
+            fact.cause_at,
+            fact.cause_event_id,
+            fact.origin_mode,  # type: ignore[arg-type]
+        )
+    )
     replicate_local(uow, "mission_state_fact", fact.fact + ":" + fact.environment_id, "version")
 
 
@@ -581,6 +596,21 @@ def record_event(
             origin_mode=origin_mode,
         ):
             put_fact(services, uow, changed)
+    kind = config.event_type(event_type)
+    uow.publish(
+        MissionEventRecorded(
+            record.event_id,
+            event_type,
+            event_type if kind is None else kind.label,
+            occurred_at,
+            time.effective_at,
+            record.recorded_at,
+            origin_mode,
+            record.environment_id,
+            tuple(person_ids),
+            location,
+        )
+    )
     emit(
         uow,
         EventType.MISSION_EVENT_RECORDED,
