@@ -118,7 +118,7 @@ def test_repeated_python_generation_is_byte_identical(tmp_path: Path) -> None:
     manifest = json.loads((first / "manifest.json").read_bytes())
     overlay = verify_overlay(ROOT, verify_base(ROOT))
     assert overlay is not None
-    # D12 supersedes the base enum and index bounds through traced pointer edits.
+    # D12 and accepted D22 supersede only the explicitly listed base schema values.
     assert manifest["base"] == verify_base(ROOT)
     assert manifest["overlay"] == overlay.record()
     assert manifest["effective"] == overlay.effective(manifest["base"])
@@ -128,6 +128,14 @@ def test_repeated_python_generation_is_byte_identical(tmp_path: Path) -> None:
     assert {key for key in manifest["base"] if manifest["effective"][key] != manifest["base"][key]} == {
         "api/schemas/common.schema.json",
         "api/schemas/config-index.schema.json",
+        "api/schemas/config-kit-map.schema.json",
+        "api/schemas/config-onboard-plans.schema.json",
+        "api/schemas/kit-check.schema.json",
+        "api/schemas/kit-map-view.schema.json",
+        "api/schemas/kit-map-what-if.schema.json",
+        "api/schemas/model-action.schema.json",
+        "api/schemas/plan-view.schema.json",
+        "api/schemas/requests.schema.json",
     }
     assert "schemas/config_unit_mapping_schema.py" in manifest["outputs"]
     assert set(manifest["outputs"]) == {p.as_posix() for p in left if p.as_posix() != "manifest.json"}
