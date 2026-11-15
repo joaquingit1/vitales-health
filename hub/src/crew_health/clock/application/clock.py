@@ -281,7 +281,9 @@ class PersistentClocks:
             segment_id,
             None if previous is None else previous.segment_id,
             1 if previous is None else previous.first_sequence + 1,
-            repository.correction_head(uow.connection),
+            # The capture revision is the correction that confirms this segment: the operator's confirmation
+            # (confirm_hub_time) takes the next global version, so a stamp captured after it normalizes.
+            repository.correction_head(uow.connection) + 1,
         )
         self.open(uow, segment)
         return segment
