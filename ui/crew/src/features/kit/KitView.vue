@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { RouterLink, useRoute } from "vue-router";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 import { CHROME, fill } from "../../design/chrome";
 import { copy } from "../../design/copy";
 import { useCrewApi } from "../../shell/api/client";
@@ -14,6 +14,7 @@ const session = useSession();
 const kit = ref<KitMapView | null>(null);
 const failed = ref(false);
 const route = useRoute();
+const router = useRouter();
 /* the body panel's legend and readings open this view filtered: ?state=<kit state>, ?region=<body region> */
 function askedState(): KitState | "all" {
   const asked = route.query["state"];
@@ -25,6 +26,11 @@ function askedRegion(): string | null {
 }
 const filter = ref<KitState | "all">(askedState());
 const region = ref<string | null>(askedRegion());
+function selectFilter(state: KitState | "all"): void {
+  void router.replace({
+    query: { ...route.query, state: state === "all" ? undefined : state, region: undefined },
+  });
+}
 watch(
   () => route.query,
   () => {
@@ -178,7 +184,7 @@ onBeforeUnmount(() => {
             class="pill"
             type="button"
             :aria-pressed="filter === 'all'"
-            @click="filter = 'all'"
+            @click="selectFilter('all')"
           >
             {{ fill(CHROME.all, { total: kit.counts.total }) }}
           </button>
@@ -188,7 +194,7 @@ onBeforeUnmount(() => {
             class="pill"
             type="button"
             :aria-pressed="filter === state"
-            @click="filter = state"
+            @click="selectFilter(state)"
           >
             {{ copy(`kit_map_state_words.${state}`) }}
           </button>

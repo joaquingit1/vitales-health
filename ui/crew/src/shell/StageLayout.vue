@@ -202,4 +202,11 @@ function signOut(): void {
 .legend-row b.word { font-weight: 400; color: var(--ink-3); }
 .legend-row b.reading-value { display: inline-flex; align-items: center; gap: 8px; }
 .legend-row b.reading-value .src { font-weight: 400; color: var(--ink-3); }
+@media (max-width: 1180px) {
+  .app.shell { display: flex; flex-direction: column; height: auto; min-height: 100vh; }
+  .app.shell > .body-panel { height: auto; flex: none; }
+  .body-panel .figure-box { flex: none; height: 220px; }
+  .app.shell > .side { display: block; }
+  .app.shell .side > .cards { padding: 8px 16px 16px; }
+}
 </style>

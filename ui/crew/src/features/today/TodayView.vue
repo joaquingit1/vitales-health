@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { components } from "@crew-health/contracts";
-import { computed, onBeforeUnmount, onMounted, ref, type Component } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch, type Component } from "vue";
 import { RouterLink } from "vue-router";
 import { CHROME, fill } from "../../design/chrome";
 import { copy } from "../../design/copy";
@@ -38,6 +38,18 @@ const link = ref<GroundLink | null>(null);
 const linkFailed = ref(false);
 const hubNow = ref<number>(Number.NaN);
 const place = ref<string | null>(null);
+watch(
+  () => link.value?.environment_id ?? kit.value?.environment_id ?? null,
+  async (environment, _previous, onCleanup) => {
+    let current = true;
+    onCleanup(() => { current = false; });
+    place.value = null;
+    if (environment !== null) {
+      const name = await placeOf(api, environment).catch(() => null);
+      if (current) place.value = name;
+    }
+  },
+);
 /* a place name opens the habitat line, so it takes a capital as the reference writes it ("Space station") */
 function sentence(text: string): string {
   return text === "" ? text : (text[0] ?? "").toUpperCase() + text.slice(1);
@@ -135,10 +147,6 @@ onMounted(async () => {
     },
   );
   await Promise.all([health, linkRead, kitRead, routineRead]);
-  const environment = link.value?.environment_id ?? kit.value?.environment_id ?? null;
-  if (environment !== null) {
-    place.value = await placeOf(api, environment).catch(() => null);
-  }
   setStage();
 });
 
@@ -391,5 +399,11 @@ onBeforeUnmount(() => {
 .inner-slot:empty { display: none; }
 .slot-card:empty {
   display: none;
+}
+@media (max-width: 720px) {
+  .cards.today-grid { display: flex; flex-direction: column; }
+  .today-grid > .card { height: auto; min-height: 180px; }
+  .today-grid > .habitat { min-height: 260px; }
+  .area-todo { order: -1; }
 }
 </style>
