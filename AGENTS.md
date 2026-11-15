@@ -47,12 +47,18 @@ you file a request.
    crew member, the ground or a log unless consent and role rules in the contracts allow it.
 8. **Units travel with values.** Every quantity carries its UCUM unit in its type; no bare float crosses a module
    boundary. Mars Climate Orbiter was lost to a unit mismatch between two teams' software.
-9. **Stay in your lane.** Claim your epic on `docs/build/BOARD.md` before you start. Edit only the paths your epic owns (its design, section 13). Contracts and shared shapes
-   change only through a request in `docs/requests/<epic>.md`. Meanwhile, pick the least surprising behavior the
-   existing contract allows, never one that skips a safety check, a validation or an acceptance criterion; if the
-   contract allows nothing safe, the feature stays off and says so. A request exists once it is in
-   `docs/requests/<epic>.md`; one that lives only inside a design is never decided. A pending request never blocks a
-   code task (D19): build everything that does not need it, keep the request's interim, and list the gap in your report.
+9. **Own your lane, and never wait on someone else's piece.** Claim your epic on `docs/build/BOARD.md` before you
+   start, and build in the paths your epic owns (its design, section 13). When something you need does not exist yet
+   (another epic's port, adapter, contract, schema, configuration document, generated file, gate tooling or the UI
+   shell), build it yourself, for real: where and as its owner's design (or SYSTEM.md) places and names it, with its
+   tests, so it stops being a blocker and everyone else can use it. Build the part you need, and list each file in
+   `docs/build/<owner>/BUILT-BY-OTHERS.md` (path, what it is, design section, your epic and task); the owner reads that
+   file when its turn comes and edits or completes the piece. An open request in `docs/requests/<epic>.md` that nobody
+   answered does not stop you either: take the answer the design, SYSTEM.md and the decisions best support (the safest
+   one where they are silent), build it, and record it in the request file and your report. Never edit files another
+   person or agent is building at that moment, and never edit the designs, SYSTEM.md, DEPLOYMENT.md or
+   COORDINATOR-DECISIONS.md to fit your code: a spec that is wrong goes in your report or in a request. Nothing you
+   build this way switches off a safety check, a validation or an acceptance criterion.
 
 ## 2. Redundancy: every critical path has a second way
 
@@ -131,13 +137,15 @@ version stays active. Updates arrive as signed bundles through the ground link, 
 2. **Shared mechanisms come from SYSTEM.md; decisions come from COORDINATOR-DECISIONS.md.** A design uses SYSTEM.md's
    identifiers, clock, units, errors, configuration loading, unit of work, events, idempotency, settings and seam
    resolutions by section number and never defines its own. A seam SYSTEM.md does not cover is a request, never a
-   guess. Anything decided in `docs/requests/COORDINATOR-DECISIONS.md` is settled for every epic. Before hand-in, a
+   guess; a coder who needs it before anyone answers builds the answer they best support (section 1, rule 9) and
+   records it in that request. Anything decided in `docs/requests/COORDINATOR-DECISIONS.md` is settled for every epic. Before hand-in, a
    design passes `scripts/design_lint.py`, and every piece of work is checked against section 6: get it right the
    first time instead of waiting for a review to find it.
 3. **Read the epic's design** (`docs/tdd/Exx.md`): it is the spec. If it is wrong or missing something, fix the design
    or file a request. Do not route around it in code.
-4. **Build inside the epic's owned paths, tests first on its critical paths.** Integrate early against fakes of the
-   ports you depend on; the real module replaces the fake when it is greenlit.
+4. **Build inside the epic's owned paths, tests first on its critical paths.** Unit tests use the kernel fakes of the
+   ports you depend on. When your acceptance needs a dependency that is not built yet, build that piece (section 1,
+   rule 9) instead of stopping; its owner completes it later.
 5. **Run the gates** (charter section 8, and the epic's design section 15) before you hand in. Local green is required,
    not sufficient: CI must be green too. A finding you believe is wrong is a defect in the gate: show why with the
    evidence, then fix the gate with a regression test or file a request. Never bend the work to silence it, and never
@@ -214,7 +222,8 @@ findings on the first 16 designs, 102 of them blockers). They apply to designs a
 pass.
 
 **Shared mechanisms** (the most blockers). Never write your own transaction, idempotency, retry, concurrency, crash
-recovery, replication, migration or clock handling: use SYSTEM.md section 5. Local versions were wrong every time (a
+recovery, replication, migration or clock handling: use SYSTEM.md section 5, and where the shared one is not built
+yet, build it in its owner's place (section 1, rule 9), never a local copy. Local versions were wrong every time (a
 state machine its own table could not store, a rollback that dropped the module's tables, an offline merge that lost
 care history). Where you do touch these mechanisms:
 - An idempotency key covers the operation, its target resource (path parameters) and the body. The same key on a
