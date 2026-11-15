@@ -143,7 +143,10 @@ def parse_multipart(content_type: str, body: bytes, *, max_parts: int = 8) -> Up
             upload = Upload(payload, filename or "", declared, {})
             fields[name] = ""
         else:
-            fields[name] = payload.decode("utf-8")
+            try:
+                fields[name] = payload.decode("utf-8")
+            except UnicodeDecodeError as error:
+                raise _malformed() from error
     if upload is None:
         raise _malformed()
     return Upload(

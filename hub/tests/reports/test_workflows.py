@@ -722,3 +722,23 @@ def test_deleting_a_report_hides_it_and_a_late_extraction_finds_nothing() -> Non
     with pytest.raises(ProblemError) as stranger:
         st.workflows.delete_report(session(OTHER), key="del2", report_id=report.report_id)
     assert code(stranger) in (ErrorCode.NOT_FOUND, ErrorCode.UNAUTHORIZED_SCOPE)
+
+
+def test_a_retried_upload_with_any_other_body_field_conflicts_in_both_directions() -> None:
+    narrow = fresh()
+    first = narrow.upload(access_scope=None)
+    for change in (
+        {"access_scope": "self_and_ground"},
+        {"report_date": "2026-10-02"},
+        {"examination_date": "2026-10-01"},
+        {"original_name": "other.pdf"},
+    ):
+        with pytest.raises(ProblemError) as clash:
+            narrow.upload(**change)
+        assert code(clash) is ErrorCode.DUPLICATE_COMMAND
+    assert narrow.upload() == first
+    broad = fresh()
+    broad.upload(access_scope="self_and_ground")
+    with pytest.raises(ProblemError) as narrowed:
+        broad.upload(access_scope=None)
+    assert code(narrowed) is ErrorCode.DUPLICATE_COMMAND

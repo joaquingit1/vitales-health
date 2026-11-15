@@ -202,8 +202,13 @@ class PrivateReportStore:
     # helpers -------------------------------------------------------------------------------------------
 
     def _committed(self, owner: str, key: str) -> VersionRow | None:
+        """The version this key committed. A key whose report was deleted is spent (D18): it never replays a
+        receipt for content that is gone, and never accepts a new body."""
         with self.snapshots.snapshot() as view:
-            return self.index.by_command(view, owner, key)
+            row = self.index.by_command(view, owner, key)
+        if row is not None and row.deleted:
+            raise ProblemError(ErrorCode.DUPLICATE_COMMAND, ErrorCode.DUPLICATE_COMMAND.value)
+        return row
 
     def _fresh_entry(self, owner: str, key: str) -> str:
         """The entry id for this command. A discarded orphan revokes its entry id for good, so a retry under the
