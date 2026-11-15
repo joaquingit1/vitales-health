@@ -78,6 +78,7 @@ def main() -> int:
             serve("model", weights_sha256=space.weights_sha256, context_tokens=space.context_tokens) as model,
             serve("grader") as grader,
         ):
+            space.pin_grader(grader.url)
             _call([*config, "preregister", *common, "--base-url", model.url], 0)
             registration = json.loads((space.runs / "preregistration.json").read_bytes())
             summary["preregistered"] = {

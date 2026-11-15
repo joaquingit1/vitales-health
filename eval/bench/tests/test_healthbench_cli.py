@@ -92,6 +92,7 @@ def test_model_only_track_runs_end_to_end_through_the_cli(
         serve("model", weights_sha256=space.weights_sha256, context_tokens=space.context_tokens) as model,
         serve("grader") as grader,
     ):
+        space.pin_grader(grader.url)
         registration = _preregistered(space, monkeypatch, model.url)
         main = registration["variants"]["main"]  # type: ignore[index]
         assert main["N"] == 3 and main["n"] == 3 and len(main["warmup_ids"]) == 3
@@ -107,6 +108,8 @@ def test_model_only_track_runs_end_to_end_through_the_cli(
         assert run([*config, "grade", *_common(space), "--run-id", run_id, "--grader-url", grader.url]) == 6
         assert grader.requests == [], "no grader call without the owner's credential"
         monkeypatch.setenv("OPENAI_API_KEY", "self-test-grader-key")
+        assert run([*config, "grade", *_common(space), "--run-id", run_id, "--grader-url", model.url]) == 6
+        assert grader.requests == [] and "grader_unpinned" in capsys.readouterr().err, "B2: never the model"
         assert run([*config, "grade", *_common(space), "--run-id", run_id, "--grader-url", grader.url]) == 0
         assert _last_json(capsys)["state"] == "graded"
         assert len(grader.requests) == 3 * 3, "three rubric lines for each of three cases"
@@ -147,6 +150,7 @@ def test_model_only_track_runs_end_to_end_through_the_cli(
     for label in ("public_benchmark", "model_only", "engineering"):
         assert label in labels
     assert aggregate["official"]["graded"] == 3 and aggregate["official"]["not_graded"] == 0
+    assert aggregate["integrity"] == "modified", "a loopback grader pin is a self-test, never official"
     rows = [json.loads(line) for line in (published / "case_results.jsonl").read_text("utf-8").splitlines()]
     assert len(rows) == 3
 
@@ -359,6 +363,7 @@ def test_system_assisted_track_refuses_without_the_answer_port_and_runs_end_to_e
         serve("model", weights_sha256=space.weights_sha256, context_tokens=space.context_tokens) as model,
         serve("grader") as grader,
     ):
+        space.pin_grader(grader.url)
         registration = _preregistered(space, monkeypatch, model.url)
         before = len(model.requests)
         cases = list(registration["variants"]["main"]["case_ids"])  # type: ignore[index]

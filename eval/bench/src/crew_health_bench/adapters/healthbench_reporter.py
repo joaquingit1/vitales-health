@@ -42,12 +42,14 @@ class HealthBenchReporter:
         }
         results: list[OfficialGradeResult] = []
         negative = 0
+        empty = 0
         for grade in grades:
             if grade.official_score is None:
                 continue
             row = archived.get((grade.case_id, grade.repeat))
             if row is None or number(row.get("official_score")) != grade.official_score:
                 raise BenchError("integrity", exit_code=6)
+            empty += row.get("graded_as_empty") is True
             metrics = {
                 key: Quantity(number(value), Unit("1")) for key, value in object_map(row["metrics"]).items()
             }
@@ -69,6 +71,7 @@ class HealthBenchReporter:
             "negative_criteria_met": negative,
             "graded": len(results),
             "not_graded": len(grades) - len(results),
+            "graded_as_empty": empty,
         }
         if results:
             seed = int(str(object_map(self.plan["sample"])["seed"]))
@@ -98,6 +101,8 @@ class HealthBenchReporter:
         completeness = (
             "partial" if len(generations) < planned else "full" if len(generations) == total else "subset"
         )
+        if any(grade.official_score is None for grade in grades):
+            completeness = "partial"
         return publishable_artifacts(
             evaluation_manifest=manifest,
             run_id=run_id,

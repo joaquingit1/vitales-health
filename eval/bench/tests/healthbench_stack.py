@@ -79,7 +79,8 @@ class _Handler(BaseHTTPRequestHandler):
         prompt = body["messages"][-1]["content"]
         met = sha256(prompt.encode("utf-8")).digest()[0] % 2 == 0
         verdict = json.dumps({"explanation": "stand-in", "criteria_met": met})
-        self._reply(200, {"choices": [{"message": {"role": "assistant", "content": verdict}}]})
+        reply = {"model": body["model"], "choices": [{"message": {"role": "assistant", "content": verdict}}]}
+        self._reply(200, reply)
 
 
 class _Server(ThreadingHTTPServer):
@@ -186,6 +187,11 @@ class Workspace:
         plan = json.loads(path.read_bytes())
         plan.update(changes)
         path.write_text(json.dumps(plan, indent=2), encoding="utf-8")
+
+    def pin_grader(self, url: str) -> None:
+        """Pin the loopback stand-in as grader; integrity then reads modified, never official."""
+        plan = json.loads((self.config / "healthbench-plan.json").read_bytes())
+        self.edit_plan(grader={**plan["grader"], "base_url": url})
 
     def synthetic_datasets(self, count: int) -> dict[str, Path]:
         sources: dict[str, Path] = {}

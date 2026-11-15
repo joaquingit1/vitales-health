@@ -121,6 +121,10 @@
           "type": "string",
           "minLength": 1
         },
+        "base_url": {
+          "type": "string",
+          "pattern": "^https://[^/?#@]+$"
+        },
         "version": {
           "type": "string",
           "minLength": 1
@@ -148,6 +152,7 @@
       },
       "required": [
         "model",
+        "base_url",
         "version",
         "api_key_env",
         "prompt_sha256",

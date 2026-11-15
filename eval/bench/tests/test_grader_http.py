@@ -27,7 +27,7 @@ def test_grader_429_and_503_have_bounded_retries_and_no_secret_in_failure() -> N
     with httpx.Client(transport=httpx.MockTransport(service), trust_env=False) as client:
         adapter = GraderHTTP(
             client=client,
-            base_url="http://127.0.0.1",
+            base_url=str(grader["base_url"]),
             grader=grader,
             environment={"OPENAI_API_KEY": "secret-grader-key"},
             settings=settings,
@@ -53,14 +53,18 @@ def test_success_and_missing_credential_are_distinct() -> None:
     with httpx.Client(
         transport=httpx.MockTransport(
             lambda _: httpx.Response(
-                200, json={"choices": [{"message": {"content": '{"criteria_met":true}'}}]}
+                200,
+                json={
+                    "model": grader["model"],
+                    "choices": [{"message": {"content": '{"criteria_met":true}'}}],
+                },
             )
         ),
         trust_env=False,
     ) as client:
         adapter = GraderHTTP(
             client=client,
-            base_url="http://127.0.0.1",
+            base_url=str(grader["base_url"]),
             grader=grader,
             environment={"OPENAI_API_KEY": "test"},
             settings=settings,
@@ -69,7 +73,7 @@ def test_success_and_missing_credential_are_distinct() -> None:
         assert adapter.complete((("user", "protocol"),), settings.quantity("bench.grader.call_timeout"))
         adapter = GraderHTTP(
             client=client,
-            base_url="http://127.0.0.1",
+            base_url=str(grader["base_url"]),
             grader=grader,
             environment={},
             settings=settings,

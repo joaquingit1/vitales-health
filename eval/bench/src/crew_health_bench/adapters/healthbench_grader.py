@@ -64,19 +64,24 @@ class HealthBenchCaseGrader:
             "rubric_items": [],
             "grader_calls": 0,
             "grader_errors": 0,
+            "graded_as_empty": generation.status != "completed",
         }
-        if generation.status == "completed":
-            self._evaluate(generation, row)
+        self._evaluate(generation, row, self._completion(generation))
         self.store.append(self.run_id, "official_grades", row)
         return self._grade(row)
 
-    def _evaluate(self, generation: Generation, row: dict[str, object]) -> None:
+    def _completion(self, generation: Generation) -> str:
+        """The completion to grade; a failed, timed-out or unrun generation is the empty response."""
+        if generation.status != "completed":
+            return ""
         path = vault_path(self.root, generation.output_ref)
         output = read_json(path, max_file_bytes=self.maximum)
         raw = canonical_json(output)
         if sha256(raw).hexdigest() != generation.output_sha256:
             raise BenchError("integrity", exit_code=6)
-        completion = text(output.get("text"))
+        return text(output.get("text"))
+
+    def _evaluate(self, generation: Generation, row: dict[str, object], completion: str) -> None:
         calls, errors = self.client.calls, self.client.errors
         try:
             with TemporaryFile(mode="w+", encoding="utf-8") as log, redirect_stdout(log):

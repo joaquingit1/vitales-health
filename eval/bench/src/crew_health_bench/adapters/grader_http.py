@@ -52,6 +52,12 @@ class GraderHTTP:
             or (not local and url.scheme != "https")
         ):
             raise BenchError("grader_unavailable")
+        if base_url.rstrip("/") != text(grader["base_url"]).rstrip("/"):
+            raise BenchError(
+                "grader_unpinned",
+                exit_code=6,
+                detail="The grader endpoint must be the base_url pinned in healthbench-plan.json.",
+            )
         self.client, self.url = client, base_url.rstrip("/") + "/v1/chat/completions"
         self.key = environment.get(text(grader["api_key_env"]))
         self.grader, self.settings, self.sleep = grader, settings, sleep
@@ -80,6 +86,12 @@ class GraderHTTP:
             timeout=float(timeout.value),
             follow_redirects=False,
         ) as response:
+            if response.status_code in (401, 403):
+                raise BenchError(
+                    "grader_credential_rejected",
+                    exit_code=6,
+                    detail="The grader refused the credential; nothing was recorded for this example.",
+                )
             if response.status_code != 200:
                 raise GraderStatus(response.status_code)
             raw = bytearray()
@@ -88,6 +100,8 @@ class GraderHTTP:
                     raise BenchError("grader_unavailable")
                 raw.extend(chunk)
         row = decode_json(bytes(raw))
+        if row.get("model") != text(self.grader["model"]):
+            raise BenchError("grader_identity_mismatch", exit_code=6)
         choices = row.get("choices")
         if not isinstance(choices, list) or len(choices) != 1:
             raise BenchError("grader_unavailable")
@@ -110,7 +124,7 @@ class GraderHTTP:
                 return self._once(messages, timeout)
             except GraderStatus as error:
                 self.errors += 1
-                if error.status not in (429, 503) or attempt == retries:
+                if not (error.status == 429 or 500 <= error.status < 600) or attempt == retries:
                     raise BenchError("grader_unavailable") from error
             except httpx.HTTPError as error:
                 self.errors += 1
