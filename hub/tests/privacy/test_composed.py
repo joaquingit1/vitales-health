@@ -8,6 +8,7 @@ reached the consumer, whose own answer (200, 404, or its own unavailable input o
 
 from __future__ import annotations
 
+from decimal import Decimal
 from pathlib import Path
 from typing import cast
 
@@ -38,6 +39,7 @@ from crew_health.catchup.api.router import RoleGate as CatchupGate
 from crew_health.catchup.application.ports import GROUND_LOG_SCOPE
 from crew_health.catchup.application.ports import ConsentQueries as CatchupConsent
 from crew_health.consent.application.ports import ObservationPartitions, TimeAdmission
+from crew_health.consent.application.records import RECORD_PURPOSE
 from crew_health.consent.domain.grants import GrantRequest
 from crew_health.contracts_gen.enums import EventType
 from crew_health.events.application.delivery import SessionAuthorizer
@@ -50,6 +52,7 @@ from crew_health.identity.domain.roster import ProvisionedPrincipal
 from crew_health.identity.domain.session import SignInRequest
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.errors import ErrorCode, ProblemError
+from crew_health.kernel.units import Quantity, Unit
 from crew_health.kernel.uow import Actor, Audience, EventScope, OutboxEvent
 from crew_health.kitmap.api.router import RequireRoles as KitmapRoles
 from crew_health.kitmap.application.ports import RosterPort as KitmapRoster
@@ -61,6 +64,7 @@ from crew_health.measurement.application.queries import AUDIENCE_RULE
 from crew_health.measurement.application.representation import request_wire
 from crew_health.measurement.domain.model import KitCheck, MeasurementRequest, Requester
 from crew_health.plans.api.router import RequestAuthenticator as PlansAuthenticator
+from crew_health.records.application.ports import AttemptObservationDraft, ObservationCommands
 from crew_health.roles.api.router import RequestAuthenticator as RolesAuthenticator
 from crew_health.roles.application.ports import RosterPort as RolesRoster
 from crew_health.teach.application.ports import PersonDirectory, RecordRouting
@@ -381,6 +385,39 @@ def _request(token: str | None) -> Request:
     )
 
 
+@pytest.mark.trace("T-E02-007", "T-E02-019", "R-E02-34")
+def test_consumer_consent_is_decided_again_after_a_revocation_committed_during_the_read(
+    hub: E02Station,
+) -> None:
+    """R-E02-34: catchup and measurement ask in their own read snapshot. A revocation committed after that
+    snapshot opened refuses the read, although the old snapshot still shows the grant."""
+    running = composed(hub)
+    ports = resolver(running)
+    owner = running.identity.verify_owner("mara", credential("mara"), client="console", correlation_id="c")
+    granted = GrantRequest(
+        "ilya",
+        mission_id(),
+        "SIM",
+        "heart_rate",
+        "measurement",
+        frozenset({"read"}),
+        frozenset({"observation"}),
+        START,
+        None,
+    )
+    grant = running.consent.grant(owner, granted, correlation_id="c").grant_id
+    consent = ports.require(MeasurementConsent)  # type: ignore[type-abstract]
+    scope = ("measurement", "heart_rate")
+    with running.identity.deps.snapshots.snapshot() as view:
+        assert consent.allows(view, subject_person_id="mara", recipient="ilya", scope=scope)
+        running.consent.revoke(owner, grant, expected_revision=1, correlation_id="c")
+        assert running.consent.allows(view, subject_person_id="mara", recipient="ilya", scope=scope)
+        assert not consent.allows(view, subject_person_id="mara", recipient="ilya", scope=scope)
+        assert not ports.require(CatchupConsent).allows(  # type: ignore[type-abstract]
+            view, subject_person_id="mara", recipient="ilya", scope=GROUND_LOG_SCOPE
+        )
+
+
 @pytest.mark.trace("T-E02-019", "T-E02-009", "E02-01")
 def test_each_consumer_gate_checks_the_contract_roles_itself_without_the_middleware(hub: E02Station) -> None:
     """The gates registered for the consumers decide on their own (a consumer may call them outside E01's
@@ -436,3 +473,85 @@ def test_each_consumer_gate_checks_the_contract_roles_itself_without_the_middlew
     assert measurement.authenticate({"authorization": "Bearer " + mara}, "getMeasurementRequest") is not None
     with pytest.raises(ProblemError):
         measurement.authenticate({"authorization": "Bearer " + mara}, "getCrewReadiness")
+
+
+@pytest.mark.trace("T-E02-001", "T-E02-007", "E02-03", "R-E02-31")
+def test_production_record_services_serve_a_camera_reading_to_its_subject_and_to_grantees_only(
+    tmp_path: Path,
+) -> None:
+    """R-E02-31 on a served app with production's own record services (app/privacy.py): a camera pulse appended
+    the way measurement appends it is assessed by records' release-bound policy, the subject reads it, a crew
+    member without a grant is refused, a grant opens it, and an HTTP capture with no producer evidence refuses."""
+    hub = station(tmp_path, production_records=True)
+    running = serve(hub)
+    producer = resolver(running).require(ObservationCommands)  # type: ignore[type-abstract]
+    with hub.database.begin(actor=Actor("operator", "operator_sim"), correlation_id="c") as uow:
+        identifier = producer.append_for_attempt(
+            uow,
+            AttemptObservationDraft(
+                "mara",
+                None,
+                "pulse",
+                Quantity(Decimal(72), Unit("/min")),
+                START,
+                "SIM",
+                "camera_estimate",
+                "camera_twin_1",
+                {},
+                None,
+                None,
+                "mrq_composed",
+                "att_composed",
+                "mara",
+            ),
+        )
+
+    async def journey(client: AsyncClient) -> None:
+        mara, ilya = await sign_in(client, "mara"), await sign_in(client, "ilya")
+        path = "/v1/observations/" + identifier
+        read = await client.get(path, headers=bearer(mara))
+        assert read.status_code == 200, read.text
+        body = read.json()
+        assert (body["code"], body["unit"], body["acquisition_method"]) == (
+            "pulse",
+            "/min",
+            "camera_estimate",
+        )
+        assert body["quality_rule_version"].startswith("records-observation-policy-1+")
+        assert body["quality_status"] == "uncertain"
+        problem(await client.get(path, headers=bearer(ilya)), 403, "UNAUTHORIZED_SCOPE")
+        owner = running.identity.verify_owner(
+            "mara", credential("mara"), client="console", correlation_id="c"
+        )
+        running.consent.grant(
+            owner,
+            GrantRequest(
+                "ilya",
+                mission_id(),
+                "SIM",
+                identifier,
+                RECORD_PURPOSE,
+                frozenset({"read"}),
+                frozenset({"observation"}),
+                START,
+                None,
+            ),
+            correlation_id="c",
+        )
+        assert (await client.get(path, headers=bearer(ilya))).status_code == 200
+        capture = await client.post(
+            "/v1/observations",
+            headers=bearer(mara, **{"Idempotency-Key": "mara_http_capture", "Config-Release": release_id()}),
+            json={
+                "patient_id": "mara",
+                "code": "pulse",
+                "value": 72,
+                "unit": "bpm",
+                "observed_at": START.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "origin_mode": "SIM",
+                "acquisition_method": "self_report",
+            },
+        )
+        assert capture.status_code >= 400 and capture.json()["code"] == "CAPABILITY_UNAVAILABLE", capture.text
+
+    run(running, journey)

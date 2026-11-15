@@ -69,6 +69,7 @@ from crew_health.platform.testing.sqlite import database
 from crew_health.records.adapters.repository import RecordRepository
 from crew_health.records.application.commands import RecordsCommands
 from crew_health.records.application.queries import RecordsQueries
+from crew_health.records.application.seams import MissionStatePort as RecordsMission
 from crew_health.records.domain.observations import ObservationInput, ObservationPolicy, RecordContext
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -348,19 +349,25 @@ class E02Station:
     clocks: PersistentClocks
     profile: HubProfile | None = None
     served: FastAPI | None = field(default=None, repr=False)
+    production_records: bool = False
 
     def configure(self, registry: ModuleRegistry) -> None:
         db = self.database
+        # The harness's record HTTP services bind captures to its SIM clock segment (SimBinding), which a served
+        # hub's HTTP route cannot prove (app/privacy.py UnboundCapture); they are registered first, so production
+        # keeps them. tests/app/test_demo_hub.py reads production's own over the served hub.
+        if self.production_records:
+            # Production's record HTTP services (app/privacy.py); producers partition by this SIM mission.
+            registry.provide(RecordsMission, lambda resolver: _StationMission())  # type: ignore[type-abstract]
+        else:
+            registry.provide(
+                RecordHttpServices,
+                lambda resolver: _records(db, resolver),
+                requires=(ConsentRecordAuthorization, IdentityService, PersistentClocks),
+            )
         # The served hub's own configure (app/station.py `production`): the release artifacts, the E02 composition
         # (app/privacy.py) under every consumer's real port class, and fail-closed stand-ins for the rest.
         _production()(registry)
-        # E01's record HTTP services have no production provider yet (docs/requests/E02.md); the harness supplies
-        # them over the real consent record authorization and replay visibility.
-        registry.provide(
-            RecordHttpServices,
-            lambda resolver: _records(db, resolver),
-            requires=(ConsentRecordAuthorization, IdentityService, PersistentClocks),
-        )
         if self.profile is not None:
             profile = self.profile
             registry.provide(HubProfile, lambda resolver: profile)
@@ -411,14 +418,38 @@ class E02Station:
         return E02Station(self.directory, reopened, clock, self.build, self.clocks, self.profile)
 
 
+@dataclass(frozen=True, slots=True)
+class _Mission:
+    mission_id: str
+
+
+class _StationMission:
+    """records' MissionStatePort for a station that tests production's record services: the SIM mission."""
+
+    def current(self, uow: object = None) -> _Mission:
+        return _Mission(mission_id())
+
+
 def station(
-    directory: Path, *, profile: HubProfile | None = None, settings: dict[str, int] | None = None
+    directory: Path,
+    *,
+    profile: HubProfile | None = None,
+    settings: dict[str, int] | None = None,
+    production_records: bool = False,
 ) -> E02Station:
     clock = MemoryClock(START, 1_000_000_000, "epoch_first")
     db = database(directory / "state", clock=clock)
     db.settings = station_settings(**(settings or {}))
     clocks = _clocks(db)
-    hub = E02Station(directory, db, clock, BuildCatalog.installed(SOURCE), clocks, profile)
+    hub = E02Station(
+        directory,
+        db,
+        clock,
+        BuildCatalog.installed(SOURCE),
+        clocks,
+        profile,
+        production_records=production_records,
+    )
     # First start exactly as `crew-health serve` does it: STORAGE migrates every installed module, CONFIG installs
     # the first-start release through the real loader checks, and the operator's time confirmation lifts the first
     # start clock freeze (app/cli.py `--confirm-time-*`).

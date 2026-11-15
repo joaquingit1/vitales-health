@@ -199,16 +199,24 @@ def test_shot_c_a_camera_pulse_request_reaches_the_twin_and_records_a_sim_readin
     assert (attempt["outcome"], attempt["adapter_id"]) == ("success", "adp_camera")
     observation_ids = request["result_observation_ids"]
     assert isinstance(observation_ids, list) and observation_ids == attempt["observation_ids"]
-    # GET /v1/observations is RecordHttpServices (R-E02-31, not bound); the stored record is read directly.
+    # R-E02-31: the served hub's own record routes. Mara reads her reading by ID, assessed by records' policy.
+    status, reading = served.get(f"/v1/observations/{observation_ids[0]}", token)
+    assert status == 200, reading
+    assert (reading["patient_id"], reading["origin_mode"], reading["code"]) == ("mara", "SIM", "pulse")
+    assert (reading["device_id"], reading["acquisition_method"]) == ("camera_twin_1", "camera_estimate")
+    assert (reading["unit"], reading["original_unit"]) == ("/min", "/min"), reading
+    assert str(reading["quality_rule_version"]).startswith("records-observation-policy-1+")
+    # In the camera band, so the policy accepts it; the capture time is unproven, so it is held uncertain.
+    assert reading["quality_status"] == "uncertain", reading
     with sqlite3.connect(f"file:{served.directory / 'hub.sqlite'}?mode=ro", uri=True) as db:
-        rows = db.execute(
-            "SELECT patient_id, origin_mode, code, payload FROM records_observation WHERE observation_id = ?",
-            (observation_ids[0],),
-        ).fetchall()
-    assert [(r[0], r[1], r[2]) for r in rows] == [("mara", "SIM", "pulse")]
-    payload = json.loads(rows[0][3])
-    assert (payload["device_id"], payload["acquisition_method"]) == ("camera_twin_1", "camera_estimate")
-    assert payload["quantity"]["unit"] == "/min"
+        (payload,) = db.execute(
+            "SELECT payload FROM records_observation WHERE observation_id = ?", (observation_ids[0],)
+        ).fetchone()
+    assert json.loads(payload)["quality_reasons"] == ["time_unknown"]
+    # Tomas holds no grant for Mara's reading: refused, and nothing of it in the body.
+    status, refused = served.get(f"/v1/observations/{observation_ids[0]}", served.sign_in("tomas"))
+    assert status == 403, refused
+    assert "quantity" not in refused and "mara" not in json.dumps(refused)
 
 
 def test_shot_e_help_opens_with_the_model_stopped(served: Served) -> None:
