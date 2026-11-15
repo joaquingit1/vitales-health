@@ -17,9 +17,6 @@ NASA Space Apps Challenge 2026 · "Create Health Monitoring Software for Astrona
 
 ![The Today screen of the interaction prototype: a body figure marking what the kit measures, the day's tasks with a CO2 warning raised by a sensor limit, habitat readings labeled Replay and Sim, the kit card and the daily check](docs/readme/prototype.png)
 
-*The interaction prototype ([docs/product/design/interaction-prototype.html](docs/product/design/interaction-prototype.html)),
-with synthetic data. The figure is drawn by code from an open body mesh. The running crew app is being built to match
-it.*
 
 ## What sets it apart
 
