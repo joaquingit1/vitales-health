@@ -4,7 +4,6 @@ Only the unbuilt E15 episode port uses EpisodeReader as a fake.
 """
 
 import socket
-import subprocess
 import time
 from http.client import HTTPConnection
 from pathlib import Path
@@ -18,10 +17,10 @@ from .support import (
     ROOT,
     ScenarioHub,
     history,
-    stop_worker,
     worker_command,
     worker_environment,
 )
+from .worker_process import WorkerProcess
 
 pytestmark = pytest.mark.trace("E14-03", "R12", "V32", "V69", "V70")
 
@@ -32,7 +31,7 @@ def free_port() -> int:
         return int(listener.getsockname()[1])
 
 
-def await_health(process: subprocess.Popen[bytes], base_url: str) -> None:
+def await_health(process: WorkerProcess, base_url: str) -> None:
     for _ in range(100):
         assert process.poll() is None, "Forecast worker exited before becoming healthy"
         try:
@@ -68,13 +67,7 @@ def test_real_worker_weights_absent_then_stopped_worker_retries(
         "CREW_HEALTH_FORECAST_TOKEN_FILE": str(token),
     }
     with (tmp_path / "worker.log").open("wb") as log:
-        process = subprocess.Popen(
-            worker_command("crew_health_forecast"),
-            cwd=ROOT,
-            env=environment,
-            stdout=log,
-            stderr=subprocess.STDOUT,
-        )
+        process = WorkerProcess(worker_command("crew_health_forecast"), cwd=ROOT, env=environment, output=log)
         try:
             await_health(process, base_url)
             hub = ScenarioHub(tmp_path, overrides=worker_settings(base_url, token))
@@ -87,7 +80,7 @@ def test_real_worker_weights_absent_then_stopped_worker_retries(
             hub.finish()
             assert hub.latest() == Unavailable("forecast_worker", "weights_absent")
             assert hub.read() == before
-            stop_worker(process)
+            process.stop()
             assert process.poll() is not None
             with socket.socket() as probe:
                 probe.settimeout(0.2)
@@ -118,7 +111,7 @@ def test_real_worker_weights_absent_then_stopped_worker_retries(
             assert hub.latest() == Unavailable("forecast_worker", observed[0])
             assert hub.read() == before
         finally:
-            stop_worker(process)
+            process.stop()
 
 
 def test_unconfigured_worker_leaves_baseline_available(tmp_path: Path) -> None:

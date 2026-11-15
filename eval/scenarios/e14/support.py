@@ -200,8 +200,8 @@ def worker_command(module: str) -> list[str]:
     runner = shutil.which("uv")
     if runner is None:
         raise RuntimeError("uv is required for the locked forecast worker")
-    # On Windows terminating uv's launcher does not terminate its Python child.
-    # Resolve the actual project interpreter before starting the process we own.
+    # Skip uv's process layer. On Windows the resolved python.exe is still a launcher with an interpreter child,
+    # so long-running workers start through worker_process.WorkerProcess, which stops the whole tree.
     resolved = subprocess.run(
         [runner, "run", "--project", "workers/forecast", "python", "-c", "import sys; print(sys.executable)"],
         cwd=ROOT,
@@ -216,13 +216,3 @@ def worker_command(module: str) -> list[str]:
     if not interpreter.is_absolute() or not interpreter.is_file():
         raise RuntimeError("forecast worker interpreter was not resolved")
     return [str(interpreter), "-m", module]
-
-
-def stop_worker(process: subprocess.Popen[bytes]) -> None:
-    if process.poll() is None:
-        process.terminate()
-        try:
-            process.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait(timeout=5)
