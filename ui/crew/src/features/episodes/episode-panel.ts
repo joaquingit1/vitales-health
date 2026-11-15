@@ -42,7 +42,7 @@ export class EpisodePanel {
   private pending = false;
   private loading = false;
   private episodeId: string | null = null;
-  private retry: { body: Record<string, unknown>; key: string; revision: number } | null = null;
+  private retry: { body: Record<string, unknown>; key: string; revision: number; operation: 'action' | 'review' } | null = null;
   private root: HTMLElement;
   private transport: Transport;
   private words: Words;
@@ -92,15 +92,9 @@ export class EpisodePanel {
     const generation = this.generation;
     const body = await this.edit(action, episode,task);
     if (!body || generation !== this.generation) return;
-    if (action === 'record_review') {
-      if (!this.transport.review) return;
-      const controller = new AbortController(); this.controller?.abort(); this.controller = controller;
-      try { await this.transport.review(`/v1/episodes/${encodeURIComponent(episode.episode_id)}/reviews`, body, episode.revision, this.key(), controller.signal); }
-      catch { if (generation === this.generation) { this.stale = true; this.render(); } return; }
-      if (generation === this.generation) await this.refresh();
-      return;
-    }
-    this.retry = { body: { ...body, action, ...(task ? {task_id:task.task_id,task_revision:task.revision}: {}) }, key: this.key(), revision: episode.revision };
+    if (action === 'record_review' && !this.transport.review) return;
+    this.retry = { body: action === 'record_review' ? body : { ...body, action, ...(task ? {task_id:task.task_id,task_revision:task.revision}: {}) },
+      key: this.key(), revision: episode.revision, operation: action === 'record_review' ? 'review' : 'action' };
     await this.retryCommand();
   }
   async retryCommand(): Promise<void> {
@@ -109,10 +103,14 @@ export class EpisodePanel {
     const generation = this.generation; const controller = new AbortController();
     this.controller?.abort(); this.controller = controller;
     try {
-      const value = await this.transport.command(`/v1/episodes/${encodeURIComponent(episode.episode_id)}/actions`,
-        retry.body, retry.revision, retry.key, controller.signal);
+      if (retry.operation === 'review') {
+        if (!this.transport.review) return;
+        await this.transport.review(`/v1/episodes/${encodeURIComponent(episode.episode_id)}/reviews`,retry.body,retry.revision,retry.key,controller.signal);
+      } else {
+        await this.transport.command(`/v1/episodes/${encodeURIComponent(episode.episode_id)}/actions`,retry.body,retry.revision,retry.key,controller.signal);
+      }
       if (generation !== this.generation) return;
-      this.retry = null; this.value = value; this.stale = false; this.render();
+      this.retry = null; this.stale = true; await this.refresh();
     } catch {
       if (generation !== this.generation || controller.signal.aborted) return;
       this.stale = true; this.render();
@@ -130,6 +128,10 @@ export class EpisodePanel {
     this.root.append(this.node('h2', this.words.concern), state,
       this.node('p', this.words.origins[episode.origin_mode] ?? this.words.errors.unknown), this.node('p', episode.concern_text));
     if (this.stale) this.root.append(this.node('p', this.words.stale));
+    if (this.stale && this.retry && this.words.actions.retry) {
+      const button=this.node('button',this.words.actions.retry) as HTMLButtonElement; button.type='button';
+      button.addEventListener('click',()=>{void this.retryCommand();});this.root.append(button);
+    }
     if (episode.withheld_answer_count) this.root.append(this.node('p', `${this.words.withheld} ${episode.withheld_answer_count}`));
     const list = document.createElement('ul');
     for (const task of episode.followup_tasks) {
