@@ -1,6 +1,7 @@
 import type { components } from "@crew-health/contracts";
 import flows from "../../../../../config/responder-flows.json";
 import presentation from "../../../../../config/help-presentation.json";
+import { copy } from "../../design/copy";
 
 export type HelpSession = components["schemas"]["help-session.schema"];
 export type AssistantStatus = components["schemas"]["assistant-status.schema"];
@@ -91,7 +92,13 @@ export function assistantWords(state: string | null): AssistantWords {
   const rest = cut > 0 ? stopped.slice(cut + 2) : "";
   const colon = rest.indexOf(":");
   const works = colon > 0 ? rest.slice(0, colon) : rest;
-  const isStopped = state === "stopped" || state === "unavailable" || state === "off";
+  if (state === "unavailable") {
+    /* not stopped by anyone: the model is missing or failed, worded by ui-copy error_messages */
+    const off = copy("error_messages.MODEL_UNAVAILABLE");
+    const dot = off.indexOf(". ");
+    return { model: dot > 0 ? off.slice(0, dot) : off, works, line: off };
+  }
+  const isStopped = state === "stopped" || state === "off";
   return {
     model: isStopped ? first : null,
     works,

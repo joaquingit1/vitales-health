@@ -36,7 +36,8 @@ const busy = ref(false);
 
 /** The cached first screen renders in the same tick as the route: nothing here waits for the hub. */
 const screen = computed<HelpScreen>(() => (help.value === null ? cachedFirstScreen() : sessionScreen(help.value)));
-const words = computed(() => assistantWords(modelState(help.value, status.value)));
+const fallbackState = ref<string | null>(null);
+const words = computed(() => assistantWords(modelState(help.value, status.value) ?? fallbackState.value));
 const progress = computed(() => phase(screen.value));
 const who = computed(() => session.current?.person?.display_name ?? session.current?.actor.display_name ?? "");
 const linkLine = computed(() => {
@@ -113,7 +114,11 @@ onMounted(() => {
   void api
     .get<AssistantStatus>("/v1/assistant/status")
     .then((value) => (status.value = value))
-    .catch(() => (status.value = null));
+    .catch(async () => {
+      /* no assistant route on this hub: the health document still says what state the model is in */
+      const health = await api.getHealth().catch(() => null);
+      fallbackState.value = health === null ? null : health.assistant_state;
+    });
   void api
     .get<GroundLink>("/v1/ground-link")
     .then((value) => (link.value = value))

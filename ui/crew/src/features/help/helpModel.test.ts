@@ -21,6 +21,11 @@ describe("Someone needs help", () => {
     expect(words.works).toBe("Works without the assistant");
   });
 
+  it("says the assistant is off, not stopped, when the hub has no model", () => {
+    expect(assistantWords("unavailable").model).toBe("The assistant is off");
+    expect(assistantWords("unavailable").works).toBe("Works without the assistant");
+  });
+
   it("splits a question from its hint", () => {
     expect(splitQuestion("Is it? Look.")).toEqual(["Is it?", "Look."]);
   });
