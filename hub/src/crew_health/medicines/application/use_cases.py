@@ -233,28 +233,35 @@ class MedicinesResultVisibility:
         _require_read(self.deps, snapshot, session, subject, _FIELD_OF_KIND.get(row.kind, "context"))
 
 
-def _correction_head(deps: Deps, view: View) -> int:
-    """The newest clock correction revision (SYSTEM 5.2 global journal), paged with a bound."""
+_HEAD_PAGES = 64
+
+
+def _correction_head(deps: Deps, view: View) -> int | None:
+    """The newest clock correction revision (SYSTEM 5.2 global journal), paged with a bound. None when the journal
+    does not end within the bound: the head is then unknown, and a jump detected with it stays marked (fail closed),
+    because any revision taken as the head could predate corrections that were recorded before the jump."""
     if deps.corrections is None:
         return 0
     head = 0
-    for _ in range(64):
+    for _ in range(_HEAD_PAGES):
         page = deps.corrections.history(view, after_version=head, limit=deps.limits.max_rows)
-        if not page:
-            break
-        head = max(c.version for c in page)
-    return head
+        if page:
+            head = max(c.version for c in page)
+        if len(page) < deps.limits.max_rows:
+            return head
+    return None
 
 
 def _clock_marked(deps: Deps, view: View) -> bool:
     """C4: a forward discontinuity stays marked until a person records a clock correction after it (a correction
-    revision newer than the journal head at detection). Without the clock module nothing can resolve it."""
+    revision newer than the journal head at detection). Without the clock module, or when the head was unknown at
+    detection, nothing can tell a later correction from an earlier one, so it stays marked."""
     mark = deps.repository.last_clock_check(view, "discontinuity")
     if mark is None:
         return False
-    if deps.corrections is None:
+    if deps.corrections is None or mark.correction_version is None:
         return True
-    later = deps.corrections.history(view, after_version=mark.correction_version or 0, limit=1)
+    later = deps.corrections.history(view, after_version=mark.correction_version, limit=1)
     return not later
 
 

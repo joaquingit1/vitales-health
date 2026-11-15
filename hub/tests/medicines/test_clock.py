@@ -7,6 +7,7 @@ and a confirmation supersedes (C4). Real elapsed time moves both clocks and pass
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
 from typing import Any, cast
@@ -91,3 +92,37 @@ def test_without_the_clock_module_a_jump_stays_marked(st: Station) -> None:
     assert _code(_propose(st, _diagnose(st))) == "clock_discontinuity"
     st.clock.at += timedelta(hours=8)
     assert _code(_propose(st, _diagnose(st))) == "clock_discontinuity"
+
+
+@pytest.mark.trace("REVIEW-B3", "E32-C4", "SYSTEM-5.2")
+def test_a_correction_journal_longer_than_the_head_bound_keeps_the_jump_marked(st: Station) -> None:
+    """The head is read in at most 64 pages of max_rows. Before the fix, a journal past that bound stored a stale
+    head, an older correction then counted as "after" the jump and the next proposal went through."""
+    for _ in range(641):  # 64 full pages of 10 and one more
+        st.corrections.record(st.clock.at)  # all recorded before the jump
+    st.rebind(limits=replace(st.deps.limits, max_rows=10))
+    _diagnose(st)
+    st.clock.jump(timedelta(hours=4))
+    assert _code(_propose(st, _diagnose(st))) == "clock_discontinuity"
+    assert st.rows("SELECT correction_version FROM medicines_clock_check WHERE kind = 'discontinuity'") == [
+        (None,)
+    ]
+    st.corrections.record(st.clock.at)  # nothing can tell this one from the unread ones, so it stays marked
+    assert _code(_propose(st, _diagnose(st))) == "clock_discontinuity"
+
+
+@pytest.mark.trace("REVIEW-B3", "E32-C4")
+def test_a_journal_that_ends_within_the_head_bound_stores_its_head_and_a_later_correction_clears(
+    st: Station,
+) -> None:
+    for _ in range(639):  # 63 full pages of 10 and a short one
+        st.corrections.record(st.clock.at)
+    st.rebind(limits=replace(st.deps.limits, max_rows=10))
+    _diagnose(st)
+    st.clock.jump(timedelta(hours=4))
+    assert _code(_propose(st, _diagnose(st))) == "clock_discontinuity"
+    assert st.rows("SELECT correction_version FROM medicines_clock_check WHERE kind = 'discontinuity'") == [
+        (639,)
+    ]
+    st.corrections.record(st.clock.at)
+    assert _propose(st, _diagnose(st))["outcome"] == "proposal"
