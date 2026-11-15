@@ -214,7 +214,10 @@ def _bind(live: _Live, policy: PolicyValidator) -> Callable[[Resolver], None]:
     def bind(resolver: Resolver) -> None:
         settings = resolver.require(HubSettings)
         policy.bind(settings)
-        live.identity, live.records = resolver.optional(IdentityPorts), resolver.optional(ObservationPartitions)
+        live.identity, live.records = (
+            resolver.optional(IdentityPorts),
+            resolver.optional(ObservationPartitions),
+        )
         live.capabilities = resolver.optional(CapabilityQueries)
         live.corrections = resolver.optional(ClockCorrections)
         authority = SessionAuthority(

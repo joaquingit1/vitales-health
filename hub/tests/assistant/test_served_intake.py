@@ -150,8 +150,8 @@ def seed_episode(app: Any, person: str, concern: str) -> str:
     from datetime import UTC, datetime
 
     from crew_health.episodes.application.dto import NewEpisode, PersonRef
-    from crew_health.episodes.domain.onset import Onset
     from crew_health.episodes.application.ports import EpisodeKernel
+    from crew_health.episodes.domain.onset import Onset
     from crew_health.identity.application.service import IdentityService
     from crew_health.kernel.uow import Actor, UnitOfWorkFactory
 
