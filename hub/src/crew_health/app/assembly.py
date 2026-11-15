@@ -22,6 +22,7 @@ from crew_health.app.maintenance import build_supervisor, guard_clock, wire_cloc
 from crew_health.app.middleware import HubMiddleware, OperationCatalog
 from crew_health.app.registry import DeclarationRegistry, ModuleRegistry, Resolver, StartupPhase
 from crew_health.app.workers import ModuleWorkers
+from crew_health.assistant.application.ports import AssistantStatusPort
 from crew_health.camera.application.ports import AdapterStatesPort
 from crew_health.clock.application.clock import ClockIdentity, PersistentClocks
 from crew_health.clock.module import register as register_clock
@@ -858,6 +859,21 @@ def _adapters(runtime: Runtime) -> tuple[list[dict[str, str]], bool]:
     return [{"adapter_id": s.adapter_id, "state": s.state} for s in states], False
 
 
+def _assistant_state(runtime: Runtime) -> str:
+    """Health.assistant_state from the assistant module's own runtime record, the same source as
+    GET /v1/assistant/status, so health and the cards never disagree with it. A failing read reports
+    unavailable, never a made-up running state."""
+    resolver = runtime.resolver
+    if resolver is None or not runtime.serving:
+        return "unavailable"
+    try:
+        source = resolver.optional(AssistantStatusPort)  # type: ignore[type-abstract]
+        return "unavailable" if source is None else source.state()
+    except Exception:  # noqa: BLE001  # contained: health keeps answering (AGENTS 2)
+        logging.getLogger(__name__).warning("health_assistant_state_unavailable")
+        return "unavailable"
+
+
 def _correlation(request: Request, ids: IdFactory) -> str:
     value: object = getattr(request.state, "correlation_id", None)
     return value if isinstance(value, str) else ids.new("correlation")
@@ -915,7 +931,7 @@ def create_app(
                 "status": "degraded" if degraded or not runtime.serving else "ok",
                 "hub_version": hub_version,
                 "config_release_id": release_id,
-                "assistant_state": "unavailable",
+                "assistant_state": _assistant_state(runtime),
                 "adapters": adapters,
                 "server_time": database.clock.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
             }

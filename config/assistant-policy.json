@@ -6,8 +6,8 @@
   ],
   "max_iterations": 8,
   "max_schema_repairs": 1,
-  "turn_timeout_seconds": 90,
-  "first_token_timeout_seconds": 20,
+  "turn_timeout_seconds": 240,
+  "first_token_timeout_seconds": 60,
   "tool_timeout_seconds": 10,
   "timeouts_basis": "team default",
   "insight_topics": [

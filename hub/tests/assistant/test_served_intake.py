@@ -206,6 +206,8 @@ def test_shot_c_kit_check_reply_and_a_proposed_pulse_request_the_crew_confirms(t
 
     def run(client: TestClient) -> None:
         _runtime(client, directory, "start", "running")
+        # Health reads the same runtime record as GET /v1/assistant/status, so the Today card cannot disagree.
+        assert client.get("/v1/health").json()["assistant_state"] == "running"
         mara = _sign_in(client, directory, "crew", "mara")
         reply = _turn(client, mara, _episode_conversation(client, mara), 30)
         assert reply["status"] == "complete", (
@@ -299,6 +301,7 @@ def test_with_the_model_stopped_the_send_is_refused_honestly_and_help_still_open
     def run(client: TestClient) -> None:
         _runtime(client, directory, "start", "running")
         _runtime(client, directory, "stop", "stopped")
+        assert client.get("/v1/health").json()["assistant_state"] == "stopped"
         mara = _sign_in(client, directory, "crew", "mara")
         conversation = _episode_conversation(client, mara)
         sent = client.post(

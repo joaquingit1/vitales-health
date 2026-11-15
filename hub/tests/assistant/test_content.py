@@ -63,7 +63,7 @@ def policy(raw: bytes) -> Policy:
 def test_actual_policy_is_closed_sourced_and_preserves_team_operational_budgets() -> None:
     value = policy((ROOT / "config/assistant-policy.json").read_bytes())
     assert value.max_iterations == 8 and value.max_schema_repairs == 1
-    assert value.turn_timeout_seconds == 90 and value.first_token_timeout_seconds == 20
+    assert value.turn_timeout_seconds == 240 and value.first_token_timeout_seconds == 60
     assert value.allowed_warning_levels == frozenset({"info", "watch"})
     assert "not clinically reviewed" in value.notice.lower()
 
@@ -77,8 +77,8 @@ def test_actual_policy_is_closed_sourced_and_preserves_team_operational_budgets(
         ("max_iterations", True),
         ("max_schema_repairs", 2),
         ("turn_timeout_seconds", 301),
-        ("first_token_timeout_seconds", 91),
-        ("tool_timeout_seconds", 91),
+        ("first_token_timeout_seconds", 241),
+        ("tool_timeout_seconds", 241),
         ("allowed_warning_levels", ["act"]),
     ],
 )
