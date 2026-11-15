@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from "vue";
-import { useRoute } from "vue-router";
+import { RouterLink, useRoute } from "vue-router";
 import { useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
 import { useStage } from "../../shell/stage";
@@ -192,10 +192,16 @@ defineExpose({ phase });
         <h2 class="card-title">
           {{ WORDS.pulseTitle }}
         </h2>
-        <span
-          v-if="capability?.expected_duration_seconds"
-          class="tag"
-        >{{ copy("guided_check_words.seconds_left", { n: capability.expected_duration_seconds }) }}</span>
+        <RouterLink
+          class="go"
+          :to="{ name: 'today' }"
+          :aria-label="copy('display_group_labels.today')"
+        >
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+          ><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+        </RouterLink>
       </div>
       <p
         class="sub"
@@ -345,3 +351,7 @@ defineExpose({ phase });
     />
   </section>
 </template>
+
+<style scoped>
+.go { color: inherit; }
+</style>

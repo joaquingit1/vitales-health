@@ -28,6 +28,8 @@ export class ApiProblem extends Error {
   constructor(
     readonly status: number,
     readonly code: string | null,
+    /** The error envelope's current_state (D5), when the hub sent one: e.g. the open run on open_run_exists. */
+    readonly currentState: unknown = null,
   ) {
     super(code ?? `status ${String(status)}`);
   }
@@ -50,6 +52,10 @@ interface Outcome<T> {
   readonly data?: T;
   readonly error?: unknown;
   readonly response: Response;
+}
+
+function currentState(body: unknown): unknown {
+  return typeof body === "object" && body !== null && "current_state" in body ? body.current_state : null;
 }
 
 function errorCode(body: unknown): string | null {
@@ -208,7 +214,7 @@ export class CrewApi {
       this.#hooks.unauthenticated();
     }
     if (!outcome.response.ok) {
-      throw new ApiProblem(outcome.response.status, errorCode(outcome.error));
+      throw new ApiProblem(outcome.response.status, errorCode(outcome.error), currentState(outcome.error));
     }
     return outcome;
   }

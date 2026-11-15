@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type { components } from "@crew-health/contracts";
-import { useCrewApi } from "../../shell/api/client";
+import { ApiProblem, useCrewApi } from "../../shell/api/client";
 import { useSession } from "../../shell/session";
 import { plainName, refusal, type Capability, type ConfigDocument, type KitMapInstrument, type KitMapView, type PlanRun } from "./hub";
 import { WORDS } from "./words";
@@ -78,6 +78,19 @@ async function planFor(code: string, conditions: KitMapView["conditions"]): Prom
   );
 }
 
+/** startPlanRun on a help session; a second start answers 422 open_run_exists with the open run, which is reused. */
+async function startRun(planId: string, me: string, helpSessionId: string): Promise<PlanRun> {
+  try {
+    return await api.post<PlanRun>("/v1/plan-runs", { plan_id: planId, subject_person_id: me, help_session_id: helpSessionId });
+  } catch (failure) {
+    const open = failure instanceof ApiProblem ? failure.currentState : null;
+    if (typeof open === "object" && open !== null && "plan_run_id" in open && typeof open.plan_run_id === "string") {
+      return open as PlanRun;
+    }
+    throw failure;
+  }
+}
+
 /** Check it another way runs inside the plan aboard: the open run of this plan, or a new one for the episode. */
 async function checkAnotherWay(): Promise<void> {
   const p = plan.value;
@@ -95,15 +108,11 @@ async function checkAnotherWay(): Promise<void> {
       /* no episode: the run hangs on a help session (PlanRunCreate takes exactly one of episode_id or help_session_id).
          createHelpSession, then startPlanRun with it, then the teach step (getGuidedCheckSteps via the teach route). */
       const help = await api.post<HelpSession>("/v1/help-sessions", {
-        subject: { kind: "self", person_id: me },
+        subject: { kind: "self" },
         entry: { kind: "button" },
         client_opened_at: new Date().toISOString(),
       });
-      run = await api.post<PlanRun>("/v1/plan-runs", {
-        plan_id: p.plan_id,
-        subject_person_id: me,
-        help_session_id: help.help_session_id,
-      });
+      run = await startRun(p.plan_id, me, help.help_session_id);
     }
     if (run) await router.push({ name: "teach", params: { id: run.plan_run_id } });
     else problem.value = WORDS.noPlanRunning;
@@ -213,7 +222,7 @@ onMounted(() => {
       v-if="plan"
       class="fine"
     >
-      {{ plan.tag_text }} · {{ plan.notice }}
+      {{ plan.tag_text.includes(plan.notice) ? plan.tag_text : `${plan.tag_text} · ${plan.notice}` }}
     </p>
   </article>
 </template>

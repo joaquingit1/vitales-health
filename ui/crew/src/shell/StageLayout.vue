@@ -37,6 +37,11 @@ const readings = ref<{ code: string; label: string }[]>([]);
 /* The who-line ends with the place, as the reference writes it ("Mara Okafor, flight day 19 of 30, space station"):
    the active environment from the hub's ground link, its place word from the environment profiles. */
 const place = ref<string | null>(null);
+/* A configured label at the title position reads in sentence case ("Camera station"), as the reference titles do;
+   the words themselves are the configuration's. */
+const headline = computed(() =>
+  stage.headline === "" ? "" : (stage.headline[0] ?? "").toUpperCase() + stage.headline.slice(1),
+);
 const whoLine = computed(() => [stage.subline, place.value ?? ""].filter((part) => part !== "").join(", "));
 onMounted(() => {
   if (api === null || session.state.value.session === null) {
@@ -128,7 +133,7 @@ onMounted(() => {
           {{ whoLine }}
         </div>
         <h1 data-testid="stage-headline">
-          {{ stage.headline }}
+          {{ headline }}
         </h1>
       </div>
       <div
