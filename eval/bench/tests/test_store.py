@@ -141,3 +141,47 @@ def test_missing_native_durability_barrier_refuses_before_writing(
             pytest.fail("storage with no directory durability barrier was accepted")
     assert error.value.exit_code == 6
     assert not root.exists()
+
+
+def test_native_windows_path_keeps_torn_tail_recovery_and_write_through_commits(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The win32 branch of the store, driven through an injected kernel move (no Windows machine here).
+
+    New streams and atomic files commit through the write-through move, every directory gets the write-through
+    barrier, and a torn tail is truncated exactly as on POSIX.
+    """
+    import fcntl
+    import sys
+    from typing import BinaryIO
+
+    from crew_health_bench.adapters import store as storage_module
+    from crew_health_bench.adapters.windows_files import WindowsFiles
+
+    moves: list[tuple[str, str, int]] = []
+
+    def move(source: str, target: str, flags: int) -> int:
+        moves.append((source, target, flags))
+        Path(source).replace(target)
+        return 1
+
+    def lock(stream: BinaryIO, *, unlock: bool) -> None:
+        fcntl.flock(stream.fileno(), fcntl.LOCK_UN if unlock else fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+    monkeypatch.setattr(storage_module, "load_windows", lambda: WindowsFiles(move=move, last_error=lambda: 0))
+    monkeypatch.setattr(storage_module, "_lock_file", lock)
+    monkeypatch.setattr(sys, "platform", "win32")
+    with store(tmp_path) as files:
+        files.append("run", "generations", {"case_id": "case", "repeat": 0})
+        files.write_atomic(Path("run/manifest.json"), b"{}")
+    assert moves and all(flags == 0x1 | 0x8 for _, _, flags in moves)
+    committed = {Path(target).relative_to(tmp_path).as_posix() for _, target, _ in moves}
+    assert {"run/generations.jsonl", "run/manifest.json", "run/.chc-durable", ".chc-durable"} <= committed
+    with (tmp_path / "run/generations.jsonl").open("ab") as stream:
+        stream.write(b'{"seq":2')
+    with store(tmp_path) as files:
+        assert files.read_valid("run", "generations") == ({"case_id": "case", "repeat": 0},)
+        files.append("run", "generations", {"case_id": "second", "repeat": 0})
+    with store(tmp_path) as files:
+        assert [row["case_id"] for row in files.read_valid("run", "generations")] == ["case", "second"]

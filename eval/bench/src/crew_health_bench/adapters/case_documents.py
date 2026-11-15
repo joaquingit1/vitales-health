@@ -15,7 +15,7 @@ from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError as SchemaValidationError
 from pydantic import ValidationError
 
-from crew_health_bench.adapters.documents import decode_json, read_json
+from crew_health_bench.adapters.documents import decode_json, load_document, read_json
 from crew_health_bench.contracts_gen.case import CaseDocument, CaseQuantity, RevealTableDocument, VisiblePart
 from crew_health_bench.contracts_gen.hidden import HiddenPart
 from crew_health_bench.domain.cases import (
@@ -31,7 +31,7 @@ from crew_health_bench.domain.cases import (
     Suite,
 )
 from crew_health_bench.domain.errors import BenchError
-from crew_health_bench.domain.labels import require_independent_labels
+from crew_health_bench.domain.labels import LabelConstraint, label_constraints, require_independent_labels
 
 
 @dataclass(frozen=True, slots=True)
@@ -69,8 +69,15 @@ def _reveal(value: RevealTableDocument | None) -> RevealTable | None:
 
 
 class CaseDocuments:
-    def __init__(self, root: Path, *, max_file_bytes: int, ids: IdFactory) -> None:
-        self.maximum, self.ids = max_file_bytes, ids
+    def __init__(
+        self,
+        root: Path,
+        *,
+        max_file_bytes: int,
+        ids: IdFactory,
+        label_constraints: tuple[LabelConstraint, ...],
+    ) -> None:
+        self.maximum, self.ids, self.label_constraints = max_file_bytes, ids, label_constraints
         self.validators: dict[str, Draft202012Validator] = {}
         for name in ("case", "hidden-part"):
             schema = read_json(root / (name + ".schema.json"), max_file_bytes=max_file_bytes)
@@ -79,6 +86,17 @@ class CaseDocuments:
             except SchemaError as error:
                 raise BenchError("case_invalid") from error
             self.validators[name] = Draft202012Validator(schema)
+
+    @classmethod
+    def from_config(cls, config_dir: Path, *, max_file_bytes: int, ids: IdFactory) -> CaseDocuments:
+        """The parser with the `label_constraints` of `suites.json`, loaded and schema checked (design 3.2)."""
+        suites = load_document(config_dir / "suites.json", max_file_bytes=max_file_bytes)
+        return cls(
+            config_dir.parent / "schemas",
+            max_file_bytes=max_file_bytes,
+            ids=ids,
+            label_constraints=label_constraints(suites),
+        )
 
     def _validate(self, name: str, value: object) -> None:
         try:
@@ -126,17 +144,21 @@ class CaseDocuments:
         except (ValidationError, ProblemError, ValueError) as error:
             raise BenchError("case_invalid") from error
 
-    def load_hidden(self, path: Path) -> HiddenPart:
-        return self.parse_hidden(read_json(path, max_file_bytes=self.maximum))
+    def load_hidden(self, path: Path, *, family_id: str) -> HiddenPart:
+        return self.parse_hidden(read_json(path, max_file_bytes=self.maximum), family_id=family_id)
 
-    def parse_hidden(self, value: Mapping[str, object]) -> HiddenPart:
+    def parse_hidden(self, value: Mapping[str, object], *, family_id: str) -> HiddenPart:
         self._validate("hidden-part", value)
         try:
             hidden = HiddenPart.model_validate(value, strict=True)
         except ValidationError as error:
             raise BenchError("case_invalid") from error
         require_independent_labels(
-            hidden.source.text, tuple(hidden.source.source_ids), hidden.expected_urgency
+            hidden.source.text,
+            tuple(hidden.source.source_ids),
+            hidden.expected_urgency,
+            family_id=family_id,
+            constraints=self.label_constraints,
         )
         return hidden
 
@@ -151,7 +173,7 @@ class CaseDocuments:
             raise BenchError("target_unreadable", exit_code=6) from error
         if len(raw) > self.maximum or sha256(raw).hexdigest() != case.case.hidden_sha256:
             raise BenchError("integrity", exit_code=6)
-        hidden = self.parse_hidden(decode_json(raw))
+        hidden = self.parse_hidden(decode_json(raw), family_id=case.case.key.family_id)
         if hidden.canary != case.case.canary:
             raise BenchError("case_invalid")
         parts = [case.case.visible]

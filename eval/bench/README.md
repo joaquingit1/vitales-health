@@ -21,8 +21,12 @@ evaluation owner can supply (below).
 - Product suites: `SuiteGenerator` records `not_run` with `harness_unavailable` (E21's `eval/runner` is not on main) or
   `provider_missing` and the missing hub operations (`domain/readiness.py`). The hub scenario
   `eval/scenarios/E18/test_real_stack.py` checks that rule against the real composition.
-- Run storage: `FileArtifactStore`, hash-chained, fsynced JSONL with torn-tail recovery and atomic files. It refuses
-  writes on native Windows until a verified directory persistence barrier exists.
+- Run storage: `FileArtifactStore`, hash-chained, fsynced JSONL with torn-tail recovery and atomic files. On native
+  Windows new streams and atomic files commit through `MoveFileExW` with write-through, appends flush with
+  `FlushFileBuffers`, and a write-through marker move is the directory barrier; torn-tail recovery is the same code
+  on every platform. It refuses (exit 6) only when that kernel call cannot load. The Windows branch is tested through
+  an injected kernel move; it has not run on a Windows machine. Design section 9 places E18 on R1 or a ground node, and
+  names R2 (the Windows laptop) only for turn time when the model fits.
 
 ## What a real run needs from the owner
 

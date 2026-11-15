@@ -43,7 +43,7 @@ class System:
 @pytest.mark.trace("R46", "V34", "T-E18-31")
 def test_suite_roundtrip_and_missing_precondition_excludes_system_call(tmp_path: Path) -> None:
     ids = KernelIdFactory(new_uuid_hex=lambda: "0" * 32)
-    parser = CaseDocuments(ROOT / "schemas", max_file_bytes=1048576, ids=ids)
+    parser = CaseDocuments.from_config(ROOT / "config", max_file_bytes=1048576, ids=ids)
     loaded = parser.load(ROOT / "fixtures/case-document.json")
     hidden = tmp_path / "hidden"
     hidden.mkdir()
@@ -90,7 +90,7 @@ def test_missing_recorder_evidence_and_rules_track_model_calls_never_pass(
     tmp_path: Path, requests: tuple[int, ...] | None
 ) -> None:
     ids = KernelIdFactory(new_uuid_hex=lambda: "0" * 32)
-    parser = CaseDocuments(ROOT / "schemas", max_file_bytes=1048576, ids=ids)
+    parser = CaseDocuments.from_config(ROOT / "config", max_file_bytes=1048576, ids=ids)
     loaded = parser.load(ROOT / "fixtures/case-document.json")
     case = ProductCase(
         loaded.case,
@@ -121,7 +121,7 @@ def test_without_harness_or_providers_every_case_is_not_run_with_its_reason(tmp_
     from crew_health_bench.domain.readiness import DRIVER_OPERATIONS, product_suite_readiness
 
     ids = KernelIdFactory(new_uuid_hex=lambda: "0" * 32)
-    parser = CaseDocuments(ROOT / "schemas", max_file_bytes=1048576, ids=ids)
+    parser = CaseDocuments.from_config(ROOT / "config", max_file_bytes=1048576, ids=ids)
     loaded = parser.load(ROOT / "fixtures/case-document.json")
     case = ProductCase(
         loaded.case,

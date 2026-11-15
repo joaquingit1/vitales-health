@@ -51,7 +51,13 @@
       ]
     }
   },
-  "label_constraints": [],
+  "label_constraints": [
+    {
+      "family_id": "radiation",
+      "source": "COORDINATOR-DECISIONS D2",
+      "expected_urgency": "emergency"
+    }
+  ],
   "provenance": {
     "suites": {
       "basis": "team default",
@@ -74,7 +80,7 @@
       "to_be_set_by": null
     },
     "label_constraints": {
-      "basis": "team default",
+      "basis": "sourced",
       "source_ids": [],
       "to_be_set_by": null
     }

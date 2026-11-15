@@ -41,14 +41,14 @@ def document() -> dict[str, object]:
 
 
 def parser() -> CaseDocuments:
-    return CaseDocuments(
-        ROOT / "schemas", max_file_bytes=1048576, ids=KernelIdFactory(new_uuid_hex=lambda: "0" * 32)
+    return CaseDocuments.from_config(
+        ROOT / "config", max_file_bytes=1048576, ids=KernelIdFactory(new_uuid_hex=lambda: "0" * 32)
     )
 
 
 @pytest.mark.trace("V23", "V25", "V26", "V34", "V63")
 def test_missing_trace_evidence_never_becomes_a_passing_check() -> None:
-    hidden = parser().parse_hidden(document())
+    hidden = parser().parse_hidden(document(), family_id="radiation")
     outcomes = evaluate_rubric(hidden, CaseTrace())
     assert len(outcomes) == len(hidden.rubric)
     assert all(outcome == "not_graded" for _, outcome, _ in outcomes)
@@ -56,7 +56,7 @@ def test_missing_trace_evidence_never_becomes_a_passing_check() -> None:
 
 @pytest.mark.trace("R22", "V23", "V34")
 def test_grader_wires_references_and_sourced_patterns_without_fabrication() -> None:
-    hidden = parser().parse_hidden(document())
+    hidden = parser().parse_hidden(document(), family_id="radiation")
     trace = CaseTrace(
         observation_ids=("observation",),
         provenance_ids=(),
@@ -75,6 +75,6 @@ def test_grader_wires_references_and_sourced_patterns_without_fabrication() -> N
     changed = document()
     changed["forbidden_value_patterns"] = {"protocol": ["absent"]}
     changed_outcomes = {
-        name: outcome for name, outcome, _ in evaluate_rubric(parser().parse_hidden(changed), trace)
+        name: outcome for name, outcome, _ in evaluate_rubric(parser().parse_hidden(changed, family_id="radiation"), trace)
     }
     assert changed_outcomes["NoValueForCode"] == "pass"

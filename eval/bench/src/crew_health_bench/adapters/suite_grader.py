@@ -41,7 +41,9 @@ class SuiteGrader:
             receipt = self.vault.verify(case.case.case_id)
             if receipt["hidden_sha256"] != case.case.hidden_sha256:
                 raise BenchError("integrity", exit_code=6)
-            hidden = self.documents.parse_hidden(self.vault.open_hidden(case.case.case_id))
+            hidden = self.documents.parse_hidden(
+                self.vault.open_hidden(case.case.case_id), family_id=case.case.key.family_id
+            )
             if hidden.canary != case.case.canary:
                 raise BenchError("case_invalid")
         elif self.hidden_dir is not None:

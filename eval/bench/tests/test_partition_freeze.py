@@ -26,7 +26,7 @@ class Owner:
 
 
 def test_freeze_publishes_marker_last_and_identical_bytes(tmp_path: Path) -> None:
-    documents = CaseDocuments(ROOT / "schemas", max_file_bytes=1048576, ids=MemoryIds(identifiers=()))
+    documents = CaseDocuments.from_config(ROOT / "config", max_file_bytes=1048576, ids=MemoryIds(identifiers=()))
     loaded = documents.load(ROOT / "fixtures/case-document.json")
     case = loaded.case
     policy = load_document(ROOT / "config/partition-policy.json", max_file_bytes=16777216)
@@ -68,7 +68,7 @@ def test_freeze_publishes_marker_last_and_identical_bytes(tmp_path: Path) -> Non
 
 
 def test_missing_owner_or_hidden_text_never_commits_a_freeze(tmp_path: Path) -> None:
-    documents = CaseDocuments(ROOT / "schemas", max_file_bytes=1048576, ids=MemoryIds(identifiers=()))
+    documents = CaseDocuments.from_config(ROOT / "config", max_file_bytes=1048576, ids=MemoryIds(identifiers=()))
     loaded = documents.load(ROOT / "fixtures/case-document.json")
     case = loaded.case
     policy = load_document(ROOT / "config/partition-policy.json", max_file_bytes=16777216)

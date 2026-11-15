@@ -41,7 +41,7 @@ def validate(
     hidden_dir: Path | None,
 ) -> tuple[LoadedCase, ...]:
     maximum = settings.integer("bench.leak.max_file_bytes")
-    documents = CaseDocuments(config_dir.parent / "schemas", max_file_bytes=maximum, ids=ids)
+    documents = CaseDocuments.from_config(config_dir, max_file_bytes=maximum, ids=ids)
     cases = load_cases(paths, documents=documents, max_files=settings.integer("bench.scan.max_files"))
     if hidden_dir is not None:
         for case in cases:
@@ -90,7 +90,7 @@ def freeze(
     owner.require_owner()
     repository = config_dir.resolve().parents[2]
     salt = owner.salt(salt_path, repository=repository)
-    documents = CaseDocuments(config_dir.parent / "schemas", max_file_bytes=maximum, ids=ids)
+    documents = CaseDocuments.from_config(config_dir, max_file_bytes=maximum, ids=ids)
     cases = load_cases(paths, documents=documents, max_files=settings.integer("bench.scan.max_files"))
     texts = {
         case.case.case_id: documents.hidden_for(case, hidden_dir / (case.case.case_id + ".hidden.json"))[1]
