@@ -93,7 +93,8 @@ class Hub:
 
 
 def hub_at(directory: Path, day: int, *, staff: bool = False) -> Hub:
-    hub = station(directory)
+    # The harness sets every integer setting to its registered maximum; the privacy floor is its own minimum, 3.
+    hub = station(directory, settings={"participation.min_counting_members": 3})
     running = serve(hub, seed=not staff)
     if staff:
         seed_roster(running, sim_bootstrap(principals=(sim_station_principal(), EDITOR, OPERATOR)))

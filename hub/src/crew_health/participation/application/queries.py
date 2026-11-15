@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from crew_health.participation.application.context import (
-    MIN_COUNTING_MEMBERS,
     Deps,
     partition_of,
     rules_of,
@@ -110,7 +109,7 @@ class Queries:
                 for day in range(first, today + 1)
             }
             consents = dict(deps.store.consents(view.connection, mission, origin, deps.limits.roster_max))
-            consents = _guarded(consents, on_roster)
+            consents = _guarded(consents, on_roster, deps.limits.min_counting_members)
             checked = deps.store.checked_days(
                 view.connection,
                 mission_id=mission,
@@ -134,15 +133,15 @@ class Queries:
 
 
 def _guarded(
-    consents: Mapping[str, CrewConsent], on_roster: Mapping[int, frozenset[str]]
+    consents: Mapping[str, CrewConsent], on_roster: Mapping[int, frozenset[str]], minimum: int
 ) -> dict[str, CrewConsent]:
     """Open gap of D10: with a single counting member the totals would be that person's own record, and with any
     number the due total divided by the window length reveals how many members count. The safest reading that
-    keeps the goal useful: no member counts until at least `MIN_COUNTING_MEMBERS` members count in the window."""
+    keeps the goal useful: no member counts until at least `minimum` members (hub setting, floor 3) count in the window."""
     counting = {
         person
         for person, consent in consents.items()
         for day, members in on_roster.items()
         if person in members and consent.counts_on(day)
     }
-    return dict(consents) if len(counting) >= MIN_COUNTING_MEMBERS else {}
+    return dict(consents) if len(counting) >= minimum else {}
