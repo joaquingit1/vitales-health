@@ -10,8 +10,8 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from crew_health.kernel.errors import StorageUnavailable
 from crew_health.kernel.uow import Actor
+from crew_health.platform.domain.errors import StorageConstraintViolated
 from crew_health.routine.domain.bindings import (
     MissionEventInput,
     ObservationInput,
@@ -127,7 +127,7 @@ def test_ending_activation_preserves_its_open_pinned_occurrence_and_finality(tmp
         "DELETE FROM routine_cadence_activation WHERE activation_id=?",
     ):
         with (
-            pytest.raises(StorageUnavailable),
+            pytest.raises(StorageConstraintViolated),
             hub.db.begin(actor=Actor("engine", "routine"), correlation_id="cor_rca_immutable") as uow,
         ):
             uow.connection.execute(statement, (activation.activation_id,))

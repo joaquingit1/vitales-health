@@ -11,32 +11,30 @@ from . import common_schema
 class Quote(RootModel[str]):
     root: str = Field(
         ...,
-        description='The words this document relies on, copied from the source.',
+        description="The words this document relies on, copied from the source.",
         min_length=1,
     )
 
 
 class Source(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     source_id: common_schema.SourceId
     title: str = Field(..., min_length=1)
     url: AnyUrl
-    date: str = Field(
-        ..., description='Date on the source, as the source states it.', min_length=1
-    )
+    date: str = Field(..., description="Date on the source, as the source states it.", min_length=1)
     quote: Quote | None
     note: str | None = Field(
         None,
-        description='How the source was read when no verbatim quote could be copied.',
+        description="How the source was read when no verbatim quote could be copied.",
         min_length=1,
     )
 
 
 class Offset(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     x: float
     y: float
@@ -45,13 +43,13 @@ class Offset(BaseModel):
 
 class Landmark(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     landmark_id: common_schema.ConfigId
     body_region: common_schema.BodyRegion
     label: str = Field(
         ...,
-        description='Words for the landmark, for example pulse point at the base of the thumb.',
+        description="Words for the landmark, for example pulse point at the base of the thumb.",
         min_length=1,
     )
     offset: Offset | None
@@ -64,18 +62,16 @@ class N(RootModel[int]):
 
 class Freshness(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     cadence: common_schema.CadenceWord
     n: N | None
     due_after_periods: int = Field(
         ...,
-        description='Due once this many cadence periods have passed since the last practice.',
+        description="Due once this many cadence periods have passed since the last practice.",
         ge=1,
     )
-    stale_after_periods: int = Field(
-        ..., description='Stale once this many periods have passed.', ge=1
-    )
+    stale_after_periods: int = Field(..., description="Stale once this many periods have passed.", ge=1)
     basis: common_schema.Basis
     to_be_set_by: common_schema.ToBeSetBy | None
 
@@ -83,27 +79,27 @@ class Freshness(BaseModel):
 class Text(RootModel[str]):
     root: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
 class FromFlowStep(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     flow_id: common_schema.ConfigId
-    list: Literal['immediate_steps']
+    list: Literal["immediate_steps"]
     index: int = Field(..., ge=0)
 
 
 class TextFirstTime(RootModel[str]):
     root: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
@@ -117,19 +113,19 @@ class CountSeconds(RootModel[int]):
 
 class Choice(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    answer: Literal['regular', 'irregular', 'not_sure']
+    answer: Literal["regular", "irregular", "not_sure"]
     label: str = Field(..., min_length=1)
 
 
 class TeachStep(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step_no: int = Field(..., ge=1)
-    kind: Literal['instruction', 'count', 'question']
-    actor: Literal['helper', 'subject', 'both']
+    kind: Literal["instruction", "count", "question"]
+    actor: Literal["helper", "subject", "both"]
     text: Text | None
     from_flow_step: FromFlowStep | None
     text_first_time: TextFirstTime | None
@@ -137,25 +133,21 @@ class TeachStep(BaseModel):
     body_region: common_schema.BodyRegionOrNull | None
     environments: Environments | None
     count_seconds: CountSeconds | None
-    choices: list[Choice] = Field(
-        ..., description="For a question step: the helper's answers."
-    )
+    choices: list[Choice] = Field(..., description="For a question step: the helper's answers.")
     source_ids: common_schema.SourceIds
 
 
 class Reference(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     capability_code: common_schema.ConfigId | None
-    what: str = Field(
-        ..., description='What the camera measures for the check.', min_length=1
-    )
+    what: str = Field(..., description="What the camera measures for the check.", min_length=1)
 
 
 class Target(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     min: float
     max: float
@@ -169,7 +161,7 @@ class Value(RootModel[float]):
 
 class Tolerance(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: Value | None
     unit: str = Field(..., min_length=1)
@@ -184,60 +176,60 @@ class UpdateIntervalSeconds(RootModel[int]):
 class Ok(RootModel[str]):
     root: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
 class TooSlow(RootModel[str]):
     root: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
 class TooFast(RootModel[str]):
     root: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
 class Mismatch(RootModel[str]):
     root: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
 class CannotSee(RootModel[str]):
     root: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
 class NoReference(RootModel[str]):
     root: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
 class Phrases(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     ok: Ok | None
     too_slow: TooSlow | None
@@ -249,13 +241,13 @@ class Phrases(BaseModel):
 
 class Check(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     check_id: common_schema.ConfigId
-    kind: Literal['count_agreement', 'compression_rate', 'hand_position']
+    kind: Literal["count_agreement", "compression_rate", "hand_position"]
     experimental: bool = Field(
         ...,
-        description='True until measured at the venue. The screen labels the check Experimental.',
+        description="True until measured at the venue. The screen labels the check Experimental.",
     )
     reference: Reference
     target: Target | None
@@ -264,13 +256,13 @@ class Check(BaseModel):
     update_basis: common_schema.Basis | None
     phrases: Phrases = Field(
         ...,
-        description='The authored lines a check shows. For count_agreement, too_slow means the count is lower than the reference and too_fast higher.',
+        description="The authored lines a check shows. For count_agreement, too_slow means the count is lower than the reference and too_fast higher.",
     )
 
 
 class WhatItShows(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     does: str = Field(..., min_length=1)
     does_not: str = Field(..., min_length=1)
@@ -279,31 +271,31 @@ class WhatItShows(BaseModel):
 
 class DrillScenario(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     scenario_id: common_schema.ConfigId
     title: str = Field(..., min_length=1)
-    practice_on: Literal['crewmate', 'manikin']
+    practice_on: Literal["crewmate", "manikin"]
     needs_supplies: list[common_schema.ConfigId]
 
 
 class Skill(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     skill_id: common_schema.ConfigId
     name: str = Field(..., min_length=1)
     short_name: str = Field(
         ...,
-        description='Short words for role rows and reasons, for example CPR.',
+        description="Short words for role rows and reasons, for example CPR.",
         min_length=1,
     )
-    who_may: Literal['any_crew', 'crew_medical_officer']
+    who_may: Literal["any_crew", "crew_medical_officer"]
     card_title: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     freshness: Freshness
     teach_steps: list[TeachStep] = Field(..., min_length=1)
@@ -311,12 +303,12 @@ class Skill(BaseModel):
     what_it_shows: WhatItShows | None
     drill_scenarios: list[DrillScenario]
     source_ids: common_schema.SourceIds
-    review_state: Literal['unreviewed', 'reviewed', 'rejected']
+    review_state: Literal["unreviewed", "reviewed", "rejected"]
 
 
 class SkillsCatalogJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     version: str = Field(..., min_length=1)
     example: bool
@@ -327,7 +319,7 @@ class SkillsCatalogJson(BaseModel):
     )
     sources: list[Source] = Field(
         ...,
-        description='Sources this document cites that are not yet in the package source registry (sources.csv, NASA-SOURCES.md, RESPONDER-FLOWS.md, DEMO-CONDITIONS.md). The loader resolves every source ID against the registry plus this list.',
+        description="Sources this document cites that are not yet in the package source registry (sources.csv, NASA-SOURCES.md, RESPONDER-FLOWS.md, DEMO-CONDITIONS.md). The loader resolves every source ID against the registry plus this list.",
     )
     landmarks: list[Landmark] = Field(..., min_length=1)
     skills: list[Skill] = Field(..., min_length=1)

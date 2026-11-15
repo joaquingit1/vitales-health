@@ -10,7 +10,7 @@ from . import common_schema
 
 class Environment(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.HazardEnvironmentKey
     name: str = Field(..., min_length=1)
@@ -22,7 +22,7 @@ class Environment(BaseModel):
 
 class Effect(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     effect: str = Field(..., min_length=1)
     body_region: common_schema.BodyRegionOrNull | None
@@ -31,7 +31,7 @@ class Effect(BaseModel):
 
 class ByEnvironment(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     station_leo: str
     transit: str
@@ -42,7 +42,7 @@ class ByEnvironment(BaseModel):
 
 class Sensor(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     measures: str = Field(..., min_length=1)
     unit: str = Field(..., min_length=1)
@@ -53,19 +53,19 @@ class Sensor(BaseModel):
 
 class Level(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     level: common_schema.Level
     rule: str = Field(
         ...,
-        description='The rule in words. A number the hub uses must equal value or appear in this text.',
+        description="The rule in words. A number the hub uses must equal value or appear in this text.",
         min_length=1,
     )
     value: float | None
     unit: str | None
     window: str = Field(
         ...,
-        description='Averaging period in words. Not machine readable: sensor-limits.json gives the window in seconds.',
+        description="Averaging period in words. Not machine readable: sensor-limits.json gives the window in seconds.",
         min_length=1,
     )
     quote: str
@@ -74,7 +74,7 @@ class Level(BaseModel):
 
 class WhatToDo(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     info: str = Field(..., min_length=1)
     watch: str = Field(..., min_length=1)
@@ -84,24 +84,24 @@ class WhatToDo(BaseModel):
 
 class Hazard(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     name: str = Field(..., min_length=1)
-    kind: Literal['sensed', 'condition'] = Field(
+    kind: Literal["sensed", "condition"] = Field(
         ...,
-        description='sensed: a habitat sensor can report it. condition: a condition of the place, shown under Living here.',
+        description="sensed: a habitat sensor can report it. condition: a condition of the place, shown under Living here.",
     )
     plain: str = Field(..., min_length=1)
     effects: list[Effect] = Field(..., min_length=1)
     by_environment: ByEnvironment = Field(
-        ..., description='Text per environment key, including eva for being outside.'
+        ..., description="Text per environment key, including eva for being outside."
     )
     sensor: Sensor | None
     levels: list[Level] = Field(..., min_length=1)
     what_to_do: WhatToDo = Field(
         ...,
-        description='What to do at each level. Warning steps are these sentences, split as in CONTRACTS section 14.',
+        description="What to do at each level. Warning steps are these sentences, split as in CONTRACTS section 14.",
     )
     routine_hint: str
     source_ids: common_schema.SourceIds
@@ -109,7 +109,7 @@ class Hazard(BaseModel):
 
 class Source(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.SourceId
     title: str = Field(..., min_length=1)
@@ -121,7 +121,7 @@ class Source(BaseModel):
 
 class EnvironmentHazardsJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     notice: str = Field(
         ...,

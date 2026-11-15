@@ -231,7 +231,8 @@ def test_text_validation_is_release_bound_and_missing_medicines_stays_unavailabl
     from crew_health.kernel.testing import MemorySettings
 
     settings = MemorySettings(
-        specifications(), {"text_rules.max_text_bytes": 30, "text_rules.max_matches": 10}
+        specifications(),
+        {"text_rules.max_text_bytes": 30, "text_rules.max_matches": 10, "config.ui_copy_cache_max": 1},
     )
     rules = TextRulesService(settings=settings)
     old = candidate({ConfigName.ASSISTANT_POLICY: {}})

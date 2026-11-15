@@ -65,7 +65,7 @@ def test_input_with_no_mission_facts_is_audited_without_state_changes(tmp_path: 
     assert hub.rows("SELECT COUNT(*) FROM routine_override") == ((0,),)
     assert audited(hub, "mission_unknown")
     with hub.db.snapshot() as view:
-        assert hub.events.cursor(view.connection, "routine.inputs") >= event.seq
+        assert (hub.events.cursor(view.connection, "routine.inputs") or 0) >= event.seq
 
 
 @pytest.mark.trace("T-E25-096", "INV-E25-16")
@@ -171,7 +171,7 @@ def test_domain_rejection_is_an_audited_outcome_but_problem_error_aborts_deliver
         hub.deliver()
         assert audited(hub, "input_rejected")
         with hub.db.snapshot() as view:
-            assert hub.events.cursor(view.connection, "routine.inputs") >= event.seq
+            assert (hub.events.cursor(view.connection, "routine.inputs") or 0) >= event.seq
     else:
         with pytest.raises(ProblemError, match="boundary_failure"):
             hub.deliver()

@@ -286,8 +286,8 @@ def test_every_collection_accepts_full_http_limit_and_pages_without_loss(tmp_pat
 
 @pytest.mark.trace("T-E25-018", "INV-E25-16")
 def test_replay_versions_survive_restart_and_are_append_only(tmp_path: Path) -> None:
-    from crew_health.kernel.errors import StorageUnavailable
     from crew_health.kernel.uow import Actor
+    from crew_health.platform.domain.errors import StorageConstraintViolated
 
     hub = HttpHarness(tmp_path)
     row = hub.occurrence()
@@ -303,7 +303,7 @@ def test_replay_versions_survive_restart_and_are_append_only(tmp_path: Path) -> 
         "DELETE FROM routine_command_version",
     ):
         with (
-            pytest.raises(StorageUnavailable),
+            pytest.raises(StorageConstraintViolated),
             hub.db.begin(actor=Actor("engine", "routine"), correlation_id=hub.ids.new("cor")) as uow,
         ):
             uow.connection.execute(sql)

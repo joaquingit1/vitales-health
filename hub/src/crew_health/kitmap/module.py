@@ -11,7 +11,7 @@ from fastapi import APIRouter
 
 from crew_health.contracts_gen.schemas.common_schema import BodyRegion, EnvironmentId
 from crew_health.guidance.application.ports import EquipmentFacts
-from crew_health.kernel.config import ActivationGuard, ReleaseCheck, TemplateRenderer
+from crew_health.kernel.config import ActivationGuard, ConfigBinding, ReleaseCheck
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.settings import HubSettings, SettingSpec
 from crew_health.kernel.uow import ReadSnapshotFactory
@@ -120,7 +120,7 @@ class _PlanColumnsAdapter:
         self.source: plans_ports.PlanColumnsPort | None = None
 
     def row_columns(
-        self, ctx: KitMapContext, *, kit: frozenset[str], plan_ids: Sequence[str | None]
+        self, ctx: KitMapContext[object], *, kit: frozenset[str], plan_ids: Sequence[str | None]
     ) -> Sequence[PlanColumns]:
         if self.source is None:
             raise KitMapUnavailable("onboard plans present but no plan columns provider")
@@ -131,7 +131,7 @@ class _PlanColumnsAdapter:
         )
 
     def plans_changed(
-        self, ctx: KitMapContext, *, base_kit: frozenset[str], delta: PlanningDelta
+        self, ctx: KitMapContext[object], *, base_kit: frozenset[str], delta: PlanningDelta
     ) -> Sequence[PlanChange]:
         if self.source is None:
             raise KitMapUnavailable("onboard plans present but no plan columns provider")
@@ -196,7 +196,7 @@ class KitMapWiring:
         self.reads = KitMapReads(
             snapshots=snapshots.snapshot,
             releases=self.source,
-            renderer=resolver.require(TemplateRenderer),  # type: ignore[type-abstract]
+            config=resolver.require(ConfigBinding),  # type: ignore[type-abstract]
             vocabulary=words,
             gate_max_condition_ids=value("gate_max_condition_ids"),
         )
@@ -233,7 +233,7 @@ class KitMapWiring:
         self.api.require_roles = resolver.optional(RequireRoles)  # type: ignore[type-abstract]
 
 
-_REQUIRES: tuple[type[object], ...] = (HubSettings, ReadSnapshotFactory, TemplateRenderer, IdFactory)
+_REQUIRES: tuple[type[object], ...] = (HubSettings, ReadSnapshotFactory, ConfigBinding, IdFactory)
 
 
 def register(registry: ModuleRegistry) -> None:

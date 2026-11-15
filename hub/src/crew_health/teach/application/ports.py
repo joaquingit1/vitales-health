@@ -20,8 +20,14 @@ from crew_health.guidance.application.ports import GuidanceDecision as GuidanceD
 from crew_health.guidance.application.ports import GuidanceEligibility as GuidanceEligibility
 from crew_health.guidance.application.ports import GuidanceRequest as GuidanceRequest
 from crew_health.guidance.application.ports import Requirements as Requirements
-from crew_health.kernel.units import Quantity, Unit
+from crew_health.help.application.ports import HelpContext as HelpContext
+from crew_health.help.application.ports import HelpSessionReader as HelpSessionReader
+from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import ReadSnapshot, SessionContext, UnitOfWork
+from crew_health.records.application.ports import AnswerCommands as AnswerCommands
+from crew_health.records.application.ports import AnswerDraft as AnswerDraft
+from crew_health.records.application.ports import ObservationCommands as ObservationCommands
+from crew_health.records.application.ports import ObservationDraft as ObservationDraft
 from crew_health.roles.application.ports import RoleAssignmentReader as RoleAssignmentReader
 
 if TYPE_CHECKING:
@@ -66,53 +72,7 @@ class GuidedCheckQueries(Protocol):
     def get(self, view: ReadSnapshot | UnitOfWork, guided_check_id: str) -> GuidedCheckFacts | None: ...
 
 
-# Records (E01) ------------------------------------------------------------------------------------------------------
-
-
-@dataclass(frozen=True, slots=True)
-class ObservationDraft:
-    patient_id: str
-    operator_id: str
-    episode_id: str | None
-    code: str
-    value: Quantity
-    observed_at: datetime
-    entered_at: datetime
-    origin_mode: OriginMode
-    acquisition_method: Literal["crewmate_palpation"]  # the only method this module writes
-    quality_status: Literal["accepted"]
-    quality_rule_version: str
-    body_region: str | None
-    context: Mapping[str, str]
-
-
-@dataclass(frozen=True, slots=True)
-class AnswerDraft:
-    record_id: str
-    question_id: str
-    questionnaire_version: str
-    presence: Literal["present", "absent", "unknown"]  # internal enum
-    value: str
-    body_region: str | None
-    actor_person_id: str
-    answered_at: datetime
-    origin_mode: OriginMode
-    supersedes: str | None
-    episode_id: str | None
-
-
-# Provided by E01 (crew_health.records); structural copy until it is on main (R-E01-17 settles the final shape).
-class ObservationCommands(Protocol):
-    def canonical_unit(self, code: str) -> Unit: ...
-    def append_observation(
-        self, uow: UnitOfWork, draft: ObservationDraft, *, idempotency_key: str
-    ) -> str: ...
-
-
-# Provided by E01 (crew_health.records); structural copy until it is on main (R-E01-17 consolidates AnswerCommands).
-class AnswerCommands(Protocol):
-    def append_answer(self, uow: UnitOfWork, draft: AnswerDraft, *, idempotency_key: str) -> str: ...
-
+# Records (E01): the provider's classes (SYSTEM 4: records provides ObservationCommands and AnswerCommands).
 
 # Plans (E28) --------------------------------------------------------------------------------------------------------
 
@@ -133,22 +93,6 @@ class GuidedStepRef:
 # Provided by E28 (crew_health.plans); structural copy until it is on main (E28 4.2 PlanRunReaderService).
 class PlanRunReader(Protocol):
     def guided_step(self, plan_run_id: str, skill_id: str) -> GuidedStepRef | None: ...
-
-
-# Help (E26) ---------------------------------------------------------------------------------------------------------
-
-
-@dataclass(frozen=True, slots=True)
-class HelpContext:
-    visible: bool
-    origin_mode: OriginMode
-    environment_id: str | None
-
-
-# Provided by E26 (crew_health.help); structural copy until it is on main (SYSTEM 4.4, E32 section 2).
-class HelpSessionReader(Protocol):
-    def context(self, session: SessionContext, help_session_id: str) -> HelpContext | None: ...
-    def readable_by(self, session: SessionContext, help_session_id: str) -> bool: ...
 
 
 # Roles (E31) --------------------------------------------------------------------------------------------------------

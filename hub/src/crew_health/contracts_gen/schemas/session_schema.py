@@ -8,12 +8,12 @@ from . import common_schema
 
 class Session(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     session_id: common_schema.Id
     token: str | None = Field(
         None,
-        description='Returned once, on create. Sent as Authorization: Bearer <token>.',
+        description="Returned once, on create. Sent as Authorization: Bearer <token>.",
         min_length=1,
     )
     actor: common_schema.Actor

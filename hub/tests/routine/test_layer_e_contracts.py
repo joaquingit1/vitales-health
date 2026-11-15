@@ -209,6 +209,7 @@ malformed = st.one_of(st.none(), st.booleans(), st.integers(), st.text(), st.lis
 
 
 @pytest.mark.trace("T-E25-036", "CONTRACTS 11", "E25-03")
+@settings(deadline=None)  # the first example loads and validates the release documents
 @given(st.sampled_from(("on", "effect", "until", "binds")), malformed)
 def test_malformed_binding_shapes_always_produce_typed_findings(part: str, value: object) -> None:
     rules = document("routine-rules")

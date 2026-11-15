@@ -9,6 +9,7 @@ from crew_health.kernel.config import CandidateRelease, ConfigDocumentView, Conf
 from crew_health.kernel.errors import StorageUnavailable
 from crew_health.kernel.testing import MemoryRelease
 from crew_health.kernel.uow import Actor
+from crew_health.platform.domain.errors import StorageConstraintViolated
 from crew_health.platform.testing.sqlite import database
 from crew_health.routine.adapters.config_reader import ReleaseCache, RoutineReleaseCheck, parse_documents
 from crew_health.routine.adapters.sqlite_repository import SqliteRoutineStore, migration_sql
@@ -69,7 +70,7 @@ def test_storage_roundtrip_conflicts_and_append_only(tmp_path: Path) -> None:
         "DELETE FROM routine_occurrence_transition",
     ):
         with (
-            pytest.raises(StorageUnavailable),
+            pytest.raises(StorageConstraintViolated),
             db.begin(actor=Actor("engine", "engine"), correlation_id="cor_2") as uow,
         ):
             uow.connection.execute(statement)
@@ -172,7 +173,7 @@ def test_instances_targets_generations_clock_and_barriers_roundtrip(tmp_path: Pa
         assert store.active_overrides(uow, 10) == ()
     for statement in ("UPDATE routine_override SET revision=revision+1", "DELETE FROM routine_override"):
         with (
-            pytest.raises(StorageUnavailable),
+            pytest.raises(StorageConstraintViolated),
             db.begin(actor=Actor("engine", "engine"), correlation_id="cor_2") as uow,
         ):
             uow.connection.execute(statement)

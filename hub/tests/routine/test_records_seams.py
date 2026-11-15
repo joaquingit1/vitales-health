@@ -424,7 +424,7 @@ def test_linked_observation_rejects_foreign_partition_and_unaccepted_quality(
 @pytest.mark.trace("T-E25-049", "SYSTEM-5")
 def test_records_repository_satisfies_the_routine_record_facts_port() -> None:
     from crew_health.records.adapters.repository import RecordRepository
-    from crew_health.records.application.ports import RecordsStore
+    from crew_health.records.application.seams import RecordsStore
     from crew_health.routine.application.ports import RecordFacts
 
     port: RecordFacts = RecordRepository()

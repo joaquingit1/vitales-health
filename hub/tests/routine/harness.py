@@ -211,7 +211,7 @@ class RoutineHarness:
         )
         self.ids = MemoryIds(identifiers=tuple(str(i) for i in range(0 if initialize else 50000, 100000)))
         self.settings = StationSettings(values)
-        self.health = ComponentHealthState()
+        self.health = ComponentHealthState(maximum=256)
         self.mission = Mission(MissionFacts("mission_1", mode, "station_leo", None, "node_1"))
         self.roster, self.locations = Roster(), Locations()
         self.release: ReleaseHandle = configured_release()
@@ -233,7 +233,7 @@ class RoutineHarness:
         self.records = RecordRepository()
         sql = migration_sql()
         self.db.migrate_tracked("routine.0001", sha256(sql.encode()).hexdigest(), sql)
-        sql = (REPO / "hub/src/crew_health/routine/adapters/migrations/0002_versions.sql").read_text(
+        sql = (REPO / "hub/src/crew_health/routine/adapters/migrations/0002_routine.sql").read_text(
             encoding="utf-8"
         )
         self.db.migrate_tracked("routine.0002", sha256(sql.encode()).hexdigest(), sql)

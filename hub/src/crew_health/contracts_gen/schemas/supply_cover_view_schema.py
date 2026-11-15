@@ -12,12 +12,12 @@ class PerUse(RootModel[float]):
 
 class UsedByItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     plan_id: str = Field(
         ...,
-        description='An onboard-plans.json plan ID.',
-        pattern='^plan_[a-z0-9_]{1,59}$',
+        description="An onboard-plans.json plan ID.",
+        pattern="^plan_[a-z0-9_]{1,59}$",
     )
     step_id: common_schema.ConfigId
     per_use: PerUse | None
@@ -26,21 +26,21 @@ class UsedByItem(BaseModel):
 class CoverUses(RootModel[int]):
     root: int = Field(
         ...,
-        description='floor(quantity_now / the largest declared per_use) over the steps that use it. null when either is not set or the supply is not consumable.',
+        description="floor(quantity_now / the largest declared per_use) over the steps that use it. null when either is not set or the supply is not consumable.",
         ge=0,
     )
 
 
 class Supply(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     stock: supply_stock_schema.SupplyStock
     used_by: list[UsedByItem]
     cover_uses: CoverUses | None
     cover_text: str = Field(
         ...,
-        description='ui-copy supply_words cover, cover_unknown, not_used or not_aboard.',
+        description="ui-copy supply_words cover, cover_unknown, not_used or not_aboard.",
         min_length=1,
     )
     low: bool = Field(
@@ -51,7 +51,7 @@ class Supply(BaseModel):
 
 class SupplyCoverView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     environment_id: common_schema.EnvironmentId
     supplies: list[Supply]

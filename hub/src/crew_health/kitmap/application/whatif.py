@@ -23,7 +23,7 @@ from crew_health.kitmap.application.ports import (
     SupplyAddition,
 )
 from crew_health.kitmap.application.queries import KitMapReads, ViewResult
-from crew_health.kitmap.domain.model import ConditionEvaluation, StateCounts
+from crew_health.kitmap.domain.model import ConditionEvaluation, KitMapDoc, StateCounts
 from crew_health.kitmap.domain.rules import diff_states
 
 
@@ -90,7 +90,7 @@ class RunWhatIf:
         if errors:
             raise WhatIfInvalid(errors)
 
-    def _validate(self, ctx: KitMapContext, cmd: WhatIfCommand) -> list[FieldError]:
+    def _validate(self, ctx: KitMapContext[KitMapDoc], cmd: WhatIfCommand) -> list[FieldError]:
         doc = ctx.release.doc
         known = {i.id for i in doc.instruments}
         errors = [
@@ -114,7 +114,7 @@ class RunWhatIf:
         errors.extend(self._validate_skills(ctx, cmd))
         return errors
 
-    def _validate_skills(self, ctx: KitMapContext, cmd: WhatIfCommand) -> list[FieldError]:
+    def _validate_skills(self, ctx: KitMapContext[KitMapDoc], cmd: WhatIfCommand) -> list[FieldError]:
         if not cmd.add_skills:
             return []
         if self.roster is None:
@@ -142,7 +142,7 @@ class RunWhatIf:
                 raise WhatIfInvalid(errors)
             return self._compute(ctx, cmd)
 
-    def _compute(self, ctx: KitMapContext, cmd: WhatIfCommand) -> WhatIfResult:
+    def _compute(self, ctx: KitMapContext[KitMapDoc], cmd: WhatIfCommand) -> WhatIfResult:
         doc = ctx.release.doc
         kit = doc.kits[ctx.environment_id]
         ignored = tuple(i for i in cmd.add_instruments if i in kit)
@@ -166,7 +166,7 @@ class RunWhatIf:
         )
 
     def _plans_changed(
-        self, ctx: KitMapContext, kit: frozenset[str], delta: PlanningDelta
+        self, ctx: KitMapContext[KitMapDoc], kit: frozenset[str], delta: PlanningDelta
     ) -> tuple[PlanChange, ...]:
         if not ctx.release.has_onboard_plans:
             return ()  # no onboard-plans document in this release: no plan can change
@@ -176,7 +176,7 @@ class RunWhatIf:
         return tuple(plans.plans_changed(ctx, base_kit=kit, delta=delta))
 
     def _cover_changed(
-        self, ctx: KitMapContext, supplies: tuple[SupplyAddition, ...]
+        self, ctx: KitMapContext[KitMapDoc], supplies: tuple[SupplyAddition, ...]
     ) -> tuple[CoverChange, ...]:
         if not supplies:
             return ()

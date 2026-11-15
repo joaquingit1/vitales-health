@@ -14,7 +14,7 @@ class EnvironmentDay(RootModel[int]):
 
 class Today(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     mission_day: common_schema.MissionDay
     environment_day: EnvironmentDay | None
@@ -24,7 +24,7 @@ class Today(BaseModel):
 
 class Environment(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     profile_id: common_schema.Id
     environment_id: common_schema.EnvironmentId
@@ -35,7 +35,7 @@ class Environment(BaseModel):
 
 class Context(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person: common_schema.PersonRef | None
     roles: list[common_schema.Role] = Field(..., min_length=1)
@@ -50,4 +50,4 @@ class Context(BaseModel):
     config_release_id: common_schema.Id
     config_versions: list[common_schema.ConfigPin] = Field(..., min_length=1)
     model_release_id: common_schema.Id | None
-    assistant_state: Literal['running', 'stopped', 'loading', 'unavailable']
+    assistant_state: Literal["running", "stopped", "loading", "unavailable"]

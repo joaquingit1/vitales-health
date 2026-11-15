@@ -1,89 +1,84 @@
-"""Local seams for explicit assembly injection. R-E01-17 consumer bindings remain unexported."""
+"""Ports records provides to other modules (SYSTEM 4: `ObservationCommands`, consumers teach, measurement and
+checks; E01 `AnswerCommands`). Consumers import these classes, so the registry resolves them by identity (SYSTEM 6.4).
+
+This file imports nothing from records.domain: a consumer importing it must not reach records' domain layer through
+it, which the generated independence contracts forbid. R-E01-17 is still pending, so each method keeps the signature
+its consumer on main calls today; the request settles one canonical shape."""
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Protocol
+from typing import Literal, Protocol
 
-from crew_health.kernel.config import ReleaseHandle
-from crew_health.kernel.uow import ReadSnapshot, SessionContext, UnitOfWork
-from crew_health.records.domain.answers import AnswerRecord
-from crew_health.records.domain.observations import (
-    ObservationInput,
-    ObservationPolicy,
-    ObservationRecord,
-    OriginMode,
-    RecordContext,
-)
+from crew_health.kernel.units import Quantity, Unit
+from crew_health.kernel.uow import UnitOfWork
+
+type OriginMode = Literal["LIVE", "REPLAY", "SIM"]  # internal enum
 
 
-class RecordAuthorization(Protocol):
-    def require_read(
-        self,
-        view: ReadSnapshot | UnitOfWork,
-        session: SessionContext,
-        *,
-        object_ref: str,
-        patient_id: str,
-        fields: frozenset[str],
-    ) -> None: ...
-    def require_write(self, uow: UnitOfWork, session: SessionContext, context: RecordContext) -> None: ...
+@dataclass(frozen=True, slots=True)
+class ObservationDraft:
+    """A crewmate-entered observation (E30 teach) appended in the caller's unit of work."""
+
+    patient_id: str
+    operator_id: str
+    episode_id: str | None
+    code: str
+    value: Quantity
+    observed_at: datetime
+    entered_at: datetime
+    origin_mode: OriginMode
+    acquisition_method: Literal["crewmate_palpation"]  # the only method teach writes
+    quality_status: Literal["accepted"]
+    quality_rule_version: str
+    body_region: str | None
+    context: Mapping[str, str]
 
 
-class SubjectBinding(Protocol):
-    def bind(self, uow: UnitOfWork, session: SessionContext, value: ObservationInput) -> RecordContext: ...
+@dataclass(frozen=True, slots=True)
+class AttemptObservationDraft:
+    """A validated measurement attempt value (E05 measurement) appended in the attempt's unit of work."""
+
+    patient_id: str
+    episode_id: str | None
+    code: str
+    quantity: Quantity
+    observed_at: datetime
+    origin_mode: OriginMode
+    acquisition_method: str
+    device_id: str | None
+    context: Mapping[str, str]
+    body_region: str | None
+    supersedes: str | None
+    measurement_request_id: str
+    attempt_id: str
+    operator_id: str | None
 
 
-class ObservationPolicies(Protocol):
-    def for_code(self, release: ReleaseHandle, code: str) -> ObservationPolicy: ...
+@dataclass(frozen=True, slots=True)
+class AnswerDraft:
+    record_id: str
+    question_id: str
+    questionnaire_version: str
+    presence: Literal["present", "absent", "unknown"]  # internal enum
+    value: str
+    body_region: str | None
+    actor_person_id: str
+    answered_at: datetime
+    origin_mode: OriginMode
+    supersedes: str | None
+    episode_id: str | None
 
 
-class ProducerProof(Protocol):
-    def verify(
-        self, uow: UnitOfWork, session: SessionContext, value: ObservationInput, context: RecordContext
+class ObservationCommands(Protocol):
+    def canonical_unit(self, code: str) -> Unit: ...
+    def append_observation(
+        self, uow: UnitOfWork, draft: ObservationDraft, *, idempotency_key: str
     ) -> str: ...
+    def append_for_attempt(self, uow: UnitOfWork, draft: AttemptObservationDraft) -> str: ...
 
 
-class EpisodeBinding(Protocol):
-    def require(
-        self, uow: UnitOfWork, session: SessionContext, *, episode_id: str, context: RecordContext
-    ) -> None: ...
-
-
-class AnswerWorkflow(Protocol):
-    def require(self, uow: UnitOfWork, session: SessionContext, answer: AnswerRecord) -> None: ...
-
-
-class RecordsStore(Protocol):
-    def observation(
-        self, view: ReadSnapshot | UnitOfWork, observation_id: str
-    ) -> ObservationRecord | None: ...
-    def answer(self, view: ReadSnapshot | UnitOfWork, answer_id: str) -> AnswerRecord | None: ...
-    def add_observation(self, uow: UnitOfWork, value: ObservationRecord) -> None: ...
-    def add_answer(self, uow: UnitOfWork, value: AnswerRecord) -> None: ...
-    def observations(
-        self,
-        view: ReadSnapshot | UnitOfWork,
-        *,
-        person_id: str,
-        mission_id: str,
-        origin_mode: OriginMode,
-        code: str,
-        limit: int,
-        accepted_only: bool = True,
-        before: datetime | None = None,
-    ) -> tuple[ObservationRecord, ...]: ...
-    def answers(
-        self,
-        view: ReadSnapshot | UnitOfWork,
-        *,
-        person_id: str,
-        mission_id: str,
-        origin_mode: OriginMode,
-        question_id: str,
-        limit: int,
-    ) -> tuple[AnswerRecord, ...]: ...
-
-
-class ObservationEvaluation(Protocol):
-    def observation_accepted(self, uow: UnitOfWork, observation: ObservationRecord) -> None: ...
+class AnswerCommands(Protocol):
+    def append_answer(self, uow: UnitOfWork, draft: AnswerDraft, *, idempotency_key: str) -> str: ...

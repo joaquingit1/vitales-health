@@ -10,13 +10,13 @@ from . import common_schema
 
 class EvidencePassage(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     passage_id: common_schema.Id
     source_id: common_schema.SourceId
     release_id: common_schema.Id
     text: str = Field(..., min_length=1)
-    allowed_uses: list[
-        Literal['risk_context', 'patient_instruction', 'routine_basis', 'limit_basis']
-    ] = Field(..., min_length=1)
-    status: Literal['approved', 'superseded', 'withdrawn']
+    allowed_uses: list[Literal["risk_context", "patient_instruction", "routine_basis", "limit_basis"]] = (
+        Field(..., min_length=1)
+    )
+    status: Literal["approved", "superseded", "withdrawn"]

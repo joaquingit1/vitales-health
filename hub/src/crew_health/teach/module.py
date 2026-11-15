@@ -14,7 +14,7 @@ from fastapi import APIRouter
 
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import CommandReceipts, IdempotencyStore
-from crew_health.kernel.config import ConfigReader, ConfigReleaseReader, ReleaseCheck, TemplateRenderer
+from crew_health.kernel.config import ConfigBinding, ConfigReader, ConfigReleaseReader, ReleaseCheck
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.settings import HubSettings, SettingSpec
 from crew_health.kernel.units import UnitRegistry
@@ -143,7 +143,7 @@ def register(registry: ModuleRegistry) -> None:
             settings=settings,
             releases=resolver.require(ConfigReleaseReader),
             content=ContentLoader(resolver.require(ConfigReader), max_cached=settings.content_cache_max),
-            renderer=resolver.require(TemplateRenderer),
+            config=resolver.require(ConfigBinding),
             idempotency=resolver.require(IdempotencyStore),
             receipts=resolver.require(CommandReceipts),
             units=resolver.require(UnitRegistry),

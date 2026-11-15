@@ -212,7 +212,7 @@ def test_computation_fault_preserves_delivery_existing_state_and_degrades(
     hub.deliver()
     assert hub.rows("SELECT override_id,revision,state FROM routine_override ORDER BY override_id") == before
     with hub.db.snapshot() as view:
-        assert hub.events.cursor(view.connection, "routine.inputs") >= event.seq
+        assert (hub.events.cursor(view.connection, "routine.inputs") or 0) >= event.seq
     assert any(component.code == "EVALUATION_UNAVAILABLE" for component in hub.health.snapshot().components)
     assert audited(hub, "evaluation_failed")
 

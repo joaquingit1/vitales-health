@@ -10,11 +10,11 @@ from . import common_schema, error_schema
 
 class Job(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     job_id: common_schema.Id
-    kind: Literal['assessment', 'report_extraction', 'participation_rebuild']
-    state: Literal['queued', 'running', 'succeeded', 'failed', 'cancelled']
+    kind: Literal["assessment", "report_extraction", "participation_rebuild"]
+    state: Literal["queued", "running", "succeeded", "failed", "cancelled"]
     progress: float = Field(..., ge=0.0, le=1.0)
     result_ref: common_schema.EvidenceRef | None
     error: error_schema.ErrorEnvelope | None

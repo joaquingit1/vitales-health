@@ -14,27 +14,25 @@ class Step(RootModel[str]):
 
 class Trigger(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     index: int = Field(..., ge=0)
     trigger_text: str = Field(..., min_length=1)
     binding_id: common_schema.DottedId | None
-    mode: Literal['automatic', 'manual']
+    mode: Literal["automatic", "manual"]
     new_cadence: common_schema.Cadence
     basis: common_schema.Basis
 
 
 class RoutineTask(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     item_id: common_schema.ConfigId
     name: str = Field(..., min_length=1)
     plain: str = Field(..., min_length=1)
     why: str = Field(..., min_length=1)
-    who: list[Literal['self', 'crewmate', 'crew_medical_officer', 'ground']] = Field(
-        ..., min_length=1
-    )
+    who: list[Literal["self", "crewmate", "crew_medical_officer", "ground"]] = Field(..., min_length=1)
     instrument: str = Field(..., min_length=1)
     minutes: int = Field(..., ge=0)
     steps: list[Step] = Field(..., min_length=1)

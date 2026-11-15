@@ -10,9 +10,44 @@ from typing import Literal, Protocol
 from crew_health.kernel.config import ReleaseHandle
 from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import ReadSnapshot, UnitOfWork
-from crew_health.kitmap.domain.model import CapabilityWords, Instrument, KitCapability, KitMapDoc
 
 type Snap = UnitOfWork | ReadSnapshot
+
+
+@dataclass(frozen=True, slots=True)
+class Instrument:
+    id: str
+    name: str
+    needs_text: str
+    capability_codes: tuple[str, ...]
+    method: str
+
+
+@dataclass(frozen=True, slots=True)
+class CapabilityWords:
+    code: str
+    label: str
+    body_region: str | None
+    operator_requirement: Literal["self", "crewmate", "crew_medical_officer"]
+    expected_duration_seconds: int | None
+    basis: str
+    components: tuple[str, ...] = ()  # a panel's indicator codes (config-kit-map), empty for one value
+
+
+@dataclass(frozen=True, slots=True)
+class KitCapability:
+    code: str
+    label: str
+    body_region: str | None
+    operator_requirement: Literal["self", "crewmate", "crew_medical_officer"]
+    expected_duration_seconds: int | None
+    methods: tuple[str, ...]
+    instrument_ids: tuple[str, ...]
+    missing_instrument_ids: tuple[str, ...]
+    applicable_environments: tuple[str, ...]
+    kit_status: Literal["available", "unavailable"]
+    kit_reason: Literal["not_in_kit"] | None
+    components: tuple[str, ...] = ()  # a panel's indicator codes (config-kit-map), empty for one value
 
 
 @dataclass(frozen=True, slots=True)
@@ -22,26 +57,26 @@ class KitCheckTemplates:
 
 
 @dataclass(frozen=True, slots=True)
-class KitMapRelease:
-    """Everything one computation reads from one configuration release (E27 4.1)."""
+class KitMapRelease[Document]:
+    """One release with its parsed document, kept generic so ports never import domain types (E27 4.1)."""
 
     release_id: str
-    doc: KitMapDoc
+    doc: Document
     templates: KitCheckTemplates | None  # ui-copy kit_check_templates; None when the release has no ui-copy
     skill_ids: frozenset[str]  # skills-catalog skill IDs; empty when the release has none
     has_onboard_plans: bool
 
 
-class KitMapReleaseSource(Protocol):
-    def for_release(self, release: ReleaseHandle) -> KitMapRelease: ...
+class KitMapReleaseSource[Document](Protocol):
+    def for_release(self, release: ReleaseHandle) -> KitMapRelease[Document]: ...
 
 
 @dataclass(frozen=True, slots=True)
-class KitMapContext:
+class KitMapContext[Document]:
     """Captured once per request: one snapshot, one release, one environment, one instant (KM-I8)."""
 
     snapshot: Snap
-    release: KitMapRelease
+    release: KitMapRelease[Document]
     environment_id: str
     at: datetime
 
@@ -150,11 +185,11 @@ class PlanChange:
 
 # Implemented by E28 (crew_health.plans); E27 4.1 defines it.
 class PlanColumnsPort(Protocol):
-    def row_columns(
-        self, ctx: KitMapContext, *, kit: frozenset[str], plan_ids: Sequence[str | None]
+    def row_columns[Document](
+        self, ctx: KitMapContext[Document], *, kit: frozenset[str], plan_ids: Sequence[str | None]
     ) -> Sequence[PlanColumns]: ...
-    def plans_changed(
-        self, ctx: KitMapContext, *, base_kit: frozenset[str], delta: PlanningDelta
+    def plans_changed[Document](
+        self, ctx: KitMapContext[Document], *, base_kit: frozenset[str], delta: PlanningDelta
     ) -> Sequence[PlanChange]: ...
 
 
@@ -167,8 +202,8 @@ class CoverChange:
 
 # Implemented by E32 (crew_health.supplies); E27 4.1 defines it.
 class CoverPlanningPort(Protocol):
-    def cover_changed(
-        self, ctx: KitMapContext, *, add_supplies: Sequence[SupplyAddition]
+    def cover_changed[Document](
+        self, ctx: KitMapContext[Document], *, add_supplies: Sequence[SupplyAddition]
     ) -> Sequence[CoverChange]: ...
 
 

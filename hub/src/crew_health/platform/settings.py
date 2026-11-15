@@ -140,6 +140,10 @@ def specifications() -> tuple[SettingSpec, ...]:
         ("registry.startup_timeout_ms", 1, 300000),
         ("backup.timeout_ms", 1, 300000),
         ("workers.hub.timeout_ms", 1, 300000),
+        ("workers.shutdown_timeout_ms", 1, 300000),
+        ("supervisor.poll_ms", 1, 60000),
+        ("supervisor.subscriber_pages", 1, 64),
+        ("units.max_cached", 1, 4096),
     )
     return tuple(
         SettingSpec(

@@ -10,12 +10,12 @@ from . import common_schema
 
 class Calendar(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     week_days: int = Field(..., ge=1)
     month_days: int = Field(..., ge=1)
-    anchor: Literal['environment_start', 'mission_start'] = Field(
-        ..., description='Day the interval counts from.'
+    anchor: Literal["environment_start", "mission_start"] = Field(
+        ..., description="Day the interval counts from."
     )
     basis: common_schema.Basis
 
@@ -26,7 +26,7 @@ class SuppressedOverlays(BaseModel):
 
 class DisplayGroup(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     cadence_words: list[common_schema.CadenceWord]
@@ -35,25 +35,25 @@ class DisplayGroup(BaseModel):
 class WindowMinutes(RootModel[int]):
     root: int = Field(
         ...,
-        description='Length of the due window from preferred_time. null: due all day.',
+        description="Length of the due window from preferred_time. null: due all day.",
         ge=1,
     )
 
 
 class ItemPolicy(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     item_id: common_schema.ConfigId
     preferred_time: common_schema.LocalTime | None
     window_minutes: WindowMinutes | None
-    per_eva: Literal['before_start', 'after_end', 'both'] | None
+    per_eva: Literal["before_start", "after_end", "both"] | None
     basis: common_schema.Basis
 
 
 class Misses(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     ask_barrier_after_misses: int = Field(..., ge=1)
     window_days: int = Field(..., ge=1)
@@ -63,103 +63,103 @@ class Misses(BaseModel):
 
 class Binds(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['trigger']
+    kind: Literal["trigger"]
     item_id: common_schema.ConfigId
     trigger_index: int = Field(..., ge=0)
     trigger_text: str = Field(
         ...,
-        description='Copy of raise_frequency_when[i].trigger; the loader rejects a mismatch.',
+        description="Copy of raise_frequency_when[i].trigger; the loader rejects a mismatch.",
         min_length=1,
     )
 
 
 class Binds1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['cadence_event']
+    kind: Literal["cadence_event"]
     item_id: common_schema.ConfigId
     environment_id: common_schema.EnvironmentId | None
     event_text: str = Field(
         ...,
-        description='Copy of the cadence event or phase words; the loader rejects a mismatch.',
+        description="Copy of the cadence event or phase words; the loader rejects a mismatch.",
         min_length=1,
     )
 
 
 class On(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['warning_raised']
+    kind: Literal["warning_raised"]
     definition_ids: list[common_schema.ConfigId] = Field(..., min_length=1)
 
 
 class On1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['mission_event']
+    kind: Literal["mission_event"]
     event_types: list[common_schema.ConfigId] = Field(..., min_length=1)
 
 
 class On2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['overlay_ended']
+    kind: Literal["overlay_ended"]
     overlay: common_schema.Overlay
 
 
 class On3(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['overlay_planned']
+    kind: Literal["overlay_planned"]
     overlay: common_schema.Overlay
 
 
 class On4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['answer']
+    kind: Literal["answer"]
     question_id: common_schema.ConfigId
     presence: list[common_schema.Presence] = Field(..., min_length=1)
 
 
 class On5(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['observation']
+    kind: Literal["observation"]
     code: common_schema.ConfigId
-    comparator: Literal['above', 'at_or_above', 'below', 'at_or_below']
+    comparator: Literal["above", "at_or_above", "below", "at_or_below"]
     value: float
     unit: str = Field(..., min_length=1)
 
 
 class On6(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['environment_activated']
+    kind: Literal["environment_activated"]
     environments: list[common_schema.EnvironmentId] = Field(..., min_length=1)
 
 
 class Effect(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['replace_cadence']
+    kind: Literal["replace_cadence"]
     cadence: common_schema.Cadence
 
 
 class Time(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     day_offset: int = Field(..., ge=0)
     local_time: common_schema.LocalTime
@@ -171,15 +171,13 @@ class EveryMinutes(RootModel[int]):
 
 class Effect2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['add_occurrences']
-    at_trigger: bool = Field(..., description='One occurrence due at the trigger time.')
+    kind: Literal["add_occurrences"]
+    at_trigger: bool = Field(..., description="One occurrence due at the trigger time.")
     times: list[Time]
     every_minutes: EveryMinutes | None
-    at_clear: bool = Field(
-        ..., description="One occurrence when the trigger's warning clears."
-    )
+    at_clear: bool = Field(..., description="One occurrence when the trigger's warning clears.")
     basis: common_schema.Basis
 
 
@@ -189,70 +187,70 @@ class RepeatAfterMinute(RootModel[int]):
 
 class Effect3(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['add_questions']
+    kind: Literal["add_questions"]
     question_set_id: common_schema.ConfigId
-    attach_to: Literal['next_occurrence', 'each_occurrence']
+    attach_to: Literal["next_occurrence", "each_occurrence"]
     repeat_after_minutes: list[RepeatAfterMinute]
     basis: common_schema.Basis
 
 
 class Until(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['warning_cleared']
+    kind: Literal["warning_cleared"]
 
 
 class Until1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['effect_complete']
+    kind: Literal["effect_complete"]
 
 
 class Until2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['days']
+    kind: Literal["days"]
     days: int = Field(..., ge=1)
     basis: common_schema.Basis
 
 
 class Until3(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['person_stops']
-    role: Literal['crew_medical_officer', 'ground', 'self']
+    kind: Literal["person_stops"]
+    role: Literal["crew_medical_officer", "ground", "self"]
 
 
 class Until4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['mission_event']
+    kind: Literal["mission_event"]
     event_types: list[common_schema.ConfigId] = Field(..., min_length=1)
 
 
 class Binding(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     binding_id: common_schema.DottedId
     binds: Binds | Binds1
     on: On | On1 | On2 | On3 | On4 | On5 | On6
     effect: Effect | Effect2 | Effect3
     until: Until | Until1 | Until2 | Until3 | Until4
-    audience: Literal['person', 'everyone_in_location', 'all_crew']
+    audience: Literal["person", "everyone_in_location", "all_crew"]
     basis: common_schema.Basis
 
 
 class RoutineRulesJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     notice: str = Field(
         ...,
@@ -262,7 +260,7 @@ class RoutineRulesJson(BaseModel):
     calendar: Calendar
     suppressed_overlays: list[common_schema.Overlay] | SuppressedOverlays = Field(
         ...,
-        description='Nothing routine is due while one of these overlays is active. Must contain sleep and eva.',
+        description="Nothing routine is due while one of these overlays is active. Must contain sleep and eva.",
         min_length=2,
     )
     display_groups: list[DisplayGroup] = Field(..., min_length=1)

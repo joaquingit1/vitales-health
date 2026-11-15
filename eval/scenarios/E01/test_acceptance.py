@@ -11,7 +11,7 @@ import hashlib
 import json
 import shutil
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -20,20 +20,26 @@ import pytest
 from fastapi import FastAPI, Request
 from httpx import ASGITransport, AsyncClient
 
+# isort: split
 from crew_health.app.assembly import BuildCatalog, ConfigHttpMetadata, RecordHttpServices, create_app
+from crew_health.app.cli import TimeConfirmation, confirm_time
 from crew_health.app.registry import ModuleRegistry, StartupPhase
 from crew_health.clock.adapters.repository import SqlClockRepository
 from crew_health.clock.application.clock import PersistentClocks
+from crew_health.clock.settings import specifications as clock_specs
 from crew_health.config.adapters.repository import ConfigRepository, SQLiteConfigReader
 from crew_health.config.adapters.verification import ConfigArtifacts
 from crew_health.config.application.activation import ReleaseActivationService
 from crew_health.config.application.loader import ConfigLoader, LoaderChecks, required_contributors
+from crew_health.config.domain.package_checks import PACKAGE_CHECK_IDS
 from crew_health.config.domain.templates import TemplateCheck
+from crew_health.config.settings import specifications as config_specs
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode, Role
 from crew_health.contracts_gen.schemas.event_page_schema import EventPage
 from crew_health.contracts_gen.schemas.observation_schema import Observation
 from crew_health.events.adapters.repository import EventRepository, EventValidator
-from crew_health.events.module import EventAccess
+from crew_health.events.application.delivery import SessionAuthorizer
+from crew_health.events.settings import specifications as event_specs
 from crew_health.kernel.clock import ClockCorrection, ClockSegment, TimeInput
 from crew_health.kernel.commands import CommandIdentity, StoredResult
 from crew_health.kernel.config import CandidateRelease, ConfigDocumentView, ReleaseHandle
@@ -50,6 +56,7 @@ from crew_health.kernel.uow import (
     UnitOfWork,
 )
 from crew_health.platform.settings import ValidatedSettings
+from crew_health.platform.settings import specifications as platform_specs
 from crew_health.platform.storage import SQLiteDatabase
 from crew_health.platform.testing.sqlite import database
 from crew_health.records.adapters.repository import RecordRepository
@@ -57,6 +64,7 @@ from crew_health.records.application.commands import RecordsCommands
 from crew_health.records.application.queries import RecordsQueries
 from crew_health.records.application.visibility import OwnerAuthorization
 from crew_health.records.domain.observations import ObservationInput, ObservationPolicy, RecordContext
+from crew_health.records.settings import specs as record_specs
 
 pytestmark = [
     pytest.mark.E01,
@@ -147,7 +155,10 @@ class FixtureVisibility:
 def fixture_candidate() -> CandidateRelease:
     documents = {}
     for name in ConfigName:
-        if name.value in {"environment-hazards", "routine-schedule", "responder-flows"}:
+        if name == ConfigName.UNIT_MAPPING:
+            # D12: the accepted unit mapping lives only in config/, with no package example.
+            raw = (ROOT / "config/unit-mapping.json").read_bytes()
+        elif name.value in {"environment-hazards", "routine-schedule", "responder-flows"}:
             raw = (ROOT / "docs/product" / (name.value + ".json")).read_bytes()
         else:
             suffix = (
@@ -188,11 +199,6 @@ def fixture_artifacts() -> ConfigArtifacts:
 
 
 def fixture_settings() -> ValidatedSettings:
-    from crew_health.clock.settings import specifications as clock_specs
-    from crew_health.config.settings import specifications as config_specs
-    from crew_health.events.settings import specifications as event_specs
-    from crew_health.platform.settings import specifications as platform_specs
-    from crew_health.records.settings import specs as record_specs
 
     specs = (
         *platform_specs(),
@@ -213,6 +219,9 @@ def static_core(tmp_path: Path) -> BuildCatalog:
         path.mkdir(parents=True)
         for name in ("__init__.py", "module.py"):
             shutil.copyfile(ROOT / "hub/src/crew_health" / module / name, path / name)
+        shutil.copytree(
+            ROOT / "hub/src/crew_health" / module / "adapters/migrations", path / "adapters/migrations"
+        )
     return BuildCatalog.core(target)
 
 
@@ -387,6 +396,8 @@ def explicit_sim_station(tmp_path: Path, *, missing: str | None = None) -> SimSt
         "value"
     ]["documents"]
     summaries = {ConfigName(row["name"]): row["basis_summary"] for row in descriptions}
+    # The package index predates D12; the 19th document's summary is this fixture's own text.
+    summaries[ConfigName.UNIT_MAPPING] = "D12 accepted unit mapping, config/unit-mapping.json"
     projection = LocalProjectionRegistration(
         AudienceProjectionKey("config", "release", 1),
         (ROOT / "hub/src/crew_health/config/replica.schema.json").read_bytes(),
@@ -394,21 +405,41 @@ def explicit_sim_station(tmp_path: Path, *, missing: str | None = None) -> SimSt
         security,
     )
 
+    # Config's package checks bind from the artifacts; the one left out stays unbound and fails closed.
+    stand_ins = tuple(
+        MemoryReleaseCheck(identifier, lambda candidate: ())
+        for identifier in PACKAGE_CHECK_IDS
+        if identifier != missing
+    )
+    station_artifacts = replace(artifacts, package=stand_ins)
+
     def configure(registry: ModuleRegistry) -> None:
-        registry.provide(ConfigArtifacts, lambda resolver: artifacts)
+        registry.provide(ConfigArtifacts, lambda resolver: station_artifacts)
         registry.provide(
             ConfigHttpMetadata,
             lambda resolver: ConfigHttpMetadata(summaries, lambda view: "SIM", FixtureVisibility(security)),
         )
-        registry.provide(
-            EventAccess, lambda resolver: EventAccess(security, (projection,), {"config.release": security})
-        )
+        registry.provide(SessionAuthorizer, lambda resolver: security)
+        registry.local_projection(projection)
         registry.provide(RecordHttpServices, lambda resolver: record_http)
-        for identifier in sorted(required_contributors() - {"1", "2", "9", "13"}):
-            if identifier != missing:
-                registry.loader_check(MemoryReleaseCheck(identifier, lambda candidate: ()))
 
     return SimStation(db, static_core(tmp_path), security, configure)
+
+
+def health_status(app: FastAPI) -> str:
+    async def read() -> str:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://station") as client:
+            response = await client.get("/v1/health")
+            assert response.status_code == 200
+            return str(response.json()["status"])
+
+    return asyncio.run(read())
+
+
+def correct_hub_clock(app: FastAPI) -> None:
+    """The crew's time confirmation through the production command; the supervisor's sweep then allows
+    clearing (SYSTEM 5.2: a fresh hub starts frozen)."""
+    confirm_time(app.state.runtime, TimeConfirmation(0, 0, "operator_fixture"))
 
 
 def test_full_startup_configuration_http_event_and_restart(tmp_path: Path) -> None:
@@ -416,6 +447,8 @@ def test_full_startup_configuration_http_event_and_restart(tmp_path: Path) -> No
     app = station.app()
     assert app.state.runtime.serving, app.state.runtime.fault_code
     assert app.state.runtime.completed_phases == list(StartupPhase)
+    assert health_status(app) == "degraded"
+    correct_hub_clock(app)
 
     async def run() -> str:
         editor = {"Authorization": "Bearer editor-fixture"}
@@ -461,7 +494,7 @@ def test_full_startup_configuration_http_event_and_restart(tmp_path: Path) -> No
                 event.type == "config.release_activated" and event.config_release_id.root == identifier
                 for event in page.events
             )
-            return identifier
+            return str(identifier)
 
     active_id = asyncio.run(run())
     reopened_station = station.reopen()
@@ -469,6 +502,8 @@ def test_full_startup_configuration_http_event_and_restart(tmp_path: Path) -> No
     restarted = reopened_station.app()
     assert restarted.state.runtime.serving, restarted.state.runtime.fault_code
     assert restarted.state.runtime.completed_phases == list(StartupPhase)
+    # The hub correction survives the restart: a new process opens a new segment but stays allowed to clear.
+    assert health_status(restarted) == "ok"
     with reopened_station.database.snapshot() as view:
         assert view.release.release_id == active_id
         assert b"explicit SIM edit" in view.release.document(ConfigName.UI_COPY).raw
