@@ -213,11 +213,13 @@ def test_shot_c_a_camera_pulse_request_reaches_the_twin_and_records_a_sim_readin
 
 def test_shot_e_help_opens_with_the_model_stopped(served: Served) -> None:
     """Someone needs help on the served hub (AGENTS 1 rule 3): no model is running, the session opens and reads
-    back. setAssistantRuntime is not on main, so model-stop is refused as absent and the assistant stays as
-    health reports it: unavailable."""
+    back. The runtime control route is served now: model-stop is accepted, and the assistant still reads as not
+    running in health."""
     _, health = served.hub.call("GET", "/v1/health")
     assert isinstance(health, dict) and health["assistant_state"] == "unavailable"
-    assert served.cue("model-stop") == 1
+    assert served.cue("model-stop") == 0
+    _, health = served.hub.call("GET", "/v1/health")
+    assert isinstance(health, dict) and health["assistant_state"] in ("unavailable", "stopped")
     token = served.sign_in("mara")
     opened_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     status, session = served.post(

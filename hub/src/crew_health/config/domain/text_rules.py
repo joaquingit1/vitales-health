@@ -25,3 +25,16 @@ class AmountRules:
                 raise ConfigInvalid("text match bound exceeded")
             spans.append(match.span())
         return tuple(spans)
+
+    def find_terms(self, text: str, terms: tuple[str, ...]) -> tuple[tuple[int, int], ...]:
+        """Whole-word, case-insensitive matches of any term (a trailing plural s allowed), bounded like find."""
+        if len(text.encode("utf-8")) > self.max_text_bytes:
+            raise ConfigInvalid("text byte bound exceeded")
+        alternatives = "|".join(re.escape(term.strip()) for term in sorted(terms, key=len, reverse=True))
+        pattern = re.compile(r"(?<!\w)(?:" + alternatives + r")s?(?!\w)", re.IGNORECASE)
+        spans: list[tuple[int, int]] = []
+        for match in pattern.finditer(text):
+            if len(spans) >= self.max_matches:
+                raise ConfigInvalid("text match bound exceeded")
+            spans.append(match.span())
+        return tuple(spans)

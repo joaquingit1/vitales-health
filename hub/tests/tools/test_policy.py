@@ -97,12 +97,35 @@ def test_prose_requires_exact_owner_authored_content_and_pin() -> None:
     policy = OutputPolicy(rules, MemorySettings(setting_specs(), settings_values()))
     assert policy.check((field,), scope(), turn).allowed
     for unsupported in (
-        TextField("text", "unsupported claim", None),
+        TextField("text", "your pulse was 120, above the limit", None),
         TextField("text", "invented threshold", "step_a"),
         TextField("text", "source content", "wrong_step"),
     ):
         assert not policy.check((unsupported,), scope(), turn).allowed
     assert not policy.check((field,), scope(), TurnData(MemoryRelease("other", {}), 1, (field,))).allowed
+
+
+@pytest.mark.trace("T-E12-060", "R56")
+def test_model_prose_passes_only_the_deterministic_rules() -> None:
+    from dataclasses import replace
+
+    from crew_health.kernel.testing import MemorySettings
+    from crew_health.tools.application.policy_service import OutputPolicy
+    from crew_health.tools.application.ports import TextField, TurnData
+    from crew_health.tools.settings import setting_specs
+    from tests.tools.test_bounds import settings_values
+    from tests.tools.test_gateway import scope
+
+    prose = TextField("reason", "Your pulse I can measure. Your rhythm I can't: that needs an ECG.", None)
+    turn = TurnData(MemoryRelease("cfg_a", {}), 1, ())
+    settings = MemorySettings(setting_specs(), settings_values())
+    assert OutputPolicy(Rules(pin="cfg_a"), settings).check((prose,), scope(), turn).allowed
+    for rules in (Rules(pin="cfg_a", amount=True), Rules(pin="cfg_a", medicine=True)):
+        assert not OutputPolicy(rules, settings).check((prose,), scope(), turn).allowed
+    policy = OutputPolicy(Rules(pin="cfg_a"), settings)
+    assert not policy.check((replace(prose, text="Your pulse was 1 beat fast"),), scope(), turn).allowed
+    replay = replace(scope(), origin_mode="REPLAY")
+    assert not policy.check((prose,), replay, turn).allowed
 
 
 @pytest.mark.trace("T-E12-060", "I7")

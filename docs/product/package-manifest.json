@@ -1490,8 +1490,8 @@
     },
     {
       "path": "api/schemas/config-assistant-policy.schema.json",
-      "bytes": 3276,
-      "sha256": "9ddb704dfb9573e8c1526dc0eb10382f3801bedd509d5a37bf475e68d5d75f85"
+      "bytes": 3677,
+      "sha256": "1d9c6276e23b47e5e5441af24239dbf2d7db0122fb32331af7c1a19d49e3156b"
     },
     {
       "path": "api/schemas/config-document.schema.json",
@@ -1585,8 +1585,8 @@
     },
     {
       "path": "api/schemas/config-ui-copy.schema.json",
-      "bytes": 35429,
-      "sha256": "048ee63e7699e201d96a97216dd809b3bf227310547dc5decb6d39647a17ee4e"
+      "bytes": 39716,
+      "sha256": "8716b4a7bef0997f6bdbf165c92f43bc4b8ca7244e3cbe0a7b9ea80f07e633f2"
     },
     {
       "path": "api/schemas/config-warning-rules.schema.json",

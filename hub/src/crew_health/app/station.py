@@ -352,6 +352,27 @@ def _camera_f1(registry: ModuleRegistry, provided: Mapping[object, object], repo
         registry.provide(camera_ports.AttemptReports, partial(_constant, reports))  # type: ignore[type-abstract,arg-type]
 
 
+def _episode_rules(registry: ModuleRegistry, resources: HubResources) -> None:
+    """E15's episode-rules.json under E15's real port (episodes/api/CONTRACT.md: the host constructs
+    EpisodeRulesSource from validated bytes). E01 has no ConfigName for it yet, so it is parsed once at startup from
+    the hub's configuration resources and pinned to the configuration release active at bind time; a document that
+    does not parse stops the hub (AGENTS 3, rule 3). Without the file E15 stays unbound, as before."""
+    from crew_health.episodes.application.rules import EpisodeRulesSource, parse_rules
+    from crew_health.kernel.uow import ReadSnapshotFactory
+
+    path = resources.config / "episode-rules.json"
+    if not path.is_file():
+        return
+    rules = parse_rules(path.read_bytes())
+
+    def source(resolver: object) -> EpisodeRulesSource:
+        snapshots = resolver.require(ReadSnapshotFactory)  # type: ignore[attr-defined]
+        with snapshots.snapshot() as view:
+            return EpisodeRulesSource(rules, view.release.release_id)
+
+    registry.provide(EpisodeRulesSource, source, requires=(ReadSnapshotFactory,))
+
+
 def production(
     resources: HubResources,
     *,
@@ -383,6 +404,7 @@ def production(
             registry.provide(ModelInstallation, partial(_constant, model))  # type: ignore[arg-type]
         if stub is not None:
             registry.provide(StubInstallation, partial(_constant, stub))  # type: ignore[arg-type]
+        _episode_rules(registry, resources)
         if mission is not None:
             _demo_mission(registry, mission)
             provided = getattr(registry, "providers", {})

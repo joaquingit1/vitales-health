@@ -609,8 +609,10 @@ def platform_services(registry: DeclarationRegistry, runtime: Runtime) -> None:
 
     registry.provide(EvaluationService, evaluation, requires=(PersistentClocks, ConfigHttpMetadata))
     registry.provide(TaskService, tasks, requires=(PersistentClocks, ConfigHttpMetadata))
-    registry.provide(TaskQueue, lambda resolver: resolver.require(TaskService), requires=(TaskService,))  # type: ignore[type-abstract]
-    registry.provide(TaskRunner, lambda resolver: resolver.require(TaskService), requires=(TaskService,))  # type: ignore[type-abstract]
+    # A composer (station's camera F1 binding) may already have bound the same TaskService under these keys.
+    for port in (TaskQueue, TaskRunner):
+        if port not in registry.providers:
+            registry.provide(port, lambda resolver: resolver.require(TaskService), requires=(TaskService,))
     registry.provide(JobQueries, lambda resolver: resolver.require(TaskService), requires=(TaskService,))  # type: ignore[type-abstract]
     registry.provide(
         TaskFailureResults,  # type: ignore[type-abstract]

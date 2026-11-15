@@ -30,7 +30,12 @@ def require_text_checks(
 
 
 class OutputPolicy:
-    """Only owner-authored exact text is publishable without the pending semantic-verifier binding."""
+    """E12 4.4 over every string a turn wants to publish. A field that names a source (`source_ref`) claims to be
+    owner-authored and must match that pinned authored text exactly. A field without one is model prose: it passes
+    only the deterministic rules that need no semantic verifier, and fails closed on everything else:
+    dose (the shared amount and medicine checks), invented_threshold (no number at all, since a number in prose is an
+    unsourced numerical claim; values reach the screen through hub-rendered tool data) and replay_as_exposure (no
+    model prose in a REPLAY turn, where readings are not the person's)."""
 
     def __init__(self, rules: TextRulesPort | None, settings: HubSettings) -> None:
         self._rules = rules
@@ -61,6 +66,10 @@ class OutputPolicy:
             for field in turn.authored_fields
             if field.source_ref is not None
         )
-        if any((field.field, field.text, field.source_ref) not in authored for field in fields):
-            return PolicyVerdict(False, "MODEL_OUTPUT_REJECTED")
+        for field in fields:
+            if field.source_ref is not None:
+                if (field.field, field.text, field.source_ref) not in authored:
+                    return PolicyVerdict(False, "MODEL_OUTPUT_REJECTED")
+            elif scope.origin_mode == "REPLAY" or any(character.isdigit() for character in field.text):
+                return PolicyVerdict(False, "MODEL_OUTPUT_REJECTED")
         return PolicyVerdict(True, None)

@@ -38,6 +38,9 @@ class _Tokens:
     def count(self, text: str) -> int:
         return len(text.encode("utf-8"))
 
+    def count_request(self, body: Mapping[str, object]) -> int:
+        return self.count(json.dumps(body, sort_keys=True))
+
 
 def _manifest() -> dict[str, Any]:
     sys.path.insert(0, str(ROOT / "hub/tests"))
@@ -234,7 +237,11 @@ def test_shot_c_kit_check_reply_and_a_proposed_pulse_request_the_crew_confirms(t
         _runtime(client, directory, "start", "running")
         mara = _sign_in(client, directory, "crew", "mara")
         reply = _turn(client, mara, _episode_conversation(client, mara), 30)
-        assert reply["status"] == "complete", reply
+        assert reply["status"] == "complete", (
+            reply.get("error_code"),
+            reply,
+            _turn_record(directory, reply["turn_id"]),
+        )
         assert reply["role"] == "assistant" and reply["text"] is None
         action = reply["action"]
         assert action["action"] == "request_measurement" and action["capability_code"] == "pulse"
@@ -252,13 +259,17 @@ def test_shot_c_kit_check_reply_and_a_proposed_pulse_request_the_crew_confirms(t
         request = client.get(f"/v1/measurement-requests/{request_id}", headers=mara)
         assert request.status_code == 200, request.text
         assert request.json()["state"] == "proposed"
-        accepted = client.post(
-            f"/v1/measurement-requests/{request_id}/actions",
-            json={"action": "accept"},
-            headers={**_key(mara), "If-Match": request.headers["ETag"]},
-        )
-        assert accepted.status_code == 200, accepted.text
-        assert accepted.json()["state"] != "proposed"
+        # Mara confirms it (E05: submit, then the assigned operator, here Mara herself, accepts).
+        etag = request.headers["ETag"]
+        for action, state in (("submit", "awaiting_acceptance"), ("accept", "accepted")):
+            acted = client.post(
+                f"/v1/measurement-requests/{request_id}/actions",
+                json={"action": action},
+                headers={**_key(mara), "If-Match": etag},
+            )
+            assert acted.status_code == 200, acted.text
+            assert acted.json()["state"] == state
+            etag = client.get(f"/v1/measurement-requests/{request_id}", headers=mara).headers["ETag"]
 
     _serve(directory, run, model)
 
@@ -328,7 +339,11 @@ def test_with_the_model_stopped_the_send_is_refused_honestly_and_help_still_open
         assert body["messages"] == [] and body["active_turn_id"] is None
         helped = client.post(
             "/v1/help-sessions",
-            json={"subject": {"kind": "self"}, "entry": {"kind": "button"}},
+            json={
+                "subject": {"kind": "self"},
+                "entry": {"kind": "button"},
+                "client_opened_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            },
             headers=_key(mara),
         )
         assert helped.status_code == 201, helped.text

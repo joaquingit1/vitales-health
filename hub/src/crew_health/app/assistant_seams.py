@@ -16,11 +16,13 @@ from crew_health.app.registry import ModuleRegistry, Resolver
 from crew_health.assistant.adapters.conversations import EpisodeAccess, PersonOrigin, TurnAnchor
 from crew_health.assistant.application import tools_copies as copies
 from crew_health.assistant.application.ports import CommandFingerprint as AssistantFingerprint
-from crew_health.episodes.application.ports import EpisodeFacts
+from crew_health.episodes.application.ports import EpisodeFacts, OriginNamespace
 from crew_health.identity.application.service import IdentityService
-from crew_health.kernel.clock import Clock, ClockSegment, TimeInput
-from crew_health.kernel.uow import Actor, UnitOfWork
+from crew_health.kernel.clock import Clock, ClockCorrections, ClockSegment, TimeInput
+from crew_health.kernel.uow import Actor, ReadSnapshotFactory, UnitOfWork
+from crew_health.measurement.application import ports as measurement
 from crew_health.platform.adapters.fingerprint import KeyedCommandFingerprint
+from crew_health.tools.adapters.clock_capture import CorrectedCapture
 from crew_health.tools.application import ports as tools
 from crew_health.tools.domain import tool_result
 from crew_health.tools.domain.phase import Phase as ToolsPhase
@@ -125,14 +127,25 @@ class _Episodes:
 
 
 class _Anchor:
-    def __init__(self, clock: Clock, segment: Callable[[], ClockSegment | None]) -> None:
-        self.clock, self.segment = clock, segment
+    """A turn's deadline anchor: the hub's time on its own segment at the newest correction version, through
+    E12's CorrectedCapture (the same capture the gateway measures with). The segment's opening version can be
+    superseded before the first turn; anchoring on it would leave the start unknown and every tool timed out."""
+
+    def __init__(
+        self,
+        clock: Clock,
+        corrections: ClockCorrections,
+        snapshots: ReadSnapshotFactory,
+        segment: Callable[[], ClockSegment | None],
+    ) -> None:
+        self.clock, self.snapshots, self.segment = clock, snapshots, segment
+        self.capture = CorrectedCapture(clock, lambda: corrections, page=100)
 
     def anchor(self, origin_mode: Origin) -> TimeInput | None:
         segment = self.segment()
         if segment is None:
             return None
-        return TimeInput(
+        start = TimeInput(
             self.clock.now(),
             segment.source_clock_id,
             segment.segment_id,
@@ -140,6 +153,8 @@ class _Anchor:
             "hub_corrected",
             origin_mode,
         )
+        with self.snapshots.snapshot() as view:
+            return self.capture(cast(UnitOfWork, view), start)
 
 
 class _Origins:
@@ -149,6 +164,47 @@ class _Origins:
     def partition(self) -> tuple[str, Origin] | None:
         with self.identity.deps.snapshots.snapshot() as view:
             return self.identity.partition(view)
+
+
+class _MeasurementEpisodes:
+    """E05's structural copy of E15's EpisodeFacts, translated field by field."""
+
+    def __init__(self, owner: EpisodeFacts) -> None:
+        self.owner = owner
+
+    def get(self, uow: UnitOfWork, episode_id: str) -> measurement.EpisodeFact | None:
+        fact = self.owner.get(uow, episode_id)
+        if fact is None:
+            return None
+        return measurement.EpisodeFact(
+            fact.episode_id,
+            fact.patient_id,
+            fact.mission_id,
+            fact.origin_mode,
+            fact.state,
+            fact.revision,
+            fact.questionnaire_version,
+            fact.red_flag_ids,
+            fact.route_module_id,
+            fact.created_at,
+        )
+
+    def visible_to(self, uow: UnitOfWork, episode_id: str, actor: Actor) -> bool:
+        return self.owner.visible_to(uow, episode_id, actor)
+
+
+class _EpisodeOrigin:
+    """E15's OriginNamespace from E02's roster partition: a crew member of the active mission records in the
+    partition's origin namespace; anyone else, or another mission, has none (E15 refuses ORIGIN_MISMATCH)."""
+
+    def __init__(self, identity: IdentityService) -> None:
+        self.identity = identity
+
+    def origin(self, uow: UnitOfWork, patient_id: str, mission_id: str) -> str | None:
+        partition = self.identity.partition(uow)
+        if partition is None or partition[0] != mission_id or self.identity.member(uow, patient_id) is None:
+            return None
+        return partition[1]
 
 
 def compose(registry: ModuleRegistry, segment: Callable[[], ClockSegment | None]) -> None:
@@ -162,8 +218,16 @@ def compose(registry: ModuleRegistry, segment: Callable[[], ClockSegment | None]
             (tools.OutputPolicyPort,),
         ),
         (EpisodeAccess, lambda r: _Episodes(r.require(EpisodeFacts)), (EpisodeFacts,)),
-        (TurnAnchor, lambda r: _Anchor(r.require(Clock), segment), (Clock,)),
+        (
+            TurnAnchor,
+            lambda r: _Anchor(
+                r.require(Clock), r.require(ClockCorrections), r.require(ReadSnapshotFactory), segment
+            ),
+            (Clock, ClockCorrections, ReadSnapshotFactory),
+        ),
         (PersonOrigin, lambda r: _Origins(r.require(IdentityService)), (IdentityService,)),
+        (OriginNamespace, lambda r: _EpisodeOrigin(r.require(IdentityService)), (IdentityService,)),
+        (measurement.EpisodeFacts, lambda r: _MeasurementEpisodes(r.require(EpisodeFacts)), (EpisodeFacts,)),
         (
             AssistantFingerprint,
             lambda r: r.require(KeyedCommandFingerprint),

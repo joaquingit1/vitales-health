@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "artifact": "config/assistant-policy.json",
-  "artifact_sha256": "abb28eac2f393fd5fa2c359881791d3b9ae133565fe332d450532ab624a7927c",
+  "artifact_sha256": "3d48fe7c3a24b217e6621ebe6a15ef72841c8187bf388551b43f56905489915d",
   "classification": "team operational limits and non-diagnostic research topic routing; not clinically reviewed",
   "operational_basis": {
     "source": "docs/tdd/E13.md section3.5; docs/product/LLM-ARCHITECTURE.md section5",
@@ -44,5 +44,9 @@
     }
   ],
   "interface_basis": "coordinator Q18: label not clinically reviewed; source and purpose eligibility remain mandatory",
-  "warning_levels_basis": "CONTRACTS section14, assistant may request info/watch only and never alter rule/sensor warnings"
+  "warning_levels_basis": "CONTRACTS section14, assistant may request info/watch only and never alter rule/sensor warnings",
+  "medicine_terms_basis": {
+    "source": "config/pharmacy/formulary.json ingredient names (sourced per that file) with their common synonyms (paracetamol, adrenaline, aspirin); hub/src/crew_health/plans/domain/text_check.py MEDICINE_WORDS; generic medicine nouns",
+    "classification": "team-authored safety vocabulary for the E12 dose rule; a match rejects model prose, a miss never means safe on its own"
+  }
 }

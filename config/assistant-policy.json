@@ -61,5 +61,29 @@
       "id": "help_flow",
       "rule": "Never delay, reorder or hide the fixed help steps."
     }
+  ],
+  "medicine_terms": [
+    "acetaminophen",
+    "paracetamol",
+    "amoxicillin",
+    "ascorbic acid",
+    "aspirin",
+    "acetylsalicylic acid",
+    "clavulanic acid",
+    "epinephrine",
+    "adrenaline",
+    "ibuprofen",
+    "levofloxacin",
+    "promethazine",
+    "medicine",
+    "medication",
+    "drug",
+    "inhaler",
+    "glucose",
+    "glucagon",
+    "pain relief",
+    "dose",
+    "tablet",
+    "pill"
   ]
 }
