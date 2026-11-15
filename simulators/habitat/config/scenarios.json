@@ -1,0 +1,1907 @@
+{
+  "notice": "Unreviewed draft: needs clinician review before live guidance.",
+  "description": "Cabin model and scenarios for the habitat simulator. Every number carries its basis and source IDs (NASA-SOURCES.md, ENVIRONMENTS.md); 'team assumption' marks values no source read here gives.",
+  "activities": {
+    "sleep": {
+      "o2": {
+        "value": 0.00036,
+        "unit": "kg/min",
+        "basis": "OCHMO-TB-004 Carbon Dioxide Rev D, page 6, Crew-Induced Metabolic Loads for a Standard Mission Day with Exercise (from the HIDH, 2014)",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "co2": {
+        "value": 0.000455,
+        "unit": "kg/min",
+        "basis": "OCHMO-TB-004 Carbon Dioxide Rev D, page 6, Crew-Induced Metabolic Loads for a Standard Mission Day with Exercise (from the HIDH, 2014)",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "exercise": false
+    },
+    "nominal": {
+      "o2": {
+        "value": 0.000568,
+        "unit": "kg/min",
+        "basis": "OCHMO-TB-004 Carbon Dioxide Rev D, page 6, Crew-Induced Metabolic Loads for a Standard Mission Day with Exercise (from the HIDH, 2014)",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "co2": {
+        "value": 0.00072,
+        "unit": "kg/min",
+        "basis": "OCHMO-TB-004 Carbon Dioxide Rev D, page 6, Crew-Induced Metabolic Loads for a Standard Mission Day with Exercise (from the HIDH, 2014)",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "exercise": false
+    },
+    "exercise": {
+      "o2": {
+        "value": 0.00394,
+        "unit": "kg/min",
+        "basis": "OCHMO-TB-004 Carbon Dioxide Rev D, page 6, Crew-Induced Metabolic Loads for a Standard Mission Day with Exercise (from the HIDH, 2014), exercise at 75% VO2max",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "co2": {
+        "value": 0.004985,
+        "unit": "kg/min",
+        "basis": "OCHMO-TB-004 Carbon Dioxide Rev D, page 6, Crew-Induced Metabolic Loads for a Standard Mission Day with Exercise (from the HIDH, 2014), exercise at 75% VO2max",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "exercise": true
+    },
+    "recovery": {
+      "o2": {
+        "value": 0.000568,
+        "unit": "kg/min",
+        "basis": "OCHMO-TB-004 Carbon Dioxide Rev D, page 6, Crew-Induced Metabolic Loads for a Standard Mission Day with Exercise (from the HIDH, 2014), recovery after exercise",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "co2": {
+        "value": 0.00072,
+        "unit": "kg/min",
+        "basis": "OCHMO-TB-004 Carbon Dioxide Rev D, page 6, Crew-Induced Metabolic Loads for a Standard Mission Day with Exercise (from the HIDH, 2014), recovery after exercise",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "exercise": false
+    }
+  },
+  "day_plans": {
+    "standard_with_exercise": {
+      "basis": "Durations of the C25 page 6 table: sleep 8 h, exercise 0.5 h at 75% VO2max, recovery 1 h; the remaining 14.5 h nominal, split around the exercise by team assumption.",
+      "source_ids": [
+        "C25"
+      ],
+      "blocks": [
+        {
+          "activity": "sleep",
+          "hours": 8
+        },
+        {
+          "activity": "nominal",
+          "hours": 6
+        },
+        {
+          "activity": "exercise",
+          "hours": 0.5
+        },
+        {
+          "activity": "recovery",
+          "hours": 1
+        },
+        {
+          "activity": "nominal",
+          "hours": 8.5
+        }
+      ]
+    }
+  },
+  "environments": {
+    "station_leo": {
+      "volume": {
+        "value": 388,
+        "unit": "m3",
+        "basis": "NASA ISS Facts and Figures: habitable volume 388 cubic meters, not including visiting vehicles",
+        "source_ids": [
+          "N19"
+        ]
+      },
+      "total_pressure": {
+        "value": 101.35,
+        "unit": "kPa",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, page 50: typical habitat total pressures 8.2 to 14.7 psia; 14.7 psia = 101.35 kPa",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "o2_fraction": {
+        "value": 0.21,
+        "unit": "1",
+        "basis": "Sea-level air; NASA-STD-3001 Vol 2 Rev F, page 50: OSHA normoxic 19.5 to 23.5% at sea level",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "temperature": {
+        "value": 22.76,
+        "unit": "Cel",
+        "basis": "Mean of the 12,087 temperature_iss rows of the RR-1 replay file (NASA-SOURCES.md section 2); inside the EV01 comfort range 20 to 25 C",
+        "source_ids": [
+          "N02",
+          "EV01"
+        ]
+      },
+      "relative_humidity": {
+        "value": 44.0,
+        "unit": "%",
+        "basis": "Mean of the rh_iss column of the RR-1 replay file (43.98%, NASA-SOURCES.md section 2)",
+        "source_ids": [
+          "N02"
+        ]
+      },
+      "thermal_time_constant": {
+        "value": 30,
+        "unit": "min",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "scrubber_rated_removal": {
+        "value": 3.7,
+        "unit": "kg/d",
+        "basis": "OCHMO-TB-004 Rev D page 10: Thermal Amine Scrubber removal rate 3.7 kg/day at 2 mmHg",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "scrubber_rated_ppco2": {
+        "value": 2.0,
+        "unit": "mmHg",
+        "basis": "OCHMO-TB-004 Rev D page 10, the partial pressure of the rated removal",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "scrubber_units": {
+        "value": 1,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "o2_makeup_time_constant": {
+        "value": 10,
+        "unit": "min",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "trace_removal_rate": {
+        "value": 0.5,
+        "unit": "1/h",
+        "basis": "team assumption for trace contaminant control of CO, NH3 and VOCs",
+        "source_ids": []
+      },
+      "filtration_rate": {
+        "value": 0.05,
+        "unit": "1/min",
+        "basis": "team assumption: about three filtered air changes per hour",
+        "source_ids": []
+      },
+      "dust_generation_total": {
+        "value": 1.33,
+        "unit": "mg/min",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, [V2 6052], page 62: crew generation rate 1.33 mg/person-minute (total dust)",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "dust_generation_respirable": {
+        "value": 0.006,
+        "unit": "mg/min",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, [V2 6052], page 62: respirable fraction 0.006 mg/person-minute",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "pm10_fraction_of_total": {
+        "value": 0.2,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "pm1_fraction_of_respirable": {
+        "value": 0.6,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "exercise_dust_factor": {
+        "value": 3.0,
+        "unit": "1",
+        "basis": "EV01 (ENVIRONMENTS.md section 10): exercise adds dust; the factor is a team assumption",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "nh3_metabolic_generation": {
+        "value": 1e-05,
+        "unit": "mol/min",
+        "basis": "EV07 page 6: ammonia accumulates slowly from human metabolism; the rate is a team assumption",
+        "source_ids": [
+          "EV07"
+        ]
+      },
+      "voc_offgas_generation": {
+        "value": 0.97,
+        "unit": "mg/min",
+        "basis": "team assumption: hardware off-gassing that holds about 300 ug/m3 total VOC",
+        "source_ids": []
+      },
+      "noise_reference": {
+        "bands": {
+          "63": {
+            "value": 71,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "125": {
+            "value": 64,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "250": {
+            "value": 58,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "500": {
+            "value": 54,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "1k": {
+            "value": 51,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "2k": {
+            "value": 49,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "4k": {
+            "value": 48,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "8k": {
+            "value": 47,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          }
+        }
+      },
+      "noise_margin": {
+        "value": 6.0,
+        "unit": "dB",
+        "basis": "team assumption: background fans sit 6 dB under the NC-50 curve",
+        "source_ids": []
+      },
+      "exercise_noise_boost": {
+        "value": 10.0,
+        "unit": "dB",
+        "basis": "team assumption; EV09 page 4 reports up to 84 dBA during ergometer operations in Spacelab (STS-40) as the historical upper case",
+        "source_ids": [
+          "EV09"
+        ]
+      },
+      "dose_rate": {
+        "value": 6.2,
+        "unit": "µGy/h",
+        "basis": "Mean absorbed dose rate of the 84 DosTel1 records, ISS Columbus, NASA-SOURCES.md section 2",
+        "source_ids": [
+          "N20"
+        ]
+      },
+      "dose_rate_variability": {
+        "value": 0.27,
+        "unit": "1",
+        "basis": "Relative standard deviation of the 84 DosTel1 records (1.66 / 6.20 uGy/h), NASA-SOURCES.md section 2",
+        "source_ids": [
+          "N20"
+        ]
+      },
+      "dose_rate_correlation_time": {
+        "value": 15,
+        "unit": "min",
+        "basis": "team assumption: how long the area dose rate keeps a level between orbital changes",
+        "source_ids": []
+      }
+    },
+    "transit": {
+      "volume": {
+        "value": 100,
+        "unit": "m3",
+        "basis": "team assumption: no vehicle volume in the sources read",
+        "source_ids": []
+      },
+      "total_pressure": {
+        "value": 101.35,
+        "unit": "kPa",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, page 50: typical habitat total pressures up to 14.7 psia",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "o2_fraction": {
+        "value": 0.21,
+        "unit": "1",
+        "basis": "Sea-level air (EV01 page 50)",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "temperature": {
+        "value": 22.76,
+        "unit": "Cel",
+        "basis": "Mean of the 12,087 temperature_iss rows of the RR-1 replay file (NASA-SOURCES.md section 2); inside the EV01 comfort range 20 to 25 C",
+        "source_ids": [
+          "N02",
+          "EV01"
+        ]
+      },
+      "relative_humidity": {
+        "value": 44.0,
+        "unit": "%",
+        "basis": "Mean of the rh_iss column of the RR-1 replay file (43.98%, NASA-SOURCES.md section 2)",
+        "source_ids": [
+          "N02"
+        ]
+      },
+      "thermal_time_constant": {
+        "value": 30,
+        "unit": "min",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "scrubber_rated_removal": {
+        "value": 3.7,
+        "unit": "kg/d",
+        "basis": "OCHMO-TB-004 Rev D page 10: Thermal Amine Scrubber removal rate 3.7 kg/day at 2 mmHg",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "scrubber_rated_ppco2": {
+        "value": 2.0,
+        "unit": "mmHg",
+        "basis": "OCHMO-TB-004 Rev D page 10, the partial pressure of the rated removal",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "scrubber_units": {
+        "value": 1,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "o2_makeup_time_constant": {
+        "value": 10,
+        "unit": "min",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "trace_removal_rate": {
+        "value": 0.5,
+        "unit": "1/h",
+        "basis": "team assumption for trace contaminant control of CO, NH3 and VOCs",
+        "source_ids": []
+      },
+      "filtration_rate": {
+        "value": 0.05,
+        "unit": "1/min",
+        "basis": "team assumption: about three filtered air changes per hour",
+        "source_ids": []
+      },
+      "dust_generation_total": {
+        "value": 1.33,
+        "unit": "mg/min",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, [V2 6052], page 62: crew generation rate 1.33 mg/person-minute (total dust)",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "dust_generation_respirable": {
+        "value": 0.006,
+        "unit": "mg/min",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, [V2 6052], page 62: respirable fraction 0.006 mg/person-minute",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "pm10_fraction_of_total": {
+        "value": 0.2,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "pm1_fraction_of_respirable": {
+        "value": 0.6,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "exercise_dust_factor": {
+        "value": 3.0,
+        "unit": "1",
+        "basis": "EV01 (ENVIRONMENTS.md section 10): exercise adds dust; the factor is a team assumption",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "nh3_metabolic_generation": {
+        "value": 1e-05,
+        "unit": "mol/min",
+        "basis": "EV07 page 6: ammonia accumulates slowly from human metabolism; the rate is a team assumption",
+        "source_ids": [
+          "EV07"
+        ]
+      },
+      "voc_offgas_generation": {
+        "value": 0.97,
+        "unit": "mg/min",
+        "basis": "team assumption: hardware off-gassing that holds about 300 ug/m3 total VOC",
+        "source_ids": []
+      },
+      "noise_reference": {
+        "bands": {
+          "63": {
+            "value": 71,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "125": {
+            "value": 64,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "250": {
+            "value": 58,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "500": {
+            "value": 54,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "1k": {
+            "value": 51,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "2k": {
+            "value": 49,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "4k": {
+            "value": 48,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "8k": {
+            "value": 47,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          }
+        }
+      },
+      "noise_margin": {
+        "value": 6.0,
+        "unit": "dB",
+        "basis": "team assumption: background fans sit 6 dB under the NC-50 curve",
+        "source_ids": []
+      },
+      "exercise_noise_boost": {
+        "value": 10.0,
+        "unit": "dB",
+        "basis": "team assumption; EV09 page 4 reports up to 84 dBA during ergometer operations in Spacelab (STS-40) as the historical upper case",
+        "source_ids": [
+          "EV09"
+        ]
+      },
+      "dose_rate": null
+    },
+    "lunar_surface": {
+      "volume": {
+        "value": 100,
+        "unit": "m3",
+        "basis": "team assumption: no habitat volume in the sources read",
+        "source_ids": []
+      },
+      "total_pressure": {
+        "value": 56.54,
+        "unit": "kPa",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.2-1, page 51: exploration atmosphere of 8.2 psia and 34% O2; 8.2 psia = 56.54 kPa",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "o2_fraction": {
+        "value": 0.34,
+        "unit": "1",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.2-1, page 51: 34% O2 exploration atmosphere",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "temperature": {
+        "value": 22.76,
+        "unit": "Cel",
+        "basis": "Mean of the 12,087 temperature_iss rows of the RR-1 replay file (NASA-SOURCES.md section 2); inside the EV01 comfort range 20 to 25 C",
+        "source_ids": [
+          "N02",
+          "EV01"
+        ]
+      },
+      "relative_humidity": {
+        "value": 44.0,
+        "unit": "%",
+        "basis": "Mean of the rh_iss column of the RR-1 replay file (43.98%, NASA-SOURCES.md section 2)",
+        "source_ids": [
+          "N02"
+        ]
+      },
+      "thermal_time_constant": {
+        "value": 30,
+        "unit": "min",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "scrubber_rated_removal": {
+        "value": 3.7,
+        "unit": "kg/d",
+        "basis": "OCHMO-TB-004 Rev D page 10: Thermal Amine Scrubber removal rate 3.7 kg/day at 2 mmHg",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "scrubber_rated_ppco2": {
+        "value": 2.0,
+        "unit": "mmHg",
+        "basis": "OCHMO-TB-004 Rev D page 10, the partial pressure of the rated removal",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "scrubber_units": {
+        "value": 1,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "o2_makeup_time_constant": {
+        "value": 10,
+        "unit": "min",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "trace_removal_rate": {
+        "value": 0.5,
+        "unit": "1/h",
+        "basis": "team assumption for trace contaminant control of CO, NH3 and VOCs",
+        "source_ids": []
+      },
+      "filtration_rate": {
+        "value": 0.05,
+        "unit": "1/min",
+        "basis": "team assumption: about three filtered air changes per hour",
+        "source_ids": []
+      },
+      "dust_generation_total": {
+        "value": 1.33,
+        "unit": "mg/min",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, [V2 6052], page 62: crew generation rate 1.33 mg/person-minute (total dust)",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "dust_generation_respirable": {
+        "value": 0.006,
+        "unit": "mg/min",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, [V2 6052], page 62: respirable fraction 0.006 mg/person-minute",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "pm10_fraction_of_total": {
+        "value": 0.2,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "pm1_fraction_of_respirable": {
+        "value": 0.6,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "exercise_dust_factor": {
+        "value": 3.0,
+        "unit": "1",
+        "basis": "EV01 (ENVIRONMENTS.md section 10): exercise adds dust; the factor is a team assumption",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "nh3_metabolic_generation": {
+        "value": 1e-05,
+        "unit": "mol/min",
+        "basis": "EV07 page 6: ammonia accumulates slowly from human metabolism; the rate is a team assumption",
+        "source_ids": [
+          "EV07"
+        ]
+      },
+      "voc_offgas_generation": {
+        "value": 0.97,
+        "unit": "mg/min",
+        "basis": "team assumption: hardware off-gassing that holds about 300 ug/m3 total VOC",
+        "source_ids": []
+      },
+      "noise_reference": {
+        "bands": {
+          "63": {
+            "value": 71,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "125": {
+            "value": 64,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "250": {
+            "value": 58,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "500": {
+            "value": 54,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "1k": {
+            "value": 51,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "2k": {
+            "value": 49,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "4k": {
+            "value": 48,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "8k": {
+            "value": 47,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          }
+        }
+      },
+      "noise_margin": {
+        "value": 6.0,
+        "unit": "dB",
+        "basis": "team assumption: background fans sit 6 dB under the NC-50 curve",
+        "source_ids": []
+      },
+      "exercise_noise_boost": {
+        "value": 10.0,
+        "unit": "dB",
+        "basis": "team assumption; EV09 page 4 reports up to 84 dBA during ergometer operations in Spacelab (STS-40) as the historical upper case",
+        "source_ids": [
+          "EV09"
+        ]
+      },
+      "dose_rate": null
+    },
+    "mars_surface": {
+      "volume": {
+        "value": 100,
+        "unit": "m3",
+        "basis": "team assumption: no habitat volume in the sources read",
+        "source_ids": []
+      },
+      "total_pressure": {
+        "value": 56.54,
+        "unit": "kPa",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.2-1, page 51: exploration atmosphere of 8.2 psia and 34% O2; 8.2 psia = 56.54 kPa",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "o2_fraction": {
+        "value": 0.34,
+        "unit": "1",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.2-1, page 51: 34% O2 exploration atmosphere",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "temperature": {
+        "value": 22.76,
+        "unit": "Cel",
+        "basis": "Mean of the 12,087 temperature_iss rows of the RR-1 replay file (NASA-SOURCES.md section 2); inside the EV01 comfort range 20 to 25 C",
+        "source_ids": [
+          "N02",
+          "EV01"
+        ]
+      },
+      "relative_humidity": {
+        "value": 44.0,
+        "unit": "%",
+        "basis": "Mean of the rh_iss column of the RR-1 replay file (43.98%, NASA-SOURCES.md section 2)",
+        "source_ids": [
+          "N02"
+        ]
+      },
+      "thermal_time_constant": {
+        "value": 30,
+        "unit": "min",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "scrubber_rated_removal": {
+        "value": 3.7,
+        "unit": "kg/d",
+        "basis": "OCHMO-TB-004 Rev D page 10: Thermal Amine Scrubber removal rate 3.7 kg/day at 2 mmHg",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "scrubber_rated_ppco2": {
+        "value": 2.0,
+        "unit": "mmHg",
+        "basis": "OCHMO-TB-004 Rev D page 10, the partial pressure of the rated removal",
+        "source_ids": [
+          "C25"
+        ]
+      },
+      "scrubber_units": {
+        "value": 1,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "o2_makeup_time_constant": {
+        "value": 10,
+        "unit": "min",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "trace_removal_rate": {
+        "value": 0.5,
+        "unit": "1/h",
+        "basis": "team assumption for trace contaminant control of CO, NH3 and VOCs",
+        "source_ids": []
+      },
+      "filtration_rate": {
+        "value": 0.05,
+        "unit": "1/min",
+        "basis": "team assumption: about three filtered air changes per hour",
+        "source_ids": []
+      },
+      "dust_generation_total": {
+        "value": 1.33,
+        "unit": "mg/min",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, [V2 6052], page 62: crew generation rate 1.33 mg/person-minute (total dust)",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "dust_generation_respirable": {
+        "value": 0.006,
+        "unit": "mg/min",
+        "basis": "NASA-STD-3001 Vol 2 Rev F, [V2 6052], page 62: respirable fraction 0.006 mg/person-minute",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "pm10_fraction_of_total": {
+        "value": 0.2,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "pm1_fraction_of_respirable": {
+        "value": 0.6,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "exercise_dust_factor": {
+        "value": 3.0,
+        "unit": "1",
+        "basis": "EV01 (ENVIRONMENTS.md section 10): exercise adds dust; the factor is a team assumption",
+        "source_ids": [
+          "EV01"
+        ]
+      },
+      "nh3_metabolic_generation": {
+        "value": 1e-05,
+        "unit": "mol/min",
+        "basis": "EV07 page 6: ammonia accumulates slowly from human metabolism; the rate is a team assumption",
+        "source_ids": [
+          "EV07"
+        ]
+      },
+      "voc_offgas_generation": {
+        "value": 0.97,
+        "unit": "mg/min",
+        "basis": "team assumption: hardware off-gassing that holds about 300 ug/m3 total VOC",
+        "source_ids": []
+      },
+      "noise_reference": {
+        "bands": {
+          "63": {
+            "value": 71,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "125": {
+            "value": 64,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "250": {
+            "value": 58,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "500": {
+            "value": 54,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "1k": {
+            "value": 51,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "2k": {
+            "value": 49,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "4k": {
+            "value": 48,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          },
+          "8k": {
+            "value": 47,
+            "unit": "dB",
+            "basis": "NASA-STD-3001 Vol 2 Rev F, Table 6.6-3 Octave Band SPL Limits for Continuous Noise, work areas maximum (NC-50), page 96",
+            "source_ids": [
+              "EV01"
+            ]
+          }
+        }
+      },
+      "noise_margin": {
+        "value": 6.0,
+        "unit": "dB",
+        "basis": "team assumption: background fans sit 6 dB under the NC-50 curve",
+        "source_ids": []
+      },
+      "exercise_noise_boost": {
+        "value": 10.0,
+        "unit": "dB",
+        "basis": "team assumption; EV09 page 4 reports up to 84 dBA during ergometer operations in Spacelab (STS-40) as the historical upper case",
+        "source_ids": [
+          "EV09"
+        ]
+      },
+      "dose_rate": null
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": "station_nominal",
+      "environment_id": "station_leo",
+      "crew_count": {
+        "value": 4,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "day_plan": "standard_with_exercise",
+      "crew_offsets": [
+        {
+          "value": 0,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 2,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 4,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 6,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        }
+      ],
+      "duration": {
+        "value": 48,
+        "unit": "h",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "seed": 1,
+      "note": "Four crew on a standard day with exercise. CO2 follows the C25 metabolic loads against one scrubber rated at 3.7 kg/day at 2 mmHg.",
+      "events": [],
+      "device_faults": []
+    },
+    {
+      "scenario_id": "station_scrubber_degradation",
+      "environment_id": "station_leo",
+      "crew_count": {
+        "value": 4,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "day_plan": "standard_with_exercise",
+      "crew_offsets": [
+        {
+          "value": 0,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 2,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 4,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 6,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        }
+      ],
+      "duration": {
+        "value": 72,
+        "unit": "h",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "seed": 1,
+      "note": "The scrubber loses half its removal over a day; ppCO2 climbs over the 3 mmHg one-hour limit (EV01 V2 6004).",
+      "events": [
+        {
+          "kind": "scrubber_efficiency",
+          "start": {
+            "value": 6,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 24,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "params": {
+            "final_efficiency": {
+              "value": 0.5,
+              "unit": "1",
+              "basis": "team assumption; C25 page 7: degraded scrubbing equipment raises the average ppCO2 over days",
+              "source_ids": [
+                "C25"
+              ]
+            }
+          }
+        }
+      ],
+      "device_faults": []
+    },
+    {
+      "scenario_id": "station_fire",
+      "environment_id": "station_leo",
+      "crew_count": {
+        "value": 4,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "day_plan": "standard_with_exercise",
+      "crew_offsets": [
+        {
+          "value": 0,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 2,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 4,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 6,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        }
+      ],
+      "duration": {
+        "value": 8,
+        "unit": "h",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "seed": 1,
+      "note": "An overheating fire: CO, smoke and temperature rise together (EV14 page 2: CO buildup is an early fire signal); ventilation stops (EV14 page 3).",
+      "events": [
+        {
+          "kind": "release",
+          "start": {
+            "value": 2,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 10,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "params": {
+            "co_ppm": {
+              "value": 0.3,
+              "unit": "mol/min",
+              "basis": "team assumption, not from a source read here",
+              "source_ids": []
+            },
+            "pm1_ugm3": {
+              "value": 40,
+              "unit": "mg/min",
+              "basis": "team assumption, not from a source read here",
+              "source_ids": []
+            },
+            "pm2_5_ugm3": {
+              "value": 45,
+              "unit": "mg/min",
+              "basis": "team assumption, not from a source read here",
+              "source_ids": []
+            },
+            "pm10_ugm3": {
+              "value": 50,
+              "unit": "mg/min",
+              "basis": "team assumption, not from a source read here",
+              "source_ids": []
+            },
+            "tvoc_ugm3": {
+              "value": 100,
+              "unit": "mg/min",
+              "basis": "team assumption, not from a source read here",
+              "source_ids": []
+            },
+            "temperature_c": {
+              "value": 0.2,
+              "unit": "Cel/min",
+              "basis": "team assumption, not from a source read here",
+              "source_ids": []
+            }
+          }
+        },
+        {
+          "kind": "ventilation_off",
+          "start": {
+            "value": 2.1,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 30,
+            "unit": "min",
+            "basis": "OCHMO-TB-008 Fire Protection Rev A, page 3: the crew terminates ventilation in the affected module",
+            "source_ids": [
+              "EV14"
+            ]
+          },
+          "params": {}
+        }
+      ],
+      "device_faults": []
+    },
+    {
+      "scenario_id": "station_ammonia_leak",
+      "environment_id": "station_leo",
+      "crew_count": {
+        "value": 4,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "day_plan": "standard_with_exercise",
+      "crew_offsets": [
+        {
+          "value": 0,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 2,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 4,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 6,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        }
+      ],
+      "duration": {
+        "value": 6,
+        "unit": "h",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "seed": 1,
+      "note": "A coolant ammonia leak into the cabin (EV07 page 6).",
+      "events": [
+        {
+          "kind": "release",
+          "start": {
+            "value": 1,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 5,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "params": {
+            "nh3_ppm": {
+              "value": 0.5,
+              "unit": "mol/min",
+              "basis": "team assumption; EV07 page 6: coolant ammonia can enter through a heat exchanger leak",
+              "source_ids": [
+                "EV07"
+              ]
+            }
+          }
+        }
+      ],
+      "device_faults": []
+    },
+    {
+      "scenario_id": "station_pressure_leak",
+      "environment_id": "station_leo",
+      "crew_count": {
+        "value": 4,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "day_plan": "standard_with_exercise",
+      "crew_offsets": [
+        {
+          "value": 0,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 2,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 4,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 6,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        }
+      ],
+      "duration": {
+        "value": 4,
+        "unit": "h",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "seed": 1,
+      "note": "A slow cabin leak with makeup gas off: total pressure falls about 0.1 kPa per minute; O2 partial pressure falls with it.",
+      "events": [
+        {
+          "kind": "leak",
+          "start": {
+            "value": 1,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 3,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "params": {
+            "time_constant": {
+              "value": 1000,
+              "unit": "min",
+              "basis": "team assumption, not from a source read here",
+              "source_ids": []
+            }
+          }
+        }
+      ],
+      "device_faults": []
+    },
+    {
+      "scenario_id": "station_humidity_loss",
+      "environment_id": "station_leo",
+      "crew_count": {
+        "value": 4,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "day_plan": "standard_with_exercise",
+      "crew_offsets": [
+        {
+          "value": 0,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 2,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 4,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 6,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        }
+      ],
+      "duration": {
+        "value": 12,
+        "unit": "h",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "seed": 1,
+      "note": "Humidity control lost: relative humidity climbs to 85%, and the optical particle sensor over-reads (EV32).",
+      "events": [
+        {
+          "kind": "humidity_target",
+          "start": {
+            "value": 1,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 6,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "params": {
+            "relative_humidity": {
+              "value": 85,
+              "unit": "%",
+              "basis": "team assumption, not from a source read here",
+              "source_ids": []
+            }
+          }
+        }
+      ],
+      "device_faults": []
+    },
+    {
+      "scenario_id": "station_solar_particle_event",
+      "environment_id": "station_leo",
+      "crew_count": {
+        "value": 4,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "day_plan": "standard_with_exercise",
+      "crew_offsets": [
+        {
+          "value": 0,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 2,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 4,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 6,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        }
+      ],
+      "duration": {
+        "value": 48,
+        "unit": "h",
+        "basis": "Covers the two event days of N40 Table 4 (PDF page 20), 11 and 12 Sep 2017: time zero is 11 Sep 00:00 UTC. The event began 10 Sep 16:06 UTC but the ISS stayed in safe orbits until 11 Sep 04:30 (N40 Section 3.3, PDF page 9), so nothing changes before 04:30",
+        "source_ids": [
+          "N40"
+        ]
+      },
+      "seed": 1,
+      "note": "The solar particle event of 10 September 2017 (GLE 72) as the ISS Columbus module saw it (N40, N20). Time zero is 11 Sep 2017 00:00 UTC. The dose rate rises when the protons first reach the ISS (04:30) and adds, day by day, the DOSTEL-2 excess over the 10 Sep quiet day in N40 Table 4: 60.1 uGy on 11 Sep and 7.7 uGy on 12 Sep. The real record replays through the dostel2_spe_2017 feed. The twin has no orbit, so it carries no South Atlantic Anomaly or latitude modulation.",
+      "events": [
+        {
+          "kind": "spe",
+          "start": {
+            "value": 270,
+            "unit": "min",
+            "basis": "11 Sep 04:30 UTC, when the first SPE protons were seen at the ISS (N40 Section 3.3, PDF page 9)",
+            "source_ids": [
+              "N40"
+            ]
+          },
+          "duration": {
+            "value": 9.5,
+            "unit": "h",
+            "basis": "DosTel2 rows of nasa-data/radiation/radlab_iss_2017-09_spe.csv (N20), samples at absolute latitude at least 45 deg (the high-latitude cut of the case method, nasa-data/cases/spe-2017-09-iss-columbus/outcome.json replay_checks_derived_by_curator), hourly mean against the quiet baseline, the mean of the high-latitude samples of 10 Sep before the 16:06 event start (8.84 uGy/h; 10 Sep is the quiet day N40 takes, Section 3.3): at least twice the baseline from the 04 h to the 12 h hour of 11 Sep (2.2, 5.6, 1.1, 6.6, 4.9, 5.2, 5.7, 4.1, 3.8), 1.7 in the 13 h hour and 1.0 in the 14 h hour, so 04:30 to 14:00",
+            "source_ids": [
+              "N20"
+            ]
+          },
+          "params": {
+            "added_dose": {
+              "value": 60.1,
+              "unit": "µGy",
+              "basis": "N40 Table 4 (PDF page 20), DOSTEL-2: 163.8 uGy on 11 Sep minus 103.7 uGy on the 10 Sep quiet day (absorbed dose in silicon, South Atlantic Anomaly removed)",
+              "source_ids": [
+                "N40"
+              ]
+            },
+            "rise": {
+              "value": 1,
+              "unit": "h",
+              "basis": "DosTel2 rows of nasa-data/radiation/radlab_iss_2017-09_spe.csv (N20), samples at absolute latitude at least 45 deg (the high-latitude cut of the case method, nasa-data/cases/spe-2017-09-iss-columbus/outcome.json replay_checks_derived_by_curator), hourly mean against the quiet baseline, the mean of the high-latitude samples of 10 Sep before the 16:06 event start (8.84 uGy/h; 10 Sep is the quiet day N40 takes, Section 3.3): 2.2 times in the 04 h hour, 5.6 times in the 05 h hour of 11 Sep",
+              "source_ids": [
+                "N20"
+              ]
+            },
+            "fall": {
+              "value": 2,
+              "unit": "h",
+              "basis": "DosTel2 rows of nasa-data/radiation/radlab_iss_2017-09_spe.csv (N20), samples at absolute latitude at least 45 deg (the high-latitude cut of the case method, nasa-data/cases/spe-2017-09-iss-columbus/outcome.json replay_checks_derived_by_curator), hourly mean against the quiet baseline, the mean of the high-latitude samples of 10 Sep before the 16:06 event start (8.84 uGy/h; 10 Sep is the quiet day N40 takes, Section 3.3): 3.8 times in the 12 h hour, 1.7 in the 13 h hour, 1.0 in the 14 h hour of 11 Sep",
+              "source_ids": [
+                "N20"
+              ]
+            }
+          }
+        },
+        {
+          "kind": "spe",
+          "start": {
+            "value": 27,
+            "unit": "h",
+            "basis": "DosTel2 rows of nasa-data/radiation/radlab_iss_2017-09_spe.csv (N20), samples at absolute latitude at least 45 deg (the high-latitude cut of the case method, nasa-data/cases/spe-2017-09-iss-columbus/outcome.json replay_checks_derived_by_curator), hourly mean against the quiet baseline, the mean of the high-latitude samples of 10 Sep before the 16:06 event start (8.84 uGy/h; 10 Sep is the quiet day N40 takes, Section 3.3): back to the baseline from 11 Sep 14:00 until the 03 h hour of 12 Sep (1.1), so the tail starts 12 Sep 03:00",
+            "source_ids": [
+              "N20"
+            ]
+          },
+          "duration": {
+            "value": 12,
+            "unit": "h",
+            "basis": "DosTel2 rows of nasa-data/radiation/radlab_iss_2017-09_spe.csv (N20), samples at absolute latitude at least 45 deg (the high-latitude cut of the case method, nasa-data/cases/spe-2017-09-iss-columbus/outcome.json replay_checks_derived_by_curator), hourly mean against the quiet baseline, the mean of the high-latitude samples of 10 Sep before the 16:06 event start (8.84 uGy/h; 10 Sep is the quiet day N40 takes, Section 3.3): 1.1 to 1.7 times from the 03 h to the 14 h hour of 12 Sep, 0.9 in the 15 h hour, so 03:00 to 15:00",
+            "source_ids": [
+              "N20"
+            ]
+          },
+          "params": {
+            "added_dose": {
+              "value": 7.7,
+              "unit": "µGy",
+              "basis": "N40 Table 4 (PDF page 20), DOSTEL-2: 111.4 uGy on 12 Sep minus 103.7 uGy on the 10 Sep quiet day",
+              "source_ids": [
+                "N40"
+              ]
+            },
+            "rise": {
+              "value": 3,
+              "unit": "h",
+              "basis": "DosTel2 rows of nasa-data/radiation/radlab_iss_2017-09_spe.csv (N20), samples at absolute latitude at least 45 deg (the high-latitude cut of the case method, nasa-data/cases/spe-2017-09-iss-columbus/outcome.json replay_checks_derived_by_curator), hourly mean against the quiet baseline, the mean of the high-latitude samples of 10 Sep before the 16:06 event start (8.84 uGy/h; 10 Sep is the quiet day N40 takes, Section 3.3): 1.1 times in the 03 h hour, 1.7 times in the 06 h hour of 12 Sep",
+              "source_ids": [
+                "N20"
+              ]
+            },
+            "fall": {
+              "value": 2,
+              "unit": "h",
+              "basis": "DosTel2 rows of nasa-data/radiation/radlab_iss_2017-09_spe.csv (N20), samples at absolute latitude at least 45 deg (the high-latitude cut of the case method, nasa-data/cases/spe-2017-09-iss-columbus/outcome.json replay_checks_derived_by_curator), hourly mean against the quiet baseline, the mean of the high-latitude samples of 10 Sep before the 16:06 event start (8.84 uGy/h; 10 Sep is the quiet day N40 takes, Section 3.3): 1.1 in the 13 h hour, 1.3 in the 14 h hour, 0.9 in the 15 h hour of 12 Sep",
+              "source_ids": [
+                "N20"
+              ]
+            }
+          }
+        }
+      ],
+      "device_faults": []
+    },
+    {
+      "scenario_id": "mars_eva_ingress_dust",
+      "environment_id": "mars_surface",
+      "crew_count": {
+        "value": 4,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "day_plan": "standard_with_exercise",
+      "crew_offsets": [
+        {
+          "value": 0,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 2,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 4,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 6,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        }
+      ],
+      "duration": {
+        "value": 8,
+        "unit": "h",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "seed": 1,
+      "note": "Martian dust comes in after a surface walk (EV08); the sensor cannot tell it from lint (EV33).",
+      "events": [
+        {
+          "kind": "release",
+          "start": {
+            "value": 2,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 10,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "params": {
+            "pm10_ugm3": {
+              "value": 20,
+              "unit": "mg/min",
+              "basis": "team assumption; EV08: surface walks bring dust back on suits",
+              "source_ids": [
+                "EV08"
+              ]
+            },
+            "pm2_5_ugm3": {
+              "value": 5,
+              "unit": "mg/min",
+              "basis": "team assumption, not from a source read here",
+              "source_ids": []
+            },
+            "pm1_ugm3": {
+              "value": 2,
+              "unit": "mg/min",
+              "basis": "team assumption, not from a source read here",
+              "source_ids": []
+            }
+          }
+        }
+      ],
+      "device_faults": []
+    },
+    {
+      "scenario_id": "lunar_nominal",
+      "environment_id": "lunar_surface",
+      "crew_count": {
+        "value": 4,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "day_plan": "standard_with_exercise",
+      "crew_offsets": [
+        {
+          "value": 0,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 2,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 4,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 6,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        }
+      ],
+      "duration": {
+        "value": 24,
+        "unit": "h",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "seed": 1,
+      "note": "An 8.2 psia, 34% O2 habitat (EV01 Table 6.2-1): the same ppm CO2 is a lower partial pressure, and PIO2 sits near the 127 mmHg mild hypoxia limit.",
+      "events": [],
+      "device_faults": []
+    },
+    {
+      "scenario_id": "station_sensor_faults",
+      "environment_id": "station_leo",
+      "crew_count": {
+        "value": 4,
+        "unit": "1",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "day_plan": "standard_with_exercise",
+      "crew_offsets": [
+        {
+          "value": 0,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 2,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 4,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        },
+        {
+          "value": 6,
+          "unit": "h",
+          "basis": "team assumption, not from a source read here",
+          "source_ids": []
+        }
+      ],
+      "duration": {
+        "value": 6,
+        "unit": "h",
+        "basis": "team assumption, not from a source read here",
+        "source_ids": []
+      },
+      "seed": 1,
+      "note": "Device faults: a stuck CO2 module, an O2 cell that drops out, a CO cell with a false offset, a barometer pushed below its range floor (out of range, reads saturated), a temperature and humidity module drifting, and a VOC sensor whose link is lost and comes back warming up.",
+      "events": [],
+      "device_faults": [
+        {
+          "device_id": "sim_ndir_co2_cabin",
+          "fault": "stuck",
+          "start": {
+            "value": 1,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 2,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          }
+        },
+        {
+          "device_id": "sim_o2_cell_cabin",
+          "fault": "dropout",
+          "start": {
+            "value": 2,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 30,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          }
+        },
+        {
+          "device_id": "sim_ec_co_cabin",
+          "fault": "offset",
+          "start": {
+            "value": 3,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 2,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "value": {
+            "value": 40,
+            "unit": "ppm",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          }
+        },
+        {
+          "device_id": "sim_baro_cabin",
+          "fault": "offset",
+          "start": {
+            "value": 30,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 20,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "value": {
+            "value": -80,
+            "unit": "kPa",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          }
+        },
+        {
+          "device_id": "sim_temp_rh_cabin",
+          "fault": "drift",
+          "start": {
+            "value": 1,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 4,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "value": {
+            "value": 0.5,
+            "unit": "Cel/h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          }
+        },
+        {
+          "device_id": "sim_mox_voc_cabin",
+          "fault": "disconnect",
+          "start": {
+            "value": 4,
+            "unit": "h",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          },
+          "duration": {
+            "value": 15,
+            "unit": "min",
+            "basis": "team assumption, not from a source read here",
+            "source_ids": []
+          }
+        }
+      ]
+    }
+  ]
+}
