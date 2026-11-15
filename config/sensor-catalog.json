@@ -58,7 +58,46 @@
       "stale_basis": "team default",
       "no_reading_label": "No reading",
       "manual_alternative_item_id": "air_sampling",
-      "citation_text": "CO2 sensor"
+      "citation_text": "CO2 sensor",
+      "plausibility": {
+        "range": {
+          "min": 0,
+          "max": 772.57,
+          "basis": "nasa",
+          "source_ids": [
+            "EV01"
+          ],
+          "citation": "NASA-STD-3001 Vol 2 Rev F, requirement V2 6006, p. 52: total pressure for indefinite crew exposure is at most 103 kPa (15.0 psia), and a partial pressure cannot exceed the total, so ppCO2 above 103 kPa = 772.56 mmHg (rounded up to 772.57 at 133.3224 Pa per mmHg) is physically impossible. The floor 0 is the definition of a partial pressure. This bounds the physically possible range only; it is not a hazard limit."
+        },
+        "saturation": {
+          "values": [
+            0
+          ],
+          "basis": "nasa_data_statistics",
+          "source_ids": [
+            "N02"
+          ],
+          "citation": "Floor only: a reading of exactly 0 mmHg is a clipped sensor floor, because the ISS cabin CO2 in docs/product/nasa-data/habitat-environment/eda_rr1_telemetry.csv (co2_iss, 12,087 rows) never falls below 1,862 ppm and eda_rr5_telemetry.csv (19,160 rows) never below 1,628 ppm. No full-scale value is listed: no NASA or datasheet source for the deployed sensor was read, so none is invented."
+        },
+        "stuck": {
+          "count": 38,
+          "min_span_seconds": 11100,
+          "basis": "nasa_data_statistics",
+          "source_ids": [
+            "N02"
+          ],
+          "citation": "Computed from eda_rr1_telemetry.csv and eda_rr5_telemetry.csv (co2_iss, 300 s samples, 1 ppm steps): outside the two held stretches (1,837 samples at 2,646 ppm from 2014-09-21 04:24 and 2,666 samples at 3,000 ppm from 2017-06-01 05:00) the longest run of identical values is 37 samples (2,443 ppm, 2017-07-04 12:20 to 15:20, 10,800 s). A sensor is stuck from the 38th identical value, 37 x 300 s = 11,100 s after the first."
+        },
+        "rate": {
+          "max_per_second": 0.001396,
+          "basis": "nasa_data_statistics",
+          "source_ids": [
+            "N02",
+            "EV01"
+          ],
+          "citation": "Computed from the same two files, leaving out the steps into or out of the two held stretches the stuck criterion names (a held output that resumes measures the sensor recovering, not the cabin): the largest change between consecutive samples is 542 ppm in 300 s (3,965 to 4,507 ppm, eda_rr1_telemetry.csv 2014-10-25 18:41 to 18:46), 1.8067 ppm/s. The 673 ppm step at 2017-06-10 11:05 in eda_rr5_telemetry.csv is the exit from the 2,666 sample hold at 3,000 ppm and is excluded. Converted to mmHg with the highest cabin pressure NASA allows, 103 kPa = 772.56 mmHg (EV01 V2 6006, p. 52), so the bound is not understated: 1.8067e-6 x 772.56 = 0.0013958 mmHg/s, rounded up to 0.001396. Observed at 300 s sampling."
+        }
+      }
     },
     {
       "id": "rad",

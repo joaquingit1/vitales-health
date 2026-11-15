@@ -301,7 +301,50 @@ def check_catalog(
         found.extend(_check_units(sensor, pointer, units, resolve))
         found.extend(_check_aggregations(sensor, pointer, bounds))
         found.extend(_check_provenance(sensor, pointer))
+        found.extend(_check_plausibility(sensor, pointer))
     return tuple(found)
+
+
+def _check_plausibility(sensor: SensorTypeFacts, pointer: str) -> list[DomainFinding]:
+    """R-E23-2: a criteria object that cannot be coherent is rejected whole, never trimmed or defaulted."""
+    criteria = sensor.plausibility
+    if criteria is None:
+        return []
+    base = pointer + "/plausibility"
+    found: list[DomainFinding] = []
+    if criteria.minimum >= criteria.maximum:
+        found.append(_find(CHECK_12, CATALOG, base + "/range", "range min must be below max"))
+    if any(not criteria.minimum <= value <= criteria.maximum for value in criteria.saturation):
+        found.append(
+            _find(CHECK_12, CATALOG, base + "/saturation", "saturation values must lie within the range")
+        )
+    if criteria.max_rate_per_s <= 0:
+        found.append(_find(CHECK_12, CATALOG, base + "/rate", "the maximum rate must be positive"))
+    if criteria.stuck_count < 2 or criteria.stuck_min_span_s <= 0:
+        found.append(_find(CHECK_12, CATALOG, base + "/stuck", "stuck needs two or more values and a span"))
+    named = {source.criterion for source in criteria.sources}
+    if named != {"range", "saturation", "stuck", "rate"} or len(criteria.sources) != 4:
+        found.append(_find(CHECK_12, CATALOG, base, "every criterion names its source exactly once"))
+    for source in criteria.sources:
+        if not source.source_ids or not source.citation.strip():
+            found.append(
+                _find(
+                    CHECK_12,
+                    CATALOG,
+                    f"{base}/{source.criterion}",
+                    "a criterion needs source IDs and a citation",
+                )
+            )
+        if source.basis == "non_nasa" and "non-NASA" not in source.citation:
+            found.append(
+                _find(
+                    CHECK_12,
+                    CATALOG,
+                    f"{base}/{source.criterion}",
+                    "a non-NASA criterion says so in its citation",
+                )
+            )
+    return found
 
 
 def _check_provenance(sensor: SensorTypeFacts, pointer: str) -> list[DomainFinding]:

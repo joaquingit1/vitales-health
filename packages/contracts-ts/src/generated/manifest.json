@@ -278,7 +278,7 @@
     "api/schemas/config-role-rules.schema.json": "0dffdf5a4a1ad18e60ea0bcdf0f87da15575c819ac4bad3b19e454cc798f775f",
     "api/schemas/config-routine-rules.schema.json": "99edda41d1e5d6e519a1168d9ea9b5506b3a56ac21b4d83a5657a6851b725ab2",
     "api/schemas/config-routine-schedule.schema.json": "c3c4f7f4a435e2011ce5b31ddd7d47f191bbfe7f58bf459bf3398d7c77b7c7eb",
-    "api/schemas/config-sensor-catalog.schema.json": "e3778838f7a083e0b38781f3170e0b576021a5728410e7b29a85b81c137ca11e",
+    "api/schemas/config-sensor-catalog.schema.json": "03cb21d375522aa2a7b3745069adfadb57e0d64233130ce3595c41a8ab00cb89",
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
     "api/schemas/config-ui-copy.schema.json": "048ee63e7699e201d96a97216dd809b3bf227310547dc5decb6d39647a17ee4e",
@@ -633,7 +633,7 @@
     "api/schemas/config-role-rules.schema.json": "0dffdf5a4a1ad18e60ea0bcdf0f87da15575c819ac4bad3b19e454cc798f775f",
     "api/schemas/config-routine-rules.schema.json": "99edda41d1e5d6e519a1168d9ea9b5506b3a56ac21b4d83a5657a6851b725ab2",
     "api/schemas/config-routine-schedule.schema.json": "c3c4f7f4a435e2011ce5b31ddd7d47f191bbfe7f58bf459bf3398d7c77b7c7eb",
-    "api/schemas/config-sensor-catalog.schema.json": "e3778838f7a083e0b38781f3170e0b576021a5728410e7b29a85b81c137ca11e",
+    "api/schemas/config-sensor-catalog.schema.json": "03cb21d375522aa2a7b3745069adfadb57e0d64233130ce3595c41a8ab00cb89",
     "api/schemas/config-sensor-limits.schema.json": "a6d8142070dec70a4e8d20321cf8452160846bced13cb807e47ae4da81bc3cf0",
     "api/schemas/config-skills-catalog.schema.json": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc",
     "api/schemas/config-ui-copy.schema.json": "048ee63e7699e201d96a97216dd809b3bf227310547dc5decb6d39647a17ee4e",
@@ -746,7 +746,7 @@
       "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
       "part-a.json": "35de455967b4a02825bdaaaac5a641cd7247cf763f89c8f1a09ce0a56aed246c"
     },
-    "manifest_sha256": "df738a59529d115d1447398351638aa5fc28aab6680f80bb0f42f4e1b48ec38c",
+    "manifest_sha256": "c5828b6b8ade64c725350e153e62a2658ac69b36b8dc5ca8f6fb5cdf227962a8",
     "traces": [
       {
         "a3": [

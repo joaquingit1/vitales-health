@@ -1570,8 +1570,8 @@
     },
     {
       "path": "api/schemas/config-sensor-catalog.schema.json",
-      "bytes": 8948,
-      "sha256": "e3778838f7a083e0b38781f3170e0b576021a5728410e7b29a85b81c137ca11e"
+      "bytes": 16385,
+      "sha256": "03cb21d375522aa2a7b3745069adfadb57e0d64233130ce3595c41a8ab00cb89"
     },
     {
       "path": "api/schemas/config-sensor-limits.schema.json",

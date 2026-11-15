@@ -29,6 +29,7 @@ from crew_health.kernel.evaluation import EvaluationInput as KernelInput
 from crew_health.kernel.units import PressureContext, Quantity, Unit
 from crew_health.kernel.uow import UnitOfWork
 from crew_health.sensors.application.deadlines import note_status_change, refresh, schedule_deadline
+from crew_health.sensors.application.history import plausibility_history
 from crew_health.sensors.application.runtime import (
     EVALUATION_UNAVAILABLE,
     EVALUATOR,
@@ -263,7 +264,8 @@ class _Batch:
             channel.facts.origin_mode,
             segment_id,
         )
-        verdict = assess(kind, fact)
+        history = plausibility_history(rt, uow, channel.facts.channel_id, observed_at)
+        verdict = assess(kind, fact, history, history_bound=rt.limits.plausibility_history_max)
         conflict = self._conflict(channel, normalized, converted.converted.canonical.value)
         aggregation = model.aggregation
         record = ReadingRecord(
@@ -287,7 +289,7 @@ class _Batch:
             None if model.window_start is None else model.window_start.root,
             uow.now,
             channel.facts.origin_mode,
-            model.quality_status.root,
+            "rejected" if verdict.status == "failed" else model.quality_status.root,
             normalized.state,
             normalized.corrected_at,
             normalized.uncertainty_ms,

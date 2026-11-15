@@ -53,6 +53,29 @@ class DisplaySpec:
 
 
 @dataclass(frozen=True, slots=True)
+class CriterionSource:
+    """Where one plausibility criterion comes from: its basis, catalog source IDs and the section or method."""
+
+    criterion: str
+    basis: str
+    source_ids: tuple[str, ...]
+    citation: str
+
+
+@dataclass(frozen=True, slots=True)
+class PlausibilityCriteria:
+    """Sourced range, saturation, stuck and rate criteria in the canonical unit (R-E23-2)."""
+
+    minimum: Decimal
+    maximum: Decimal
+    saturation: tuple[Decimal, ...]
+    stuck_count: int
+    stuck_min_span_s: Decimal
+    max_rate_per_s: Decimal
+    sources: tuple[CriterionSource, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class SensorTypeFacts:
     id: str
     hazard_id: str
@@ -75,6 +98,7 @@ class SensorTypeFacts:
     no_reading_label: str
     manual_alternative_item_id: str | None
     citation_text: str
+    plausibility: PlausibilityCriteria | None = None
 
     def aggregation(self, aggregation_id: str) -> AggregationSpec | None:
         for spec in self.aggregations:
