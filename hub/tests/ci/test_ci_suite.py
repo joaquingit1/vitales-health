@@ -101,8 +101,11 @@ def test_raw_arc_combine_requires_every_shard_and_current_collection(
         "def allowed(value):\n    if value:\n        return True\n    return False\n", encoding="utf-8"
     )
     (tmp_path / "hub/pyproject.toml").write_text("[tool.coverage.run]\nbranch = true\n", encoding="utf-8")
+    baseline = tmp_path / ".github/ci/branch-baseline.json"
+    ci.write_json(baseline, {"files": {name: {"covered": 2, "total": 2}}})
     subprocess.run(["git", "init", "-q"], check=True)
     subprocess.run(["git", "add", "hub"], check=True)
+    subprocess.run(["git", "add", ".github"], check=True)
     subprocess.run(
         [
             "git",
@@ -125,8 +128,6 @@ def test_raw_arc_combine_requires_every_shard_and_current_collection(
     manifest = tmp_path / "plan.json"
     ci.write_json(manifest, plan)
     digest = hashlib.sha256(manifest.read_bytes()).hexdigest()
-    baseline = tmp_path / ".github/ci/branch-baseline.json"
-    ci.write_json(baseline, {"files": {name: {"covered": 2, "total": 2}}})
     for i, group in enumerate(ci.GROUPS):
         folder = tmp_path / "artifacts" / group
         folder.mkdir(parents=True)
@@ -150,14 +151,39 @@ def test_raw_arc_combine_requires_every_shard_and_current_collection(
         ci.write_json(folder / "identity.json", {"group": group, "manifest_sha256": digest, "source": sha})
     output = tmp_path / "output"
     output.mkdir()
-    assert ci.coverage_report(tmp_path / "artifacts", output, manifest) == 0
+    assert ci.coverage_report(tmp_path / "artifacts", output, manifest, sha) == 0
     result = json.loads((output / "branch-ratchet.json").read_text(encoding="utf-8"))
     assert (result["covered"], result["total"]) == (2, 2)
     # The same arc from several shards is counted once; an absent shard never produces green.
     missing = tmp_path / "artifacts/wheel/coverage.data"
     missing.unlink()
     with pytest.raises(ValueError, match="missing or duplicated coverage artifact: wheel"):
-        ci.coverage_report(tmp_path / "artifacts", output, manifest)
+        ci.coverage_report(tmp_path / "artifacts", output, manifest, sha)
+
+
+def test_baseline_cannot_be_lowered_removed_or_used_to_exempt_new_files(ci: ModuleType) -> None:
+    old = {"a.py": {"covered": 1, "total": 2}}
+    ci.verify_baseline({"a.py": {"covered": 2, "total": 4}}, old, {"a.py"})
+    for candidate in [
+        {"a.py": {"covered": 0, "total": 2}},
+        {},
+        {"a.py": {"covered": 0, "total": 0}},
+        old | {"new.py": {"covered": 1, "total": 2}},
+    ]:
+        with pytest.raises(ValueError, match="baseline"):
+            ci.verify_baseline(candidate, old, {"a.py", "new.py"})
+    ci.verify_baseline({}, old, set())  # Actual source deletion permits baseline cleanup.
+    ci.verify_baseline(old | {"new.py": {"covered": 19, "total": 20}}, old, {"a.py", "new.py"})
+    ci.verify_baseline({"a.py": {"covered": 19, "total": 20}}, {"a.py": {"covered": 0, "total": 0}}, {"a.py"})
+
+
+def test_initial_baseline_is_the_measured_snapshot_not_a_pr_chosen_floor(ci: ModuleType) -> None:
+    measured = json.loads((ROOT / ".github/ci/branch-baseline.json").read_text(encoding="utf-8"))["files"]
+    ci.verify_baseline(measured, None, set(measured))
+    first = next(name for name, counts in measured.items() if counts["covered"] > 0)
+    measured[first]["covered"] -= 1
+    with pytest.raises(ValueError, match="initial baseline"):
+        ci.verify_baseline(measured, None, set(measured))
 
 
 @given(st.integers(min_value=1, max_value=10_000), st.integers(min_value=1, max_value=100))

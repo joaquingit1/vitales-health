@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 from collections import Counter
@@ -22,6 +23,9 @@ ROOT = Path(__file__).resolve().parents[1]
 GROUPS = ("core-0", "core-1", "core-2", "core-3", "contracts", "wheel")
 MAX_TESTS = 100_000
 MAX_FILES = 10_000
+# D31 bootstrap: exact measured 291-file snapshot, approved on 2026-11-15.
+# Future runs use the trusted base commit, not a floor selected by the proposed PR.
+INITIAL_BASELINE_SHA256 = "dbca5bfb6bc7b3eaccd9f752cc168eb4e1856bf1be3aa3008bfff7599fc97fea"
 
 
 class Counts(TypedDict):
@@ -142,6 +146,65 @@ def source_inventory(root: Path) -> set[str]:
     return files
 
 
+def verify_baseline(
+    candidate: dict[str, Counts], previous: dict[str, Counts] | None, inventory: set[str]
+) -> None:
+    if previous is None:
+        digest = hashlib.sha256(
+            json.dumps(candidate, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        if digest != INITIAL_BASELINE_SHA256:
+            raise ValueError("initial baseline differs from the approved measured snapshot")
+        return
+    for name, old in previous.items():
+        new = candidate.get(name)
+        if new is None:
+            if name in inventory:
+                raise ValueError("baseline removed for existing source: " + name)
+            continue
+        if old["total"] == 0:
+            if new["total"] and new["covered"] * 100 < new["total"] * 95:
+                raise ValueError("newly branching baseline below95%: " + name)
+            continue
+        old_total, new_total = old["total"] or 1, new["total"] or 1
+        old_covered = old["covered"] if old["total"] else 1
+        new_covered = new["covered"] if new["total"] else 1
+        if new_covered * old_total < old_covered * new_total or (old["total"] and not new["total"]):
+            raise ValueError("baseline branch fraction decreased: " + name)
+    for name, new in candidate.items():
+        if not 0 <= new["covered"] <= new["total"]:
+            raise ValueError("invalid baseline counts: " + name)
+        if name not in previous and new["total"] and new["covered"] * 100 < new["total"] * 95:
+            raise ValueError("new baseline entry below95%: " + name)
+
+
+def trusted_baseline(ref: str) -> tuple[dict[str, Counts] | None, set[str]]:
+    if re.fullmatch(r"[a-f0-9]{40}|[a-f0-9]{64}", ref) is None:
+        raise ValueError("trusted base must be a full commit SHA")
+    files = set(
+        subprocess.check_output(
+            ["git", "ls-tree", "-rz", "--name-only", ref],
+            cwd=ROOT,
+        )
+        .decode("utf-8")
+        .split("\0")
+    )
+    inventory = {
+        name
+        for name in files
+        if name.startswith("hub/src/crew_health/")
+        and name.endswith(".py")
+        and {"domain", "application"} & set(name.split("/"))
+    }
+    if not inventory:
+        raise ValueError("trusted source inventory is empty")
+    name = ".github/ci/branch-baseline.json"
+    if name not in files:
+        return None, inventory
+    raw = subprocess.check_output(["git", "show", f"{ref}:{name}"], cwd=ROOT)
+    return json.loads(raw)["files"], inventory
+
+
 class Collection:
     def __init__(
         self,
@@ -169,7 +232,7 @@ class Collection:
             write_json(self.output, make_plan(tests, self.timings))
 
 
-def coverage_report(data_root: Path, output: Path, manifest: Path) -> int:
+def coverage_report(data_root: Path, output: Path, manifest: Path, base_ref: str) -> int:
     from coverage import Coverage
 
     plan: Plan = json.loads(manifest.read_text(encoding="utf-8"))
@@ -211,9 +274,13 @@ def coverage_report(data_root: Path, output: Path, manifest: Path) -> int:
             "total": info["summary"]["num_branches"],
         }
     baseline = json.loads((ROOT / ".github/ci/branch-baseline.json").read_text(encoding="utf-8"))
+    previous, base_inventory = trusted_baseline(base_ref)
+    verify_baseline(baseline["files"], previous, inventory)
     if any((ROOT / name).exists() for name in set(baseline["files"]) - inventory):
         raise ValueError("baseline source exists outside measured inventory")
     failures = ratchet(current, baseline["files"], inventory)
+    # A deleted/reintroduced path or a PR adding its own baseline can never exempt new source.
+    failures.extend(ratchet(current, {}, inventory - base_inventory))
     covered = sum(current[name]["covered"] for name in inventory if name in current)
     total = sum(current[name]["total"] for name in inventory if name in current)
     print(f"Actual domain/application branches: {covered}/{total}; target95%, per-file D31 ratchet")
@@ -230,10 +297,13 @@ def main() -> int:
     parser.add_argument("--group", choices=GROUPS)
     parser.add_argument("--evidence", type=Path, default=Path("evidence"))
     parser.add_argument("--data-root", type=Path, default=Path("artifacts"))
+    parser.add_argument("--base-ref", help="Trusted PR base SHA or the commit before a main push")
     args = parser.parse_args()
     args.evidence.mkdir(parents=True, exist_ok=True)
     if args.mode == "coverage":
-        return coverage_report(args.data_root, args.evidence, args.manifest)
+        if args.base_ref is None:
+            parser.error("coverage requires --base-ref")
+        return coverage_report(args.data_root, args.evidence, args.manifest, args.base_ref)
     if args.mode == "collect":
         timings = json.loads((ROOT / ".github/ci/test-timings.json").read_text(encoding="utf-8"))["files"]
         return int(

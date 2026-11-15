@@ -12,8 +12,8 @@ The contracts group alone needs pnpm for its generation checks; generation asser
 
 The initial timings come from Ubuntu JUnit in run 43730835232 at b036a47. Pytest took 517.74s on Ubuntu and 389.96s on
 macOS. The Ubuntu case durations total 497.538s; the largest single plans-policy case took 33.475s, installed wheel 7.807s.
-These are measurements, not test deadlines or guarantees of future speed. `test-timings.json` balances files by their
-measured durations; new files use their collected case count as a scheduling weight. Each run preserves verbose logs,
+These are measurements, not test deadlines or guarantees of future speed. `test-timings.json` balances files by the slowest measured per-file
+case sum across Ubuntu and the completed Windows run (1580.953s total); new files use their collected case count as a scheduling weight. Each run preserves verbose logs,
 JUnit, slowest-case durations and collection proof. Evidence directories exist before pytest begins.
 
 ## D31, explicit owner decision on 2026-11-15
@@ -26,9 +26,12 @@ D27 remains recorded and is not used to exclude its source. This policy changes 
 safety checks or portability requirements.
 
 `branch-baseline.json` records the measured Ubuntu XML provenance, its digest, source digests and each file's branch
-counts. macOS had the same 5119/6014 aggregate branches. Windows must meet the same per-file floor; it had no completed
-old artifact, so no Windows result or baseline is fabricated. Baseline changes need explicit review and measured
-provenance. Never regenerate it automatically from a failing run.
+counts. macOS had the same 5119/6014 aggregate branches. The completed Windows run 43734316264 also measured 5119/6014, with no file below that floor. Its six test failures
+are separate blockers; matching coverage does not make that test run successful. Windows must meet the same floor. Baseline changes need explicit review and measured
+provenance. Never regenerate it automatically from a failing run. The job fetches the trusted PR base commit or
+pre-push main commit, and rejects a lower proposed baseline or removal of a still-present file. New baseline entries
+require 95%, and files absent from that trusted source inventory independently require 95%, even when the PR adds
+them to its baseline. The first introduction is bound to the exact approved measured snapshot digest in the checker.
 
 Each OS combines all six raw coverage databases using coverage.py's arc union. Combining XML totals or combining
 across operating systems would mask gaps and is not allowed. Every fragment must carry the current source identity,
@@ -43,3 +46,19 @@ uv run --project hub --locked pytest -c hub/pyproject.toml -q hub/tests/ci
 ```
 
 The full OS suites run remotely. Local harness success does not establish Windows or full-suite success.
+
+## Windows corrections from the completed run
+
+The UTF-8 write regression is reproduced under a forced cp1252 default, then repaired explicitly. Other test text
+reads and writes now name UTF-8. No performance assertion or execution deadline is increased.
+
+The old closed-port fixture assumed every OS refuses a connection within 100ms. That assumption is invalid: Python
+permits network-stack timeouts, and Windows can suppress resets for ports without listeners. The runner's exact
+stealth-mode setting is unknown. The real delayed-server 100ms deadline test remains; an explicit connection refusal
+separately verifies its exact typed reason. The proxy test now succeeds against a real worker and checks its exact
+bearer/body plus an empty proxy capture, strengthening its previous unreachable-only assertion.
+
+The optional worker scenario starts the resolved project Python interpreter directly. Terminating a Windows uv
+launcher had left its Python worker alive. The scenario now checks both owned PID termination and a closed port,
+then observes and rethrows the same real request's transport exception to assert its exact timeout/refusal reason.
+Its deterministic baseline must remain unchanged. There is no second reason probe or accepted-reason fallback.
