@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crew-health-camera-twin"
+version = "0.1.0"
+description = "Simulated network camera (AGENTS 4 twin rule): streams MJPEG over HTTP like an IP camera and declares itself simulated in its device identity"
+requires-python = ">=3.14,<3.15"
+dependencies = ["opencv-python-headless", "numpy"]
+
+[project.scripts]
+camera-twin = "crew_health_camera_twin.server:main"
+camera-twin-fetch = "crew_health_camera_twin.sample:main"
+
+[dependency-groups]
+dev = ["pytest", "mypy", "ruff"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers --strict-config --import-mode=importlib"
+xfail_strict = true
+markers = ["trace(*ids): requirements and invariants", "slow: bounded long running validation"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["cv2", "cv2.*"]
+ignore_missing_imports = true
