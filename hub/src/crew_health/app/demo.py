@@ -12,20 +12,26 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import secrets
 import shutil
+import subprocess
 import sys
+import threading
 import urllib.error
 import urllib.request
 import uuid
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from functools import partial
 from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from crew_health.app.assembly import BuildCatalog, Runtime, create_app
+
+if TYPE_CHECKING:
+    from crew_health.app.cli import Server
 from crew_health.app.demo_mission import DemoMission, write_environment
 from crew_health.app.privacy import DemoOperatorRecord
 from crew_health.app.station import HubResources, Origin, bootstrap_release, production
@@ -113,8 +119,12 @@ class Fixture:
         operator = self.section("operator")
         if not isinstance(station, dict):
             raise DemoError("station actor is not an object")
+        camera = self.section("camera")
         return (
             ProvisionedPrincipal(str(station["id"]), "station", str(station["display_name"])),
+            ProvisionedPrincipal(
+                str(camera["adapter_principal_id"]), "adapter", str(camera["adapter_display_name"])
+            ),
             ProvisionedPrincipal(str(operator["principal_id"]), "operator", str(operator["display_name"])),
         )
 
@@ -189,14 +199,20 @@ def _resources(fixture: Fixture, target: Path) -> HubResources:
     return HubResources(target)
 
 
-def settings_document(path: Path) -> Path:
-    """Every registered setting: the E02 module defaults, the supervisor polling at 50 ms, and every other integer
-    at its registered maximum, switches off and text empty (the E01 serve tests' profile)."""
+def settings_document(path: Path, camera: dict[str, object] | None = None) -> Path:
+    """Every registered setting: the E02 module defaults, the supervisor polling at 50 ms, the camera worker's
+    address, token file and adapter (`camera`), and every other integer at its registered maximum, switches off and
+    text empty (the E01 serve tests' profile)."""
     from crew_health.app.cli import registered_settings
     from crew_health.consent.application.settings import defaults as consent_defaults
     from crew_health.identity.application.settings import defaults as identity_defaults
 
-    chosen: dict[str, object] = {**identity_defaults(), **consent_defaults(), "supervisor.poll_ms": 50}
+    chosen: dict[str, object] = {
+        **identity_defaults(),
+        **consent_defaults(),
+        "supervisor.poll_ms": 50,
+        **(camera or {}),
+    }
     entries = []
     for spec in registered_settings():
         value = chosen.get(
@@ -232,7 +248,9 @@ def _first_start(runtime: Runtime, fixture: Fixture, credentials: dict[str, str]
     console = OperatorProof(Actor("operator", operator), None)
     admin.apply_roster(document, expected_revision=0, operator=console, correlation_id="demo_reset_roster")
     # The operator's own credential last: afterwards every console command needs it proven (E02 4).
-    order = [m.person_id for m in members] + [p.principal_id for p in principals if p.kind != "operator"]
+    order = [m.person_id for m in members] + [
+        p.principal_id for p in principals if p.kind not in ("operator", "adapter")
+    ]
     for principal_id in (*order, operator):
         admin.set_credential(
             principal_id,
@@ -245,7 +263,12 @@ def _first_start(runtime: Runtime, fixture: Fixture, credentials: dict[str, str]
 
 
 def reset(
-    directory: Path, *, root: Path | None = None, fixture_path: Path | None = None
+    directory: Path,
+    *,
+    root: Path | None = None,
+    fixture_path: Path | None = None,
+    camera_port: int | None = None,
+    twin_port: int | None = None,
 ) -> dict[str, object]:
     from crew_health.app.cli import SOURCE, _read_settings, open_database
 
@@ -255,9 +278,27 @@ def reset(
         shutil.rmtree(directory)
     directory.mkdir(parents=True)
     resources = _resources(fixture, directory / "resources")
-    settings = settings_document(directory / "hub-settings.json")
+    camera = directory / "camera"
+    camera.mkdir()
+    worker_token = camera / "worker.token"
+    worker_token.write_text(secrets.token_urlsafe(24), encoding="utf-8")
+    worker_token.chmod(0o600)
+    section = fixture.section("camera")
+    worker_port = camera_port or int(str(section["worker_port"]))
+    twin_listen = twin_port or int(str(cast(dict[str, object], section["twin"])["port"]))
+    settings = settings_document(
+        directory / "hub-settings.json",
+        {
+            "workers.camera.enabled": True,
+            "workers.camera.url": f"http://127.0.0.1:{worker_port}",
+            "workers.camera.token_file": str(worker_token),
+            "workers.camera.adapter_id": str(section["adapter_principal_id"]),
+        },
+    )
     write_environment(directory, fixture.initial_environment, source="demo_reset", at=datetime.now(UTC))
-    ids = [m.person_id for m in fixture.members()] + [p.principal_id for p in fixture.principals()]
+    ids = [m.person_id for m in fixture.members()] + [
+        p.principal_id for p in fixture.principals() if p.kind != "adapter"
+    ]
     credentials = {principal_id: secrets.token_urlsafe(9) for principal_id in ids}
     db = open_database(directory / "hub.sqlite", _read_settings(settings))
     try:
@@ -285,6 +326,8 @@ def reset(
         "fixture_id": fixture.raw["fixture_id"],
         "root": str(resources_root),
         "operator": fixture.operator_id,
+        "camera_port": worker_port,
+        "twin_port": twin_listen,
     }
     (directory / STATE).write_text(json.dumps(state, indent=1), encoding="utf-8")
     return state
@@ -293,13 +336,144 @@ def reset(
 # Serve ---------------------------------------------------------------------------------------------------------
 
 
-def serve(directory: Path, *, host: str, port: int) -> int:
+def _uv() -> str:
+    found = shutil.which("uv")
+    if found is None:
+        raise DemoError("uv is not on PATH: the camera worker and twin run as their own uv projects")
+    return found
+
+
+def _wait_line(process: subprocess.Popen[str], marker: str, seconds: float) -> str:
+    """The first output line containing `marker`, within `seconds`; the process is left running."""
+    found: list[str] = []
+    event = threading.Event()
+
+    def watch() -> None:
+        if process.stdout is None:
+            return
+        for line in process.stdout:
+            if marker in line and not found:
+                found.append(line.strip())
+                event.set()
+
+    threading.Thread(target=watch, daemon=True).start()
+    if not event.wait(seconds):
+        raise DemoError("did not start: " + marker)
+    return found[0]
+
+
+def camera_companions(
+    directory: Path, fixture: Fixture, state: dict[str, object], *, host: str, port: int
+) -> Callable[[Runtime], Callable[[], None]]:
+    """Once the hub serves: the camera adapter's token for this listener (E02 3), the camera twin streaming its
+    synthetic scene, and the camera worker reading the twin and reporting to the hub. Both stop with the hub."""
+
+    def start(runtime: Runtime) -> Callable[[], None]:
+        if runtime.resolver is None:
+            raise DemoError("hub not resolved")
+        section = fixture.section("camera")
+        twin = cast(dict[str, object], section["twin"])
+        credentials = json.loads((directory / CREDENTIALS).read_text(encoding="utf-8"))
+        admin = runtime.resolver.require(IdentityAdmin)
+        proof = admin.console_operator(
+            lambda: str(credentials[fixture.operator_id]),
+            client="console",
+            correlation_id="demo_serve_camera",
+        )
+        view = admin.issue_adapter_token(
+            str(section["adapter_principal_id"]),
+            listener=f"{host}:{port}",
+            operator=proof,
+            correlation_id="demo_serve_camera",
+        )
+        camera = directory / "camera"
+        adapter_token = camera / "adapter.token"
+        adapter_token.write_text(str(view.token), encoding="utf-8")
+        adapter_token.chmod(0o600)
+        root = Path(str(fixture.root))
+        processes: list[subprocess.Popen[str]] = []
+
+        def stop() -> None:
+            for process in reversed(processes):
+                process.terminate()
+            for process in processes:
+                try:
+                    process.wait(15)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+
+        try:
+            processes.append(
+                subprocess.Popen(
+                    [
+                        _uv(),
+                        "run",
+                        "--project",
+                        str(root / "simulators/camera"),
+                        "camera-twin",
+                        "--port",
+                        str(state["twin_port"]),
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    encoding="utf-8",
+                )  # fmt: skip
+            )
+            listening = _wait_line(processes[-1], "listening on", 180).rsplit(" ", 1)[-1]
+            cameras = [
+                {
+                    "device_id": c["device_id"],
+                    "name": c["name"],
+                    "kind": c["kind"],
+                    "subject_id": c["subject_id"],
+                    "stream": f"{listening}/cameras/{twin['scenario']}/stream.mjpg",
+                }
+                for c in cast(list[dict[str, object]], section["cameras"])
+            ]
+            deployment = {
+                "host": "127.0.0.1",
+                "port": state["camera_port"],
+                "hub_url": f"http://{host}:{port}",
+                "adapter_id": section["adapter_principal_id"],
+                "worker_token_file": str(camera / "worker.token"),
+                "adapter_token_file": str(adapter_token),
+                "state_dir": str(camera / "state"),
+                "cameras": cameras,
+            }
+            (camera / "deployment.json").write_text(json.dumps(deployment), encoding="utf-8")
+            processes.append(
+                subprocess.Popen(
+                    [
+                        _uv(),
+                        "run",
+                        "--project",
+                        str(root / "workers/camera"),
+                        "--extra",
+                        "capture",
+                        "crew-health-camera",
+                    ],
+                    env={**os.environ, "CREW_HEALTH_CAMERA_DEPLOYMENT": str(camera / "deployment.json")},
+                    text=True,
+                    encoding="utf-8",
+                )  # fmt: skip
+            )
+        except BaseException:
+            stop()
+            raise
+        return stop
+
+    return start
+
+
+def serve(directory: Path, *, host: str, port: int, server: Server | None = None, camera: bool = True) -> int:
     from crew_health.app.cli import TimeConfirmation
     from crew_health.app.cli import serve as serve_hub
 
     state = json.loads((directory / STATE).read_text(encoding="utf-8"))
     fixture = Fixture.load(Path(state["root"]))
     return serve_hub(
+        ready=camera_companions(directory, fixture, state, host=host, port=port) if camera else None,
         database=directory / "hub.sqlite",
         settings=directory / "hub-settings.json",
         host=host,
@@ -309,6 +483,7 @@ def serve(directory: Path, *, host: str, port: int) -> int:
         confirmation=TimeConfirmation(0, fixture.uncertainty_ms, fixture.operator_id),
         demo=fixture.presenter(),
         mission=fixture.mission(directory),
+        **({} if server is None else {"server": server}),
     )
 
 
@@ -362,7 +537,6 @@ def cue(directory: Path, name: str, *, base_url: str, now: datetime | None = Non
         "/v1/sessions",
         body={
             "kind": "operator",
-            "person_id": fixture.operator_id,
             "credential": credentials[fixture.operator_id],
         },
     )
@@ -378,7 +552,7 @@ def cue(directory: Path, name: str, *, base_url: str, now: datetime | None = Non
             body["next_contact_at"] = at.strftime("%Y-%m-%dT%H:%M:%SZ")
         return hub.call("POST", "/v1/demo/ground-link", token=token, body=body, release=release)
     if name.startswith("model-"):
-        body = fixture.cited(spec["request"])
+        body = dict(cast(dict[str, object], fixture.cited(spec["request"])))
         return hub.call("POST", "/v1/assistant/runtime", token=token, body=body, release=release)
     if name.startswith("environment-"):
         # E23's proposeEnvironmentChange is not on main: the demo control sets the demo mission's environment.
@@ -394,10 +568,13 @@ def main(argv: Sequence[str]) -> int:
     reset_parser = commands.add_parser("reset")
     reset_parser.add_argument("--dir", type=Path, required=True)
     reset_parser.add_argument("--fixture", type=Path, default=None)
+    reset_parser.add_argument("--camera-port", type=int, default=None)
+    reset_parser.add_argument("--twin-port", type=int, default=None)
     serve_parser = commands.add_parser("serve")
     serve_parser.add_argument("--dir", type=Path, required=True)
     serve_parser.add_argument("--host", default="127.0.0.1")
     serve_parser.add_argument("--port", type=int, default=8080)
+    serve_parser.add_argument("--no-camera", action="store_true")
     cue_parser = commands.add_parser("cue")
     cue_parser.add_argument("name")
     cue_parser.add_argument("--dir", type=Path, required=True)
@@ -405,10 +582,20 @@ def main(argv: Sequence[str]) -> int:
     args = parser.parse_args(list(argv))
     try:
         if args.command == "reset":
-            print(json.dumps(reset(args.dir, fixture_path=args.fixture), sort_keys=True))
+            print(
+                json.dumps(
+                    reset(
+                        args.dir,
+                        fixture_path=args.fixture,
+                        camera_port=args.camera_port,
+                        twin_port=args.twin_port,
+                    ),
+                    sort_keys=True,
+                )
+            )
             return 0
         if args.command == "serve":
-            return serve(args.dir, host=args.host, port=args.port)
+            return serve(args.dir, host=args.host, port=args.port, camera=not args.no_camera)
         status, body = cue(args.dir, args.name, base_url=args.hub)
         print(json.dumps({"status": status, "body": body}, sort_keys=True))
         return 0 if 200 <= status < 300 else 1

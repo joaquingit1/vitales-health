@@ -181,6 +181,7 @@ def serve(
     server: Server = _uvicorn,
     demo: DemoOperatorRecord | None = None,
     mission: DemoMission | None = None,
+    ready: Callable[[Runtime], Callable[[], None]] | None = None,
 ) -> int:
     db = open_database(database, _read_settings(settings))
     try:
@@ -196,9 +197,15 @@ def serve(
         try:
             if confirmation is not None and runtime.serving:
                 confirm_time(runtime, confirmation)
-            if runtime.supervisor is not None:
-                runtime.supervisor.start()
-            server(app, host, port)
+            # A demo profile starts its companion processes once the hub serves; they stop with it.
+            stop = ready(runtime) if ready is not None and runtime.serving else None
+            try:
+                if runtime.supervisor is not None:
+                    runtime.supervisor.start()
+                server(app, host, port)
+            finally:
+                if stop is not None:
+                    stop()
         finally:
             stuck = runtime.shutdown()
         if stuck:
