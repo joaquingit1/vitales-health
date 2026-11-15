@@ -140,13 +140,10 @@ def test_a_release_without_error_messages_serves_none_and_a_bad_unit_mapping_giv
     missing = SimpleNamespace(document=lambda name: SimpleNamespace(raw=b"{}"))
     assert sensors_module._messages_of(missing) == {}  # type: ignore[attr-defined]
     resolver = sensors_module._mapping_resolver  # type: ignore[attr-defined]
-    assert resolver("") is None  # no path: no resolver, so the loader reports a finding
-    assert resolver(str(tmp_path / "absent.json")) is None
-    bad = tmp_path / "bad.json"
-    bad.write_text("{not json", encoding="utf-8")
-    assert resolver(str(bad)) is None
+    assert resolver(None) is None  # no document: no resolver, so the loader reports a finding
+    assert resolver(b"{not json") is None
     real = json.loads((ROOT / "config/unit-mapping.json").read_text(encoding="utf-8"))["mappings"][0]
-    found = resolver(str(ROOT / "config/unit-mapping.json"))
+    found = resolver((ROOT / "config/unit-mapping.json").read_bytes())
     assert found is not None and found(real["indicator_code"], real["wire_unit"]) == real["ucum_unit"]
     assert found(real["indicator_code"], "no_such_unit") is None  # an unlisted spelling is never guessed
 

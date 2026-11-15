@@ -61,16 +61,25 @@ class LiveMissionState:
         with self.snapshots.snapshot() as snapshot:
             return self._state(snapshot.release)
 
+    def _bare(self) -> MissionState:
+        """A state for answers that read only stored records (identity, overlays, locations, day end). They need no
+        configuration, so they answer before the first release is active; labels and return options do not."""
+
+        def unavailable(record: object) -> DayLabelFacts:
+            raise ProblemError(ErrorCode.CONFIG_INVALID, "a day label needs the active release")
+
+        return MissionState(self.reader, self.snapshots, {}, self.clock, unavailable)
+
     # --- MissionStatePort ---------------------------------------------------------------------------------
 
     def current(self, uow: Snap | None = None) -> MissionFacts | None:
-        return self._any().current(uow)
+        return self._bare().current(uow)
 
     def mission_mode(self, uow: Snap | None = None) -> OriginMode | None:
-        return self._any().mission_mode(uow)
+        return self._bare().mission_mode(uow)
 
     def active_environment_id(self, uow: Snap | None = None) -> str | None:
-        return self._any().active_environment_id(uow)
+        return self._bare().active_environment_id(uow)
 
     def overlays(self, uow: UnitOfWork, person_id: str, since: datetime) -> Sequence[OverlayFact]:
         return self._state(uow.release).overlays(uow, person_id, since)
@@ -81,20 +90,20 @@ class LiveMissionState:
         return self._any().return_option(None, environment_id)
 
     def day_end(self, instant: datetime) -> datetime:
-        return self._any().day_end(instant)
+        return self._bare().day_end(instant)
 
     # --- OverlayPort, LocationPort, DayLabelPort ----------------------------------------------------------
 
     def active(self, person_ids: Collection[str], at: datetime) -> Mapping[str, Sequence[OverlayFact]]:
-        return self._any().active(person_ids, at)
+        return self._bare().active(person_ids, at)
 
     def intervals(
         self, person_id: str, kinds: Collection[str], since: datetime, until: datetime, limit: int
     ) -> Sequence[OverlayFact]:
-        return self._any().intervals(person_id, kinds, since, until, limit)
+        return self._bare().intervals(person_id, kinds, since, until, limit)
 
     def location_of(self, person_id: str, at: datetime) -> str | None:
-        return self._any().location_of(person_id, at)
+        return self._bare().location_of(person_id, at)
 
     def inline_label_at(self, instant: datetime) -> str:
         with self.snapshots.snapshot() as snapshot:

@@ -223,6 +223,10 @@ class _Batch:
                 "adapter:" + self.adapter_id,
                 None,
             )
+        canonical = self.config.canonical_unit(kind.id)
+        if canonical is None:
+            self.reject(index, "INVALID_UNIT", row)
+            return
         try:
             converted = convert_wire_reading(
                 rt.need_converter(),
@@ -230,7 +234,7 @@ class _Batch:
                 kind,
                 value=value,
                 unit=model.unit,
-                canonical_unit=Unit(kind.unit),
+                canonical_unit=Unit(canonical),
                 pressure=pressure,
             )
         except InvalidUnit:

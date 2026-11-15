@@ -213,7 +213,7 @@
     {
       "indicator_code": "noise",
       "wire_unit": "dBA",
-      "ucum_unit": "dB[A]",
+      "ucum_unit": "dB",
       "conversion": "identity",
       "factor": null,
       "rounding": {

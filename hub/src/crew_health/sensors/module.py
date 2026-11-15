@@ -80,6 +80,10 @@ _PREFIXES: tuple[tuple[str, str], ...] = (
     ("sensor_schedule", "sch"),
 )
 _MIGRATION = "adapters/migrations/0001_sensors.sql"
+# CONTRACTS 11 checks 4 and 12.sensor are also registered by the config module's package checks, which stay the
+# required contributors. The registry rejects a duplicate id, so the sensor rules run beside them under their own
+# id: both must pass, neither replaces the other.
+SUFFIX = ".sensors"
 _ENGINE_ID = "sensors"
 
 
@@ -142,13 +146,14 @@ def _messages_of(release: ReleaseHandle) -> Mapping[str, str]:
     return {str(k): str(v) for k, v in found.items() if isinstance(v, str)}
 
 
-def _mapping_resolver(path: str) -> Callable[[str, str], str | None] | None:
-    """D12 unit-mapping.json: wire spelling to UCUM per indicator. Absent or invalid: no resolver, a finding."""
-    if not path:
+def _mapping_resolver(raw: bytes | None) -> Callable[[str, str], str | None] | None:
+    """D12 unit-mapping document of the release under check: wire spelling to UCUM per indicator. Absent or invalid:
+    no resolver, a finding."""
+    if raw is None:
         return None
     try:
-        document = UnitMappingJson.model_validate_json(_read(path))
-    except OSError, ValueError:
+        document = UnitMappingJson.model_validate_json(raw)
+    except ValueError:
         return None
     table = {(m.indicator_code, m.wire_unit): m.ucum_unit for m in document.mappings}
     return lambda sensor_type_id, wire: table.get((sensor_type_id, wire))
@@ -227,7 +232,8 @@ def _bind_checks(
     check4.build = Check4SensorLimits().check
 
     def sensor_check(candidate: CandidateRelease) -> tuple[Finding, ...]:
-        resolve = _mapping_resolver(settings.text("sensors.unit_mapping_path"))
+        mapping = candidate.documents.get(ConfigName.UNIT_MAPPING)
+        resolve = _mapping_resolver(None if mapping is None else mapping.raw)
         if units is None or resolve is None:
             return (
                 Finding(
@@ -309,7 +315,7 @@ def register(registry: ModuleRegistry) -> None:
     registry.provide(ProvenanceStreamsPort, lambda _: _Providers(live))
     registry.provide(ActivationParticipant, lambda _: _Participant(live))
     registry.provide(FreshnessSweeper, lambda _: _Sweeper(live))
-    check4, check12, guard = _Late("4"), _Late("12.sensor"), _Late("12.scan_bound")
+    check4, check12, guard = _Late("4" + SUFFIX), _Late("12.sensor" + SUFFIX), _Late("12.scan_bound")
     registry.loader_check(check4)
     registry.loader_check(check12)
     registry.activation_guard(guard)

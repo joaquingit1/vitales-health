@@ -55,7 +55,7 @@ DIMENSION = {
     "uGy/h": "dose_rate",
     "mGy/h": "dose_rate",
     "mSv/d": "dose_per_day",
-    "dB[A]": "level",
+    "dB": "level",
     "1": "index",
     "mg/m3": "concentration",
     "ug/m3": "concentration",
@@ -93,6 +93,7 @@ def raw_documents() -> dict[ConfigName, bytes]:
         ConfigName.SENSOR_CATALOG: config_bytes("sensor-catalog"),
         ConfigName.SENSOR_LIMITS: config_bytes("sensor-limits"),
         ConfigName.ENVIRONMENT_PROFILES: config_bytes("environment-profiles"),
+        ConfigName.UNIT_MAPPING: config_bytes("unit-mapping"),
         ConfigName.ENVIRONMENT_HAZARDS: (PRODUCT / "environment-hazards.json").read_bytes(),
     }
 

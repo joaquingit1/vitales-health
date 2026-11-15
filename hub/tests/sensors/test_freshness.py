@@ -12,6 +12,8 @@ from typing import Any
 import pytest
 from e23_station import ADAPTER, START, Station, build_station, channel, reading
 
+from crew_health.app.cli import TimeConfirmation, confirm_time
+
 pytestmark = pytest.mark.e23
 PATH = "/v1/adapters/" + ADAPTER + "/readings"
 STALE = 300
@@ -117,6 +119,8 @@ def test_a_stale_channel_never_becomes_current_from_a_clock_jump_only_new_data_r
     station.sweep()
     assert state(station) == "stale"  # not rejuvenated
     station.advance(seconds=STALE + 400)
+    # The hub's own clock regressed, so it froze every instant until the crew confirms the time (SYSTEM 5.2, D3).
+    confirm_time(station.app.state.runtime, TimeConfirmation(0, 500, "operator_sim"))
     feed(station, 2, "key_00002")
     assert state(station) == "current"
     assert events(station, "sensor.resumed") == SCOPES  # resumed only on an eligible advancing observation

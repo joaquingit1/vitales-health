@@ -11,13 +11,15 @@ from crew_health.guidance.module import register as register_6
 from crew_health.help.module import register as register_7
 from crew_health.kitmap.module import register as register_8
 from crew_health.measurement.module import register as register_9
-from crew_health.model.module import register as register_10
-from crew_health.plans.module import register as register_11
-from crew_health.platform.module import register as register_12
-from crew_health.records.module import register as register_13
-from crew_health.roles.module import register as register_14
-from crew_health.teach.module import register as register_15
-from crew_health.trends.module import register as register_16
+from crew_health.mission.module import register as register_10
+from crew_health.model.module import register as register_11
+from crew_health.plans.module import register as register_12
+from crew_health.platform.module import register as register_13
+from crew_health.records.module import register as register_14
+from crew_health.roles.module import register as register_15
+from crew_health.sensors.module import register as register_16
+from crew_health.teach.module import register as register_17
+from crew_health.trends.module import register as register_18
 
 REGISTRATIONS = (
     register_0,
@@ -37,4 +39,6 @@ REGISTRATIONS = (
     register_14,
     register_15,
     register_16,
+    register_17,
+    register_18,
 )

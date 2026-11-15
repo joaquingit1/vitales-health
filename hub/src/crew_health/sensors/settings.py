@@ -33,7 +33,6 @@ TEXTS: tuple[tuple[str, int], ...] = (
     ("sensors.channel_registry_path", 1024),
     ("sensors.demo_registry_path", 1024),
     ("sensors.deployment_profile", 64),
-    ("sensors.unit_mapping_path", 1024),
     ("sensors.hub_source_clock_id", 128),
 )
 BOOLEANS: tuple[str, ...] = ("sensors.sweep_timer_enabled",)
@@ -45,7 +44,6 @@ DEFAULTS: dict[str, object] = {
     "sensors.channel_registry_path": "",
     "sensors.demo_registry_path": "",
     "sensors.deployment_profile": "",
-    "sensors.unit_mapping_path": "",
     "sensors.hub_source_clock_id": "hub_clock",
     "sensors.sweep_timer_enabled": False,
 }

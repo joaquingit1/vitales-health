@@ -6,12 +6,12 @@ the roster (E02). Configuration is the shipped config/ documents, never typed cl
 
 from __future__ import annotations
 
-import hashlib
 import json
 import runpy
+import tempfile
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from decimal import Decimal
+from functools import cache
 from pathlib import Path
 from typing import Any
 
@@ -20,33 +20,23 @@ from fastapi.testclient import TestClient
 
 from crew_health.app.assembly import ConfigHttpMetadata, create_app
 from crew_health.app.registry import ModuleRegistry
+from crew_health.app.station import HubResources, bootstrap_release, config_artifacts
 from crew_health.clock.application.clock import PersistentClocks
 from crew_health.config.adapters.repository import ConfigRepository, SQLiteConfigReader
 from crew_health.config.application.activation import ReleaseActivationService
-from crew_health.config.application.loader import ConfigLoader, required_contributors
+from crew_health.config.application.loader import ConfigLoader
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode, Role
 from crew_health.events.adapters.repository import EventRepository, EventValidator
-from crew_health.events.module import EventAccess
-from crew_health.kernel.clock import ClockCorrection, ClockSegment, TimeInput
+from crew_health.events.application.delivery import SessionAuthorizer
+from crew_health.kernel.clock import ClockCorrection, ClockSegment
 from crew_health.kernel.config import CandidateRelease, ConfigDocumentView
 from crew_health.kernel.errors import ProblemError
-from crew_health.kernel.evaluation import EvaluationIsolation
-from crew_health.kernel.testing import MemoryClock, MemoryReleaseCheck, MemoryUnits, MemoryWireConverter
-from crew_health.kernel.units import (
-    ConvertedQuantity,
-    Quantity,
-    Unit,
-    UnitRegistry,
-    WireQuantity,
-    WireUnitConverter,
-)
+from crew_health.kernel.testing import MemoryClock
 from crew_health.kernel.uow import Actor, Audience, ReadSnapshot, SessionContext
 from crew_health.mission import module as mission_module
 from crew_health.mission.application.ports import MissionInitializer, RosterPort
 from crew_health.mission.settings import DEFAULTS as MISSION_DEFAULTS
 from crew_health.mission.settings import specifications as mission_specs
-from crew_health.platform.adapters.evaluation import EvaluationRepository
-from crew_health.platform.application.evaluation import EvaluationService
 from crew_health.platform.settings import ValidatedSettings
 from crew_health.platform.storage import SQLiteDatabase
 from crew_health.platform.testing.sqlite import database
@@ -59,7 +49,6 @@ ROOT = Path(__file__).resolve().parents[3]
 E01 = runpy.run_path(str(ROOT / "eval/scenarios/E01/test_acceptance.py"))
 START = datetime(2026, 11, 14, 9, 0, 0, tzinfo=UTC)
 HUB_CLOCK, ADAPTER = "hub_clock", "adp_sim"
-MINE = {"4", "7", "12.sensor", "12.effect"}
 ROSTER = frozenset({"per_a", "per_b"})
 
 
@@ -91,6 +80,9 @@ class Security:
             ),
         }
 
+    def alive(self, snapshot: ReadSnapshot, session: SessionContext) -> bool:
+        return True
+
     def authenticate(self, request: Request) -> SessionContext:
         header = request.headers.get("Authorization", "")
         session = self.tokens.get(header.removeprefix("Bearer "))
@@ -105,25 +97,17 @@ class Security:
         return True
 
 
-def _documents() -> dict[ConfigName, ConfigDocumentView]:
-    views: dict[ConfigName, ConfigDocumentView] = {}
-    for name in ConfigName:
-        real = ROOT / "config" / f"{name.value}.json"
-        hazard = ROOT / "docs/product" / f"{name.value}.json"
-        if real.is_file() and name.value in {"sensor-catalog", "sensor-limits", "environment-profiles"}:
-            raw = real.read_bytes()
-        elif hazard.is_file():
-            raw = hazard.read_bytes()
-        else:
-            suffix = (
-                "api/examples/kit-map.example.json"
-                if name == ConfigName.KIT_MAP
-                else f"api/examples/config/{name.value}.example.json"
-            )
-            wrapped = json.loads((ROOT / "docs/product" / suffix).read_bytes())
-            raw = json.dumps(wrapped if name == ConfigName.KIT_MAP else wrapped["value"]).encode()
-        views[name] = ConfigDocumentView(name, hashlib.sha256(raw).hexdigest(), raw)
-    return views
+@cache
+def _resources() -> HubResources:
+    """The station resources E01's tests start from: the repository's contracts, config and package, with the
+    kit-map and onboard-plans pair that agree with each other (hub/tests/app/conftest.py says why)."""
+    copy = runpy.run_path(str(ROOT / "hub/tests/app/conftest.py"))["copy_station_resources"]
+    return HubResources(copy(Path(tempfile.mkdtemp(prefix="e23-station-")) / "resources"))
+
+
+def _documents(db: SQLiteDatabase) -> dict[ConfigName, ConfigDocumentView]:
+    """The served hub's first-start release over those resources."""
+    return dict(bootstrap_release(_resources(), db.ids)[0].documents)
 
 
 def _settings(tmp: Path, registry_file: Path, overrides: dict[str, object]) -> ValidatedSettings:
@@ -139,32 +123,8 @@ def _settings(tmp: Path, registry_file: Path, overrides: dict[str, object]) -> V
     values.update(MISSION_DEFAULTS)
     values.update(SENSOR_DEFAULTS)
     values["sensors.channel_registry_path"] = str(registry_file)
-    values["sensors.unit_mapping_path"] = str(ROOT / "config/unit-mapping.json")
     values.update(overrides)
     return ValidatedSettings(specs, values)
-
-
-def _mapping_converter() -> MemoryWireConverter:
-    rows = {
-        (m["indicator_code"], m["wire_unit"]): (m["conversion"], m["factor"])
-        for m in json.loads((ROOT / "config/unit-mapping.json").read_text(encoding="utf-8"))["mappings"]
-    }
-
-    def convert(
-        value: WireQuantity, code: str, release: object, to: Unit, pressure: Any
-    ) -> ConvertedQuantity:
-        method, factor = rows[(code, value.unit)]
-        if method == "identity":
-            canonical = value.value
-        elif method == "scale":
-            canonical = value.value * Decimal(str(factor))
-        else:
-            canonical = value.value / Decimal(1_000_000) * pressure.pressure.value
-        return ConvertedQuantity(
-            value, Quantity(canonical, to), method, "test-mapping", pressure, "half_even_4dp"
-        )
-
-    return MemoryWireConverter(convert)
 
 
 @dataclass
@@ -238,7 +198,10 @@ def build_station(
         db.migrate(
             (ROOT / "hub/src/crew_health" / module / "adapters/migrations" / f"0001_{module}.sql").read_text()
         )
-    artifacts, security, repository = E01["fixture_artifacts"](), Security(), ConfigRepository()
+    package_artifacts = config_artifacts(
+        _resources()
+    )  # the real package checks, as the served hub binds them
+    security, repository = Security(), ConfigRepository()
     editor = SessionContext(
         "s_ed", "editor", Actor("operator", "operator_sim"), None, frozenset({Role.EDITOR})
     )
@@ -251,18 +214,18 @@ def build_station(
     service = ReleaseActivationService(
         repository,
         ConfigLoader(
-            E01["counterpart_checks"](artifacts), max_document_bytes=db.settings.integer("commands.max_bytes")
+            _seed_checks(package_artifacts), max_document_bytes=db.settings.integer("commands.max_bytes")
         ),
         db.ids,
         origin=lambda view: "SIM",
     )
     with db.begin(actor=editor.actor, correlation_id="e23_install") as uow:
-        service.propose(uow, editor, CandidateRelease("release_e23", _documents()))
+        service.propose(uow, editor, CandidateRelease("release_e23", _documents(db)))
         service.activate(uow, editor, release_id="release_e23", expected_etag='"release_e23:1:0"')
     db.set_release_reader(lambda view: SQLiteConfigReader(view, repository).active())
     _allow_sensor_inputs(db)
     clocks = _open_clocks(db)
-    app = _app(db, security, artifacts, tmp_path) if build_app else None
+    app = _app(db, security, package_artifacts, tmp_path) if build_app else None
     client = TestClient(app, raise_server_exceptions=False) if app is not None else None
     return Station(tmp_path, db, app, client, security, clocks, registry_file)  # type: ignore[arg-type]
 
@@ -330,6 +293,23 @@ def _open_clocks(db: SQLiteDatabase) -> PersistentClocks:
     return clocks
 
 
+def _seed_checks(artifacts: Any) -> Any:
+    """The checks that admit the station's first release: the same package contributors the served hub binds."""
+    from crew_health.config.application.loader import LoaderChecks
+    from crew_health.config.domain.templates import TemplateCheck
+
+    checks = LoaderChecks(maximum=1024)
+    for check in (
+        artifacts.schemas,
+        artifacts.sources,
+        artifacts.indicators,
+        TemplateCheck(),
+        *artifacts.package,
+    ):
+        checks.register(check)
+    return checks
+
+
 def _app(db: SQLiteDatabase, security: Security, artifacts: Any, tmp_path: Path) -> Any:
     summaries = {
         ConfigName(r["name"]): r["basis_summary"]
@@ -337,23 +317,6 @@ def _app(db: SQLiteDatabase, security: Security, artifacts: Any, tmp_path: Path)
             "value"
         ]["documents"]
     }
-    dimensions = {
-        "mm[Hg]": "pressure",
-        "[ppm]": "fraction",
-        "uGy/h": "dose_rate",
-        "mGy/h": "dose_rate",
-        "mSv/d": "dose_per_day",
-        "dB[A]": "level",
-        "1": "index",
-        "mg/m3": "concentration",
-        "ug/m3": "concentration",
-        "mg/L": "mass_per_volume",
-    }
-    codes = {
-        m["ucum_unit"]
-        for m in json.loads((ROOT / "config/unit-mapping.json").read_text(encoding="utf-8"))["mappings"]
-    }
-    units = MemoryUnits({code: (dimensions.get(code, code), Decimal(1), Decimal(0)) for code in codes})
     holder: dict[str, Any] = {}
 
     def configure(registry: ModuleRegistry) -> None:
@@ -364,26 +327,9 @@ def _app(db: SQLiteDatabase, security: Security, artifacts: Any, tmp_path: Path)
                 summaries, lambda view: "SIM", E01["FixtureVisibility"](E01["SimSecurity"]())
             ),
         )
-        registry.provide(EventAccess, lambda r: EventAccess(security, (), {"config.release": security}))
-        for identifier in sorted(required_contributors() - {"1", "2", "9", "13"} - MINE):
-            registry.loader_check(MemoryReleaseCheck(identifier, lambda candidate: ()))
-        registry.provide(UnitRegistry, lambda r: units)  # type: ignore[type-abstract]
-        registry.provide(WireUnitConverter, lambda r: _mapping_converter())  # type: ignore[type-abstract]
+        registry.provide(SessionAuthorizer, lambda r: security)  # type: ignore[type-abstract]
         registry.provide(RosterPort, lambda r: _Roster())  # type: ignore[type-abstract]
 
-        def isolation(r: Any) -> EvaluationService:
-            return EvaluationService(
-                tuple(registry.declarations["evaluators"].values()),  # type: ignore[arg-type]
-                db.settings,
-                db.ids,
-                repository=EvaluationRepository(),
-                capture=lambda uow: TimeInput(
-                    uow.now, HUB_CLOCK, HUB_CLOCK + "_seg", 1, "hub_corrected", "LIVE"
-                ),
-                fault_codes=frozenset({"NON_FINITE_COMPUTATION"}),
-            )
-
-        registry.provide(EvaluationIsolation, isolation)  # type: ignore[type-abstract]
         mission_module.register(registry)
         sensors_module.register(registry)
         holder["registry"] = registry

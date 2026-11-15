@@ -547,7 +547,7 @@ def record_event(
     )
     active = _active(services, uow)
     record = EventRecord(
-        services.ids.new("mev"),
+        services.ids.new("mce"),
         event_type,
         occurred_at,
         uow.now,

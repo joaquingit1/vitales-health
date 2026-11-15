@@ -84,8 +84,12 @@ _PREFIXES: tuple[tuple[str, str], ...] = (
     ("mission", "msn"),
     ("environment_profile", "env"),
     ("activity_overlay", "ovl"),
-    ("mission_event", "mev"),
+    ("mission_event", "mce"),
 )
+# CONTRACTS 11 checks 7 and 12.effect are also registered by the config module's package checks, which stay
+# the required contributors. The registry rejects a duplicate id, so the mission rules run beside them under
+# their own id: both must pass, neither replaces the other.
+SUFFIX = ".mission"
 _MIGRATION = "adapters/migrations/0001_mission.sql"
 _MIGRATION_NAME = "mission.0001"
 
@@ -276,7 +280,7 @@ def register(registry: ModuleRegistry) -> None:
         (GuidanceEnvironmentFacts, GuidanceEnvironment),
     ):
         _consumer(registry, port, build)
-    profiles, filters = _Late(CHECK_7), _Late(CHECK_12 + ".effect")
+    profiles, filters = _Late(CHECK_7 + SUFFIX), _Late(CHECK_12 + ".effect" + SUFFIX)
     registry.loader_check(profiles)
     registry.loader_check(filters)
     registry.provide(MissionInitializer, lambda _: _Initializer(live))

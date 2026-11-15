@@ -23,6 +23,7 @@ class SensorConfig:
     earth_delay: tuple[tuple[str, str], ...]
     environment_hazard_ids: tuple[tuple[str, tuple[str, ...]], ...]
     effect_filters: tuple[EffectFilter, ...]
+    canonical_ucum: tuple[tuple[str, str], ...] = ()
 
     @property
     def limits(self) -> tuple[LimitFacts, ...]:
@@ -30,6 +31,10 @@ class SensorConfig:
 
     def sensor_type(self, sensor_type_id: str) -> SensorTypeFacts | None:
         return next((s for s in self.sensor_types if s.id == sensor_type_id), None)
+
+    def canonical_unit(self, sensor_type_id: str) -> str | None:
+        """The UCUM code of a type's canonical unit from the release's unit mapping; None when it names none."""
+        return dict(self.canonical_ucum).get(sensor_type_id)
 
     def hazard(self, hazard_id: str) -> HazardFacts | None:
         return next((h for h in self.hazards if h.id == hazard_id), None)

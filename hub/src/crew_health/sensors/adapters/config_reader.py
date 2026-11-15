@@ -20,6 +20,7 @@ from crew_health.contracts_gen.schemas.config_environment_hazards_schema import 
 from crew_health.contracts_gen.schemas.config_environment_profiles_schema import EnvironmentProfilesJson
 from crew_health.contracts_gen.schemas.config_sensor_catalog_schema import SensorCatalogJson
 from crew_health.contracts_gen.schemas.config_sensor_limits_schema import SensorLimitsJson
+from crew_health.contracts_gen.schemas.config_unit_mapping_schema import UnitMappingJson
 from crew_health.kernel.config import CandidateRelease, Finding, ReleaseHandle
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.units import UnitRegistry
@@ -246,7 +247,21 @@ def load_sensor_config(read: ReadDocument) -> SensorConfig:
         hazards.earth_delay,
         hazards.environment_hazard_ids,
         filters,
+        _canonical_ucum(read, sensor_types),
     )
+
+
+def _canonical_ucum(
+    read: ReadDocument, sensor_types: Sequence[SensorTypeFacts]
+) -> tuple[tuple[str, str], ...]:
+    """Each type's canonical unit as the UCUM code D12's unit mapping gives its catalog spelling. A document that
+    is missing or unreadable maps nothing, so every reading of the type is rejected as INVALID_UNIT, never guessed."""
+    try:
+        document = UnitMappingJson.model_validate_json(read(ConfigName.UNIT_MAPPING))
+    except ValidationError, KeyError:
+        return ()
+    table = {(m.indicator_code, m.wire_unit): m.ucum_unit for m in document.mappings}
+    return tuple(sorted((t.id, table[(t.id, t.unit)]) for t in sensor_types if (t.id, t.unit) in table))
 
 
 def config_from_release(release: ReleaseHandle) -> SensorConfig:

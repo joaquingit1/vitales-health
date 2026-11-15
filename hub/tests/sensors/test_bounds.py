@@ -164,7 +164,7 @@ def test_the_batch_envelope_is_bounded_and_shaped_before_any_row() -> None:
 def test_the_five_health_codes_degrade_and_recover_and_nothing_else_is_accepted() -> None:
     from crew_health.platform.application.health import ComponentHealthState
 
-    health = ComponentHealthState()
+    health = ComponentHealthState(maximum=64)
     faults = Faults(health)
     assert FAULT_CODES == {
         "EVALUATION_UNAVAILABLE",
