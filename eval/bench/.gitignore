@@ -1,0 +1,4 @@
+runs/
+coverage.json
+mutants/
+.lock

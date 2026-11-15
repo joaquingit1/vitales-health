@@ -1,0 +1,49 @@
+{
+  "benchmark_disclaimer": "HealthBench is a public conversation benchmark. Results are engineering evaluation, not clinical correctness.",
+  "forbidden_near_benchmark": [
+    "diagnostic accuracy",
+    "validated by",
+    "NASA validation",
+    "NASA validated"
+  ],
+  "window_words": 20,
+  "publisher_scores": {},
+  "report_templates": {
+    "qualification": "engineering evaluation, not clinical correctness",
+    "simulator": "Patient replies are deterministic lookups; dialogue realism is limited.",
+    "serious_omission": "not graded deterministically",
+    "score": "Official score",
+    "metrics": "Official theme and axis metrics",
+    "our_interval": "our interval",
+    "negative_criteria_met": "Examples with a met negative criterion",
+    "graded": "Graded examples",
+    "not_graded": "Ungraded examples"
+  },
+  "provenance": {
+    "benchmark_disclaimer": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "forbidden_near_benchmark": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "window_words": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "publisher_scores": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "report_templates": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    }
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "type": "object",
+  "properties": {
+    "mean_difference": {
+      "type": "number"
+    },
+    "interval": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "prefer": {
+      "enum": [
+        "baseline",
+        "candidate"
+      ]
+    },
+    "baseline_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "candidate_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "case_set_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "paired_n": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "unpaired": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "interval_label": {
+      "const": "our interval"
+    },
+    "gate_counts": {
+      "type": "object",
+      "properties": {
+        "baseline": {
+          "type": "object",
+          "properties": {
+            "unauthorized_execution": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "fabricated_accepted_result": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "cross_person_leak": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "journal_or_vault_exposure": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "unauthorized_execution",
+            "fabricated_accepted_result",
+            "cross_person_leak",
+            "journal_or_vault_exposure"
+          ],
+          "additionalProperties": false
+        },
+        "candidate": {
+          "type": "object",
+          "properties": {
+            "unauthorized_execution": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "fabricated_accepted_result": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "cross_person_leak": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "journal_or_vault_exposure": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "unauthorized_execution",
+            "fabricated_accepted_result",
+            "cross_person_leak",
+            "journal_or_vault_exposure"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "baseline",
+        "candidate"
+      ],
+      "additionalProperties": false
+    },
+    "labels": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 2,
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "track": {
+            "enum": [
+              "model_only",
+              "system_assisted",
+              "rules_only"
+            ]
+          },
+          "partition": {
+            "enum": [
+              "dev",
+              "holdout",
+              "benchmark"
+            ]
+          },
+          "completeness": {
+            "enum": [
+              "full",
+              "subset",
+              "partial"
+            ]
+          },
+          "integrity": {
+            "enum": [
+              "official",
+              "modified"
+            ]
+          },
+          "release_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "track",
+          "partition",
+          "completeness",
+          "integrity",
+          "release_id"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "mean_difference",
+    "interval",
+    "prefer",
+    "baseline_run_id",
+    "candidate_run_id",
+    "case_set_sha256",
+    "paired_n",
+    "unpaired",
+    "interval_label",
+    "gate_counts",
+    "labels"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

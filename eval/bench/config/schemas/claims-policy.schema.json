@@ -1,0 +1,270 @@
+{
+  "type": "object",
+  "properties": {
+    "benchmark_disclaimer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "forbidden_near_benchmark": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "window_words": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 200
+    },
+    "publisher_scores": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "report_templates": {
+      "type": "object",
+      "properties": {
+        "qualification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "simulator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "serious_omission": {
+          "type": "string",
+          "minLength": 1
+        },
+        "score": {
+          "type": "string",
+          "minLength": 1
+        },
+        "metrics": {
+          "type": "string",
+          "minLength": 1
+        },
+        "our_interval": {
+          "type": "string",
+          "minLength": 1
+        },
+        "negative_criteria_met": {
+          "type": "string",
+          "minLength": 1
+        },
+        "graded": {
+          "type": "string",
+          "minLength": 1
+        },
+        "not_graded": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "qualification",
+        "simulator",
+        "serious_omission",
+        "score",
+        "metrics",
+        "our_interval",
+        "negative_criteria_met",
+        "graded",
+        "not_graded"
+      ],
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "benchmark_disclaimer": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "forbidden_near_benchmark": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "window_words": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "publisher_scores": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "report_templates": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "benchmark_disclaimer",
+        "forbidden_near_benchmark",
+        "window_words",
+        "publisher_scores",
+        "report_templates"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "benchmark_disclaimer",
+    "forbidden_near_benchmark",
+    "window_words",
+    "publisher_scores",
+    "report_templates",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

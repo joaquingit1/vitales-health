@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "track": {
+      "enum": [
+        "model_only",
+        "system_assisted",
+        "rules_only"
+      ]
+    },
+    "variant": {
+      "enum": [
+        "main",
+        "Hard",
+        "Consensus",
+        null
+      ]
+    },
+    "completeness": {
+      "enum": [
+        "full",
+        "subset",
+        "partial"
+      ]
+    },
+    "integrity": {
+      "enum": [
+        "official",
+        "modified"
+      ]
+    },
+    "n": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "N": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "grader": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reviewer_qualification": {
+      "enum": [
+        "engineering"
+      ]
+    },
+    "claim_class": {
+      "enum": [
+        "public_benchmark"
+      ]
+    },
+    "benchmark_disclaimer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "categories": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "passed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "not_applicable": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "not_graded": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "n_cases": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "graded": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "missing": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rate": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "interval": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "minItems": 2,
+                "maxItems": 2
+              }
+            ]
+          }
+        },
+        "required": [
+          "passed",
+          "failed",
+          "not_applicable",
+          "not_graded",
+          "n_cases",
+          "graded",
+          "missing",
+          "rate",
+          "interval"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "statuses": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "completed",
+          "failed_generation",
+          "timeout",
+          "harness_error",
+          "not_run"
+        ]
+      },
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "official": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "score",
+        "metrics",
+        "our_interval",
+        "negative_criteria_met",
+        "graded",
+        "not_graded",
+        "graded_as_empty"
+      ],
+      "properties": {
+        "score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "our_interval": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          ]
+        },
+        "negative_criteria_met": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "graded": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "not_graded": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "graded_as_empty": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "required": [
+    "track",
+    "variant",
+    "completeness",
+    "integrity",
+    "n",
+    "N",
+    "grader",
+    "reviewer_qualification",
+    "categories",
+    "statuses"
+  ],
+  "additionalProperties": false
+}

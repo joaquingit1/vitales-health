@@ -1,0 +1,43 @@
+{
+  "case_id": "benchcase_3ea7f247428e7c5f6951a840573fa45c",
+  "suite": "nasa_scenario",
+  "key": {
+    "family_id": "radiation",
+    "source_vignette_id": "fixture_shelter",
+    "patient_id": "sim_fixture",
+    "episode_id": "sim_episode"
+  },
+  "origin": "authored",
+  "derived_from": null,
+  "condition_ids": [],
+  "requires": [],
+  "visible": {
+    "seed_steps": [],
+    "opening_complaint": "SIM solar particle event: shelter warning exercise.",
+    "script": [],
+    "canary": "benchcanary_fixture"
+  },
+  "revealable": {
+    "questions": [],
+    "capabilities": [
+      {
+        "capability_code": "fixture_protocol_quantity",
+        "answer": {
+          "outcome": "accepted",
+          "value": {
+            "value": 1,
+            "unit": "1"
+          },
+          "reason": null
+        }
+      }
+    ],
+    "canary": "benchcanary_fixture"
+  },
+  "hidden_sha256": "94e882f273695511b282c2fefeaf71b9c1e9f9d79be29fe51779ad8563144d7b",
+  "canary": "benchcanary_fixture",
+  "review": {
+    "state": "unreviewed",
+    "reviewer_roles": []
+  }
+}

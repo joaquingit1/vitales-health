@@ -1,0 +1,37 @@
+[importlinter]
+root_packages =
+    crew_health_bench
+    crew_health
+include_external_packages = True
+
+[importlinter:contract:layers]
+name = E18 inward dependencies
+type = layers
+layers =
+    crew_health_bench.api
+    crew_health_bench.adapters
+    crew_health_bench.application
+    crew_health_bench.domain
+
+[importlinter:contract:no-hub-implementation]
+name = E18 uses kernel and generated contracts only
+type = forbidden
+source_modules =
+    crew_health_bench
+forbidden_modules =
+    crew_health
+ignore_imports =
+    crew_health_bench.** -> crew_health.kernel.**
+    crew_health_bench.** -> crew_health.contracts_gen.**
+
+[importlinter:contract:pure-domain]
+name = E18 domain has no I/O
+type = forbidden
+source_modules =
+    crew_health_bench.domain
+forbidden_modules =
+    pathlib
+    os
+    subprocess
+    time
+    jsonschema

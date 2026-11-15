@@ -1,0 +1,490 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "harness": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "const": "https://github.com/openai/simple-evals"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "module": {
+          "const": "healthbench_eval"
+        },
+        "module_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "loading": {
+          "type": "string",
+          "minLength": 1
+        },
+        "grading": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scoring": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aggregation": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "repository",
+        "commit",
+        "module",
+        "module_sha256",
+        "loading",
+        "grading",
+        "scoring",
+        "aggregation"
+      ],
+      "additionalProperties": false
+    },
+    "datasets": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "properties": {
+          "variant": {
+            "enum": [
+              "main",
+              "Hard",
+              "Consensus"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^https://openaipublic[.]blob[.]core[.]windows[.]net/simple-evals/healthbench/"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "examples": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "variant",
+          "url",
+          "sha256",
+          "bytes",
+          "examples"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "grader": {
+      "type": "object",
+      "properties": {
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "base_url": {
+          "type": "string",
+          "pattern": "^(https://[^/?#@]+|http://127\\.0\\.0\\.1:[0-9]{1,5})$",
+          "$comment": "A loopback pin is a self-test grader: it differs from vendor/SOURCE.json, so integrity() labels the run modified, never official"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "api_key_env": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "prompt_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0
+        },
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "system_message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "model",
+        "base_url",
+        "version",
+        "api_key_env",
+        "prompt_sha256",
+        "temperature",
+        "max_tokens",
+        "system_message"
+      ],
+      "additionalProperties": false
+    },
+    "sample": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "const": "seeded_prefix"
+        },
+        "seed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "frame_exclusions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "rule",
+        "seed",
+        "frame_exclusions"
+      ],
+      "additionalProperties": false
+    },
+    "warmup_n": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "budget": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "unit": {
+          "const": "s"
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "additionalProperties": false
+    },
+    "bootstrap_b": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "interval_level": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "exclusiveMaximum": 1
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "harness": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "datasets": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "grader": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "sample": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "warmup_n": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "budget": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "bootstrap_b": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "interval_level": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "harness",
+        "datasets",
+        "grader",
+        "sample",
+        "warmup_n",
+        "budget",
+        "bootstrap_b",
+        "interval_level"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "harness",
+    "datasets",
+    "grader",
+    "sample",
+    "warmup_n",
+    "budget",
+    "bootstrap_b",
+    "interval_level",
+    "provenance"
+  ],
+  "additionalProperties": false
+}
