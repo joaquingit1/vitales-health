@@ -45,7 +45,7 @@ def test_person_override_is_visible_to_authorities(tmp_path: Path) -> None:
     )
     assert hub.queries.overrides(officer, None, 50)["items"] == [override]
     ground = session(None, roles=frozenset({Role.GROUND}))
-    assert hub.queries.overrides(ground, None, 50)["items"]
+    assert hub.queries.overrides(ground, None, 50)["items"] == []
 
 
 @pytest.mark.trace("T-E25-027")

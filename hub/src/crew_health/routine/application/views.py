@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from crew_health.contracts_gen.enums import Role
 from crew_health.kernel.clock import require_utc
 from crew_health.kernel.uow import ReadSnapshot, SessionContext, UnitOfWork
+from crew_health.routine.application.privacy import override_visible as override_visible
 from crew_health.routine.application.scans import bounded_pages
 from crew_health.routine.domain.cadence import EffectiveCadence
 from crew_health.routine.domain.errors import ConfigInvalid, Finding, MissionUnavailable
@@ -46,16 +47,6 @@ def day_view(deps: RoutineDeps, day: int, version: str) -> dict[str, object]:
     start, _ = deps.mission_clock.day_bounds(day, version=version)
     label = deps.mission_clock.met(start, version=version).day_label
     return {"mission_day": day, "environment_day": None, "label": label, "short_label": label}
-
-
-def override_visible(override: Override, session: SessionContext) -> bool:
-    if session.roles & {Role.CREW_MEDICAL_OFFICER, Role.GROUND}:
-        return True
-    if override.audience == "person":
-        return session.person_id is not None and session.person_id == override.person_id
-    return session.person_id in override.member_ids or bool(
-        session.roles & frozenset((Role.CREW_MEDICAL_OFFICER, Role.GROUND))
-    )
 
 
 def can_end(override: Override, session: SessionContext) -> bool:

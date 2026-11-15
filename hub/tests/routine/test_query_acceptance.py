@@ -208,13 +208,11 @@ def test_override_paging_filters_membership_and_person_privacy_before_returning_
         values = collect(lambda c: hub.queries.overrides(session(person, roles=roles), c, 1), 10)
         return {str(value["override_id"]) for value in values}
 
-    assert identifiers("person_mara") == groups
+    assert identifiers("person_mara") == groups | {str(private["override_id"])}
     assert identifiers("person_tomas") == groups | {str(private["override_id"])}
     assert identifiers("person_ilya") == set()
-    assert identifiers("person_ilya", frozenset({Role.CREW_MEDICAL_OFFICER})) == groups | {
-        str(private["override_id"])
-    }
-    assert identifiers(None, frozenset({Role.GROUND})) == groups | {str(private["override_id"])}
+    assert identifiers("person_ilya", frozenset({Role.CREW_MEDICAL_OFFICER})) == groups
+    assert identifiers(None, frozenset({Role.GROUND})) == groups
 
 
 @pytest.mark.trace("INV-E25-07", "T-E25-015")

@@ -72,7 +72,7 @@ def test_person_override_is_visible_to_officers_but_not_other_crew() -> None:
 
     value = replace(override(), audience="person", person_id="p_test")
     assert override_visible(value, session())
-    assert override_visible(value, session("p_other", officer=True))
+    assert not override_visible(value, session("p_other", officer=True))
     group = replace(value, audience="all_crew", person_id=None)
     assert override_visible(group, session("p_other", officer=True))
     assert not override_visible(group, session("p_other"))

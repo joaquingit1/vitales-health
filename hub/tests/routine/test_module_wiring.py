@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import inspect
-from dataclasses import fields
 from pathlib import Path
 from typing import cast
 
@@ -16,8 +15,8 @@ from fastapi.testclient import TestClient
 from crew_health.app.assembly import BuildCatalog
 from crew_health.app.registry import DeclarationRegistry
 from crew_health.kernel.errors import ProblemError
-from crew_health.records.domain.answers import AnswerAccepted as RecordsAnswerAccepted
-from crew_health.routine.application.ports import AnswerAccepted, RequestAuthenticator, RoutineQueries
+from crew_health.routine.application import ports
+from crew_health.routine.application.ports import RequestAuthenticator, RoutineQueries
 from crew_health.routine.module import RoutineRuntime, register
 from crew_health.teach.application.ports import RequestAuthenticator as TeachAuthenticator
 
@@ -96,11 +95,8 @@ def test_unbound_routes_fail_closed_and_bound_routes_without_authenticator_rejec
 
 
 @pytest.mark.trace("T-E25-015", "T-E25-096")
-def test_structural_copies_match_real_records_and_teach_interfaces() -> None:
-    assert tuple((f.name, f.default, f.init) for f in fields(AnswerAccepted)) == tuple(
-        (f.name, f.default, f.init) for f in fields(RecordsAnswerAccepted)
-    )
+def test_authenticator_matches_teach_and_records_copy_is_removed() -> None:
     assert inspect.signature(RequestAuthenticator.authenticate, eval_str=True) == inspect.signature(
         TeachAuthenticator.authenticate, eval_str=True
     )
-    assert AnswerAccepted.event_type == RecordsAnswerAccepted.event_type
+    assert not hasattr(ports, "AnswerAccepted")

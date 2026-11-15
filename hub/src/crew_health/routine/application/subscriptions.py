@@ -9,7 +9,6 @@ from crew_health.kernel.uow import StoredEvent, UnitOfWork
 from crew_health.routine.application.audit import audit
 from crew_health.routine.application.deps import RoutineDeps
 from crew_health.routine.application.engine import RoutineEngine
-from crew_health.routine.application.ports import AnswerAccepted
 from crew_health.routine.domain.bindings import TriggerInput
 from crew_health.routine.domain.errors import RoutineError
 
@@ -34,9 +33,6 @@ class RoutineSubscriptions:
     def release(self, uow: UnitOfWork, event: StoredEvent) -> None:
         if event.type is EventType.CONFIG_RELEASE_ACTIVATED:
             self.isolated(uow, lambda: self.engine.release_activated(uow))
-
-    def answer(self, uow: UnitOfWork, event: AnswerAccepted) -> None:
-        self.isolated(uow, lambda: self.engine.on_answer(uow, event))
 
     def regressed(self, uow: UnitOfWork, event: ClockRegressed) -> None:
         self.isolated(uow, lambda: self.engine.on_clock_regressed(uow, event))

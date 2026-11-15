@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import Decimal
 from typing import Literal
 
 from crew_health.kernel.clock import require_utc
@@ -8,6 +9,7 @@ from crew_health.routine.domain.release import (
     Binding,
     EnvironmentOn,
     MissionEventOn,
+    ObservationOn,
     OverlayOn,
     RoutineRelease,
     WarningRaisedOn,
@@ -97,8 +99,40 @@ class EnvironmentInput:
         require_utc(self.activated_at)
 
 
+@dataclass(frozen=True, slots=True)
+class ObservationInput:
+    observation_id: str
+    patient_id: str
+    code: str
+    value: Decimal
+    unit: str
+    observed_at: datetime
+    origin_mode: OriginMode
+    quality_status: str
+
+    def __post_init__(self) -> None:
+        require_utc(self.observed_at)
+        if not self.value.is_finite():
+            from crew_health.routine.domain.errors import InvalidBody
+
+            raise InvalidBody("/value", "finite_required")
+
+
+def observation_matches(on: ObservationOn, inp: ObservationInput) -> bool:
+    if inp.quality_status != "accepted" or on.code != inp.code or on.unit != inp.unit:
+        return False
+    if on.comparator == "above":
+        return inp.value > on.value
+    if on.comparator == "at_or_above":
+        return inp.value >= on.value
+    if on.comparator == "below":
+        return inp.value < on.value
+    return inp.value <= on.value
+
+
 type TriggerInput = (
-    WarningRaisedInput
+    ObservationInput
+    | WarningRaisedInput
     | WarningClearedInput
     | MissionEventInput
     | OverlayInput
@@ -129,6 +163,16 @@ def is_assistant_source(inp: TriggerInput) -> bool:
 
 def _match(binding: Binding, inp: TriggerInput) -> Firing | None:
     on = binding.on
+    if isinstance(on, ObservationOn) and isinstance(inp, ObservationInput) and observation_matches(on, inp):
+        return Firing(
+            binding,
+            "observation",
+            inp.observation_id,
+            inp.observed_at,
+            inp.origin_mode,
+            (inp.patient_id,),
+            None,
+        )
     if (
         isinstance(on, WarningRaisedOn)
         and isinstance(inp, WarningRaisedInput)
@@ -189,6 +233,12 @@ def match_bindings(
     result: list[Firing] = []
     for binding in release.bindings:
         if binding.kind == "cadence_event" and binding.environment_id not in (None, active_environment_id):
+            continue
+        if (
+            binding.environment_id is not None
+            and isinstance(inp, MissionEventInput)
+            and inp.environment_id != binding.environment_id
+        ):
             continue
         firing = _match(binding, inp)
         if firing is not None:

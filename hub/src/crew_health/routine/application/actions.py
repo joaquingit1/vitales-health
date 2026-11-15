@@ -21,6 +21,8 @@ from crew_health.routine.application.ports import (
     OverrideCreateBody,
     OverrideView,
 )
+from crew_health.routine.application.privacy import read_override
+from crew_health.routine.domain.admission import admissible
 from crew_health.routine.domain.bindings import Firing
 from crew_health.routine.domain.errors import (
     ActionNotAllowed,
@@ -42,7 +44,7 @@ from crew_health.routine.domain.release import (
     UntilPersonStops,
     WarningRaisedOn,
 )
-from crew_health.routine.domain.vocabulary import MemberBasis
+from crew_health.routine.domain.vocabulary import MemberBasis, OriginMode
 
 
 def json_body(value: object) -> object:
@@ -79,16 +81,6 @@ def revision(current: int, expected: int | None) -> None:
         raise VersionRequired()
     if current != expected:
         raise StaleVersion(current)
-
-
-def visible_override(override: Override, session: SessionContext) -> bool:
-    if session.roles & {Role.CREW_MEDICAL_OFFICER, Role.GROUND}:
-        return True
-    if override.audience == "person":
-        return override.person_id == session.person_id
-    return session.person_id in override.member_ids or bool(
-        session.roles & frozenset((Role.CREW_MEDICAL_OFFICER, Role.GROUND))
-    )
 
 
 class RoutineActions:
@@ -157,7 +149,7 @@ class RoutineActions:
             ):
                 raise ConfigVersionMismatch(uow.release.release_id)
             if body.action == "complete" and (body.observation_ids or body.answer_ids):
-                raise Unauthorized("linked_records_unverifiable")
+                self.linked_records(uow, occ, body)
             until, held = self.engine.hold(
                 uow, occ, self.engine.release_for(uow, occ.config_release_id), uow.now
             )
@@ -173,6 +165,52 @@ class RoutineActions:
             self.record(uow, cmd, 200, current.occurrence_id)
             return 200, body_view
 
+    def linked_records(self, uow: UnitOfWork, occ: Occurrence, body: OccurrenceActionBody) -> None:
+        store = self.deps.records
+        if store is None:
+            raise Unauthorized("linked_records_unverifiable")
+        mission = self.engine.mission(uow)
+        for identifier in body.observation_ids:
+            observation = store.observation(uow, identifier)
+            if observation is None or observation.quality_status != "accepted":
+                raise Unauthorized("linked_record_scope")
+            self.linked_scope(
+                occ,
+                mission.mission_id,
+                mission.mission_mode,
+                observation.patient_id,
+                observation.mission_id,
+                observation.origin_mode,
+            )
+        for identifier in body.answer_ids:
+            answer = store.answer(uow, identifier)
+            if answer is None:
+                raise Unauthorized("linked_record_scope")
+            self.linked_scope(
+                occ,
+                mission.mission_id,
+                mission.mission_mode,
+                answer.patient_id,
+                answer.mission_id,
+                answer.origin_mode,
+            )
+
+    @staticmethod
+    def linked_scope(
+        occ: Occurrence,
+        mission_id: str,
+        mode: OriginMode,
+        patient: str,
+        record_mission: str,
+        origin: OriginMode,
+    ) -> None:
+        if (
+            patient != occ.person_id
+            or record_mission != mission_id
+            or not admissible(mission_mode=mode, input_origin=origin, group_audience=False, on_roster=True).ok
+        ):
+            raise Unauthorized("linked_record_scope")
+
     def transition(
         self,
         uow: UnitOfWork,
@@ -187,7 +225,7 @@ class RoutineActions:
                 occ,
                 now=uow.now,
                 completed_at=body.completed_at,
-                outcome=Outcome((), (), body.note),
+                outcome=Outcome(body.observation_ids, body.answer_ids, body.note),
                 actor_kind=session.actor.kind,
                 actor_id=session.actor.id,
                 day_start=self.engine.bounds(occ.mission_day, occ.clock_version)[0],
@@ -242,7 +280,7 @@ class RoutineActions:
                     if stored.resource_ref is None
                     else self.deps.store.get_override(uow, stored.resource_ref)
                 )
-                if old is None or not visible_override(old, session):
+                if old is None or not read_override(self.deps, old, session, uow):
                     raise NotFound()
                 remembered = self.deps.store.remembered(uow, session.actor.id, cmd.key)
                 if remembered is None:
@@ -419,7 +457,7 @@ class RoutineActions:
         ) as uow:
             stored = self.deps.idempotency.lookup(uow, cmd)
             override = self.deps.store.get_override(uow, override_id)
-            if override is None:
+            if override is None or not read_override(self.deps, override, session, uow):
                 raise NotFound()
             permitted = (
                 override.ends_kind == "person_stops"
@@ -428,8 +466,6 @@ class RoutineActions:
             if not permitted or session.actor.kind == "assistant":
                 raise ActionNotAllowed("stop_role_required")
             if stored is not None:
-                if not visible_override(override, session):
-                    raise NotFound()
                 remembered = self.deps.store.remembered(uow, session.actor.id, cmd.key)
                 if remembered is None:
                     raise NotFound()

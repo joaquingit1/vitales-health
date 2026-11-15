@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Literal, Protocol
 
 from crew_health.kernel.uow import ReadSnapshot, UnitOfWork
+from crew_health.routine.domain.activation import CadenceActivation
 from crew_health.routine.domain.bindings import OverlayInput
 from crew_health.routine.domain.instances import QuestionInstance
 from crew_health.routine.domain.occurrence import Occurrence, TransitionRecord
@@ -14,6 +15,19 @@ type BarrierAsk = tuple[tuple[str, ...], str, str | None, datetime]
 
 
 class RoutineStore(Protocol):
+    def activation_from_source(
+        self, view: View, binding_id: str, source_kind: str, source_ref: str, person_id: str
+    ) -> CadenceActivation | None: ...
+
+    def get_activation(self, view: View, activation_id: str) -> CadenceActivation | None: ...
+    def insert_activation(self, uow: UnitOfWork, activation: CadenceActivation) -> bool: ...
+    def update_activation(
+        self, uow: UnitOfWork, activation: CadenceActivation, *, expected_revision: int
+    ) -> None: ...
+    def active_activations(
+        self, view: View, limit: int, *, offset: int = 0, person_id: str | None = None
+    ) -> tuple[CadenceActivation, ...]: ...
+
     def remember(
         self, uow: UnitOfWork, actor_ref: str, key: str, value: Occurrence | Override, body: dict[str, object]
     ) -> None: ...
@@ -91,7 +105,7 @@ class RoutineStore(Protocol):
         person_id: str,
         day: int,
         item_ids: tuple[str, ...],
-        outcome: Literal["pending", "answered"],
+        outcome: Literal["pending", "answered", "shown_unanswered"],
         answer_id: str | None,
         at: datetime,
     ) -> None: ...

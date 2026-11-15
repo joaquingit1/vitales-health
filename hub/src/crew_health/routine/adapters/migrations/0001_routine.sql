@@ -109,6 +109,30 @@ CREATE TABLE routine_deadline (deadline_key TEXT PRIMARY KEY, generation INTEGER
 CREATE TABLE routine_clock_state (id INTEGER PRIMARY KEY CHECK (id=1), suspect_since TEXT) STRICT;
 CREATE TABLE routine_barrier_ask (
     person_id TEXT NOT NULL, offered_day INTEGER NOT NULL CHECK (offered_day>=1), item_ids_json TEXT NOT NULL CHECK (json_valid(item_ids_json)),
-    outcome TEXT NOT NULL CHECK (outcome IN ('pending','answered')), answer_id TEXT, at TEXT NOT NULL,
+    outcome TEXT NOT NULL CHECK (outcome IN ('pending','answered','shown_unanswered')), answer_id TEXT, at TEXT NOT NULL,
     PRIMARY KEY (person_id,offered_day)
 ) STRICT;
+
+CREATE TABLE routine_cadence_activation (
+    activation_id TEXT PRIMARY KEY, revision INTEGER NOT NULL CHECK (revision>=1),
+    binding_id TEXT NOT NULL, item_id TEXT NOT NULL, person_id TEXT NOT NULL,
+    cadence_json TEXT NOT NULL CHECK (json_valid(cadence_json)), started_at TEXT NOT NULL,
+    ends_kind TEXT NOT NULL CHECK (ends_kind IN ('days','mission_event','warning_cleared')),
+    ends_at TEXT, state TEXT NOT NULL CHECK (state IN ('active','ended')), ended_at TEXT,
+    end_reason TEXT CHECK (end_reason IS NULL OR end_reason IN ('days_elapsed','mission_event','warning_cleared','environment_changed')),
+    source_kind TEXT NOT NULL CHECK (source_kind IN ('warning','mission_event','overlay','observation','answer','person')),
+    source_ref TEXT NOT NULL, source_at TEXT NOT NULL,
+    source_origin_mode TEXT NOT NULL CHECK (source_origin_mode IN ('LIVE','REPLAY','SIM')),
+    config_release_id TEXT NOT NULL,
+    CHECK ((state='ended')=(ended_at IS NOT NULL AND end_reason IS NOT NULL)),
+    CHECK ((ends_kind='days')=(ends_at IS NOT NULL))
+) STRICT;
+CREATE INDEX routine_rca_person ON routine_cadence_activation(person_id,state,item_id);
+CREATE TRIGGER routine_rca_final BEFORE UPDATE ON routine_cadence_activation
+WHEN OLD.state='ended' OR NEW.revision<>OLD.revision+1
+ OR NEW.activation_id<>OLD.activation_id OR NEW.binding_id<>OLD.binding_id
+ OR NEW.item_id<>OLD.item_id OR NEW.person_id<>OLD.person_id
+ OR NEW.started_at<>OLD.started_at OR NEW.config_release_id<>OLD.config_release_id
+BEGIN SELECT RAISE(ABORT,'ended or immutable routine_cadence_activation'); END;
+CREATE TRIGGER routine_rca_no_delete BEFORE DELETE ON routine_cadence_activation
+BEGIN SELECT RAISE(ABORT,'routine_cadence_activation is never deleted'); END;

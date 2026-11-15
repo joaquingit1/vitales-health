@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Literal, cast
+from typing import TYPE_CHECKING, Literal
 
 from crew_health.kernel.scheduler import ScheduledJob
 from crew_health.kernel.uow import UnitOfWork
 from crew_health.routine.application.audit import audit
-from crew_health.routine.application.ports import AnswerAccepted, MissionFacts
+from crew_health.routine.application.ports import AnswerFacts, MissionFacts
 from crew_health.routine.application.scans import bounded_pages
 from crew_health.routine.domain.admission import admissible
 from crew_health.routine.domain.audience import members
@@ -16,6 +16,7 @@ from crew_health.routine.domain.bindings import (
     EnvironmentInput,
     Firing,
     MissionEventInput,
+    ObservationInput,
     OverlayInput,
     TriggerInput,
     WarningClearedInput,
@@ -48,6 +49,7 @@ from crew_health.routine.domain.release import (
     AddQuestions,
     Binding,
     ItemPolicy,
+    ObservationOn,
     ReplaceCadence,
     RoutineRelease,
     UntilDays,
@@ -56,7 +58,7 @@ from crew_health.routine.domain.release import (
     UntilPersonStops,
 )
 from crew_health.routine.domain.rendering import cadence_text
-from crew_health.routine.domain.vocabulary import FINAL_STATES, CauseKind, EndReason, MemberBasis, OriginMode
+from crew_health.routine.domain.vocabulary import FINAL_STATES, CauseKind, EndReason, MemberBasis
 from crew_health.routine.domain.windows import (
     Window,
     after_walk_window,
@@ -83,6 +85,14 @@ class RoutineInputs:
             audit(self.deps, uow, "assistant_input_ignored", "warning")
             return
         release = self.engine.release(uow)
+        if isinstance(inp, ObservationInput) and inp.quality_status == "accepted":
+            for binding in release.bindings:
+                if (
+                    isinstance(binding.on, ObservationOn)
+                    and binding.on.code == inp.code
+                    and binding.on.unit != inp.unit
+                ):
+                    audit(self.deps, uow, "binding_unit_mismatch", "observation")
         if isinstance(inp, WarningClearedInput):
             self.clear_warning(uow, inp)
             return
@@ -94,6 +104,10 @@ class RoutineInputs:
             self.end_on_event(uow, inp)
         for firing in match_bindings(release, inp, mission.active_environment_id):
             self.fire(uow, firing, inp, mission, release)
+        if isinstance(inp, WarningRaisedInput) and self.deps.warnings is not None:
+            self.deps.warnings.attach_routine_overrides(
+                uow, inp.warning_id, tuple(o.override_id for o in self.from_warning(uow, inp.warning_id))
+            )
         if isinstance(inp, EnvironmentInput):
             self.engine.environment_activated(uow)
 
@@ -162,7 +176,9 @@ class RoutineInputs:
         release: RoutineRelease,
     ) -> None:
         binding = firing.binding
-        if binding.kind == "cadence_event" and not isinstance(binding.effect, AddOccurrences):
+        if binding.kind == "cadence_event" and not isinstance(
+            binding.effect, AddOccurrences | ReplaceCadence
+        ):
             audit(self.deps, uow, "unsupported_binding", firing.source_kind)
             return
         audience = self.audience(uow, firing, mission)
@@ -170,7 +186,17 @@ class RoutineInputs:
             return
         if binding.kind == "cadence_event":
             for person, _ in audience:
-                self.occurrence_slots(uow, firing, person, None, mission, release)
+                if isinstance(binding.effect, ReplaceCadence):
+                    self.engine.activations.start(
+                        uow,
+                        firing,
+                        person,
+                        mission,
+                        release,
+                        inp.previous_warning_id if isinstance(inp, WarningRaisedInput) else None,
+                    )
+                else:
+                    self.occurrence_slots(uow, firing, person, None, mission, release)
             return
         groups = (
             tuple(((p, basis),) for p, basis in audience) if binding.audience == "person" else (audience,)
@@ -618,6 +644,7 @@ class RoutineInputs:
                 self.questions(uow, override, person, release, override.effect, start, daily=True)
 
     def clear_warning(self, uow: UnitOfWork, inp: WarningClearedInput) -> None:
+        self.engine.activations.event(uow, inp)
         for override in self.from_warning(uow, inp.warning_id):
             decision = clear_decision(override, warning_id=inp.warning_id, clear_reason=inp.clear_reason)
             if decision in ("end", "environment_changed"):
@@ -708,6 +735,7 @@ class RoutineInputs:
             on_roster=None,
         ).ok:
             return
+        self.engine.activations.event(uow, inp)
         for override in self.engine.all_overrides(uow):
             if override.ends_kind != "mission_event" or inp.occurred_at < override.started_at:
                 continue
@@ -770,17 +798,16 @@ class RoutineInputs:
             {"override_id": override.override_id, "kind": "every", "slot": str(following)},
         )
 
-    def on_answer(self, uow: UnitOfWork, event: AnswerAccepted) -> None:
-        answer = event.answer
+    def on_answer(self, uow: UnitOfWork, answer: AnswerFacts, mission_id: str) -> None:
         mission = self.engine.mission(uow)
-        if event.mission_id != mission.mission_id:
+        if mission_id != mission.mission_id:
             audit(self.deps, uow, "foreign_mission", "answer")
             return
         if (
             answer.origin_mode not in ("LIVE", "REPLAY", "SIM")
             or not admissible(
                 mission_mode=mission.mission_mode,
-                input_origin=cast(OriginMode, answer.origin_mode),
+                input_origin=answer.origin_mode,
                 group_audience=False,
                 on_roster=None
                 if self.deps.roster is None
@@ -817,7 +844,7 @@ class RoutineInputs:
                 answer.question_id,
                 answer.presence,
                 answer.answered_at,
-                cast(OriginMode, answer.origin_mode),
+                answer.origin_mode,
             ),
         )
 

@@ -1,7 +1,6 @@
 """Routine declaration inventory, fail-closed startup and the records event seam."""
 
 from collections.abc import Callable
-from dataclasses import fields
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import cast
@@ -11,11 +10,10 @@ import pytest
 from crew_health.app.registry import DeclarationRegistry, Resolver
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.kernel.errors import ProblemError
+from crew_health.kernel.evaluation import EvaluationInput, EvaluatorRegistration
 from crew_health.kernel.scheduler import AbsoluteDeadline, ScheduledJob
 from crew_health.kernel.uow import UnitOfWork
-from crew_health.records.domain.answers import AnswerAccepted as RecordsAnswerAccepted
 from crew_health.routine.application.ports import (
-    AnswerAccepted,
     AssistantRoutinePort,
     DailyCheckQuestionSource,
     RoutineCommands,
@@ -38,6 +36,7 @@ def test_register_declares_all_runtime_seams() -> None:
         "ro": "routine_occurrence",
         "rov": "routine_override",
         "rq": "routine_question_instance",
+        "rca": "routine_cadence_activation",
     }
     assert set(registry.declarations["loader_checks"]) == {"routine.release"}
     assert set(registry.declarations["audiences"]) == {"routine.occurrence", "routine.override"}
@@ -46,12 +45,15 @@ def test_register_declares_all_runtime_seams() -> None:
         "routine.day",
         "routine.override",
         "routine.instance",
+        "routine.activation",
     }
     assert set(registry.declarations["durable_subscribers"]) == {"routine.inputs"}
     assert set(registry.declarations["subscriptions"]) == {
         "routine.clock_regressed",
         "routine.clock_corrected",
-        "routine.answer",
+        "routine.daily_submitted",
+        "routine.daily_abandoned",
+        "routine.reaction",
     }
     assert set(registry.providers) == {
         RoutineQueries,
@@ -101,11 +103,13 @@ def test_real_module_resolves_and_materializes_at_startup(tmp_path: Path) -> Non
 
 
 @pytest.mark.trace("T-E25-015", "T-E25-096")
-def test_records_answer_copy_has_the_same_shape() -> None:
-    assert tuple(field.name for field in fields(AnswerAccepted)) == tuple(
-        field.name for field in fields(RecordsAnswerAccepted)
-    )
-    assert AnswerAccepted.event_type == RecordsAnswerAccepted.event_type
+def test_records_uses_one_registered_evaluator_and_no_answer_subscription() -> None:
+    registry = DeclarationRegistry(max_ports=64, max_hooks=256)
+    register(registry)
+    registration = registry.declarations["evaluators"][("routine", "1")]
+    assert isinstance(registration, EvaluatorRegistration)
+    assert registration.name == "routine" and registration.version == "1"
+    assert "routine.answer" not in registry.declarations["subscriptions"]
 
 
 @pytest.mark.trace("T-E25-015", "T-E25-043")
@@ -146,9 +150,21 @@ def test_answer_handler_accepts_records_real_event(tmp_path: Path) -> None:
         now,
         None,
     )
-    real_event = RecordsAnswerAccepted(answer, None, "mission_1")
     with hub.db.begin(actor=answer.actor, correlation_id="cor_answer_real") as uow:
-        hub.runtime.answer(uow, cast(AnswerAccepted, real_event))
+        hub.records.add_answer(uow, answer)
+        hub.runtime.evaluate(
+            uow,
+            EvaluationInput(
+                "routine",
+                "1",
+                answer.answer_id,
+                answer.observed,
+                answer.release_id,
+                answer.patient_id,
+                1,
+                "eval_real_answer",
+            ),
+        )
     rows = hub.rows(
         "SELECT answers_json FROM routine_question_instance WHERE person_id=? AND instance_id=?",
         ("person_mara", rows[0][0]),

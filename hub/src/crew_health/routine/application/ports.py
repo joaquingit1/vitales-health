@@ -3,7 +3,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import ClassVar, Literal, Protocol
 
+from crew_health.kernel.clock import NormalizedTime, TimeInput
 from crew_health.kernel.config import ReleaseHandle
+from crew_health.kernel.units import Quantity
 from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWork
 from crew_health.routine.application.store_port import RoutineStore as RoutineStore
 from crew_health.routine.domain.release import RoutineRelease
@@ -57,18 +59,44 @@ class AnswerFacts(Protocol):
     @property
     def answered_at(self) -> datetime: ...
     @property
-    def origin_mode(self) -> str: ...
+    def origin_mode(self) -> OriginMode: ...
     @property
     def patient_id(self) -> str: ...
+    @property
+    def mission_id(self) -> str: ...
 
 
-# Provided by E01 (crew_health.records); structural copy until it is on main.
-@dataclass(frozen=True, slots=True)
-class AnswerAccepted:
-    event_type: ClassVar[str] = "answer.accepted"
-    answer: AnswerFacts
-    episode_id: str | None
-    mission_id: str
+# The fields of records' ObservationRecord (crew_health.records.domain.observations) that routine reads.
+class ObservationFacts(Protocol):
+    @property
+    def observation_id(self) -> str: ...
+    @property
+    def patient_id(self) -> str: ...
+    @property
+    def mission_id(self) -> str: ...
+    @property
+    def code(self) -> str: ...
+    @property
+    def quantity(self) -> Quantity: ...
+    @property
+    def observed(self) -> TimeInput: ...
+    @property
+    def normalized(self) -> NormalizedTime: ...
+    @property
+    def origin_mode(self) -> OriginMode: ...
+    @property
+    def quality_status(self) -> str: ...
+
+
+# Provided by E01 (crew_health.records): the read half of records.application.ports.RecordsStore, which the records
+# repository already satisfies. A structural copy because records' ports module imports records.domain, which the
+# generated contract routine-independent-records forbids routine to reach; composition registers the records store
+# under this class as well (E01 app). Absent: no record-driven bindings and linked records are refused.
+class RecordFacts(Protocol):
+    def observation(
+        self, view: ReadSnapshot | UnitOfWork, observation_id: str
+    ) -> ObservationFacts | None: ...
+    def answer(self, view: ReadSnapshot | UnitOfWork, answer_id: str) -> AnswerFacts | None: ...
 
 
 # Provided by E02 (crew_health.identity); structural copy until it is on main.
@@ -207,3 +235,45 @@ class ReleaseSource(Protocol):
     def release(self, handle: ReleaseHandle) -> RoutineRelease: ...
     def cached(self, release_id: str) -> RoutineRelease | None: ...
     def pinned(self, release_id: str) -> RoutineRelease | None: ...
+
+
+# Provided by E02 (crew_health.identity) per SYSTEM 8.3; structural copy until it is on main.
+class Visibility(Protocol):
+    def can_read(self, session: SessionContext, object_ref: str) -> bool: ...
+
+
+# Provided by E24 (crew_health.warnings); structural copy until it is on main.
+class WarningCommands(Protocol):
+    def attach_routine_overrides(
+        self, uow: UnitOfWork, warning_id: str, override_ids: Sequence[str]
+    ) -> None: ...
+
+
+# Provided by E03 (crew_health.dailycheck); structural copy until it is on main.
+@dataclass(frozen=True, slots=True)
+class DailyCheckSubmitted:
+    event_type: ClassVar[str] = "dailycheck.submitted"
+    daily_check_id: str
+    person_id: str
+    mission_day: int
+    origin_mode: str
+    submitted_at: datetime
+
+
+# Provided by E03 (crew_health.dailycheck); structural copy until it is on main.
+@dataclass(frozen=True, slots=True)
+class DailyCheckAbandoned:
+    event_type: ClassVar[str] = "dailycheck.abandoned"
+    daily_check_id: str
+    person_id: str
+    mission_day: int
+
+
+# Provided by E03 (crew_health.dailycheck); structural copy until it is on main.
+@dataclass(frozen=True, slots=True)
+class ReactionTestRecorded:
+    event_type: ClassVar[str] = "reaction_test.recorded"
+    reaction_test_id: str
+    person_id: str
+    state: str
+    occurrence_id: str | None

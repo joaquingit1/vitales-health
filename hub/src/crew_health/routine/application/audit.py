@@ -7,6 +7,8 @@ def audit_event_types() -> tuple[str, ...]:
     return tuple(
         "routine." + code
         for code in (
+            "care_read",
+            "binding_unit_mismatch",
             "input_rejected",
             "capacity",
             "mission_unknown",

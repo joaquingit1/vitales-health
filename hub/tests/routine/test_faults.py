@@ -140,8 +140,8 @@ def test_person_override_is_private_while_group_override_admits_members_and_offi
     )
     with hub.db.snapshot() as view:
         assert rule.admits(view, session(), audience("routine.override", personal))
-        assert rule.admits(view, officer, audience("routine.override", personal))
-        assert rule.admits(view, ground, audience("routine.override", personal))
+        assert not rule.admits(view, officer, audience("routine.override", personal))
+        assert not rule.admits(view, ground, audience("routine.override", personal))
         assert rule.admits(view, session(), audience("routine.override", group))
         assert rule.admits(view, officer, audience("routine.override", group))
         assert rule.admits(view, ground, audience("routine.override", group))
@@ -192,13 +192,13 @@ def test_late_warning_retains_override_without_creating_expired_occurrences(tmp_
 
 
 @pytest.mark.trace("T-E25-044", "T-E25-031")
-def test_real_unsupported_landing_cadence_binding_is_audited_and_creates_nothing(tmp_path: Path) -> None:
+def test_real_landing_cadence_binding_creates_activations_without_overrides(tmp_path: Path) -> None:
     hub = station(tmp_path, at=at(9))
     hub.mission_event("landing")
     hub.deliver()
-    assert audited(hub, "unsupported_binding")
+    assert not audited(hub, "unsupported_binding")
     assert hub.rows("SELECT COUNT(*) FROM routine_occurrence WHERE item_id='gravity_arrival_check'") == (
-        (0,),
+        (4,),
     )
     assert hub.rows(
         "SELECT COUNT(*) FROM routine_override WHERE binding_id='gravity_arrival_check.landing'"

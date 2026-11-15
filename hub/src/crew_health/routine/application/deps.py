@@ -9,9 +9,12 @@ from crew_health.kernel.uow import ReadSnapshotFactory, UnitOfWorkFactory
 from crew_health.routine.application.ports import (
     LocationPort,
     MissionStatePort,
+    RecordFacts,
     ReleaseSource,
     RosterPort,
     RoutineStore,
+    Visibility,
+    WarningCommands,
 )
 from crew_health.routine.application.settings import RoutineSettings
 
@@ -32,3 +35,6 @@ class RoutineDeps:
     mission: MissionStatePort | None
     roster: RosterPort | None
     locations: LocationPort | None
+    visibility: Visibility | None = None
+    records: RecordFacts | None = None
+    warnings: WarningCommands | None = None

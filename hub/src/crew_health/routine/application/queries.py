@@ -7,13 +7,13 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from crew_health.kernel.uow import ReadSnapshot, SessionContext
+from crew_health.routine.application.privacy import audit_care, care_granted, read_override
 from crew_health.routine.application.views import (
     day_view,
     environment,
     instant,
     occurrence_view,
     override_view,
-    override_visible,
     require_words,
     task_view,
 )
@@ -164,8 +164,12 @@ class RoutineQueryService:
                 )
                 if projected is not None:
                     return projected
-            if occ is None or occ.person_id != person:
+            if occ is None:
                 raise NotFound()
+            if occ.person_id != person:
+                if not care_granted(session, occ.occurrence_id, self.deps.visibility):
+                    raise NotFound()
+                audit_care(self.deps, session)
             return occurrence_view(self.deps, self.engine, view, occ, session, view.now)
 
     def tasks(self, session: SessionContext, cursor: str | None, limit: int) -> dict[str, object]:
@@ -197,7 +201,9 @@ class RoutineQueryService:
             found: list[dict[str, object]] = []
             for offset in range(0, maximum + settings.page_limit, settings.page_limit):
                 batch = self.deps.store.active_overrides(view, settings.page_limit, offset=offset)
-                found.extend(self._override(view, o, session) for o in batch if override_visible(o, session))
+                found.extend(
+                    self._override(view, o, session) for o in batch if read_override(self.deps, o, session)
+                )
                 if len(batch) < settings.page_limit:
                     return page(found, cursor, limit, 200)
             raise ConfigInvalid((Finding("error", "/overrides", "Routine override query capacity exceeded"),))

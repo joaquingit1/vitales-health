@@ -20,7 +20,7 @@ from crew_health.kernel.uow import (
 )
 from crew_health.routine.application.audit import audit
 from crew_health.routine.application.deps import RoutineDeps
-from crew_health.routine.application.ports import AnswerAccepted, MissionFacts
+from crew_health.routine.application.ports import AnswerFacts, MissionFacts
 from crew_health.routine.application.scans import bounded_pages
 from crew_health.routine.domain.bindings import OverlayInput, TriggerInput
 from crew_health.routine.domain.cadence import (
@@ -53,6 +53,9 @@ class RoutineEngine:
         from crew_health.routine.application.inputs import RoutineInputs
 
         self.inputs = RoutineInputs(self)
+        from crew_health.routine.application.activations import CadenceActivations
+
+        self.activations = CadenceActivations(self)
 
     def release(self, view: UnitOfWork | ReadSnapshot) -> RoutineRelease:
         release = self.deps.releases.release(view.release)
@@ -145,6 +148,16 @@ class RoutineEngine:
             CadenceCandidate(o.override_id, o.new_cadence, o.started_at, o.basis, o.source_ids)
             for o in self.overrides_for(view, person_id)
             if o.item_id == item.item_id and isinstance(o.effect, ReplaceCadence)
+        )
+        candidates += tuple(
+            CadenceCandidate(a.activation_id, a.cadence, a.started_at, item.cadence_basis, item.source_ids)
+            for a in self.activations.active(view, person_id)
+            if a.item_id == item.item_id
+            and (
+                a.ends_at is None
+                or view.now < a.ends_at
+                or self.deps.store.clock_suspect_since(view) is not None
+            )
         )
         return effective_cadence(
             item.cadence_for(environment_id),
@@ -305,11 +318,17 @@ class RoutineEngine:
                         item.item_id,
                         window,
                         "cadence",
-                        "override" if effective.governing_override_id else "cadence",
+                        "override"
+                        if effective.governing_override_id
+                        and not effective.governing_override_id.startswith("rca_")
+                        else "cadence",
                         mission,
                         release,
                         periodic=True,
-                        override_id=effective.governing_override_id,
+                        override_id=effective.governing_override_id
+                        if effective.governing_override_id
+                        and not effective.governing_override_id.startswith("rca_")
+                        else None,
                     )
                 )
         return tuple(result)
@@ -638,8 +657,8 @@ class RoutineEngine:
     def apply_input(self, uow: UnitOfWork, inp: TriggerInput) -> None:
         self.inputs.apply(uow, inp)
 
-    def on_answer(self, uow: UnitOfWork, event: AnswerAccepted) -> None:
-        self.inputs.on_answer(uow, event)
+    def on_answer(self, uow: UnitOfWork, answer: AnswerFacts, mission_id: str) -> None:
+        self.inputs.on_answer(uow, answer, mission_id)
 
     def override_job(self, uow: UnitOfWork, job: ScheduledJob) -> None:
         self.inputs.override_job(uow, job)

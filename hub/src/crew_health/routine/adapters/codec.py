@@ -7,6 +7,7 @@ from typing import Literal, cast
 
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.storage import SqlValue
+from crew_health.routine.domain.activation import CadenceActivation
 from crew_health.routine.domain.instances import QuestionInstance
 from crew_health.routine.domain.occurrence import Occurrence, Outcome, Skip
 from crew_health.routine.domain.override import Override
@@ -339,4 +340,48 @@ def read_instance(r: tuple[SqlValue, ...]) -> QuestionInstance:
         answers,
         cast(Literal["open", "answered", "partially_answered", "unanswered"], text(r[9])),
         integer(r[10]),
+    )
+
+
+def activation_values(a: CadenceActivation) -> tuple[SqlValue, ...]:
+    return (
+        a.activation_id,
+        a.revision,
+        a.binding_id,
+        a.item_id,
+        a.person_id,
+        dump(asdict(a.cadence)),
+        instant(a.started_at),
+        a.ends_kind,
+        instant(a.ends_at),
+        a.state,
+        instant(a.ended_at),
+        a.end_reason,
+        a.source_kind,
+        a.source_ref,
+        instant(a.source_at),
+        a.source_origin_mode,
+        a.config_release_id,
+    )
+
+
+def read_activation(r: tuple[SqlValue, ...]) -> CadenceActivation:
+    return CadenceActivation(
+        text(r[0]),
+        integer(r[1]),
+        text(r[2]),
+        text(r[3]),
+        text(r[4]),
+        cadence(json.loads(text(r[5]))),
+        timestamp(r[6]),
+        cast(Literal["days", "mission_event", "warning_cleared"], text(r[7])),
+        optional_time(r[8]),
+        cast(Literal["active", "ended"], text(r[9])),
+        optional_time(r[10]),
+        cast(EndReason | None, optional_text(r[11])),
+        cast(SourceKind, text(r[12])),
+        text(r[13]),
+        timestamp(r[14]),
+        cast(OriginMode, text(r[15])),
+        text(r[16]),
     )

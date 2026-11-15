@@ -10,6 +10,7 @@ from crew_health.kernel.storage import SqlValue
 from crew_health.kernel.uow import UnitOfWork
 from crew_health.routine.adapters import codec
 from crew_health.routine.application.store_port import BarrierAsk, TargetKind, View
+from crew_health.routine.domain.activation import CadenceActivation
 from crew_health.routine.domain.bindings import OverlayInput
 from crew_health.routine.domain.errors import StaleVersion
 from crew_health.routine.domain.instances import QuestionInstance
@@ -23,6 +24,26 @@ def migration_sql() -> str:
 
 
 def _columns(table: str) -> tuple[str, ...]:
+    if table == "routine_cadence_activation":
+        return (
+            "activation_id",
+            "revision",
+            "binding_id",
+            "item_id",
+            "person_id",
+            "cadence_json",
+            "started_at",
+            "ends_kind",
+            "ends_at",
+            "state",
+            "ended_at",
+            "end_reason",
+            "source_kind",
+            "source_ref",
+            "source_at",
+            "source_origin_mode",
+            "config_release_id",
+        )
     if table == "routine_occurrence":
         return (
             "occurrence_id",
@@ -145,6 +166,8 @@ def _duplicate(view: View, table: str, values: tuple[SqlValue, ...]) -> bool:
     elif table == "routine_question_instance":
         where = "instance_id=? OR (override_id=? AND person_id=? AND question_set_id=? AND slot=?)"
         params = values[:5]
+    elif table == "routine_cadence_activation":
+        where, params = "activation_id=?", values[:1]
     else:
         where, params = "override_id=?", values[:1]
     return bool(_rows(view, table, where, params, 1))
@@ -160,6 +183,47 @@ def _update(uow: UnitOfWork, table: str, values: tuple[SqlValue, ...], expected:
 
 
 class SqliteRoutineStore:
+    def activation_from_source(
+        self, view: View, binding_id: str, source_kind: str, source_ref: str, person_id: str
+    ) -> CadenceActivation | None:
+        rows = _rows(
+            view,
+            "routine_cadence_activation",
+            "binding_id=? AND source_kind=? AND source_ref=? AND person_id=?",
+            (binding_id, source_kind, source_ref, person_id),
+            1,
+        )
+        return codec.read_activation(rows[0]) if rows else None
+
+    def get_activation(self, view: View, activation_id: str) -> CadenceActivation | None:
+        rows = _rows(view, "routine_cadence_activation", "activation_id=?", (activation_id,), 1)
+        return codec.read_activation(rows[0]) if rows else None
+
+    def insert_activation(self, uow: UnitOfWork, activation: CadenceActivation) -> bool:
+        return _insert(uow, "routine_cadence_activation", codec.activation_values(activation))
+
+    def update_activation(
+        self, uow: UnitOfWork, activation: CadenceActivation, *, expected_revision: int
+    ) -> None:
+        _update(uow, "routine_cadence_activation", codec.activation_values(activation), expected_revision)
+
+    def active_activations(
+        self, view: View, limit: int, *, offset: int = 0, person_id: str | None = None
+    ) -> tuple[CadenceActivation, ...]:
+        where = "state='active'" + (" AND person_id=?" if person_id is not None else "")
+        return tuple(
+            codec.read_activation(r)
+            for r in _rows(
+                view,
+                "routine_cadence_activation",
+                where,
+                () if person_id is None else (person_id,),
+                limit,
+                offset=offset,
+                order=" ORDER BY started_at,activation_id",
+            )
+        )
+
     def remember(
         self, uow: UnitOfWork, actor_ref: str, key: str, value: Occurrence | Override, body: dict[str, object]
     ) -> None:
@@ -552,7 +616,7 @@ class SqliteRoutineStore:
         person_id: str,
         day: int,
         item_ids: tuple[str, ...],
-        outcome: Literal["pending", "answered"],
+        outcome: Literal["pending", "answered", "shown_unanswered"],
         answer_id: str | None,
         at: datetime,
     ) -> None:

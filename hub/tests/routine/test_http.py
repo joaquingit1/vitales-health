@@ -121,7 +121,7 @@ def test_manual_override_roles_visibility_duplicate_replay_and_stop(tmp_path: Pa
     assert hub.items(path, "person_ilya") == []
     assert hub.items(path, "person_mara")
     assert hub.items(path, "person_tomas", "crew_medical_officer")
-    assert hub.items(path, "person_ilya", "ground")
+    assert hub.items(path, "person_ilya", "ground") == []
     changed = hub.client.get(f"/v1/routine/tasks/{body['item_id']}", headers=headers()).json()
     assert changed["effective_cadence"] == override["new_cadence"]
     problem(
@@ -150,8 +150,8 @@ def test_manual_override_roles_visibility_duplicate_replay_and_stop(tmp_path: Pa
             json={"action": "end"},
             headers=headers("person_ilya", "ground", key="wrong_stop_role", revision=1),
         ),
-        "ACTION_NOT_ALLOWED",
-        403,
+        "NOT_FOUND",
+        404,
     )
     problem(
         hub.client.post(
@@ -444,8 +444,8 @@ def test_manual_override_shape_errors_rule_errors_and_ground_stop_role(tmp_path:
                 "person_tomas", "crew_medical_officer", key="officer_cannot_stop_ground", revision=1
             ),
         ),
-        "ACTION_NOT_ALLOWED",
-        403,
+        "NOT_FOUND",
+        404,
     )
     ended = hub.client.post(
         path,

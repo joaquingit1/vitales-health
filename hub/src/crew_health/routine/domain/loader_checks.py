@@ -14,7 +14,9 @@ from crew_health.routine.domain.release import (
     ReplaceCadence,
     RoutineItem,
     RoutineRelease,
+    UntilEffectComplete,
     UntilMissionEvent,
+    UntilPersonStops,
     WarningRaisedOn,
 )
 
@@ -127,6 +129,12 @@ def _binding_shape(binding: Binding, release: RoutineRelease, pointer: str, boun
         findings.append(Finding("error", pointer + "/on", "Environment activation cannot create an override"))
     if binding.audience == "person" and isinstance(binding.on, MissionEventOn | EnvironmentOn):
         findings.append(Finding("error", pointer + "/audience", "Binding input has no person"))
+    if (
+        binding.kind == "cadence_event"
+        and isinstance(binding.effect, ReplaceCadence)
+        and isinstance(binding.until, UntilEffectComplete | UntilPersonStops)
+    ):
+        findings.append(Finding("error", pointer + "/until", "Invalid cadence activation end"))
     slots = (
         len(binding.effect.times)
         if isinstance(binding.effect, AddOccurrences)

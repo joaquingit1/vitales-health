@@ -10,11 +10,12 @@ from fastapi import Request
 from pydantic import ValidationError
 
 from crew_health.app.registry import ModuleRegistry, Resolver, StartupPhase
-from crew_health.contracts_gen.enums import ErrorCode, EventType, Role
+from crew_health.contracts_gen.enums import ErrorCode, EventType
 from crew_health.kernel.clock import Clock, ClockCorrected, ClockRegressed
 from crew_health.kernel.commands import CommandReceipts, IdempotencyStore
 from crew_health.kernel.config import ConfigReleaseReader
 from crew_health.kernel.errors import ProblemError
+from crew_health.kernel.evaluation import EvaluationInput, EvaluatorRegistration
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.met import MissionClock
 from crew_health.kernel.scheduler import HealthState, ScheduledJob
@@ -35,13 +36,16 @@ from crew_health.routine.adapters.wire_inputs import parse_input
 from crew_health.routine.api.router import build_router
 from crew_health.routine.application.actions import RoutineActions
 from crew_health.routine.application.audit import audit
+from crew_health.routine.application.checks import CheckNotifications
 from crew_health.routine.application.deps import RoutineDeps
 from crew_health.routine.application.engine import RoutineEngine
+from crew_health.routine.application.evaluator import RoutineEvaluator
 from crew_health.routine.application.ports import (
     AddedQuestion,
-    AnswerAccepted,
     AssistantRoutinePort,
+    DailyCheckAbandoned,
     DailyCheckQuestionSource,
+    DailyCheckSubmitted,
     DrillOccurrence,
     LocationPort,
     MissionStatePort,
@@ -50,6 +54,8 @@ from crew_health.routine.application.ports import (
     OccurrenceView,
     OverrideCreateBody,
     OverrideView,
+    ReactionTestRecorded,
+    RecordFacts,
     RequestAuthenticator,
     RosterPort,
     RoutineCommands,
@@ -57,7 +63,10 @@ from crew_health.routine.application.ports import (
     RoutineQueries,
     RoutineTodayPort,
     TodayRoutinePart,
+    Visibility,
+    WarningCommands,
 )
+from crew_health.routine.application.privacy import audit_care, care_granted, read_override
 from crew_health.routine.application.provided import (
     AssistantRechecks,
     DailyCheckQuestions,
@@ -77,8 +86,9 @@ def _need[T](service: T | None) -> T:
 
 
 class RoutineAudience:
-    def __init__(self, *, override: bool) -> None:
+    def __init__(self, *, override: bool, runtime: RoutineRuntime | None = None) -> None:
         self.override = override
+        self.runtime = runtime
         self.store = SqliteRoutineStore()
 
     def admits(self, snapshot: ReadSnapshot, session: SessionContext, audience: Audience) -> bool:
@@ -94,17 +104,23 @@ class RoutineAudience:
             return False
         if not self.override:
             occurrence = self.store.get(snapshot, audience.object_ref)
-            return occurrence is not None and session.person_id == occurrence.person_id
+            if occurrence is None:
+                return False
+            if session.person_id == occurrence.person_id:
+                return True
+            deps = None if self.runtime is None or self.runtime._engine is None else self.runtime.engine.deps
+            if deps is not None and care_granted(session, occurrence.occurrence_id, deps.visibility):
+                audit_care(deps, session)
+                return True
+            return False
         override = self.store.get_override(snapshot, audience.object_ref)
         if override is None:
             return False
-        if session.roles & {Role.CREW_MEDICAL_OFFICER, Role.GROUND}:
-            return True
-        if override.audience == "person":
-            return session.person_id is not None and session.person_id == override.person_id
-        return session.person_id in override.member_ids or bool(
-            session.roles & {Role.CREW_MEDICAL_OFFICER, Role.GROUND}
-        )
+        if self.runtime is None or self.runtime._engine is None:
+            from crew_health.routine.application.privacy import override_visible
+
+            return override_visible(override, session)
+        return read_override(self.runtime.engine.deps, override, session)
 
 
 class RoutineRuntime:
@@ -122,6 +138,8 @@ class RoutineRuntime:
         self._completion: RoutineCompletion | None = None
         self._assistant: AssistantRechecks | None = None
         self._subscriptions: RoutineSubscriptions | None = None
+        self._evaluator: RoutineEvaluator | None = None
+        self._checks: CheckNotifications | None = None
 
     @property
     def engine(self) -> RoutineEngine:
@@ -142,6 +160,8 @@ class RoutineRuntime:
         self._today, self._questions = RoutineToday(deps, engine), DailyCheckQuestions(deps, engine)
         self._completion, self._assistant = RoutineCompletion(deps, engine), AssistantRechecks(deps, engine)
         self._subscriptions = RoutineSubscriptions(deps, engine)
+        self._evaluator = RoutineEvaluator(deps, engine)
+        self._checks = CheckNotifications(engine)
         engine.startup_sweep()
         self._bound = True
 
@@ -271,8 +291,20 @@ class RoutineRuntime:
         else:
             subs.release(uow, event)
 
-    def answer(self, uow: UnitOfWork, event: AnswerAccepted) -> None:
-        _need(self._subscriptions).answer(uow, event)
+    def evaluate(self, uow: UnitOfWork, value: EvaluationInput) -> None:
+        _need(self._evaluator).evaluate(uow, value)
+
+    def activation_job(self, uow: UnitOfWork, job: ScheduledJob) -> None:
+        self.engine.activations.job(uow, job)
+
+    def submitted(self, uow: UnitOfWork, event: DailyCheckSubmitted) -> None:
+        _need(self._subscriptions).isolated(uow, lambda: _need(self._checks).submitted(uow, event))
+
+    def abandoned(self, uow: UnitOfWork, event: DailyCheckAbandoned) -> None:
+        _need(self._subscriptions).isolated(uow, lambda: None)
+
+    def reaction(self, uow: UnitOfWork, event: ReactionTestRecorded) -> None:
+        _need(self._subscriptions).isolated(uow, lambda: _need(self._checks).reaction(uow, event))
 
     def regressed(self, uow: UnitOfWork, event: ClockRegressed) -> None:
         _need(self._subscriptions).regressed(uow, event)
@@ -302,6 +334,9 @@ def _deps(resolver: Resolver) -> RoutineDeps:
         resolver.optional(MissionStatePort),
         resolver.optional(RosterPort),
         resolver.optional(LocationPort),
+        resolver.optional(Visibility),
+        resolver.optional(RecordFacts),
+        resolver.optional(WarningCommands),
     )
 
 
@@ -314,6 +349,7 @@ def register(registry: ModuleRegistry) -> None:
         ("routine_occurrence", "ro"),
         ("routine_override", "rov"),
         ("routine_question_instance", "rq"),
+        ("routine_cadence_activation", "rca"),
     ):
         registry.id_prefix(record_type=record_type, prefix=prefix)
     maxima = {spec.key: int(spec.maximum) for spec in specs() if spec.maximum is not None}
@@ -326,12 +362,13 @@ def register(registry: ModuleRegistry) -> None:
             )
         )
     )
-    registry.audience_rule("routine.occurrence", RoutineAudience(override=False))
-    registry.audience_rule("routine.override", RoutineAudience(override=True))
+    registry.audience_rule("routine.occurrence", RoutineAudience(override=False, runtime=runtime))
+    registry.audience_rule("routine.override", RoutineAudience(override=True, runtime=runtime))
     registry.scheduler_handler("routine.occurrence", runtime.occurrence_job)
     registry.scheduler_handler("routine.day", runtime.day_job)
     registry.scheduler_handler("routine.override", runtime.override_job)
     registry.scheduler_handler("routine.instance", runtime.instance_job)
+    registry.scheduler_handler("routine.activation", runtime.activation_job)
     registry.durable_subscriber(
         "routine.inputs",
         frozenset(
@@ -348,7 +385,10 @@ def register(registry: ModuleRegistry) -> None:
     )
     registry.subscribe(ClockRegressed, runtime.regressed, name="routine.clock_regressed")
     registry.subscribe(ClockCorrected, runtime.corrected, name="routine.clock_corrected")
-    registry.subscribe(AnswerAccepted, runtime.answer, name="routine.answer")
+    registry.evaluator(EvaluatorRegistration("routine", "1", runtime))
+    registry.subscribe(DailyCheckSubmitted, runtime.submitted, name="routine.daily_submitted")
+    registry.subscribe(DailyCheckAbandoned, runtime.abandoned, name="routine.daily_abandoned")
+    registry.subscribe(ReactionTestRecorded, runtime.reaction, name="routine.reaction")
     registry.provide(RoutineQueries, lambda _: runtime)
     registry.provide(RoutineCommands, lambda _: runtime)
     registry.provide(RoutineTodayPort, lambda _: runtime)

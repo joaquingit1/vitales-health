@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 from typing import cast
@@ -142,3 +143,38 @@ def test_sleep_holds_the_task_and_waking_extends_its_deadline(tmp_path: Path) ->
     awake = validate(hub.client.get(path, headers=headers()), "routine-occurrence.schema.json")
     assert awake["suppressed_by_overlay"] is None
     assert instant(awake["due_until"]) == end + duration
+
+
+@pytest.mark.trace("T-E25-031", "T-E25-044", "D18")
+def test_sim_landing_gravity_check_is_daily_then_leaves_schedule_after_five_days(tmp_path: Path) -> None:
+    hub = HttpHarness(tmp_path)
+    assert hub.mission.facts is not None
+    hub.mission.facts = replace(hub.mission.facts, active_environment_id="lunar_surface")
+    hub.mission_event()
+    hub.deliver()
+    day, version = hub.engine.day(hub.clock.now())
+    for offset in range(6):
+        hub.advance(hub.engine.bounds(day + offset, version)[0])
+        for _ in range(hub.settings.integer("scheduler.max_jobs")):
+            if hub.dispatch() == 0:
+                break
+        else:
+            raise AssertionError("Routine scenario scheduler did not converge")
+        schedule = validate(
+            hub.client.get("/v1/routine/today", headers=headers()), "routine-schedule.schema.json"
+        )
+        occurrences = [
+            occurrence
+            for group in cast(list[dict[str, object]], schedule["groups"])
+            for occurrence in cast(list[dict[str, object]], group["occurrences"])
+            if occurrence["item_id"] == "gravity_arrival_check"
+        ]
+        if offset < 5:
+            assert len(occurrences) == 1
+            task = validate(
+                hub.client.get("/v1/routine/tasks/gravity_arrival_check", headers=headers()),
+                "routine-task.schema.json",
+            )
+            assert cast(dict[str, object], task["effective_cadence"])["word"] == "daily"
+        else:
+            assert occurrences == []

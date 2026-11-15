@@ -127,6 +127,7 @@ def test_command_versions_release_and_unverifiable_links_are_enforced(tmp_path: 
         h.commands.act(
             session(), identifier, body, if_match=1, idempotency_key="cmd_config", config_release="rel_old"
         )
+    h.commands = type(h.commands)(replace(h.engine.deps, records=None), h.engine)
     for linked in (replace(body, observation_ids=("obs_1",)), replace(body, answer_ids=("ans_1",))):
         with pytest.raises(Unauthorized) as error:
             h.commands.act(session(), identifier, linked, if_match=1, idempotency_key="cmd_linked")

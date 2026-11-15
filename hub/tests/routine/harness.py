@@ -18,6 +18,7 @@ from crew_health.events.application.subscriptions import DurableSubscriptions
 from crew_health.kernel.clock import Clock, TimeInput
 from crew_health.kernel.commands import CommandReceipts, IdempotencyStore, canonical_json
 from crew_health.kernel.config import ConfigDocumentView, ReleaseHandle
+from crew_health.kernel.evaluation import EvaluationInput
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.met import MissionClock, MissionClockVersion
 from crew_health.kernel.scheduler import HealthState, ScheduledJob
@@ -45,14 +46,15 @@ from crew_health.platform.domain.audit import AuditPolicy
 from crew_health.platform.settings import ValidatedSettings
 from crew_health.platform.storage import SQLiteDatabase
 from crew_health.platform.testing.sqlite import test_settings as platform_settings
+from crew_health.records.adapters.repository import RecordRepository
 from crew_health.routine import module
 from crew_health.routine.adapters.sqlite_repository import migration_sql
 from crew_health.routine.application.audit import audit_event_types
 from crew_health.routine.application.ports import (
-    AnswerAccepted,
     LocationPort,
     MissionFacts,
     MissionStatePort,
+    RecordFacts,
     RosterMember,
     RosterPort,
     RoutineQueries,
@@ -196,6 +198,11 @@ class RoutineHarness:
             initialize=initialize,
         )
         self._events()
+        sql = (REPO / "hub/src/crew_health/records/adapters/migrations/0001_records.sql").read_text(
+            encoding="utf-8"
+        )
+        self.db.migrate_tracked("records.0001", sha256(sql.encode()).hexdigest(), sql)
+        self.records = RecordRepository()
         sql = migration_sql()
         self.db.migrate_tracked("routine.0001", sha256(sql.encode()).hexdigest(), sql)
         sql = (REPO / "hub/src/crew_health/routine/adapters/migrations/0002_versions.sql").read_text(
@@ -257,6 +264,7 @@ class RoutineHarness:
         provide(MissionStatePort, self.mission)
         provide(RosterPort, self.roster)
         provide(LocationPort, self.locations)
+        self.registry.provide(RecordFacts, lambda _: self.records)
 
     def _handlers(self) -> None:
         for name, fn in self.registry.declarations.get("scheduler_handlers", {}).items():
@@ -318,7 +326,6 @@ class RoutineHarness:
     def answer(
         self, question_id: str, *, person_id: str = "person_mara", answer_id: str = "answer_1"
     ) -> None:
-        from crew_health.records.domain.answers import AnswerAccepted as RecordsAnswerAccepted
         from crew_health.records.domain.answers import AnswerRecord
 
         now = self.clock.now()
@@ -343,9 +350,21 @@ class RoutineHarness:
             now,
             None,
         )
-        event = RecordsAnswerAccepted(answer, None, "mission_1")
         with self.db.begin(actor=answer.actor, correlation_id=self.ids.new("cor")) as uow:
-            self.runtime.answer(uow, cast(AnswerAccepted, event))
+            self.records.add_answer(uow, answer)
+            self.runtime.evaluate(
+                uow,
+                EvaluationInput(
+                    "routine",
+                    "1",
+                    answer.answer_id,
+                    answer.observed,
+                    answer.release_id,
+                    answer.patient_id,
+                    1,
+                    "evaluation_" + answer.answer_id,
+                ),
+            )
 
     def warning_body(self, warning_id: str, definition_id: str, **changes: object) -> dict[str, object]:
         name = "assistant-sleep.json" if changes.get("raised_by") == "assistant" else "co2-station.json"
