@@ -2,12 +2,16 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import threading
 from contextlib import closing
 from datetime import timedelta
 from pathlib import Path
+from typing import Any
 
+import httpx
 import pytest
 
+from crew_health.contracts_gen.schemas.error_schema import ErrorEnvelope
 from crew_health.episodes.application.dto import LinkedFact
 from crew_health.episodes.application.overdue import NoticeOverdue
 from crew_health.kernel.errors import ProblemError
@@ -327,6 +331,91 @@ def test_two_clients_concurrent_resolution_have_one_winner(s: Station) -> None:
     assert sorted(results) == [200, 409]
     with s.db.snapshot() as view:
         assert view.connection.rows("SELECT count(*) FROM episodes_resolution", (), limit=1) == ((1,),)
+
+
+RESOLVE = {"action": "resolve", "reason": "symptoms_reported_resolved"}
+
+
+def _resolve(s: Station, ep: str, key: str) -> httpx.Response:
+    response: httpx.Response = s.client.post(
+        "/v1/episodes/" + ep + "/actions",
+        json=RESOLVE,
+        headers={"Authorization": "patient", "If-Match": '"2"', "Idempotency-Key": key},
+    )
+    return response
+
+
+def _resolutions(s: Station) -> tuple[tuple[object, ...], ...]:
+    with s.db.snapshot() as view:
+        return view.connection.rows("SELECT count(*) FROM episodes_resolution", (), limit=1)
+
+
+@pytest.mark.trace("T-E15-025")
+def test_loser_that_outwaits_the_writer_bound_behind_the_same_episode_gets_stale_version(
+    s: Station, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Windows CI regression: the winning resolve held the writer longer than storage.busy_timeout_ms, the loser's
+    writer wait expired and it answered 500 "locked". The barrier holds the winner inside its transaction until the
+    loser has answered, so the loser always times out behind a command on the same episode."""
+    ep = s.create()
+    s.answer(ep)
+    inside, release = threading.Event(), threading.Event()
+    real = s.service.act
+
+    def held_act(*args: Any, **kwargs: Any) -> Any:
+        result = real(*args, **kwargs)
+        inside.set()
+        assert release.wait(30)
+        return result
+
+    monkeypatch.setattr(s.service, "act", held_act)
+    winner: list[httpx.Response] = []
+    thread = threading.Thread(target=lambda: winner.append(_resolve(s, ep, "cmd_first")))
+    thread.start()
+    try:
+        assert inside.wait(30)
+        loser = _resolve(s, ep, "cmd_second")
+    finally:
+        release.set()
+        thread.join(30)
+    assert [r.status_code for r in winner] == [200]
+    assert loser.status_code == 409, loser.text
+    envelope = ErrorEnvelope.model_validate(loser.json())
+    assert (envelope.code, envelope.retryable) == ("STALE_VERSION", False)
+    assert _resolutions(s) == ((1,),)
+
+
+@pytest.mark.trace("T-E15-025")
+def test_writer_held_by_other_work_or_another_connection_still_fails_loudly(s: Station) -> None:
+    """Only a concurrent command on the same episode is a conflict. A writer held by other work, or the database
+    lock held by another connection, is storage contention: a retryable 500 in the contract envelope, nothing
+    written, never a 409 that would tell the client its revision is stale."""
+    ep = s.create()
+    s.answer(ep)
+    held, done = threading.Event(), threading.Event()
+
+    def other_work() -> None:
+        with s.db.begin(actor=OFFICER.actor, correlation_id="corr_other_work"):
+            held.set()
+            assert done.wait(30)
+
+    thread = threading.Thread(target=other_work)
+    thread.start()
+    try:
+        assert held.wait(30)
+        busy_writer = _resolve(s, ep, "cmd_first")
+    finally:
+        done.set()
+        thread.join(30)
+    with closing(sqlite3.connect(s.db.path, isolation_level=None)) as other:
+        other.execute("BEGIN IMMEDIATE")
+        busy_database = _resolve(s, ep, "cmd_second")
+        other.execute("ROLLBACK")
+    for response in (busy_writer, busy_database):
+        assert response.status_code == 500, response.text
+        envelope = ErrorEnvelope.model_validate(response.json())
+        assert (envelope.code, envelope.retryable) == ("INTERNAL_ERROR", True)
+    assert _resolutions(s) == ((0,),)
 
 
 @pytest.mark.trace("T-E15-013", "T-E15-012")

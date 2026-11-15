@@ -87,8 +87,8 @@ def test_unparseable_sibling_documents_are_findings_not_exceptions(
 class FakeCover:
     """CoverPlanningPort fake (E32 is not on main)."""
 
-    def cover_changed(
-        self, ctx: KitMapContext, *, add_supplies: Sequence[SupplyAddition]
+    def cover_changed[Document](
+        self, ctx: KitMapContext[Document], *, add_supplies: Sequence[SupplyAddition]
     ) -> Sequence[CoverChange]:
         return [CoverChange(s.supply_id, 1, 2) for s in add_supplies]
 

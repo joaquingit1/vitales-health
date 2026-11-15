@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "medication-context.schema.json",
+  "title": "medication-context",
+  "description": "Medicines aboard (docs/tdd/E32.md R-E32-10).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "subject_person_id",
+    "parts",
+    "as_of"
+  ],
+  "properties": {
+    "subject_person_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "parts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allergies",
+        "other_medicines",
+        "renal",
+        "hepatic",
+        "conditions"
+      ],
+      "properties": {
+        "allergies": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "state",
+                "items",
+                "recorded_by",
+                "recorded_at",
+                "statement_id"
+              ],
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "recorded_by": {
+                  "$ref": "common.schema.json#/$defs/id"
+                },
+                "recorded_at": {
+                  "$ref": "common.schema.json#/$defs/instant"
+                },
+                "statement_id": {
+                  "$ref": "common.schema.json#/$defs/id"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "other_medicines": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "state",
+                "items",
+                "recorded_by",
+                "recorded_at",
+                "statement_id"
+              ],
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "recorded_by": {
+                  "$ref": "common.schema.json#/$defs/id"
+                },
+                "recorded_at": {
+                  "$ref": "common.schema.json#/$defs/instant"
+                },
+                "statement_id": {
+                  "$ref": "common.schema.json#/$defs/id"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "renal": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "state",
+                "items",
+                "recorded_by",
+                "recorded_at",
+                "statement_id"
+              ],
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "recorded_by": {
+                  "$ref": "common.schema.json#/$defs/id"
+                },
+                "recorded_at": {
+                  "$ref": "common.schema.json#/$defs/instant"
+                },
+                "statement_id": {
+                  "$ref": "common.schema.json#/$defs/id"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hepatic": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "state",
+                "items",
+                "recorded_by",
+                "recorded_at",
+                "statement_id"
+              ],
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "recorded_by": {
+                  "$ref": "common.schema.json#/$defs/id"
+                },
+                "recorded_at": {
+                  "$ref": "common.schema.json#/$defs/instant"
+                },
+                "statement_id": {
+                  "$ref": "common.schema.json#/$defs/id"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "conditions": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "state",
+                "items",
+                "recorded_by",
+                "recorded_at",
+                "statement_id"
+              ],
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "recorded_by": {
+                  "$ref": "common.schema.json#/$defs/id"
+                },
+                "recorded_at": {
+                  "$ref": "common.schema.json#/$defs/instant"
+                },
+                "statement_id": {
+                  "$ref": "common.schema.json#/$defs/id"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/instant"
+    }
+  }
+}

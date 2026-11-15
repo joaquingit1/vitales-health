@@ -8,8 +8,10 @@ Deterministic: the same inputs give the same bytes. Inputs, all already in the r
 - docs/product/cliff/forms/ICL<n>.json: saved form text, used to verify every extra quote on its page;
 - docs/product/sources.csv: the source registry (S13, NASA's Integrated Medical Model documentation);
 - contracts/api/examples/kit-map.example.json: the instrument catalog, capabilities, kits and candidates;
-- authoring/kitmap/kit.json: the head (label, notice, defaults for added instruments);
-- authoring/kitmap/adjudication/draft.json (drafting model) and check.json (checking model).
+- authoring/kitmap/kit.json: the head (label, notice, defaults for added instruments and the plan ID rule);
+- authoring/kitmap/adjudication/draft.json (drafting model) and check.json (checking model);
+- authoring/supplies/kit-map-supplies.json: supplies, stock, candidate_supplies and candidate_skills, owned
+  by E32 (R-E32-01), each supply with its sources under `provenance`.
 
 A row whose check is not `agrees`, or that the drafter marked undecided, keeps `checked_by: null`
 (unchecked) and is listed in the provenance file; nothing is invented to fill it. Conditions whose ID the
@@ -31,6 +33,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "config/kit-map.json"
 PROVENANCE = ROOT / "authoring/kitmap/provenance.json"
+SUPPLIES = ROOT / "authoring/supplies/kit-map-supplies.json"
 ENVIRONMENTS = ("station_leo", "transit", "lunar_surface", "mars_surface")
 CAMERA_ESTIMATE = "camera_estimate"
 # Coordinator decision D22: condition IDs may carry one capital suffix (ICL36A, ICL36B). The package
@@ -218,12 +221,23 @@ def _provenance(cid: str, candidate: Obj, row: Obj, verdict: Obj, cited: list[Ob
     }
 
 
+def _supplies(head: Obj, example: Obj) -> list[Obj]:
+    """The supplies kit.json names, in its order, copied from the example's catalog; an unknown ID fails."""
+    catalog = {_str(s["supply_id"]): s for s in _objs(example["supplies"])}
+    wanted = [_str(i) for i in _list(_obj(head["supplies"])["ids"])]
+    missing = [i for i in wanted if i not in catalog]
+    if missing:
+        raise BuildError("supplies not in the example catalog: " + ", ".join(missing))
+    return [dict(catalog[i]) for i in wanted]
+
+
 def build() -> tuple[bytes, bytes]:
     head, assessments, candidates, drafted, verdicts, draft, check = _inputs()
     instruments, capabilities = _catalog(head, draft)
     methods = {_str(i["id"]): _str(i.get("method", "manual_instrument")) for i in instruments}
     example = _obj(_load(ROOT / _str(head["catalog_from"])))
     q26 = {key: _list(value) for key, value in _obj(_obj(head["q26_region_map"])["regions"]).items()}
+    plan_prefix = _str(_obj(head["plan_ids"])["prefix"])
     rows: list[Obj] = []
     provenance: list[Obj] = []
     omitted: list[Obj] = []
@@ -243,7 +257,7 @@ def build() -> tuple[bytes, bytes]:
                 "body_regions": _regions(candidate, q26),
                 "confirming_tests": tests,
                 "cliff_url": candidate["url"],
-                "plan_id": None,
+                "plan_id": plan_prefix + cid.lower(),
                 "ground_needs": None,
                 "treatment_scope": None,
                 "rtdc": None,
@@ -263,10 +277,7 @@ def build() -> tuple[bytes, bytes]:
         "capabilities": capabilities,
         "kits": {e: list(_list(kits[e])) for e in ENVIRONMENTS},
         "candidates": list(_list(example["candidates"])),
-        "candidate_supplies": [],
-        "candidate_skills": [],
-        "supplies": [],
-        "stock": {e: [] for e in ENVIRONMENTS},
+        **_supply_keys(_supplies(head, example)),
         "conditions": rows,
     }
     side_file = {
@@ -279,6 +290,32 @@ def build() -> tuple[bytes, bytes]:
         "rows": provenance,
     }
     return _dump(document), _dump(side_file)
+
+
+def _supply_keys(referenced: list[Obj]) -> Obj:
+    """E32's four keys in the kit map's key order; every catalogued supply must cite at least one source."""
+    owned = _obj(_load(SUPPLIES))
+    supplies = [_obj(s) for s in _list(owned["supplies"])]
+    cited = _obj(owned["provenance"])
+    for supply in supplies:
+        if not _list(cited.get(_str(supply["supply_id"]), [])):
+            raise BuildError(f"supply {supply['supply_id']} has no provenance in {SUPPLIES.name}")
+    stock = _obj(owned["stock"])
+    return {
+        "candidate_supplies": list(_list(owned["candidate_supplies"])),
+        "candidate_skills": list(_list(owned["candidate_skills"])),
+        "supplies": _merge_supplies(referenced, supplies),
+        "stock": {e: list(_list(stock[e])) for e in ENVIRONMENTS},
+    }
+
+
+def _merge_supplies(referenced: list[Obj], owned: list[Obj]) -> list[Obj]:
+    """The supplies kit.json names (other release documents reference them), then E32's owned supplies.
+
+    An ID in both keeps E32's entry in the first position."""
+    by_id = {_str(s["supply_id"]): s for s in owned}
+    merged = [by_id.pop(_str(s["supply_id"]), s) for s in referenced]
+    return merged + [s for s in owned if _str(s["supply_id"]) in by_id]
 
 
 def _dump(value: object) -> bytes:

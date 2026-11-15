@@ -716,3 +716,146 @@ class ResearchSourceCreate(BaseModel):
     url: str = Field(..., min_length=1)
     date: str = Field(..., min_length=1)
     access: str = Field(..., min_length=1)
+
+
+class MedicineInspectionCreate(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    lot_id: str = Field(..., min_length=1)
+    finding: Literal[
+        "no_change",
+        "color_change",
+        "cracking",
+        "crystals",
+        "cloudiness",
+        "precipitate",
+        "particles",
+        "swollen_package",
+        "phase_separation",
+        "other",
+    ] = Field(
+        ...,
+        description="The pharmacy engine's inspection vocabulary (contracts/pharmacy/inputs.schema.json InspectionRecord); any finding other than no_change excludes the lot at once.",
+    )
+    note: str | None = Field(None, max_length=2000)
+    client_time: common_schema.Instant
+
+
+class MedicationContextCreate(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    part: Literal["allergies", "other_medicines", "renal", "hepatic", "conditions"]
+    state: Literal["documented", "none_known", "none", "unknown", "normal", "impaired"]
+    items: list[dict[str, Any]] | None = Field(None, max_length=200)
+    client_time: common_schema.Instant
+
+
+class WorkingDiagnosisCreate(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    condition_id: str = Field(..., pattern="^ICL[0-9]+$")
+    subject_person_id: common_schema.Id
+    basis_text: str | None = Field(None, max_length=2000)
+    certainty_text: str | None = Field(None, max_length=200)
+    supersedes: common_schema.Id | None = None
+    client_time: common_schema.Instant
+
+
+class DoseProposalCreate(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    working_diagnosis_id: common_schema.Id
+    product_id: str = Field(..., min_length=1)
+    lot_id: str | None = Field(None, min_length=1)
+    path: Literal["labeled"] | None = None
+    client_time: common_schema.Instant
+
+
+class Override(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    alert_id: str = Field(..., min_length=1)
+    reason_code: str = Field(..., min_length=1)
+    note: str | None = Field(None, max_length=2000)
+
+
+class AcknowledgedAlertId(RootModel[str]):
+    root: str = Field(..., min_length=1)
+
+
+class DoseConfirm(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    lot_id: str = Field(..., min_length=1)
+    overrides: list[Override]
+    acknowledged_alert_ids: list[AcknowledgedAlertId]
+    client_time: common_schema.Instant
+
+
+class Amount(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    value: float = Field(..., ge=0.0)
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
+
+
+class ManualAdministrationCreate(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    subject_person_id: common_schema.Id
+    product_id: str = Field(..., min_length=1)
+    lot_id: str = Field(..., min_length=1)
+    amount: Amount
+    administered_at: common_schema.Instant
+    reason_text: str = Field(..., max_length=2000, min_length=1)
+    client_time: common_schema.Instant
+
+
+class AdministrationCorrectionCreate(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    reason_text: str = Field(..., max_length=2000, min_length=1)
+    client_time: common_schema.Instant
+
+
+class Quantity(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    value: float = Field(..., ge=0.0)
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
+
+
+class LotMovementCreate(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    kind: Literal["return", "waste", "count_correction"]
+    quantity: Quantity
+    client_time: common_schema.Instant
+
+
+class MedicineAssayCreate(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    lot_id: str = Field(..., max_length=128, min_length=1, pattern="^[A-Za-z0-9][A-Za-z0-9_.:-]*$")
+    ingredient_id: str = Field(..., max_length=128, min_length=1, pattern="^[A-Za-z0-9][A-Za-z0-9_.:-]*$")
+    measured_at: common_schema.Instant
+    measurand: Literal["total", "active"]
+    value_percent: float = Field(..., description="Percent of label claim.", gt=0.0, le=1000.0)
+    sd_percent: float = Field(..., ge=0.0, le=1000.0)
+    site: Literal["onboard", "ground"]
+    method: str = Field(..., max_length=200, min_length=1)
+    laboratory: str = Field(..., max_length=200, min_length=1)
+    note: str | None = Field(None, max_length=2000)
+    client_time: common_schema.Instant

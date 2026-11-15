@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "health.schema.json",
+  "title": "HabitatAdapterHealth",
+  "description": "GET /health of one habitat adapter process (E23 5.2). The hub polls it; a failed or late poll is unknown.",
+  "type": "object",
+  "properties": {
+    "adapter_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "clock": {
+      "enum": ["synchronized", "unsynchronized", "unknown"]
+    },
+    "queue": {
+      "enum": ["ok", "queue_full"]
+    }
+  },
+  "required": ["adapter_id", "clock", "queue"],
+  "additionalProperties": false
+}

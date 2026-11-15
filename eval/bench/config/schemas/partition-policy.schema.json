@@ -1,0 +1,459 @@
+{
+  "type": "object",
+  "properties": {
+    "group_by": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "family_id",
+          "source_vignette_id",
+          "patient_id",
+          "episode_id"
+        ]
+      }
+    },
+    "minhash": {
+      "type": "object",
+      "properties": {
+        "permutations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "bands": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "permutations",
+        "bands",
+        "seed"
+      ],
+      "additionalProperties": false
+    },
+    "near_duplicate_jaccard": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1
+    },
+    "leak_jaccard": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1
+    },
+    "fp_salt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "fingerprint_sample_modulus": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 256
+    },
+    "holdout_fraction": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "exclusiveMaximum": 1
+    },
+    "min_groups_for_split": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5000
+    },
+    "vault": {
+      "type": "object",
+      "properties": {
+        "recipients": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "recipients"
+      ],
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "group_by": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "minhash": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "near_duplicate_jaccard": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "leak_jaccard": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "holdout_fraction": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "min_groups_for_split": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "vault": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "fp_salt": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "fingerprint_sample_modulus": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        },
+        "fingerprint_min_shingles": {
+          "type": "object",
+          "properties": {
+            "basis": {
+              "enum": [
+                "sourced",
+                "team default"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(EV|RT|RS|SK|S|C|N|L)\\d{2}$"
+              },
+              "uniqueItems": true
+            },
+            "to_be_set_by": {
+              "enum": [
+                "clinical review",
+                "the flight surgeon",
+                "flight rules",
+                null
+              ]
+            }
+          },
+          "required": [
+            "basis",
+            "source_ids",
+            "to_be_set_by"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "group_by",
+        "minhash",
+        "near_duplicate_jaccard",
+        "leak_jaccard",
+        "holdout_fraction",
+        "min_groups_for_split",
+        "vault",
+        "fp_salt",
+        "fingerprint_sample_modulus",
+        "fingerprint_min_shingles"
+      ],
+      "additionalProperties": false
+    },
+    "fingerprint_min_shingles": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 64
+    }
+  },
+  "required": [
+    "group_by",
+    "minhash",
+    "near_duplicate_jaccard",
+    "leak_jaccard",
+    "fp_salt",
+    "fingerprint_sample_modulus",
+    "holdout_fraction",
+    "min_groups_for_split",
+    "vault",
+    "provenance",
+    "fingerprint_min_shingles"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

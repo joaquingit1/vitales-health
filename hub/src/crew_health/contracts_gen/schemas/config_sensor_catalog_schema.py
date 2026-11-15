@@ -70,6 +70,98 @@ class ExpectedIntervalSeconds(RootModel[int]):
     )
 
 
+class Range(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    min: float
+    max: float
+    basis: Literal["nasa", "nasa_data_statistics", "non_nasa"] = Field(
+        ...,
+        description="nasa: the number is in a NASA document. nasa_data_statistics: computed from NASA data in docs/product/nasa-data, with the method in citation. non_nasa: a named non-NASA source, used only because NASA does not cover this; citation says so.",
+    )
+    source_ids: list[common_schema.SourceId] = Field(..., min_length=1)
+    citation: str = Field(
+        ...,
+        description="Document section, table or page, or the data file and method. Never a bare ID.",
+        min_length=1,
+    )
+
+
+class Saturation(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    values: list[float] = Field(
+        ...,
+        description="Canonical values at which the sensor is clipped at its floor or full scale. A reading equal to one is rejected.",
+        min_length=1,
+    )
+    basis: Literal["nasa", "nasa_data_statistics", "non_nasa"] = Field(
+        ...,
+        description="nasa: the number is in a NASA document. nasa_data_statistics: computed from NASA data in docs/product/nasa-data, with the method in citation. non_nasa: a named non-NASA source, used only because NASA does not cover this; citation says so.",
+    )
+    source_ids: list[common_schema.SourceId] = Field(..., min_length=1)
+    citation: str = Field(
+        ...,
+        description="Document section, table or page, or the data file and method. Never a bare ID.",
+        min_length=1,
+    )
+
+
+class Stuck(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    count: int = Field(
+        ...,
+        description="Consecutive identical canonical values, the current one included, that mark a stuck sensor when they also span min_span_seconds.",
+        ge=2,
+    )
+    min_span_seconds: float = Field(..., gt=0.0)
+    basis: Literal["nasa", "nasa_data_statistics", "non_nasa"] = Field(
+        ...,
+        description="nasa: the number is in a NASA document. nasa_data_statistics: computed from NASA data in docs/product/nasa-data, with the method in citation. non_nasa: a named non-NASA source, used only because NASA does not cover this; citation says so.",
+    )
+    source_ids: list[common_schema.SourceId] = Field(..., min_length=1)
+    citation: str = Field(
+        ...,
+        description="Document section, table or page, or the data file and method. Never a bare ID.",
+        min_length=1,
+    )
+
+
+class Rate(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    max_per_second: float = Field(
+        ...,
+        description="Largest believable absolute change per second between two consecutive readings, in canonical units.",
+        gt=0.0,
+    )
+    basis: Literal["nasa", "nasa_data_statistics", "non_nasa"] = Field(
+        ...,
+        description="nasa: the number is in a NASA document. nasa_data_statistics: computed from NASA data in docs/product/nasa-data, with the method in citation. non_nasa: a named non-NASA source, used only because NASA does not cover this; citation says so.",
+    )
+    source_ids: list[common_schema.SourceId] = Field(..., min_length=1)
+    citation: str = Field(
+        ...,
+        description="Document section, table or page, or the data file and method. Never a bare ID.",
+        min_length=1,
+    )
+
+
+class Plausibility(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    range: Range
+    saturation: Saturation
+    stuck: Stuck
+    rate: Rate
+
+
 class SensorType(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -116,6 +208,10 @@ class SensorType(BaseModel):
     )
     manual_alternative_item_id: common_schema.ConfigId | None
     citation_text: str = Field(..., description="How the card cites the sensor type.", min_length=1)
+    plausibility: Plausibility | None = Field(
+        None,
+        description="Sourced plausibility criteria in the canonical unit (R-E23-2). All four checks are mandatory before a reading can be evaluated. Absent means the sensor type has no sourced criteria: readings are captured and never evaluated, and LIVE channels are refused. Every criterion carries its basis and sources; team defaults are not allowed.",
+    )
 
 
 class SensorCatalogJson(BaseModel):

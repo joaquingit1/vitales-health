@@ -34,7 +34,7 @@ ignore = ["E501"]
 
 [tool.ruff.lint.isort]
 # Fixed here so isort agrees whether ruff runs from hub/ or from the root with --config.
-known-first-party = ["crew_health"]
+known-first-party = ["crew_health", "tests"]
 
 [tool.mypy]
 python_version = "3.14"
@@ -46,6 +46,14 @@ mypy_path = "hub/src"
 module = ["ucumvert", "ucumvert.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+# The potency engine (AGENTS 10) runs only in the child interpreter of medicines/adapters/potency_child.py and is not
+# installed in the hub venv. Run from the repository root mypy would find pharmacy/ and check the engine team's
+# code under hub's settings; it is never followed, from any working directory.
+module = ["pharmacy", "pharmacy.*"]
+follow_imports = "skip"
+ignore_missing_imports = true
+
 [tool.coverage.run]
 branch = true
 source = ["crew_health"]
@@ -54,7 +62,12 @@ source = ["crew_health"]
 import-contracts = "crew_health.app.import_contracts"
 
 [tool.setuptools.package-data]
-"crew_health" = ["*/adapters/migrations/*.sql", "*/replica.schema.json", "*/schemas/*.json"]
+"crew_health" = [
+    "*/adapters/migrations/*.sql",
+    "*/replica.schema.json",
+    "*/schemas/*.json",
+    "medicines/adapters/engine_schema/*.json",
+]
 "crew_health.contracts_gen" = ["manifest.json"]
 "crew_health.identity" = ["schemas/*.json", "adapters/migrations/*.sql"]
 "crew_health.consent" = ["adapters/migrations/*.sql"]

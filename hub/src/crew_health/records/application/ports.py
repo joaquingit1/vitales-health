@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Literal, Protocol
+from typing import ClassVar, Literal, Protocol
 
 from crew_health.kernel.units import Quantity, Unit
 from crew_health.kernel.uow import UnitOfWork
@@ -82,3 +82,18 @@ class ObservationCommands(Protocol):
 
 class AnswerCommands(Protocol):
     def append_answer(self, uow: UnitOfWork, draft: AnswerDraft, *, idempotency_key: str) -> str: ...
+
+
+@dataclass(frozen=True, slots=True)
+class AnswerAcceptedFact:
+    """The bus fact of an accepted answer for other modules (E24, R-E24-14): identity and presence only, never the
+    answer's value or text. Published beside the records module's own `AnswerAccepted`."""
+
+    event_type: ClassVar[str] = "answer.accepted_fact"
+    answer_id: str
+    patient_id: str
+    question_id: str
+    presence: str
+    answered_at: datetime
+    origin_mode: Literal["LIVE", "REPLAY", "SIM"]  # internal enum
+    mission_id: str

@@ -1,0 +1,418 @@
+{
+  "title": "CaseDocument",
+  "type": "object",
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "suite": {
+      "enum": [
+        "nasa_scenario",
+        "plan",
+        "tool",
+        "retrieval",
+        "privacy",
+        "robustness",
+        "healthbench"
+      ]
+    },
+    "key": {
+      "$ref": "#/$defs/key"
+    },
+    "origin": {
+      "enum": [
+        "authored",
+        "paraphrase",
+        "perturbation",
+        "external"
+      ]
+    },
+    "derived_from": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "condition_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^ICL[1-9][0-9]{0,2}$"
+      }
+    },
+    "requires": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/requires"
+      }
+    },
+    "visible": {
+      "$ref": "#/$defs/visible"
+    },
+    "revealable": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/reveal"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "hidden_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "canary": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "review": {
+      "$ref": "#/$defs/review"
+    }
+  },
+  "required": [
+    "case_id",
+    "suite",
+    "key",
+    "origin",
+    "derived_from",
+    "condition_ids",
+    "requires",
+    "visible",
+    "revealable",
+    "hidden_sha256",
+    "canary",
+    "review"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "quantity": {
+      "title": "CaseQuantity",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "additionalProperties": false
+    },
+    "answer": {
+      "title": "SimAnswerDocument",
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": [
+            "present",
+            "absent",
+            "unknown",
+            "declined"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "state",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "measurement": {
+      "title": "SimMeasurementDocument",
+      "type": "object",
+      "properties": {
+        "outcome": {
+          "enum": [
+            "accepted",
+            "failed",
+            "unavailable"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "outcome",
+        "value",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "reveal": {
+      "title": "RevealTableDocument",
+      "type": "object",
+      "properties": {
+        "questions": {
+          "type": "array",
+          "items": {
+            "title": "QuestionMatchDocument",
+            "type": "object",
+            "properties": {
+              "any_of": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "none_of": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "answer": {
+                "$ref": "#/$defs/answer"
+              }
+            },
+            "required": [
+              "any_of",
+              "none_of",
+              "answer"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "title": "CapabilityMatchDocument",
+            "type": "object",
+            "properties": {
+              "capability_code": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+              },
+              "answer": {
+                "$ref": "#/$defs/measurement"
+              }
+            },
+            "required": [
+              "capability_code",
+              "answer"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "canary": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        }
+      },
+      "required": [
+        "questions",
+        "capabilities",
+        "canary"
+      ],
+      "additionalProperties": false
+    },
+    "seed": {
+      "title": "SeedRecipe",
+      "type": "object",
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path_params": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/seed_string"
+          }
+        },
+        "query": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/seed_string"
+          }
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/seed_string"
+          }
+        },
+        "body": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "expected_status": {
+          "type": "integer",
+          "minimum": 200,
+          "maximum": 299
+        },
+        "input_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "operation_id",
+        "path_params",
+        "query",
+        "headers",
+        "body",
+        "expected_status",
+        "input_ref"
+      ],
+      "additionalProperties": false
+    },
+    "visible": {
+      "title": "VisiblePart",
+      "type": "object",
+      "properties": {
+        "seed_steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/seed"
+          }
+        },
+        "opening_complaint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "script": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/seed"
+          }
+        },
+        "canary": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        }
+      },
+      "required": [
+        "seed_steps",
+        "opening_complaint",
+        "script",
+        "canary"
+      ],
+      "additionalProperties": false
+    },
+    "review": {
+      "title": "CaseReviewDocument",
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": [
+            "unreviewed",
+            "reviewed"
+          ]
+        },
+        "reviewer_roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "state",
+        "reviewer_roles"
+      ],
+      "additionalProperties": false
+    },
+    "requires": {
+      "title": "ConfigPreconditionDocument",
+      "type": "object",
+      "properties": {
+        "document": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pointer": {
+          "type": "string"
+        },
+        "must_be": {
+          "enum": [
+            "set",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "document",
+        "pointer",
+        "must_be"
+      ],
+      "additionalProperties": false
+    },
+    "key": {
+      "title": "CaseKeyDocument",
+      "type": "object",
+      "properties": {
+        "family_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "source_vignette_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "patient_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "episode_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        }
+      },
+      "required": [
+        "family_id",
+        "source_vignette_id",
+        "patient_id",
+        "episode_id"
+      ],
+      "additionalProperties": false
+    },
+    "seed_string": {
+      "title": "SeedString",
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

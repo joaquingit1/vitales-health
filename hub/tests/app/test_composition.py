@@ -334,8 +334,9 @@ def station(tmp_path: Path, resources: Path, *, omit: frozenset[type[object]] = 
     }
 
     def configure(registry: ModuleRegistry) -> None:
+        provided = getattr(registry, "providers", {})  # a port an installed module provides is never stood in
         for port, value in stand_ins.items():
-            if port not in omit:
+            if port not in omit and port not in provided:
                 registry.provide(port, partial(_constant, value))
         for identifier in sorted(required_contributors() - own):
             registry.loader_check(MemoryReleaseCheck(identifier, lambda candidate: ()))
@@ -673,7 +674,9 @@ def test_runtime_shutdown_stops_module_workers_and_a_failed_startup_stops_them_t
     runtime: Runtime = _worker_station(hub, threads).app().state.runtime
     assert runtime.serving, runtime.fault_code
     roles = [t for t in threading.enumerate() if t not in before and t.name == "roles-recompute"]
-    assert set(runtime.workers.names()) == {"probe.worker", "roles.recompute"} and threads[0].is_alive()
+    # assistant.turns: E13's conversation worker, composed once its seams resolve on the station.
+    assert set(runtime.workers.names()) == {"probe.worker", "roles.recompute", "assistant.turns"}
+    assert threads[0].is_alive()
     assert len(roles) == 1 and roles[0].is_alive()
     assert runtime.shutdown() == ()
     assert not runtime.serving and not threads[0].is_alive() and not roles[0].is_alive()

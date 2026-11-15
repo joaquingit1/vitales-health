@@ -14,7 +14,7 @@ from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.kernel.audit import AuditEntry
 from crew_health.kernel.clock import Clock, HlcClock
 from crew_health.kernel.config import ReleaseHandle
-from crew_health.kernel.errors import ProblemError, StorageUnavailable
+from crew_health.kernel.errors import ProblemError, StorageUnavailable, TargetBusy
 from crew_health.kernel.ids import IdFactory, require_id
 from crew_health.kernel.scheduler import ScheduledJob
 from crew_health.kernel.settings import HubSettings
@@ -255,6 +255,7 @@ class SQLiteDatabase:
         self._release_provider: Callable[[], ReleaseHandle] = lambda: release
         self._release_reader: Callable[[ReadSnapshot], ReleaseHandle] | None = None
         self._writer = threading.Lock()
+        self._writer_target: str | None = None
         self._admission = threading.BoundedSemaphore(settings.integer("storage.writer_queue_max") + 1)
         self._local = threading.local()
         self._replicated_tables: list[tuple[str, str, str]] = [
@@ -402,12 +403,23 @@ class SQLiteDatabase:
     def _exclusive(self) -> Iterator[None]:
         if getattr(self._local, "writing", False):
             raise fail(ErrorCode.INVALID_TRANSITION)
-        if not self._writer.acquire(timeout=self.settings.integer("storage.busy_timeout_ms") / 1000):
-            raise StorageUnavailable("locked")
+        self._acquire_writer(None)
         try:
             yield
         finally:
             self._writer.release()
+
+    def _acquire_writer(self, target: str | None) -> None:
+        """Take the one writer within storage.busy_timeout_ms, else fail with a typed error (SYSTEM 5.7).
+
+        A timeout behind a command on the same target is a concurrent edit of that resource (TargetBusy); any other
+        timeout is StorageUnavailable("locked"). Every acquisition records its target and nothing clears it, so a
+        waiter that timed out reads the holder it waited behind (or a later one), never a gap after a release."""
+        if not self._writer.acquire(timeout=self.settings.integer("storage.busy_timeout_ms") / 1000):
+            if target is not None and self._writer_target == target:
+                raise TargetBusy()
+            raise StorageUnavailable("locked")
+        self._writer_target = target
 
     def _connect(self) -> sqlite3.Connection:
         if self._closed:
@@ -419,6 +431,11 @@ class SQLiteDatabase:
                 timeout=self.settings.integer("storage.busy_timeout_ms") / 1000,
                 isolation_level=None,
             )
+            # Every unit of work and read snapshot opens its own connection. By default the last one to close
+            # checkpoints the WAL and deletes it under an exclusive lock, and a reader opening meanwhile waits on
+            # that lock: with synchronous=FULL on a slow disk the wait outlasts the busy timeout and a plain read
+            # fails "locked" while writes run (E32 load test, CI). Checkpoints still run on commit (autocheckpoint).
+            connection.setconfig(sqlite3.SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE, True)
             connection.execute("PRAGMA journal_mode=WAL")
             connection.execute("PRAGMA synchronous=FULL")
             connection.execute("PRAGMA foreign_keys=ON")
@@ -464,8 +481,7 @@ class SQLiteDatabase:
             or len(sql.encode()) > self.settings.integer("storage.max_statement_bytes")
         ):
             raise StorageUnavailable("corrupt")
-        if not self._writer.acquire(timeout=self.settings.integer("storage.busy_timeout_ms") / 1000):
-            raise StorageUnavailable("locked")
+        self._acquire_writer(None)
         connection: sqlite3.Connection | None = None
         try:
             connection = self._connect()
@@ -512,9 +528,11 @@ class SQLiteDatabase:
             raise fail(ErrorCode.CAPABILITY_UNAVAILABLE)
         if not self._admission.acquire(blocking=False):
             raise StorageUnavailable("locked")
-        if not self._writer.acquire(timeout=self.settings.integer("storage.busy_timeout_ms") / 1000):
+        try:
+            self._acquire_writer(command.target if command is not None else None)
+        except StorageUnavailable:
             self._admission.release()
-            raise StorageUnavailable("locked")
+            raise
         connection: sqlite3.Connection | None = None
         session: SQLiteSession | None = None
         self._local.writing = True

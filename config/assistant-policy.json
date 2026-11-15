@@ -1,0 +1,89 @@
+{
+  "notice": "Not clinically reviewed. Assistant drafts need human review.",
+  "allowed_warning_levels": [
+    "info",
+    "watch"
+  ],
+  "max_iterations": 8,
+  "max_schema_repairs": 1,
+  "turn_timeout_seconds": 90,
+  "first_token_timeout_seconds": 20,
+  "tool_timeout_seconds": 10,
+  "timeouts_basis": "team default",
+  "insight_topics": [
+    {
+      "id": "sleep_reaction",
+      "title_hint": "Short nights, slower reactions",
+      "evidence_codes": [
+        "sleep_duration",
+        "pvt_median",
+        "pvt_lapses"
+      ],
+      "warning_definition_id": "assistant_pattern",
+      "body_region": "eyes",
+      "source_ids": [
+        "C15",
+        "C23"
+      ]
+    },
+    {
+      "id": "gravity_adjustment",
+      "title_hint": "Getting used to gravity",
+      "evidence_codes": [
+        "pulse",
+        "systolic_bp"
+      ],
+      "warning_definition_id": null,
+      "body_region": "heart",
+      "source_ids": [
+        "C09"
+      ]
+    }
+  ],
+  "forbidden_output": [
+    {
+      "id": "dose",
+      "rule": "Never name a medicine dose. Medicines are given as in the onboard procedure."
+    },
+    {
+      "id": "level_above_watch",
+      "rule": "Never raise act or emergency, and never lower, clear or acknowledge a rule or sensor warning."
+    },
+    {
+      "id": "replay_as_exposure",
+      "rule": "Never cite a habitat reading, and never a REPLAY channel, as the person's exposure or as evidence for the person."
+    },
+    {
+      "id": "invented_threshold",
+      "rule": "Never state a threshold that is not in the configuration. Where none is reviewed, say: threshold to be set by clinical review."
+    },
+    {
+      "id": "help_flow",
+      "rule": "Never delay, reorder or hide the fixed help steps."
+    }
+  ],
+  "medicine_terms": [
+    "acetaminophen",
+    "paracetamol",
+    "amoxicillin",
+    "ascorbic acid",
+    "aspirin",
+    "acetylsalicylic acid",
+    "clavulanic acid",
+    "epinephrine",
+    "adrenaline",
+    "ibuprofen",
+    "levofloxacin",
+    "promethazine",
+    "medicine",
+    "medication",
+    "drug",
+    "inhaler",
+    "glucose",
+    "glucagon",
+    "pain relief",
+    "dose",
+    "tablet",
+    "pill"
+  ]
+}

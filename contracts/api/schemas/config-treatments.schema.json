@@ -1,0 +1,768 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config-treatments.schema.json",
+  "title": "treatments.json",
+  "description": "Indications, dose rules and dosing products of the medicines engine (docs/tdd/E32.md 8.4, R-E32-13). The only document that may carry a dose (EI6 as restated in R-E32-10). Every rule cites its sources field by field.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "example",
+    "notice",
+    "review_state",
+    "sources",
+    "indications",
+    "dose_rules",
+    "products",
+    "weight",
+    "catastrophic_limits",
+    "allergy_classes",
+    "cross_sensitivity_groups",
+    "interactions",
+    "alert_policies",
+    "context_max_age_seconds",
+    "context_max_age_basis",
+    "context_max_age_to_be_set_by",
+    "unit_display"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "example": {
+      "type": "boolean"
+    },
+    "notice": {
+      "type": "string",
+      "minLength": 1
+    },
+    "review_state": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved"
+      ]
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      },
+      "minItems": 1
+    },
+    "indications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "condition_id",
+          "lines",
+          "citations"
+        ],
+        "properties": {
+          "condition_id": {
+            "type": "string",
+            "pattern": "^ICL[0-9]+$"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "line",
+                "product_id",
+                "rule_id"
+              ],
+              "properties": {
+                "line": {
+                  "type": "string",
+                  "enum": [
+                    "first_choice",
+                    "alternative"
+                  ]
+                },
+                "product_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "rule_id": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "minItems": 1
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/citation"
+            },
+            "minItems": 1
+          }
+        }
+      }
+    },
+    "dose_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rule_id",
+          "review_state",
+          "to_be_set_by",
+          "as_needed_reason",
+          "organ_cautions",
+          "condition_cautions",
+          "ingredients",
+          "provenance"
+        ],
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "review_state": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "reviewed",
+              "approved"
+            ]
+          },
+          "to_be_set_by": {
+            "type": "string",
+            "minLength": 1
+          },
+          "as_needed_reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "organ_cautions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "renal",
+                "hepatic"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "condition_cautions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^ICL[0-9]+$"
+            },
+            "uniqueItems": true
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/ingredient_rule"
+            },
+            "minItems": 1
+          },
+          "provenance": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "field",
+                "citations"
+              ],
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "pattern": "^/"
+                },
+                "citations": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/citation"
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "minItems": 1
+          }
+        }
+      }
+    },
+    "products": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "product_id",
+          "deliverable_increment",
+          "measuring_device",
+          "rounding_tolerance_fraction",
+          "high_alert",
+          "narrow_therapeutic_index",
+          "confirm_by",
+          "consult_ground_first",
+          "therapeutic_classes",
+          "spaceflight_cautions",
+          "basis",
+          "source_ids",
+          "to_be_set_by"
+        ],
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "deliverable_increment": {
+            "$ref": "#/$defs/amount_positive"
+          },
+          "measuring_device": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rounding_tolerance_fraction": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 0.5
+          },
+          "high_alert": {
+            "type": "boolean"
+          },
+          "narrow_therapeutic_index": {
+            "type": "boolean"
+          },
+          "confirm_by": {
+            "type": "string",
+            "enum": [
+              "crew_medical_officer",
+              "any_trained_crew"
+            ]
+          },
+          "consult_ground_first": {
+            "type": "boolean"
+          },
+          "therapeutic_classes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "spaceflight_cautions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "basis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "to_be_set_by": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "weight": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "observation_code",
+            "plausible_min_kg",
+            "plausible_max_kg",
+            "max_age_seconds",
+            "max_change_fraction",
+            "change_window_seconds",
+            "citations"
+          ],
+          "properties": {
+            "observation_code": {
+              "type": "string",
+              "minLength": 1
+            },
+            "plausible_min_kg": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "plausible_max_kg": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max_age_seconds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_change_fraction": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "change_window_seconds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "citations": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/citation"
+              },
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "catastrophic_limits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ingredient_id",
+          "per_administration",
+          "citations"
+        ],
+        "properties": {
+          "ingredient_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "per_administration": {
+            "$ref": "#/$defs/amount_positive"
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/citation"
+            },
+            "minItems": 1
+          }
+        }
+      }
+    },
+    "allergy_classes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "class_id",
+          "ingredient_ids",
+          "citations"
+        ],
+        "properties": {
+          "class_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ingredient_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/citation"
+            },
+            "minItems": 1
+          }
+        }
+      }
+    },
+    "cross_sensitivity_groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "group_id",
+          "members",
+          "citations"
+        ],
+        "properties": {
+          "group_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 2
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/citation"
+            },
+            "minItems": 1
+          }
+        }
+      }
+    },
+    "interactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pair",
+          "severity",
+          "management_text",
+          "citations"
+        ],
+        "properties": {
+          "pair": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "contraindicated",
+              "avoid",
+              "caution"
+            ]
+          },
+          "management_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/citation"
+            },
+            "minItems": 1
+          }
+        }
+      }
+    },
+    "alert_policies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "level",
+          "override_roles",
+          "reason_codes",
+          "basis",
+          "to_be_set_by"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "override_required",
+              "acknowledge",
+              "info"
+            ]
+          },
+          "override_roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "crew_medical_officer"
+              ]
+            }
+          },
+          "reason_codes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "basis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "to_be_set_by": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "context_max_age_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "context_max_age_basis": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context_max_age_to_be_set_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "unit_display": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "$defs": {
+    "citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "locator",
+        "quote"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quote": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "title",
+        "publisher",
+        "nasa",
+        "url",
+        "retrieved_on"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "pattern": "^[A-Z]+[0-9]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "publisher": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nasa": {
+          "type": "boolean"
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "retrieved_on": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "amount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "ucum"
+      ],
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "ucum": {
+          "type": "string",
+          "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+        }
+      }
+    },
+    "amount_positive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "ucum"
+      ],
+      "properties": {
+        "value": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "ucum": {
+          "type": "string",
+          "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+        }
+      }
+    },
+    "ingredient_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ingredient_id",
+        "dose",
+        "dose_per_kg",
+        "max_per_administration",
+        "max_per_period",
+        "max_cumulative",
+        "cumulative_scope",
+        "min_interval_seconds",
+        "min_effective",
+        "course_seconds"
+      ],
+      "properties": {
+        "ingredient_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dose": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/amount_positive"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dose_per_kg": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/amount_positive"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "max_per_administration": {
+          "$ref": "#/$defs/amount_positive"
+        },
+        "max_per_period": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "period_seconds",
+              "limit"
+            ],
+            "properties": {
+              "period_seconds": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "limit": {
+                "$ref": "#/$defs/amount_positive"
+              }
+            }
+          }
+        },
+        "max_cumulative": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/amount_positive"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cumulative_scope": {
+          "type": "string",
+          "enum": [
+            "course",
+            "mission"
+          ]
+        },
+        "min_interval_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "min_effective": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/amount_positive"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "course_seconds": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "description": "One ingredient's rule. A null value has no source and is never filled by a default (dosing-safety 1.2)."
+    }
+  }
+}

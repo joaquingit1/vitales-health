@@ -410,8 +410,8 @@
     },
     {
       "path": "api/examples/config/routine-rules.example.json",
-      "bytes": 10720,
-      "sha256": "eedfd2c556e778727775db5cbf27248d8d5961e504202c7fc51c3857621d2f7f"
+      "bytes": 10678,
+      "sha256": "c3a9dd7457a21865613659a2aced3e6783c3b2e64443b0624f0658f1dae77f6b"
     },
     {
       "path": "api/examples/config/sensor-catalog.example.json",
@@ -1425,8 +1425,8 @@
     },
     {
       "path": "api/openapi.yaml",
-      "bytes": 385237,
-      "sha256": "81c53781662f22c0e5d1d7aed7828a872e26a0d326594fdc8789de7aa64c825f"
+      "bytes": 425502,
+      "sha256": "95d0f5996bff0acdbc57230c662c96792a7203968540abe1eb8900a3ba694cda"
     },
     {
       "path": "api/schemas/activity-overlay.schema.json",
@@ -1490,8 +1490,8 @@
     },
     {
       "path": "api/schemas/config-assistant-policy.schema.json",
-      "bytes": 3276,
-      "sha256": "9ddb704dfb9573e8c1526dc0eb10382f3801bedd509d5a37bf475e68d5d75f85"
+      "bytes": 3677,
+      "sha256": "1d9c6276e23b47e5e5441af24239dbf2d7db0122fb32331af7c1a19d49e3156b"
     },
     {
       "path": "api/schemas/config-document.schema.json",
@@ -1527,6 +1527,11 @@
       "path": "api/schemas/config-kit-map.schema.json",
       "bytes": 16916,
       "sha256": "3961e6fd22467e40e1075df84584e9a6d09cf3a4589071a063aefab8ca446f8c"
+    },
+    {
+      "path": "api/schemas/config-medicines.schema.json",
+      "bytes": 6652,
+      "sha256": "2248dd93e6d0545901c16ba6e23b6fef9d98101138f6598b955c3dd6c35a05e6"
     },
     {
       "path": "api/schemas/config-onboard-plans.schema.json",
@@ -1570,8 +1575,8 @@
     },
     {
       "path": "api/schemas/config-sensor-catalog.schema.json",
-      "bytes": 8948,
-      "sha256": "e3778838f7a083e0b38781f3170e0b576021a5728410e7b29a85b81c137ca11e"
+      "bytes": 16385,
+      "sha256": "03cb21d375522aa2a7b3745069adfadb57e0d64233130ce3595c41a8ab00cb89"
     },
     {
       "path": "api/schemas/config-sensor-limits.schema.json",
@@ -1584,9 +1589,14 @@
       "sha256": "0180569fa8877b9a4342306b388db2ef9e3dd35df79f247849d1912c233730bc"
     },
     {
+      "path": "api/schemas/config-treatments.schema.json",
+      "bytes": 17877,
+      "sha256": "733cbd7df5ace54ff9b0656e71d8c2a06d14c074bd645416520d42056daf03cc"
+    },
+    {
       "path": "api/schemas/config-ui-copy.schema.json",
-      "bytes": 35429,
-      "sha256": "048ee63e7699e201d96a97216dd809b3bf227310547dc5decb6d39647a17ee4e"
+      "bytes": 45172,
+      "sha256": "3017911a7ad011f8548da40bbc19724900c6b97b025211dc1ed209535550fa50"
     },
     {
       "path": "api/schemas/config-warning-rules.schema.json",
@@ -1629,6 +1639,11 @@
       "sha256": "1e42b07503462a2ac280cf07ec5d8679b8105369eaf749afb61d1ae207d7c6ad"
     },
     {
+      "path": "api/schemas/dose-proposal.schema.json",
+      "bytes": 10543,
+      "sha256": "562c5822b19a9c8ca228edb1064220790446181db1e6b2efb0bf7fbfe3233450"
+    },
+    {
       "path": "api/schemas/drill.schema.json",
       "bytes": 2162,
       "sha256": "6246019354090e81c4fad8a35bf432cc2e64592483cb350435289206685521e9"
@@ -1655,8 +1670,8 @@
     },
     {
       "path": "api/schemas/event.schema.json",
-      "bytes": 21529,
-      "sha256": "af755f398111bcd95e4fdd30b7e7bd188f4e1316414449089237206130ef9316"
+      "bytes": 26269,
+      "sha256": "ac2a7c197dfc466ca4d1afec00dcb27b13a232f75c71f0e407c1d7ee2f6a574f"
     },
     {
       "path": "api/schemas/evidence-passage.schema.json",
@@ -1764,6 +1779,21 @@
       "sha256": "29174c3628d782a44355740f8405cce796b29638abd2c3d7a9f524c8d634fa6f"
     },
     {
+      "path": "api/schemas/medication-administration.schema.json",
+      "bytes": 4315,
+      "sha256": "bf9e24c0eb987b69ae48dcbb4c58c0aa028cf8941063e38cdf20fb54a3c010e4"
+    },
+    {
+      "path": "api/schemas/medication-context.schema.json",
+      "bytes": 6139,
+      "sha256": "43a482cbfb6ee7fd206c47af977029f4ff93000e9a2633f75283a130cb89100d"
+    },
+    {
+      "path": "api/schemas/medicine-lots-view.schema.json",
+      "bytes": 4133,
+      "sha256": "5e7f95637ecb8624395dd3f37b01ec6efef0e152ca2d8493ed7700f9227f9b82"
+    },
+    {
       "path": "api/schemas/mission-context.schema.json",
       "bytes": 2369,
       "sha256": "7d1fc95e1443340cca0f25aaadb0c0fbc94cbb919d8a1cf73b7f23471a42545e"
@@ -1820,8 +1850,8 @@
     },
     {
       "path": "api/schemas/requests.schema.json",
-      "bytes": 48038,
-      "sha256": "447c5d00bc7fe4c50c560bf1bf7a0435cfee7373478d5ed1c03958d95f7e0c91"
+      "bytes": 57319,
+      "sha256": "dd416cd460f20bd6b92c67e46eb0a461ff3be56a6c390e378c2ca801d8b7afc7"
     },
     {
       "path": "api/schemas/research-source.schema.json",

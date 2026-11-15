@@ -1,0 +1,24 @@
+{
+  "rubric": [
+    {
+      "type": "UrgencyAtLeast",
+      "level": "emergency"
+    }
+  ],
+  "acceptable_differential": [],
+  "expected_urgency": "emergency",
+  "expected_abstention": true,
+  "forbidden_value_patterns": {},
+  "source": {
+    "text": "NASA RS53, Space lifeguards, paragraphs 1 and 4; COORDINATOR-DECISIONS D2 supplies the software urgency label, not a clinical diagnosis.",
+    "source_ids": [
+      "RS53"
+    ],
+    "basis": "sourced"
+  },
+  "canary": "benchcanary_fixture",
+  "review": {
+    "state": "unreviewed",
+    "reviewer_roles": []
+  }
+}

@@ -9,6 +9,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from decimal import ROUND_HALF_EVEN, Decimal
 from pathlib import Path
+from typing import TypedDict, Unpack
 
 import pytest
 from hypothesis import HealthCheck, given, settings
@@ -21,6 +22,7 @@ from crew_health.kernel.testing import MemoryRelease
 from crew_health.kernel.units import Quantity, Unit, WireQuantity
 from crew_health.kernel.uow import Actor
 from crew_health.platform.adapters.units import UcumUnitRegistry
+from crew_health.platform.storage import SQLiteDatabase
 from crew_health.platform.testing.sqlite import database
 from crew_health.records.adapters.repository import RecordRepository
 from crew_health.records.application.ports import AttemptObservationDraft, ObservationDraft
@@ -84,7 +86,12 @@ class Releases:
         return self.handle
 
 
-def station(tmp_path, *, mission=None, documents=None):
+def station(
+    tmp_path: Path,
+    *,
+    mission: Mission | None = None,
+    documents: dict[ConfigName, ConfigDocumentView] | None = None,
+) -> tuple[SQLiteDatabase, ObservationProducer]:
     db = database(tmp_path)
     for migration in sorted((ROOT / "hub/src/crew_health/records/adapters/migrations").glob("*_records.sql")):
         db.migrate(migration.read_text(encoding="utf-8"))
@@ -100,7 +107,20 @@ def station(tmp_path, *, mission=None, documents=None):
     return db, producer
 
 
-def palpation(**updates) -> ObservationDraft:
+class PalpationChanges(TypedDict, total=False):
+    value: Quantity
+    patient_id: str
+    entered_at: datetime
+
+
+class AttemptChanges(TypedDict, total=False):
+    observed_at: datetime
+    quantity: Quantity
+    operator_id: str | None
+    acquisition_method: str
+
+
+def palpation(**updates: Unpack[PalpationChanges]) -> ObservationDraft:
     pulse = _entry(_mapping(), "pulse", "bpm")
     draft = ObservationDraft(
         patient_id="person_a",
@@ -120,7 +140,7 @@ def palpation(**updates) -> ObservationDraft:
     return replace(draft, **updates)
 
 
-def attempt(**updates) -> AttemptObservationDraft:
+def attempt(**updates: Unpack[AttemptChanges]) -> AttemptObservationDraft:
     pulse = _entry(_mapping(), "pulse", "bpm")
     draft = AttemptObservationDraft(
         patient_id="person_a",
@@ -141,21 +161,25 @@ def attempt(**updates) -> AttemptObservationDraft:
     return replace(draft, **updates)
 
 
-def counts(db) -> tuple[int, int, int]:
+def counts(db: SQLiteDatabase) -> tuple[int, int, int]:
     with db.snapshot() as view:
         rows = view.connection.rows
-        return tuple(  # type: ignore[return-value]
+        observations, changes, audits = (
             rows("SELECT count(*) FROM " + table, (), limit=1)[0][0]
             for table in ("records_observation", "repl_log", "platform_audit")
         )
+    assert isinstance(observations, int) and isinstance(changes, int) and isinstance(audits, int)
+    return observations, changes, audits
 
 
-def append(db, producer, draft, key="gc_1:1:obs"):
+def append(
+    db: SQLiteDatabase, producer: ObservationProducer, draft: ObservationDraft, key: str = "gc_1:1:obs"
+) -> str:
     with db.begin(actor=Actor("person", "person_b"), correlation_id="cor_1") as uow:
         return producer.append_observation(uow, draft, idempotency_key=key)
 
 
-def test_canonical_unit_comes_from_the_active_release(tmp_path):
+def test_canonical_unit_comes_from_the_active_release(tmp_path: Path) -> None:
     _, producer = station(tmp_path)
     mapping = _mapping()
     assert producer.canonical_unit("pulse") == Unit(str(_entry(mapping, "pulse", "bpm")["ucum_unit"]))
@@ -166,7 +190,7 @@ def test_canonical_unit_comes_from_the_active_release(tmp_path):
     assert unknown.value.code == ErrorCode.INVALID_UNIT
 
 
-def test_a_configuration_edit_changes_the_canonical_unit(tmp_path):
+def test_a_configuration_edit_changes_the_canonical_unit(tmp_path: Path) -> None:
     mapping = _mapping()
     entry = _entry(mapping, "pulse", "bpm")
     entry["ucum_unit"] = "/h"
@@ -176,7 +200,7 @@ def test_a_configuration_edit_changes_the_canonical_unit(tmp_path):
     assert producer.canonical_unit("pulse") == Unit("/h")
 
 
-def test_missing_or_ambiguous_release_documents_fail_closed(tmp_path):
+def test_missing_or_ambiguous_release_documents_fail_closed(tmp_path: Path) -> None:
     full = _documents()
     _, no_mapping = station(
         tmp_path / "a", documents={ConfigName.SENSOR_CATALOG: full[ConfigName.SENSOR_CATALOG]}
@@ -193,7 +217,7 @@ def test_missing_or_ambiguous_release_documents_fail_closed(tmp_path):
     assert ambiguous.value.code == ErrorCode.CONFIG_INVALID
 
 
-def test_append_persists_one_row_one_replication_change_and_one_audit_entry(tmp_path):
+def test_append_persists_one_row_one_replication_change_and_one_audit_entry(tmp_path: Path) -> None:
     db, producer = station(tmp_path)
     before = counts(db)
     observation_id = append(db, producer, palpation())
@@ -216,7 +240,7 @@ def test_append_persists_one_row_one_replication_change_and_one_audit_entry(tmp_
     assert sum("observation.recorded" in repr(row) and observation_id in repr(row) for row in audit) == 1
 
 
-def test_replay_with_the_same_key_returns_the_same_id_and_writes_nothing(tmp_path):
+def test_replay_with_the_same_key_returns_the_same_id_and_writes_nothing(tmp_path: Path) -> None:
     db, producer = station(tmp_path)
     first = append(db, producer, palpation())
     after_first = counts(db)
@@ -224,7 +248,7 @@ def test_replay_with_the_same_key_returns_the_same_id_and_writes_nothing(tmp_pat
     assert counts(db) == after_first
 
 
-def test_same_key_with_different_content_is_a_duplicate_command(tmp_path):
+def test_same_key_with_different_content_is_a_duplicate_command(tmp_path: Path) -> None:
     db, producer = station(tmp_path)
     append(db, producer, palpation())
     after_first = counts(db)
@@ -239,7 +263,7 @@ def test_same_key_with_different_content_is_a_duplicate_command(tmp_path):
     assert counts(db) == after_first
 
 
-def test_wrong_unit_is_rejected_and_nothing_is_written(tmp_path):
+def test_wrong_unit_is_rejected_and_nothing_is_written(tmp_path: Path) -> None:
     db, producer = station(tmp_path)
     before = counts(db)
     for unit in ("mm[Hg]", "bpm"):
@@ -251,7 +275,7 @@ def test_wrong_unit_is_rejected_and_nothing_is_written(tmp_path):
     assert counts(db) == before
 
 
-def test_convertible_unit_is_stored_canonical_with_the_original_kept(tmp_path):
+def test_convertible_unit_is_stored_canonical_with_the_original_kept(tmp_path: Path) -> None:
     db, producer = station(tmp_path)
     observation_id = append(db, producer, palpation(value=Quantity(Decimal(4320), Unit("/h"))))
     with db.snapshot() as view:
@@ -264,7 +288,7 @@ def test_convertible_unit_is_stored_canonical_with_the_original_kept(tmp_path):
     assert append(db, producer, palpation(value=Quantity(Decimal(4320), Unit("/h")))) == observation_id
 
 
-def test_append_for_attempt_is_idempotent_on_the_attempt(tmp_path):
+def test_append_for_attempt_is_idempotent_on_the_attempt(tmp_path: Path) -> None:
     db, producer = station(tmp_path)
     actor = Actor("adapter", "adapter_1")
     with db.begin(actor=actor, correlation_id="cor_2") as uow:
@@ -290,7 +314,7 @@ def test_append_for_attempt_is_idempotent_on_the_attempt(tmp_path):
     assert counts(db) == after
 
 
-def test_attempt_without_operator_or_with_unknown_method_fails_closed(tmp_path):
+def test_attempt_without_operator_or_with_unknown_method_fails_closed(tmp_path: Path) -> None:
     db, producer = station(tmp_path)
     before = counts(db)
     for draft, code in (
@@ -304,7 +328,7 @@ def test_attempt_without_operator_or_with_unknown_method_fails_closed(tmp_path):
     assert counts(db) == before
 
 
-def test_rollback_of_the_caller_unit_of_work_leaves_nothing(tmp_path):
+def test_rollback_of_the_caller_unit_of_work_leaves_nothing(tmp_path: Path) -> None:
     db, producer = station(tmp_path)
     before = counts(db)
 
@@ -320,7 +344,7 @@ def test_rollback_of_the_caller_unit_of_work_leaves_nothing(tmp_path):
         assert RecordRepository().observation(view, observation_id) is None
 
 
-def test_no_mission_fails_closed_and_writes_nothing(tmp_path):
+def test_no_mission_fails_closed_and_writes_nothing(tmp_path: Path) -> None:
     db, producer = station(tmp_path, mission=Mission(None))
     before = counts(db)
     with pytest.raises(ProblemError) as refused:
@@ -331,7 +355,7 @@ def test_no_mission_fails_closed_and_writes_nothing(tmp_path):
 
 @settings(max_examples=40, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
 @given(st.decimals(min_value=Decimal("0.01"), max_value=Decimal(100000), places=2))
-def test_converted_value_is_the_exact_conversion_rounded_once(tmp_path, per_hour):
+def test_converted_value_is_the_exact_conversion_rounded_once(tmp_path: Path, per_hour: Decimal) -> None:
     db, producer = station(tmp_path / str(per_hour).replace(".", "_"))
     with db.begin(actor=Actor("person", "person_b"), correlation_id="cor_6") as uow:
         observation_id = producer.append_observation(
@@ -343,7 +367,7 @@ def test_converted_value_is_the_exact_conversion_rounded_once(tmp_path, per_hour
     assert stored.quantity == Quantity(expected, Unit("/min"))
 
 
-def test_a_policy_assesses_quality_and_a_rejected_value_stays_rejected(tmp_path):
+def test_a_policy_assesses_quality_and_a_rejected_value_stays_rejected(tmp_path: Path) -> None:
     db, producer = station(tmp_path)
     canonical = producer.canonical_unit("pulse")
     # Synthetic policy limits, no clinical threshold: only the mechanism is under test.
@@ -364,7 +388,7 @@ def test_a_policy_assesses_quality_and_a_rejected_value_stays_rejected(tmp_path)
     )
 
     class Policies:
-        def for_code(self, release, code):
+        def for_code(self, release: ReleaseHandle, code: str) -> ObservationPolicy:
             return policy
 
     producer.bind(mission=Mission(), policies=Policies())

@@ -1,0 +1,55 @@
+{
+  "label": "Model validation of a general medical knowledge proxy (MedQA USMLE 4-option, exact match); not clinical validation. AGENTS section 7 clinical statuses are not affected by this result.",
+  "dataset": {
+    "repo": "GBaker/MedQA-USMLE-4-options",
+    "revision": "0fb93dd23a7339b6dcd27e241cb9b5eca62d4d18",
+    "file": "phrases_no_exclude_test.jsonl",
+    "url": "https://huggingface.co/datasets/GBaker/MedQA-USMLE-4-options/resolve/0fb93dd23a7339b6dcd27e241cb9b5eca62d4d18/phrases_no_exclude_test.jsonl",
+    "sha256": "c3b905ccfa66152dc25afbcb2c10e86c0bdb208824f0658fcdb2c040f60a2beb",
+    "size_bytes": 2075679,
+    "examples": 1273,
+    "license": "cc-by-4.0",
+    "license_basis": "README.md front matter at the pinned revision, sha256 c4f44b8111beb0cb7e7894ccbb456be1eceb9acaa3fadff73cd46d2d4309dde7",
+    "citation": "Jin et al. 2020, What Disease does this Patient Have? arXiv:2009.13081",
+    "letters": ["A", "B", "C", "D"]
+  },
+  "model": {
+    "file_name": "huatuo-q4-first.gguf",
+    "weights_sha256": "0361c77aedf832c7a58ec32bda68de25e2d437841e734e8de0fd43c6f3a8d947",
+    "source": "FreedomIntelligence/HuatuoGPT-3-9B@6870b60e54d41cfef88ab36478d9d15d4b9bd7bc, Q4_K_M",
+    "basis": "E17 model/reports/same-host-repeatability (first_sha256) and protocol-smoke weights_sha256 on origin/epic/E17-wave2",
+    "chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+    "binary_sha256": "9dc31a8a15f81b8f252e68d1918419e0bbbf5008bd42d00dd8721a58834e384a",
+    "runtime_build": "11669",
+    "runtime_commit": "620d2225cc436ab0b001e3200e590e3b286ef9ab",
+    "runtime_basis": "E17 model/pins/llama-cpp.json on origin/epic/E17-wave2"
+  },
+  "runtime": {
+    "context_tokens": 8192,
+    "threads": 6,
+    "gpu_layers": 99,
+    "kv_cache_type": "f16",
+    "load_timeout_s": 180,
+    "health_poll_s": 1
+  },
+  "generation": {
+    "temperature": 0,
+    "top_k": 1,
+    "seed": 0,
+    "max_tokens": 16,
+    "enable_thinking": false,
+    "item_timeout_s": 90,
+    "system": "You are taking a multiple-choice medical licensing exam. Reply with the single letter of the best option and nothing else.",
+    "answer_instruction": "Answer with one letter."
+  },
+  "sample": {
+    "seed": 20261115,
+    "max_n": 400,
+    "warmup_n": 5
+  },
+  "bounds": {
+    "max_line_bytes": 65536,
+    "max_response_chars": 4096,
+    "connect_timeout_s": 5
+  }
+}

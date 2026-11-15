@@ -7,7 +7,8 @@ from crew_health.config.adapters.readers import UI_COPY_CACHE_SETTING, ConfigRea
 from crew_health.config.adapters.repository import ConfigRepository
 from crew_health.config.adapters.units import ReleaseWireUnitConverter
 from crew_health.config.adapters.verification import ConfigArtifacts
-from crew_health.config.application.ports import ConfigReleaseRepository
+from crew_health.config.application.loader import TextRulesService
+from crew_health.config.application.ports import ConfigReleaseRepository, TextRulesPort
 from crew_health.config.domain.errors import ConfigInvalid
 from crew_health.config.domain.package_checks import PACKAGE_CHECK_IDS
 from crew_health.config.domain.templates import TemplateCheck
@@ -48,6 +49,11 @@ def register(registry: ModuleRegistry) -> None:
         requires=(UnitRegistry,),
     )
     registry.provide(cast(type[object], ConfigReleaseRepository), lambda resolver: ConfigRepository())
+    registry.provide(
+        cast(type[object], TextRulesPort),
+        lambda resolver: TextRulesService(settings=resolver.require(HubSettings)),  # type: ignore[type-abstract]
+        requires=(HubSettings,),
+    )
     registry.provide(
         ConfigReaders,
         lambda resolver: ConfigReaders(

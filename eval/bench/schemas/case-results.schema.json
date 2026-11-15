@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "case_ref": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "repeat": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "failed_generation",
+        "timeout",
+        "harness_error",
+        "not_run"
+      ]
+    },
+    "outcomes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "check": {
+            "type": "string",
+            "minLength": 1
+          },
+          "outcome": {
+            "enum": [
+              "pass",
+              "fail",
+              "not_applicable",
+              "not_graded"
+            ]
+          }
+        },
+        "required": [
+          "check",
+          "outcome"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "official_score": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "wall": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "unit": {
+              "const": "s"
+            }
+          },
+          "required": [
+            "value",
+            "unit"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "completeness": {
+      "enum": [
+        "full",
+        "subset",
+        "partial"
+      ]
+    },
+    "integrity": {
+      "enum": [
+        "official",
+        "modified"
+      ]
+    }
+  },
+  "required": [
+    "case_ref",
+    "repeat",
+    "status",
+    "outcomes",
+    "official_score",
+    "wall",
+    "completeness",
+    "integrity"
+  ],
+  "additionalProperties": false
+}

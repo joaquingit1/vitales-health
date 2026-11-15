@@ -14,6 +14,7 @@ from typing import Any, cast
 import pytest
 from camera_harness import (
     ADAPTER,
+    CAMERA_SETTINGS,
     PROTOCOL,
     START,
     Mission,
@@ -38,6 +39,7 @@ from crew_health.camera.application.ports import (
     CameraReferencePort,
     ReferenceWindowRequest,
     WorkerTransport,
+    WorkerUnreachable,
 )
 from crew_health.contracts_gen.enums import ErrorCode, EventType
 from crew_health.kernel.clock import Clock
@@ -212,7 +214,9 @@ def test_an_enabled_camera_without_a_readable_token_stays_unknown(tmp_path: Path
     }
     registry, live, store = _bound(tmp_path, None, enabled=True, texts=texts)
     assert live.loop is not None
-    live.loop.stop()
+    # The binding started the loop thread, which shares the store's one SQLite writer: join it before ticking here,
+    # or a pass still running on that thread collides with this one ("cannot start a transaction within a transaction").
+    assert live.loop.stop_within(5.0)
     assert live.loop.tick() == 0
     with store.uows.snapshot() as view:
         assert _port(registry, AdapterReadinessPort).ready_methods(view) is None
@@ -344,3 +348,61 @@ def test_a_failed_loop_pass_is_logged_loudly_without_record_text(
     assert [r.getMessage() for r in caplog.records] == [
         "camera link pass failed: RuntimeError"
     ]  # no record text
+
+
+def test_the_loop_probes_until_the_worker_first_answers_instead_of_waiting_one_health_interval(
+    tmp_path: Path,
+) -> None:
+    """Fix for the camera reading unavailable for one health interval after serve: the worker starts after the hub,
+    so the startup probes repeat every workers.camera.startup_probe_ms until it answers, then stop."""
+    transport = ScriptedTransport([WorkerUnreachable("refused"), WorkerUnreachable("refused"), describe()])
+    registry, live, store = _bound(tmp_path, transport)
+    readiness = _port(registry, AdapterReadinessPort)
+    loop = live.loop
+    assert loop is not None
+    loop._await_worker()  # noqa: SLF001
+    assert [p for _, p, _, _ in transport.calls] == ["/v1/describe"] * 3  # stopped at the first answer
+    with store.uows.snapshot() as view:
+        assert readiness.ready_methods(view) == frozenset({"camera_estimate"})
+
+
+def test_the_startup_probes_are_bounded_when_the_worker_never_answers(tmp_path: Path) -> None:
+    transport = ScriptedTransport()
+    registry, live, store = _bound(tmp_path, transport)
+    loop = live.loop
+    assert loop is not None
+    loop._startup = 0.0  # noqa: SLF001  # no real waiting; the bound is the probe count
+    loop._await_worker()  # noqa: SLF001
+    assert (
+        len(transport.calls)
+        == CAMERA_SETTINGS["workers.camera.stale_ms"] // CAMERA_SETTINGS["workers.camera.startup_probe_ms"]
+    )
+    with store.uows.snapshot() as view:
+        assert (
+            _port(registry, AdapterReadinessPort).ready_methods(view) is None
+        )  # never ready without an answer
+
+
+def test_health_states_follow_the_probe_and_a_disabled_camera_lists_nothing(tmp_path: Path) -> None:
+    from crew_health.camera.application.ports import AdapterState, AdapterStatesPort
+
+    transport = ScriptedTransport()  # the worker does not answer yet
+    (tmp_path / "t").write_text("token", encoding="utf-8")
+    texts = {"workers.camera.url": "http://127.0.0.1:9", "workers.camera.token_file": str(tmp_path / "t")}
+    registry, live, store = _bound(tmp_path, transport, enabled=True, texts=texts)
+    states = _port(registry, AdapterStatesPort)
+    try:
+        assert live.link is not None
+        live.link.probe()
+        with store.uows.snapshot() as view:
+            assert states.adapter_states(view.now) == (AdapterState(ADAPTER, "disconnected"),)
+        transport.fallback = describe()
+        live.link.probe()
+        with store.uows.snapshot() as view:
+            assert states.adapter_states(view.now) == (AdapterState(ADAPTER, "connected"),)
+    finally:
+        assert live.loop is not None and live.loop.stop_within(5.0)
+    (tmp_path / "off").mkdir()
+    disabled, _, _ = _bound(tmp_path / "off", ScriptedTransport())
+    with store.uows.snapshot() as view:
+        assert _port(disabled, AdapterStatesPort).adapter_states(view.now) == ()

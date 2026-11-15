@@ -1,0 +1,3494 @@
+{
+ "items": [
+  {
+   "id": "daily_check",
+   "name": "Daily check: symptoms, sleep and mood",
+   "plain": "Answer three short questions each day: anything new in your body, how you slept, and how your mood is.",
+   "why": "Small changes are easiest to catch early, and astronauts often sleep less than they need. Your own answers, day after day, build the baseline that every other reading is compared with.",
+   "who": [
+    "self"
+   ],
+   "instrument": "The app; the wrist band offers a sleep estimate that you confirm or correct",
+   "minutes": 3,
+   "steps": [
+    "Open Today and tap Daily check.",
+    "Symptoms: tap the body area if something is new or worse. If nothing is new, tap Nothing new.",
+    "Sleep: look at the wrist band estimate. Keep it if it is right, or change it. Your correction is saved next to the band's number, which is never erased.",
+    "Mood: move the slider to how you feel right now. There is no right answer.",
+    "If anything feels urgent, press Someone needs help instead of finishing the check.",
+    "The check is done when these three questions are answered. Other readings are optional."
+   ],
+   "cadence": {
+    "default": {
+     "word": "daily",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "daily",
+      "n": null
+     },
+     "transit": {
+      "word": "daily",
+      "n": null
+     },
+     "lunar_surface": {
+      "word": "daily",
+      "n": null
+     },
+     "mars_surface": {
+      "word": "daily",
+      "n": null
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "You report a new or worse symptom",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "a follow-up question each morning until you mark it resolved"
+     },
+     "source_ids": [],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Cabin CO2 is above the one-hour limit of 3 mmHg (sensor_limit)",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "CO2 alert",
+      "note": "add a headache and vision question at the next check and again 2 hours later"
+     },
+     "source_ids": [
+      "C25"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "A solar particle event alert",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "solar particle event",
+      "note": "ask about nausea, vomiting, tiredness and skin each day for the next 3 days"
+     },
+     "source_ids": [
+      "RT09"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "You come back from a spacewalk",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "spacewalk",
+      "note": "ask about joint pain, numbness, itching or rash that evening and the next morning"
+     },
+     "source_ids": [
+      "RT11"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Sleep under 6 hours (band estimate or your own answer)",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "short sleep",
+      "note": "offer the reaction test that morning"
+     },
+     "source_ids": [
+      "RT25"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT02",
+    "C15",
+    "RT25",
+    "C25",
+    "RT09",
+    "RT11"
+   ]
+  },
+  {
+   "id": "resting_pulse",
+   "name": "Resting pulse",
+   "plain": "Sit still for a few minutes and let the camera station read your pulse, or count it at your wrist.",
+   "why": "Your resting pulse is a simple sign of how your heart and body are coping. A change from your own usual number can point to illness, dehydration, poor sleep or stress.",
+   "who": [
+    "self"
+   ],
+   "instrument": "Camera station (experimental, compared against the oximeter); kit pulse oximeter; or two fingers and a watch",
+   "minutes": 2,
+   "steps": [
+    "Rest quietly for 10 minutes first. Do not take it right after exercise.",
+    "Camera station: hold still facing the cameras in good light until the reading appears. If it says No reading, keep still and try once more.",
+    "By hand: place your index and middle finger on the inside of the opposite wrist, below the base of the thumb, and press gently until you feel the beat.",
+    "Count the beats for 1 full minute, or for 30 seconds and multiply by 2.",
+    "Never press on both sides of the neck at the same time.",
+    "Save the number. The app compares it with your own usual range."
+   ],
+   "cadence": {
+    "default": {
+     "word": "daily",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "daily",
+      "n": null,
+      "note": "taken with the daily check when you accept the camera reading"
+     },
+     "transit": {
+      "word": "daily",
+      "n": null,
+      "note": "taken with the daily check when you accept the camera reading"
+     },
+     "lunar_surface": {
+      "word": "daily",
+      "n": null,
+      "note": "taken with the daily check when you accept the camera reading"
+     },
+     "mars_surface": {
+      "word": "daily",
+      "n": null,
+      "note": "taken with the daily check when you accept the camera reading"
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "A racing, pounding or irregular heartbeat, dizziness, fainting or chest discomfort",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "measure now; the fixed urgent questions come first"
+     },
+     "source_ids": [
+      "RT28"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "A reading outside your usual range",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "reading outside your usual range",
+      "note": "repeat after 10 more minutes of rest; if still outside, daily for 3 days and tell the crew medical officer"
+     },
+     "source_ids": [
+      "RT28"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Before and after each spacewalk (part of the pre and post spacewalk exam)",
+     "new_cadence": {
+      "word": "per_eva",
+      "n": null
+     },
+     "source_ids": [
+      "RT18",
+      "RT17"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "Return to gravity (landing on Earth, the Moon or Mars)",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "sitting and standing readings with a crewmate present, until your crew medical officer stops it"
+     },
+     "source_ids": [
+      "C09",
+      "RT02"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": "heart",
+   "source_ids": [
+    "RT28",
+    "RT17",
+    "RT02",
+    "RT18",
+    "C09"
+   ]
+  },
+  {
+   "id": "breathing_rate",
+   "name": "Breathing rate",
+   "plain": "Sit quietly and let the camera station count your breaths for a minute, or have a crewmate count them.",
+   "why": "How fast you breathe at rest changes early with lung problems, fever, anxiety and bad air. It is hard to count your own breaths honestly, so a camera or a crewmate does it better.",
+   "who": [
+    "self",
+    "crewmate"
+   ],
+   "instrument": "Camera station (experimental); or a crewmate and a watch",
+   "minutes": 2,
+   "steps": [
+    "Sit somewhere quiet and relax for a few minutes.",
+    "Breathe normally. Do not try to control it.",
+    "Camera station: hold still until the reading appears.",
+    "By hand: a crewmate watches your chest rise and fall and counts the breaths for 60 seconds.",
+    "Save the number with who or what counted it."
+   ],
+   "cadence": {
+    "default": {
+     "word": "daily",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "daily",
+      "n": null,
+      "note": "taken with the daily check when you accept the camera reading"
+     },
+     "transit": {
+      "word": "daily",
+      "n": null,
+      "note": "taken with the daily check when you accept the camera reading"
+     },
+     "lunar_surface": {
+      "word": "daily",
+      "n": null,
+      "note": "taken with the daily check when you accept the camera reading"
+     },
+     "mars_surface": {
+      "word": "daily",
+      "n": null,
+      "note": "taken with the daily check when you accept the camera reading"
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Shortness of breath, a new cough or chest tightness",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "measure now together with blood oxygen"
+     },
+     "source_ids": [
+      "C08"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Cabin CO2 above the one-hour limit (sensor_limit)",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "CO2 alert",
+      "note": "measure at the next check"
+     },
+     "source_ids": [
+      "C25"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Smoke, a chemical release or dust in the cabin",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "smoke, chemical or dust exposure",
+      "note": "measure now and 2 hours later"
+     },
+     "source_ids": [
+      "RT13",
+      "RT03"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": "lungs",
+   "source_ids": [
+    "RT29",
+    "RT02",
+    "C08",
+    "C25",
+    "RT13",
+    "RT03"
+   ]
+  },
+  {
+   "id": "blood_pressure",
+   "name": "Blood pressure",
+   "plain": "Rest, then take two or three cuff readings one minute apart on your upper arm.",
+   "why": "Spaceflight shifts body fluids toward the head and changes how blood pressure is controlled. High blood pressure usually causes no symptoms, so it is only found by measuring.",
+   "who": [
+    "self",
+    "crewmate"
+   ],
+   "instrument": "Kit blood pressure cuff (upper arm)",
+   "minutes": 10,
+   "steps": [
+    "Empty your bladder. No food, caffeine or exercise in the last 30 minutes.",
+    "Rest for at least 5 minutes, 10 is better. In weightlessness, use foot loops or a strap to hold a seated posture with your back against a support.",
+    "Bare your upper arm. Keep the arm supported at heart level.",
+    "Wrap the cuff snugly. Its lower edge sits about 2.5 cm above the bend of your elbow.",
+    "Press start and stay still and quiet while it measures.",
+    "Take 2 or 3 readings, 1 minute apart. Save all of them with the time."
+   ],
+   "cadence": {
+    "default": {
+     "word": "weekly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "weekly",
+      "n": null
+     },
+     "transit": {
+      "word": "weekly",
+      "n": null
+     },
+     "lunar_surface": {
+      "word": "weekly",
+      "n": null
+     },
+     "mars_surface": {
+      "word": "weekly",
+      "n": null
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Headache, dizziness, fainting, or a change in vision",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "measure now, then daily for 3 days"
+     },
+     "source_ids": [
+      "C25"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "A reading outside your usual range",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "for 5 days, morning and evening readings, then the crew medical officer decides"
+     },
+     "source_ids": [
+      "RT27"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Return to gravity (landing on Earth, the Moon or Mars)",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "sitting and standing, with a crewmate ready to help"
+     },
+     "source_ids": [
+      "C09"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Before and after each spacewalk (part of the pre and post spacewalk exam)",
+     "new_cadence": {
+      "word": "per_eva",
+      "n": null
+     },
+     "source_ids": [
+      "RT18",
+      "RT17"
+     ],
+     "basis": "sourced"
+    }
+   ],
+   "body_region": "heart",
+   "source_ids": [
+    "RT27",
+    "RT16",
+    "RT17",
+    "C09",
+    "C25",
+    "RT18"
+   ]
+  },
+  {
+   "id": "oxygen_saturation",
+   "name": "Blood oxygen (pulse oximeter)",
+   "plain": "Clip the pulse oximeter on a warm finger, keep still, and save the steady number.",
+   "why": "Blood oxygen shows whether your lungs are getting oxygen into your blood. It matters most when breathing feels wrong or the cabin air or pressure changes.",
+   "who": [
+    "self"
+   ],
+   "instrument": "Kit pulse oximeter (finger)",
+   "minutes": 2,
+   "steps": [
+    "Warm and relax your hand. Remove any nail polish from that finger.",
+    "Clip the oximeter on the finger. Keep the hand below heart level.",
+    "Keep still. Do not move that hand.",
+    "Wait until the number stops changing and shows one steady value.",
+    "Save the number with the time. The app also saves the pulse the oximeter shows, to check the camera."
+   ],
+   "cadence": {
+    "default": {
+     "word": "weekly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "weekly",
+      "n": null
+     },
+     "transit": {
+      "word": "weekly",
+      "n": null
+     },
+     "lunar_surface": {
+      "word": "weekly",
+      "n": null
+     },
+     "mars_surface": {
+      "word": "weekly",
+      "n": null
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Shortness of breath, bluish lips or nails, chest tightness, or a racing pulse",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "measure now; the fixed urgent questions come first"
+     },
+     "source_ids": [
+      "C08"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Cabin pressure drop or low oxygen alarm (sensor_limit)",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "everyone measures now"
+     },
+     "source_ids": [
+      "RT03"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Before and after each spacewalk (part of the pre and post spacewalk exam)",
+     "new_cadence": {
+      "word": "per_eva",
+      "n": null
+     },
+     "source_ids": [
+      "RT18",
+      "RT17"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "The camera pulse disagrees with how you feel",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "use the oximeter pulse as the check"
+     },
+     "source_ids": [],
+     "basis": "team default"
+    }
+   ],
+   "body_region": "lungs",
+   "source_ids": [
+    "C08",
+    "RT17",
+    "RT03",
+    "RT18"
+   ]
+  },
+  {
+   "id": "body_temperature",
+   "name": "Body temperature",
+   "plain": "Take your temperature under the tongue with the digital thermometer when you feel unwell, and at the monthly exam.",
+   "why": "A raised temperature is usually a sign of infection. In a closed habitat, one person's infection can spread to the whole crew.",
+   "who": [
+    "self"
+   ],
+   "instrument": "Kit digital thermometer",
+   "minutes": 3,
+   "steps": [
+    "Wait 30 minutes after eating, drinking or exercise.",
+    "Clean the tip with soap and water, then rinse it.",
+    "Turn it on and put the tip under your tongue, towards the back of your mouth.",
+    "Close your lips around it and wait until it beeps or flashes.",
+    "Save the number and say where you measured (mouth or armpit).",
+    "If you feel hot, cold or shivery, report it even if the number looks normal."
+   ],
+   "cadence": {
+    "default": {
+     "word": "monthly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "monthly",
+      "n": null,
+      "note": "as part of the periodic health status exam"
+     },
+     "transit": {
+      "word": "monthly",
+      "n": null,
+      "note": "as part of the periodic health status exam"
+     },
+     "lunar_surface": {
+      "word": "monthly",
+      "n": null,
+      "note": "as part of the periodic health status exam"
+     },
+     "mars_surface": {
+      "word": "monthly",
+      "n": null,
+      "note": "as part of the periodic health status exam"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "You feel hot, cold or shivery, or have symptoms of infection",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "morning and evening until 2 days without fever"
+     },
+     "source_ids": [
+      "RT30"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "A crewmate is ill with a possible infection",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "all crew, until the crew medical officer stops it"
+     },
+     "source_ids": [
+      "RT24"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Microbial counts above limits in water, air or surfaces",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "all crew for 5 days"
+     },
+     "source_ids": [
+      "RT20"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT30",
+    "RT16",
+    "RT17",
+    "RT24",
+    "RT20"
+   ]
+  },
+  {
+   "id": "body_mass",
+   "name": "Body mass",
+   "plain": "Measure your body mass on the habitat's mass device at the same time of day each week.",
+   "why": "Crews often eat less than they need in flight, and losing mass can mean losing muscle and bone. Tracking it shows early whether you are eating enough.",
+   "who": [
+    "self"
+   ],
+   "instrument": "Mass measurement device (ISS class, for example SLAMMD); not in this kit",
+   "minutes": 5,
+   "steps": [
+    "Measure at the same time of day each week, before eating and after using the toilet.",
+    "Wear the same light clothing each time.",
+    "Follow the device's own instructions to the end.",
+    "Save the number and the device used.",
+    "On the Moon or Mars, a scale made for Earth reads weight, not mass, and reads low. Use the device the habitat provides for mass."
+   ],
+   "cadence": {
+    "default": {
+     "word": "weekly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "weekly",
+      "n": null,
+      "note": "mass device built for weightlessness"
+     },
+     "transit": {
+      "word": "weekly",
+      "n": null,
+      "note": "mass device built for weightlessness"
+     },
+     "lunar_surface": {
+      "word": "weekly",
+      "n": null,
+      "note": "use a device that measures mass in lunar gravity"
+     },
+     "mars_surface": {
+      "word": "weekly",
+      "n": null,
+      "note": "use a device that measures mass in Mars gravity"
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Mass falls compared with your usual (amount to be set by clinical review)",
+     "new_cadence": {
+      "word": "every_n_days",
+      "n": 3,
+      "note": "until stable, and tell the crew medical officer"
+     },
+     "source_ids": [
+      "RT34"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Poor appetite, nausea or vomiting for more than a day",
+     "new_cadence": {
+      "word": "every_n_days",
+      "n": 3
+     },
+     "source_ids": [
+      "RT04"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT34",
+    "RT02",
+    "RT18",
+    "RT04"
+   ]
+  },
+  {
+   "id": "hydration",
+   "name": "Fluids and hydration",
+   "plain": "Log roughly how much you drank today and the colour of your urine.",
+   "why": "Dehydration causes headache, poor sleep and poor performance, raises the risk of kidney stones and urinary infection, and raises the risk of decompression sickness on a spacewalk.",
+   "who": [
+    "self"
+   ],
+   "instrument": "The app; drink bags or the water dispenser count",
+   "minutes": 1,
+   "steps": [
+    "Tap how much you drank today, in drink bags or litres.",
+    "Pick the urine colour that matches best. Pale is the goal.",
+    "Tick if you feel thirsty, or are passing urine less often than usual.",
+    "If your urine is dark or you feel thirsty, drink now and check again later."
+   ],
+   "cadence": {
+    "default": {
+     "word": "daily",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "daily",
+      "n": null,
+      "note": "with the daily check"
+     },
+     "transit": {
+      "word": "daily",
+      "n": null,
+      "note": "with the daily check"
+     },
+     "lunar_surface": {
+      "word": "daily",
+      "n": null,
+      "note": "with the daily check"
+     },
+     "mars_surface": {
+      "word": "daily",
+      "n": null,
+      "note": "with the daily check"
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "The day before and the morning of a spacewalk",
+     "new_cadence": {
+      "word": "per_eva",
+      "n": null
+     },
+     "source_ids": [
+      "RT10"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Heavy exercise, a hot habitat, vomiting, diarrhoea or fever",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "fluid loss",
+      "note": "check again that evening"
+     },
+     "source_ids": [
+      "RT31",
+      "RT30"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Before entry and landing",
+     "new_cadence": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return",
+      "note": "fluid loading as prescribed by the flight surgeon"
+     },
+     "source_ids": [
+      "RT03",
+      "RT23"
+     ],
+     "basis": "sourced"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT03",
+    "RT10",
+    "RT31",
+    "RT30",
+    "RT23"
+   ]
+  },
+  {
+   "id": "exercise_log",
+   "name": "Exercise session and log",
+   "plain": "Do your prescribed exercise and log what you did, how long, and anything that hurt.",
+   "why": "Without gravity, muscle, bone and heart fitness fall. Daily exercise is the main protection, and you need that strength to walk, egress and work after landing.",
+   "who": [
+    "self"
+   ],
+   "instrument": "Habitat exercise devices; wrist band for activity and pulse; the app log",
+   "minutes": 2,
+   "steps": [
+    "Do the session your strength and conditioning team prescribed.",
+    "Log the device, minutes and how hard it felt.",
+    "Note any pain, joint trouble or dizziness. Do not push through sharp pain.",
+    "If you missed a session, log the reason. A missed session is never filled in for you."
+   ],
+   "cadence": {
+    "default": {
+     "word": "daily",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "daily",
+      "n": null
+     },
+     "transit": {
+      "word": "daily",
+      "n": null
+     },
+     "lunar_surface": {
+      "word": "daily",
+      "n": null,
+      "note": "surface walks add load; log them as activity"
+     },
+     "mars_surface": {
+      "word": "daily",
+      "n": null,
+      "note": "surface walks add load; log them as activity"
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Two missed sessions in a row",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "missed sessions",
+      "note": "a reminder the next morning and a note to the crew medical officer"
+     },
+     "source_ids": [],
+     "basis": "team default"
+    },
+    {
+     "trigger": "New muscle or joint pain, or a shoulder problem after a spacewalk",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "stop that exercise and tell the crew medical officer"
+     },
+     "source_ids": [
+      "RT33"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "After landing on Earth",
+     "new_cadence": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return",
+      "note": "reconditioning 2 hours a day, 7 days a week, for 45 days from the day after landing"
+     },
+     "source_ids": [
+      "RT14"
+     ],
+     "basis": "sourced"
+    }
+   ],
+   "body_region": "legs",
+   "source_ids": [
+    "RT14",
+    "RT02",
+    "RT33"
+   ]
+  },
+  {
+   "id": "reaction_test",
+   "name": "Reaction test (PVT-B, 3 minutes)",
+   "plain": "Tap the screen as fast as you can each time the counter appears, for 3 minutes.",
+   "why": "Tiredness slows your reactions before you notice it yourself. This short test is the same kind NASA used on the ISS and shows when sleep loss is affecting you.",
+   "who": [
+    "self"
+   ],
+   "instrument": "The app reaction test (PVT-B style); a quiet spot",
+   "minutes": 4,
+   "steps": [
+    "Find a quiet spot where you will not be interrupted for 4 minutes.",
+    "Answer the short questions on how tired, stressed and sleepy you feel.",
+    "Watch the box. When the counter appears, tap as fast as you can.",
+    "Do not tap before it appears. Early taps count as errors.",
+    "Keep going until the 3 minutes end. The app compares the result with your own usual speed.",
+    "Note any distraction during the test."
+   ],
+   "cadence": {
+    "default": {
+     "word": "every_n_days",
+     "n": 4
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "every_n_days",
+      "n": 4,
+      "note": "morning after waking and evening before sleep on test days"
+     },
+     "transit": {
+      "word": "every_n_days",
+      "n": 4,
+      "note": "morning after waking and evening before sleep on test days"
+     },
+     "lunar_surface": {
+      "word": "every_n_days",
+      "n": 4,
+      "note": "morning after waking and evening before sleep on test days"
+     },
+     "mars_surface": {
+      "word": "every_n_days",
+      "n": 4,
+      "note": "morning after waking and evening before sleep on test days"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Sleep under 6 hours",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "short sleep",
+      "note": "one test that morning"
+     },
+     "source_ids": [
+      "RT25"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "A sleep shift or schedule change",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "during the shift and for 3 days after"
+     },
+     "source_ids": [
+      "C15",
+      "RT02"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Before a spacewalk or other critical task",
+     "new_cadence": {
+      "word": "per_eva",
+      "n": null
+     },
+     "source_ids": [
+      "RT15",
+      "RT02"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Head injury or illness",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "with the crew medical officer"
+     },
+     "source_ids": [
+      "C14"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "After landing on Earth",
+     "new_cadence": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return",
+      "note": "daily for the first week, then 30, 60 and 90 days after landing"
+     },
+     "source_ids": [
+      "RT25"
+     ],
+     "basis": "sourced"
+    }
+   ],
+   "body_region": "eyes",
+   "source_ids": [
+    "RT25",
+    "RT26",
+    "C15",
+    "RT02",
+    "RT15",
+    "C14"
+   ]
+  },
+  {
+   "id": "cognitive_test",
+   "name": "Monthly thinking test (WinSCAT class)",
+   "plain": "Once a month, take the longer computer thinking test that ISS crews use, so changes after an injury or illness can be judged.",
+   "why": "A monthly result gives a known baseline. If someone hits their head or becomes ill, the crew can compare and see how much thinking is affected and whether it recovers.",
+   "who": [
+    "self",
+    "ground"
+   ],
+   "instrument": "Cognitive test software such as WinSCAT, if the vehicle carries it; not in this kit",
+   "minutes": 30,
+   "steps": [
+    "Pick a quiet time when you are not rushed.",
+    "Start the test and follow its on-screen instructions.",
+    "Finish all parts in one sitting.",
+    "The result goes to the ground team, who compare it with your pre-flight baseline."
+   ],
+   "cadence": {
+    "default": {
+     "word": "monthly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "monthly",
+      "n": null
+     },
+     "transit": {
+      "word": "monthly",
+      "n": null
+     },
+     "lunar_surface": {
+      "word": "monthly",
+      "n": null
+     },
+     "mars_surface": {
+      "word": "monthly",
+      "n": null
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "A head injury, or an illness that affects thinking",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "with the crew medical officer and the ground"
+     },
+     "source_ids": [
+      "C14",
+      "RT15"
+     ],
+     "basis": "sourced"
+    }
+   ],
+   "body_region": "head",
+   "source_ids": [
+    "C14",
+    "RT15"
+   ]
+  },
+  {
+   "id": "vision_self_check",
+   "name": "Vision self-check: near reading card and Amsler grid",
+   "plain": "Read the near card and look at the Amsler grid, one eye at a time, and note anything blurred, wavy or missing.",
+   "why": "Long missions can change the shape of the eye and blur near vision (SANS). Most crew on long flights show some signs, and the risk grows with time in space. A quick self-check finds changes between the formal eye exams.",
+   "who": [
+    "self"
+   ],
+   "instrument": "Near reading card and Amsler grid card (paper or on screen at a fixed size)",
+   "minutes": 5,
+   "steps": [
+    "Wear the glasses you normally use for reading. Use good light.",
+    "Hold the card at your usual reading distance; for the Amsler grid, 30 to 38 cm.",
+    "Cover one eye.",
+    "Near card: read the smallest line you can and save it.",
+    "Amsler grid: look straight at the centre dot. Without moving your eye, notice whether any lines look blurry, wavy, dark or missing.",
+    "Repeat with the other eye.",
+    "Answer the short vision questions: blurred near vision, headaches, eye pain."
+   ],
+   "cadence": {
+    "default": {
+     "word": "weekly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "weekly",
+      "n": null,
+      "note": "formal tests at flight day 30, flight day 90 and 30 days before return"
+     },
+     "transit": {
+      "word": "weekly",
+      "n": null,
+      "note": "formal tests at flight day 30, flight day 90 and 30 days before return"
+     },
+     "lunar_surface": {
+      "word": "weekly",
+      "n": null,
+      "note": "formal tests at flight day 30, flight day 90 and 30 days before return"
+     },
+     "mars_surface": {
+      "word": "weekly",
+      "n": null,
+      "note": "formal tests at flight day 30, flight day 90 and 30 days before return"
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Blurred near vision, a new distortion on the grid, or headaches",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "and tell the crew medical officer and the ground"
+     },
+     "source_ids": [
+      "S12",
+      "C25"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Cabin CO2 above the one-hour limit (sensor_limit)",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "while CO2 stays above the limit"
+     },
+     "source_ids": [
+      "C25"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Flight day 30, flight day 90 and 30 days before return",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "flight day 30, flight day 90 and 30 days before return",
+      "note": "formal vision tests with the ground"
+     },
+     "source_ids": [
+      "S12",
+      "RT18"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "Sudden loss of vision, a dark shadow, or severe eye pain",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "urgent: press Someone needs help"
+     },
+     "source_ids": [],
+     "basis": "team default"
+    }
+   ],
+   "body_region": "eyes",
+   "source_ids": [
+    "S12",
+    "RT32",
+    "RT18",
+    "RT02",
+    "C25"
+   ]
+  },
+  {
+   "id": "eye_imaging_sans",
+   "name": "SANS eye exam (OCT, fundoscopy, ultrasound)",
+   "plain": "On scheduled eye weeks, a trained crewmate images your eyes while a ground expert guides by video.",
+   "why": "Swelling at the back of the eye and folds in the retina cannot be seen in a self-check. Only imaging shows them, and they may not cause symptoms early.",
+   "who": [
+    "crewmate",
+    "crew_medical_officer",
+    "ground"
+   ],
+   "instrument": "OCT, fundoscope, ocular ultrasound, where the vehicle has them; not in this kit",
+   "minutes": 60,
+   "steps": [
+    "The trained operator sets up the device and opens the video link to the ground guide.",
+    "Follow the operator's instructions for where to look and when to keep still.",
+    "The ground team checks image quality while you are still in position.",
+    "Do the ocular questionnaire, visual acuity and Amsler grid in the same session.",
+    "Results are reviewed by the ground; the app records the exam as an imported report."
+   ],
+   "cadence": {
+    "default": {
+     "word": "after_event",
+     "n": null,
+     "event": "flight day 30, flight day 90 and 30 days before return"
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "after_event",
+      "n": null,
+      "event": "flight day 30, flight day 90 and 30 days before return"
+     },
+     "transit": {
+      "word": "after_event",
+      "n": null,
+      "event": "flight day 30 and flight day 90",
+      "note": "then every 90 days (team default) and 30 days before return; only if the vehicle carries the devices"
+     },
+     "lunar_surface": {
+      "word": "after_event",
+      "n": null,
+      "event": "flight day 30 and 30 days before return",
+      "note": "team default for shorter surface stays; only if the habitat carries the devices"
+     },
+     "mars_surface": {
+      "word": "every_n_days",
+      "n": 90,
+      "note": "team default interval, plus 30 days before departure; only if the habitat carries the devices"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "A change on the vision self-check, blurred vision or persistent headache",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "as the ground decides"
+     },
+     "source_ids": [
+      "S12"
+     ],
+     "basis": "sourced"
+    }
+   ],
+   "body_region": "eyes",
+   "source_ids": [
+    "S12"
+   ]
+  },
+  {
+   "id": "hearing_check",
+   "name": "Hearing check (on-orbit hearing assessment)",
+   "plain": "Take the headphone hearing test in a quiet spot so flight surgeons can see any change in your hearing.",
+   "why": "Habitat fans and equipment are noisy all day and night. Hearing can shift without you noticing, and ISS tests have found shifts in many crewmembers.",
+   "who": [
+    "self",
+    "ground"
+   ],
+   "instrument": "Audiometer with headphones (ISS class, for example the on-orbit hearing assessment kit); not in this kit. Without it, the hearing questions in the daily check",
+   "minutes": 20,
+   "steps": [
+    "Go to the quietest place in the habitat. Switch off nearby fans you are allowed to switch off.",
+    "Put on the test headphones and follow the instructions.",
+    "Press the button each time you hear a tone, even a very faint one.",
+    "Test both ears.",
+    "The result goes to the ground for review."
+   ],
+   "cadence": {
+    "default": {
+     "word": "monthly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "monthly",
+      "n": null,
+      "note": "if an audiometer is carried; otherwise hearing questions only"
+     },
+     "transit": {
+      "word": "monthly",
+      "n": null,
+      "note": "if an audiometer is carried; otherwise hearing questions only"
+     },
+     "lunar_surface": {
+      "word": "monthly",
+      "n": null,
+      "note": "if an audiometer is carried; otherwise hearing questions only"
+     },
+     "mars_surface": {
+      "word": "monthly",
+      "n": null,
+      "note": "if an audiometer is carried; otherwise hearing questions only"
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Ringing in the ears or muffled hearing, especially after a loud event",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "test within a day and tell the crew medical officer"
+     },
+     "source_ids": [
+      "RT05"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Noise dosimetry above the flight rule level",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "high noise exposure",
+      "note": "hearing test at the next opportunity"
+     },
+     "source_ids": [
+      "RT08",
+      "RT07"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": "ear",
+   "source_ids": [
+    "RT06",
+    "RT01",
+    "RT02",
+    "RT05",
+    "RT08",
+    "RT07"
+   ]
+  },
+  {
+   "id": "noise_dosimetry",
+   "name": "Crew-worn noise dosimeter (24 hours)",
+   "plain": "Wear the small noise monitor on your clothing for a full day and night, then hand it in for download.",
+   "why": "People get used to noise and stop noticing it, but it still harms hearing and sleep. Only a measurement shows your real exposure and whether you need hearing protection.",
+   "who": [
+    "self",
+    "crewmate",
+    "ground"
+   ],
+   "instrument": "Acoustic dosimeter (ISS class); not in this kit. Habitat sound level sensors run continuously",
+   "minutes": 10,
+   "steps": [
+    "Before breakfast, clip the monitor to your clothing near your shoulder and start it.",
+    "Wear it all day. Do not cover the microphone.",
+    "Just before sleep, a crewmate swaps its battery and gives it back to you.",
+    "Keep it on through the night, near your head.",
+    "In the morning, stop it before your normal activities and hand it in.",
+    "Wear your hearing protection as usual. The app notes when you wore it."
+   ],
+   "cadence": {
+    "default": {
+     "word": "every_n_days",
+     "n": 60
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "every_n_days",
+      "n": 60
+     },
+     "transit": {
+      "word": "every_n_days",
+      "n": 60,
+      "note": "team default, same as ISS"
+     },
+     "lunar_surface": {
+      "word": "every_n_days",
+      "n": 60,
+      "note": "team default, same as ISS"
+     },
+     "mars_surface": {
+      "word": "every_n_days",
+      "n": 60,
+      "note": "team default, same as ISS"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "New noisy equipment or a habitat change",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "new noise source",
+      "note": "one 24 hour session"
+     },
+     "source_ids": [
+      "RT05"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Crew report noise that disturbs sleep or makes speech hard",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "noise complaint",
+      "note": "one 24 hour session"
+     },
+     "source_ids": [
+      "RT05"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "A hearing change on the hearing check",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "hearing change",
+      "note": "one 24 hour session for that person"
+     },
+     "source_ids": [
+      "RT06"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": "ear",
+   "source_ids": [
+    "RT07",
+    "RT08",
+    "RT03",
+    "RT01",
+    "RT05",
+    "RT06"
+   ]
+  },
+  {
+   "id": "radiation_dosimeter",
+   "name": "Personal radiation dosimeter",
+   "plain": "Wear your dosimeter at all times, check each day that it is on and working, and read it before and after every spacewalk.",
+   "why": "Space radiation cannot be felt. Your dosimeter keeps your personal dose record, and an alarm tells everyone when to take shelter during a solar storm.",
+   "who": [
+    "self",
+    "ground"
+   ],
+   "instrument": "Personal dosimeter (ISS class); habitat radiation monitor with alarm; not in this kit",
+   "minutes": 1,
+   "steps": [
+    "Wear the dosimeter where the program tells you, inside the habitat and during spacewalks.",
+    "Each day, tap to confirm it is on you and working.",
+    "Before and after each spacewalk, read it and save the number.",
+    "If the radiation alarm sounds, go to the shelter area at once and follow the shelter procedure.",
+    "During a shelter period, read your dosimeter when asked and save each reading."
+   ],
+   "cadence": {
+    "default": {
+     "word": "continuous",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "continuous",
+      "n": null,
+      "note": "personal monitoring per the program's radiation plan"
+     },
+     "transit": {
+      "word": "continuous",
+      "n": null,
+      "note": "personal monitoring required"
+     },
+     "lunar_surface": {
+      "word": "continuous",
+      "n": null,
+      "note": "personal monitoring required, including spacewalks"
+     },
+     "mars_surface": {
+      "word": "continuous",
+      "n": null,
+      "note": "personal monitoring required, including spacewalks"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Solar particle event alert (sensor_limit)",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "solar particle event",
+      "note": "shelter; read the dosimeter at the start, every hour (team default) and at the end"
+     },
+     "source_ids": [
+      "RT03",
+      "RT09"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Before and after each spacewalk",
+     "new_cadence": {
+      "word": "per_eva",
+      "n": null
+     },
+     "source_ids": [
+      "RT18",
+      "RT03"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "Nausea, vomiting or unusual tiredness after a radiation event",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "tell the crew medical officer and the ground"
+     },
+     "source_ids": [
+      "RT09"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT03",
+    "RT09",
+    "RT18",
+    "RT01"
+   ]
+  },
+  {
+   "id": "pre_eva_check",
+   "name": "Before a spacewalk",
+   "plain": "In the day before a spacewalk, do a short health check and a private talk with the flight surgeon, who must clear you.",
+   "why": "A spacewalk is hard physical work in a pressurized suit. A cold, short sleep, dehydration or an injury can turn into a real problem outside, so each person is cleared first by the medical officer aboard, as in the onboard procedure.",
+   "who": [
+    "self",
+    "crew_medical_officer",
+    "ground"
+   ],
+   "instrument": "Kit cuff, oximeter, thermometer, camera station; reaction test; personal dosimeter",
+   "minutes": 20,
+   "steps": [
+    "Answer the pre-spacewalk questions: new symptoms, ear or sinus problems, sleep, pain, mood.",
+    "Take pulse, blood pressure, blood oxygen and temperature.",
+    "Drink to stay well hydrated, as prescribed.",
+    "Check your hands: trim nails short and note any sore fingertips or nails.",
+    "Read and save your dosimeter.",
+    "The medical officer clears you before suiting up, as in the onboard procedure. When the link is up, also join the private medical conference within 24 hours before; the flight surgeon's advice goes into that decision. Log it for the ground."
+   ],
+   "cadence": {
+    "default": {
+     "word": "per_eva",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "per_eva",
+      "n": null
+     },
+     "transit": {
+      "word": "per_eva",
+      "n": null,
+      "note": "contingency spacewalks only"
+     },
+     "lunar_surface": {
+      "word": "per_eva",
+      "n": null,
+      "note": "surface walks may be frequent; one check per walk"
+     },
+     "mars_surface": {
+      "word": "per_eva",
+      "n": null,
+      "note": "the ground's reply is delayed; the medical officer clears each person aboard, and the log goes at the next contact"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Any new symptom, short sleep or illness before a planned spacewalk",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "the medical officer checks again before suiting up; log it for the ground"
+     },
+     "source_ids": [
+      "RT02"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT02",
+    "RT04",
+    "RT18",
+    "RT10"
+   ]
+  },
+  {
+   "id": "post_eva_check",
+   "name": "After a spacewalk: bends, hands, shoulders",
+   "plain": "After the suit comes off, check for signs of the bends, look at your hands and nails, note shoulder pain, and talk privately with the flight surgeon within a day.",
+   "why": "Decompression sickness (the bends) can start hours after a spacewalk, and people tend to play down mild symptoms. Gloves often injure fingertips and nails, and suits strain shoulders.",
+   "who": [
+    "self",
+    "crewmate",
+    "crew_medical_officer",
+    "ground"
+   ],
+   "instrument": "The app; kit oximeter and cuff; camera of the tablet for hand photos; personal dosimeter",
+   "minutes": 15,
+   "steps": [
+    "Report at once, never wait: joint or muscle pain, itching, a blotchy rash, numbness, tingling, weakness, dizziness, trouble thinking, or trouble breathing.",
+    "If any of these appear, press Someone needs help. Do not do hard exercise.",
+    "Look at each finger and nail. Note lifted or dark nails, blisters, sore knuckles or numb fingertips. Take a photo if asked.",
+    "Move each shoulder through its full range. Note pain or catching.",
+    "Take pulse and blood oxygen. Read and save your dosimeter.",
+    "On the Moon or Mars, also do the dust check.",
+    "Join the private medical conference within 24 hours."
+   ],
+   "cadence": {
+    "default": {
+     "word": "per_eva",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "per_eva",
+      "n": null
+     },
+     "transit": {
+      "word": "per_eva",
+      "n": null
+     },
+     "lunar_surface": {
+      "word": "per_eva",
+      "n": null,
+      "note": "plus the dust check"
+     },
+     "mars_surface": {
+      "word": "per_eva",
+      "n": null,
+      "note": "plus the dust check"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Any symptom that could be decompression sickness",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "emergency route at once"
+     },
+     "source_ids": [
+      "RT11",
+      "RT10"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "No symptoms at the first check",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "spacewalk",
+      "note": "repeat the bends questions that evening and next morning"
+     },
+     "source_ids": [
+      "RT11"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Nail, finger or shoulder injury found",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "look and photo each day until healed; crew medical officer decides"
+     },
+     "source_ids": [
+      "RT12",
+      "RT33"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT10",
+    "RT11",
+    "RT12",
+    "RT33",
+    "RT04",
+    "RT03"
+   ]
+  },
+  {
+   "id": "dust_exposure_check",
+   "name": "Eyes, skin and breathing after dust exposure",
+   "plain": "After a surface walk or any dust in the cabin, rinse your eyes if they sting, check your skin and nails, and note any sneezing, congestion or cough.",
+   "why": "Moon and Mars dust is sharp and clings to everything. Apollo crews got sore eyes, blocked noses and dust in the cabin. Mars dust also carries chemicals such as perchlorate.",
+   "who": [
+    "self",
+    "crewmate"
+   ],
+   "instrument": "Eyewash, saline, wipes; the app; habitat dust monitor",
+   "minutes": 10,
+   "steps": [
+    "Clean dust off yourself and your gear before entering the living area, as the procedure says.",
+    "If your eyes sting or feel gritty, do not rub them. Rinse with the eyewash or saline.",
+    "Look at your skin, under your nails and around the wrists for redness or scratches.",
+    "Note sneezing, blocked nose, sore throat or cough.",
+    "Take your breathing rate if you are coughing.",
+    "Tell the crew medical officer about any eye pain that stays after rinsing."
+   ],
+   "cadence": {
+    "default": {
+     "word": "after_event",
+     "n": null,
+     "event": "each surface walk or cabin dust release"
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "as_needed",
+      "n": null,
+      "note": "only if dust is brought aboard, for example by a vehicle returning from a surface"
+     },
+     "transit": {
+      "word": "as_needed",
+      "n": null,
+      "note": "only if dust is brought aboard"
+     },
+     "lunar_surface": {
+      "word": "after_event",
+      "n": null,
+      "event": "each surface walk or habitat dust alert"
+     },
+     "mars_surface": {
+      "word": "after_event",
+      "n": null,
+      "event": "each surface walk or habitat dust alert"
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Habitat dust monitor alert (sensor_limit)",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "dust alert",
+      "note": "everyone in that area does the check"
+     },
+     "source_ids": [
+      "RT03"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Eye irritation, cough or congestion that persists",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "until it clears; crew medical officer decides"
+     },
+     "source_ids": [
+      "RT13"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": "eyes",
+   "source_ids": [
+    "RT13",
+    "RT03"
+   ]
+  },
+  {
+   "id": "behavioral_self_check",
+   "name": "Weekly wellbeing self-check",
+   "plain": "Once a week, rate sleep, tiredness, workload, morale, relationships and mood, privately, to bring to your private conferences.",
+   "why": "Isolation, workload and distance from home wear people down slowly. The same topics flight psychologists ask about every two weeks help you notice changes yourself.",
+   "who": [
+    "self"
+   ],
+   "instrument": "The app (private; never shared without your choice)",
+   "minutes": 5,
+   "steps": [
+    "Find a private moment.",
+    "Rate each topic: sleep, tiredness, workload, your morale, the crew's morale, relationships with the crew and the ground, mood, family and personal life, and the habitat (food, noise, space).",
+    "Add a note if you want. It stays private.",
+    "Choose whether to share any of it at your next private conference.",
+    "If you have thoughts of harming yourself, press Someone needs help now."
+   ],
+   "cadence": {
+    "default": {
+     "word": "weekly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "weekly",
+      "n": null
+     },
+     "transit": {
+      "word": "weekly",
+      "n": null,
+      "note": "conferences are delayed, so the self-check carries more weight"
+     },
+     "lunar_surface": {
+      "word": "weekly",
+      "n": null
+     },
+     "mars_surface": {
+      "word": "weekly",
+      "n": null,
+      "note": "conferences are delayed, so the self-check carries more weight"
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Mood below your usual on several daily checks (how many to be set by clinical review)",
+     "new_cadence": {
+      "word": "every_n_days",
+      "n": 3,
+      "note": "and offer an extra private conference"
+     },
+     "source_ids": [
+      "RT02"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "The death of a crewmember",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "extra private psychological conferences, alone or as a group"
+     },
+     "source_ids": [
+      "RT02"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "A crew emergency, a serious injury, or bad news from home",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "offer an extra private conference"
+     },
+     "source_ids": [],
+     "basis": "team default"
+    }
+   ],
+   "body_region": "head",
+   "source_ids": [
+    "RT15",
+    "C14",
+    "RT02"
+   ]
+  },
+  {
+   "id": "private_medical_conference",
+   "name": "Private medical conference with the flight surgeon",
+   "plain": "A private, unrecorded talk with your flight surgeon about your health, each week and around key events.",
+   "why": "It is the routine way to raise anything about your health in private, and for the flight surgeon to check in before and after demanding events.",
+   "who": [
+    "self",
+    "ground"
+   ],
+   "instrument": "Private audio or video link; store-and-forward messages when there is a delay",
+   "minutes": 15,
+   "steps": [
+    "Go to a private space where no one can see or hear you.",
+    "Open the app's summary and choose what to share.",
+    "Talk through anything new: symptoms, sleep, medicines, worries.",
+    "Note any advice in the app.",
+    "On Mars or in deep space, record your message and send it; the reply comes later."
+   ],
+   "cadence": {
+    "default": {
+     "word": "weekly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "weekly",
+      "n": null,
+      "note": "live"
+     },
+     "transit": {
+      "word": "weekly",
+      "n": null,
+      "note": "store-and-forward when the delay is long"
+     },
+     "lunar_surface": {
+      "word": "weekly",
+      "n": null,
+      "note": "live with a short delay"
+     },
+     "mars_surface": {
+      "word": "weekly",
+      "n": null,
+      "note": "store-and-forward"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Launch day and the first five days after launch or docking",
+     "new_cadence": {
+      "word": "daily",
+      "n": null
+     },
+     "source_ids": [
+      "RT04"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "The first five days after landing at a Moon or Mars base",
+     "new_cadence": {
+      "word": "daily",
+      "n": null
+     },
+     "source_ids": [],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Before and after each spacewalk (within 24 hours)",
+     "new_cadence": {
+      "word": "per_eva",
+      "n": null
+     },
+     "source_ids": [
+      "RT04"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "The five days before entry and the morning of landing",
+     "new_cadence": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return",
+      "note": "daily"
+     },
+     "source_ids": [
+      "RT04"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "You, a crewmate, the commander or the flight director asks for one",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null
+     },
+     "source_ids": [
+      "RT04",
+      "RT19"
+     ],
+     "basis": "sourced"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT04",
+    "RT16",
+    "RT02",
+    "RT19",
+    "RT01"
+   ]
+  },
+  {
+   "id": "private_psych_conference",
+   "name": "Private psychological conference",
+   "plain": "A private, unrecorded talk with the flight psychologist or psychiatrist every two weeks.",
+   "why": "Living and working in a small crew far from home is hard. A regular private talk helps with sleep, stress, relationships and family worries before they grow.",
+   "who": [
+    "self",
+    "ground"
+   ],
+   "instrument": "Private video link; store-and-forward messages when there is a delay",
+   "minutes": 20,
+   "steps": [
+    "Go to a private space.",
+    "Look at your weekly wellbeing self-check if you want a reminder of what to raise.",
+    "Talk about whatever matters to you. The usual topics are sleep, tiredness, workload, morale, crew and ground relationships, mood, family and the habitat.",
+    "Nothing is recorded in the app unless you choose to add a note."
+   ],
+   "cadence": {
+    "default": {
+     "word": "every_n_days",
+     "n": 14
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "every_n_days",
+      "n": 14,
+      "note": "live, usually at the weekend"
+     },
+     "transit": {
+      "word": "every_n_days",
+      "n": 14,
+      "note": "store-and-forward when the delay is long"
+     },
+     "lunar_surface": {
+      "word": "every_n_days",
+      "n": 14
+     },
+     "mars_surface": {
+      "word": "every_n_days",
+      "n": 14,
+      "note": "store-and-forward"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "The death of a crewmember",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "extra conferences, alone or as a group"
+     },
+     "source_ids": [
+      "RT02"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "A crew emergency, a serious injury, a major event at home, or you ask for one",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null
+     },
+     "source_ids": [],
+     "basis": "team default"
+    }
+   ],
+   "body_region": "head",
+   "source_ids": [
+    "RT15",
+    "RT02",
+    "C14"
+   ]
+  },
+  {
+   "id": "periodic_health_exam",
+   "name": "Monthly health exam (periodic health status)",
+   "plain": "Once a month, the crew medical officer examines you and records your vital signs and ear images for the flight surgeon.",
+   "why": "A regular exam by a trained crewmate catches things you would not notice yourself and gives the flight surgeon a consistent record to compare.",
+   "who": [
+    "crew_medical_officer",
+    "self",
+    "ground"
+   ],
+   "instrument": "Kit cuff, oximeter, thermometer; otoscope and exam form (ISS class)",
+   "minutes": 30,
+   "steps": [
+    "The crew medical officer opens the exam form in the app.",
+    "Pulse, blood pressure, temperature and blood oxygen are taken as in their own items.",
+    "The officer looks in each ear with the otoscope and saves the images.",
+    "You answer the exam questions; the officer fills in what they see.",
+    "The exam is sent to the flight surgeon, who compares it with earlier exams and replies."
+   ],
+   "cadence": {
+    "default": {
+     "word": "monthly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "monthly",
+      "n": null
+     },
+     "transit": {
+      "word": "monthly",
+      "n": null,
+      "note": "ground review is delayed"
+     },
+     "lunar_surface": {
+      "word": "monthly",
+      "n": null
+     },
+     "mars_surface": {
+      "word": "monthly",
+      "n": null,
+      "note": "ground review is delayed"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Before and after each spacewalk",
+     "new_cadence": {
+      "word": "per_eva",
+      "n": null
+     },
+     "source_ids": [
+      "RT18",
+      "RT01"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "An illness or injury",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "as the crew medical officer decides"
+     },
+     "source_ids": [
+      "RT01"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT16",
+    "RT17",
+    "RT01",
+    "RT18",
+    "RT02"
+   ]
+  },
+  {
+   "id": "dental_skin_check",
+   "name": "Mouth, teeth and skin check",
+   "plain": "Once a month, look at your teeth, gums and skin with a mirror and light, and note anything new.",
+   "why": "Dental abscesses and skin rashes have happened on the ISS. Far from a dentist, a small problem found early is easier to manage.",
+   "who": [
+    "self",
+    "crewmate"
+   ],
+   "instrument": "Mirror, penlight; tablet camera for photos",
+   "minutes": 5,
+   "steps": [
+    "Look at your gums and teeth. Note bleeding, swelling, a broken tooth or a sore that will not heal.",
+    "Note any tooth pain, especially with hot or cold.",
+    "Look over your skin, including feet and under straps. Note rashes, sores, dry cracked skin or a changing mole.",
+    "Ask a crewmate to look at your back.",
+    "Take a photo of anything new and save it."
+   ],
+   "cadence": {
+    "default": {
+     "word": "monthly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "monthly",
+      "n": null
+     },
+     "transit": {
+      "word": "monthly",
+      "n": null
+     },
+     "lunar_surface": {
+      "word": "monthly",
+      "n": null
+     },
+     "mars_surface": {
+      "word": "monthly",
+      "n": null
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Tooth pain, facial swelling or a gum problem",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "tell the crew medical officer now"
+     },
+     "source_ids": [
+      "RT19"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "A rash or skin sore",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "photo each day until it clears; crew medical officer decides"
+     },
+     "source_ids": [
+      "RT19"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": "head",
+   "source_ids": [
+    "RT02",
+    "RT19"
+   ]
+  },
+  {
+   "id": "medical_kit_inventory",
+   "name": "Medicines and medical kit check",
+   "plain": "Once a month, check that the medical kit is complete, in date and stowed where the list says.",
+   "why": "In an emergency there is no time to search. On long missions without resupply, medicines can pass their expiry dates, so the crew needs to know early what is running out.",
+   "who": [
+    "crew_medical_officer",
+    "crewmate"
+   ],
+   "instrument": "Medical kits; the inventory list in the app",
+   "minutes": 20,
+   "steps": [
+    "Open the kit list in the app.",
+    "Check each emergency item first: present, sealed, working.",
+    "Check expiry dates. Flag anything expiring before the next resupply or the end of the mission.",
+    "Check that used items were logged and replaced.",
+    "Check that personal medicines match each person's list.",
+    "Send the flags to the ground."
+   ],
+   "cadence": {
+    "default": {
+     "word": "monthly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "monthly",
+      "n": null,
+      "note": "plus after each resupply"
+     },
+     "transit": {
+      "word": "monthly",
+      "n": null,
+      "note": "no resupply; expiry planning matters more"
+     },
+     "lunar_surface": {
+      "word": "monthly",
+      "n": null
+     },
+     "mars_surface": {
+      "word": "monthly",
+      "n": null,
+      "note": "no resupply; expiry planning matters more"
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Any item is used from a kit",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "kit use",
+      "note": "log and restock the same day"
+     },
+     "source_ids": [
+      "RT03"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "A resupply arrives",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "resupply",
+      "note": "unpack and update the list"
+     },
+     "source_ids": [
+      "RT18"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "A solar particle event",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "solar particle event",
+      "note": "check liquid medicines for changes and log it for the ground"
+     },
+     "source_ids": [
+      "RT22"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT02",
+    "RT03",
+    "RT01",
+    "RT22",
+    "RT18"
+   ]
+  },
+  {
+   "id": "emergency_drill",
+   "name": "Medical emergency drill",
+   "plain": "Practise a medical emergency as a crew: who does what, where the kit is, and how to use the Someone needs help screen.",
+   "why": "Skills fade between training and a real emergency, which may come months later. A drill keeps everyone ready, not only the medical officer.",
+   "who": [
+    "self",
+    "crewmate",
+    "crew_medical_officer",
+    "ground"
+   ],
+   "instrument": "Emergency medical kit; the app's Someone needs help screen in drill mode",
+   "skill_ids": [
+    "pulse_check_wrist",
+    "cpr"
+   ],
+   "minutes": 60,
+   "steps": [
+    "The crew medical officer picks a scenario from the drill list.",
+    "One person plays the patient. Another presses Someone needs help in drill mode.",
+    "Run the fixed emergency steps. Fetch and open the real kit.",
+    "Practise each skill with its teach steps and camera checks: the pulse check on a crewmate's real wrist, chest compressions on a manikin, if listed. The camera's numbers show live and are not stored.",
+    "Practise the log for the ground: preview it and press Tell the ground. It leaves at the next contact, and nothing in the drill waits for it.",
+    "Debrief: what was slow, what was missing. Log it. Completing the drill updates each participant's skill record and counts toward the practice patches."
+   ],
+   "cadence": {
+    "default": {
+     "word": "monthly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "monthly",
+      "n": null
+     },
+     "transit": {
+      "word": "monthly",
+      "n": null
+     },
+     "lunar_surface": {
+      "word": "monthly",
+      "n": null
+     },
+     "mars_surface": {
+      "word": "monthly",
+      "n": null
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "A new module or a visiting vehicle",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "new module or visiting vehicle",
+      "note": "emergency response review"
+     },
+     "source_ids": [
+      "RT18"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "After a real medical emergency",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "real medical emergency",
+      "note": "debrief and repeat the drill"
+     },
+     "source_ids": [],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT02",
+    "RT18",
+    "RT01"
+   ]
+  },
+  {
+   "id": "water_sampling",
+   "name": "Drinking water sampling",
+   "plain": "Once a month, take a water sample from the dispenser with the sampling kit and process or stow it as the procedure says.",
+   "why": "Recycled water can grow bacteria. Regular samples catch a problem before people get sick.",
+   "who": [
+    "crewmate",
+    "ground"
+   ],
+   "instrument": "Water sampling kit (ISS class, for example microbial capture device and coliform test); not in this kit. The habitat water quality sensor runs continuously",
+   "minutes": 20,
+   "steps": [
+    "Collect the sample from the dispenser port named in the procedure. Alternate hot and ambient ports month to month.",
+    "Label it with date, time and port.",
+    "Process it with the kit or stow it for return, as the procedure says.",
+    "Log the sample and any result in the app."
+   ],
+   "cadence": {
+    "default": {
+     "word": "monthly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "monthly",
+      "n": null
+     },
+     "transit": {
+      "word": "monthly",
+      "n": null,
+      "note": "team default, same as ISS"
+     },
+     "lunar_surface": {
+      "word": "monthly",
+      "n": null,
+      "note": "team default, same as ISS"
+     },
+     "mars_surface": {
+      "word": "monthly",
+      "n": null,
+      "note": "plus after any change of water source; local water may carry perchlorate"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "The water quality sensor approaches a limit (sensor_limit)",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "water quality alert",
+      "note": "sample now"
+     },
+     "source_ids": [
+      "RT03"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Water tastes, smells or looks different, or several crew have stomach upsets",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "change in the water, or stomach upsets",
+      "note": "sample now and log it for the ground"
+     },
+     "source_ids": [],
+     "basis": "team default"
+    },
+    {
+     "trigger": "A count above limits",
+     "new_cadence": {
+      "word": "every_n_days",
+      "n": 7,
+      "note": "until two clean results"
+     },
+     "source_ids": [],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT20",
+    "RT03",
+    "RT01"
+   ]
+  },
+  {
+   "id": "air_sampling",
+   "name": "Cabin air sampling",
+   "plain": "Every three months, run the microbial air sampler in each module, and take an air sample before the return trip.",
+   "why": "Moulds and bacteria in the air can cause infections and allergies in a closed cabin. A return air sample records what the crew breathed.",
+   "who": [
+    "crewmate",
+    "ground"
+   ],
+   "instrument": "Microbial air sampler kit and air sample containers (ISS class); not in this kit. Habitat CO2, oxygen and trace gas sensors run continuously",
+   "minutes": 20,
+   "steps": [
+    "Take the air sampler to each module on the list.",
+    "Run it for the time the procedure sets, away from vents.",
+    "Label and stow each sample plate or container.",
+    "Log the module, time and any smell or visible growth."
+   ],
+   "cadence": {
+    "default": {
+     "word": "every_n_days",
+     "n": 90
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "every_n_days",
+      "n": 90,
+      "note": "microbial air sampling; plus a return air sample"
+     },
+     "transit": {
+      "word": "every_n_days",
+      "n": 90,
+      "note": "microbial air sampling; plus a return air sample"
+     },
+     "lunar_surface": {
+      "word": "every_n_days",
+      "n": 90,
+      "note": "microbial air sampling; plus a return air sample"
+     },
+     "mars_surface": {
+      "word": "every_n_days",
+      "n": 90,
+      "note": "microbial air sampling; plus a return air sample"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "A strange smell, smoke, a chemical leak or a contamination event",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "contamination event",
+      "note": "sample as the ground directs"
+     },
+     "source_ids": [
+      "RT01"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "Before the vehicle's return trip",
+     "new_cadence": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return",
+      "note": "return air sample"
+     },
+     "source_ids": [
+      "RT01"
+     ],
+     "basis": "sourced"
+    },
+    {
+     "trigger": "A count above limits, or visible mould",
+     "new_cadence": {
+      "word": "every_n_days",
+      "n": 30,
+      "note": "until clean"
+     },
+     "source_ids": [],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT20",
+    "RT01",
+    "RT18"
+   ]
+  },
+  {
+   "id": "surface_sampling",
+   "name": "Surface microbial sampling",
+   "plain": "Every three months, press sample slides or swabs on the listed surfaces and stow them.",
+   "why": "Surfaces people touch carry germs between crewmembers and can grow mould, especially where it is damp.",
+   "who": [
+    "crewmate",
+    "ground"
+   ],
+   "instrument": "Surface sampler kit, contact slides and swabs (ISS class); not in this kit",
+   "minutes": 30,
+   "steps": [
+    "Go to each surface on the list.",
+    "Press a contact slide on flat surfaces. Use a wetted swab on uneven ones.",
+    "Label and stow each sample.",
+    "Log where you sampled and anything you saw, such as damp or growth."
+   ],
+   "cadence": {
+    "default": {
+     "word": "every_n_days",
+     "n": 90
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "every_n_days",
+      "n": 90
+     },
+     "transit": {
+      "word": "every_n_days",
+      "n": 90
+     },
+     "lunar_surface": {
+      "word": "every_n_days",
+      "n": 90
+     },
+     "mars_surface": {
+      "word": "every_n_days",
+      "n": 90
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Visible mould, damp or condensation",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "visible growth or damp",
+      "note": "sample and clean"
+     },
+     "source_ids": [
+      "RT21"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "A count above limits, or several crew with skin or stomach infections",
+     "new_cadence": {
+      "word": "every_n_days",
+      "n": 30,
+      "note": "until clean"
+     },
+     "source_ids": [],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT20",
+    "RT03",
+    "RT21"
+   ]
+  },
+  {
+   "id": "housekeeping_clean",
+   "name": "Weekly cleaning",
+   "plain": "Once a week, the crew cleans surfaces, handholds and corners together.",
+   "why": "Cleaning keeps germs and mould down in a closed habitat. On the Moon or Mars it also removes dust tracked in from outside.",
+   "who": [
+    "self",
+    "crewmate"
+   ],
+   "instrument": "Vacuum, disinfectant wipes, towels",
+   "minutes": 180,
+   "steps": [
+    "Split the habitat into areas, one per person.",
+    "Wipe handholds, tables, switches and the toilet area with disinfectant.",
+    "Vacuum filters, vents and corners where things collect.",
+    "Report damp spots, growth or dust build-up in the app."
+   ],
+   "cadence": {
+    "default": {
+     "word": "weekly",
+     "n": null
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "weekly",
+      "n": null
+     },
+     "transit": {
+      "word": "weekly",
+      "n": null
+     },
+     "lunar_surface": {
+      "word": "weekly",
+      "n": null,
+      "note": "plus dust cleaning after each surface walk"
+     },
+     "mars_surface": {
+      "word": "weekly",
+      "n": null,
+      "note": "plus dust cleaning after each surface walk"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Dust brought in after a surface walk",
+     "new_cadence": {
+      "word": "after_event",
+      "n": null,
+      "event": "surface walk",
+      "note": "clean the entry area"
+     },
+     "source_ids": [
+      "RT13"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "Visible growth or a spill",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null
+     },
+     "source_ids": [
+      "RT21"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT21",
+    "RT13"
+   ]
+  },
+  {
+   "id": "preflight_baselines",
+   "name": "Pre-flight baselines",
+   "plain": "Before launch, use the app on the ground so it learns your usual readings, and record the baseline tests the medical team does.",
+   "why": "Every in-flight warning compares you with yourself. Without a good baseline from before flight, the app cannot tell what is normal for you.",
+   "who": [
+    "self",
+    "ground"
+   ],
+   "instrument": "The whole kit; ground clinic tests imported as reports",
+   "minutes": 30,
+   "steps": [
+    "Do the daily check every day for at least the last 2 weeks before launch.",
+    "Take resting pulse, breathing rate, blood pressure, blood oxygen and temperature several times in those weeks.",
+    "Do the reaction test about monthly in the last six months, and more often in the final weeks.",
+    "Do the near vision and Amsler grid self-check, and record the eye exam results.",
+    "Import the baseline reports: eye exams, hearing test, fitness test, dental exam, cognitive baseline.",
+    "Set your medicines, allergies and conditions, or decline each field."
+   ],
+   "cadence": {
+    "default": {
+     "word": "mission_phase",
+     "n": null,
+     "phase": "pre-flight"
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "pre-flight"
+     },
+     "transit": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "pre-flight"
+     },
+     "lunar_surface": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "pre-flight"
+     },
+     "mars_surface": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "pre-flight"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "A baseline reading is missing or failed",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "repeat before launch"
+     },
+     "source_ids": [],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT02",
+    "RT25",
+    "RT14",
+    "S12",
+    "RT15"
+   ]
+  },
+  {
+   "id": "preflight_quarantine",
+   "name": "Pre-flight quarantine (health stabilization)",
+   "plain": "In the 14 days before launch, limit contact to approved people and report any sign of illness each day.",
+   "why": "An infection caught just before launch can spread through the whole crew in a closed vehicle. Quarantine and vaccinations cut that risk.",
+   "who": [
+    "self",
+    "ground"
+   ],
+   "instrument": "The app daily check; kit thermometer",
+   "minutes": 3,
+   "steps": [
+    "Follow the quarantine rules: only approved contacts, protective equipment as required.",
+    "Do the daily check each day, with temperature.",
+    "Report sore throat, cough, fever, stomach upset or a rash the same day.",
+    "Report any contact with someone who is ill."
+   ],
+   "cadence": {
+    "default": {
+     "word": "mission_phase",
+     "n": null,
+     "phase": "pre-flight",
+     "note": "daily for the 14 days before launch"
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "pre-flight",
+      "note": "daily for the 14 days before launch"
+     },
+     "transit": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "pre-flight",
+      "note": "daily for the 14 days before launch"
+     },
+     "lunar_surface": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "pre-flight",
+      "note": "daily for the 14 days before launch"
+     },
+     "mars_surface": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "pre-flight",
+      "note": "daily for the 14 days before launch"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Any symptom of infection or a known exposure",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "tell the flight surgeon the same day"
+     },
+     "source_ids": [
+      "RT24"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT24",
+    "RT01",
+    "RT02"
+   ]
+  },
+  {
+   "id": "early_flight_adaptation",
+   "name": "First days in space: adaptation check",
+   "plain": "For the first five days, answer a short daily check on nausea, headache, stuffy nose, back pain and passing urine.",
+   "why": "Most people feel sick, congested or sore in the first days as the body adapts to weightlessness. Most of it passes in a few days, but vomiting and not passing urine need help.",
+   "who": [
+    "self",
+    "ground"
+   ],
+   "instrument": "The app; the daily private medical conference",
+   "minutes": 3,
+   "steps": [
+    "Answer each question: nausea or vomiting, headache, stuffy nose or puffy face, back pain, dizziness when you move your head, trouble passing urine, appetite.",
+    "Rate how much each one affects your work.",
+    "Sip fluids even if you feel sick.",
+    "If you cannot pass urine, or keep vomiting, tell the crew medical officer now.",
+    "Bring the answers to the daily private medical conference."
+   ],
+   "cadence": {
+    "default": {
+     "word": "mission_phase",
+     "n": null,
+     "phase": "early flight",
+     "note": "daily for the first 5 days"
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "early flight",
+      "note": "daily for 5 days after docking"
+     },
+     "transit": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "early flight",
+      "note": "daily for 5 days after launch"
+     },
+     "lunar_surface": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "early flight",
+      "note": "daily for 5 days after launch; see the gravity arrival check for the landing"
+     },
+     "mars_surface": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "early flight",
+      "note": "daily for 5 days after launch; see the gravity arrival check for the landing"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Symptoms still present after 5 days",
+     "new_cadence": {
+      "word": "daily",
+      "n": null,
+      "note": "until resolved"
+     },
+     "source_ids": [
+      "RT04"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": "head",
+   "source_ids": [
+    "RT04",
+    "RT01"
+   ]
+  },
+  {
+   "id": "gravity_arrival_check",
+   "name": "After landing on the Moon or Mars: gravity check",
+   "plain": "In the first days after landing on the Moon or Mars, stand up slowly with a crewmate near, and check dizziness, balance, pulse and blood pressure.",
+   "why": "After weeks or months of weightlessness, standing can make you faint and your balance is off. On Mars there is no ground team to help in real time.",
+   "who": [
+    "self",
+    "crewmate",
+    "crew_medical_officer"
+   ],
+   "instrument": "Kit cuff and oximeter; camera station; the app",
+   "minutes": 10,
+   "steps": [
+    "Before standing, sit for a minute. Stand up slowly with a crewmate beside you.",
+    "Take pulse and blood pressure lying or sitting, then after standing still for a few minutes, if you feel well enough to stand.",
+    "Sit or lie down at once if you feel faint, sweaty or sick.",
+    "Note dizziness, nausea, unsteady walking or blurred vision.",
+    "Do not start surface walks until the crew medical officer agrees."
+   ],
+   "cadence": {
+    "default": {
+     "word": "after_event",
+     "n": null,
+     "event": "landing on the Moon or Mars",
+     "note": "daily for the first 5 days"
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "as_needed",
+      "n": null,
+      "note": "not applicable"
+     },
+     "transit": {
+      "word": "as_needed",
+      "n": null,
+      "note": "not applicable"
+     },
+     "lunar_surface": {
+      "word": "after_event",
+      "n": null,
+      "event": "lunar landing",
+      "note": "daily for the first 5 days"
+     },
+     "mars_surface": {
+      "word": "after_event",
+      "n": null,
+      "event": "Mars landing",
+      "note": "daily for the first 5 days; longer if the transit was long"
+     }
+    },
+    "basis": "team default"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Fainting or near fainting",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "press Someone needs help"
+     },
+     "source_ids": [
+      "C09"
+     ],
+     "basis": "team default"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT02",
+    "C09",
+    "RT23"
+   ]
+  },
+  {
+   "id": "pre_return_prep",
+   "name": "Before return: entry preparation",
+   "plain": "In the last weeks before coming home, do the final eye exam, the daily talks in the last five days, and the fluid loading the flight surgeon prescribes.",
+   "why": "Returning to gravity after a long time in space makes people faint on standing. Drinking a set amount of fluid with salt before entry, and a final check, lower that risk.",
+   "who": [
+    "self",
+    "crew_medical_officer",
+    "ground"
+   ],
+   "instrument": "Kit cuff, oximeter; eye exam devices where available; fluid and salt tablets from the kit",
+   "minutes": 10,
+   "steps": [
+    "About 30 days before return: formal eye tests (and imaging if carried).",
+    "From five days before entry: daily private medical conference.",
+    "Keep up exercise to the end.",
+    "Do the pre-landing medical evaluation with the crew medical officer.",
+    "Before entry: drink the fluid and salt the flight surgeon prescribed, and note the amount."
+   ],
+   "cadence": {
+    "default": {
+     "word": "mission_phase",
+     "n": null,
+     "phase": "return"
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return"
+     },
+     "transit": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return",
+      "note": "before Earth entry, and before a Mars landing"
+     },
+     "lunar_surface": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return",
+      "note": "before leaving the surface and before Earth entry"
+     },
+     "mars_surface": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return",
+      "note": "before leaving the surface; Earth entry follows the return transit"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "The five days before entry",
+     "new_cadence": {
+      "word": "daily",
+      "n": null
+     },
+     "source_ids": [
+      "RT04"
+     ],
+     "basis": "sourced"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT04",
+    "S12",
+    "RT01",
+    "RT03",
+    "RT23"
+   ]
+  },
+  {
+   "id": "post_return_recovery",
+   "name": "After landing on Earth: recovery checks",
+   "plain": "After landing, follow the medical exams and the daily reconditioning plan, and keep doing the app's short checks on the schedule below.",
+   "why": "Muscles, balance, blood pressure control, eyes and sleep all need weeks to readjust. Regular checks show recovery and catch problems.",
+   "who": [
+    "self",
+    "ground"
+   ],
+   "instrument": "The app; ground clinic tests imported as reports",
+   "minutes": 10,
+   "steps": [
+    "Immediately after landing: medical checks by the recovery team. Accept help to move.",
+    "Do not drive or do heavy physical tasks until cleared.",
+    "Reconditioning: about 2 hours a day, 7 days a week, for 45 days.",
+    "Reaction test: daily for the first week, then 30, 60 and 90 days after landing.",
+    "Eye tests in the first days; behavioral health talks around days 3, 14 and 30 to 45; fitness tests at day 7 and day 30.",
+    "Keep the daily check going while you recover."
+   ],
+   "cadence": {
+    "default": {
+     "word": "mission_phase",
+     "n": null,
+     "phase": "return"
+    },
+    "by_environment": {
+     "station_leo": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return"
+     },
+     "transit": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return",
+      "note": "after the long transit, recovery may take longer"
+     },
+     "lunar_surface": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return"
+     },
+     "mars_surface": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return",
+      "note": "after the longest missions, recovery may take longer"
+     }
+    },
+    "basis": "sourced"
+   },
+   "raise_frequency_when": [
+    {
+     "trigger": "Fainting, falls, or a new symptom during recovery",
+     "new_cadence": {
+      "word": "as_needed",
+      "n": null,
+      "note": "tell the recovery team"
+     },
+     "source_ids": [
+      "RT23"
+     ],
+     "basis": "team default"
+    },
+    {
+     "trigger": "A long mission",
+     "new_cadence": {
+      "word": "mission_phase",
+      "n": null,
+      "phase": "return",
+      "note": "extend the plan as the flight surgeon decides"
+     },
+     "source_ids": [
+      "RT23",
+      "RT14"
+     ],
+     "basis": "sourced"
+    }
+   ],
+   "body_region": null,
+   "source_ids": [
+    "RT02",
+    "RT23",
+    "RT14",
+    "RT25",
+    "RT15",
+    "S12"
+   ]
+  }
+ ],
+ "sources": [
+  {
+   "id": "RT01",
+   "title": "OCHMO-TB-044 Medical Operations: Spaceflight Considerations",
+   "url": "https://www.nasa.gov/wp-content/uploads/2025/08/ochmo-tb-044-medical-operations.pdf",
+   "date": "13 August 2025",
+   "access": "Read in full (PDF text)",
+   "saved_as": "research/routine/RT01.txt"
+  },
+  {
+   "id": "RT02",
+   "title": "NASA-STD-3001 Volume 1, Revision C: Crew Health",
+   "url": "https://www.nasa.gov/wp-content/uploads/2023/11/nasa-std-3001-vol-1-rev-c-with-signature.pdf",
+   "date": "Approved 15 September 2023",
+   "access": "Read (PDF text; chapters 3 to 6 read closely)",
+   "saved_as": "research/routine/RT02.txt"
+  },
+  {
+   "id": "RT03",
+   "title": "NASA-STD-3001 Volume 2, Revision F: Human Factors, Habitability, and Environmental Health",
+   "url": "https://standards.nasa.gov/system/files/tmp/NASA-STD-3001%20Vol%202%20Rev%20F.pdf",
+   "date": "Approved 14 July 2026",
+   "access": "Searched (PDF text; sections 6.2, 6.3, 6.6, 6.8, 7, 9 read)",
+   "saved_as": "research/routine/RT03.txt"
+  },
+  {
+   "id": "RT04",
+   "title": "OCHMO-MTB-004 Space Adaptation Sickness (SAS), Rev A",
+   "url": "https://www.nasa.gov/wp-content/uploads/2025/09/ochmo-mtb-004-space-adaptation-sickness-sas.pdf",
+   "date": "25 September 2025",
+   "access": "Read in full (PDF text)",
+   "saved_as": "research/routine/RT04.txt"
+  },
+  {
+   "id": "RT05",
+   "title": "OCHMO-TB-035 Acoustics, Rev C",
+   "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-035-acoustics.pdf",
+   "date": "6 October 2023",
+   "access": "Read in full (PDF text)",
+   "saved_as": "research/routine/RT05.txt"
+  },
+  {
+   "id": "RT06",
+   "title": "Effects of Long Duration Space Flight on Low Frequency Hearing (Coste and Robinette, NTRS 20240009887)",
+   "url": "https://ntrs.nasa.gov/citations/20240009887",
+   "date": "6 August 2024",
+   "access": "Read in full (poster PDF text)",
+   "saved_as": "research/routine/RT06.txt"
+  },
+  {
+   "id": "RT07",
+   "title": "Status - International Space Station (ISS) Crewmembers' Noise Exposures (Inter-Noise 2021, NTRS 20210016305)",
+   "url": "https://ntrs.nasa.gov/citations/20210016305",
+   "date": "2021",
+   "access": "Read (PDF text)",
+   "saved_as": "research/routine/RT07.txt"
+  },
+  {
+   "id": "RT08",
+   "title": "Status: Crewmember Noise Exposures on the International Space Station (ICES 2015, NTRS 20150011048)",
+   "url": "https://ntrs.nasa.gov/citations/20150011048",
+   "date": "2015",
+   "access": "Read (PDF text)",
+   "saved_as": "research/routine/RT08.txt"
+  },
+  {
+   "id": "RT09",
+   "title": "OCHMO-TB-020 Design for Ionizing Radiation Protection, Rev G",
+   "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-020-radiation-protection.pdf",
+   "date": "6 June 2025",
+   "access": "Read in full (PDF text)",
+   "saved_as": "research/routine/RT09.txt"
+  },
+  {
+   "id": "RT10",
+   "title": "OCHMO-TB-037 Decompression Sickness (DCS) Risk Mitigation, Rev D",
+   "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-037-decompression-sickness.pdf",
+   "date": "5 October 2026",
+   "access": "Read in full (PDF text)",
+   "saved_as": "research/routine/RT10.txt"
+  },
+  {
+   "id": "RT11",
+   "title": "Evidence Report: Risk of Reduced Crew Health and Performance Due to Decompression Sickness and Hypoxia",
+   "url": "https://humanresearchroadmap.nasa.gov/Evidence/reports/Evidence%20Report%20Hypoxia%20and%20DCS_FINAL_1-8-2024.pdf",
+   "date": "Approved for public release 31 October 2023",
+   "access": "Searched (PDF text; reporting and onset sections read)",
+   "saved_as": "research/routine/RT11.txt"
+  },
+  {
+   "id": "RT12",
+   "title": "Evidence Report: Risk of Injury and Compromised Performance Due to EVA Operations",
+   "url": "https://humanresearchroadmap.nasa.gov/Evidence/other/EVA%20Injury%20Evidence%20Report%20FINAL_6-14-2023.pdf",
+   "date": "Approved for public release 16 May 2022",
+   "access": "Searched (PDF text; hand injury sections read)",
+   "saved_as": "research/routine/RT12.txt"
+  },
+  {
+   "id": "RT13",
+   "title": "OCHMO-TB-011 Lunar Dust, Rev C",
+   "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-011-lunar-dust-technical-brief.pdf",
+   "date": "28 November 2023",
+   "access": "Read in full (PDF text)",
+   "saved_as": "research/routine/RT13.txt"
+  },
+  {
+   "id": "RT14",
+   "title": "OCHMO-TB-031 Exercise Overview",
+   "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-031-exercise-overview.pdf",
+   "date": "2 October 2023",
+   "access": "Read (PDF text)",
+   "saved_as": "research/routine/RT14.txt"
+  },
+  {
+   "id": "RT15",
+   "title": "Behavioral Health and Performance Operations at the NASA Johnson Space Center (Beven, AsMA 2017, NTRS 20170003866)",
+   "url": "https://ntrs.nasa.gov/citations/20170003866",
+   "date": "3 May 2017",
+   "access": "Read in full (slide PDF text)",
+   "saved_as": "research/routine/RT15.txt"
+  },
+  {
+   "id": "RT16",
+   "title": "Health and Fitness Evaluations for Long Duration Microgravity Exposure (Roden and Ewert, abstract, NTRS 20060051792)",
+   "url": "https://ntrs.nasa.gov/citations/20060051792",
+   "date": "2006",
+   "access": "Read in full (abstract PDF text)",
+   "saved_as": "research/routine/RT16.txt"
+  },
+  {
+   "id": "RT17",
+   "title": "Crew Health and Performance Integrated Data Service Platform (CHP-IDSP): Project Updates (HRP IWS 2025, NTRS 20250000330)",
+   "url": "https://ntrs.nasa.gov/citations/20250000330",
+   "date": "February 2025",
+   "access": "Read in full (slide PDF text)",
+   "saved_as": "research/routine/RT17.txt"
+  },
+  {
+   "id": "RT18",
+   "title": "Crew Time Analysis of Planned Medical Activities & Estimate of Time Required for 6 Month Increment (Dulin, Easter, Stratton, NTRS 20230015627)",
+   "url": "https://ntrs.nasa.gov/citations/20230015627",
+   "date": "Posted 6 May 2024",
+   "access": "Read in full (poster PDF text)",
+   "saved_as": "research/routine/RT18.txt"
+  },
+  {
+   "id": "RT19",
+   "title": "International Space Station Medical Operations (Jones, NTRS 20080010877)",
+   "url": "https://ntrs.nasa.gov/citations/20080010877",
+   "date": "Undated on the document; NTRS record 2008",
+   "access": "Read in full (PDF text)",
+   "saved_as": "research/routine/RT19.txt"
+  },
+  {
+   "id": "RT20",
+   "title": "Microbial Detection and Control on the International Space Station (Castro, November 2014, NTRS 20150001643)",
+   "url": "https://ntrs.nasa.gov/citations/20150001643",
+   "date": "November 2014",
+   "access": "Read in full (slide PDF text)",
+   "saved_as": "research/routine/RT20.txt"
+  },
+  {
+   "id": "RT21",
+   "title": "OCHMO-TB-046 Microbiology, Rev A",
+   "url": "https://www.nasa.gov/wp-content/uploads/2025/05/ochmo-tb-046-microbiology-rev-a.pdf",
+   "date": "19 May 2025",
+   "access": "Read (PDF text)",
+   "saved_as": "research/routine/RT21.txt"
+  },
+  {
+   "id": "RT22",
+   "title": "OCHMO-MTB-012 Pharmaceutical Care, Rev B",
+   "url": "https://www.nasa.gov/wp-content/uploads/2026/01/ochmo-mtb-012-pharmaceutical-care.pdf",
+   "date": "12 January 2026",
+   "access": "Read (PDF text)",
+   "saved_as": "research/routine/RT22.txt"
+  },
+  {
+   "id": "RT23",
+   "title": "OCHMO-TB-051 Crew Medical Support for Entry, Descent, and Landing",
+   "url": "https://www.nasa.gov/wp-content/uploads/2026/05/ochmo-tb-051-crew-medical-support-entry-descent-landing.pdf",
+   "date": "21 May 2026",
+   "access": "Read (PDF text)",
+   "saved_as": "research/routine/RT23.txt"
+  },
+  {
+   "id": "RT24",
+   "title": "OCHMO-TB-006 Health Stabilization Program, Rev F",
+   "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-006-health-stabilization-program.pdf",
+   "date": "19 May 2025",
+   "access": "Read in full (PDF text)",
+   "saved_as": "research/routine/RT24.txt"
+  },
+  {
+   "id": "RT25",
+   "title": "Sleep deficiency in spaceflight is associated with degraded neurobehavioral functions and elevated stress in astronauts on six-month missions aboard the International Space Station (Sleep 2022, PMC8919197)",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8919197/",
+   "date": "2022",
+   "access": "Read (full text, PubMed Central)",
+   "saved_as": "research/routine/RT25.txt"
+  },
+  {
+   "id": "RT26",
+   "title": "Validity and Sensitivity of a Brief Psychomotor Vigilance Test (PVT-B) to Total and Partial Sleep Deprivation (Acta Astronautica 2011, PMC3197786)",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3197786/",
+   "date": "2011",
+   "access": "Read (full text, PubMed Central)",
+   "saved_as": "research/routine/RT26.txt"
+  },
+  {
+   "id": "RT27",
+   "title": "Blood pressure measurement (MedlinePlus Medical Encyclopedia)",
+   "url": "https://medlineplus.gov/ency/article/007490.htm",
+   "date": "Review date 23 July 2024",
+   "access": "Read in full",
+   "saved_as": "research/routine/RT27.txt"
+  },
+  {
+   "id": "RT28",
+   "title": "Pulse (MedlinePlus Medical Encyclopedia)",
+   "url": "https://medlineplus.gov/ency/article/003399.htm",
+   "date": "Review date 1 January 2025",
+   "access": "Read in full",
+   "saved_as": "research/routine/RT28.txt"
+  },
+  {
+   "id": "RT29",
+   "title": "Vital Signs (Cleveland Clinic)",
+   "url": "https://my.clevelandclinic.org/health/articles/10881-vital-signs",
+   "date": "Last updated 15 March 2023",
+   "access": "Read in full",
+   "saved_as": "research/routine/RT29.txt"
+  },
+  {
+   "id": "RT30",
+   "title": "High temperature (fever) in adults (NHS)",
+   "url": "https://www.nhs.uk/symptoms/fever-in-adults/",
+   "date": "Page last reviewed 19 October 2026",
+   "access": "Read in full",
+   "saved_as": "research/routine/RT30.txt"
+  },
+  {
+   "id": "RT31",
+   "title": "Dehydration (NHS)",
+   "url": "https://www.nhs.uk/conditions/dehydration/",
+   "date": "Page last reviewed 1 May 2026",
+   "access": "Read in full",
+   "saved_as": "research/routine/RT31.txt"
+  },
+  {
+   "id": "RT32",
+   "title": "All About the Amsler Grid and Daily Vision Checks for AMD (American Academy of Ophthalmology)",
+   "url": "https://www.aao.org/eye-health/tips-prevention/facts-about-amsler-grid-daily-vision-test",
+   "date": "Published 19 December 2025",
+   "access": "Read in full",
+   "saved_as": "research/routine/RT32.txt"
+  },
+  {
+   "id": "RT33",
+   "title": "OCHMO-MTB-006 Shoulder Injury Overview & Treatment Guidance",
+   "url": "https://www.nasa.gov/wp-content/uploads/2025/09/ochmo-mtb-006-shoulder-injury.pdf",
+   "date": "4 September 2025",
+   "access": "Read (PDF text)",
+   "saved_as": "research/routine/RT33.txt"
+  },
+  {
+   "id": "RT34",
+   "title": "Body mass changes during long-duration spaceflight (Zwart and others, Aviat Space Environ Med 2014;85(9):897-904, PMID 25197887)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/25197887/",
+   "date": "September 2014",
+   "access": "Abstract only (PubMed record)",
+   "saved_as": "research/routine/RT34.txt"
+  },
+  {
+   "id": "S12",
+   "title": "OCHMO-MTB-001 Spaceflight Associated Neuro-ocular Syndrome (SANS)",
+   "url": "https://www.nasa.gov/wp-content/uploads/2024/02/ochmo-mtb-001-sans.pdf",
+   "date": "21 February 2024",
+   "access": "Read in full (PDF text)",
+   "saved_as": "research/routine/S12.txt"
+  },
+  {
+   "id": "C14",
+   "title": "OCHMO-TB-016 Behavioral Health and Performance, Rev B",
+   "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-016-behavioral-health.pdf",
+   "date": "24 October 2023",
+   "access": "Read (PDF text)",
+   "saved_as": "research/routine/C14.txt"
+  },
+  {
+   "id": "C15",
+   "title": "OCHMO-TB-041 Sleep Accommodations, Rev B",
+   "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-041-sleep-accommodations.pdf",
+   "date": "23 October 2023",
+   "access": "Read (PDF text)",
+   "saved_as": "research/routine/C15.txt"
+  },
+  {
+   "id": "C25",
+   "title": "OCHMO-TB-004 Carbon Dioxide, Rev D",
+   "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-004-carbon-dioxide.pdf",
+   "date": "10 March 2026",
+   "access": "Read (PDF text)",
+   "saved_as": "research/routine/C25.txt"
+  },
+  {
+   "id": "C08",
+   "title": "Pulse Oximeter Basics (FDA)",
+   "url": "https://www.fda.gov/consumers/consumer-updates/pulse-oximeter-basics",
+   "date": "Content current as of 26 March 2025",
+   "access": "Read in full",
+   "saved_as": "research/routine/C08.txt"
+  },
+  {
+   "id": "C09",
+   "title": "OCHMO-TB-019 Orthostatic Intolerance, Rev B",
+   "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-019-orthostatic-intolerance.pdf",
+   "date": "1 December 2023",
+   "access": "Read in full (PDF text)",
+   "saved_as": "research/routine/C09.txt"
+  }
+ ]
+}

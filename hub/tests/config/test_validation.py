@@ -244,6 +244,13 @@ def test_text_validation_is_release_bound_and_missing_medicines_stays_unavailabl
     assert unavailable.spans == ()
     with pytest.raises(ConfigInvalid):
         rules.find_medicines("x" * 31, release=pinned)
+    pinned_terms = PinnedRelease(
+        "release_new",
+        candidate({ConfigName.ASSISTANT_POLICY: {"medicine_terms": ["ibuprofen", "pain relief"]}}).documents,
+    )
+    checked = rules.find_medicines("Take Ibuprofens now", release=pinned_terms)
+    assert (checked.release_id, checked.state, checked.spans) == ("release_new", "checked", ((5, 15),))
+    assert rules.find_medicines("pulse check", release=pinned_terms).spans == ()
     with pytest.raises(ConfigInvalid):
         rules.find_amounts("hello", release=PinnedRelease("release_missing", {}))
     for size, matches in ((0, 1), (1, 0)):

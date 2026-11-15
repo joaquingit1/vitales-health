@@ -5,7 +5,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
 
-from crew_health.config.application.loader import ValidationResult
+from crew_health.config.application.ports import ValidationResult
 from crew_health.config.domain.checks import parse_document
 from crew_health.config.domain.errors import ConfigInvalid
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode

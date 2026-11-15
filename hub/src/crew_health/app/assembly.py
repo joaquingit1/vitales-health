@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -13,6 +14,7 @@ from fastapi import APIRouter, FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from crew_health.app import assistant_seams, guidance_seams, plans_seams
 from crew_health.app.errors import to_envelope
 from crew_health.app.import_contracts import module_digest, module_migrations, verify_modules
 from crew_health.app.installed_modules import REGISTRATIONS
@@ -20,6 +22,7 @@ from crew_health.app.maintenance import build_supervisor, guard_clock, wire_cloc
 from crew_health.app.middleware import HubMiddleware, OperationCatalog
 from crew_health.app.registry import DeclarationRegistry, ModuleRegistry, Resolver, StartupPhase
 from crew_health.app.workers import ModuleWorkers
+from crew_health.camera.application.ports import AdapterStatesPort
 from crew_health.clock.application.clock import ClockIdentity, PersistentClocks
 from crew_health.clock.module import register as register_clock
 from crew_health.config.api.router import ConfigHttpCommands
@@ -31,6 +34,8 @@ from crew_health.config.module import register as register_config
 from crew_health.contracts_gen.build import load_json, object_map, verify_base
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode, EventType
 from crew_health.contracts_gen.schemas.health_schema import Health
+from crew_health.contracts_gen.schemas.job_schema import Job
+from crew_health.episodes.application.ports import CommandFingerprint as EpisodeFingerprint
 from crew_health.events.adapters.notifier import BoundedNotifier
 from crew_health.events.adapters.repository import EventRepository, EventValidator
 from crew_health.events.application.delivery import SessionAuthorizer
@@ -48,16 +53,25 @@ from crew_health.kernel.commands import (
 )
 from crew_health.kernel.config import ActivationGuard, CandidateRelease, ReleaseCheck
 from crew_health.kernel.errors import ProblemError
-from crew_health.kernel.evaluation import EvaluatorRegistration
+from crew_health.kernel.evaluation import EvaluationIsolation, EvaluatorRegistration
 from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.private import PrivateRecordCoordinator
 from crew_health.kernel.replication import ProjectionKey, ReplicatedTable, ReplicationAllowlist
 from crew_health.kernel.scheduler import HealthState, ScheduledJob, WorkerLifecycle
 from crew_health.kernel.settings import HubSettings, SettingSpec
-from crew_health.kernel.tasks import JobQueries, TaskInput, TaskQueue, TaskRegistration, TaskStatus
+from crew_health.kernel.task_results import TaskFailureResults
+from crew_health.kernel.tasks import (
+    JobQueries,
+    TaskInput,
+    TaskQueue,
+    TaskRegistration,
+    TaskRunner,
+    TaskStatus,
+)
 from crew_health.kernel.uow import (
     Actor,
     Audience,
+    AudienceProjectionKey,
     AudienceRule,
     DomainEvent,
     LocalProjectionRegistration,
@@ -66,11 +80,16 @@ from crew_health.kernel.uow import (
     StoredEvent,
     UnitOfWork,
 )
+from crew_health.measurement.application.ports import CommandFingerprint as MeasurementFingerprint
+from crew_health.medicines.adapters.weights import RecordsObservations, RecordsWeightReader
+from crew_health.medicines.application.ports import WeightReader
 from crew_health.platform.adapters.evaluation import EvaluationRepository
+from crew_health.platform.adapters.fingerprint import KeyedCommandFingerprint
 from crew_health.platform.adapters.ledger import CommandLedger
 from crew_health.platform.adapters.migrations import require_expansion
 from crew_health.platform.adapters.tasks import TaskRepository
 from crew_health.platform.api.jobs import create_router as jobs_router
+from crew_health.platform.api.jobs import job_body
 from crew_health.platform.application.commands import CommandExecutor, OperationPolicy
 from crew_health.platform.application.evaluation import EvaluationService
 from crew_health.platform.application.supervisor import Supervisor
@@ -80,6 +99,7 @@ from crew_health.platform.storage import SQLiteDatabase
 from crew_health.records.api.router import create_router as records_router
 from crew_health.records.application.commands import RecordsCommands
 from crew_health.records.application.queries import RecordsQueries
+from crew_health.records.application.seams import RecordsStore
 from crew_health.records.domain.observations import ObservationInput, ObservationRecord
 from crew_health.records.module import register as register_records
 
@@ -148,7 +168,7 @@ class BuildCatalog:
         inventory = {name: value for name, value in modules.items() if isinstance(value, str)}
         if len(inventory) != len(modules):
             raise ValueError("invalid installed module inventory")
-        return cls(root, inventory, REGISTRATIONS)
+        return cls(root, inventory, cast(tuple[Callable[[ModuleRegistry], None], ...], REGISTRATIONS))
 
     def verify(self, maximum: int) -> None:
         if set(self.inventory) != {fn.__module__ for fn in self.registrations} or len(
@@ -180,6 +200,23 @@ class TaskHttpServices:
     queue: TaskQueue
     queries: JobQueries
     visibility: ResultVisibility
+
+
+class JobAudience:
+    def __init__(self, runtime: Runtime) -> None:
+        self.runtime = runtime
+
+    def admits(self, snapshot: ReadSnapshot, session: SessionContext, audience: Audience) -> bool:
+        resolver = self.runtime.resolver
+        if resolver is None:
+            return False
+        try:
+            resolver.require(TaskService).get(snapshot, session, audience.object_ref)
+            return True
+        except ProblemError as error:
+            if error.code in (ErrorCode.NOT_FOUND, ErrorCode.UNAUTHORIZED_SCOPE):
+                return False
+            raise
 
 
 def _identity(request: Request, session: SessionContext, operation: str, target: str) -> CommandIdentity:
@@ -416,10 +453,12 @@ def _configuration(runtime: Runtime, bootstrap: Bootstrap | None) -> ReleaseActi
             active = service.has_active(view)
         if not active:
             candidate, note = bootstrap(db.ids)
+            with db.snapshot() as view:
+                checked = service.check(view, candidate)
             with db.begin(
                 actor=Actor("engine", "engine_config"), correlation_id=db.ids.new("startup")
             ) as uow:
-                service.install(uow, candidate, note=note)
+                service.install(uow, candidate, note=note, checked=checked)
             runtime.bootstrapped = candidate.release_id
         else:
             _upgrade(runtime, service, bootstrap)
@@ -486,6 +525,19 @@ class ReleaseAudience:
         return audience.rule == "config.release"
 
 
+def _seam_bindings(registry: DeclarationRegistry) -> None:
+    """Seams whose consumer reads a structural copy the provider's module may not hand over itself (SYSTEM 5.12):
+    medicines (E32 M-L4) reads body weight through records' store, whose seams module imports records' domain and
+    so is closed to medicines. Bound only when records provides its store and nobody bound the port already."""
+    store, weights = cast(type[object], RecordsStore), cast(type[object], WeightReader)
+    if store in registry.providers and weights not in registry.providers:
+        registry.provide(
+            weights,
+            lambda resolver: RecordsWeightReader(cast(RecordsObservations, resolver.require(store))),
+            requires=(store,),
+        )
+
+
 def _event_access(registry: DeclarationRegistry) -> None:
     """Event delivery filters with exactly the declared audience rules and local projections (SYSTEM 5.7, 5.12):
     an audience no module declared admits nobody. The session authorizer is the sessions provider's (E02)."""
@@ -519,17 +571,7 @@ def _hub_time(
     """A capture on the hub's own clock: its latest segment and the correction revision in force now."""
 
     def capture(uow: UnitOfWork) -> TimeInput:
-        segment = (
-            None
-            if clocks.hub_source_clock_id is None
-            else clocks.repository.latest_segment(uow.connection, clocks.hub_source_clock_id)
-        )
-        if segment is None:
-            raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, "hub clock segment not open")
-        version = clocks.repository.correction_head(uow.connection)
-        return TimeInput(
-            uow.now, segment.source_clock_id, segment.segment_id, version, "hub_corrected", origin(uow)
-        )
+        return clocks.capture_hub(uow, origin_mode=origin(uow))
 
     return capture
 
@@ -541,6 +583,11 @@ def _owner_only(view: ReadSnapshot | UnitOfWork, session: SessionContext, task: 
 def _completion_open(uow: UnitOfWork, task: TaskInput) -> bool:
     """No task registration is on main; each registration's handler applies its own grant check on completion."""
     return True
+
+
+# SYSTEM 5.10.2: the allowlisted computation failure codes an evaluator may raise as EvaluatorComputationFailure.
+# E23 sensors raise NON_FINITE_COMPUTATION for a non-finite or overflowing aggregate; nothing else is isolated.
+COMPUTATION_FAULT_CODES = frozenset({"NON_FINITE_COMPUTATION"})
 
 
 def platform_services(registry: DeclarationRegistry, runtime: Runtime) -> None:
@@ -562,29 +609,16 @@ def platform_services(registry: DeclarationRegistry, runtime: Runtime) -> None:
             db.ids,
             repository=EvaluationRepository(),
             capture=_hub_time(clocks, metadata.origin),
+            fault_codes=COMPUTATION_FAULT_CODES,
         )
 
     def tasks(resolver: Resolver) -> TaskService:
         clocks, metadata = resolver.require(PersistentClocks), resolver.require(ConfigHttpMetadata)
 
-        def capture(at: datetime) -> TimeInput:
-            segment, origin = runtime.hub_segment, runtime.origin
-            if segment is None or origin is None:
-                raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, "hub clock segment not open")
-            return TimeInput(
-                at,
-                segment.source_clock_id,
-                segment.segment_id,
-                segment.capture_offset_version,
-                "hub_corrected",
-                origin,
-            )
-
         registrations = tuple(
             cast(TaskRegistration, value)
             for _, value in sorted(registry.declarations.get("tasks", {}).items(), key=lambda p: str(p[0]))
         )
-        del metadata
         return TaskService(
             settings=db.settings,
             repository=TaskRepository(),
@@ -592,12 +626,49 @@ def platform_services(registry: DeclarationRegistry, runtime: Runtime) -> None:
             registrations=registrations,
             authorize=_owner_only,
             authorize_completion=_completion_open,
-            capture=capture,
+            capture_in_view=lambda view: clocks.capture_hub(view, origin_mode=metadata.origin(view)),
             elapsed=clocks.elapsed,
+            public_payload=lambda status, correlation: job_body(status, None, correlation),
         )
 
     registry.provide(EvaluationService, evaluation, requires=(PersistentClocks, ConfigHttpMetadata))
+    # SYSTEM 5.10.2: the one EvaluationIsolation implementation is this service; consumers (E23 sensors) ask the port.
+    registry.provide(
+        EvaluationIsolation,  # type: ignore[type-abstract]
+        lambda resolver: resolver.require(EvaluationService),
+        requires=(EvaluationService,),
+    )
     registry.provide(TaskService, tasks, requires=(PersistentClocks, ConfigHttpMetadata))
+    # A composer (station's camera F1 binding) may already have bound the same TaskService under these keys.
+    for port in (TaskQueue, TaskRunner):
+        if port not in registry.providers:
+            registry.provide(port, lambda resolver: resolver.require(TaskService), requires=(TaskService,))
+    registry.provide(JobQueries, lambda resolver: resolver.require(TaskService), requires=(TaskService,))  # type: ignore[type-abstract]
+    registry.provide(
+        TaskFailureResults,  # type: ignore[type-abstract]
+        lambda resolver: resolver.require(TaskService),
+        requires=(TaskService,),
+    )
+    if TaskHttpServices not in registry.providers:
+        registry.provide(
+            TaskHttpServices,
+            lambda resolver: TaskHttpServices(
+                resolver.require(TaskService),
+                resolver.require(TaskService),
+                resolver.require(ConfigHttpMetadata).visibility,
+            ),
+            requires=(TaskService, ConfigHttpMetadata),
+        )
+    audience = JobAudience(runtime)
+    registry.audience_rule("platform.job.owner", audience)
+    registry.local_projection(
+        LocalProjectionRegistration(
+            AudienceProjectionKey("platform", "job", 1),
+            canonical_json(Job.model_json_schema()),
+            ("/job_id", "/kind", "/state"),
+            audience,
+        )
+    )
 
 
 def _startup(
@@ -625,6 +696,18 @@ def _startup(
     for register in sorted(build.registrations, key=lambda fn: fn.__module__):
         register(registry)
     configure(registry)
+    plans_seams.compose(registry)
+    guidance_seams.compose(registry)
+    # SYSTEM 5.8: one keyed body fingerprint (platform) under every module's CommandFingerprint port.
+    for port in (MeasurementFingerprint, EpisodeFingerprint):
+        if port not in registry.providers:
+            registry.provide(
+                port,  # type: ignore[type-abstract]
+                lambda r: r.require(KeyedCommandFingerprint),
+                requires=(KeyedCommandFingerprint,),
+            )
+    assistant_seams.compose(registry, lambda: runtime.hub_segment)
+    _seam_bindings(registry)
     _event_access(registry)
     platform_services(registry, runtime)
     allowlist = _storage_declarations(registry, db)
@@ -760,6 +843,21 @@ def _degraded(runtime: Runtime, view: ReadSnapshot) -> bool:
     return bool(pending) or not resolver.require(PersistentClocks).clearing_allowed(view)
 
 
+def _adapters(runtime: Runtime) -> tuple[list[dict[str, str]], bool]:
+    """Health.adapters from the adapter modules' own state (the camera worker's last probe), and whether reading it
+    failed. A failing source never fails health: it lists nothing and reports degraded, never a made-up state."""
+    resolver = runtime.resolver
+    if resolver is None:
+        return [], False
+    try:
+        source = resolver.optional(AdapterStatesPort)  # type: ignore[type-abstract]
+        states = () if source is None else source.adapter_states(runtime.database.clock.now())
+    except Exception:  # noqa: BLE001  # contained: health keeps answering, degraded (AGENTS 2)
+        logging.getLogger(__name__).warning("health_adapters_unavailable")
+        return [], True
+    return [{"adapter_id": s.adapter_id, "state": s.state} for s in states], False
+
+
 def _correlation(request: Request, ids: IdFactory) -> str:
     value: object = getattr(request.state, "correlation_id", None)
     return value if isinstance(value, str) else ids.new("correlation")
@@ -810,13 +908,15 @@ def create_app(
             # A transient read fault (busy, io) reports degraded for this request only; it never latches the hub
             # out of service (AGENTS: contain failures). The next healthy read reports the real state again.
             degraded = True
+        adapters, unreadable = _adapters(runtime)
+        degraded = degraded or unreadable
         body = Health.model_validate(
             {
                 "status": "degraded" if degraded or not runtime.serving else "ok",
                 "hub_version": hub_version,
                 "config_release_id": release_id,
                 "assistant_state": "unavailable",
-                "adapters": [],
+                "adapters": adapters,
                 "server_time": database.clock.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
             }
         )

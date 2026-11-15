@@ -96,6 +96,18 @@ class CameraReferencePort(Protocol):
     def abandon(self, ticket_id: str, *, timeout: timedelta) -> None: ...
 
 
+# Provided to the hub's GET /v1/health (Health.adapters, contracts health.schema.json): the camera worker's adapter
+# and whether its last probe answered. Nothing is listed when the camera is not enabled.
+@dataclass(frozen=True, slots=True)
+class AdapterState:
+    adapter_id: str
+    state: Literal["connected", "quiet", "disconnected"]  # health.schema.json adapters[].state
+
+
+class AdapterStatesPort(Protocol):
+    def adapter_states(self, now: datetime) -> tuple[AdapterState, ...]: ...
+
+
 # Consumed -------------------------------------------------------------------------------------------------------
 
 
@@ -172,6 +184,8 @@ __all__ = [
     "AdapterAssignment",
     "AdapterAssignmentPort",
     "AdapterReadinessPort",
+    "AdapterState",
+    "AdapterStatesPort",
     "AttemptReports",
     "CameraObservationDraft",
     "CameraReferencePort",

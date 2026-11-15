@@ -1,0 +1,7 @@
+    crew_health_bench.application.gate.x_gate__mutmut_1: survived
+    crew_health_bench.application.gate.x_gate__mutmut_2: survived
+    crew_health_bench.domain.partition.x__root__mutmut_4: survived
+    crew_health_bench.domain.partition.x__root__mutmut_5: survived
+    crew_health_bench.domain.partition.x__root__mutmut_6: survived
+    crew_health_bench.domain.partition.x__near_pairs__mutmut_22: survived
+    crew_health_bench.domain.partition.x__near_pairs__mutmut_25: survived

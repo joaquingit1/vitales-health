@@ -1,0 +1,105 @@
+{
+  "harness": {
+    "repository": "https://github.com/openai/simple-evals",
+    "commit": "652c89d0ca9df547706735883097e9537d40dc47",
+    "module": "healthbench_eval",
+    "module_sha256": "b763d8c1f53ecd165f0d170a32bc948216b3dfeadafe238b2083328e1af4b2df",
+    "loading": "HealthBenchEval.__init__",
+    "grading": "HealthBenchEval.grade_sample",
+    "scoring": "calculate_score",
+    "aggregation": "_aggregate_get_clipped_mean"
+  },
+  "datasets": [
+    {
+      "variant": "main",
+      "url": "https://openaipublic.blob.core.windows.net/simple-evals/healthbench/2025-05-07-06-14-12_oss_eval.jsonl",
+      "sha256": "e99dd3c6372c10d6fcc5e385c5fae69d0dd40392dae56836ef9493ae324ecd2f",
+      "bytes": 60258154,
+      "examples": 5000
+    },
+    {
+      "variant": "Hard",
+      "url": "https://openaipublic.blob.core.windows.net/simple-evals/healthbench/hard_2025-05-08-21-00-10.jsonl",
+      "sha256": "b0320430e5cd974e746585594c1dd10b5a3fc2aff9c72b26106c2c4a069d74e9",
+      "bytes": 12581564,
+      "examples": 1000
+    },
+    {
+      "variant": "Consensus",
+      "url": "https://openaipublic.blob.core.windows.net/simple-evals/healthbench/consensus_2025-05-09-20-00-46.jsonl",
+      "sha256": "fabe37553327238928b05357d8b309737b5d426d6dee432a3376da618d0969d6",
+      "bytes": 36921504,
+      "examples": 3671
+    }
+  ],
+  "grader": {
+    "model": "gpt-4.1-2025-04-14",
+    "base_url": "https://api.openai.com",
+    "version": "2025-04-14",
+    "api_key_env": "OPENAI_API_KEY",
+    "prompt_sha256": "2adffd51fd259554ebcd036ad1072d4aa2b7ce3aec2bbffe36271f911632ed3c",
+    "temperature": 0.5,
+    "max_tokens": 2048,
+    "system_message": "You are a helpful assistant."
+  },
+  "sample": {
+    "rule": "seeded_prefix",
+    "seed": "18",
+    "frame_exclusions": []
+  },
+  "warmup_n": 3,
+  "budget": {
+    "value": 21600,
+    "unit": "s"
+  },
+  "bootstrap_b": 1000,
+  "interval_level": 0.95,
+  "provenance": {
+    "harness": {
+      "basis": "sourced",
+      "source_ids": [
+        "L02"
+      ],
+      "to_be_set_by": null
+    },
+    "datasets": {
+      "basis": "sourced",
+      "source_ids": [
+        "L02"
+      ],
+      "to_be_set_by": null
+    },
+    "grader": {
+      "basis": "sourced",
+      "source_ids": [
+        "L02"
+      ],
+      "to_be_set_by": null
+    },
+    "sample": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "warmup_n": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "budget": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "bootstrap_b": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    },
+    "interval_level": {
+      "basis": "team default",
+      "source_ids": [],
+      "to_be_set_by": null
+    }
+  }
+}

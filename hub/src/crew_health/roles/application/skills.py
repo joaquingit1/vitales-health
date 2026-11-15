@@ -27,6 +27,7 @@ from crew_health.roles.application.world import (
     read_mission,
     read_world,
     record_for,
+    register_reference,
 )
 from crew_health.roles.domain.drill import Drill, abandon_if_ended, complete, core_fresh_at, needed_supplies
 from crew_health.roles.domain.errors import (
@@ -181,18 +182,19 @@ class Skills:
         with self.deps.uow.begin(
             actor=session.actor, command=identity, correlation_id=self.deps.ids.new("cor")
         ) as uow:
-            replay = self._replay(uow, identity, cmd.key)
+            replay = self._replay(uow, identity, cmd.key, world)
             if replay is not None:
                 return replay
             repo = self.deps.repository(uow.connection)
             self._abandon_ended(uow, repo)
             drill = self._new_drill(uow, session, repo, cmd, world)
             body = self._drill_body(drill, world)
+            # The receipt names the command's target (the drills collection); the drill is the resource it made.
             receipt = AcceptedReceipt(
-                cmd.key, "startDrill", drill.drill_id, self.deps.ids.new("rcp"), uow.now
+                cmd.key, "startDrill", identity.target, self.deps.ids.new("rcp"), uow.now
             )
             self.deps.idempotency.record(
-                uow, identity, StoredResult(receipt, 201, drill.drill_id, "created", body)
+                uow, identity, StoredResult(receipt, 201, drill.drill_id, "accepted", None)
             )
             return 201, body
 
@@ -237,13 +239,14 @@ class Skills:
             config_release_id=uow.release.release_id,
         )
         repo.insert_drill(drill, environment_id=world.mission.active_environment_id, roster_index=roster)
+        register_reference(uow, "drill", drill.drill_id, EventType.DRILL_CHANGED)
         emit(uow, EventType.DRILL_CHANGED, self._drill_wire(drill, world), scope=CREW, ref=drill.drill_id)
         audit(
             uow,
             self.deps,
             "roles.drill_started",
             {"drill_id": drill.drill_id},
-            {"participants": len(cmd.participant_ids)},
+            {},
         )
         return drill
 
@@ -282,7 +285,7 @@ class Skills:
         with self.deps.uow.begin(
             actor=session.actor, command=identity, correlation_id=self.deps.ids.new("cor")
         ) as uow:
-            replay = self._replay(uow, identity, cmd.key)
+            replay = self._replay(uow, identity, cmd.key, world)
             if replay is not None:
                 return replay
             repo = self.deps.repository(uow.connection)
@@ -305,7 +308,9 @@ class Skills:
             receipt = AcceptedReceipt(
                 cmd.key, "completeDrill", done.drill_id, self.deps.ids.new("rcp"), uow.now
             )
-            self.deps.idempotency.record(uow, identity, StoredResult(receipt, 200, done.drill_id, "ok", body))
+            self.deps.idempotency.record(
+                uow, identity, StoredResult(receipt, 200, done.drill_id, "accepted", None)
+            )
             return 200, body
 
     def _credit(
@@ -350,7 +355,7 @@ class Skills:
             self.deps,
             "roles.drill_completed",
             {"drill_id": done.drill_id},
-            {"completed": ",".join(done.completed_ids)},
+            {},
         )
         self._request_recompute(uow, repo)
 
@@ -396,16 +401,27 @@ class Skills:
             if ended is not None and repo.save_drill(ended, drill.revision, completed_by=None, core_fresh={}):
                 audit(uow, self.deps, "roles.drill_abandoned", {"drill_id": drill.drill_id}, {})
 
-    def _replay(self, uow: UnitOfWork, identity: CommandIdentity, key: str) -> tuple[int, bytes] | None:
+    def _replay(
+        self, uow: UnitOfWork, identity: CommandIdentity, key: str, world: World
+    ) -> tuple[int, bytes] | None:
+        """SYSTEM 5.8: the ledger keeps the receipt and the drill it named, not the response body; a replay
+        answers with that drill as it stands now."""
         try:
             stored = self.deps.idempotency.lookup(uow, identity)
         except ProblemError as problem:
             if problem.code == ErrorCode.DUPLICATE_COMMAND:
                 raise KeyReused(key) from problem
             raise
-        if stored is None or stored.safe_body is None:
+        if stored is None:
             return None
-        return stored.status, stored.safe_body
+        drill = (
+            None
+            if stored.resource_ref is None
+            else self.deps.repository(uow.connection).get_drill(stored.resource_ref)
+        )
+        if drill is None:
+            raise DrillNotFound(stored.resource_ref or "")
+        return stored.status, self._drill_body(drill, world)
 
     def _drill_wire(self, drill: Drill, world: World) -> dict[str, object]:
         names = {pid: world.name(pid) or "" for pid in drill.participant_ids}

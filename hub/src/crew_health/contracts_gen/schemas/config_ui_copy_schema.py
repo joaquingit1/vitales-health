@@ -708,6 +708,127 @@ class CatchUpWords(BaseModel):
     )
 
 
+class ReviewRoleWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    crew_medical_officer: str = Field(..., min_length=1)
+    acting_medical_officer: str = Field(..., min_length=1)
+    ground: str = Field(..., min_length=1)
+
+
+class State(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    draft: str = Field(..., min_length=1)
+    open: str = Field(..., min_length=1)
+    awaiting_information: str = Field(..., min_length=1)
+    awaiting_review: str = Field(..., min_length=1)
+    followup: str = Field(..., min_length=1)
+    resolved: str = Field(..., min_length=1)
+
+
+class EpisodeWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    state: State
+
+
+class ResolutionReasonWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    measurement_anomaly_not_reproduced: str = Field(..., min_length=1)
+    symptoms_reported_resolved: str = Field(..., min_length=1)
+    clinician_assessed: str = Field(..., min_length=1)
+
+
+class ReopenReasonWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    symptoms_recurred: str = Field(..., min_length=1)
+    evidence_changed: str = Field(..., min_length=1)
+    recorded_in_error: str = Field(..., min_length=1)
+    answer_after_resolution: str = Field(..., min_length=1)
+    urgency_raised: str = Field(..., min_length=1)
+    new_activity: str = Field(..., min_length=1)
+    review_unresolved: str = Field(..., min_length=1)
+
+
+class TaskKindWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    review: str = Field(..., min_length=1)
+    review_item: str = Field(..., min_length=1)
+    custom: str = Field(..., min_length=1)
+
+
+class ReviewDecisionWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    agree: str = Field(..., min_length=1)
+    disagree: str = Field(..., min_length=1)
+    needs_more: str = Field(..., min_length=1)
+    not_assessed: str = Field(..., min_length=1)
+
+
+class ContextWords(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    environment_label: str = Field(..., min_length=1)
+    mission_day: str = Field(..., min_length=1)
+    mission_day_unknown: str = Field(..., min_length=1)
+    met: str = Field(..., min_length=1)
+    one_way_delay: str = Field(..., min_length=1)
+    simulated_inputs: str = Field(..., min_length=1)
+    simulated_title: str = Field(..., min_length=1)
+    all_live: str = Field(..., min_length=1)
+    sim_values: str = Field(..., min_length=1)
+    replay_values: str = Field(..., min_length=1)
+    sim_ground_link: str = Field(..., min_length=1)
+    sim_mission: str = Field(..., min_length=1)
+    sim_camera: str = Field(..., min_length=1)
+    sim_habitat: str = Field(..., min_length=1)
+    choose_crew: str = Field(..., min_length=1)
+    choose_crew_hint: str = Field(..., min_length=1)
+    roster_unavailable: str = Field(..., min_length=1)
+    not_you: str = Field(..., min_length=1)
+    body_title: str = Field(..., min_length=1)
+    body_hint: str = Field(..., min_length=1)
+    latest_readings: str = Field(..., min_length=1)
+    next_steps: str = Field(..., min_length=1)
+    step_kit: str = Field(..., min_length=1)
+    step_pulse: str = Field(..., min_length=1)
+    step_help: str = Field(..., min_length=1)
+    step_environment: str = Field(..., min_length=1)
+    role_crew: str = Field(..., min_length=1)
+    status_unknown: str = Field(..., min_length=1)
+    status_helping: str = Field(..., min_length=1)
+    roster_title: str = Field(..., min_length=1)
+    open_today: str = Field(..., min_length=1)
+    pin: str = Field(..., min_length=1)
+    help_hint: str = Field(..., min_length=1)
+    pair_title: str = Field(..., min_length=1)
+    pair_hint: str = Field(..., min_length=1)
+    station_credential: str = Field(..., min_length=1)
+    kit_title: str = Field(..., min_length=1)
+    kit_line: str = Field(..., min_length=1)
+    habitat_title: str = Field(..., min_length=1)
+    plans_title: str = Field(..., min_length=1)
+    plans_line: str = Field(..., min_length=1)
+    assistant_title: str = Field(..., min_length=1)
+    assistant_running: str = Field(..., min_length=1)
+    assistant_off: str = Field(..., min_length=1)
+    home: str = Field(..., min_length=1)
+    sign_out: str = Field(..., min_length=1)
+
+
 class UiCopyJson(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -745,4 +866,14 @@ class UiCopyJson(BaseModel):
     catch_up_words: CatchUpWords | None = Field(
         None,
         description="Headings and line templates of the catch-up a late reader sees (CONTRACTS section 26).",
+    )
+    review_role_words: ReviewRoleWords | None = None
+    episode_words: EpisodeWords | None = None
+    resolution_reason_words: ResolutionReasonWords | None = None
+    reopen_reason_words: ReopenReasonWords | None = None
+    task_kind_words: TaskKindWords | None = None
+    review_decision_words: ReviewDecisionWords | None = None
+    context_words: ContextWords | None = Field(
+        None,
+        description="Words for the crew app's context bar, the crew sign in and Today's body panel (E03 7.16).",
     )

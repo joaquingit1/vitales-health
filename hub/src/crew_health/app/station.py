@@ -15,9 +15,14 @@ from datetime import datetime
 from functools import partial
 from importlib.resources import files
 from pathlib import Path
-from typing import Literal, NoReturn, cast
+from typing import TYPE_CHECKING, Literal, NoReturn, cast
 
 from crew_health.app.registry import ModuleRegistry
+
+if TYPE_CHECKING:
+    from crew_health.app.camera_reports import HubReports
+    from crew_health.app.demo_mission import DemoMission
+    from crew_health.app.privacy import DemoOperatorRecord
 from crew_health.config.adapters.verification import ConfigArtifacts
 from crew_health.config.domain.package_checks import saved_form_pages
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode
@@ -29,6 +34,7 @@ from crew_health.kernel.ids import IdFactory
 from crew_health.kernel.uow import ReadSnapshot, SessionContext
 from crew_health.kitmap.application.ports import ConditionRegistryPort
 from crew_health.kitmap.application.ports import MissionStatePort as KitMission
+from crew_health.model.application.ports import ModelInstallation, StubInstallation
 from crew_health.roles.api.router import RequestAuthenticator as RolesAuthenticator
 from crew_health.roles.application.ports import DayLabelPort, MissionStatePort, OverlayPort, RosterPort
 from crew_health.teach.application.ports import PersonDirectory, RecordRouting
@@ -288,10 +294,112 @@ class StationMetadata:
         return self.origin
 
 
-def production(resources: HubResources, *, origin: Origin) -> Callable[[ModuleRegistry], None]:
+def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
+    """The demo profile's mission facts under every consumer's MissionStatePort class (app/demo_mission.py)."""
+    from dataclasses import replace
+
+    from crew_health.app.registry import DeclarationRegistry
+    from crew_health.camera.application.ports import MissionStatePort as CameraMission
+    from crew_health.clock.application.clock import ClockIdentity
+    from crew_health.groundlink.module import provide_mission as ground_mission
+    from crew_health.help.application.ports import MissionStatePort as HelpMission
+    from crew_health.kernel.met import MissionClock
+    from crew_health.measurement.application.ports import MissionStatePort as MeasurementMission
+    from crew_health.records.application.seams import MissionStatePort as RecordsMission
+
+    clock = cast(type[object], MissionClock)
+
+    def bound(resolver: object) -> object:
+        return replace(
+            mission,
+            site_node_id=resolver.require(ClockIdentity).node_id,  # type: ignore[attr-defined]
+            clock=resolver.require(MissionClock),  # type: ignore[attr-defined]
+        )
+
+    for port in (
+        CameraMission,
+        HelpMission,
+        MeasurementMission,
+        RecordsMission,
+        KitMission,
+        MissionStatePort,
+        OverlayPort,
+    ):
+        # E22/E23's mission module declares some of these consumer ports too. The demo profile keeps its own
+        # mission facts there (its cues write the environment and the surface walk overlays), so it replaces them.
+        if isinstance(registry, DeclarationRegistry) and cast(type[object], port) in registry.providers:
+            registry.replace(cast(type[object], port), bound, requires=(ClockIdentity, clock))
+        else:
+            registry.provide(cast(type[object], port), bound, requires=(ClockIdentity, clock))
+    ground_mission(registry, bound, requires=(ClockIdentity, clock))
+
+
+def _camera_f1(registry: ModuleRegistry, provided: Mapping[object, object], reports: object | None) -> None:
+    """E06's F1 binding (app/camera_reports.py): E01's task ports from the platform TaskService, the camera's
+    readiness and assignment under E05's port classes, and, when the profile names the hub listener, the attempt
+    reports over E05's recordAttempt route."""
+    from crew_health.app.camera_reports import MeasurementAssignments, MeasurementReadiness
+    from crew_health.camera.application import ports as camera_ports
+    from crew_health.kernel.tasks import TaskQueue, TaskRunner
+    from crew_health.measurement.application import ports as measurement_ports
+    from crew_health.platform.application.tasks import TaskService
+
+    def tasks(resolver: object) -> object:
+        return resolver.require(TaskService)  # type: ignore[attr-defined]
+
+    def readiness(resolver: object) -> object:
+        return MeasurementReadiness(resolver.require(camera_ports.AdapterReadinessPort))  # type: ignore[attr-defined]
+
+    def assignments(resolver: object) -> object:
+        return MeasurementAssignments(resolver.require(camera_ports.AdapterAssignmentPort))  # type: ignore[attr-defined]
+
+    bindings: tuple[tuple[object, Callable[[object], object], tuple[object, ...]], ...] = (
+        (TaskQueue, tasks, (TaskService,)),
+        (TaskRunner, tasks, (TaskService,)),
+        (measurement_ports.AdapterReadinessPort, readiness, (camera_ports.AdapterReadinessPort,)),
+        (measurement_ports.AdapterAssignmentPort, assignments, (camera_ports.AdapterAssignmentPort,)),
+    )
+    for port, factory, requires in bindings:
+        if port not in provided:
+            registry.provide(port, factory, requires=requires)  # type: ignore[arg-type]
+    if reports is not None and camera_ports.AttemptReports not in provided:
+        registry.provide(camera_ports.AttemptReports, partial(_constant, reports))  # type: ignore[type-abstract,arg-type]
+
+
+def _episode_rules(registry: ModuleRegistry, resources: HubResources) -> None:
+    """E15's episode-rules.json under E15's real port (episodes/api/CONTRACT.md: the host constructs
+    EpisodeRulesSource from validated bytes). E01 has no ConfigName for it yet, so it is parsed once at startup from
+    the hub's configuration resources and pinned to the configuration release active at bind time; a document that
+    does not parse stops the hub (AGENTS 3, rule 3). Without the file E15 stays unbound, as before."""
+    from crew_health.episodes.application.rules import EpisodeRulesSource, parse_rules
+    from crew_health.kernel.uow import ReadSnapshotFactory
+
+    path = resources.config / "episode-rules.json"
+    if not path.is_file():
+        return
+    rules = parse_rules(path.read_bytes())
+
+    def source(resolver: object) -> EpisodeRulesSource:
+        snapshots = resolver.require(ReadSnapshotFactory)  # type: ignore[attr-defined]
+        with snapshots.snapshot() as view:
+            return EpisodeRulesSource(rules, view.release.release_id)
+
+    registry.provide(EpisodeRulesSource, source, requires=(ReadSnapshotFactory,))
+
+
+def production(
+    resources: HubResources,
+    *,
+    origin: Origin,
+    demo: DemoOperatorRecord | None = None,
+    mission: DemoMission | None = None,
+    model: ModelInstallation | None = None,
+    stub: StubInstallation | None = None,
+    reports: HubReports | None = None,
+) -> Callable[[ModuleRegistry], None]:
     """The `configure` hook of a served hub: the offline artifacts and HTTP metadata from the resources, closed
     event sessions and fail-closed stand-ins for every pending port no installed module provides."""
-    from crew_health.app import privacy
+    from crew_health.app import privacy, trends_inputs
     from crew_health.app.assembly import ConfigHttpMetadata
     from crew_health.identity.application.service import IdentityService
 
@@ -305,8 +413,21 @@ def production(resources: HubResources, *, origin: Origin) -> Callable[[ModuleRe
     def configure(registry: ModuleRegistry) -> None:
         provided = getattr(registry, "providers", {})
         registry.provide(ConfigArtifacts, partial(_constant, artifacts))  # type: ignore[arg-type]
+        # E17: a node with installed model artifacts names them; a demo or eval profile may name a pinned stub script.
+        if model is not None:
+            registry.provide(ModelInstallation, partial(_constant, model))  # type: ignore[arg-type]
+        if stub is not None:
+            registry.provide(StubInstallation, partial(_constant, stub))  # type: ignore[arg-type]
+        _episode_rules(registry, resources)
+        if mission is not None:
+            _demo_mission(registry, mission)
+            provided = getattr(registry, "providers", {})
         # E02 sessions, consent and their consumer adapters first (app/privacy.py); stand-ins fill the rest.
-        privacy.compose(registry, contract=resources.contracts / "api/openapi.yaml", metadata=e02_metadata)
+        privacy.compose(
+            registry, contract=resources.contracts / "api/openapi.yaml", metadata=e02_metadata, demo=demo
+        )
+        # E14's inputs: records' accepted observations and E23's accepted sensor series (app/trends_inputs.py).
+        trends_inputs.compose(registry)
         if ConfigHttpMetadata not in provided:
             registry.provide(
                 ConfigHttpMetadata,
@@ -322,11 +443,13 @@ def production(resources: HubResources, *, origin: Origin) -> Callable[[ModuleRe
         if SessionAuthorizer not in provided:
             registry.provide(SessionAuthorizer, partial(_constant, ClosedSessions()))  # type: ignore[type-abstract,arg-type]
         registry.provide(ConditionRegistryPort, partial(_constant, conditions))  # type: ignore[type-abstract,arg-type]
-        registry.provide(KitMission, partial(_constant, StationMission(origin)))  # type: ignore[type-abstract,arg-type]
+        if KitMission not in provided:
+            registry.provide(KitMission, partial(_constant, StationMission(origin)))  # type: ignore[type-abstract,arg-type]
         if MissionStatePort not in provided:
             registry.provide(MissionStatePort, partial(_constant, NoMissionFacts()))  # type: ignore[type-abstract,arg-type]
         for port in PENDING_PORTS:
             if port not in provided:
                 registry.provide(port, partial(_constant, Unavailable(port)))
+        _camera_f1(registry, getattr(registry, "providers", {}), reports)
 
     return configure

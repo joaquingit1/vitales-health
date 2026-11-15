@@ -3,11 +3,11 @@
   "description": "Bindings for the triggers the demo shows (VALIDATION D16 and the four environments). Every other trigger in routine-schedule.json stays manual.",
   "x-schema": "config-routine-rules.schema.json",
   "value": {
-    "notice": "Unreviewed draft: needs clinician review before live guidance.",
+    "notice": "Not clinically reviewed.",
     "calendar": {
       "week_days": 7,
       "month_days": 30,
-      "anchor": "environment_start",
+      "anchor": "mission_start",
       "basis": "team default"
     },
     "suppressed_overlays": [

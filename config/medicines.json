@@ -1,0 +1,51 @@
+{
+  "version": "0.1.0",
+  "example": true,
+  "notice": "Example configuration for the medicines engine. Every dose value cites its source (docs/build/E32/research/dosing-safety.md). Rules are draft: a LIVE mission refuses them until clinical review.",
+  "review_state": "draft",
+  "sources": [
+    {
+      "source_id": "RT22",
+      "title": "OCHMO-MTB-012 Pharmaceutical Care, Rev B",
+      "publisher": "NASA",
+      "nasa": true,
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/01/ochmo-mtb-012-pharmaceutical-care.pdf",
+      "retrieved_on": "2026-11-14"
+    }
+  ],
+  "environment_zones": {
+    "station_leo": [
+      "station_kit"
+    ],
+    "transit": [
+      "transit_kit"
+    ],
+    "lunar_surface": [
+      "moon_base_pharmacy"
+    ],
+    "mars_surface": [
+      "mars_base_pharmacy"
+    ]
+  },
+  "channel_bindings": [],
+  "assessment_interval_seconds": 21600,
+  "max_assessment_age_seconds": 86400,
+  "proposal_ttl_seconds": 900,
+  "timing_basis": "team_default",
+  "timing_to_be_set_by": "clinical review",
+  "potency_policy": {
+    "mode": "compensate",
+    "require_measured_assay": false,
+    "exclude_narrow_therapeutic_index": false,
+    "exclude_high_alert": false,
+    "require_degradant_profile_reviewed": false,
+    "require_measured_storage_history": false,
+    "require_validated_engine": false,
+    "validated_engine_versions": [],
+    "basis": "owner decision of 2026-11-14 (R-E32-10): compensation on by default, every limit enforced; RT22 p. 5 orbit potency data",
+    "to_be_set_by": "clinical review",
+    "source_ids": [
+      "RT22"
+    ]
+  }
+}

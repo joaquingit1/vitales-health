@@ -1,0 +1,128 @@
+{
+  "bench.generation.max_concurrency": {
+    "value": 1,
+    "unit": null,
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.grader.max_concurrency": {
+    "value": 4,
+    "unit": null,
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.grader.call_timeout": {
+    "value": 120,
+    "unit": "s",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.grader.max_retries": {
+    "value": 3,
+    "unit": null,
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.grader.backoff_initial": {
+    "value": 2,
+    "unit": "s",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.grader.backoff_cap": {
+    "value": 60,
+    "unit": "s",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.model.connect_timeout": {
+    "value": 5,
+    "unit": "s",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.model.identity_retries": {
+    "value": 3,
+    "unit": null,
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.model.identity_retry_interval": {
+    "value": 2,
+    "unit": "s",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.hub.start_timeout": {
+    "value": 120,
+    "unit": "s",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.hub.call_timeout": {
+    "value": 30,
+    "unit": "s",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.hub.max_retries": {
+    "value": 2,
+    "unit": null,
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.case.deadline": {
+    "value": 900,
+    "unit": "s",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.case.max_hub_calls": {
+    "value": 200,
+    "unit": null,
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.case.max_events": {
+    "value": 5000,
+    "unit": null,
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.store.max_line_bytes": {
+    "value": 1048576,
+    "unit": "By",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.leak.max_file_bytes": {
+    "value": 16777216,
+    "unit": "By",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.monitor.sample_interval": {
+    "value": 1,
+    "unit": "s",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.scan.max_files": {
+    "value": 20000,
+    "unit": null,
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.fetch.timeout": {
+    "value": 900,
+    "unit": "s",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  },
+  "bench.hub.poll_interval": {
+    "value": 500,
+    "unit": "ms",
+    "basis": "team default",
+    "to_be_set_by": "evaluation owner"
+  }
+}

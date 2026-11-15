@@ -49,7 +49,11 @@
         "role.changed",
         "skill.practiced",
         "supply.used",
-        "drill.changed"
+        "drill.changed",
+        "medicine.assessment_changed",
+        "medicine.proposal_changed",
+        "medication.administered",
+        "medication.administration_corrected"
       ]
     },
     "occurred_at": {
@@ -1079,6 +1083,202 @@
               "kind": {
                 "enum": [
                   "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "medicine.assessment_changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "run_id",
+              "status",
+              "error_code"
+            ],
+            "properties": {
+              "run_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "status": {
+                "enum": [
+                  "queued",
+                  "running",
+                  "completed",
+                  "failed",
+                  "timed_out",
+                  "interrupted"
+                ]
+              },
+              "error_code": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "crew"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "medicine.proposal_changed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "proposal_id",
+              "subject_person_id",
+              "state"
+            ],
+            "properties": {
+              "proposal_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "subject_person_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "state": {
+                "enum": [
+                  "proposed",
+                  "refused",
+                  "confirmed",
+                  "expired",
+                  "superseded"
+                ]
+              }
+            }
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "medication.administered"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "administration_id",
+              "subject_person_id",
+              "proposal_id",
+              "outside_engine"
+            ],
+            "properties": {
+              "administration_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "subject_person_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "proposal_id": {
+                "anyOf": [
+                  {
+                    "$ref": "common.schema.json#/$defs/id"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "outside_engine": {
+                "type": "boolean"
+              }
+            }
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "medication.administration_corrected"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "administration_id",
+              "subject_person_id"
+            ],
+            "properties": {
+              "administration_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "subject_person_id": {
+                "$ref": "common.schema.json#/$defs/id"
+              }
+            }
+          },
+          "scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "person"
                 ]
               }
             }

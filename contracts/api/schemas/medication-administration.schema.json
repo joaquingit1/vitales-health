@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "medication-administration.schema.json",
+  "title": "medication-administration",
+  "description": "Medicines aboard (docs/tdd/E32.md R-E32-10).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "administration_id",
+    "revision",
+    "proposal_id",
+    "outside_engine",
+    "subject_person_id",
+    "product_id",
+    "lot_id",
+    "amount",
+    "ingredients",
+    "administered_at",
+    "confirmed_by",
+    "overrides",
+    "limit_findings",
+    "status",
+    "next_dose_earliest_at",
+    "origin_mode"
+  ],
+  "properties": {
+    "administration_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "proposal_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "outside_engine": {
+      "type": "boolean"
+    },
+    "subject_person_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "product_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lot_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "amount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "ucum"
+      ],
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "ucum": {
+          "type": "string",
+          "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+        }
+      }
+    },
+    "ingredients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ingredient_id",
+          "accounting"
+        ],
+        "properties": {
+          "ingredient_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "accounting": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "ucum"
+            ],
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0
+              },
+              "ucum": {
+                "type": "string",
+                "pattern": "^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "administered_at": {
+      "$ref": "common.schema.json#/$defs/instant"
+    },
+    "confirmed_by": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "confirmed_as": {
+      "type": "string",
+      "enum": [
+        "crew_medical_officer",
+        "acting_medical_officer"
+      ],
+      "description": "The clinical authority the confirmer held (SYSTEM 8.4 rule 3): an acting officer is shown as acting."
+    },
+    "role_assignment_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The accepted medical_officer assignment that made the confirmer acting; null for the crew medical officer."
+    },
+    "overrides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "alert_id",
+          "kind",
+          "reason_code",
+          "by"
+        ],
+        "properties": {
+          "alert_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "by": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        }
+      }
+    },
+    "limit_findings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "entered_in_error"
+      ]
+    },
+    "next_dose_earliest_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/instant"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "origin_mode": {
+      "$ref": "common.schema.json#/$defs/origin_mode"
+    }
+  }
+}

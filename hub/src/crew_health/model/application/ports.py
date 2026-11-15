@@ -93,6 +93,7 @@ class TranscriptItem:
     role: Literal["system", "user", "assistant", "tool"]
     content: str
     tool_call_id: str | None = None
+    tool_calls: tuple[ToolCall, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

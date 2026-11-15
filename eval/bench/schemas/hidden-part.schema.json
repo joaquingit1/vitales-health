@@ -1,0 +1,499 @@
+{
+  "title": "HiddenPart",
+  "type": "object",
+  "properties": {
+    "rubric": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "title": "UrgencyAtLeastItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "UrgencyAtLeast"
+              },
+              "level": {
+                "enum": [
+                  "info",
+                  "watch",
+                  "act",
+                  "emergency"
+                ]
+              }
+            },
+            "required": [
+              "type",
+              "level"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "HelpOpenedWithoutModelItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "HelpOpenedWithoutModel"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "RequestedCapabilityInItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "RequestedCapabilityIn"
+              },
+              "codes": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+                }
+              }
+            },
+            "required": [
+              "type",
+              "codes"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "NoRequestForItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "NoRequestFor"
+              },
+              "code": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+              }
+            },
+            "required": [
+              "type",
+              "code"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "KitGateRejectedItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "KitGateRejected"
+              },
+              "code": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+              }
+            },
+            "required": [
+              "type",
+              "code"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "NoFabricatedResultItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "NoFabricatedResult"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "SupportResolvesItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "SupportResolves"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "NoCitationOfItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "NoCitationOf"
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "type",
+              "kind"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "NoValueForCodeItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "NoValueForCode"
+              },
+              "code": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+              }
+            },
+            "required": [
+              "type",
+              "code"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "AbstainsWhenItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "AbstainsWhen"
+              },
+              "expected": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "type",
+              "expected"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "AlternativesIncludeItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "AlternativesInclude"
+              },
+              "condition_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^ICL[1-9][0-9]{0,2}$"
+                }
+              }
+            },
+            "required": [
+              "type",
+              "condition_ids"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "PlanStepInItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "PlanStepIn"
+              },
+              "plan_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+              }
+            },
+            "required": [
+              "type",
+              "plan_id"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "NoDoseItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "NoDose"
+              },
+              "amount_patterns": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "type",
+              "amount_patterns"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "LinkInvariantItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "LinkInvariant"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "ToolCallsWithinItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "ToolCallsWithin"
+              },
+              "allowed": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+                }
+              },
+              "max_calls": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "type",
+              "allowed",
+              "max_calls"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "NoUnauthorizedExecutionItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "NoUnauthorizedExecution"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "NoCrossPersonItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "NoCrossPerson"
+              },
+              "other_person_ids_and_canaries": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "type",
+              "other_person_ids_and_canaries"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "NoCanaryLeakItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "NoCanaryLeak"
+              },
+              "canaries": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "type",
+              "canaries"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "RecallAtItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "RecallAt"
+              },
+              "k": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "passage_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+                }
+              }
+            },
+            "required": [
+              "type",
+              "k",
+              "passage_ids"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "ExcludesSupersededItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "ExcludesSuperseded"
+              },
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+                }
+              }
+            },
+            "required": [
+              "type",
+              "source_ids"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "title": "HumanItemItem",
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "HumanItem"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "type",
+              "text"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "minItems": 1
+    },
+    "acceptable_differential": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^ICL[1-9][0-9]{0,2}$"
+      }
+    },
+    "expected_urgency": {
+      "enum": [
+        "info",
+        "watch",
+        "act",
+        "emergency"
+      ]
+    },
+    "expected_abstention": {
+      "type": "boolean"
+    },
+    "forbidden_value_patterns": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "source": {
+      "title": "LabelSource",
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(EV|RT|RS|SK|S|C|N|L)[0-9]{2}$"
+          },
+          "minItems": 1
+        },
+        "basis": {
+          "const": "sourced"
+        }
+      },
+      "required": [
+        "text",
+        "source_ids",
+        "basis"
+      ],
+      "additionalProperties": false
+    },
+    "canary": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "review": {
+      "title": "CaseReviewDocument",
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": [
+            "unreviewed",
+            "reviewed"
+          ]
+        },
+        "reviewer_roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "state",
+        "reviewer_roles"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "rubric",
+    "acceptable_differential",
+    "expected_urgency",
+    "expected_abstention",
+    "forbidden_value_patterns",
+    "source",
+    "canary",
+    "review"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

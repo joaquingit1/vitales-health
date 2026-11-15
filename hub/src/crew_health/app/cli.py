@@ -18,20 +18,28 @@ import uvicorn
 from fastapi import FastAPI
 
 from crew_health.app.assembly import BuildCatalog, Runtime, create_app
+from crew_health.app.camera_reports import HubReports
+from crew_health.app.demo_mission import DemoMission
 from crew_health.app.installed_modules import REGISTRATIONS
+from crew_health.app.privacy import DemoOperatorRecord
 from crew_health.app.registry import DeclarationRegistry
 from crew_health.app.station import HubResources, Origin, bootstrap_release, production
 from crew_health.clock.adapters.system_clock import SystemClock
 from crew_health.clock.application.clock import PersistentClocks
+from crew_health.clock.application.history import MissionClockService
 from crew_health.config.adapters.repository import PinnedRelease
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.kernel.errors import ProblemError
+from crew_health.kernel.met import MissionClock, MissionClockVersion
 from crew_health.kernel.settings import SettingSpec
-from crew_health.kernel.uow import Actor
+from crew_health.kernel.uow import Actor, UnitOfWork
+from crew_health.model.application.ports import ModelInstallation, StubInstallation
 from crew_health.platform.cli import main as platform_main
 from crew_health.platform.domain.errors import fail
 from crew_health.platform.settings import ValidatedSettings, specifications
 from crew_health.platform.storage import SQLiteDatabase, SystemIds, stored_identity
+from crew_health.rules.cli import Console as RulesConsole
+from crew_health.rules.cli import run as rules_run
 
 SOURCE = Path(__file__).resolve().parents[1]
 DEFAULT_HOST = "127.0.0.1"  # SYSTEM 3 and DEPLOYMENT 7.1: loopback only by default
@@ -110,10 +118,41 @@ class TimeConfirmation:
     offset_ms: int
     uncertainty_ms: int
     confirmed_by: str
+    mission_day: MissionDay | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class MissionDay:
+    """The mission day the operator confirms with the time at a hub's first start, and its day label template.
+    It sets the first MissionClockVersion (docs/requests/E02.md R-E02-32): until one exists no roster member is
+    current, so crew sign in, consent and capture all refuse."""
+
+    day: int
+    day_label_template: str
+
+
+def _first_mission_clock(runtime: Runtime, uow: UnitOfWork, value: MissionDay) -> None:
+    """Append the first mission clock version, day 1 starting `day - 1` days before the confirmed hub time. A hub
+    that already has a version keeps it: later versions are the console's (operator authority), never a restart's."""
+    if value.day < 1 or not value.day_label_template or runtime.resolver is None:
+        raise fail(ErrorCode.MALFORMED_REQUEST)
+    if uow.connection.rows("SELECT clock_version FROM clock_mission_version", (), limit=1):
+        return
+    clock = runtime.resolver.require(MissionClock)  # type: ignore[type-abstract]
+    if not isinstance(clock, MissionClockService):
+        raise fail(ErrorCode.CAPABILITY_UNAVAILABLE)
+    epoch = uow.now - timedelta(days=value.day - 1)
+    version = runtime.database.ids.derived("missionclock", runtime.database.origin_node_id)
+    clock.append(
+        uow,
+        MissionClockVersion(version, 1, epoch, epoch, None, value.day_label_template),
+        ids=runtime.database.ids,
+    )
 
 
 def confirm_time(runtime: Runtime, confirmation: TimeConfirmation) -> None:
-    """Apply the crew's time confirmation as a trusted local operator correction, then sweep at once."""
+    """Apply the crew's time confirmation as a trusted local operator correction, then sweep at once. A first
+    start that also confirms the mission day appends the first mission clock version in the same transaction."""
     if runtime.resolver is None or runtime.supervisor is None or not runtime.serving:
         raise fail(ErrorCode.CAPABILITY_UNAVAILABLE)
     db, clocks = runtime.database, runtime.resolver.require(PersistentClocks)
@@ -127,6 +166,11 @@ def confirm_time(runtime: Runtime, confirmation: TimeConfirmation) -> None:
             uncertainty_ms=confirmation.uncertainty_ms,
         )
     runtime.supervisor.run_once()
+    if confirmation.mission_day is not None:
+        with db.begin(
+            actor=Actor("operator", confirmation.confirmed_by), correlation_id=db.ids.new("startup")
+        ) as uow:
+            _first_mission_clock(runtime, uow, confirmation.mission_day)
 
 
 def serve(
@@ -139,6 +183,12 @@ def serve(
     origin: Origin = "SIM",
     confirmation: TimeConfirmation | None = None,
     server: Server = _uvicorn,
+    demo: DemoOperatorRecord | None = None,
+    mission: DemoMission | None = None,
+    model: ModelInstallation | None = None,
+    stub: StubInstallation | None = None,
+    ready: Callable[[Runtime], Callable[[], None]] | None = None,
+    reports: HubReports | None = None,
 ) -> int:
     db = open_database(database, _read_settings(settings))
     try:
@@ -147,16 +197,24 @@ def serve(
             build=BuildCatalog.installed(SOURCE),
             contract_path=resources.contracts / "api/openapi.yaml",
             schema_directory=resources.contracts / "api/schemas",
-            configure=production(resources, origin=origin),
+            configure=production(
+                resources, origin=origin, demo=demo, mission=mission, reports=reports, model=model, stub=stub
+            ),
             bootstrap=partial(bootstrap_release, resources),
         )
         runtime = cast(Runtime, app.state.runtime)
         try:
             if confirmation is not None and runtime.serving:
                 confirm_time(runtime, confirmation)
-            if runtime.supervisor is not None:
-                runtime.supervisor.start()
-            server(app, host, port)
+            # A demo profile starts its companion processes once the hub serves; they stop with it.
+            stop = ready(runtime) if ready is not None and runtime.serving else None
+            try:
+                if runtime.supervisor is not None:
+                    runtime.supervisor.start()
+                server(app, host, port)
+            finally:
+                if stop is not None:
+                    stop()
         finally:
             stuck = runtime.shutdown()
         if stuck:
@@ -171,8 +229,36 @@ def serve(
         db.close()
 
 
+def rules_command(arguments: Sequence[str]) -> int:
+    """`crew-health rules ...`: the warnings engine's operator console (E24 5.5) over the hub database."""
+    parser = _Parser(prog="crew-health rules")
+    parser.add_argument("--database", type=Path, required=True)
+    parser.add_argument("--settings", type=Path, required=True)
+    parser.add_argument("--operator", default="operator_station")
+    try:
+        known, rest = parser.parse_known_args(list(arguments))
+        db = open_database(known.database, _read_settings(known.settings))
+    except ProblemError as error:
+        print(json.dumps({"code": error.code.value, "retryable": error.retryable}, sort_keys=True))
+        return 2
+    try:
+        console = RulesConsole(sys.stdout, sys.stderr, known.operator, db.ids.new("correlation"))
+        bound = min(
+            db.settings.integer("rules.pending_max_rows") + 1, db.settings.integer("storage.max_rows")
+        )
+        return rules_run(rest, db, db.ids, console, limit=bound)
+    finally:
+        db.close()
+
+
 def main(argv: Sequence[str] | None = None, *, server: Server = _uvicorn) -> int:
     arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments[:1] == ["demo"]:
+        from crew_health.app.demo import main as demo_main
+
+        return demo_main(arguments[1:])
+    if arguments[:1] == ["rules"]:
+        return rules_command(arguments[1:])
     if arguments[:1] != ["serve"]:
         return platform_main(arguments)
     parser = _Parser(prog="crew-health")
@@ -186,13 +272,20 @@ def main(argv: Sequence[str] | None = None, *, server: Server = _uvicorn) -> int
     parser.add_argument("--confirm-time-uncertainty-ms", type=int, default=None)
     parser.add_argument("--confirm-time-offset-ms", type=int, default=0)
     parser.add_argument("--confirmed-by", default="operator_station")
+    parser.add_argument("--confirm-mission-day", type=int, default=None)
+    parser.add_argument("--day-label-template", default=None)
     try:
         args = parser.parse_args(arguments)
         confirmation = (
             None
             if args.confirm_time_uncertainty_ms is None
             else TimeConfirmation(
-                args.confirm_time_offset_ms, args.confirm_time_uncertainty_ms, args.confirmed_by
+                args.confirm_time_offset_ms,
+                args.confirm_time_uncertainty_ms,
+                args.confirmed_by,
+                None
+                if args.confirm_mission_day is None
+                else MissionDay(args.confirm_mission_day, args.day_label_template or ""),
             )
         )
         return serve(

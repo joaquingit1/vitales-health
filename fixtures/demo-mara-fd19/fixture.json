@@ -1,0 +1,162 @@
+{
+  "fixture_id": "demo-mara-fd19",
+  "notice": "Demo fixture, SIM except the presenter's demo-operator record (LIVE). Loads only through `crew-health demo reset`. Every value is read from the file it cites; nothing here is seed data for a real mission.",
+  "basis": "docs/product/VALIDATION.md section 3 (frozen start state) and docs/product/DEMO-PLAN.md sections 3 and 5",
+  "namespace": "SIM",
+  "mission_id": {
+    "file": "contracts/api/examples/session/create-crew.json",
+    "pointer": "/value/mission_id"
+  },
+  "members": {
+    "file": "contracts/api/examples/crew/list.json",
+    "pointer": "/value/items"
+  },
+  "station": {
+    "file": "contracts/api/examples/session/station-screen.json",
+    "pointer": "/value/actor"
+  },
+  "operator": {
+    "principal_id": "operator_demo",
+    "display_name": "Demo operator",
+    "basis": "DEMO-PLAN 5: the operator, off camera with the operator role, resets the fixture and runs the cues"
+  },
+  "mission_day": {
+    "day": 19,
+    "basis": "VALIDATION 3: Mara Okafor, SIM, flight day 19 of 30",
+    "day_label_template": {
+      "file": "config/environment-profiles.json",
+      "environment_id": "station_leo",
+      "field": "short_template"
+    }
+  },
+  "presenter": {
+    "persona_person_id": "mara",
+    "record_id": "demo_operator",
+    "origin": "LIVE",
+    "basis": "VALIDATION 3: a separate LIVE demo-operator record for the presenter; DEMO-PLAN 5 point 1"
+  },
+  "helper_person_id": "tomas",
+  "surface_walk": {
+    "person_ids": [
+      "ilya",
+      "sofia"
+    ],
+    "overlay": "eva",
+    "until_local": "11:40",
+    "utc_offset": "-03:00",
+    "basis": "VALIDATION 3 act 3: Ilya Brandt and Sofia Reyes are in an eva overlay on surface walk 1 until 11:40; DEMO-PLAN times are UTC-3"
+  },
+  "release": {
+    "source": "config",
+    "basis": "the repository's own config/ release (config/kit-map.json, 119 rows, with D22's condition ID variants), activated at first start as a station hub activates it"
+  },
+  "time_confirmation": {
+    "uncertainty_ms": 500,
+    "basis": "operator confirmation against the demo laptop's clock, as the E01 serve tests confirm it"
+  },
+  "cues": {
+    "ground-link-down": {
+      "request": {
+        "file": "docs/product/api/examples/requests/ground-link-demo-down.json",
+        "pointer": "/value"
+      },
+      "next_contact_after_hours": 26,
+      "basis": "VALIDATION 3 act 3: GroundLink down, next_contact_at 26 hours ahead, gap_planned true, planned_line_of_sight, demo_switch"
+    },
+    "ground-link-schedule": {
+      "request": {
+        "value": {
+          "use_schedule": true
+        }
+      },
+      "basis": "requests.schema.json GroundLinkDemoSwitch: return to the profile's schedule"
+    },
+    "model-stop": {
+      "request": {
+        "value": {
+          "action": "stop"
+        }
+      },
+      "basis": "VALIDATION 3 act 6: the presenter stops the model"
+    },
+    "model-start": {
+      "request": {
+        "value": {
+          "action": "start"
+        }
+      },
+      "basis": "VALIDATION 3 act 6: the model is started again"
+    },
+    "eva-ilya": {
+      "person_id": "ilya",
+      "basis": "VALIDATION 3 act 3 and DEMO-PLAN 3 (0:13): Ilya Brandt, medical officer, is on a surface walk; the surface_walk section names who and which overlay"
+    },
+    "environment-lunar-surface": {
+      "environment_id": "lunar_surface",
+      "basis": "VALIDATION 3 act 3: a second EnvironmentProfile, lunar_surface, SIM, entered through the demo control"
+    },
+    "drill-tomas-pulse": {
+      "person_id": "tomas",
+      "request": {
+        "value": {
+          "scenario_id": "drill_pulse_crewmate",
+          "skill_ids": [
+            "pulse_check_wrist"
+          ],
+          "participant_ids": [
+            "tomas"
+          ],
+          "origin_mode": "SIM"
+        }
+      },
+      "basis": "DEMO-PLAN 3 (0:13) and contracts/api/examples/drills/drill-pulse-completed.json: Tomas Lind practiced the pulse check on a crewmate's wrist in a drill (scenario drill_pulse_crewmate of skills-catalog.json), so E31 proposes him as the freshest holder on the ICL10 run"
+    }
+  },
+  "environment": {
+    "initial": "station_leo",
+    "planned_length_days": 30,
+    "basis": "VALIDATION 3: environment for acts 1 and 2 is station_leo, SIM; flight day 19 of 30"
+  },
+  "camera": {
+    "adapter_principal_id": "adp_camera",
+    "adapter_display_name": "Camera worker",
+    "worker_port": 8091,
+    "basis_worker_port": "SYSTEM 3: the camera worker listens on 127.0.0.1:8091",
+    "twin": {
+      "scenario": "synthetic",
+      "port": 8190,
+      "basis": "AGENTS 4 and E06: the camera twin's synthetic video with a known injected pulse, declared SIM; never a person's webcam clip"
+    },
+    "cameras": [
+      {
+        "device_id": "camera_twin_1",
+        "name": "Camera twin",
+        "kind": "station",
+        "subject_id": "mara",
+        "basis": "Coordinator 2026-11-15: the twin paired with Mara's station so its readings arrive labeled SIM"
+      }
+    ]
+  },
+  "hub_port": 8080,
+  "habitat": {
+    "registry": "eval/scenarios/e23/demo/sensor-channels.json",
+    "feeds_file": "eval/scenarios/e23/demo/feeds.json",
+    "feeds": [
+      {
+        "feed_id": "feed_rr1_co2_replay",
+        "kind": "replay",
+        "adapter_principal_id": "adp_replay_osdr",
+        "adapter_display_name": "Habitat replay adapter",
+        "health_port": 8101
+      },
+      {
+        "feed_id": "feed_co2_cabin_sim",
+        "kind": "sim",
+        "adapter_principal_id": "adp_sim",
+        "adapter_display_name": "Habitat sim adapter",
+        "health_port": 8102
+      }
+    ],
+    "basis": "E23 5.2 and 5.3: the NASA OSDR RR-1 ISS CO2 replay (N02) and the habitat packet twin's SIM CO2, each through the real habitat adapter and ingestReadings on the channel registry's channel; the registry names each adapter and its health URL port"
+  }
+}

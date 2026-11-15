@@ -1091,6 +1091,432 @@
       ],
       "additionalProperties": false,
       "description": "Headings and line templates of the catch-up a late reader sees (CONTRACTS section 26)."
+    },
+    "review_role_words": {
+      "type": "object",
+      "properties": {
+        "crew_medical_officer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "acting_medical_officer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ground": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "crew_medical_officer",
+        "acting_medical_officer",
+        "ground"
+      ],
+      "additionalProperties": false
+    },
+    "episode_words": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "type": "object",
+          "properties": {
+            "draft": {
+              "type": "string",
+              "minLength": 1
+            },
+            "open": {
+              "type": "string",
+              "minLength": 1
+            },
+            "awaiting_information": {
+              "type": "string",
+              "minLength": 1
+            },
+            "awaiting_review": {
+              "type": "string",
+              "minLength": 1
+            },
+            "followup": {
+              "type": "string",
+              "minLength": 1
+            },
+            "resolved": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "draft",
+            "open",
+            "awaiting_information",
+            "awaiting_review",
+            "followup",
+            "resolved"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "resolution_reason_words": {
+      "type": "object",
+      "properties": {
+        "measurement_anomaly_not_reproduced": {
+          "type": "string",
+          "minLength": 1
+        },
+        "symptoms_reported_resolved": {
+          "type": "string",
+          "minLength": 1
+        },
+        "clinician_assessed": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "measurement_anomaly_not_reproduced",
+        "symptoms_reported_resolved",
+        "clinician_assessed"
+      ],
+      "additionalProperties": false
+    },
+    "reopen_reason_words": {
+      "type": "object",
+      "properties": {
+        "symptoms_recurred": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_changed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recorded_in_error": {
+          "type": "string",
+          "minLength": 1
+        },
+        "answer_after_resolution": {
+          "type": "string",
+          "minLength": 1
+        },
+        "urgency_raised": {
+          "type": "string",
+          "minLength": 1
+        },
+        "new_activity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_unresolved": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "symptoms_recurred",
+        "evidence_changed",
+        "recorded_in_error",
+        "answer_after_resolution",
+        "urgency_raised",
+        "new_activity",
+        "review_unresolved"
+      ],
+      "additionalProperties": false
+    },
+    "task_kind_words": {
+      "type": "object",
+      "properties": {
+        "review": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_item": {
+          "type": "string",
+          "minLength": 1
+        },
+        "custom": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "review",
+        "review_item",
+        "custom"
+      ],
+      "additionalProperties": false
+    },
+    "review_decision_words": {
+      "type": "object",
+      "properties": {
+        "agree": {
+          "type": "string",
+          "minLength": 1
+        },
+        "disagree": {
+          "type": "string",
+          "minLength": 1
+        },
+        "needs_more": {
+          "type": "string",
+          "minLength": 1
+        },
+        "not_assessed": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "agree",
+        "disagree",
+        "needs_more",
+        "not_assessed"
+      ],
+      "additionalProperties": false
+    },
+    "context_words": {
+      "type": "object",
+      "properties": {
+        "environment_label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mission_day": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mission_day_unknown": {
+          "type": "string",
+          "minLength": 1
+        },
+        "met": {
+          "type": "string",
+          "minLength": 1
+        },
+        "one_way_delay": {
+          "type": "string",
+          "minLength": 1
+        },
+        "simulated_inputs": {
+          "type": "string",
+          "minLength": 1
+        },
+        "simulated_title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "all_live": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sim_values": {
+          "type": "string",
+          "minLength": 1
+        },
+        "replay_values": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sim_ground_link": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sim_mission": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sim_camera": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sim_habitat": {
+          "type": "string",
+          "minLength": 1
+        },
+        "choose_crew": {
+          "type": "string",
+          "minLength": 1
+        },
+        "choose_crew_hint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "roster_unavailable": {
+          "type": "string",
+          "minLength": 1
+        },
+        "not_you": {
+          "type": "string",
+          "minLength": 1
+        },
+        "body_title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "body_hint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "latest_readings": {
+          "type": "string",
+          "minLength": 1
+        },
+        "next_steps": {
+          "type": "string",
+          "minLength": 1
+        },
+        "step_kit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "step_pulse": {
+          "type": "string",
+          "minLength": 1
+        },
+        "step_help": {
+          "type": "string",
+          "minLength": 1
+        },
+        "step_environment": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role_crew": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status_unknown": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status_helping": {
+          "type": "string",
+          "minLength": 1
+        },
+        "roster_title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "open_today": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pin": {
+          "type": "string",
+          "minLength": 1
+        },
+        "help_hint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pair_title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pair_hint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "station_credential": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kit_title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kit_line": {
+          "type": "string",
+          "minLength": 1
+        },
+        "habitat_title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "plans_title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "plans_line": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assistant_title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assistant_running": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assistant_off": {
+          "type": "string",
+          "minLength": 1
+        },
+        "home": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sign_out": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "environment_label",
+        "mission_day",
+        "mission_day_unknown",
+        "met",
+        "one_way_delay",
+        "simulated_inputs",
+        "simulated_title",
+        "all_live",
+        "sim_values",
+        "replay_values",
+        "sim_ground_link",
+        "sim_mission",
+        "sim_camera",
+        "sim_habitat",
+        "choose_crew",
+        "choose_crew_hint",
+        "roster_unavailable",
+        "not_you",
+        "body_title",
+        "body_hint",
+        "latest_readings",
+        "next_steps",
+        "step_kit",
+        "step_pulse",
+        "step_help",
+        "step_environment",
+        "role_crew",
+        "status_unknown",
+        "status_helping",
+        "roster_title",
+        "open_today",
+        "pin",
+        "help_hint",
+        "pair_title",
+        "pair_hint",
+        "station_credential",
+        "kit_title",
+        "kit_line",
+        "habitat_title",
+        "plans_title",
+        "plans_line",
+        "assistant_title",
+        "assistant_running",
+        "assistant_off",
+        "home",
+        "sign_out"
+      ],
+      "additionalProperties": false,
+      "description": "Words for the crew app's context bar, the crew sign in and Today's body panel (E03 7.16)."
     }
   },
   "required": [

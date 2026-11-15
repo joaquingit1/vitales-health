@@ -1,0 +1,13 @@
+uv run --project hub --locked pytest -c hub/pyproject.toml -q hub/tests/tools --cov=crew_health.tools.domain --cov=crew_health.tools.application --cov-config=hub/pyproject.toml --cov-branch --cov-fail-under=95 --cov-report=term-missing --cov-report=json:/tmp/crew-health-e12-owned-coverage.json
+uv run --project hub --locked ruff check --config hub/pyproject.toml hub/src/crew_health/tools hub/tests/tools
+uv run --project hub --locked ruff format --check --config hub/pyproject.toml hub/src/crew_health/tools hub/tests/tools
+uv run --project hub --locked mypy --config-file hub/pyproject.toml --strict hub/src/crew_health/tools
+uv run --project hub --locked python -m crew_health.app.import_contracts --output /tmp/crew-health-e12-T1-imports.ini
+uv run --project hub --locked lint-imports --config /tmp/crew-health-e12-T1-imports.ini
+uv run --project hub --locked python scripts/validate_hub.py interfaces generated corpus
+uv run --project hub --locked pytest -c hub/pyproject.toml -q hub/tests --cov=crew_health --cov-config=hub/pyproject.toml --cov-branch --cov-report=json:/tmp/crew-health-e12-coverage.json
+uv run --project hub --locked pytest -c hub/pyproject.toml --confcutdir=eval/scenarios -q eval/scenarios/e12
+uv run --project hub --locked python scripts/validate_hub.py coverage --report /tmp/crew-health-e12-coverage.json
+uv run --project hub --locked python scripts/validate_hub.py safety mutations trace
+uv run --project eval/runner --locked chc-harness ci --job e2e
+uv pip compile hub/pyproject.toml --python-platform x86_64-pc-windows-msvc --only-binary :all: --offline --output-file /tmp/crew-health-e12-windows-requirements.txt

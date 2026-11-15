@@ -1,0 +1,871 @@
+{
+  "version": "0.1.0",
+  "example": true,
+  "notice": "Example configuration for the medicines engine. Every dose value cites its source (docs/build/E32/research/dosing-safety.md). Rules are draft: a LIVE mission refuses them until clinical review.",
+  "review_state": "draft",
+  "sources": [
+    {
+      "source_id": "N18",
+      "title": "Shuttle Medical Checklist, JSC-48031 Rev K (archived NASA copy)",
+      "publisher": "NASA",
+      "nasa": true,
+      "url": "http://web.archive.org/web/20170212012224/https://www.nasa.gov/centers/johnson/pdf/177788main_MedicalCklist.pdf",
+      "retrieved_on": "2026-11-14"
+    },
+    {
+      "source_id": "RT04",
+      "title": "OCHMO-MTB-004 Space Adaptation Sickness (SAS), Rev A",
+      "publisher": "NASA",
+      "nasa": true,
+      "url": "https://www.nasa.gov/wp-content/uploads/2025/09/ochmo-mtb-004-space-adaptation-sickness-sas.pdf",
+      "retrieved_on": "2026-11-14"
+    },
+    {
+      "source_id": "RT22",
+      "title": "OCHMO-MTB-012 Pharmaceutical Care, Rev B",
+      "publisher": "NASA",
+      "nasa": true,
+      "url": "https://www.nasa.gov/wp-content/uploads/2026/01/ochmo-mtb-012-pharmaceutical-care.pdf",
+      "retrieved_on": "2026-11-14"
+    },
+    {
+      "source_id": "RT01",
+      "title": "OCHMO-TB-044 Medical Operations: Spaceflight Considerations",
+      "publisher": "NASA",
+      "nasa": true,
+      "url": "https://www.nasa.gov/wp-content/uploads/2025/08/ochmo-tb-044-medical-operations.pdf",
+      "retrieved_on": "2026-11-14"
+    },
+    {
+      "source_id": "LBL01",
+      "title": "TYLENOL REGULAR STRENGTH (acetaminophen) tablet, DailyMed set ID 1622f694-4d63-4c56-8737-fae31f0ecfb7",
+      "publisher": "US National Library of Medicine (DailyMed), not NASA",
+      "nasa": false,
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1622f694-4d63-4c56-8737-fae31f0ecfb7",
+      "retrieved_on": "2026-11-14"
+    },
+    {
+      "source_id": "LBL02",
+      "title": "Ibuprofen Tablets USP (Rx), DailyMed set ID 793e4b36-8208-4fa3-9f4f-9e9e72648280",
+      "publisher": "US National Library of Medicine (DailyMed), not NASA",
+      "nasa": false,
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=793e4b36-8208-4fa3-9f4f-9e9e72648280",
+      "retrieved_on": "2026-11-14"
+    },
+    {
+      "source_id": "LBL03",
+      "title": "Promethazine Hydrochloride Tablets USP (Rx), DailyMed set ID e16238dc-9292-49ac-b80f-8afeccb88bc5",
+      "publisher": "US National Library of Medicine (DailyMed), not NASA",
+      "nasa": false,
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=e16238dc-9292-49ac-b80f-8afeccb88bc5",
+      "retrieved_on": "2026-11-14"
+    }
+  ],
+  "indications": [
+    {
+      "condition_id": "ICL63",
+      "lines": [
+        {
+          "line": "first_choice",
+          "product_id": "acetaminophen_325_tab",
+          "rule_id": "apap_pain"
+        },
+        {
+          "line": "alternative",
+          "product_id": "ibuprofen_400_tab",
+          "rule_id": "ibu_pain"
+        }
+      ],
+      "citations": [
+        {
+          "source_id": "N18",
+          "locator": "p. 5-3 and index",
+          "quote": "HEADACHE (see PAIN RELIEF, 5-3)"
+        }
+      ]
+    },
+    {
+      "condition_id": "ICL94",
+      "lines": [
+        {
+          "line": "first_choice",
+          "product_id": "acetaminophen_325_tab",
+          "rule_id": "apap_pain"
+        },
+        {
+          "line": "alternative",
+          "product_id": "ibuprofen_400_tab",
+          "rule_id": "ibu_pain"
+        }
+      ],
+      "citations": [
+        {
+          "source_id": "N18",
+          "locator": "p. 5-3 and index",
+          "quote": "HEADACHE (see PAIN RELIEF, 5-3)"
+        }
+      ]
+    },
+    {
+      "condition_id": "ICL97",
+      "lines": [
+        {
+          "line": "first_choice",
+          "product_id": "promethazine_25_tab",
+          "rule_id": "pmz_nausea"
+        }
+      ],
+      "citations": [
+        {
+          "source_id": "RT04",
+          "locator": "p. 7",
+          "quote": "NASA treatment of choice and most effective in-flight SMS treatment found to date is promethazine"
+        },
+        {
+          "source_id": "N18",
+          "locator": "p. 4-38, MILD MOTION SICKNESS",
+          "quote": "Phenergan (oral) (Drug Subpack-15)"
+        }
+      ]
+    }
+  ],
+  "dose_rules": [
+    {
+      "rule_id": "apap_pain",
+      "review_state": "draft",
+      "to_be_set_by": "clinical review",
+      "as_needed_reason": "pain or headache",
+      "organ_cautions": [
+        "hepatic"
+      ],
+      "condition_cautions": [],
+      "ingredients": [
+        {
+          "ingredient_id": "acetaminophen",
+          "dose": {
+            "value": 650,
+            "ucum": "mg"
+          },
+          "dose_per_kg": null,
+          "max_per_administration": {
+            "value": 650,
+            "ucum": "mg"
+          },
+          "max_per_period": [
+            {
+              "period_seconds": 86400,
+              "limit": {
+                "value": 3250,
+                "ucum": "mg"
+              }
+            }
+          ],
+          "max_cumulative": null,
+          "cumulative_scope": "course",
+          "min_interval_seconds": 14400,
+          "min_effective": null,
+          "course_seconds": 864000
+        }
+      ],
+      "provenance": [
+        {
+          "field": "/ingredients/0/dose",
+          "citations": [
+            {
+              "source_id": "LBL01",
+              "locator": "Drug Facts, Directions",
+              "quote": "take 2 tablets every 4 to 6 hours while symptoms last"
+            }
+          ]
+        },
+        {
+          "field": "/ingredients/0/max_per_administration",
+          "citations": [
+            {
+              "source_id": "LBL01",
+              "locator": "Drug Facts, Directions",
+              "quote": "take 2 tablets every 4 to 6 hours while symptoms last"
+            }
+          ]
+        },
+        {
+          "field": "/ingredients/0/max_per_period/0",
+          "citations": [
+            {
+              "source_id": "LBL01",
+              "locator": "Drug Facts, Liver warning",
+              "quote": "The maximum daily dose of this product is 10 tablets (3,250 mg) in 24 hours for adults"
+            }
+          ]
+        },
+        {
+          "field": "/ingredients/0/min_interval_seconds",
+          "citations": [
+            {
+              "source_id": "LBL01",
+              "locator": "Drug Facts, Directions",
+              "quote": "every 4 to 6 hours"
+            },
+            {
+              "source_id": "N18",
+              "locator": "p. 5-3, PAIN RELIEF",
+              "quote": "Tylenol (Drug Subpack-Spine) Dose: 1-2 tabs every 4-6 hr as needed"
+            }
+          ]
+        },
+        {
+          "field": "/ingredients/0/course_seconds",
+          "citations": [
+            {
+              "source_id": "LBL01",
+              "locator": "Drug Facts, Directions",
+              "quote": "do not use for more than 10 days unless directed by a doctor"
+            }
+          ]
+        },
+        {
+          "field": "/organ_cautions",
+          "citations": [
+            {
+              "source_id": "LBL01",
+              "locator": "Drug Facts, Ask a doctor before use",
+              "quote": "if the user has liver disease"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rule_id": "ibu_pain",
+      "review_state": "draft",
+      "to_be_set_by": "clinical review",
+      "as_needed_reason": "pain or headache",
+      "organ_cautions": [],
+      "condition_cautions": [
+        "ICL38",
+        "ICL93"
+      ],
+      "ingredients": [
+        {
+          "ingredient_id": "ibuprofen",
+          "dose": {
+            "value": 400,
+            "ucum": "mg"
+          },
+          "dose_per_kg": null,
+          "max_per_administration": {
+            "value": 400,
+            "ucum": "mg"
+          },
+          "max_per_period": [
+            {
+              "period_seconds": 86400,
+              "limit": {
+                "value": 3200,
+                "ucum": "mg"
+              }
+            }
+          ],
+          "max_cumulative": null,
+          "cumulative_scope": "course",
+          "min_interval_seconds": 14400,
+          "min_effective": null,
+          "course_seconds": null
+        }
+      ],
+      "provenance": [
+        {
+          "field": "/ingredients/0/dose",
+          "citations": [
+            {
+              "source_id": "LBL02",
+              "locator": "Dosage and Administration",
+              "quote": "Mild to moderate pain: 400 mg every 4 to 6 hours as necessary for relief of pain"
+            }
+          ]
+        },
+        {
+          "field": "/ingredients/0/max_per_administration",
+          "citations": [
+            {
+              "source_id": "LBL02",
+              "locator": "Dosage and Administration",
+              "quote": "Mild to moderate pain: 400 mg every 4 to 6 hours as necessary for relief of pain"
+            }
+          ]
+        },
+        {
+          "field": "/ingredients/0/max_per_period/0",
+          "citations": [
+            {
+              "source_id": "LBL02",
+              "locator": "Dosage and Administration",
+              "quote": "Do not exceed 3200 mg total daily dose"
+            }
+          ]
+        },
+        {
+          "field": "/ingredients/0/min_interval_seconds",
+          "citations": [
+            {
+              "source_id": "LBL02",
+              "locator": "Dosage and Administration",
+              "quote": "every 4 to 6 hours"
+            },
+            {
+              "source_id": "N18",
+              "locator": "p. 5-3, PAIN RELIEF",
+              "quote": "Motrin (Drug Subpack-Spine) ... Dose: 1 tab every 4-6 hr as needed w/food and drink"
+            }
+          ]
+        },
+        {
+          "field": "/condition_cautions",
+          "citations": [
+            {
+              "source_id": "N18",
+              "locator": "p. 4-40, NOSEBLEED",
+              "quote": "Do not administer Ascriptin or Motrin. Use Tylenol for pain."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rule_id": "pmz_nausea",
+      "review_state": "draft",
+      "to_be_set_by": "clinical review",
+      "as_needed_reason": "nausea, vomiting or space motion sickness",
+      "organ_cautions": [],
+      "condition_cautions": [],
+      "ingredients": [
+        {
+          "ingredient_id": "promethazine",
+          "dose": {
+            "value": 25,
+            "ucum": "mg"
+          },
+          "dose_per_kg": null,
+          "max_per_administration": {
+            "value": 25,
+            "ucum": "mg"
+          },
+          "max_per_period": [
+            {
+              "period_seconds": 86400,
+              "limit": {
+                "value": 100,
+                "ucum": "mg"
+              }
+            }
+          ],
+          "max_cumulative": null,
+          "cumulative_scope": "course",
+          "min_interval_seconds": 14400,
+          "min_effective": null,
+          "course_seconds": null
+        }
+      ],
+      "provenance": [
+        {
+          "field": "/ingredients/0/dose",
+          "citations": [
+            {
+              "source_id": "LBL03",
+              "locator": "Dosage and Administration, Nausea and Vomiting",
+              "quote": "The average effective dose of promethazine hydrochloride for the active therapy of nausea and vomiting in children or adults is 25 mg"
+            },
+            {
+              "source_id": "RT04",
+              "locator": "p. 7",
+              "quote": "Terrestrially, promethazine is dosed at 25-50mg"
+            }
+          ]
+        },
+        {
+          "field": "/ingredients/0/max_per_administration",
+          "citations": [
+            {
+              "source_id": "LBL03",
+              "locator": "Dosage and Administration, Nausea and Vomiting",
+              "quote": "12.5 mg to 25 mg doses may be repeated, as necessary, at four- to six-hour intervals"
+            }
+          ]
+        },
+        {
+          "field": "/ingredients/0/max_per_period/0",
+          "citations": [
+            {
+              "source_id": "N18",
+              "locator": "p. 6-10, WARNING",
+              "quote": "Do not exceed 100 mg in a 24-hr period"
+            }
+          ]
+        },
+        {
+          "field": "/ingredients/0/min_interval_seconds",
+          "citations": [
+            {
+              "source_id": "N18",
+              "locator": "pp. 4-38 and 4-39",
+              "quote": "Phenergan (oral) (Drug Subpack-15) ... Dose: 1-2 tabs every 4-6 hr as needed"
+            },
+            {
+              "source_id": "LBL03",
+              "locator": "Dosage and Administration, Nausea and Vomiting",
+              "quote": "at four- to six-hour intervals"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "products": [
+    {
+      "product_id": "acetaminophen_325_tab",
+      "deliverable_increment": {
+        "value": 1,
+        "ucum": "{tbl}"
+      },
+      "measuring_device": null,
+      "rounding_tolerance_fraction": 0,
+      "high_alert": false,
+      "narrow_therapeutic_index": false,
+      "confirm_by": "any_trained_crew",
+      "consult_ground_first": false,
+      "therapeutic_classes": [
+        "analgesic_antipyretic"
+      ],
+      "spaceflight_cautions": [],
+      "basis": "N18 p. 6-2: not marked with the asterisk that requires contacting the surgeon first; whole tablets, so no rounding",
+      "source_ids": [
+        "N18"
+      ],
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "product_id": "ibuprofen_400_tab",
+      "deliverable_increment": {
+        "value": 1,
+        "ucum": "{tbl}"
+      },
+      "measuring_device": null,
+      "rounding_tolerance_fraction": 0,
+      "high_alert": false,
+      "narrow_therapeutic_index": false,
+      "confirm_by": "any_trained_crew",
+      "consult_ground_first": false,
+      "therapeutic_classes": [
+        "nsaid"
+      ],
+      "spaceflight_cautions": [
+        "Give with food and drink (N18 p. 5-3)"
+      ],
+      "basis": "N18 p. 6-2: not marked with the asterisk; N18 p. 5-3 'w/food and drink'",
+      "source_ids": [
+        "N18"
+      ],
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "product_id": "promethazine_25_tab",
+      "deliverable_increment": {
+        "value": 1,
+        "ucum": "{tbl}"
+      },
+      "measuring_device": null,
+      "rounding_tolerance_fraction": 0,
+      "high_alert": false,
+      "narrow_therapeutic_index": false,
+      "confirm_by": "crew_medical_officer",
+      "consult_ground_first": true,
+      "therapeutic_classes": [
+        "antiemetic_phenothiazine"
+      ],
+      "spaceflight_cautions": [
+        "Additive sedation with other central nervous system depressants (N18 p. 6-10)"
+      ],
+      "basis": "N18 p. 6-2: Phenergan is marked with the asterisk (contact the surgeon before giving; in loss of signal begin treatment and call as soon as possible)",
+      "source_ids": [
+        "N18"
+      ],
+      "to_be_set_by": "clinical review"
+    }
+  ],
+  "weight": null,
+  "catastrophic_limits": [],
+  "allergy_classes": [
+    {
+      "class_id": "nsaid",
+      "ingredient_ids": [
+        "aspirin",
+        "ibuprofen"
+      ],
+      "citations": [
+        {
+          "source_id": "LBL02",
+          "locator": "Contraindications",
+          "quote": "after taking aspirin or other NSAIDs"
+        }
+      ]
+    },
+    {
+      "class_id": "phenothiazine",
+      "ingredient_ids": [
+        "promethazine"
+      ],
+      "citations": [
+        {
+          "source_id": "LBL03",
+          "locator": "Contraindications",
+          "quote": "promethazine or to other phenothiazines"
+        }
+      ]
+    }
+  ],
+  "cross_sensitivity_groups": [
+    {
+      "group_id": "aspirin_nsaid",
+      "members": [
+        "aspirin",
+        "nsaid"
+      ],
+      "citations": [
+        {
+          "source_id": "N18",
+          "locator": "p. 6-9, WARNING",
+          "quote": "Do not take Motrin if allergic to aspirin"
+        },
+        {
+          "source_id": "LBL02",
+          "locator": "Contraindications",
+          "quote": "should not be given to patients who have experienced asthma, urticaria, or allergic-type reactions after taking aspirin or other NSAIDs"
+        }
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "pair": [
+        "promethazine",
+        "zolpidem"
+      ],
+      "severity": "avoid",
+      "management_text": "May cause excessive drowsiness in combination.",
+      "citations": [
+        {
+          "source_id": "N18",
+          "locator": "p. 6-2, general WARNING",
+          "quote": "Following drugs should not be used together as they may cause excessive drowsiness in combination"
+        }
+      ]
+    },
+    {
+      "pair": [
+        "promethazine",
+        "diphenhydramine"
+      ],
+      "severity": "avoid",
+      "management_text": "May cause excessive drowsiness in combination.",
+      "citations": [
+        {
+          "source_id": "N18",
+          "locator": "p. 6-2, general WARNING",
+          "quote": "Following drugs should not be used together as they may cause excessive drowsiness in combination"
+        }
+      ]
+    },
+    {
+      "pair": [
+        "promethazine",
+        "loratadine"
+      ],
+      "severity": "avoid",
+      "management_text": "May cause excessive drowsiness in combination.",
+      "citations": [
+        {
+          "source_id": "N18",
+          "locator": "p. 6-2, general WARNING",
+          "quote": "Following drugs should not be used together as they may cause excessive drowsiness in combination"
+        }
+      ]
+    },
+    {
+      "pair": [
+        "promethazine",
+        "meperidine"
+      ],
+      "severity": "avoid",
+      "management_text": "May cause excessive drowsiness in combination.",
+      "citations": [
+        {
+          "source_id": "N18",
+          "locator": "p. 6-2, general WARNING",
+          "quote": "Following drugs should not be used together as they may cause excessive drowsiness in combination"
+        }
+      ]
+    },
+    {
+      "pair": [
+        "promethazine",
+        "fentanyl"
+      ],
+      "severity": "avoid",
+      "management_text": "May cause excessive drowsiness in combination.",
+      "citations": [
+        {
+          "source_id": "N18",
+          "locator": "p. 6-2, general WARNING",
+          "quote": "Following drugs should not be used together as they may cause excessive drowsiness in combination"
+        }
+      ]
+    },
+    {
+      "pair": [
+        "promethazine",
+        "morphine"
+      ],
+      "severity": "avoid",
+      "management_text": "May cause excessive drowsiness in combination.",
+      "citations": [
+        {
+          "source_id": "N18",
+          "locator": "p. 6-2, general WARNING",
+          "quote": "Following drugs should not be used together as they may cause excessive drowsiness in combination"
+        }
+      ]
+    },
+    {
+      "pair": [
+        "promethazine",
+        "temazepam"
+      ],
+      "severity": "avoid",
+      "management_text": "May cause excessive drowsiness in combination.",
+      "citations": [
+        {
+          "source_id": "N18",
+          "locator": "p. 6-2, general WARNING",
+          "quote": "Following drugs should not be used together as they may cause excessive drowsiness in combination"
+        }
+      ]
+    },
+    {
+      "pair": [
+        "promethazine",
+        "diazepam"
+      ],
+      "severity": "avoid",
+      "management_text": "May cause excessive drowsiness in combination.",
+      "citations": [
+        {
+          "source_id": "N18",
+          "locator": "p. 6-2, general WARNING",
+          "quote": "Following drugs should not be used together as they may cause excessive drowsiness in combination"
+        }
+      ]
+    },
+    {
+      "pair": [
+        "promethazine",
+        "hydrocodone"
+      ],
+      "severity": "avoid",
+      "management_text": "May cause excessive drowsiness in combination.",
+      "citations": [
+        {
+          "source_id": "N18",
+          "locator": "p. 6-2, general WARNING",
+          "quote": "Following drugs should not be used together as they may cause excessive drowsiness in combination"
+        }
+      ]
+    },
+    {
+      "pair": [
+        "acetaminophen",
+        "warfarin"
+      ],
+      "severity": "caution",
+      "management_text": "Ask a doctor or pharmacist before use with warfarin.",
+      "citations": [
+        {
+          "source_id": "LBL01",
+          "locator": "Drug Facts, Ask a doctor or pharmacist before use",
+          "quote": "if the user is taking the blood thinning drug warfarin"
+        }
+      ]
+    }
+  ],
+  "alert_policies": [
+    {
+      "kind": "allergy_same_ingredient",
+      "level": "override_required",
+      "override_roles": [
+        "crew_medical_officer"
+      ],
+      "reason_codes": [
+        "benefit_outweighs_risk",
+        "history_verified_not_allergic",
+        "ground_advised"
+      ],
+      "basis": "team_default (docs/tdd/E32.md 3.7)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "allergy_class",
+      "level": "override_required",
+      "override_roles": [
+        "crew_medical_officer"
+      ],
+      "reason_codes": [
+        "benefit_outweighs_risk",
+        "history_verified_not_allergic",
+        "ground_advised"
+      ],
+      "basis": "team_default (docs/tdd/E32.md 3.7)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "cross_sensitivity",
+      "level": "override_required",
+      "override_roles": [
+        "crew_medical_officer"
+      ],
+      "reason_codes": [
+        "benefit_outweighs_risk",
+        "history_verified_not_allergic",
+        "ground_advised"
+      ],
+      "basis": "team_default (docs/tdd/E32.md 3.7)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "interaction",
+      "level": "override_required",
+      "override_roles": [
+        "crew_medical_officer"
+      ],
+      "reason_codes": [
+        "benefit_outweighs_risk",
+        "history_verified_not_allergic",
+        "ground_advised"
+      ],
+      "basis": "team_default (docs/tdd/E32.md 3.7)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "duplicate_ingredient",
+      "level": "acknowledge",
+      "override_roles": [],
+      "reason_codes": [],
+      "basis": "team_default (docs/tdd/E32.md 3.7)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "duplicate_class",
+      "level": "acknowledge",
+      "override_roles": [],
+      "reason_codes": [],
+      "basis": "team_default (docs/tdd/E32.md 3.7)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "organ_caution",
+      "level": "override_required",
+      "override_roles": [
+        "crew_medical_officer"
+      ],
+      "reason_codes": [
+        "benefit_outweighs_risk",
+        "history_verified_not_allergic",
+        "ground_advised"
+      ],
+      "basis": "team_default (docs/tdd/E32.md 3.7)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "condition_caution",
+      "level": "override_required",
+      "override_roles": [
+        "crew_medical_officer"
+      ],
+      "reason_codes": [
+        "benefit_outweighs_risk",
+        "history_verified_not_allergic",
+        "ground_advised"
+      ],
+      "basis": "team_default (docs/tdd/E32.md 3.7)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "outside_medicine_overlap",
+      "level": "override_required",
+      "override_roles": [
+        "crew_medical_officer"
+      ],
+      "reason_codes": [
+        "benefit_outweighs_risk",
+        "history_verified_not_allergic",
+        "ground_advised"
+      ],
+      "basis": "team_default (docs/tdd/E32.md 3.7)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "potency_shortfall",
+      "level": "acknowledge",
+      "override_roles": [],
+      "reason_codes": [],
+      "basis": "team_default (docs/tdd/E32.md 3.7)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "clock_unverified_after_restart",
+      "level": "override_required",
+      "override_roles": [
+        "crew_medical_officer"
+      ],
+      "reason_codes": [
+        "benefit_outweighs_risk",
+        "history_verified_not_allergic",
+        "ground_advised"
+      ],
+      "basis": "team_default (docs/tdd/E32.md 3.7)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "spaceflight_caution",
+      "level": "info",
+      "override_roles": [],
+      "reason_codes": [],
+      "basis": "team_default (docs/tdd/E32.md 3.7, rule 7: information never blocks)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "consult_ground_first",
+      "level": "info",
+      "override_roles": [],
+      "reason_codes": [],
+      "basis": "team_default (docs/tdd/E32.md 3.7, rule 7: information never blocks)",
+      "to_be_set_by": "clinical review"
+    },
+    {
+      "kind": "potency_information",
+      "level": "info",
+      "override_roles": [],
+      "reason_codes": [],
+      "basis": "team_default (docs/tdd/E32.md 3.7, rule 7: information never blocks)",
+      "to_be_set_by": "clinical review"
+    }
+  ],
+  "context_max_age_seconds": 2592000,
+  "context_max_age_basis": "team_default",
+  "context_max_age_to_be_set_by": "clinical review",
+  "unit_display": {
+    "mg": "mg",
+    "ug": "mcg",
+    "mL": "mL",
+    "{tbl}": "tablet",
+    "{dose}": "dose"
+  }
+}

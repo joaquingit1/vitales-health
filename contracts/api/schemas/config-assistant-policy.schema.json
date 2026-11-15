@@ -113,6 +113,18 @@
         "additionalProperties": false
       },
       "minItems": 1
+    },
+    "medicine_terms": {
+      "type": "array",
+      "description": "Release-pinned medicine vocabulary for the shared text checks (E01 TextRulesPort, R-E01-27). Matched as whole words, case-insensitive, plural s allowed.",
+      "items": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 64
+      },
+      "minItems": 1,
+      "maxItems": 500,
+      "uniqueItems": true
     }
   },
   "required": [

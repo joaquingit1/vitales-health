@@ -9,8 +9,8 @@ exploration medicine team plans for "No evacuations possible"
 crew medical officer trains about 15 hours, "knowing that ground specialists will provide real-time guidance"
 ([N15](https://ntrs.nasa.gov/citations/20205008925)). Crew Health Check is health software for a crew that Earth cannot help in time. It checks each
 of the 119 conditions NASA models for exploration missions against the kit actually on board, draws what this ship cannot
-test on the crew member's body, holds a plan aboard for every condition, computes how much of each medicine is still potent, and teaches a crewmate to run a check while
-the webcam verifies the count. It runs on one laptop with no network, and its plans and its emergency flow run with the
+test on the crew member's body, holds a plan aboard for every condition, computes how much of each medicine is still potent, and teaches a crewmate to take a pulse by hand,
+accepting it only when two independent readings agree. It runs on one laptop with no network, and its plans and its emergency flow run with the
 AI switched off.
 
 NASA Space Apps Challenge 2026 · "Create Health Monitoring Software for Astronauts on Space Missions"
@@ -50,9 +50,9 @@ relation, next to Hammett substituent effects. Monte Carlo draws carry the uncer
 the estimate through a Bayesian step. An independent oracle written from the contract alone agrees with it to 1e-9 on
 the checked quantities ([docs/VALIDATION-REPORT.md](docs/VALIDATION-REPORT.md)). It never answers a dosing question.
 
-**4. The crew teaches crew, and the camera checks the work.** When the medical officer is the patient or outside on a
+**4. The crew teaches crew, and two independent readings must agree.** When the medical officer is the patient or outside on a
 surface walk, a crewmate without medical training is walked through the pulse check one step at a time and taps each
-beat. The hub compares the count with the camera's reading and records agree, disagree or incomplete as an observation
+beat. The hub compares that count with an independent reading from the camera and records agree, disagree or incomplete as an observation
 with its source. A skills roster with practice recency proposes who helps, and every proposal states its reason.
 
 **5. Nothing waits for Earth.** The ground link is computed from NASA's lunar and Mars communications

@@ -206,6 +206,7 @@ class TestUow(TestView):
         self._correlation_id = correlation_id
         self.events: list[StoredEvent] = []
         self.audits: list[AuditEntry] = []
+        self.replicated: list[ReplicationChange] = []
         self.published: list[DomainEvent] = []
 
     @property
@@ -245,7 +246,11 @@ class TestUow(TestView):
         raise NotImplementedError("help schedules nothing")
 
     def replicate(self, change: ReplicationChange) -> ReplicationRef:
-        raise NotImplementedError("help replicates nothing in these tests")
+        """Help replicates only the local-only references its audit entries name (help.local audience)."""
+        if change.audience is None or change.audience.rule != "help.local":
+            raise NotImplementedError("help replicates only its local audit references")
+        self.replicated.append(change)
+        return ReplicationRef("node_test", "incarnation_test", len(self.replicated))
 
     @contextmanager
     def savepoint(self, name: str) -> Iterator[None]:
