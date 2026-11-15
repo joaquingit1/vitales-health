@@ -128,7 +128,7 @@
     "api/examples/help/preset-cpr.json": "76a5dbae68b69b8380d2b4a843d669e2d187440c128b0009e2eda627c36d851d",
     "api/examples/help/subject-summary.json": "a12dbeb26ff760bfc86153166056de83805213feadc8c740da3d9232ce3c429d",
     "api/examples/help/urgent-event-alias.json": "e11b6070c0aa888873409e33b2a716904cd5d596a18d0c00612d4a4940eca827",
-    "api/examples/kit-map.example.json": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b",
+    "api/examples/kit-map.example.json": "3f98f1855025d41ad54b162dd98eea66acab250b4fd9c1acf29ebf7c20ed0850",
     "api/examples/kit-map/view-mars.json": "4b9137f23f43d63841004de2d624823b768d0e50ca6fc4a2f8197b694dc3b5a2",
     "api/examples/kit-map/view-station.json": "0cba0721dc7703ad0a9c22e786007ad1fc5a105d3d89900dabd2bb89e4a7d5f0",
     "api/examples/kit-map/what-if-ecg.json": "95a0860146c0e6db13a0ee634d8a7f31fd345ee1aba5a438c36807552e12187a",
@@ -268,7 +268,7 @@
     "api/schemas/config-help-presentation.schema.json": "bbee41efbb991c23738940bdbf7f7107146dc184dbe54685e6f1b0fc654a6e36",
     "api/schemas/config-index.schema.json": "269cde8b164a86162b028b6eccd4d56f47261f9fa96c25728e2467cf6db722fc",
     "api/schemas/config-indicator-catalog.schema.json": "3a03eb8efcb0ed700fe53bc315a110fcb29410ae26bacff25f52f28e72a04e42",
-    "api/schemas/config-kit-map.schema.json": "d9dcdc2d269e3682f5294cbd7b4fdd39ddf7df6c94132051e91453311a77e379",
+    "api/schemas/config-kit-map.schema.json": "3961e6fd22467e40e1075df84584e9a6d09cf3a4589071a063aefab8ca446f8c",
     "api/schemas/config-onboard-plans.schema.json": "31bf7545f4b1d7406de37dbda41d7447325e80f35daf06365cc467027947bffe",
     "api/schemas/config-participation-rules.schema.json": "33b688e0ed1d5af9f6601b811c0eeebc044b04e0c4068f1ae31c0e2afce6e6ec",
     "api/schemas/config-questionnaires.schema.json": "f9419c705b36ac3ef5d3963b446cfeb623ed72dff24914c5fd0514b0612fce38",
@@ -485,7 +485,7 @@
     "api/examples/help/preset-cpr.json": "76a5dbae68b69b8380d2b4a843d669e2d187440c128b0009e2eda627c36d851d",
     "api/examples/help/subject-summary.json": "a12dbeb26ff760bfc86153166056de83805213feadc8c740da3d9232ce3c429d",
     "api/examples/help/urgent-event-alias.json": "e11b6070c0aa888873409e33b2a716904cd5d596a18d0c00612d4a4940eca827",
-    "api/examples/kit-map.example.json": "baf94f3541781b191c64ea844fff4790cebb2292ed3924521d29bddb56c0e25b",
+    "api/examples/kit-map.example.json": "3f98f1855025d41ad54b162dd98eea66acab250b4fd9c1acf29ebf7c20ed0850",
     "api/examples/kit-map/view-mars.json": "4b9137f23f43d63841004de2d624823b768d0e50ca6fc4a2f8197b694dc3b5a2",
     "api/examples/kit-map/view-station.json": "0cba0721dc7703ad0a9c22e786007ad1fc5a105d3d89900dabd2bb89e4a7d5f0",
     "api/examples/kit-map/what-if-ecg.json": "95a0860146c0e6db13a0ee634d8a7f31fd345ee1aba5a438c36807552e12187a",
@@ -625,7 +625,7 @@
     "api/schemas/config-help-presentation.schema.json": "bbee41efbb991c23738940bdbf7f7107146dc184dbe54685e6f1b0fc654a6e36",
     "api/schemas/config-index.schema.json": "269cde8b164a86162b028b6eccd4d56f47261f9fa96c25728e2467cf6db722fc",
     "api/schemas/config-indicator-catalog.schema.json": "3a03eb8efcb0ed700fe53bc315a110fcb29410ae26bacff25f52f28e72a04e42",
-    "api/schemas/config-kit-map.schema.json": "d9dcdc2d269e3682f5294cbd7b4fdd39ddf7df6c94132051e91453311a77e379",
+    "api/schemas/config-kit-map.schema.json": "3961e6fd22467e40e1075df84584e9a6d09cf3a4589071a063aefab8ca446f8c",
     "api/schemas/config-onboard-plans.schema.json": "31bf7545f4b1d7406de37dbda41d7447325e80f35daf06365cc467027947bffe",
     "api/schemas/config-participation-rules.schema.json": "33b688e0ed1d5af9f6601b811c0eeebc044b04e0c4068f1ae31c0e2afce6e6ec",
     "api/schemas/config-questionnaires.schema.json": "f9419c705b36ac3ef5d3963b446cfeb623ed72dff24914c5fd0514b0612fce38",
@@ -750,7 +750,7 @@
     "schemas/config_help_presentation_schema.py": "e786f0569b022414054a6b6c42feefda7865adfa7ec5dd00493ea357956c5e65",
     "schemas/config_index_schema.py": "0c44a4a842fd0457423e9182d9de16b4b95100308e2eef41187ffe8323a5b081",
     "schemas/config_indicator_catalog_schema.py": "c9b0a57604a1958e412679af2556e2ddb10c62d788c7f7083176d6034d2f21dc",
-    "schemas/config_kit_map_schema.py": "fbbc167179f5238cf1e17d34d27a9926fe6c94c0e0f8d4728c7dd78b393f8e97",
+    "schemas/config_kit_map_schema.py": "a710a8f50c7f497e08769cc4c44b8857a20ac1e1bd2bb4e1af067c3e4be8908a",
     "schemas/config_onboard_plans_schema.py": "5821f0b1a29fa37ddb52f5ef3889c7d8e8d9b74958ad6735a8b03f01d1b51672",
     "schemas/config_participation_rules_schema.py": "f76939ffa6d0ced4a028a00a5a63054b907fa06f5c54b9c149814b7ebda362d6",
     "schemas/config_questionnaires_schema.py": "b8ab0fa7286ec8a4c39c5d92845901856698a33c0863b6aaf9556aab149a24a5",
@@ -839,7 +839,7 @@
       "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
       "part-a.json": "51d6fe596f1a31bcf6e1256d4184d485d5d9ab2f51a2f66789742152aeadc468"
     },
-    "manifest_sha256": "0bd7924756f3eedab2567af1e5a9181f6a2f888194b8b129e5ef4b2fc66355f3",
+    "manifest_sha256": "4066fc64d9adf192acd57acd0924ce0c4cbee333092450964664a68e8a8769af",
     "traces": [
       {
         "a3": [

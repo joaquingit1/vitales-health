@@ -1,0 +1,10 @@
+{
+  "origin": "SIM",
+  "provenance": "SIM frames synthesized from the GATT Specification Supplement byte layouts; not a device recording.",
+  "frames": [
+    {
+      "characteristic": "blood_pressure_measurement",
+      "payload_hex": "00780050005d00"
+    }
+  ]
+}

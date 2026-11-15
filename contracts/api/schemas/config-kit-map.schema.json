@@ -94,6 +94,15 @@
           },
           "basis": {
             "$ref": "common.schema.json#/$defs/basis"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/config_id"
+            },
+            "minItems": 2,
+            "uniqueItems": true,
+            "description": "A panel capability: the indicator codes one attempt records together, all or none (SYSTEM 7.3: 85354-9 blood pressure panel with 8480-6 and 8462-4). Absent for a single-value capability, whose observation code is the capability code."
           }
         },
         "required": [
