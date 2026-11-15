@@ -1,0 +1,225 @@
+<script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { RouterLink } from "vue-router";
+import { CHROME, fill } from "../../design/chrome";
+import { copy } from "../../design/copy";
+import SourceWord from "../../design/SourceWord.vue";
+import { ApiProblem, useCrewApi, type Health } from "../../shell/api/client";
+import { useSession } from "../../shell/session";
+import { useStage } from "../../shell/stage";
+import { todayCards } from "../../shell/todaySlots";
+import { KIT_STATES, STATE_MK, loadKitMap, type KitMapView } from "../kit/kitMap";
+import { linkLine, linkOrigin, type GroundLink } from "./groundLink";
+import { placeOf } from "./place";
+
+const api = useCrewApi();
+const stage = useStage();
+const session = useSession();
+const slots = todayCards();
+
+const kit = ref<KitMapView | null>(null);
+const kitFailed = ref(false);
+const link = ref<GroundLink | null>(null);
+const linkFailed = ref(false);
+const hubNow = ref<number>(Number.NaN);
+const place = ref<string | null>(null);
+const LINK_POLL_MS = 2000;
+let poll = 0;
+
+const name = computed(() => {
+  const current = session.state.value.session;
+  return current?.person?.display_name ?? current?.actor.display_name ?? "";
+});
+const line = computed(() => (link.value === null ? "" : linkLine(link.value, hubNow.value)));
+
+/* Slot positions in the reference grid: the prototype's How you are, Daily check and Assistant places. */
+const SLOT_AREAS = ["11 / span 14 | 1", "9 / span 7 | 3", "16 / span 9 | 3", "11 / span 14 | 3"];
+function slotStyle(index: number): Record<string, string> {
+  const [column = "auto", row = "auto"] = (SLOT_AREAS[index] ?? "auto | auto").split(" | ");
+  return { gridColumn: column, gridRow: row };
+}
+
+function setStage(): void {
+  stage.marks = [];
+  stage.focus = null;
+  stage.subline = name.value;
+  stage.headline = place.value ?? "";
+}
+
+onMounted(async () => {
+  setStage();
+  /* The link changes on the hub (the operator's demo switch, the schedule): read it again every few seconds so
+     the Habitat line turns while Today is on screen. Only the line changes. */
+  poll = window.setInterval(() => {
+    void Promise.all([
+      api.get<GroundLink>("/v1/ground-link").then((value) => {
+        link.value = value;
+      }),
+      api.get<Health>("/v1/health").then((value) => {
+        hubNow.value = Date.parse(value.server_time ?? "");
+      }),
+    ]).catch(() => undefined);
+  }, LINK_POLL_MS);
+  const health = api.get<Health>("/v1/health").then(
+    (value) => {
+      hubNow.value = Date.parse(value.server_time ?? "");
+    },
+    () => undefined,
+  );
+  const linkRead = api.get<GroundLink>("/v1/ground-link").then(
+    (value) => {
+      link.value = value;
+    },
+    (error: unknown) => {
+      linkFailed.value = error instanceof ApiProblem || error instanceof Error;
+    },
+  );
+  const kitRead = loadKitMap(api).then(
+    (value) => {
+      kit.value = value;
+    },
+    () => {
+      kitFailed.value = true;
+    },
+  );
+  await Promise.all([health, linkRead, kitRead]);
+  const environment = link.value?.environment_id ?? kit.value?.environment_id ?? null;
+  if (environment !== null) {
+    place.value = await placeOf(api, environment).catch(() => null);
+  }
+  setStage();
+});
+
+onBeforeUnmount(() => {
+  window.clearInterval(poll);
+});
+</script>
+
+<template>
+  <section
+    class="cards"
+    data-view="today"
+    aria-label="Today"
+  >
+    <article
+      class="card paper todo"
+      data-testid="todo-card"
+    >
+      <div class="card-head">
+        <h2 class="card-title">
+          {{ CHROME.todo }}
+        </h2>
+      </div>
+      <div class="split">
+        <div class="big word">
+          {{ copy("designed_states.not_available_here") }}
+        </div>
+      </div>
+      <p class="fine">
+        {{ CHROME.todoUnavailable }}
+      </p>
+    </article>
+
+    <article
+      class="card g g-dusk habitat"
+      data-testid="habitat-card"
+    >
+      <div class="card-head">
+        <h2 class="card-title">
+          {{ CHROME.habitat }}
+        </h2>
+      </div>
+      <p
+        v-if="link"
+        class="env-line"
+        data-testid="habitat-line"
+      >
+        <template v-if="place">
+          {{ place }}.
+        </template>
+        {{ line }}
+        <SourceWord :origin="linkOrigin(link)" />
+      </p>
+      <p
+        v-else-if="linkFailed"
+        class="env-line"
+      >
+        {{ CHROME.linkUnavailable }}
+      </p>
+    </article>
+
+    <RouterLink
+      class="card paper kit-card"
+      :to="{ name: 'kit' }"
+      data-testid="kit-card"
+    >
+      <div class="card-head">
+        <h2 class="card-title">
+          {{ CHROME.thisKit }}
+        </h2>
+        <span
+          v-if="kit?.example"
+          class="tag"
+        >{{ CHROME.exampleRows }}</span>
+        <span class="go"><svg
+          class="icon"
+          viewBox="0 0 24 24"
+        ><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg></span>
+      </div>
+      <template v-if="kit">
+        <div
+          class="big"
+          data-testid="kit-count"
+        >
+          {{ kit.counts.needs_test_not_aboard }}<small>{{ fill(CHROME.ofTotal, { total: kit.counts.total }) }}</small>
+        </div>
+        <p class="kit-note">
+          {{ CHROME.kitNote }}
+        </p>
+        <div class="kit-legend">
+          <span
+            v-for="state in KIT_STATES"
+            :key="state"
+          ><i
+            class="mk"
+            :class="STATE_MK[state]"
+          />{{ kit.counts[state] }} {{ copy(`kit_map_state_words.${state}`).toLowerCase() }}</span>
+        </div>
+        <p class="kit-note">
+          {{ copy(kit.plans_to_write.length > 0 ? "plan_lines.plans_to_write" : "plan_lines.plans_aboard", { count: kit.plans_aboard, total: kit.counts.total, missing: kit.plans_to_write.length }) }}
+        </p>
+      </template>
+      <p
+        v-else-if="kitFailed"
+        class="kit-note"
+      >
+        {{ CHROME.kitMapUnavailable }}
+      </p>
+    </RouterLink>
+
+    <article
+      v-for="(slot, index) in slots"
+      :key="slot.id"
+      class="card paper slot-card"
+      :style="slotStyle(index)"
+      :data-slot="slot.id"
+    >
+      <component :is="slot.component" />
+    </article>
+  </section>
+</template>
+
+<style scoped>
+.kit-card {
+  color: inherit;
+  text-decoration: none;
+}
+.big.word {
+  font-size: 28px;
+  line-height: 34px;
+  white-space: normal;
+}
+.env-line .src {
+  margin-left: 6px;
+}
+</style>
