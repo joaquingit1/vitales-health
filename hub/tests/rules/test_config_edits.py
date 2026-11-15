@@ -18,11 +18,12 @@ from datetime import timedelta
 from typing import Any
 
 import pytest
-import rules_harness as h
 
 from crew_health.rules.domain.definitions import RulesDocument, parse_rules_document
 from crew_health.rules.domain.inputs import AnswerInput, MissionEventInput
 from crew_health.rules.domain.vocabulary import EnvironmentId, OriginMode
+
+from . import rules_harness as h
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R43", "V75", "D15")]
 

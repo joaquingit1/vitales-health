@@ -9,10 +9,8 @@ import copy
 from collections.abc import Callable
 from dataclasses import fields, replace
 from datetime import timedelta
-from typing import cast
 
 import pytest
-import rules_harness as h
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -50,6 +48,8 @@ from crew_health.rules.domain.warning import (
     resolve,
 )
 
+from . import rules_harness as h
+
 pytestmark = [pytest.mark.E24, pytest.mark.trace("R36", "R40", "INV-E24-01", "INV-E24-02", "INV-E24-03")]
 
 IMMUTABLE = (
@@ -64,7 +64,7 @@ def co2_warning(world: h.World) -> Warning:
     world.feed(world.sensor(results=[h.result("co2_1h_act", crossed=True, clear_holds=False)]))
     assert limit.level is Level.ACT
     (w,) = world.by_definition("co2_above_limit")
-    return cast(Warning, w)
+    return w
 
 
 @pytest.mark.trace("T-E24-001")
@@ -92,7 +92,7 @@ def test_t001_a_warning_without_steps_or_citation_cannot_exist(world: h.World) -
 @pytest.mark.trace("T-E24-002")
 def test_t002_an_assistant_definition_at_act_fails_construction(example_doc: RulesDocument) -> None:
     raw = copy.deepcopy(h.example_value("warning-rules"))
-    for d in raw["definitions"]:
+    for d in h.definitions_of(raw):
         if d["id"] == "assistant_pattern":
             d["level"] = "act"
     with pytest.raises(DefinitionInvalid):
@@ -131,7 +131,7 @@ def test_t005_a_rule_or_sensor_warning_can_never_be_dismissed(world: h.World) ->
     with pytest.raises(ActionNotAllowed):
         dismiss(w, PersonActor("p1"), h.T0, "reason")
     with pytest.raises(ActionNotAllowed):
-        replace(w, state=WarningState.DISMISSED, dismissed=object())  # type: ignore[arg-type]
+        h.replace_unchecked(w, state=WarningState.DISMISSED, dismissed=object())
 
 
 @pytest.mark.trace("T-E24-004")

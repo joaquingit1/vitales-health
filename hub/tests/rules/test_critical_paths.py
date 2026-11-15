@@ -24,18 +24,19 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
-import e23_station as base
 import pytest
-import rules_harness as h
-from e24_station import restart
-from test_station_co2 import feed, station
-from test_storm_occurrences_served import record
 
 from crew_health.kernel.scheduler import HealthState
 from crew_health.rules.domain import clear_evidence, engine
 from crew_health.rules.domain.clear_evidence import Eligibility
 from crew_health.rules.domain.decisions import Clear
 from crew_health.rules.domain.definitions import parse_rules_document
+
+from . import rules_harness as h
+from . import rules_station as base
+from .e24_station import restart
+from .test_station_co2 import feed, station
+from .test_storm_occurrences_served import record
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("AGENTS-2", "E24-9")]
 
@@ -84,7 +85,7 @@ def test_path2_a_storm_recorded_on_the_laptop_reaches_every_crew_screen_without_
     patched: None,
     tmp_path: Path,
 ) -> None:
-    from e24_station import build
+    from .e24_station import build
 
     st = build(tmp_path)  # no monitor adapter, no ground link, no model process: the primary is absent
     st.initialize("SIM")
@@ -102,7 +103,7 @@ def test_path3_a_client_that_missed_the_live_event_catches_up_by_cursor_and_snap
     patched: None,
     tmp_path: Path,
 ) -> None:
-    from e24_station import build
+    from .e24_station import build
 
     st = build(tmp_path)
     st.initialize("SIM")

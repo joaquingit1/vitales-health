@@ -11,12 +11,12 @@ from __future__ import annotations
 
 import json
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal, TypedDict
 
 from hypothesis import HealthCheck, settings
 
@@ -197,6 +197,92 @@ def render_facts(text: str = "3.5") -> LimitRenderFacts:
 def channel_facts(origin: OriginMode = OriginMode.LIVE) -> ChannelRenderFacts:
     words = {"LIVE": "Live sensor", "SIM": "Simulated sensor", "REPLAY": "Replay of recorded data"}
     return ChannelRenderFacts("CO2", "cabin", words[origin.value], "09:00", None)
+
+
+def as_type[T](value: object, kind: type[T]) -> T:
+    """Narrow a decision step (or any value) to one expected type, failing loudly when it is anything else."""
+    if not isinstance(value, kind):
+        raise TypeError(f"expected {kind.__name__}, got {type(value).__name__}")
+    return value
+
+
+def replace_unchecked[T](obj: T, **changes: object) -> T:
+    """`dataclasses.replace` with values the field types forbid, for tests that feed the engine a malformed input."""
+    target: Any = obj
+    replaced: T = replace(target, **changes)
+    return replaced
+
+
+def list_of(document: object, key: str) -> list[Any]:
+    """The list under `key` of a parsed JSON object."""
+    if not isinstance(document, dict) or not isinstance(document.get(key), list):
+        raise TypeError(f"expected an object with a {key} list")
+    return list(document[key])
+
+
+def definitions_of(document: object) -> list[dict[str, Any]]:
+    """The `definitions` list of a rules document given as parsed JSON."""
+    return list_of(document, "definitions")
+
+
+class Crossing(TypedDict):
+    """The two flags a limit result carries, for tests that pass them as one value."""
+
+    crossed: bool | None
+    clear_holds: bool | None
+
+
+class SensorTarget(TypedDict):
+    """Which sensor type and channel a `World.sensor` call reports on."""
+
+    sensor_type: str
+    channel: str
+
+
+class SensorKw(TypedDict, total=False):
+    """The optional keywords of `World.sensor` (all but `results`)."""
+
+    at: datetime | None
+    sensor_type: str
+    channel: str
+    origin: OriginMode
+    reading: str | None
+    clock_state: Literal["trusted", "uncertain", "unknown"]
+    freshness: Literal["current", "stale"]
+    obs: ObservedTime | None
+    receive_reference: datetime | None
+    release: str | None
+
+
+class FreshnessKw(TypedDict, total=False):
+    """The optional keywords of `World.freshness_input` (all but the state)."""
+
+    channel: str
+    sensor_type: str
+    since: datetime | None
+    origin: OriginMode
+    obs: ObservedTime | None
+    receive_reference: datetime | None
+
+
+class EventKw(TypedDict, total=False):
+    """The optional keywords of `World.event`."""
+
+    origin: OriginMode
+    persons: tuple[str, ...]
+    location: str | None
+    corrected: datetime | None
+
+
+class WorldKw(TypedDict, total=False):
+    """The optional fields of `World` that tests set at construction."""
+
+    mission_mode: OriginMode
+    environment: EnvironmentId
+    now: datetime
+    release_id: str
+    frozen: bool
+    clock_regressed: bool
 
 
 def result(

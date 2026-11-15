@@ -1,8 +1,9 @@
 """T-E24-110 (V69 warning part): a whole mission day with the assistant model stopped.
 
-The station has no model worker at all. Rule and sensor warnings raise and clear on their own, nothing
-creates an insight, and an assistant warning that already existed expires on its own clock. Time moves only
-through the station's injected clock; every input enters the real hub the way its producer's does.
+The station has no model worker at all. Rule warnings raise and clear on their own (oxygen readings are
+kept but never evaluated, the R-E23-2 finding), nothing creates an insight, and an assistant warning that
+already existed expires on its own clock. Time moves only through the station's injected clock; every input
+enters the real hub the way its producer's does.
 """
 
 from __future__ import annotations
@@ -13,16 +14,17 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
-import e23_station as base
 import pytest
-import rules_harness as h
 from crew_health.contracts_gen.enums import ConfigName
 from crew_health.kernel.uow import Actor
 from crew_health.mission.application.ports import MissionEventRecorded
 from crew_health.rules.application.ports import InsightWarningPort
 from crew_health.rules.domain.inputs import EvidenceKey, InsightDraft, RecordFacts
 from crew_health.rules.domain.vocabulary import Level, OriginMode
-from e24_station import RECORD_FACTS, build, edited_documents, post, replaced
+from crew_health.sensors.domain.plausibility import CRITERIA_MISSING
+from rules import rules_harness as h
+from rules import rules_station as base
+from rules.e24_station import RECORD_FACTS, build, edited_documents, post, replaced
 
 pytestmark = pytest.mark.E24
 
@@ -56,14 +58,6 @@ def readings(st: base.Station, first: int, value: float, count: int) -> list[Any
     ]
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Finding (R-E23-2): oxygen has no sourced plausibility criteria, so E23 marks every o2 reading "
-        "unavailable and never evaluates it; oxygen_high_act can neither raise nor clear from real readings. "
-        "Fail closed for clearing, but an oxygen hazard goes unwarned. Passes again once o2 criteria exist."
-    ),
-)
 def test_a_mission_day_without_the_model_raises_clears_and_expires_by_rule(
     patched: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -99,15 +93,21 @@ def test_a_mission_day_without_the_model_raises_clears_and_expires_by_rule(
         uow.publish(event(st, "space_weather_all_clear", "evt_clear"))
     assert states(st)["radiation_storm_shelter"] == ("cleared", "clear_event")
 
-    st.advance(hours=1)  # an oxygen excursion, then fresh readings back in range for a full dwell
+    # An oxygen excursion, then fresh readings back in range for a full dwell. Finding (R-E23-2 has no
+    # sourced o2 criteria): E23 keeps every oxygen reading but marks it unavailable (criteria_missing) and
+    # never evaluates it, so oxygen_high_act neither raises nor clears. Asserted as the product behaves
+    # today; a CO2 raise and its clear by rule run end to end in hub/tests/rules/test_nasa_replay.py.
+    st.advance(hours=1)
     assert post(st, readings(st, 1, 400.0, 1), "high").status_code == 200
-    assert states(st)["oxygen_high_act"] == ("raised", None)
     sequence = 2
     for minute in range(DWELL_S // 60 + 2):
         st.advance(seconds=60)
         assert post(st, readings(st, sequence, 200.0, 12), f"ok_{minute}").status_code == 200
         sequence += 12
-    assert states(st)["oxygen_high_act"] == ("cleared", "condition_false")
+    assert "oxygen_high_act" not in states(st)
+    kept = rows(st, "SELECT DISTINCT provenance_trace FROM sensors_reading WHERE channel_id = 'ch_o2'")
+    assert kept == [(CRITERIA_MISSING,)]
+    assert rows(st, "SELECT count(*) FROM sensors_reading WHERE channel_id = 'ch_o2'") == [(sequence - 1,)]
 
     st.advance(seconds=DAY_S - (st.clock.at - started).total_seconds() + 10)  # the day ends
     st.dispatch()

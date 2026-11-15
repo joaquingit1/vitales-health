@@ -13,17 +13,18 @@ T-E24-016, 017, 127; INV-E24-04, INV-E24-15; D1, H6, H11.
 from __future__ import annotations
 
 import copy
-from typing import cast
+from typing import Literal, cast
 
 import pytest
-import rules_harness as h
 from hypothesis import given
 from hypothesis import strategies as st
 
 from crew_health.rules.domain.decisions import Clear
-from crew_health.rules.domain.definitions import SensorLimitCondition, parse_rules_document
+from crew_health.rules.domain.definitions import RulesDocument, SensorLimitCondition, parse_rules_document
 from crew_health.rules.domain.inputs import ActivationInput
 from crew_health.rules.domain.vocabulary import ConditionKind, EnvironmentId, Level
+
+from . import rules_harness as h
 
 pytestmark = [pytest.mark.E24, pytest.mark.trace("INV-E24-04", "INV-E24-15", "D1", "H6", "H11")]
 
@@ -32,7 +33,7 @@ SENSOR_DEFINITIONS = sorted(d.id for d in RULES.definitions if d.condition.kind 
 EDITS = st.sampled_from(["level", "remove", "content", "environments"])
 
 
-def _edited(definition_id: str, edit: str, level: Level, environment: str) -> object:
+def _edited(definition_id: str, edit: str, level: Level, environment: str) -> RulesDocument:
     raw = copy.deepcopy(h.deployment_rules())
     definitions = raw["definitions"]
     assert isinstance(definitions, list)
@@ -58,7 +59,7 @@ def _edited(definition_id: str, edit: str, level: Level, environment: str) -> ob
 )
 @h.PROP
 def test_no_release_edit_clears_lowers_or_repins_an_active_sensor_warning(
-    definition_id: str, edit: str, level: Level, kind: str
+    definition_id: str, edit: str, level: Level, kind: Literal["release", "environment"]
 ) -> None:
     (definition,) = [d for d in RULES.definitions if d.id == definition_id]
     environment = sorted(e.value for e in definition.environments)[0]
@@ -66,8 +67,14 @@ def test_no_release_edit_clears_lowers_or_repins_an_active_sensor_warning(
     limit = world.limits[cast(SensorLimitCondition, definition.condition).limit_id]
     if limit.status != "active" or limit.role != "warning":
         return  # a pending limit raises nothing (T-E24-027, 028)
-    where = {"sensor_type": limit.sensor_type_id, "channel": "ch_" + limit.sensor_type_id}
-    world.feed(world.sensor(results=[h.result(limit.limit_id, crossed=True, clear_holds=False)], **where))
+    sensor_type, channel = limit.sensor_type_id, "ch_" + limit.sensor_type_id
+    world.feed(
+        world.sensor(
+            results=[h.result(limit.limit_id, crossed=True, clear_holds=False)],
+            sensor_type=sensor_type,
+            channel=channel,
+        )
+    )
     (w,) = world.by_definition(definition_id)
     before = dict(world.warnings)
     try:
@@ -75,12 +82,12 @@ def test_no_release_edit_clears_lowers_or_repins_an_active_sensor_warning(
     except Exception:  # noqa: BLE001 - a candidate the parser refuses never activates (last good stays)
         return
     world.reload(candidate)
-    decision = world.feed(ActivationInput(kind, "rel_a", "rel_b", environment))  # type: ignore[arg-type]
+    decision = world.feed(ActivationInput(kind, "rel_a", "rel_b", environment))
     assert not any(isinstance(s, Clear) for s in decision)
     assert world.warnings == before  # nothing cleared, lowered or repinned by the activation
     world.advance(10)
     world.feed(world.sensor(release="rel_b", results=[h.result(limit.limit_id, crossed=True, clear_holds=False)],
-                            reading="rdg_after", **where))  # fmt: skip
+                            reading="rdg_after", sensor_type=sensor_type, channel=channel))  # fmt: skip
     kept = world.warnings[w.warning_id]
     if kept.active:
         assert kept == w  # still the same record: same level, pin, fingerprint, release, revision
