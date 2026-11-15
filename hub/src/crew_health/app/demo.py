@@ -473,6 +473,8 @@ def habitat_replay(
     feeds_listed = cast(list[dict[str, object]], section["feeds"])
     if len(health_ports) != len(feeds_listed):
         raise DemoError("one habitat health port per feed")
+    settings = habitat / "adapter-settings.json"
+    settings.write_text(json.dumps(section["adapter_settings"], sort_keys=True), encoding="utf-8")
     for feed, health_port in zip(feeds_listed, health_ports, strict=True):
         view = admin.issue_adapter_token(
             str(feed["adapter_principal_id"]),
@@ -503,6 +505,8 @@ def habitat_replay(
                     "demo",
                     "--health-port",
                     str(health_port),
+                    "--settings",
+                    str(settings),
                 ],
                 env={**os.environ, "CREW_HEALTH_ADAPTER_TOKEN": str(view.token)},
                 text=True,
