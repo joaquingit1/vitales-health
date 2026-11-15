@@ -13,7 +13,7 @@ from fastapi import APIRouter, FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from crew_health.app import plans_seams
+from crew_health.app import assistant_seams, plans_seams
 from crew_health.app.errors import to_envelope
 from crew_health.app.import_contracts import module_digest, module_migrations, verify_modules
 from crew_health.app.installed_modules import REGISTRATIONS
@@ -673,6 +673,7 @@ def _startup(
                 lambda r: r.require(KeyedCommandFingerprint),
                 requires=(KeyedCommandFingerprint,),
             )
+    assistant_seams.compose(registry, lambda: runtime.hub_segment)
     _event_access(registry)
     platform_services(registry, runtime)
     allowlist = _storage_declarations(registry, db)

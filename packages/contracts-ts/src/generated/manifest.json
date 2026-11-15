@@ -711,7 +711,7 @@
     "reference/input-dictionary.json": "23dcdfad5edd18cc2f4ccd25e8d0c91cad14559edef52994913406697daaa479"
   },
   "modules": {
-    "crew_health.assistant.module": "263765537af6dc61414b88f791ba47a45d67e2d179f3aa8f051654e2eddf0dbf",
+    "crew_health.assistant.module": "5cb5bb4f68a9a811fb0df7fa9829947b74b97b0408229a9e7bab660780bbe99d",
     "crew_health.camera.module": "3b6a5508ea4b6bf2642a4a2cfe169209c8b5b9894d059d9e3f9a1995ad0a6d29",
     "crew_health.catchup.module": "637c2ef8c1fb3c739356156a61a0a34a94fe298aaaf5cb123c0cedb350630452",
     "crew_health.clock.module": "66ab238568e281b1d3e47625c6f469407da400ce3db6e609ee16628d2e51500d",

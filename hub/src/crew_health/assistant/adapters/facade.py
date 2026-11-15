@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Iterator
 
+from crew_health.assistant.adapters.conversations import Conversations
 from crew_health.assistant.adapters.runtime_worker import RuntimeWorker
 from crew_health.assistant.adapters.staging import ReadStage
 from crew_health.assistant.application.assessment_queries import AssessmentQueries
@@ -31,7 +32,9 @@ class AssistantFacade:
         releases: ModelReleaseReader,
         worker: RuntimeWorker | None,
         max_bytes: int,
+        conversations: Conversations | None = None,
     ) -> None:
+        self.conversations = conversations
         (
             self.state,
             self.actions,
@@ -52,6 +55,8 @@ class AssistantFacade:
             raise ProblemError(ErrorCode.UNAUTHORIZED_SCOPE, "human session required")
         if operation == "getAssistantStatus":
             return self.status()
+        if operation == "getConversation" and target is not None and self.conversations is not None:
+            return self.conversations.get(session, target)
         if operation == "getAssessment" and target is not None:
             with self.views.snapshot() as view:
                 return HttpResult(self.queries.get(view, session, target), 200)
@@ -106,6 +111,10 @@ class AssistantFacade:
     def command(
         self, session: SessionContext, operation: str, target: str | None, request: CommandRequest
     ) -> HttpResult:
+        if operation == "openConversation" and self.conversations is not None:
+            return self.conversations.open(session, request)
+        if operation == "sendMessage" and target is not None and self.conversations is not None:
+            return self.conversations.send(session, target, request)
         if operation != "setAssistantRuntime":
             raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, "assistant capability not implemented")
         if not (

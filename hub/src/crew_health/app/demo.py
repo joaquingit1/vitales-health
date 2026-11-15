@@ -378,7 +378,7 @@ def cue(directory: Path, name: str, *, base_url: str, now: datetime | None = Non
             body["next_contact_at"] = at.strftime("%Y-%m-%dT%H:%M:%SZ")
         return hub.call("POST", "/v1/demo/ground-link", token=token, body=body, release=release)
     if name.startswith("model-"):
-        body = fixture.cited(spec["request"])
+        body = cast(dict[str, object], fixture.cited(spec["request"]))
         return hub.call("POST", "/v1/assistant/runtime", token=token, body=body, release=release)
     if name.startswith("environment-"):
         # E23's proposeEnvironmentChange is not on main: the demo control sets the demo mission's environment.

@@ -315,7 +315,7 @@ def _demo_mission(registry: ModuleRegistry, mission: DemoMission) -> None:
         KitMission,
         MissionStatePort,
     ):
-        registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))  # type: ignore[arg-type]
+        registry.provide(cast(type[object], port), bound, requires=(ClockIdentity,))
 
 
 def production(

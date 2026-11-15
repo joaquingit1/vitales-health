@@ -6,12 +6,20 @@ from __future__ import annotations
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
-from enum import IntEnum
 from typing import Literal, Protocol
 
 from fastapi import APIRouter
 
+from crew_health.app.registry import StartupPhase as Phase
 from crew_health.assistant.adapters.calls import BoundedCalls
+from crew_health.assistant.adapters.conversations import (
+    Bounds,
+    Conversations,
+    EpisodeAccess,
+    PersonOrigin,
+    TurnAnchor,
+    TurnPorts,
+)
 from crew_health.assistant.adapters.facade import AssistantFacade
 from crew_health.assistant.adapters.runtime_worker import RuntimeWorker
 from crew_health.assistant.adapters.store import Store
@@ -24,6 +32,7 @@ from crew_health.assistant.application.http_ports import (
     HttpResult,
     QueryParameters,
 )
+from crew_health.assistant.application.json_data import JsonBounds
 from crew_health.assistant.application.ports import (
     AssistantStatusPort,
     CommandFingerprint,
@@ -34,6 +43,7 @@ from crew_health.assistant.application.ports import (
     SessionReader,
 )
 from crew_health.assistant.application.runtime_actions import RuntimeActions
+from crew_health.assistant.application.tools_copies import EffectApplier, OutputPolicyPort, ToolGateway
 from crew_health.episodes.application.ports import AssessmentCommands, AssessmentFacts
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.commands import IdempotencyStore
@@ -49,12 +59,13 @@ from crew_health.kernel.uow import (
     UnitOfWork,
     UnitOfWorkFactory,
 )
-from crew_health.model.application.ports import ModelInstallation, ModelReleaseReader, ModelRuntimePort
-
-
-class Phase(IntEnum):
-    STATE_SWEEP = 40
-    INGEST = 50
+from crew_health.model.application.ports import (
+    InferencePort,
+    ModelInstallation,
+    ModelReleaseReader,
+    ModelRuntimePort,
+    PromptPort,
+)
 
 
 class Resolver(Protocol):
@@ -82,6 +93,7 @@ class Live:
     uows: UnitOfWorkFactory | None = None
     actor: Actor | None = None
     lifecycle: WorkerLifecycle | None = None
+    conversations: Conversations | None = None
 
 
 def register(registry: Registry) -> None:
@@ -168,6 +180,8 @@ def register(registry: Registry) -> None:
         "load_timeout_ms": (1, 300000),
         "dependency_workers": (1, 2),
         "max_rows": (1, 100),
+        "max_queued_turns": (1, 16),
+        "max_context_messages": (1, 32),
     }
     for key, (low, high) in bounds.items():
         registry.setting(
@@ -228,6 +242,7 @@ def register(registry: Registry) -> None:
                 probe_ms=settings.integer("assistant.probe_timeout_ms"),
                 load_ms=settings.integer("assistant.load_timeout_ms"),
             )
+        conversations = _conversations(resolver, settings, state, actions, views, uows, ids)
         facade = AssistantFacade(
             state=state,
             actions=actions,
@@ -239,7 +254,9 @@ def register(registry: Registry) -> None:
             releases=resolver.require(ModelReleaseReader),
             worker=worker,
             max_bytes=settings.integer("commands.max_bytes"),
+            conversations=conversations,
         )
+        live.conversations = conversations
         live.facade, live.queries, live.store, live.actions, live.worker, live.uows, live.actor = (
             facade,
             queries,
@@ -267,8 +284,56 @@ def register(registry: Registry) -> None:
         if live.worker is not None and live.lifecycle is not None:
             live.worker.start()
             live.lifecycle.started("assistant.runtime", live.worker.stop)
+        if live.conversations is not None and live.lifecycle is not None:
+            live.conversations.start()
+            live.lifecycle.started("assistant.turns", live.conversations.stop)
 
     registry.bind("assistant", bind)
     registry.on_startup(Phase.STATE_SWEEP, boot)
     registry.on_startup(Phase.INGEST, start)
     registry.router(build_router(api))
+
+
+def _conversations(
+    resolver: Resolver,
+    settings: HubSettings,
+    state: Store,
+    actions: RuntimeActions,
+    views: ReadSnapshotFactory,
+    uows: UnitOfWorkFactory,
+    ids: IdFactory,
+) -> Conversations | None:
+    """The episode intake conversation, only when every seam it needs is bound; otherwise its routes stay
+    explicitly unavailable (CAPABILITY_UNAVAILABLE), never a local stand-in."""
+    gateway, effects = resolver.optional(ToolGateway), resolver.optional(EffectApplier)
+    policy, episodes = resolver.optional(OutputPolicyPort), resolver.optional(EpisodeAccess)
+    anchor, origins = resolver.optional(TurnAnchor), resolver.optional(PersonOrigin)
+    prompts, inference = resolver.optional(PromptPort), resolver.optional(InferencePort)
+    if (
+        gateway is None
+        or effects is None
+        or policy is None
+        or episodes is None
+        or anchor is None
+        or origins is None
+        or prompts is None
+        or inference is None
+    ):
+        return None
+    limit = settings.integer("commands.max_bytes")
+    return Conversations(
+        state=state,
+        actions=actions,
+        views=views,
+        uows=uows,
+        ids=ids,
+        clock=resolver.require(Clock),
+        releases=resolver.require(ModelReleaseReader),
+        ports=TurnPorts(gateway, effects, policy, episodes, anchor, origins, prompts, inference),
+        bounds=Bounds(
+            settings.integer("assistant.max_queued_turns"),
+            settings.integer("assistant.max_context_messages"),
+            limit,
+            JsonBounds(limit, 32, 4096, 256, limit),
+        ),
+    )
