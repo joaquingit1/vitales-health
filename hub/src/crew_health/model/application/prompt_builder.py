@@ -6,6 +6,8 @@ from collections.abc import Mapping, Sequence
 from dataclasses import asdict
 from typing import Protocol, cast
 
+import jsonschema
+
 from crew_health.kernel.commands import canonical_json
 from crew_health.model.application.ports import (
     ContextSnapshot,
@@ -31,7 +33,7 @@ class PromptAssets(Protocol):
 def request_body(bundle: PromptBundle) -> dict[str, object]:
     decoding = asdict(bundle.decoding)
     body: dict[str, object] = {
-        "messages": [{k: v for k, v in asdict(m).items() if v is not None} for m in bundle.messages],
+        "messages": _messages(bundle.messages),
         "stream": True,
         "stream_options": {"include_usage": True},
         "temperature": decoding["temperature"],
@@ -68,6 +70,64 @@ def request_body(bundle: PromptBundle) -> dict[str, object]:
     return body
 
 
+def _messages(messages: Sequence[TranscriptItem]) -> list[dict[str, object]]:
+    pending: list[str] = []
+    used: set[str] = set()
+    encoded: list[dict[str, object]] = []
+    for message in messages:
+        if message.role not in {"system", "user", "assistant", "tool"}:
+            raise ModelRefused("tool_history_invalid")
+        item: dict[str, object] = {"role": message.role, "content": message.content}
+        if message.role == "tool":
+            if message.tool_calls or not pending or message.tool_call_id != pending.pop(0):
+                raise ModelRefused("tool_history_invalid")
+            item["tool_call_id"] = message.tool_call_id
+        elif message.tool_call_id is not None or pending:
+            raise ModelRefused("tool_history_invalid")
+        if message.tool_calls:
+            if message.role != "assistant" or message.content:
+                raise ModelRefused("tool_history_invalid")
+            calls: list[dict[str, object]] = []
+            for call in message.tool_calls:
+                if not call.id or call.id in used or not call.name:
+                    raise ModelRefused("tool_history_invalid")
+                used.add(call.id)
+                pending.append(call.id)
+                calls.append(
+                    {
+                        "id": call.id,
+                        "type": "function",
+                        "function": {
+                            "name": call.name,
+                            "arguments": canonical_json(dict(call.arguments)).decode("utf-8"),
+                        },
+                    }
+                )
+            item["tool_calls"] = calls
+        encoded.append(item)
+    if pending:
+        raise ModelRefused("tool_history_invalid")
+    return encoded
+
+
+def _history_catalog(
+    messages: Sequence[TranscriptItem], catalog: Sequence[Mapping[str, JsonValue]], maximum: int
+) -> None:
+    schemas = {str(tool["name"]): tool["input_schema"] for tool in catalog}
+    used = 0
+    try:
+        for message in messages:
+            for call in message.tool_calls:
+                used += 1
+                if used > maximum or call.name not in schemas:
+                    raise ModelRefused("tool_history_invalid")
+                jsonschema.Draft202012Validator(object_value(schemas[call.name])).validate(
+                    dict(call.arguments)
+                )
+    except (jsonschema.ValidationError, jsonschema.SchemaError) as error:
+        raise ModelRefused("tool_history_invalid") from error
+
+
 def request_bytes(bundle: PromptBundle, release_id: str) -> bytes:
     body = request_body(bundle)
     body["model"] = release_id
@@ -102,6 +162,9 @@ class PromptBuilder:
             *transcript,
         )
         catalog = self.releases.tool_catalog(release_id)
+        _history_catalog(
+            messages, catalog.tools, cast(int, object_value(release["controller"])["max_tool_calls"])
+        )
         names = catalog.exposure.get(phase, ())
         tools = tuple(t for t in catalog.tools if t["name"] in names) or None
         sampling = DecodingSettings(

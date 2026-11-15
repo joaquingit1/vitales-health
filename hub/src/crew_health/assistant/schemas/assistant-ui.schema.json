@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Pinned assistant interface copy",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "classification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "classification",
+        "basis"
+      ],
+      "additionalProperties": false
+    },
+    "notice": {
+      "type": "object",
+      "properties": {
+        "cancelled": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "stale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "timed_out": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "rejected": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "unavailable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "assessment_started": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "assessment_incomplete": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "no_supported_passage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "repeat_request": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "step_not_in_plan": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "cancelled",
+        "stale",
+        "timed_out",
+        "rejected",
+        "unavailable",
+        "assessment_started",
+        "assessment_incomplete",
+        "no_supported_passage",
+        "repeat_request",
+        "step_not_in_plan"
+      ],
+      "additionalProperties": false
+    },
+    "labels": {
+      "type": "object",
+      "properties": {
+        "assistant": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "send": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "cancel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "retry": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "dismiss": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "start": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "stop": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "draft": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "stale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "reviewed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "incomplete": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "not_clinically_reviewed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "help": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "limitations": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "findings": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "hypotheses": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "contradictions": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "missing_evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "next_step": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "decision_affected": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "queue_depth": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "model_release": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "load_more": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "assistant",
+        "send",
+        "cancel",
+        "retry",
+        "why",
+        "dismiss",
+        "start",
+        "stop",
+        "draft",
+        "stale",
+        "reviewed",
+        "incomplete",
+        "not_clinically_reviewed",
+        "help",
+        "evidence",
+        "limitations",
+        "findings",
+        "hypotheses",
+        "contradictions",
+        "missing_evidence",
+        "next_step",
+        "reason",
+        "decision_affected",
+        "queue_depth",
+        "model_release",
+        "load_more"
+      ],
+      "additionalProperties": false
+    },
+    "states": {
+      "type": "object",
+      "properties": {
+        "stopped": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "loading": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "running": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "unavailable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "waiting": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "offline": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "empty": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "error": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "stale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "withheld": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "stopped",
+        "loading",
+        "running",
+        "unavailable",
+        "waiting",
+        "offline",
+        "empty",
+        "error",
+        "stale",
+        "withheld"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version",
+    "provenance",
+    "notice",
+    "labels",
+    "states"
+  ],
+  "additionalProperties": false
+}

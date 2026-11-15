@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "provenance": {
+    "classification": "team-authored interface copy, not clinical guidance",
+    "basis": "docs/tdd/E13.md sections3.2,3.7,7; coordinator Q18"
+  },
+  "notice": {
+    "cancelled": "Turn cancelled.",
+    "stale": "The information changed. Start again using the current record.",
+    "timed_out": "The assistant did not finish in time. Fixed help and manual recording remain available.",
+    "rejected": "This response could not be verified. Fixed help and manual recording remain available.",
+    "unavailable": "The assistant is unavailable. Fixed help and manual recording remain available.",
+    "assessment_started": "Preparing an assessment draft.",
+    "assessment_incomplete": "This assessment is incomplete. Information is missing.",
+    "no_supported_passage": "No supported passage is available.",
+    "repeat_request": "This measurement has already been requested. Choose another way.",
+    "step_not_in_plan": "This step is not in the active plan."
+  },
+  "labels": {
+    "assistant": "Assistant",
+    "send": "Send",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "why": "Why is this?",
+    "dismiss": "Dismiss",
+    "start": "Start assistant",
+    "stop": "Stop assistant",
+    "draft": "Draft",
+    "stale": "Stale",
+    "reviewed": "Reviewed",
+    "incomplete": "Incomplete",
+    "not_clinically_reviewed": "Not clinically reviewed",
+    "help": "Someone needs help",
+    "evidence": "Evidence",
+    "limitations": "Limitations",
+    "findings": "What is recorded",
+    "hypotheses": "Possible explanations",
+    "contradictions": "Disagreements",
+    "missing_evidence": "What is missing",
+    "next_step": "Next step",
+    "reason": "Reason",
+    "decision_affected": "What this changes",
+    "queue_depth": "Queued turns",
+    "model_release": "Model release",
+    "load_more": "More messages"
+  },
+  "states": {
+    "stopped": "Assistant stopped. Fixed help, records and measurement cards still work.",
+    "loading": "Assistant loading.",
+    "running": "Assistant ready.",
+    "unavailable": "Assistant unavailable. Fixed help remains available.",
+    "waiting": "Waiting for the assistant.",
+    "offline": "Offline. Reconnect before sending a message.",
+    "empty": "No messages yet.",
+    "error": "This could not be loaded. Try again.",
+    "stale": "This view changed. Reload before acting.",
+    "withheld": "Content is unavailable for this session."
+  }
+}
