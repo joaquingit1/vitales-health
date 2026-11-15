@@ -1,0 +1,78 @@
+{
+  "file": "eda_rr5_telemetry.csv",
+  "title": "ISS cabin temperature, humidity and CO2 during Rodent Research 5 (SpaceX-11), June to August 2017",
+  "catalog_id": "N02",
+  "source_url": "https://visualization.osdr.nasa.gov/eda/dashboard_RR-5",
+  "documentation": [
+    "https://osdr-tutorials.readthedocs.io/en/latest/pages/guides/environmental_data_application.html",
+    "https://visualization.osdr.nasa.gov/eda/static/js/telemetry_plots.js (units used by the portal: co2 ppm, temperature degrees C, rh %)",
+    "https://osdr.nasa.gov/bio/repo/data/payloads/RR-5"
+  ],
+  "retrieved_at_utc": "2026-11-15T01:52:29+00:00",
+  "bytes": 900468,
+  "sha256": "c1a21b96136a0489f0a4531609f3fada1f7037c8167f7b800827a7d5aba45d81",
+  "mission": "RR-5, Rodent Research 5 (SpaceX-11). Portal note: 'For this release, the ground dates have been matched to the flight dates.'",
+  "instrument": "EDA 'ISS' and 'Ground' channels as labeled by the portal; the cabin node, sensor and calibration are not given in the payload.",
+  "rows": 19160,
+  "time_span": {
+    "first": "2017-06-01 05:00:00",
+    "last": "2017-08-08 12:57:00"
+  },
+  "cadence": "Mostly 300 s (19,107 of 19,159 intervals; the others 180, 240 and 360 s).",
+  "timestamp_timezone": "Not stated in the payload; not assumed UTC.",
+  "columns": {
+    "time": {
+      "unit": null,
+      "description": "Source string without time zone"
+    },
+    "temperature_iss": {
+      "unit": "Cel",
+      "description": "ISS channel temperature"
+    },
+    "rh_iss": {
+      "unit": "%",
+      "description": "ISS channel relative humidity"
+    },
+    "co2_iss": {
+      "unit": "[ppm]",
+      "description": "ISS channel CO2"
+    },
+    "temperature_ground": {
+      "unit": "Cel",
+      "description": "Ground control chamber temperature"
+    },
+    "rh_ground": {
+      "unit": "%",
+      "description": "Ground control chamber relative humidity"
+    },
+    "co2_ground": {
+      "unit": "[ppm]",
+      "description": "Ground control chamber CO2"
+    }
+  },
+  "preprocessing": "The nested JSON telemetry embedded in the dashboard page (script id 'data', key telemetry_data) written to CSV with the same script and column order as eda_rr1_telemetry.csv; that script reproduces eda_rr1_telemetry.csv byte for byte (sha256 2d03645b...). No imputation, interpolation, time zone or ppm-to-mmHg conversion. The payload's milestone labels all sit on the first six timestamps, five minutes apart, so they carry no timing and are not kept. Source page sha256 6436d681b5bedda64474dcb39b90a4df3e886bf259cc42e18d1085800a49e605, 1,108,587 bytes.",
+  "license": "US Government work. NASA material is generally not subject to copyright in the United States (NASA media usage guidelines, https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA as the source; no NASA logo or insignia is used (NASA-SOURCES.md section 4).",
+  "provenance": "REPLAY",
+  "provenance_note": "REPLAY of recorded NASA OSDR EDA telemetry, shown with its 2017 dates.",
+  "is_not": [
+    "Another mission's cabin in 2017, never a crew member's exposure.",
+    "ppm, not mmHg: converting needs cabin pressure, which the file does not have (NASA-SOURCES.md section 2 states the 760 mmHg assumption)."
+  ],
+  "consumers": [
+    {
+      "epic": "E23",
+      "component": "simulators/habitat CO2, temperature and humidity feeds",
+      "use": "Second REPLAY profile: a nominal 2017 cabin whose highest trailing one-hour CO2 mean is 3,916 ppm (computed, README), just under 3 mmHg (3,947 ppm at an assumed 760 mmHg). It is the near-limit, no-warning counterpart of RR-1."
+    },
+    {
+      "epic": "E24",
+      "component": "CO2 and thermal/humidity warning rules",
+      "use": "Negative control: replaying it must not raise the CO2 one-hour warning; RH up to 73% exercises the humidity band."
+    },
+    {
+      "epic": "E21",
+      "component": "eval/scenarios",
+      "use": "Station profile scenario with no expected warning."
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "case_id": "iss-co2-symptom-reports-2001-2009",
+  "case_type": "qualitative",
+  "case_type_reason": "Only spot values, ranges and peaks are printed. The MCA time series and the private medical conference records behind them are not public.",
+  "title": "Documented CO2 symptom reports on the ISS and Shuttle with their CO2 levels",
+  "environment_id": "station_leo",
+  "input_data": [
+    {
+      "path": "co2_symptom_reports.csv",
+      "use": "CO2 level as printed and the symptom outcome for each event"
+    }
+  ],
+  "documented_outcome": [
+    {
+      "quote": "The crew noted that these symptoms subsided within minutes of reduction of ppCO2 to the 2 mm Hg range or when they breathed 100% O2 in an EMU suit.",
+      "source": "law2010",
+      "location": "Section 2.1, PDF page 8 (Expedition 6)"
+    },
+    {
+      "quote": "It was assumed that installation of the LiOH in the interim alleviated the symptoms. There were no further reports after the CDRA was reactivated.",
+      "source": "law2010",
+      "location": "Section 2.1, PDF page 8 (STS-113/ISS-11A)"
+    },
+    {
+      "quote": "The EVA astronaut did not develop any symptoms of hypercapnia",
+      "source": "law2010",
+      "location": "Section 2.2, PDF page 8 (STS-127)"
+    },
+    {
+      "quote": "Headaches at levels between 2.8-4.5 mmHg; worsening with increasing levels of CO2 accompanied by fatigue and malaise flushing.",
+      "source": "c25",
+      "location": "Background, Key Historical CO2 Concentrations, PDF page 4 (two-column layout), which cites NASA/TP-2010-216126"
+    },
+    {
+      "quote": "A retrospective analysis of the case reports found a total of 46 days with reported headaches and 1,670 days of non-reports (no headaches observed).",
+      "source": "c25",
+      "location": "CO2-Induced Headaches, PDF page 5 (aggregate from Law et al. 2014)"
+    }
+  ],
+  "onset_relative_to_data": "Same day as the printed CO2 level for STS-113; during excursions above 4 mm Hg for Expedition 6; months later (as a report) for STS-112.",
+  "expected_product_output": [
+    {
+      "event": "sts113_iss11a",
+      "hazard_id": "co2",
+      "level": "act",
+      "condition_candidate": "ICL64 (headache, CO2 induced)",
+      "note": "If the 7.5 mm Hg reading persisted over an hour the one-hour average is above 3 mm Hg; the paper prints a peak, so a test must state that assumption."
+    },
+    {
+      "event": "expedition6",
+      "hazard_id": "co2",
+      "level": "act",
+      "condition_candidate": "ICL64",
+      "note": "Above 4 mm Hg is above the 3 mm Hg one-hour limit; documented relief at about 2 mm Hg is the expected clearing of the warning by the rule, never by the assistant (rule 4)."
+    },
+    {
+      "event": "sts112_iss9a",
+      "hazard_id": "co2",
+      "level": "act on any hour averaging above 3 mm Hg, otherwise info; watch if the seven-day average is at or above 2.5 mm Hg",
+      "note": "Shows that headaches were reported near 2.7 mm Hg; the product must not tell the crew a headache is not CO2 because the reading is low (headache family limitation)."
+    },
+    {
+      "event": "sts127_eva3",
+      "hazard_id": "co2",
+      "level": "none for the cabin rule; suit limits are separate (environment-hazards.json eva overlay)",
+      "note": "Negative control: no symptoms at a 3 mm Hg peak."
+    }
+  ],
+  "consumers": [
+    {
+      "epic": "E23/E24",
+      "use": "CO2 warnings"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenarios"
+    }
+  ],
+  "is_not": "Not a dose-response dataset. The aggregate headache association (Law et al. 2014) is already the source of the 2.5 mm Hg watch value (C25); this case adds documented single events.",
+  "sources": {
+    "law2010": {
+      "title": "In-Flight Carbon Dioxide Exposures and Related Symptoms: Association, Susceptibility, and Operational Implications, NASA/TP-2010-216126, June 2010, Jennifer Law, Sharmi Watkins, David Alexander",
+      "url_read": "https://inspectapedia.com/hazmat/In-Flight-CO2-Exposure-Implications-Law-NASA.pdf",
+      "url_read_note": "Third-party copy of the NASA technical paper (30 pages; PDF metadata title 'CO2Technical Paper', marked Final, created 21 June 2010). NASA's own host (ston.jsc.nasa.gov/collections/TRS/_techrep/TP-2010-216126.pdf) did not respond on 2026-11-15 and NTRS returned no record for the report number. The NASA-hosted OCHMO-TB-004 cites this paper as its source for the symptom ranges.",
+      "bytes_of_copy_read": 2476598,
+      "sha256_of_copy_read": "4891c2e9f600b5580a7ee9b9d03e378273bbd10f1ecc8a72ca80acdecc367054",
+      "is_nasa": "NASA technical paper, read from a non-NASA host",
+      "catalog_id": "N38"
+    },
+    "c25": {
+      "title": "OCHMO-TB-004 Carbon Dioxide (catalog ID C25), footer of the copy read: 'Revision D', '10-Mar-26'",
+      "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-004-carbon-dioxide.pdf",
+      "bytes_of_copy_read": 2597842,
+      "sha256_of_copy_read": "cc4820a859ae50ce701c56055b00a2deca625371368b98ecf6758704fe435e92",
+      "is_nasa": "NASA",
+      "catalog_id": "C25"
+    }
+  }
+}

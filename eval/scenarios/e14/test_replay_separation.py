@@ -29,7 +29,7 @@ pytestmark = pytest.mark.trace("E14-02", "R12", "R26", "V10", "V72", "D01", "D16
 
 def nasa_sensor() -> SensorReader:
     """E23 fake, with eight original RR-1 ISS timestamps and CO2 values in ppm."""
-    path = ROOT / "docs/product/nasa-data/eda_rr1_telemetry.csv"
+    path = ROOT / "docs/product/nasa-data/habitat-environment/eda_rr1_telemetry.csv"
     with path.open(encoding="utf-8", newline="") as stream:
         reader = csv.DictReader(stream)
         assert reader.fieldnames == [

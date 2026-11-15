@@ -1,0 +1,91 @@
+{
+  "file": "radlab_iss_2017-09_spe.csv",
+  "title": "ISS radiation instruments, 3 to 16 September 2017, including the solar particle event of 10 and 11 September",
+  "catalog_id": "N20",
+  "source_url": "https://visualization.osdr.nasa.gov/radlab/api/?spacecraft=ISS&timestamp%3E=2017-09-03T00%3A00&timestamp%3C2017-09-17T00%3A00&absorbed_dose_rate&flux&module&instrument_family&latitude&longitude&altitude&format=csv",
+  "documentation": [
+    "https://visualization.osdr.nasa.gov/radlab/gui/data-api/ (returned HTTP 500 on 2026-11-15; read from the Internet Archive copy http://web.archive.org/web/20240522074550/https://visualization.osdr.nasa.gov/radlab/gui/data-api/)",
+    "https://ntrs.nasa.gov/citations/20230009560 (RadLab and the Environmental Data Application Dashboard)"
+  ],
+  "retrieved_at_utc": "2026-11-15T01:49:53+00:00",
+  "bytes": 2205961,
+  "sha256": "5631a9bd60b6ae5e79c87ae87abaceb499612ad82375af9e1faaf6d81d18aad5",
+  "mission": "International Space Station",
+  "instrument": "Every ISS instrument the API returned for the window: DosTel1 and DosTel2 (DOSTEL family, Columbus module, readings about every 100 s), RAD-COL1A2-pre (family RAD, Columbus, one value per day) and IV-TEPC-NOD2PCQ-pre and IV-TEPC-NOD2PD3-pre (family TEPC, Node 2, one value per day on some days). The RadLab knowledgebase pages that describe each instrument ID returned HTTP 500 on 2026-11-15, so the '-pre' suffix is not interpreted here.",
+  "rows": 19527,
+  "time_span": {
+    "first": "2017-09-03T00:00:00",
+    "last": "2017-09-16T23:59:18"
+  },
+  "cadence": "Irregular. DosTel1 and DosTel2 about every 100 s each (DosTel1 has no records from 2017-09-10 15:07 to 2017-09-18, so it stops inside this window); the RAD and IV-TEPC rows carry one value per day stamped 00:00:00.",
+  "timestamp_timezone": "Not stated by the API. The hours of elevated dose rate on 2017-09-11 line up with the UTC-stamped CDAWeb TEPC file (cdaweb_iss_tepc_2017-09_spe.csv), which suggests UTC; not asserted.",
+  "columns": {
+    "timestamp": {
+      "unit": null,
+      "description": "ISO 8601 date and time, no offset"
+    },
+    "instrument_id": {
+      "unit": null,
+      "description": "Unique instrument, detector or configuration ID (case sensitive)"
+    },
+    "absorbed_dose_rate": {
+      "unit": "uGy/h",
+      "description": "Absorbed dose rate, microgray per hour (API documentation)"
+    },
+    "altitude": {
+      "unit": "km",
+      "description": "ISS altitude at the timestamp"
+    },
+    "flux": {
+      "unit": "cm-2.sr-1.s-1",
+      "description": "Particle flux (filled for DosTel rows only)"
+    },
+    "instrument_family": {
+      "unit": null,
+      "description": "Loosely defined instrument family"
+    },
+    "latitude": {
+      "unit": "deg",
+      "description": "Geographic latitude of the ISS"
+    },
+    "longitude": {
+      "unit": "deg",
+      "description": "Geographic longitude of the ISS"
+    },
+    "module": {
+      "unit": null,
+      "description": "ISS module holding the instrument"
+    },
+    "spacecraft": {
+      "unit": null,
+      "description": "Always ISS"
+    }
+  },
+  "preprocessing": "None; the CSV response saved as supplied (column order is the API's).",
+  "license": "US Government work. NASA material is generally not subject to copyright in the United States (NASA media usage guidelines, https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA as the source; no NASA logo or insignia is used (NASA-SOURCES.md section 4).",
+  "provenance": "REPLAY",
+  "provenance_note": "REPLAY of recorded NASA OSDR RadLab data, shown with its 2017 dates.",
+  "is_not": [
+    "An instrument's absorbed dose rate in tissue-equivalent or silicon detectors at a fixed location, not any person's dose or effective dose.",
+    "Not dose equivalent: the API returned no dose_equivalent_rate for these instruments.",
+    "The highest rates in the file (several hundred uGy/h) are passes through the South Atlantic Anomaly, which happen every day; they are not the solar event."
+  ],
+  "consumers": [
+    {
+      "epic": "E23",
+      "component": "simulators/habitat radiation feed",
+      "use": "REPLAY feed for the radiation dose rate channel (area monitor), two weeks with a real solar particle event in the middle, so the sensor ingest and its staleness and gap handling run on real cadence and real gaps (DosTel1 stops on 10 September). Replaces the team-chosen numbers of the simulator's station_solar_particle_event scenario (peak_factor 20, duration 20 h, rise 1 h): measured in Columbus, peak hourly factor about 7, rise within about 1 h, elevated about 9 to 10 h."
+    },
+    {
+      "epic": "E24",
+      "component": "radiation warning rules",
+      "use": "Golden input for the radiation levels in environment-hazards.json: a rule that fires on SAA passes every day is wrong; the event shows as a rise of the daily dose outside the SAA (see README for the numbers)."
+    },
+    {
+      "epic": "E21",
+      "component": "eval/scenarios",
+      "use": "Data for the cases/spe-2017-09-iss-columbus known-outcome case."
+    }
+  ],
+  "notes": "Characterization, computed from this file (method in README): DosTel2 outside a latitude/longitude box around the SAA (latitude -55 to 5, longitude -95 to 20) averages about 5.1 uGy/h on 3 to 10 September and 16.7 uGy/h on 11 September, then 5.7 on 12 September. The RAD-COL1A2-pre daily value is 12.3 on 10 September and 18.4 on 11 September. Hourly profile (hourly mean of DosTel2 readings outside that box, divided by the median hourly mean of 3 to 9 September, 5.03 uGy/h): the rise starts in the 04:00 hour of 11 September (2.1x) and reaches 6.6x by the 05:00 hour; the hourly mean stays between 4.3x and 7.2x (peak 36.3 uGy/h, 07:00 hour) through 12:00, apart from the 06:00 hour (1.1x, an orbit segment at low latitude), drops to 2.3x at 13:00 and is back at baseline by 14:00. Elevated for about 9 to 10 hours, with a second small rise to 2.4x at 12:00 on 12 September."
+}

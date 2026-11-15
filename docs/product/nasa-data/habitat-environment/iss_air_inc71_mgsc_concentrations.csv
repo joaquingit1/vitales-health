@@ -1,0 +1,411 @@
+sample_id,return_mission,location,description,sample_date,sample_time,gmt_day_of_year,method_group,compound,printed,value,reporting_limit,qualifier,source_line
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),"1,1,1,2-Tetrafluoroethane",<0.044,,0.044,below_reporting_limit,369
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),"1,1,1,2-Tetrafluoroethane",0.12,0.12,,,369
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),"1,1,1,2-Tetrafluoroethane",0.086,0.086,,,369
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),"1,1,1,2-Tetrafluoroethane",0.065,0.065,,,369
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),"1,1,1,2-Tetrafluoroethane",0.078,0.078,,,369
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),"1,1,1,2-Tetrafluoroethane",0.057,0.057,,,369
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),"1,1,1,2-Tetrafluoroethane",0.059,0.059,,,369
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),"1,1,1,2-Tetrafluoroethane",0.083,0.083,,,369
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),"1,1,1,2-Tetrafluoroethane",0.058,0.058,,,369
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),"1,1,1,2-Tetrafluoroethane",<0.044,,0.044,below_reporting_limit,369
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),1-Butanol,<0.019,,0.019,below_reporting_limit,370
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),1-Butanol,<0.019,,0.019,below_reporting_limit,370
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),1-Butanol,<0.019,,0.019,below_reporting_limit,370
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),1-Butanol,0.029,0.029,,,370
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),1-Butanol,<0.019,,0.019,below_reporting_limit,370
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),1-Butanol,<0.018,,0.018,below_reporting_limit,370
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),1-Butanol,0.021,0.021,,,370
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),1-Butanol,0.020,0.020,,,370
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),1-Butanol,0.026,0.026,,,370
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),1-Butanol,0.055,0.055,,,370
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),1-Propanol,<0.016,,0.016,below_reporting_limit,371
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),1-Propanol,0.023,0.023,,,371
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),1-Propanol,0.034,0.034,,,371
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),1-Propanol,0.023,0.023,,,371
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),1-Propanol,0.030,0.030,,,371
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),1-Propanol,0.033,0.033,,,371
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),1-Propanol,0.041,0.041,,,371
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),1-Propanol,0.071,0.071,,,371
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),1-Propanol,0.042,0.042,,,371
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),1-Propanol,<0.016,,0.016,below_reporting_limit,371
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),"2,3-Dimethylpentane",<0.025,,0.025,below_reporting_limit,372
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),"2,3-Dimethylpentane",<0.025,,0.025,below_reporting_limit,372
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),"2,3-Dimethylpentane",<0.025,,0.025,below_reporting_limit,372
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),"2,3-Dimethylpentane",<0.025,,0.025,below_reporting_limit,372
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),"2,3-Dimethylpentane",<0.025,,0.025,below_reporting_limit,372
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),"2,3-Dimethylpentane",<0.024,,0.024,below_reporting_limit,372
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),"2,3-Dimethylpentane",<0.025,,0.025,below_reporting_limit,372
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),"2,3-Dimethylpentane",<0.025,,0.025,below_reporting_limit,372
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),"2,3-Dimethylpentane",<0.025,,0.025,below_reporting_limit,372
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),"2,3-Dimethylpentane",0.069,0.069,,,372
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),2-Butanone (Methyl ethyl ketone),<0.018,,0.018,below_reporting_limit,373
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),2-Butanone (Methyl ethyl ketone),<0.018,,0.018,below_reporting_limit,373
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),2-Butanone (Methyl ethyl ketone),<0.018,,0.018,below_reporting_limit,373
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),2-Butanone (Methyl ethyl ketone),<0.018,,0.018,below_reporting_limit,373
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),2-Butanone (Methyl ethyl ketone),<0.018,,0.018,below_reporting_limit,373
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),2-Butanone (Methyl ethyl ketone),<0.018,,0.018,below_reporting_limit,373
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),2-Butanone (Methyl ethyl ketone),<0.018,,0.018,below_reporting_limit,373
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),2-Butanone (Methyl ethyl ketone),<0.018,,0.018,below_reporting_limit,373
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),2-Butanone (Methyl ethyl ketone),<0.018,,0.018,below_reporting_limit,373
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),2-Butanone (Methyl ethyl ketone),0.057,0.057,,,373
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),2-Methyl-1-propene,<0.014,,0.014,below_reporting_limit,374
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),2-Methyl-1-propene,0.017,0.017,,,374
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),2-Methyl-1-propene,<0.014,,0.014,below_reporting_limit,374
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),2-Methyl-1-propene,<0.014,,0.014,below_reporting_limit,374
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),2-Methyl-1-propene,0.015,0.015,,,374
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),2-Methyl-1-propene,<0.014,,0.014,below_reporting_limit,374
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),2-Methyl-1-propene,<0.014,,0.014,below_reporting_limit,374
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),2-Methyl-1-propene,0.017,0.017,,,374
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),2-Methyl-1-propene,<0.014,,0.014,below_reporting_limit,374
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),2-Methyl-1-propene,0.10,0.10,,,374
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),2-Methyl-2-propanol,<0.019,,0.019,below_reporting_limit,375
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),2-Methyl-2-propanol,<0.019,,0.019,below_reporting_limit,375
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),2-Methyl-2-propanol,<0.019,,0.019,below_reporting_limit,375
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),2-Methyl-2-propanol,<0.019,,0.019,below_reporting_limit,375
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),2-Methyl-2-propanol,<0.019,,0.019,below_reporting_limit,375
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),2-Methyl-2-propanol,<0.018,,0.018,below_reporting_limit,375
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),2-Methyl-2-propanol,<0.019,,0.019,below_reporting_limit,375
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),2-Methyl-2-propanol,<0.019,,0.019,below_reporting_limit,375
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),2-Methyl-2-propanol,<0.019,,0.019,below_reporting_limit,375
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),2-Methyl-2-propanol,0.023,0.023,,,375
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),2-Propanol (Isopropanol),0.077,0.077,,,376
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),2-Propanol (Isopropanol),0.43,0.43,,,376
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),2-Propanol (Isopropanol),0.57,0.57,,,376
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),2-Propanol (Isopropanol),0.35,0.35,,,376
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),2-Propanol (Isopropanol),0.47,0.47,,,376
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),2-Propanol (Isopropanol),0.50,0.50,,,376
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),2-Propanol (Isopropanol),0.56,0.56,,,376
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),2-Propanol (Isopropanol),See GC-FID,,,reported_by_gc_fid,376
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),2-Propanol (Isopropanol),See GC-FID,,,reported_by_gc_fid,376
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),2-Propanol (Isopropanol),See GC-FID,,,reported_by_gc_fid,376
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),3-Methylhexane,<0.025,,0.025,below_reporting_limit,377
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),3-Methylhexane,<0.025,,0.025,below_reporting_limit,377
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),3-Methylhexane,<0.025,,0.025,below_reporting_limit,377
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),3-Methylhexane,<0.025,,0.025,below_reporting_limit,377
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),3-Methylhexane,<0.025,,0.025,below_reporting_limit,377
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),3-Methylhexane,<0.024,,0.024,below_reporting_limit,377
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),3-Methylhexane,<0.025,,0.025,below_reporting_limit,377
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),3-Methylhexane,<0.025,,0.025,below_reporting_limit,377
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),3-Methylhexane,<0.025,,0.025,below_reporting_limit,377
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),3-Methylhexane,0.061,0.061,,,377
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Acetaldehyde,0.026,0.026,,,378
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Acetaldehyde,0.12,0.12,,,378
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Acetaldehyde,0.12,0.12,,,378
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Acetaldehyde,0.14,0.14,,,378
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Acetaldehyde,0.15,0.15,,,378
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Acetaldehyde,0.096,0.096,,,378
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Acetaldehyde,0.11,0.11,,,378
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Acetaldehyde,0.11,0.11,,,378
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Acetaldehyde,0.11,0.11,,,378
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Acetaldehyde,0.27,0.27,,,378
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Acetone,0.17,0.17,,,379
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Acetone,0.27,0.27,,,379
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Acetone,0.30,0.30,,,379
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Acetone,0.33,0.33,,,379
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Acetone,0.37,0.37,,,379
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Acetone,0.41,0.41,,,379
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Acetone,0.47,0.47,,,379
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Acetone,0.38,0.38,,,379
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Acetone,0.40,0.40,,,379
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Acetone,0.33,0.33,,,379
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Acetonitrile,<0.011,,0.011,below_reporting_limit,380
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Acetonitrile,<0.011,,0.011,below_reporting_limit,380
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Acetonitrile,<0.011,,0.011,below_reporting_limit,380
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Acetonitrile,<0.011,,0.011,below_reporting_limit,380
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Acetonitrile,0.012,0.012,,,380
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Acetonitrile,<0.010,,0.010,below_reporting_limit,380
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Acetonitrile,<0.011,,0.011,below_reporting_limit,380
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Acetonitrile,<0.011,,0.011,below_reporting_limit,380
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Acetonitrile,<0.011,,0.011,below_reporting_limit,380
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Acetonitrile,<0.011,,0.011,below_reporting_limit,380
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Acrylonitrile,<0.014,,0.014,below_reporting_limit,381
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Acrylonitrile,<0.014,,0.014,below_reporting_limit,381
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Acrylonitrile,<0.014,,0.014,below_reporting_limit,381
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Acrylonitrile,<0.014,,0.014,below_reporting_limit,381
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Acrylonitrile,0.016,0.016,,,381
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Acrylonitrile,0.036,0.036,,,381
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Acrylonitrile,0.035,0.035,,,381
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Acrylonitrile,0.019,0.019,,,381
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Acrylonitrile,0.019,0.019,,,381
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Acrylonitrile,<0.014,,0.014,below_reporting_limit,381
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Carbon disulfide,<0.020,,0.020,below_reporting_limit,382
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Carbon disulfide,<0.020,,0.020,below_reporting_limit,382
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Carbon disulfide,<0.020,,0.020,below_reporting_limit,382
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Carbon disulfide,<0.020,,0.020,below_reporting_limit,382
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Carbon disulfide,<0.020,,0.020,below_reporting_limit,382
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Carbon disulfide,<0.019,,0.019,below_reporting_limit,382
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Carbon disulfide,<0.020,,0.020,below_reporting_limit,382
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Carbon disulfide,<0.020,,0.020,below_reporting_limit,382
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Carbon disulfide,<0.020,,0.020,below_reporting_limit,382
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Carbon disulfide,0.022,0.022,,,382
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Carbonyl sulfide (Carbon oxide sulfide),<0.016,,0.016,below_reporting_limit,383
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Carbonyl sulfide (Carbon oxide sulfide),<0.016,,0.016,below_reporting_limit,383
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Carbonyl sulfide (Carbon oxide sulfide),<0.016,,0.016,below_reporting_limit,383
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Carbonyl sulfide (Carbon oxide sulfide),<0.016,,0.016,below_reporting_limit,383
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Carbonyl sulfide (Carbon oxide sulfide),<0.016,,0.016,below_reporting_limit,383
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Carbonyl sulfide (Carbon oxide sulfide),<0.015,,0.015,below_reporting_limit,383
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Carbonyl sulfide (Carbon oxide sulfide),<0.016,,0.016,below_reporting_limit,383
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Carbonyl sulfide (Carbon oxide sulfide),<0.016,,0.016,below_reporting_limit,383
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Carbonyl sulfide (Carbon oxide sulfide),<0.016,,0.016,below_reporting_limit,383
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Carbonyl sulfide (Carbon oxide sulfide),0.058,0.058,,,383
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Chloromethane,0.024,0.024,,,384
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Chloromethane,<0.013,,0.013,below_reporting_limit,384
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Chloromethane,<0.013,,0.013,below_reporting_limit,384
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Chloromethane,<0.013,,0.013,below_reporting_limit,384
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Chloromethane,<0.013,,0.013,below_reporting_limit,384
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Chloromethane,<0.012,,0.012,below_reporting_limit,384
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Chloromethane,<0.013,,0.013,below_reporting_limit,384
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Chloromethane,<0.013,,0.013,below_reporting_limit,384
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Chloromethane,<0.013,,0.013,below_reporting_limit,384
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Chloromethane,<0.013,,0.013,below_reporting_limit,384
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Ethanol,0.052,0.052,,,385
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Ethanol,See GC-FID,,,reported_by_gc_fid,385
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Ethanol,See GC-FID,,,reported_by_gc_fid,385
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Ethanol,See GC-FID,,,reported_by_gc_fid,385
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Ethanol,See GC-FID,,,reported_by_gc_fid,385
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Ethanol,See GC-FID,,,reported_by_gc_fid,385
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Ethanol,See GC-FID,,,reported_by_gc_fid,385
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Ethanol,See GC-FID,,,reported_by_gc_fid,385
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Ethanol,See GC-FID,,,reported_by_gc_fid,385
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Ethanol,See GC-FID,,,reported_by_gc_fid,385
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Ethyl acetate,<0.023,,0.023,below_reporting_limit,386
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Ethyl acetate,<0.023,,0.023,below_reporting_limit,386
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Ethyl acetate,<0.023,,0.023,below_reporting_limit,386
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Ethyl acetate,<0.023,,0.023,below_reporting_limit,386
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Ethyl acetate,<0.023,,0.023,below_reporting_limit,386
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Ethyl acetate,<0.022,,0.022,below_reporting_limit,386
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Ethyl acetate,<0.023,,0.023,below_reporting_limit,386
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Ethyl acetate,0.025,0.025,,,386
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Ethyl acetate,0.023,0.023,,,386
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Ethyl acetate,0.095,0.095,,,386
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Hexamethylcyclotrisiloxane (HMCTS),<0.19,,0.19,below_reporting_limit,387
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Hexamethylcyclotrisiloxane (HMCTS),<0.19,,0.19,below_reporting_limit,387
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Hexamethylcyclotrisiloxane (HMCTS),<0.19,,0.19,below_reporting_limit,387
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Hexamethylcyclotrisiloxane (HMCTS),<0.19,,0.19,below_reporting_limit,387
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Hexamethylcyclotrisiloxane (HMCTS),<0.19,,0.19,below_reporting_limit,387
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Hexamethylcyclotrisiloxane (HMCTS),<0.18,,0.18,below_reporting_limit,387
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Hexamethylcyclotrisiloxane (HMCTS),<0.19,,0.19,below_reporting_limit,387
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Hexamethylcyclotrisiloxane (HMCTS),<0.19,,0.19,below_reporting_limit,387
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Hexamethylcyclotrisiloxane (HMCTS),<0.19,,0.19,below_reporting_limit,387
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Hexamethylcyclotrisiloxane (HMCTS),0.70,0.70,,,387
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Hexane,0.41,0.41,,,388
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Hexane,<0.023,,0.023,below_reporting_limit,388
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Hexane,<0.023,,0.023,below_reporting_limit,388
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Hexane,<0.023,,0.023,below_reporting_limit,388
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Hexane,<0.023,,0.023,below_reporting_limit,388
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Hexane,<0.022,,0.022,below_reporting_limit,388
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Hexane,<0.023,,0.023,below_reporting_limit,388
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Hexane,<0.023,,0.023,below_reporting_limit,388
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Hexane,<0.023,,0.023,below_reporting_limit,388
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Hexane,<0.023,,0.023,below_reporting_limit,388
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Isobutane,<0.015,,0.015,below_reporting_limit,389
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Isobutane,0.026,0.026,,,389
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Isobutane,0.026,0.026,,,389
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Isobutane,<0.015,,0.015,below_reporting_limit,389
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Isobutane,<0.015,,0.015,below_reporting_limit,389
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Isobutane,0.024,0.024,,,389
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Isobutane,0.030,0.030,,,389
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Isobutane,<0.015,,0.015,below_reporting_limit,389
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Isobutane,<0.015,,0.015,below_reporting_limit,389
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Isobutane,1.5,1.5,,,389
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),"Isoprene (2-Methyl-1,3-butadiene)",0.044,0.044,,,390
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),"Isoprene (2-Methyl-1,3-butadiene)",0.024,0.024,,,390
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),"Isoprene (2-Methyl-1,3-butadiene)",<0.018,,0.018,below_reporting_limit,390
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),"Isoprene (2-Methyl-1,3-butadiene)",0.027,0.027,,,390
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),"Isoprene (2-Methyl-1,3-butadiene)",0.026,0.026,,,390
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),"Isoprene (2-Methyl-1,3-butadiene)",0.032,0.032,,,390
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),"Isoprene (2-Methyl-1,3-butadiene)",0.036,0.036,,,390
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),"Isoprene (2-Methyl-1,3-butadiene)",0.051,0.051,,,390
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),"Isoprene (2-Methyl-1,3-butadiene)",0.039,0.039,,,390
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),"Isoprene (2-Methyl-1,3-butadiene)",<0.018,,0.018,below_reporting_limit,390
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Methanol,0.046,0.046,,,391
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Methanol,See GC-FID,,,reported_by_gc_fid,391
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Methanol,See GC-FID,,,reported_by_gc_fid,391
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Methanol,See GC-FID,,,reported_by_gc_fid,391
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Methanol,See GC-FID,,,reported_by_gc_fid,391
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Methanol,0.34,0.34,,,391
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Methanol,0.36,0.36,,,391
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Methanol,0.35,0.35,,,391
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Methanol,0.37,0.37,,,391
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Methanol,0.20,0.20,,,391
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Methylene chloride (Dichloromethane),<0.021,,0.021,below_reporting_limit,392
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Methylene chloride (Dichloromethane),<0.021,,0.021,below_reporting_limit,392
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Methylene chloride (Dichloromethane),<0.021,,0.021,below_reporting_limit,392
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Methylene chloride (Dichloromethane),<0.021,,0.021,below_reporting_limit,392
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Methylene chloride (Dichloromethane),<0.021,,0.021,below_reporting_limit,392
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Methylene chloride (Dichloromethane),<0.020,,0.020,below_reporting_limit,392
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Methylene chloride (Dichloromethane),<0.021,,0.021,below_reporting_limit,392
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Methylene chloride (Dichloromethane),<0.021,,0.021,below_reporting_limit,392
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Methylene chloride (Dichloromethane),<0.021,,0.021,below_reporting_limit,392
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Methylene chloride (Dichloromethane),0.11,0.11,,,392
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Pentane,<0.019,,0.019,below_reporting_limit,393
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Pentane,0.080,0.080,,,393
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Pentane,0.10,0.10,,,393
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Pentane,0.068,0.068,,,393
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Pentane,0.087,0.087,,,393
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Pentane,0.090,0.090,,,393
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Pentane,0.10,0.10,,,393
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Pentane,0.17,0.17,,,393
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Pentane,0.18,0.18,,,393
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Pentane,0.41,0.41,,,393
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Propanal (Propionaldehyde),0.046,0.046,,,394
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Propanal (Propionaldehyde),<0.015,,0.015,below_reporting_limit,394
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Propanal (Propionaldehyde),<0.015,,0.015,below_reporting_limit,394
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Propanal (Propionaldehyde),<0.015,,0.015,below_reporting_limit,394
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Propanal (Propionaldehyde),<0.015,,0.015,below_reporting_limit,394
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Propanal (Propionaldehyde),<0.014,,0.014,below_reporting_limit,394
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Propanal (Propionaldehyde),<0.015,,0.015,below_reporting_limit,394
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Propanal (Propionaldehyde),<0.015,,0.015,below_reporting_limit,394
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Propanal (Propionaldehyde),<0.015,,0.015,below_reporting_limit,394
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Propanal (Propionaldehyde),0.019,0.019,,,394
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCMS (TO-15 mod),Trimethylsilanol,0.49,0.49,,,395
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCMS (TO-15 mod),Trimethylsilanol,0.026,0.026,,,395
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCMS (TO-15 mod),Trimethylsilanol,0.044,0.044,,,395
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCMS (TO-15 mod),Trimethylsilanol,0.028,0.028,,,395
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCMS (TO-15 mod),Trimethylsilanol,0.060,0.060,,,395
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Trimethylsilanol,0.038,0.038,,,395
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCMS (TO-15 mod),Trimethylsilanol,0.076,0.076,,,395
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Trimethylsilanol,0.044,0.044,,,395
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCMS (TO-15 mod),Trimethylsilanol,0.065,0.065,,,395
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCMS (TO-15 mod),Trimethylsilanol,0.75,0.75,,,395
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Non-Targets GCMS (estimated conc.),2-Methylpentane,0.070,0.070,,,397
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Non-Targets GCMS (estimated conc.),2-Methylpentane,not found,,,not_found,397
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Non-Targets GCMS (estimated conc.),2-Methylpentane,not found,,,not_found,397
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Non-Targets GCMS (estimated conc.),2-Methylpentane,not found,,,not_found,397
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Non-Targets GCMS (estimated conc.),2-Methylpentane,not found,,,not_found,397
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Non-Targets GCMS (estimated conc.),2-Methylpentane,not found,,,not_found,397
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Non-Targets GCMS (estimated conc.),2-Methylpentane,not found,,,not_found,397
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Non-Targets GCMS (estimated conc.),2-Methylpentane,not found,,,not_found,397
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Non-Targets GCMS (estimated conc.),2-Methylpentane,not found,,,not_found,397
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Non-Targets GCMS (estimated conc.),2-Methylpentane,not found,,,not_found,397
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Non-Targets GCMS (estimated conc.),"3,3-Dimethylpentane",0.099,0.099,,,398
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Non-Targets GCMS (estimated conc.),"3,3-Dimethylpentane",not found,,,not_found,398
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Non-Targets GCMS (estimated conc.),"3,3-Dimethylpentane",not found,,,not_found,398
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Non-Targets GCMS (estimated conc.),"3,3-Dimethylpentane",not found,,,not_found,398
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Non-Targets GCMS (estimated conc.),"3,3-Dimethylpentane",not found,,,not_found,398
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Non-Targets GCMS (estimated conc.),"3,3-Dimethylpentane",not found,,,not_found,398
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Non-Targets GCMS (estimated conc.),"3,3-Dimethylpentane",not found,,,not_found,398
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Non-Targets GCMS (estimated conc.),"3,3-Dimethylpentane",not found,,,not_found,398
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Non-Targets GCMS (estimated conc.),"3,3-Dimethylpentane",not found,,,not_found,398
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Non-Targets GCMS (estimated conc.),"3,3-Dimethylpentane",0.061,0.061,,,398
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Non-Targets GCMS (estimated conc.),C11-Alkanes,not found,,,not_found,399
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Non-Targets GCMS (estimated conc.),C11-Alkanes,not found,,,not_found,399
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Non-Targets GCMS (estimated conc.),C11-Alkanes,not found,,,not_found,399
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Non-Targets GCMS (estimated conc.),C11-Alkanes,not found,,,not_found,399
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Non-Targets GCMS (estimated conc.),C11-Alkanes,not found,,,not_found,399
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Non-Targets GCMS (estimated conc.),C11-Alkanes,not found,,,not_found,399
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Non-Targets GCMS (estimated conc.),C11-Alkanes,not found,,,not_found,399
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Non-Targets GCMS (estimated conc.),C11-Alkanes,not found,,,not_found,399
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Non-Targets GCMS (estimated conc.),C11-Alkanes,not found,,,not_found,399
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Non-Targets GCMS (estimated conc.),C11-Alkanes,1.2,1.2,,,399
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Non-Targets GCMS (estimated conc.),C12-Alkanes,not found,,,not_found,400
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Non-Targets GCMS (estimated conc.),C12-Alkanes,not found,,,not_found,400
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Non-Targets GCMS (estimated conc.),C12-Alkanes,not found,,,not_found,400
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Non-Targets GCMS (estimated conc.),C12-Alkanes,not found,,,not_found,400
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Non-Targets GCMS (estimated conc.),C12-Alkanes,not found,,,not_found,400
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Non-Targets GCMS (estimated conc.),C12-Alkanes,not found,,,not_found,400
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Non-Targets GCMS (estimated conc.),C12-Alkanes,not found,,,not_found,400
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Non-Targets GCMS (estimated conc.),C12-Alkanes,not found,,,not_found,400
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Non-Targets GCMS (estimated conc.),C12-Alkanes,not found,,,not_found,400
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Non-Targets GCMS (estimated conc.),C12-Alkanes,0.64,0.64,,,400
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Non-Targets GCMS (estimated conc.),C13-Alkanes,not found,,,not_found,401
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Non-Targets GCMS (estimated conc.),C13-Alkanes,not found,,,not_found,401
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Non-Targets GCMS (estimated conc.),C13-Alkanes,not found,,,not_found,401
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Non-Targets GCMS (estimated conc.),C13-Alkanes,not found,,,not_found,401
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Non-Targets GCMS (estimated conc.),C13-Alkanes,not found,,,not_found,401
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Non-Targets GCMS (estimated conc.),C13-Alkanes,not found,,,not_found,401
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Non-Targets GCMS (estimated conc.),C13-Alkanes,not found,,,not_found,401
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Non-Targets GCMS (estimated conc.),C13-Alkanes,not found,,,not_found,401
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Non-Targets GCMS (estimated conc.),C13-Alkanes,not found,,,not_found,401
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Non-Targets GCMS (estimated conc.),C13-Alkanes,1.1,1.1,,,401
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Non-Targets GCMS (estimated conc.),Fluorotrimethylsilane,not found,,,not_found,402
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Non-Targets GCMS (estimated conc.),Fluorotrimethylsilane,not found,,,not_found,402
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Non-Targets GCMS (estimated conc.),Fluorotrimethylsilane,not found,,,not_found,402
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Non-Targets GCMS (estimated conc.),Fluorotrimethylsilane,not found,,,not_found,402
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Non-Targets GCMS (estimated conc.),Fluorotrimethylsilane,not found,,,not_found,402
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Non-Targets GCMS (estimated conc.),Fluorotrimethylsilane,not found,,,not_found,402
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Non-Targets GCMS (estimated conc.),Fluorotrimethylsilane,not found,,,not_found,402
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Non-Targets GCMS (estimated conc.),Fluorotrimethylsilane,not found,,,not_found,402
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Non-Targets GCMS (estimated conc.),Fluorotrimethylsilane,not found,,,not_found,402
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Non-Targets GCMS (estimated conc.),Fluorotrimethylsilane,0.15,0.15,,,402
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCFID,2-Propanol (Isopropanol),NR,,,not_reported,404
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCFID,2-Propanol (Isopropanol),NR,,,not_reported,404
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCFID,2-Propanol (Isopropanol),NR,,,not_reported,404
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCFID,2-Propanol (Isopropanol),NR,,,not_reported,404
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCFID,2-Propanol (Isopropanol),NR,,,not_reported,404
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCFID,2-Propanol (Isopropanol),NR,,,not_reported,404
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCFID,2-Propanol (Isopropanol),NR,,,not_reported,404
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCFID,2-Propanol (Isopropanol),0.79,0.79,,,404
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCFID,2-Propanol (Isopropanol),0.84,0.84,,,404
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCFID,2-Propanol (Isopropanol),1.9,1.9,,,404
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCFID,Ethanol,NR,,,not_reported,405
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCFID,Ethanol,4.6,4.6,,,405
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCFID,Ethanol,4.3,4.3,,,405
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCFID,Ethanol,3.6,3.6,,,405
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCFID,Ethanol,4.2,4.2,,,405
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCFID,Ethanol,2.7,2.7,,,405
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCFID,Ethanol,2.6,2.6,,,405
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCFID,Ethanol,2.0,2.0,,,405
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCFID,Ethanol,2.0,2.0,,,405
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCFID,Ethanol,0.91,0.91,,,405
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCFID,Methanol,NR,,,not_reported,406
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCFID,Methanol,0.31,0.31,,,406
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCFID,Methanol,0.30,0.30,,,406
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCFID,Methanol,0.28,0.28,,,406
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCFID,Methanol,0.31,0.31,,,406
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCFID,Methanol,NR,,,not_reported,406
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCFID,Methanol,NR,,,not_reported,406
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCFID,Methanol,NR,,,not_reported,406
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCFID,Methanol,NR,,,not_reported,406
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCFID,Methanol,NR,,,not_reported,406
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets GCFID,Octafluoropropane (Perfluoropropane),<0.77,,0.77,below_reporting_limit,407
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets GCFID,Octafluoropropane (Perfluoropropane),<1.6,,1.6,below_reporting_limit,407
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets GCFID,Octafluoropropane (Perfluoropropane),<1.6,,1.6,below_reporting_limit,407
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets GCFID,Octafluoropropane (Perfluoropropane),<1.6,,1.6,below_reporting_limit,407
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets GCFID,Octafluoropropane (Perfluoropropane),<1.6,,1.6,below_reporting_limit,407
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets GCFID,Octafluoropropane (Perfluoropropane),110,110,,,407
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets GCFID,Octafluoropropane (Perfluoropropane),120,120,,,407
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets GCFID,Octafluoropropane (Perfluoropropane),8.0,8.0,,,407
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets GCFID,Octafluoropropane (Perfluoropropane),7.8,7.8,,,407
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets GCFID,Octafluoropropane (Perfluoropropane),2.1,2.1,,,407
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets TGA,Carbon dioxide,"4,300",4300,,,409
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets TGA,Carbon dioxide,<760,,760,below_reporting_limit,409
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets TGA,Carbon dioxide,"4,900",4900,,,409
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets TGA,Carbon dioxide,"7,500",7500,,,409
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets TGA,Carbon dioxide,"6,000",6000,,,409
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets TGA,Carbon dioxide,"6,300",6300,,,409
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets TGA,Carbon dioxide,"6,000",6000,,,409
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets TGA,Carbon dioxide,"3,800",3800,,,409
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets TGA,Carbon dioxide,"4,100",4100,,,409
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets TGA,Carbon dioxide,"2,600",2600,,,409
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets TGA,Carbon monoxide,<0.48,,0.48,below_reporting_limit,410
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets TGA,Carbon monoxide,1.7,1.7,,,410
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets TGA,Carbon monoxide,1.8,1.8,,,410
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets TGA,Carbon monoxide,1.8,1.8,,,410
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets TGA,Carbon monoxide,1.8,1.8,,,410
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets TGA,Carbon monoxide,2.1,2.1,,,410
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets TGA,Carbon monoxide,2.2,2.2,,,410
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets TGA,Carbon monoxide,1.3,1.3,,,410
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets TGA,Carbon monoxide,1.4,1.4,,,410
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets TGA,Carbon monoxide,1.5,1.5,,,410
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets TGA,Hydrogen,2.9,2.9,,,411
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets TGA,Hydrogen,8.2,8.2,,,411
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets TGA,Hydrogen,8.2,8.2,,,411
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets TGA,Hydrogen,8.8,8.8,,,411
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets TGA,Hydrogen,8.9,8.9,,,411
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets TGA,Hydrogen,8.9,8.9,,,411
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets TGA,Hydrogen,9.5,9.5,,,411
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets TGA,Hydrogen,9.2,9.2,,,411
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets TGA,Hydrogen,9.3,9.3,,,411
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets TGA,Hydrogen,1.8,1.8,,,411
+AQ240841,Boeing-CFT,Cabin,"Nominal Air Sample, Ascent S/N 2102",2024-06-06,11:28,158,Volatiles Targets TGA,Methane,29,29,,,412
+AQ250061,Crew-8,Lab,"Nominal air sample, S/N 2013",2024-05-08,14:11,129,Volatiles Targets TGA,Methane,53,53,,,412
+AQ250062,Crew-8,Columbus,"Nominal air sample, S/N 2012",2024-05-08,14:12,129,Volatiles Targets TGA,Methane,54,54,,,412
+AQ250063,Crew-8,SM,"Nominal air sample, S/N 2019",2024-06-17,14:20,169,Volatiles Targets TGA,Methane,48,48,,,412
+AQ250064,Crew-8,Lab,"Nominal air sample, S/N 2035",2024-06-17,14:21,169,Volatiles Targets TGA,Methane,48,48,,,412
+AQ250065,Crew-8,Lab,"Nominal air sample, S/N 2043",2024-07-22,19:00,204,Volatiles Targets TGA,Methane,69,69,,,412
+AQ250066,Crew-8,JPM,"Nominal air sample, S/N 2046",2024-07-22,19:00,204,Volatiles Targets TGA,Methane,72,72,,,412
+AQ250068,Crew-8,Lab,"Nominal air sample, S/N 2017",2024-09-11,17:00,255,Volatiles Targets TGA,Methane,95,95,,,412
+AQ250069,Crew-8,Columbus,"Nominal air sample, S/N 2085",2024-09-11,17:00,255,Volatiles Targets TGA,Methane,94,94,,,412
+AQ250067,Crew-8,Cygnus,"NG-21 Ingress, S/N 2071",2024-08-06,15:25,219,Volatiles Targets TGA,Methane,13,13,,,412

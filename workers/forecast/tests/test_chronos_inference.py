@@ -22,7 +22,14 @@ from crew_health_forecast.application.service import ForecastService
 from .conftest import LocalClient
 
 # NASA OSDR Environmental Data App, RR-1 (SpaceX CRS-4), ISS habitat CO2; provenance in eda_rr1_provenance.json.
-RR1 = Path(__file__).resolve().parents[3] / "docs" / "product" / "nasa-data" / "eda_rr1_telemetry.csv"
+RR1 = (
+    Path(__file__).resolve().parents[3]
+    / "docs"
+    / "product"
+    / "nasa-data"
+    / "habitat-environment"
+    / "eda_rr1_telemetry.csv"
+)
 
 pytestmark = [pytest.mark.slow, pytest.mark.trace("E14-03", "R12", "V32", "V69")]
 

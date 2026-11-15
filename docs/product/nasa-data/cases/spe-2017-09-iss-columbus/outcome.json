@@ -1,0 +1,133 @@
+{
+  "case_id": "spe-2017-09-iss-columbus",
+  "case_type": "quantitative",
+  "title": "Solar particle event of 10 September 2017 (GLE 72) seen inside the ISS Columbus module",
+  "environment_id": "station_leo",
+  "input_data": [
+    {
+      "path": "../../radiation/radlab_iss_2017-09_spe.csv",
+      "owner": "Stored and documented by the radiation dataset curation (see its provenance file); not copied here.",
+      "use": "DosTel2 rows (about 100 s cadence, Columbus module): absorbed_dose_rate (uGy/h per the RadLab API documentation), latitude, longitude. The documented comparison instrument in Berger et al. 2018 is DOSTEL-2."
+    },
+    {
+      "path": "../../radiation/cdaweb_iss_tepc_2017-09_spe.csv",
+      "owner": "Stored by the radiation dataset curation.",
+      "use": "Independent instrument (ISS TEPC, 1 min UTC) for the same window; Berger et al. 2018 does not report TEPC numbers, so it has no documented outcome value of its own in this case."
+    }
+  ],
+  "documented_outcome": [
+    {
+      "quote": "Even though the event already began on 16:06 UTC on 10 September, the ISS transited through “safe” orbits until 11 September 04:30 when the first SPE protons where observed by both instruments at high southern latitudes.",
+      "source": "berger2018",
+      "location": "Section 3.3, PDF page 9 of the accepted manuscript"
+    },
+    {
+      "quote": "The dose measured on the day before the event reached the ISS was (as given in Table 4) 113.6 µGy/day for ISS-RADB and 103.7 µGy/day in DOSTEL-2. On 11 September it increased to 244.3 µGy/day for ISS-RADB and 163.8 µGy/day in DOSTEL-2.",
+      "source": "berger2018",
+      "location": "Section 3.3, PDF page 9"
+    },
+    {
+      "quote": "If 10 September is taken as quiet day before the event, the additional dose due to the event was 146.2 µGy in Si as measured by the ISS-RADB sub-detector and 67.8 µGy in Si as measured by the DOSTEL-2 instrument.",
+      "source": "berger2018",
+      "location": "Section 3.3, PDF page 9; Table 4 (PDF page 20) titled 'Daily and SPE dose (no SAA) for ISS-RADB and DOSTEL-2 instrument'"
+    }
+  ],
+  "documented_table": {
+    "source": "berger2018",
+    "location": "Table 4, PDF page 20",
+    "unit": "uGy (absorbed dose in silicon, South Atlantic Anomaly contributions removed)",
+    "rows": [
+      {
+        "date": "2017-09-10",
+        "ISS-RADB": 113.6,
+        "DOSTEL-2": 103.7
+      },
+      {
+        "date": "2017-09-11",
+        "ISS-RADB": 244.3,
+        "DOSTEL-2": 163.8
+      },
+      {
+        "date": "2017-09-12",
+        "ISS-RADB": 129.1,
+        "DOSTEL-2": 111.4
+      },
+      {
+        "date": "SPE dose",
+        "ISS-RADB": 146.2,
+        "DOSTEL-2": 67.8
+      }
+    ]
+  },
+  "onset_relative_to_data": "The RadLab file starts 2017-09-03T00:00. The event began at 2017-09-10 16:06 UTC and first reached the ISS at about 2017-09-11 04:30 UTC (Berger et al.), about 196.5 hours into the file. Elevated high-latitude dose continued on 12 September.",
+  "expected_product_output": {
+    "hazard_id": "radiation",
+    "level": "watch",
+    "rule_in_environment_hazards_json": "Dose rate rises above the habitat's usual background, for example as a solar event builds.",
+    "when": "From the first high-latitude passes after 2017-09-11 04:30 UTC, not before 2017-09-10 16:06 UTC.",
+    "must_not": [
+      "emergency: the radiation emergency rule needs symptoms; none are documented, and the documented event dose is 67.8 to 146.2 uGy in Si",
+      "a watch raised by South Atlantic Anomaly passes on the quiet days: they are part of this habitat's usual background (the file's highest DosTel2 rate, 479.5 uGy/h, is on 2017-09-06 at latitude -29.3, before the event)"
+    ],
+    "act_level": "Not asserted. The act rule's threshold is still 'to be set by clinical review', and the source documents no shelter order or crew action for this event.",
+    "trend": "E14 trend deviation: 11 September daily dose above the 10 September quiet-day dose, as in Table 4."
+  },
+  "replay_checks_derived_by_curator": {
+    "note": "Computed from ../../radiation/radlab_iss_2017-09_spe.csv by the case curator, not NASA numbers. Method: DosTel2 rows only; dose = sum of rate x interval to the next row, intervals over 300 s skipped; 'high latitude' = absolute latitude at least 45 deg. Timestamps carry no zone in the API; the match with Berger's UTC onset suggests UTC but the API does not state it.",
+    "first_high_latitude_sample_above_10_september_high_latitude_max": {
+      "timestamp": "2017-09-11T04:18:40",
+      "uGy_per_h": 23.613231,
+      "latitude_deg": -46.71178,
+      "10_september_high_latitude_max_uGy_per_h": 12.717637
+    },
+    "max_high_latitude_rate_11_september": {
+      "timestamp": "2017-09-11T05:52:04",
+      "uGy_per_h": 92.854044
+    },
+    "daily_dose_uGy_all_rows_including_SAA": {
+      "2017-09-10": 174.0,
+      "2017-09-11": 261.2,
+      "2017-09-12": 250.3
+    },
+    "daily_dose_uGy_high_latitude_only": {
+      "2017-09-10": 54.9,
+      "2017-09-11": 110.5,
+      "2017-09-12": 62.4
+    },
+    "why_not_equal_to_table_4": "Table 4 removes SAA contributions with a method not given as an algorithm in the paper; this file keeps them. Tests should assert the direction and timing (11 September above 10 September, onset after 04:00 on 11 September), not equality with Table 4."
+  },
+  "consumers": [
+    {
+      "epic": "E23/E24",
+      "use": "Radiation sensor ingest and the radiation watch warning replayed against a documented event"
+    },
+    {
+      "epic": "E14",
+      "use": "Baseline and trend deviation for dose rate, with SAA passes inside the baseline"
+    },
+    {
+      "epic": "E21",
+      "use": "Eval scenario: solar event on a station, expected watch, no emergency"
+    }
+  ],
+  "is_not": "Not a crew member's dose and not a documented crew action. An instrument's absorbed dose rate in silicon in one module.",
+  "sources": {
+    "berger2018": {
+      "title": "The Solar Particle Event on 10 September 2017 as observed onboard the International Space Station (ISS)",
+      "authors": "T. Berger, D. Matthiae, S. Burmeister, R. Rios, K. Lee, E. Semones, D. M. Hassler, N. Stoffle, C. Zeitlin (K. Lee and E. Semones: NASA Johnson Space Center)",
+      "journal": "Space Weather 16(9):1173-1189, 2018, doi:10.1029/2018SW001920",
+      "url_read": "https://elib.dlr.de/120788/1/ME-SBA-2018-Berger-Matthi%C3%A4_et%20al-DOSIS-3D_Space%20Weather.pdf",
+      "url_read_note": "Accepted manuscript on the DLR repository (32 PDF pages); page numbers below are PDF pages of this copy. The publisher copy (https://doi.org/10.1029/2018SW001920) refused automated download (HTTP 403).",
+      "ntrs_record": "https://ntrs.nasa.gov/citations/52387849917688",
+      "sha256_of_copy_read": "c5178797e2360ea5892c5097c3ca86f5e78d426549547b1d4a76208da9298d18",
+      "is_nasa": "NASA co-authored journal article with an NTRS record (no NTRS download); not a NASA publication",
+      "catalog_id": "N40"
+    },
+    "radlab": {
+      "title": "NASA OSDR RadLab data API",
+      "documentation": "https://visualization.osdr.nasa.gov/radlab/gui/data-api/",
+      "is_nasa": "NASA",
+      "catalog_id": "N20"
+    }
+  }
+}
