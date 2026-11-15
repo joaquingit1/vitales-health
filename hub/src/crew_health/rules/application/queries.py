@@ -117,17 +117,13 @@ class WarningReader:
 
     def count_active_visible(self, session: SessionContext) -> int:
         with self.snapshots.snapshot() as snap:
-            active = self.rt.warnings.active(
-                snap.connection, limit=self.rt.settings.integer("rules.active_scan_max")
-            )
+            active = self.rt.warnings.active(snap.connection, limit=self.rt.cap("rules.active_scan_max"))
             return sum(1 for w in active if can_see(w, viewer_of(session)).full)
 
     def active_shared_at_or_above(self, level: str) -> Sequence[WarningFact]:
         wanted = Level(level)
         with self.snapshots.snapshot() as snap:
-            active = self.rt.warnings.active(
-                snap.connection, limit=self.rt.settings.integer("rules.active_scan_max")
-            )
+            active = self.rt.warnings.active(snap.connection, limit=self.rt.cap("rules.active_scan_max"))
             shared = [
                 w for w in active if w.scope.value != "person" and w.level >= wanted and w.state in ACTIVE
             ]

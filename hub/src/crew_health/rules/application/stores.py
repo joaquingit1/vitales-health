@@ -78,9 +78,9 @@ class WarningStore:
             rows = c.rows(
                 "SELECT definition_id, scope_key FROM rules_warning WHERE trigger_kind = ? AND trigger_ref = ? "
                 "AND (state IN ('resolved','dismissed') OR "
-                f"(state = 'cleared' AND clear_reason IN ({_SPENT_REASONS}))) LIMIT 200",  # noqa: S608
+                f"(state = 'cleared' AND clear_reason IN ({_SPENT_REASONS}))) LIMIT 50",  # noqa: S608
                 (kind.value, ref),
-                limit=200,
+                limit=50,
             )
             found.update((_s(r[0]), _s(r[1]), TriggerRef(kind, ref)) for r in rows)
         return frozenset(found)
@@ -148,9 +148,11 @@ class OccurrenceStore:
             rows = c.rows(
                 f"SELECT {self._COLS} FROM rules_occurrence WHERE warning_id = ? AND kind = 'trigger' "  # noqa: S608
                 "ORDER BY occurred_at, trigger_ref LIMIT ?",
-                (wid, limit),
-                limit=limit,
+                (wid, limit + 1),
+                limit=limit + 1,
             )
+            if len(rows) > limit:
+                raise InvariantViolation("outstanding occurrences exceed rules.occurrence_scan_max")
             found[wid] = tuple(_occurrence(r) for r in rows)
         return found
 
@@ -158,9 +160,11 @@ class OccurrenceStore:
         rows = c.rows(
             "SELECT definition_id, scope_key, MAX(occurred_at) FROM rules_occurrence WHERE kind = 'clear' "
             "GROUP BY definition_id, scope_key LIMIT ?",
-            (limit,),
-            limit=limit,
+            (limit + 1,),
+            limit=limit + 1,
         )
+        if len(rows) > limit:
+            raise InvariantViolation("clear events exceed rules.clear_scan_max")
         return {(_s(r[0]), _s(r[1])): codec.parse_instant(r[2]) for r in rows}
 
     def record(
@@ -188,9 +192,11 @@ class DwellStore:
         rows = c.rows(
             "SELECT warning_id, channel_id, rule_fingerprint, holding_since, last_window_end, segment_key "
             "FROM rules_dwell ORDER BY warning_id LIMIT ?",
-            (limit,),
-            limit=limit,
+            (limit + 1,),
+            limit=limit + 1,
         )
+        if len(rows) > limit:
+            raise InvariantViolation("dwell markers exceed rules.dwell_scan_max")
         return {
             _s(r[0]): DwellMarker(_s(r[0]), _s(r[1]), _s(r[2]), codec.parse_instant(r[3]),
                                   codec.parse_instant(r[4]), _s(r[5]))
@@ -211,10 +217,10 @@ class DwellStore:
     def delete_for_channel(self, c: Conn, channel_id: str) -> None:
         c.execute("DELETE FROM rules_dwell WHERE channel_id = ?", (channel_id,))
 
-    def delete_not_in(self, c: Conn, channels: Sequence[str]) -> int:
+    def delete_not_in(self, c: Conn, channels: Sequence[str], *, limit: int) -> int:
         """Startup (5.3): markers whose channel is not current are void."""
         total = 0
-        for row in c.rows("SELECT DISTINCT channel_id FROM rules_dwell LIMIT 10000", (), limit=10000):
+        for row in c.rows("SELECT DISTINCT channel_id FROM rules_dwell LIMIT ?", (limit,), limit=limit):
             if _s(row[0]) not in channels:
                 total += c.execute(
                     "DELETE FROM rules_dwell WHERE channel_id = ?", (_s(row[0]),)
@@ -280,7 +286,10 @@ class DeadlineStore:
         )
 
     def delete(self, c: Conn, key: str) -> None:
-        c.execute("DELETE FROM rules_deadline WHERE deadline_key = ?", (key,))
+        """The deadline is over. The row stays: it carries the scheduler generation the next replace must name."""
+        c.execute(
+            "UPDATE rules_deadline SET due_at = NULL, elapsed_seconds = NULL WHERE deadline_key = ?", (key,)
+        )
 
     def get(self, c: Conn, key: str) -> tuple[str, datetime | None, int | None, datetime, int] | None:
         rows = c.rows(

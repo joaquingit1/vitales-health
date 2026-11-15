@@ -33,7 +33,7 @@ CREATE TABLE rules_warning (
   body_json TEXT NOT NULL,
   CHECK (raised_by <> 'assistant' OR level IN ('info','watch')),
   CHECK (raised_by = 'assistant' OR state <> 'dismissed'),
-  CHECK (raised_by <> 'sensor_limit' OR sensor_type_id IS NOT NULL),
+  CHECK (raised_by <> 'sensor_limit' OR sensor_type_id IS NOT NULL OR trigger_kind = 'sensor_quiet'),
   CHECK (scope <> 'person' OR person_id IS NOT NULL),
   CHECK ((state = 'cleared') = (clear_reason IS NOT NULL AND cleared_at IS NOT NULL))
 ) STRICT;

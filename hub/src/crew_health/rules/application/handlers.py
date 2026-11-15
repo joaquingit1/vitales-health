@@ -13,7 +13,7 @@ from decimal import Decimal
 from typing import Literal
 
 from crew_health.kernel.clock import ClockCorrected, ClockRegressed, NormalizedTime, TimeInput
-from crew_health.kernel.scheduler import AbsoluteDeadline, ScheduledJob
+from crew_health.kernel.scheduler import ScheduledJob
 from crew_health.kernel.units import Quantity, Unit
 from crew_health.kernel.uow import UnitOfWork
 from crew_health.mission.application.ports import MissionEventRecorded, StateFactChanged
@@ -81,8 +81,8 @@ def fire_deadline(rt: Runtime, uow: UnitOfWork, job: ScheduledJob) -> None:
     """UC-R10: the fired key is deleted in the same transaction."""
     key = job.payload.get("key", "")
     row = rt.deadlines.get(uow.connection, key)
-    if row is None:
-        return
+    if row is None or row[1] is None:
+        return  # already fired or cancelled
     rt.deadlines.delete(uow.connection, key)
     if key.startswith(core.EXPIRE_PREFIX):
         w = rt.warnings.get(uow.connection, key.removeprefix(core.EXPIRE_PREFIX))
@@ -121,10 +121,7 @@ def recover_pending(rt: Runtime, uow: UnitOfWork, job: ScheduledJob) -> None:
         )
         return
     if rt.pending.due(c, uow.now, 1):
-        uow.schedule(
-            ScheduledJob(core.RECOVER_HANDLER, core.RECOVER_HANDLER, AbsoluteDeadline(uow.now), {}, None),
-            expected_generation=None,
-        )
+        core.schedule(rt, uow, core.RECOVER_HANDLER, "absolute", uow.now, None)
     else:
         _finish(rt, uow)
 

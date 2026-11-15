@@ -159,7 +159,7 @@ def _sweep_hook(live: _Live) -> Callable[[], None]:
         with resolver.require(UnitOfWorkFactory).begin(
             actor=Actor("engine", _ENGINE_ID), correlation_id="rules_startup"
         ) as uow:
-            rt.dwell.delete_not_in(uow.connection, ())
+            rt.dwell.delete_not_in(uow.connection, (), limit=rt.cap("rules.dwell_scan_max"))
             if rt.pending.any(uow.connection):
                 core.record_recovery_due(rt, uow)
 

@@ -11,7 +11,7 @@ from crew_health.kernel.uow import Audience, AudienceProjectionKey, EventScope, 
 from crew_health.rules.application.codec import evidence_raw, instant
 from crew_health.rules.application.ports import WarningFact
 from crew_health.rules.domain.vocabulary import Scope, WarningAction
-from crew_health.rules.domain.warning import Warning
+from crew_health.rules.domain.warning import EvidenceRef, Warning
 
 AUDIENCE_RULE = "rules.warning"
 PROJECTION = AudienceProjectionKey("rules", "warning", 1)
@@ -25,6 +25,14 @@ def fact_of(w: Warning) -> WarningFact:
     )  # fmt: skip
 
 
+def _evidence(e: EvidenceRef) -> dict[str, object]:
+    """The wire needs a non-empty `summary` (the generated event model fills an omitted one with null, which the event
+    schema refuses). With no configured summary (R-E24-16) the record's own identifier stands in: facts, no words."""
+    raw = {k: v for k, v in evidence_raw(e).items() if v is not None}
+    raw.setdefault("summary", e.ref_id)
+    return raw
+
+
 def wire_dict(w: Warning, *, steps: Sequence[str], allowed: Sequence[WarningAction]) -> dict[str, object]:
     """Only contract fields. `steps` are the served steps (3.16), `allowed` the session's actions (3.10)."""
     return {
@@ -36,7 +44,7 @@ def wire_dict(w: Warning, *, steps: Sequence[str], allowed: Sequence[WarningActi
         "title": w.title, "what": w.what, "why": w.why, "steps": list(steps),
         "body_regions": list(w.body_regions),
         "headline": {"fragment": w.headline.fragment, "rank": w.headline.rank, "solo": w.headline.solo},
-        "evidence": [evidence_raw(e) for e in w.evidence], "evidence_time": instant(w.evidence_time),
+        "evidence": [_evidence(e) for e in w.evidence], "evidence_time": instant(w.evidence_time),
         "evidence_time_label": w.evidence_time_label,
         "citation": {"text": w.citation.text, "source_ids": list(w.citation.source_ids),
                      "basis": None if w.citation.basis is None else w.citation.basis.value},

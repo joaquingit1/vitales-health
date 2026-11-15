@@ -7,8 +7,8 @@ producer's command commits nothing. Nothing here is a second transaction, clock,
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from dataclasses import dataclass, field
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
 from typing import Literal
 
@@ -53,7 +53,7 @@ from crew_health.rules.domain.decisions import (
     ScheduleDeadline,
 )
 from crew_health.rules.domain.definitions import MissionEventCondition, WithinDays
-from crew_health.rules.domain.errors import RulesDomainError
+from crew_health.rules.domain.errors import InvariantViolation, RulesDomainError
 from crew_health.rules.domain.inputs import (
     AnswerInput,
     FreshnessInput,
@@ -111,6 +111,10 @@ class Runtime:
     results: ActionResultStore = field(default_factory=ActionResultStore)
     replicas: ReplicaStore = field(default_factory=ReplicaStore)
     cache: dict[str, ReleaseFacts] = field(default_factory=dict)
+
+    def cap(self, key: str) -> int:
+        """A scan bound: the hub setting, never above what one storage read may return (storage.max_rows)."""
+        return min(self.settings.integer(key), self.settings.integer("storage.max_rows") - 1)
 
     def facts(self, uow: UnitOfWork) -> ReleaseFacts:
         """The active release's facts; the cache holds one release (3.8)."""
@@ -208,7 +212,7 @@ def build_view(rt: Runtime, uow: UnitOfWork, facts: ReleaseFacts, inp: RuleInput
         return None
     c = uow.connection
     s = rt.settings
-    active = rt.warnings.active(c, limit=s.integer("rules.active_scan_max"))
+    active = rt.warnings.active(c, limit=rt.cap("rules.active_scan_max"))
     ids = [w.warning_id for w in active]
     spent: set[tuple[str, str, TriggerRef]] = set()
     for kind, ref in candidate_refs(inp):
@@ -236,15 +240,41 @@ def build_view(rt: Runtime, uow: UnitOfWork, facts: ReleaseFacts, inp: RuleInput
         limits=facts.limits,
         active={w.key: w for w in active},
         group_active=group,
-        dwell=rt.dwell.all(c, limit=s.integer("rules.dwell_scan_max")),
-        occurrences=rt.occurrences.for_warnings(c, ids, limit=s.integer("rules.occurrence_scan_max")),
-        latest_clear=rt.occurrences.latest_clears(c, limit=s.integer("rules.clear_scan_max")),
+        dwell=rt.dwell.all(c, limit=rt.cap("rules.dwell_scan_max")),
+        occurrences=rt.occurrences.for_warnings(c, ids, limit=rt.cap("rules.occurrence_scan_max")),
+        latest_clear=rt.occurrences.latest_clears(c, limit=rt.cap("rules.clear_scan_max")),
         spent=frozenset(spent),
         clears_frozen=rt.pending.blocking(c),
-        answer_events=rt.mission_events.latest(c, types, per_type=s.integer("rules.answer_event_window")),
+        answer_events=rt.mission_events.latest(
+            c, types, per_type=min(s.integer("rules.answer_event_window"), s.integer("storage.max_rows"))
+        ),
         clock_regressed=bool(regressed and regressed.get("on")),
         origin_words=facts.origin_words,
     )
+
+
+_FIELDS = {
+    rendering.FIELD_TITLE: "title",
+    rendering.FIELD_WHAT: "what",
+    rendering.FIELD_WHY: "why",
+    rendering.FIELD_FRAGMENT: "headline/fragment",
+    rendering.FIELD_CITATION: "citation_template",
+}
+
+
+@dataclass(frozen=True, slots=True)
+class PointerRenderer:
+    """The domain names a template field `warning.title`; E01's renderer takes the document pointer of the field
+    (`warning-rules/definitions/<i>/content/title`) and checks its placeholders against CONTRACTS 11 for that field."""
+
+    inner: TemplateRenderer
+    index: int
+
+    def render(self, field_key: str, template: str, values: Mapping[str, str]) -> str:
+        tail = _FIELDS.get(field_key)
+        if tail is None:
+            raise InvariantViolation("unknown template field: " + field_key)
+        return self.inner.render(f"warning-rules/definitions/{self.index}/content/{tail}", template, values)
 
 
 # -- applying a decision --------------------------------------------------------------------------
@@ -257,9 +287,20 @@ def time_label(facts: ReleaseFacts, r: Raise) -> str:
     return hm
 
 
-def apply_raise(rt: Runtime, uow: UnitOfWork, facts: ReleaseFacts, view: EngineView, r: Raise) -> None:
+def apply_raise(
+    rt: Runtime,
+    uow: UnitOfWork,
+    facts: ReleaseFacts,
+    view: EngineView,
+    r: Raise,
+    sensor_type_id: str | None = None,
+) -> None:
+    index = next(i for i, d in enumerate(facts.rules.definitions) if d.id == r.pin.definition.id)
     rendered = rendering.render_content(
-        r.pin, r.render, rt.renderer(uow), facts.what_to_do.get(r.pin.definition.hazard_id or "")
+        r.pin,
+        r.render,
+        PointerRenderer(rt.renderer(uow), index),
+        facts.what_to_do.get(r.pin.definition.hazard_id or ""),
     )
     warning = raise_new(
         NewWarning(
@@ -276,6 +317,8 @@ def apply_raise(rt: Runtime, uow: UnitOfWork, facts: ReleaseFacts, view: EngineV
             source_revision=r.source_revision, source_partition=r.source_partition,
         )
     )  # fmt: skip
+    if warning.sensor_type_id is None and sensor_type_id is not None:
+        warning = replace(warning, sensor_type_id=sensor_type_id)  # a quiet warning names its channel's type
     rt.warnings.insert(uow.connection, warning)
     replicate_local(uow, warning.warning_id, "create")
     if r.trigger.kind is ConditionKind.MISSION_EVENT:
@@ -314,8 +357,9 @@ def schedule(
     if due is None:
         raise ProblemError(ErrorCode.INTERNAL_ERROR, "deadline_without_time")
     previous = rt.deadlines.get(uow.connection, key)
+    handler = RECOVER_HANDLER if key == RECOVER_HANDLER else DEADLINE_HANDLER
     generation = uow.schedule(
-        ScheduledJob(key, DEADLINE_HANDLER, AbsoluteDeadline(due), {"key": key}, None),
+        ScheduledJob(key, handler, AbsoluteDeadline(due), {"key": key}, None),
         expected_generation=None if previous is None else previous[4],
     )
     rt.deadlines.put(uow.connection, key, kind, due, elapsed, uow.now, generation)
@@ -323,13 +367,18 @@ def schedule(
 
 def cancel(rt: Runtime, uow: UnitOfWork, key: str) -> None:
     previous = rt.deadlines.get(uow.connection, key)
-    if previous is not None:
+    if previous is not None and previous[1] is not None:
         uow.cancel_schedule(key, expected_generation=previous[4])
         rt.deadlines.delete(uow.connection, key)
 
 
 def apply_decision(
-    rt: Runtime, uow: UnitOfWork, facts: ReleaseFacts, view: EngineView, decision: Decision
+    rt: Runtime,
+    uow: UnitOfWork,
+    facts: ReleaseFacts,
+    view: EngineView,
+    decision: Decision,
+    sensor_type_id: str | None = None,
 ) -> None:
     """Order of 4.3: clears (supersessions first), occurrence resolution, raises, attaches, dwell, deadlines."""
     c = uow.connection
@@ -341,7 +390,7 @@ def apply_decision(
             rt.occurrences.resolve_before(c, step.warning_id, step.before, step.clear_event_id)
     for step in decision:
         if isinstance(step, Raise):
-            apply_raise(rt, uow, facts, view, step)
+            apply_raise(rt, uow, facts, view, step, sensor_type_id)
     for step in decision:
         _apply_rest(rt, uow, step)
 
@@ -398,7 +447,7 @@ def apply_input(rt: Runtime, uow: UnitOfWork, inp: RuleInput) -> Decision:
     if view is None:
         return ()
     decision = engine.evaluate(inp, view)
-    apply_decision(rt, uow, facts, view, decision)
+    apply_decision(rt, uow, facts, view, decision, getattr(inp, "sensor_type_id", None))
     if isinstance(inp, MissionEventInput):
         record_clear_events(rt, uow, facts, inp)
     return decision
@@ -432,12 +481,21 @@ def record_pending(rt: Runtime, uow: UnitOfWork, inp: RuleInput, fault: Exceptio
     )  # fmt: skip
     if isinstance(inp, SensorEvaluatedInput):
         rt.dwell.delete_for_channel(uow.connection, inp.channel_id)
-    uow.schedule(
-        ScheduledJob(RECOVER_HANDLER, RECOVER_HANDLER, AbsoluteDeadline(uow.now), {}, None),
-        expected_generation=None,
-    )
+    schedule(rt, uow, RECOVER_HANDLER, "absolute", uow.now, None)
     if rt.health is not None:
         rt.health.mark_degraded(HEALTH_COMPONENT, FAULT_CODE, uow.now)
+
+
+STORAGE_CAUSES = frozenset({"constraint", "disk_full", "locked", "io_error", "corrupt"})
+
+
+def is_storage_fault(fault: Exception) -> bool:
+    """Storage and integrity errors are never converted into a pending evaluation (AGENTS 6): the command fails."""
+    return (
+        isinstance(fault, ProblemError)
+        and fault.code is ErrorCode.INTERNAL_ERROR
+        and str(fault) in STORAGE_CAUSES
+    )
 
 
 def run_input(rt: Runtime, uow: UnitOfWork, inp: RuleInput) -> None:
@@ -447,7 +505,9 @@ def run_input(rt: Runtime, uow: UnitOfWork, inp: RuleInput) -> None:
             apply_input(rt, uow, inp)
     except StorageUnavailable:
         raise
-    except Exception as fault:  # noqa: BLE001 - the boundary of S8.6: converted, never propagated
+    except Exception as fault:
+        if is_storage_fault(fault):
+            raise  # noqa: BLE001 - the boundary of S8.6: converted, never propagated
         record_pending(rt, uow, inp, fault)
 
 
@@ -468,9 +528,6 @@ def dump(w: Warning) -> str:
 
 def record_recovery_due(rt: Runtime, uow: UnitOfWork) -> None:
     """Startup (5.3): recovery runs at once while rows exist, and health says so."""
-    uow.schedule(
-        ScheduledJob(RECOVER_HANDLER, RECOVER_HANDLER, AbsoluteDeadline(uow.now), {}, None),
-        expected_generation=None,
-    )
+    schedule(rt, uow, RECOVER_HANDLER, "absolute", uow.now, None)
     if rt.health is not None:
         rt.health.mark_degraded(HEALTH_COMPONENT, FAULT_CODE, uow.now)
