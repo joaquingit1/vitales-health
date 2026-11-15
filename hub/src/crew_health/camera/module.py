@@ -52,6 +52,7 @@ from crew_health.contracts_gen.enums import ErrorCode, EventType
 from crew_health.kernel.clock import Clock
 from crew_health.kernel.errors import ProblemError
 from crew_health.kernel.ids import IdFactory
+from crew_health.kernel.scheduler import WorkerLifecycle
 from crew_health.kernel.settings import HubSettings, SettingSpec
 from crew_health.kernel.tasks import TaskLease, TaskQueue, TaskRegistration, TaskResult, TaskRunner
 from crew_health.kernel.units import UnitRegistry
@@ -298,6 +299,9 @@ def _bind(live: Live) -> Callable[[Resolver], None]:
             link, live.dispatcher, live.tasks, interval_ms=value("workers.camera.health_ms")
         )
         if enabled:
+            lifecycle = resolver.optional(WorkerLifecycle)
+            if lifecycle is not None:  # the hub stops the loop at shutdown (SYSTEM 5.12)
+                lifecycle.started("camera", live.loop.stop_within)
             live.loop.start()
 
     return bind

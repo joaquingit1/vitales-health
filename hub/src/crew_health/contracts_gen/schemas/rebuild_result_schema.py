@@ -10,9 +10,9 @@ from . import common_schema
 
 class RebuildResult(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    origin_mode: Literal['LIVE', 'SIM']
+    origin_mode: Literal["LIVE", "SIM"]
     events_read: int = Field(..., ge=0)
     events_voided: int = Field(..., ge=0)
     views_rebuilt: int = Field(..., ge=0)

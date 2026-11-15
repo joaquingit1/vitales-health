@@ -80,7 +80,7 @@ that is safe to use, with every number traceable, and nothing that waits for the
     under the current grant before its result or reference is returned.
 17. **Clock discontinuity (E32 C1 to C4, SYSTEM 5.2).** Each medicines command compares wall time against the
     injected monotonic clock since this process's previous command. A forward jump over
-    `medicines.clock_forward_tolerance_seconds` (team default 60 s) is stored in `med_clock_check` with both deltas,
+    `medicines.clock_forward_tolerance_seconds` (team default 60 s) is stored in `medicines_clock_check` with both deltas,
     the reading it was measured from and the clock module's correction head; until a correction newer than that head
     is in `ClockCorrections.history`, proposals refuse `clock_discontinuity` and confirmations supersede. A new
     process has no common monotonic origin, so its first reading starts a new chain.

@@ -134,6 +134,6 @@ def test_records_of_another_mission_or_mode_are_invisible_to_dosing(tmp_path: Pa
     )  # back to partition A: everything recorded there is still there, and only it
     _assert_partition_a(st, diagnosis_a)
     other = ("mission_2", "SIM") if switch == "mission" else ("mission_1", "REPLAY")
-    assert sorted(st.rows("SELECT mission_id, origin_mode FROM med_movement")) == sorted(
+    assert sorted(st.rows("SELECT mission_id, origin_mode FROM medicines_movement")) == sorted(
         [("mission_1", "SIM"), other]
     )

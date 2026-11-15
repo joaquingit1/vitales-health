@@ -10,7 +10,7 @@ from . import common_schema, error_schema
 
 class ModelRelease(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     model_release_id: common_schema.Id
     model_id: str = Field(..., min_length=1)
@@ -18,14 +18,14 @@ class ModelRelease(BaseModel):
     sha256: common_schema.Sha256
     prompt_version: str = Field(..., min_length=1)
     tool_catalog_version: str = Field(..., min_length=1)
-    mode: Literal['stub', 'live']
+    mode: Literal["stub", "live"]
 
 
 class AssistantStatus(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    state: Literal['running', 'stopped', 'loading', 'unavailable']
+    state: Literal["running", "stopped", "loading", "unavailable"]
     model_release: ModelRelease | None
     since: common_schema.Instant
     last_error: error_schema.ErrorEnvelope | None

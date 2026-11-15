@@ -10,23 +10,23 @@ from . import common_schema
 
 class Amount(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., ge=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class Accounting(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., ge=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class Ingredient(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     ingredient_id: str = Field(..., min_length=1)
     accounting: Accounting
@@ -34,7 +34,7 @@ class Ingredient(BaseModel):
 
 class Override(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     alert_id: str = Field(..., min_length=1)
     kind: str = Field(..., min_length=1)
@@ -48,7 +48,7 @@ class LimitFinding(RootModel[str]):
 
 class MedicationAdministration(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     administration_id: common_schema.Id
     revision: int = Field(..., ge=1)
@@ -61,18 +61,16 @@ class MedicationAdministration(BaseModel):
     ingredients: list[Ingredient]
     administered_at: common_schema.Instant
     confirmed_by: common_schema.Id
-    confirmed_as: Literal['crew_medical_officer', 'acting_medical_officer'] | None = (
-        Field(
-            None,
-            description='The clinical authority the confirmer held (SYSTEM 8.4 rule 3): an acting officer is shown as acting.',
-        )
+    confirmed_as: Literal["crew_medical_officer", "acting_medical_officer"] | None = Field(
+        None,
+        description="The clinical authority the confirmer held (SYSTEM 8.4 rule 3): an acting officer is shown as acting.",
     )
     role_assignment_id: common_schema.Id | None = Field(
         None,
-        description='The accepted medical_officer assignment that made the confirmer acting; null for the crew medical officer.',
+        description="The accepted medical_officer assignment that made the confirmer acting; null for the crew medical officer.",
     )
     overrides: list[Override]
     limit_findings: list[LimitFinding]
-    status: Literal['completed', 'entered_in_error']
+    status: Literal["completed", "entered_in_error"]
     next_dose_earliest_at: common_schema.Instant | None
     origin_mode: common_schema.OriginMode

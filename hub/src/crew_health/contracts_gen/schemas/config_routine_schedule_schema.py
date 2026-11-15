@@ -14,7 +14,7 @@ class Step(RootModel[str]):
 
 class ByEnvironment(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     station_leo: common_schema.Cadence
     transit: common_schema.Cadence
@@ -24,7 +24,7 @@ class ByEnvironment(BaseModel):
 
 class Cadence(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     default: common_schema.Cadence
     by_environment: ByEnvironment
@@ -33,11 +33,11 @@ class Cadence(BaseModel):
 
 class RaiseFrequencyWhenItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     trigger: str = Field(
         ...,
-        description='The trigger in words. A suffix (sensor_limit) or (rule) names what raises it.',
+        description="The trigger in words. A suffix (sensor_limit) or (rule) names what raises it.",
         min_length=1,
     )
     new_cadence: common_schema.Cadence
@@ -47,20 +47,18 @@ class RaiseFrequencyWhenItem(BaseModel):
 
 class Item(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.ConfigId
     name: str = Field(..., min_length=1)
     plain: str = Field(..., min_length=1)
     why: str = Field(..., min_length=1)
-    who: list[Literal['self', 'crewmate', 'crew_medical_officer', 'ground']] = Field(
-        ..., min_length=1
-    )
+    who: list[Literal["self", "crewmate", "crew_medical_officer", "ground"]] = Field(..., min_length=1)
     instrument: str = Field(..., min_length=1)
     minutes: int = Field(..., ge=0)
     skill_ids: list[common_schema.ConfigId] | None = Field(
         None,
-        description='For a drill: the skills-catalog.json skills it practices. Completing the drill writes a SkillRecord for each participant and skill (CONTRACTS section 24).',
+        description="For a drill: the skills-catalog.json skills it practices. Completing the drill writes a SkillRecord for each participant and skill (CONTRACTS section 24).",
         min_length=1,
     )
     steps: list[Step] = Field(..., min_length=1)
@@ -72,7 +70,7 @@ class Item(BaseModel):
 
 class Source(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     id: common_schema.SourceId
     title: str = Field(..., min_length=1)
@@ -84,7 +82,7 @@ class Source(BaseModel):
 
 class RoutineScheduleJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     items: list[Item] = Field(..., min_length=1)
     sources: list[Source] = Field(..., min_length=1)

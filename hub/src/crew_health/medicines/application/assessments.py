@@ -286,7 +286,7 @@ def record_outcome(deps: Deps, uow: UnitOfWork, run_id: str, outcome: RunOutcome
 
 def prune(deps: Deps, uow: UnitOfWork, mission_id: str, origin_mode: str) -> tuple[str, ...]:
     """E32 5.2 retention: inputs of unreferenced runs older than the newest `retained_unreferenced_runs` ones are
-    deleted (recorded in med_artifact_prune first); a hash any referenced or retained run uses is never deleted."""
+    deleted (recorded in medicines_artifact_prune first); a hash any referenced or retained run uses is never deleted."""
     referenced = deps.store.referenced_runs(uow, limit=deps.limits.max_rows)
     keep: set[str] = set()
     for run_id in sorted(referenced):

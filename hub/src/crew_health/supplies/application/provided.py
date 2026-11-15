@@ -187,8 +187,8 @@ def _boundary(amount: Quantity | None, supply: SupplyDef) -> Quantity | None:
     return Quantity(amount.value, boundary_unit(amount.unit, supply.unit_word, supply.unit))
 
 
-def cover_changed(
-    deps: Deps, ctx: KitMapContext, additions: Sequence[SupplyAddition]
+def cover_changed[Document](
+    deps: Deps, ctx: KitMapContext[Document], additions: Sequence[SupplyAddition]
 ) -> Sequence[CoverChange]:
     """E27's what-if: per addition, in request order and listed even when equal, the cover before and after adding
     it to the stock (INV-S11). Nothing is written."""

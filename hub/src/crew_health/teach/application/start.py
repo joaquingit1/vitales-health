@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.kernel.errors import ProblemError
-from crew_health.kernel.uow import SessionContext
+from crew_health.kernel.uow import SessionContext, UnitOfWork
 from crew_health.teach.application import access
 from crew_health.teach.application.commands import CommandMeta, Response, TeachCore
 from crew_health.teach.application.content import ContentLoader, PinnedContent
@@ -56,7 +56,7 @@ class StartGuidedCheck(TeachCore):
             if replay is not None:
                 return replay
             self._people(meta.session, data)
-            context = self._context(data)
+            context = self._context(uow, data)
             content = self.p.content.load(context.pins)
             skill = self._skill(content, data, context)
             self._eligible(skill, data, context)
@@ -121,8 +121,8 @@ class StartGuidedCheck(TeachCore):
             and ref.help_session_id is None
         )
 
-    def _context(self, data: StartInput) -> _Context:
-        release = self.p.releases.active()
+    def _context(self, uow: UnitOfWork, data: StartInput) -> _Context:
+        release = uow.release
         pins = ContentLoader.pins_of(release)
         if data.plan_run_id is None:
             if data.config_release is not None and data.config_release != release.release_id:

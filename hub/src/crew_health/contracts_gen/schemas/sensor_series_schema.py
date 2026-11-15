@@ -10,7 +10,7 @@ from . import common_schema
 
 class Point(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     t: common_schema.Instant
     value: float
@@ -19,26 +19,26 @@ class Point(BaseModel):
 
 class LimitMark(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     limit_id: common_schema.ConfigId
     value: float
     unit: str = Field(..., min_length=1)
-    comparator: Literal['above', 'at_or_above', 'below', 'at_or_below']
-    role: Literal['warning', 'display_only']
+    comparator: Literal["above", "at_or_above", "below", "at_or_below"]
+    role: Literal["warning", "display_only"]
     label: str = Field(..., min_length=1)
 
 
 class SensorSeries(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     sensor_type_id: common_schema.ConfigId
     channel_id: common_schema.Id
     aggregation_id: common_schema.ConfigId
     unit: str = Field(..., min_length=1)
     origin_mode: common_schema.OriginMode
-    from_: common_schema.Instant = Field(..., alias='from')
+    from_: common_schema.Instant = Field(..., alias="from")
     to: common_schema.Instant
     points: list[Point]
     limit_marks: list[LimitMark]

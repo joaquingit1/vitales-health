@@ -350,14 +350,14 @@ class FakePlans:
 
     calls: list[frozenset[str]] = field(default_factory=list)
 
-    def row_columns(
-        self, ctx: KitMapContext, *, kit: frozenset[str], plan_ids: Sequence[str | None]
+    def row_columns[Document](
+        self, ctx: KitMapContext[Document], *, kit: frozenset[str], plan_ids: Sequence[str | None]
     ) -> Sequence[PlanColumns]:
         self.calls.append(kit)
         return [PlanColumns(None, None, "ecg_single_lead" in kit) for _ in plan_ids]
 
-    def plans_changed(
-        self, ctx: KitMapContext, *, base_kit: frozenset[str], delta: PlanningDelta
+    def plans_changed[Document](
+        self, ctx: KitMapContext[Document], *, base_kit: frozenset[str], delta: PlanningDelta
     ) -> Sequence[PlanChange]:
         return (
             [PlanChange("plan_icl10", "ICL10", None, False, True, True, False)]

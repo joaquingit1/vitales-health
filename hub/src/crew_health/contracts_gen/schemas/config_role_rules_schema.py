@@ -10,25 +10,19 @@ from . import common_schema
 
 class Role(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    role_id: Literal[
-        'lead_helper', 'second_helper', 'kit_fetcher', 'medical_officer', 'communicator'
-    ]
+    role_id: Literal["lead_helper", "second_helper", "kit_fetcher", "medical_officer", "communicator"]
     label: str = Field(..., min_length=1)
-    on_site: bool = Field(
-        ..., description="True when the role needs the person at the patient's side."
-    )
+    on_site: bool = Field(..., description="True when the role needs the person at the patient's side.")
 
 
 class EligibilityItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    rule_id: Literal[
-        'never_subject', 'not_on_eva_for_on_site', 'one_role_each', 'awake_first'
-    ]
-    kind: Literal['exclude', 'prefer']
+    rule_id: Literal["never_subject", "not_on_eva_for_on_site", "one_role_each", "awake_first"]
+    kind: Literal["exclude", "prefer"]
     text: str = Field(..., min_length=1)
 
 
@@ -38,19 +32,19 @@ class Rank(RootModel[int]):
 
 class MedicalOfficerCascadeItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    kind: Literal['officer_rank', 'freshest_skill_holder']
+    kind: Literal["officer_rank", "freshest_skill_holder"]
     rank: Rank | None
     reason_code: Literal[
-        'first_officer',
-        'officer_is_subject',
-        'officer_on_eva',
-        'officer_asleep',
-        'second_officer',
-        'freshest_skill',
-        'free_to_help',
-        'changed_by_helper',
+        "first_officer",
+        "officer_is_subject",
+        "officer_on_eva",
+        "officer_asleep",
+        "second_officer",
+        "freshest_skill",
+        "free_to_help",
+        "changed_by_helper",
     ]
 
 
@@ -60,11 +54,9 @@ class TaskText(RootModel[str]):
 
 class Role2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    role_id: Literal[
-        'lead_helper', 'second_helper', 'kit_fetcher', 'medical_officer', 'communicator'
-    ]
+    role_id: Literal["lead_helper", "second_helper", "kit_fetcher", "medical_officer", "communicator"]
     skill_id: common_schema.ConfigId | None
     task_text: TaskText | None
     required: bool
@@ -72,7 +64,7 @@ class Role2(BaseModel):
 
 class FlowRole(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     flow_id: common_schema.ConfigId
     roles: list[Role2] = Field(..., min_length=1)
@@ -80,11 +72,9 @@ class FlowRole(BaseModel):
 
 class DefaultRole(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    role_id: Literal[
-        'lead_helper', 'second_helper', 'kit_fetcher', 'medical_officer', 'communicator'
-    ]
+    role_id: Literal["lead_helper", "second_helper", "kit_fetcher", "medical_officer", "communicator"]
     skill_id: common_schema.ConfigId | None
     task_text: TaskText | None
     required: bool
@@ -92,61 +82,61 @@ class DefaultRole(BaseModel):
 
 class ReasonPhrases(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     first_officer: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     officer_is_subject: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     officer_on_eva: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     officer_asleep: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     second_officer: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     freshest_skill: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     free_to_help: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     changed_by_helper: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
 class RoleRulesJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     version: str = Field(..., min_length=1)
     example: bool
@@ -158,15 +148,15 @@ class RoleRulesJson(BaseModel):
     roles: list[Role] = Field(..., min_length=1)
     eligibility: list[EligibilityItem] = Field(..., min_length=1)
     medical_officer_cascade: list[MedicalOfficerCascadeItem] = Field(
-        ..., description='Tried in order until someone is eligible.', min_length=1
+        ..., description="Tried in order until someone is eligible.", min_length=1
     )
     flow_roles: list[FlowRole]
     default_roles: list[DefaultRole] = Field(..., min_length=1)
     plan_step_role: Literal[
-        'lead_helper', 'second_helper', 'kit_fetcher', 'medical_officer', 'communicator'
+        "lead_helper", "second_helper", "kit_fetcher", "medical_officer", "communicator"
     ] = Field(
         ...,
-        description='The role proposed for a plan step whose who is skill:<skill_id>.',
+        description="The role proposed for a plan step whose who is skill:<skill_id>.",
     )
     reason_phrases: ReasonPhrases
     basis: common_schema.Basis

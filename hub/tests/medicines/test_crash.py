@@ -102,12 +102,12 @@ def test_a_process_killed_inside_the_confirm_leaves_nothing_and_the_retry_succee
 
     retried = _confirm(restarted, proposal, key=key)
     assert retried.status_code == 409 and retried.json()["current_state"]["state"] == "expired"
-    assert restarted.rows("SELECT state FROM med_proposal_terminal") == [("expired",)]
+    assert restarted.rows("SELECT state FROM medicines_proposal_terminal") == [("expired",)]
 
     fresh = _propose(restarted, _diagnose(restarted))
     done = _confirm(restarted, fresh, key="key-crash-0002")
     assert done.status_code == 201, done.text
     again = _confirm(restarted, fresh, key="key-crash-0002")
     assert again.status_code == 201 and again.content == done.content
-    assert restarted.rows("SELECT count(*) FROM med_record WHERE kind='administration'") == [(1,)]
-    assert restarted.rows("SELECT count(*) FROM med_movement") == [(1,)]
+    assert restarted.rows("SELECT count(*) FROM medicines_record WHERE kind='administration'") == [(1,)]
+    assert restarted.rows("SELECT count(*) FROM medicines_movement") == [(1,)]

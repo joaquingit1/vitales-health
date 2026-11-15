@@ -21,12 +21,12 @@ class SourceId(RootModel[str]):
 
 class ChannelBinding(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     sensor_id: str = Field(..., min_length=1)
     channel_id: str = Field(..., min_length=1)
     quantity: str = Field(..., min_length=1)
-    conversion: Literal['identity', 'celsius_to_kelvin', 'scale']
+    conversion: Literal["identity", "celsius_to_kelvin", "scale"]
     factor: float | None = None
     basis: str = Field(..., min_length=1)
     source_ids: list[SourceId]
@@ -38,9 +38,9 @@ class ValidatedEngineVersion(RootModel[str]):
 
 class PotencyPolicy(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    mode: Literal['compensate', 'information_only']
+    mode: Literal["compensate", "information_only"]
     require_measured_assay: bool
     exclude_narrow_therapeutic_index: bool
     exclude_high_alert: bool
@@ -55,7 +55,7 @@ class PotencyPolicy(BaseModel):
 
 class Citation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     source_id: str = Field(..., min_length=1)
     locator: str = Field(..., min_length=1)
@@ -64,40 +64,40 @@ class Citation(BaseModel):
 
 class Source(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    source_id: str = Field(..., pattern='^[A-Z]+[0-9]+$')
+    source_id: str = Field(..., pattern="^[A-Z]+[0-9]+$")
     title: str = Field(..., min_length=1)
     publisher: str = Field(..., min_length=1)
     nasa: bool
-    url: str = Field(..., pattern='^https?://')
+    url: str = Field(..., pattern="^https?://")
     retrieved_on: date
 
 
 class Amount(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., ge=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class AmountPositive(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., gt=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class MedicinesJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     version: str = Field(..., min_length=1)
     example: bool
     notice: str = Field(..., min_length=1)
-    review_state: Literal['draft', 'reviewed', 'approved']
+    review_state: Literal["draft", "reviewed", "approved"]
     sources: list[Source] = Field(..., min_length=1)
     environment_zones: dict[str, EnvironmentZones]
     channel_bindings: list[ChannelBinding]

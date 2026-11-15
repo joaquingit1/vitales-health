@@ -1,0 +1,2 @@
+CREATE TABLE IF NOT EXISTS platform_replica_source (stream_id TEXT PRIMARY KEY REFERENCES platform_replica_stream(stream_id), source_node_id TEXT NOT NULL, source_incarnation TEXT NOT NULL) STRICT;
+CREATE TABLE IF NOT EXISTS platform_replica_origin (recipient_id TEXT NOT NULL, purpose TEXT NOT NULL, policy_epoch INTEGER NOT NULL, origin_token TEXT NOT NULL, projection_sha256 TEXT NOT NULL, PRIMARY KEY(recipient_id,purpose,policy_epoch,origin_token,projection_sha256)) STRICT;

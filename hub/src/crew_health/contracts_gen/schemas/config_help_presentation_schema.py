@@ -10,57 +10,57 @@ from . import common_schema
 
 class FixedButton(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    id: Literal['call_crew', 'tell_ground', 'start_over']
+    id: Literal["call_crew", "tell_ground", "start_over"]
     label: str = Field(..., min_length=1)
 
 
 class AnswerLogItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     node_id: common_schema.ConfigId
     answer_index: int = Field(..., ge=0)
     log_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
 class FlowLevel(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     flow_id: common_schema.ConfigId
-    level: Literal['act', 'emergency']
+    level: Literal["act", "emergency"]
     basis: common_schema.Basis
 
 
 class Broadcast(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     helping_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     nobody_helping: str = Field(..., min_length=1)
 
 
 class ReadingsPanel(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     codes: list[common_schema.ConfigId] = Field(..., min_length=1)
     max_age_minutes: int = Field(..., ge=1)
@@ -69,103 +69,103 @@ class ReadingsPanel(BaseModel):
 
 class LogTemplates(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     opened: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     crew_called: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     joined: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     left: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     step_done: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     step_undone: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     flow_switched: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     started_over: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     note: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     assistant: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     ground_message_queued: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     ground_message_sent: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     ground_message_acknowledged: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     ground_reply: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     closed: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
 class DispositionWords(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     resolved_on_board: str = Field(..., min_length=1)
     handed_to_crew_medical_officer: str = Field(..., min_length=1)
@@ -176,61 +176,61 @@ class DispositionWords(BaseModel):
 
 class GroundMessage(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     header_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     answers_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     steps_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     crew_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     queued_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     waiting_template: str | None = Field(
         None,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     sent_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
     acknowledged_template: str = Field(
         ...,
-        description='Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.',
+        description="Text with placeholders in braces. Allowed placeholders are listed in CONTRACTS section 11.",
         min_length=1,
-        pattern='^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$',
+        pattern="^[^{}]*(\\{[a-z_]+\\}[^{}]*)*$",
     )
 
 
 class AssistantLine(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     waiting_text: str = Field(..., min_length=1)
     stopped_text: str = Field(..., min_length=1)
@@ -238,7 +238,7 @@ class AssistantLine(BaseModel):
 
 class RedFlagFlow(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     question_id: common_schema.ConfigId
     flow_id: common_schema.ConfigId
@@ -246,7 +246,7 @@ class RedFlagFlow(BaseModel):
 
 class HelpPresentationJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     notice: str = Field(
         ...,
@@ -257,20 +257,20 @@ class HelpPresentationJson(BaseModel):
     fixed_buttons: list[FixedButton] = Field(..., max_length=3, min_length=3)
     answer_log: list[AnswerLogItem] = Field(
         ...,
-        description='Log line per triage answer. An answer with no entry logs its own label.',
+        description="Log line per triage answer. An answer with no entry logs its own label.",
     )
     flow_levels: list[FlowLevel] = Field(..., min_length=1)
-    default_flow_level: Literal['act', 'emergency']
+    default_flow_level: Literal["act", "emergency"]
     broadcast: Broadcast
     readings_panel: ReadingsPanel
     log_templates: LogTemplates = Field(
         ...,
-        description='Log line per event of the session. answer_log covers triage answers.',
+        description="Log line per event of the session. answer_log covers triage answers.",
     )
     disposition_words: DispositionWords
     ground_message: GroundMessage = Field(
         ...,
-        description='Lines of the message, in this order: header, answers, steps (only when a step is ticked), crew (only when the crew was called). queued_template (link up or delayed), waiting_template (link down: it waits for the next contact), sent_template and acknowledged_template give GroundMessage.status_text.',
+        description="Lines of the message, in this order: header, answers, steps (only when a step is ticked), crew (only when the crew was called). queued_template (link up or delayed), waiting_template (link down: it waits for the next contact), sent_template and acknowledged_template give GroundMessage.status_text.",
     )
     assistant_line: AssistantLine
     red_flag_flows: list[RedFlagFlow] = Field(..., min_length=1)

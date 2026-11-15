@@ -296,14 +296,15 @@ class PlanRunReader(Protocol):
     def context(self, session: SessionContext, plan_run_id: str) -> RunContext | None: ...
 
 
-# Defined by E27 (crew_health.kitmap.application.ports); structural copy because that file imports kitmap.domain
-# (packs DECISIONS A1). Names and parameters equal main's text; a test compares them with inspect.signature.
+# Defined by E27 (crew_health.kitmap.application.ports, generic over the kit map document since E01 #41);
+# structural copy so supplies never depends on kitmap's dataclasses. Names, parameters and type parameters equal
+# main's text; a test compares them with inspect.signature.
 class KitMapReleaseRef(Protocol):
     @property
     def release_id(self) -> str: ...
 
 
-class KitMapContext(Protocol):
+class KitMapContext[Document](Protocol):
     @property
     def snapshot(self) -> UnitOfWork | ReadSnapshot: ...
     @property
@@ -329,6 +330,6 @@ class CoverChange:
 
 
 class CoverPlanningPort(Protocol):
-    def cover_changed(
-        self, ctx: KitMapContext, *, add_supplies: Sequence[SupplyAddition]
+    def cover_changed[Document](
+        self, ctx: KitMapContext[Document], *, add_supplies: Sequence[SupplyAddition]
     ) -> Sequence[CoverChange]: ...

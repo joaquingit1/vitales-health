@@ -148,7 +148,7 @@ def test_a_confirmed_proposal_writes_one_administration_and_draws_the_lot_once(s
     again = _confirm(st, proposal, key=key)
     assert again.status_code == 201 and again.json()["administration_id"] == first.json()["administration_id"]
     assert _stock(st, "lot-apap-001") == 28
-    assert st.rows("SELECT count(*) FROM med_movement") == [(1,)]
+    assert st.rows("SELECT count(*) FROM medicines_movement") == [(1,)]
     second = _confirm(st, proposal)
     assert second.status_code == 409 and second.json()["code"] == "INVALID_TRANSITION"
     assert (
@@ -174,8 +174,8 @@ def test_confirming_with_another_lot_is_refused_and_writes_nothing(st: Station) 
     proposal = _propose(st, _diagnose(st))
     response = _confirm(st, proposal, lot_id="lot-apap-002")
     assert response.status_code == 422 and response.json()["field_errors"][0]["field"] == "/lot_id"
-    assert st.rows("SELECT count(*) FROM med_movement") == [(0,)]
-    assert st.rows("SELECT count(*) FROM med_proposal_terminal") == [(0,)]
+    assert st.rows("SELECT count(*) FROM medicines_movement") == [(0,)]
+    assert st.rows("SELECT count(*) FROM medicines_proposal_terminal") == [(0,)]
 
 
 @pytest.mark.trace("T-61", "T-62", "INV-M6", "Q14", "SYSTEM-8.4", "REVIEW-B6")
@@ -249,8 +249,8 @@ def test_a_changed_context_supersedes_the_proposal_and_the_supersede_is_kept(st:
     assert adverse.status_code == 201
     response = _confirm(st, proposal)
     assert response.status_code == 409 and response.json()["current_state"]["state"] == "superseded"
-    assert st.rows("SELECT state FROM med_proposal_terminal") == [("superseded",)]
-    assert st.rows("SELECT count(*) FROM med_movement") == [(0,)]
+    assert st.rows("SELECT state FROM medicines_proposal_terminal") == [("superseded",)]
+    assert st.rows("SELECT count(*) FROM medicines_movement") == [(0,)]
     fresh = _propose(st, _diagnose(st))
     assert fresh["lot_id"] == "lot-apap-002"  # T-69: the adverse lot is excluded
 

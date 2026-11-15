@@ -9,9 +9,9 @@ from pydantic import BaseModel, ConfigDict, Field, RootModel
 
 class Line(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    line: Literal['first_choice', 'alternative']
+    line: Literal["first_choice", "alternative"]
     product_id: str = Field(..., min_length=1)
     rule_id: str = Field(..., min_length=1)
 
@@ -21,7 +21,7 @@ class AsNeededReason(RootModel[str]):
 
 
 class ConditionCaution(RootModel[str]):
-    root: str = Field(..., pattern='^ICL[0-9]+$')
+    root: str = Field(..., pattern="^ICL[0-9]+$")
 
 
 class MeasuringDevice(RootModel[str]):
@@ -58,11 +58,11 @@ class ReasonCode(RootModel[str]):
 
 class AlertPolicy(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     kind: str = Field(..., min_length=1)
-    level: Literal['override_required', 'acknowledge', 'info']
-    override_roles: list[Literal['crew_medical_officer']]
+    level: Literal["override_required", "acknowledge", "info"]
+    override_roles: list[Literal["crew_medical_officer"]]
     reason_codes: list[ReasonCode]
     basis: str = Field(..., min_length=1)
     to_be_set_by: str = Field(..., min_length=1)
@@ -74,7 +74,7 @@ class UnitDisplay(RootModel[str]):
 
 class Citation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     source_id: str = Field(..., min_length=1)
     locator: str = Field(..., min_length=1)
@@ -83,35 +83,35 @@ class Citation(BaseModel):
 
 class Source(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    source_id: str = Field(..., pattern='^[A-Z]+[0-9]+$')
+    source_id: str = Field(..., pattern="^[A-Z]+[0-9]+$")
     title: str = Field(..., min_length=1)
     publisher: str = Field(..., min_length=1)
     nasa: bool
-    url: str = Field(..., pattern='^https?://')
+    url: str = Field(..., pattern="^https?://")
     retrieved_on: date
 
 
 class Amount(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., ge=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class AmountPositive(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., gt=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class MaxPerPeriodItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     period_seconds: int = Field(..., ge=1)
     limit: AmountPositive
@@ -123,7 +123,7 @@ class CourseSeconds(RootModel[int]):
 
 class IngredientRule(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     ingredient_id: str = Field(..., min_length=1)
     dose: AmountPositive | None
@@ -131,7 +131,7 @@ class IngredientRule(BaseModel):
     max_per_administration: AmountPositive
     max_per_period: list[MaxPerPeriodItem]
     max_cumulative: AmountPositive | None
-    cumulative_scope: Literal['course', 'mission']
+    cumulative_scope: Literal["course", "mission"]
     min_interval_seconds: int = Field(..., ge=1)
     min_effective: AmountPositive | None
     course_seconds: CourseSeconds | None
@@ -139,30 +139,30 @@ class IngredientRule(BaseModel):
 
 class Indication(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    condition_id: str = Field(..., pattern='^ICL[0-9]+$')
+    condition_id: str = Field(..., pattern="^ICL[0-9]+$")
     lines: list[Line] = Field(..., min_length=1)
     citations: list[Citation] = Field(..., min_length=1)
 
 
 class ProvenanceItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field: str = Field(..., pattern='^/')
+    field: str = Field(..., pattern="^/")
     citations: list[Citation] = Field(..., min_length=1)
 
 
 class DoseRule(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     rule_id: str = Field(..., min_length=1)
-    review_state: Literal['draft', 'reviewed', 'approved']
+    review_state: Literal["draft", "reviewed", "approved"]
     to_be_set_by: str = Field(..., min_length=1)
     as_needed_reason: AsNeededReason | None
-    organ_cautions: list[Literal['renal', 'hepatic']]
+    organ_cautions: list[Literal["renal", "hepatic"]]
     condition_cautions: list[ConditionCaution]
     ingredients: list[IngredientRule] = Field(..., min_length=1)
     provenance: list[ProvenanceItem] = Field(..., min_length=1)
@@ -170,7 +170,7 @@ class DoseRule(BaseModel):
 
 class Product(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     product_id: str = Field(..., min_length=1)
     deliverable_increment: AmountPositive
@@ -178,7 +178,7 @@ class Product(BaseModel):
     rounding_tolerance_fraction: float = Field(..., ge=0.0, le=0.5)
     high_alert: bool
     narrow_therapeutic_index: bool
-    confirm_by: Literal['crew_medical_officer', 'any_trained_crew']
+    confirm_by: Literal["crew_medical_officer", "any_trained_crew"]
     consult_ground_first: bool
     therapeutic_classes: list[TherapeuticClass]
     spaceflight_cautions: list[SpaceflightCaution]
@@ -189,7 +189,7 @@ class Product(BaseModel):
 
 class Weight(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     observation_code: str = Field(..., min_length=1)
     plausible_min_kg: float = Field(..., gt=0.0)
@@ -202,7 +202,7 @@ class Weight(BaseModel):
 
 class CatastrophicLimit(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     ingredient_id: str = Field(..., min_length=1)
     per_administration: AmountPositive
@@ -211,7 +211,7 @@ class CatastrophicLimit(BaseModel):
 
 class AllergyClass(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     class_id: str = Field(..., min_length=1)
     ingredient_ids: list[IngredientId] = Field(..., min_length=1)
@@ -220,7 +220,7 @@ class AllergyClass(BaseModel):
 
 class CrossSensitivityGroup(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     group_id: str = Field(..., min_length=1)
     members: list[Member] = Field(..., min_length=2)
@@ -229,22 +229,22 @@ class CrossSensitivityGroup(BaseModel):
 
 class Interaction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     pair: list[PairItem] = Field(..., max_length=2, min_length=2)
-    severity: Literal['contraindicated', 'avoid', 'caution']
+    severity: Literal["contraindicated", "avoid", "caution"]
     management_text: str = Field(..., min_length=1)
     citations: list[Citation] = Field(..., min_length=1)
 
 
 class TreatmentsJson(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     version: str = Field(..., min_length=1)
     example: bool
     notice: str = Field(..., min_length=1)
-    review_state: Literal['draft', 'reviewed', 'approved']
+    review_state: Literal["draft", "reviewed", "approved"]
     sources: list[Source] = Field(..., min_length=1)
     indications: list[Indication]
     dose_rules: list[DoseRule]

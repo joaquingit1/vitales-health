@@ -1,5 +1,5 @@
 """Body weight from records (E32 3.5 step 2): the subject's latest accepted `mass` observations in this mission and
-mode, read through a structural copy of records' query port (`RecordsStore.observations`; a signature test keeps the
+mode, read through a structural copy of records' store seam (`RecordsStore.observations`; a signature test keeps the
 copy equal to the original). An observation in a unit that is not a mass, or without an observed time, is skipped:
 weight stays absent rather than guessed, and a per-kilogram rule refuses `weight_missing`."""
 
@@ -51,7 +51,8 @@ class Observation(Protocol):
 
 
 class RecordsObservations(Protocol):
-    """Structural copy of `crew_health.records.application.ports.RecordsStore.observations`."""
+    """Structural copy of `crew_health.records.application.seams.RecordsStore.observations` (records' seams module
+    imports records' domain, so medicines may not import it; a signature test keeps the copy equal)."""
 
     def observations(
         self,
@@ -64,6 +65,9 @@ class RecordsObservations(Protocol):
         limit: int,
         accepted_only: bool = True,
         before: datetime | None = None,
+        source: tuple[str, str | None] | None = None,
+        states: tuple[str, ...] | None = None,
+        corrected_only: bool = False,
     ) -> tuple[Observation, ...]: ...
 
 

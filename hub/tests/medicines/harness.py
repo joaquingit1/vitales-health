@@ -61,7 +61,7 @@ from crew_health.platform.domain.audit import AuditPolicy
 from crew_health.platform.settings import ValidatedSettings
 from crew_health.platform.storage import SQLiteDatabase
 from crew_health.platform.testing.sqlite import test_settings
-from crew_health.records.application.ports import RecordsStore
+from crew_health.records.application.seams import RecordsStore
 from crew_health.roles.application.ports import (
     AuthorityDecision,
     ClinicalAuthorityQuery,
@@ -529,6 +529,10 @@ def build_station(
             requires=(cast(type[object], RecordsStore),),
         )
     resolver = registry.resolve()
+    for _, startup in sorted(registry.declarations.get("startup", {}).items(), key=lambda item: str(item[0])):
+        cast(
+            Callable[[], None], startup
+        )()  # the assembly runs these per phase; the release is active already
     app = FastAPI()
     for router in registry.declarations["routers"].values():
         if isinstance(router, APIRouter):

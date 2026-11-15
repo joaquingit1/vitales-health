@@ -10,13 +10,13 @@ from . import common_schema
 
 class Step(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step_id: common_schema.ConfigId
     stage_id: common_schema.PlanStage
-    state: Literal['open', 'done', 'not_available', 'substituted'] = Field(
+    state: Literal["open", "done", "not_available", "substituted"] = Field(
         ...,
-        description='open until a person marks it. not_available: a person found it cannot run (it then shows its substitute). substituted: its substitute ran instead.',
+        description="open until a person marks it. not_available: a person found it cannot run (it then shows its substitute). substituted: its substitute ran instead.",
     )
     by: common_schema.Actor | None
     at: common_schema.Instant | None
@@ -28,7 +28,7 @@ class Step(BaseModel):
 
 class Recheck(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step_id: common_schema.ConfigId
     due_at: common_schema.Instant | None
@@ -39,7 +39,7 @@ class Recheck(BaseModel):
 
 class Escalation(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step_id: common_schema.ConfigId
     help_session_id: common_schema.Id
@@ -48,9 +48,9 @@ class Escalation(BaseModel):
 
 class LinkStateAtOpen(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    status: Literal['up', 'delayed', 'down']
+    status: Literal["up", "delayed", "down"]
     gap_kind: common_schema.GapKind | None
     next_contact_at: common_schema.Instant | None
 
@@ -61,14 +61,14 @@ class Note(RootModel[str]):
 
 class Close(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     disposition: Literal[
-        'resolved_on_board',
-        'handed_to_medical_officer',
-        'watch_ended',
-        'preparing_return',
-        'other',
+        "resolved_on_board",
+        "handed_to_medical_officer",
+        "watch_ended",
+        "preparing_return",
+        "other",
     ]
     note: Note | None
     by: common_schema.Actor
@@ -77,36 +77,36 @@ class Close(BaseModel):
 
 class PlanRun(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     plan_run_id: common_schema.Id
     revision: int = Field(..., ge=1)
     plan_id: str = Field(
         ...,
-        description='An onboard-plans.json plan ID.',
-        pattern='^plan_[a-z0-9_]{1,59}$',
+        description="An onboard-plans.json plan ID.",
+        pattern="^plan_[a-z0-9_]{1,59}$",
     )
     config_pins: list[common_schema.ConfigPin] = Field(
         ...,
-        description='onboard-plans, skills-catalog, role-rules, kit-map and ui-copy as pinned at open. A run keeps them to its end.',
+        description="onboard-plans, skills-catalog, role-rules, kit-map and ui-copy as pinned at open. A run keeps them to its end.",
         min_length=1,
     )
     subject: common_schema.PersonRef
     episode_id: common_schema.Id | None
     help_session_id: common_schema.Id | None
     environment_id: common_schema.EnvironmentId
-    state: Literal['active', 'watching', 'escalated', 'closed']
+    state: Literal["active", "watching", "escalated", "closed"]
     opened_by: common_schema.Actor
     opened_at: common_schema.Instant
     steps: list[Step] = Field(..., min_length=1)
     rechecks: list[Recheck] = Field(
         ...,
-        description='due_at is null while the interval is to be set; due_text then says who sets it.',
+        description="due_at is null while the interval is to be set; due_text then says who sets it.",
     )
     escalations: list[Escalation]
     handoff_id: common_schema.Id | None
     link_state_at_open: LinkStateAtOpen = Field(
-        ..., description='Audit only. No rule, step or state reads it (EI1).'
+        ..., description="Audit only. No rule, step or state reads it (EI1)."
     )
     close: Close | None
     allowed_actions: common_schema.AllowedActions

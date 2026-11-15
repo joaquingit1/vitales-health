@@ -14,7 +14,7 @@ class EnvironmentDay(RootModel[int]):
 
 class Day(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     mission_day: common_schema.MissionDay
     environment_day: EnvironmentDay | None
@@ -24,7 +24,7 @@ class Day(BaseModel):
 
 class Group(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     group_id: common_schema.ConfigId
     label: str = Field(..., min_length=1)
@@ -33,7 +33,7 @@ class Group(BaseModel):
 
 class Counts(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     due: int = Field(..., ge=0)
     later: int = Field(..., ge=0)
@@ -43,7 +43,7 @@ class Counts(BaseModel):
 
 class Day2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     mission_day: common_schema.MissionDay
     label: str = Field(..., min_length=1)
@@ -53,7 +53,7 @@ class Day2(BaseModel):
 
 class Misses(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     count: int = Field(..., ge=0)
     window_days: int = Field(..., ge=1)
@@ -62,11 +62,11 @@ class Misses(BaseModel):
 
 class RoutineSchedule(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     person_id: common_schema.Id
     environment_id: common_schema.EnvironmentId
-    range: Literal['today', 'week']
+    range: Literal["today", "week"]
     day: Day
     as_of: common_schema.Instant
     groups: list[Group]

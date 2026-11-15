@@ -97,7 +97,7 @@ class SqliteMedicines:
 
     def add_record(self, uow: UnitOfWork, row: RecordRow) -> None:
         uow.connection.execute(
-            f"INSERT INTO med_record ({_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            f"INSERT INTO medicines_record ({_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 row.record_id,
                 row.kind,
@@ -115,13 +115,13 @@ class SqliteMedicines:
 
     def record(self, view: View, record_id: str) -> RecordRow | None:
         rows = view.connection.rows(
-            f"SELECT {_COLUMNS} FROM med_record WHERE record_id=?", (record_id,), limit=1
+            f"SELECT {_COLUMNS} FROM medicines_record WHERE record_id=?", (record_id,), limit=1
         )
         return _row(rows[0]) if rows else None
 
     def by_command_key(self, view: View, command_key: str) -> RecordRow | None:
         rows = view.connection.rows(
-            f"SELECT {_COLUMNS} FROM med_record WHERE command_key=?", (command_key,), limit=1
+            f"SELECT {_COLUMNS} FROM medicines_record WHERE command_key=?", (command_key,), limit=1
         )
         return _row(rows[0]) if rows else None
 
@@ -135,7 +135,7 @@ class SqliteMedicines:
         subject_person_id: str | None = None,
         lot_id: str | None = None,
     ) -> tuple[RecordRow, ...]:
-        sql = f"SELECT {_COLUMNS} FROM med_record WHERE kind=? AND mission_id=? AND origin_mode=?"
+        sql = f"SELECT {_COLUMNS} FROM medicines_record WHERE kind=? AND mission_id=? AND origin_mode=?"
         params: list[SqlValue] = [kind, partition.mission_id, partition.origin_mode]
         if subject_person_id is not None:
             sql += " AND subject_person_id=?"
@@ -148,19 +148,21 @@ class SqliteMedicines:
 
     def terminal(self, view: View, proposal_id: str) -> tuple[str, str] | None:
         rows = view.connection.rows(
-            "SELECT state, reason FROM med_proposal_terminal WHERE proposal_id=?", (proposal_id,), limit=1
+            "SELECT state, reason FROM medicines_proposal_terminal WHERE proposal_id=?",
+            (proposal_id,),
+            limit=1,
         )
         return (_t(rows[0][0]), _t(rows[0][1])) if rows else None
 
     def add_terminal(self, uow: UnitOfWork, proposal_id: str, state: str, reason: str) -> None:
         uow.connection.execute(
-            "INSERT INTO med_proposal_terminal (proposal_id, state, at_utc, reason) VALUES (?, ?, ?, ?)",
+            "INSERT INTO medicines_proposal_terminal (proposal_id, state, at_utc, reason) VALUES (?, ?, ?, ?)",
             (proposal_id, state, instant(uow.now), reason),
         )
 
     def add_movement(self, uow: UnitOfWork, movement: Movement) -> None:
         uow.connection.execute(
-            "INSERT INTO med_movement (movement_id, mission_id, origin_mode, environment_id, lot_id, kind, "
+            "INSERT INTO medicines_movement (movement_id, mission_id, origin_mode, environment_id, lot_id, kind, "
             "delta_decimal, unit_ucum, administration_id, at_utc, by_id, command_key) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
@@ -181,13 +183,13 @@ class SqliteMedicines:
 
     def movement_by_key(self, view: View, command_key: str) -> str | None:
         rows = view.connection.rows(
-            "SELECT movement_id FROM med_movement WHERE command_key=?", (command_key,), limit=1
+            "SELECT movement_id FROM medicines_movement WHERE command_key=?", (command_key,), limit=1
         )
         return _t(rows[0][0]) if rows else None
 
     def net_movements(self, view: View, partition: Partition, *, limit: int) -> Mapping[str, Decimal]:
         rows = view.connection.rows(
-            "SELECT lot_id, delta_decimal FROM med_movement WHERE mission_id=? AND origin_mode=? AND environment_id=?",
+            "SELECT lot_id, delta_decimal FROM medicines_movement WHERE mission_id=? AND origin_mode=? AND environment_id=?",
             (partition.mission_id, partition.origin_mode, partition.environment_id),
             limit=limit,
         )
@@ -201,14 +203,14 @@ class SqliteMedicines:
     ) -> None:
         for ingredient_id, (value, unit) in sorted(amounts.items()):
             uow.connection.execute(
-                "INSERT INTO med_admin_ingredient (administration_id, ingredient_id, accounting_decimal, unit_ucum) "
+                "INSERT INTO medicines_admin_ingredient (administration_id, ingredient_id, accounting_decimal, unit_ucum) "
                 "VALUES (?, ?, ?, ?)",
                 (administration_id, ingredient_id, str(value), unit),
             )
 
     def ingredients(self, view: View, administration_id: str) -> Mapping[str, tuple[Decimal, str]]:
         rows = view.connection.rows(
-            "SELECT ingredient_id, accounting_decimal, unit_ucum FROM med_admin_ingredient WHERE administration_id=?",
+            "SELECT ingredient_id, accounting_decimal, unit_ucum FROM medicines_admin_ingredient WHERE administration_id=?",
             (administration_id,),
             limit=64,
         )
@@ -216,13 +218,15 @@ class SqliteMedicines:
 
     def correction(self, view: View, administration_id: str) -> str | None:
         rows = view.connection.rows(
-            "SELECT reason_text FROM med_correction WHERE administration_id=?", (administration_id,), limit=1
+            "SELECT reason_text FROM medicines_correction WHERE administration_id=?",
+            (administration_id,),
+            limit=1,
         )
         return _t(rows[0][0]) if rows else None
 
     def add_clock_check(self, uow: UnitOfWork, check: ClockCheck) -> int:
         cursor = uow.connection.execute(
-            f"INSERT INTO med_clock_check ({_CLOCK.removeprefix('seq, ')}) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            f"INSERT INTO medicines_clock_check ({_CLOCK.removeprefix('seq, ')}) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 check.kind,
                 instant(check.at),
@@ -241,13 +245,13 @@ class SqliteMedicines:
     def last_clock_check(self, view: View, kind: str, process_epoch: str | None = None) -> ClockCheck | None:
         if process_epoch is None:
             rows = view.connection.rows(
-                f"SELECT {_CLOCK} FROM med_clock_check WHERE kind=? ORDER BY seq DESC LIMIT 1",
+                f"SELECT {_CLOCK} FROM medicines_clock_check WHERE kind=? ORDER BY seq DESC LIMIT 1",
                 (kind,),
                 limit=1,
             )
         else:
             rows = view.connection.rows(
-                f"SELECT {_CLOCK} FROM med_clock_check WHERE kind=? AND process_epoch=? ORDER BY seq DESC LIMIT 1",
+                f"SELECT {_CLOCK} FROM medicines_clock_check WHERE kind=? AND process_epoch=? ORDER BY seq DESC LIMIT 1",
                 (kind, process_epoch),
                 limit=1,
             )
@@ -257,7 +261,7 @@ class SqliteMedicines:
         self, uow: UnitOfWork, administration_id: str, reason: str, by_id: str, key: str
     ) -> None:
         uow.connection.execute(
-            "INSERT INTO med_correction (administration_id, reason_text, by_id, at_utc, command_key) "
+            "INSERT INTO medicines_correction (administration_id, reason_text, by_id, at_utc, command_key) "
             "VALUES (?, ?, ?, ?, ?)",
             (administration_id, reason, by_id, instant(uow.now), key),
         )

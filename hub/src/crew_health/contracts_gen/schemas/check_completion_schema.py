@@ -11,23 +11,20 @@ from . import common_schema
 
 class CheckCompletion(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     completion_id: UUID
     patient_id: common_schema.Id
     mission_id: common_schema.Id
-    origin_mode: Literal['LIVE', 'SIM']
-    basis: Literal['daily_check', 'concern_reported', 'episode_updated']
+    origin_mode: Literal["LIVE", "SIM"]
+    basis: Literal["daily_check", "concern_reported", "episode_updated"]
     basis_ref: common_schema.Id
     occurred_at: common_schema.Instant
     original_offset: common_schema.Offset | None
     mission_clock_version: str = Field(..., min_length=1)
     mission_day: common_schema.MissionDay
     completion_rule_version: str = Field(..., min_length=1)
-    status: Literal['accepted', 'rejected']
-    status_reason: (
-        Literal['ORIGIN_MISMATCH', 'IDENTITY_MISMATCH', 'REQUIRED_ANSWER_MISSING']
-        | None
-    )
+    status: Literal["accepted", "rejected"]
+    status_reason: Literal["ORIGIN_MISMATCH", "IDENTITY_MISMATCH", "REQUIRED_ANSWER_MISSING"] | None
     idempotency_key: str = Field(..., min_length=1)
     created_at: common_schema.Instant

@@ -10,7 +10,7 @@ from . import common_schema
 
 class Allergies(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     state: str = Field(..., min_length=1)
     items: list[dict[str, Any]]
@@ -21,7 +21,7 @@ class Allergies(BaseModel):
 
 class OtherMedicines(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     state: str = Field(..., min_length=1)
     items: list[dict[str, Any]]
@@ -32,7 +32,7 @@ class OtherMedicines(BaseModel):
 
 class Renal(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     state: str = Field(..., min_length=1)
     items: list[dict[str, Any]]
@@ -43,7 +43,7 @@ class Renal(BaseModel):
 
 class Hepatic(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     state: str = Field(..., min_length=1)
     items: list[dict[str, Any]]
@@ -54,7 +54,7 @@ class Hepatic(BaseModel):
 
 class Conditions(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     state: str = Field(..., min_length=1)
     items: list[dict[str, Any]]
@@ -65,7 +65,7 @@ class Conditions(BaseModel):
 
 class Parts(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     allergies: Allergies | None
     other_medicines: OtherMedicines | None
@@ -76,7 +76,7 @@ class Parts(BaseModel):
 
 class MedicationContext(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     subject_person_id: common_schema.Id
     parts: Parts

@@ -265,6 +265,41 @@ def _decode(row: tuple[object, ...]) -> dict[str, object]:
         raise RecordError(ErrorCode.INTERNAL_ERROR) from error
 
 
+def _observation_filter(
+    person_id: str,
+    mission_id: str,
+    origin_mode: OriginMode,
+    code: str,
+    accepted_only: bool,
+    before: datetime | None,
+    source: tuple[AcquisitionMethod, str | None] | None,
+    states: tuple[str, ...] | None,
+    corrected_only: bool,
+) -> tuple[str, tuple[str | int | bytes | None, ...]]:
+    where = "patient_id=? AND mission_id=? AND origin_mode=? AND code=?"
+    parameters: tuple[str | int | bytes | None, ...] = (person_id, mission_id, origin_mode, code)
+    if accepted_only:
+        where += " AND quality_status='accepted'"
+    if before is not None:
+        where += " AND observed_at<=?"
+        parameters += (instant(before),)
+    if source is not None:
+        where += " AND json_extract(CAST(payload AS TEXT),'$.acquisition_method')=? AND json_extract(CAST(payload AS TEXT),'$.device_id') IS ?"
+        parameters += source
+    if states is not None:
+        if not 1 <= len(states) <= 4:
+            raise RecordError(ErrorCode.INVALID_VALUE)
+        where += (
+            " AND json_extract(CAST(payload AS TEXT),'$.normalized.state') IN ("
+            + ",".join("?" * len(states))
+            + ")"
+        )
+        parameters += states
+    if corrected_only:
+        where += " AND json_extract(CAST(payload AS TEXT),'$.normalized.corrected_at') IS NOT NULL"
+    return where, parameters
+
+
 def _replicate(
     uow: UnitOfWork, record_type: str, record_id: str, release_id: str, supersedes: str | None
 ) -> None:
@@ -345,17 +380,60 @@ class RecordRepository:
         limit: int,
         accepted_only: bool = True,
         before: datetime | None = None,
+        source: tuple[AcquisitionMethod, str | None] | None = None,
+        states: tuple[str, ...] | None = None,
+        corrected_only: bool = False,
     ) -> tuple[ObservationRecord, ...]:
-        sql = "SELECT payload,digest FROM records_observation WHERE patient_id=? AND mission_id=? AND origin_mode=? AND code=?"
-        parameters: tuple[str | int | bytes | None, ...] = (person_id, mission_id, origin_mode, code)
-        if accepted_only:
-            sql += " AND quality_status='accepted'"
-        if before is not None:
-            sql += " AND observed_at<=?"
-            parameters += (instant(before),)
-        sql += " ORDER BY observed_at DESC,observation_id ASC LIMIT ?"
-        rows = view.connection.rows(sql, parameters + (limit,), limit=limit)
+        """Newest first. Every filter runs in SQL before the LIMIT, so a short page means the history ended.
+
+        A per-source read is the stuck-value history (AGENTS 1.3): it walks the partial index
+        records_observation_source_history (0002_records.sql) to its first `limit` rows, so its cost does not grow
+        with the partition. Only the filters that index covers are accepted with `source`; any other would run
+        after the index and scan every row of that source."""
+        if source is not None and (not corrected_only or accepted_only or states is not None):
+            raise RecordError(ErrorCode.INVALID_VALUE)
+        where, parameters = _observation_filter(
+            person_id, mission_id, origin_mode, code, accepted_only, before, source, states, corrected_only
+        )
+        table = (
+            "records_observation"
+            if source is None
+            else "records_observation INDEXED BY records_observation_source_history"
+        )
+        rows = view.connection.rows(
+            "SELECT payload,digest FROM "
+            + table
+            + " WHERE "
+            + where
+            + " ORDER BY observed_at DESC,observation_id ASC LIMIT ?",
+            parameters + (limit,),
+            limit=limit,
+        )
         return tuple(_observation(_decode(row)) for row in rows)
+
+    def has_more_observations(
+        self,
+        view: ReadSnapshot | UnitOfWork,
+        *,
+        person_id: str,
+        mission_id: str,
+        origin_mode: OriginMode,
+        code: str,
+        after: int,
+        accepted_only: bool = True,
+        states: tuple[str, ...] | None = None,
+    ) -> bool:
+        """Whether the same filtered history holds a row beyond the first `after` rows."""
+        where, parameters = _observation_filter(
+            person_id, mission_id, origin_mode, code, accepted_only, None, None, states, False
+        )
+        return bool(
+            view.connection.rows(
+                "SELECT 1 FROM records_observation WHERE " + where + " LIMIT 1 OFFSET ?",
+                parameters + (after,),
+                limit=1,
+            )
+        )
 
     def answers(
         self,

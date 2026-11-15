@@ -13,6 +13,7 @@ from crew_health.groundlink.domain.errors import BundleConflict
 from crew_health.kernel.errors import ProblemError, StorageUnavailable
 from crew_health.kernel.storage import StorageSession
 from crew_health.kernel.uow import Actor, StoredEvent, UnitOfWork
+from crew_health.platform.domain.errors import StorageConstraintViolated
 
 from .support import AT, ROOT, Harness, event
 
@@ -96,7 +97,8 @@ def test_bad_event_is_retried_then_quarantined_and_next_event_in_page_enqueues(
         assert row.quarantined_at == h.clock.at
         assert h.outbox.status(view, "ground_message", "msg_good") is not None
     for sql in ("UPDATE groundlink_quarantine SET reason='changed'", "DELETE FROM groundlink_quarantine"):
-        with pytest.raises(StorageUnavailable):
+        # A trigger abort is a typed constraint violation, not an unavailable store (E01 review).
+        with pytest.raises(StorageConstraintViolated):
             with h.db.begin(actor=Actor("engine", "tamper"), correlation_id="cor_tamper") as uow:
                 uow.connection.execute(sql)
 
@@ -138,7 +140,8 @@ def test_storage_failure_is_always_retried_and_never_quarantined(
             runner.process(subscriber)
     with h.db.snapshot() as view:
         assert h.runtime.quarantined(view, 10) == ()
-        assert runner.repository.cursor(view.connection, subscriber) == 0
+        # Nothing committed: the failed pass rolled back before any cursor row was written (None, E01 review).
+        assert runner.repository.cursor(view.connection, subscriber) is None
 
 
 @pytest.mark.trace("R61", "E29-04")

@@ -10,7 +10,7 @@ from . import answer_schema, common_schema
 
 class Estimate(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     question_id: common_schema.ConfigId
     observation_id: common_schema.Id | None
@@ -19,7 +19,7 @@ class Estimate(BaseModel):
 
 class OptionalParts(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     observation_ids: list[common_schema.Id]
     reaction_test_occurrence_id: common_schema.Id | None
@@ -29,14 +29,14 @@ class OptionalParts(BaseModel):
 
 class DailyCheck(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     daily_check_id: common_schema.Id
     revision: int = Field(..., ge=1)
     person_id: common_schema.Id
     mission_day: common_schema.MissionDay
     origin_mode: common_schema.OriginMode
-    state: Literal['started', 'submitted', 'abandoned']
+    state: Literal["started", "submitted", "abandoned"]
     started_at: common_schema.Instant
     submitted_at: common_schema.Instant | None
     question_ids: list[common_schema.ConfigId] = Field(..., min_length=1)
@@ -44,7 +44,7 @@ class DailyCheck(BaseModel):
     missing_question_ids: list[common_schema.ConfigId]
     added_question_ids: list[common_schema.ConfigId] = Field(
         ...,
-        description='Questions added today by routine bindings, for example the CO2 headache and vision question.',
+        description="Questions added today by routine bindings, for example the CO2 headache and vision question.",
     )
     answers: list[answer_schema.Answer]
     estimates: list[Estimate] = Field(

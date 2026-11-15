@@ -13,7 +13,7 @@ from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, cast, get_protocol_members
 
 import pytest
 
@@ -26,7 +26,7 @@ from crew_health.medicines.adapters.weights import RecordsObservations, RecordsW
 from crew_health.medicines.application import assessments, events
 from crew_health.medicines.application.ports import Partition, RunOutcome
 from crew_health.medicines.application.use_cases import Documents, latest_summaries
-from crew_health.records.application.ports import RecordsStore
+from crew_health.records.application.seams import RecordsStore
 
 from .harness import (
     CONFIG,
@@ -89,7 +89,7 @@ def _status(st: Station, run_id: str) -> tuple[str, str | None]:
 
 
 def _runs(st: Station) -> list[str]:
-    return [str(r[0]) for r in st.rows("SELECT run_id FROM med_assessment_run ORDER BY rowid")]
+    return [str(r[0]) for r in st.rows("SELECT run_id FROM medicines_assessment_run ORDER BY rowid")]
 
 
 def _documents_of(config_dir: Path) -> Callable[[Mapping[str, bytes]], Documents]:
@@ -163,7 +163,7 @@ def test_an_assay_is_refused_for_a_foreign_ingredient_a_future_time_another_lot_
     assert missing.status_code == 404
     crew = _post(st, "/v1/medicines/assays", ASSAY, token="crew_b")
     assert crew.status_code == 403 and crew.json()["code"] == "UNAUTHORIZED_SCOPE"
-    assert st.rows("SELECT count(*) FROM med_record WHERE kind='assay'") == [(0,)]
+    assert st.rows("SELECT count(*) FROM medicines_record WHERE kind='assay'") == [(0,)]
 
 
 def _lots(tmp_path: Path) -> Path:
@@ -423,14 +423,16 @@ def test_retention_prunes_only_unreferenced_inputs_and_a_direct_delete_aborts(st
         runs[3]: "reproduced",  # the two newest unreferenced runs keep their inputs (retained 2)
         runs[4]: "reproduced",
     }
-    assert sorted(str(r[0]) for r in st.rows("SELECT run_id FROM med_artifact_prune")) == sorted(runs[1:3])
-    assert len(st.rows("SELECT run_id FROM med_assessment_result")) == 5  # results are never pruned
+    assert sorted(str(r[0]) for r in st.rows("SELECT run_id FROM medicines_artifact_prune")) == sorted(
+        runs[1:3]
+    )
+    assert len(st.rows("SELECT run_id FROM medicines_assessment_result")) == 5  # results are never pruned
     with sqlite3.connect(st.db.path) as connection, pytest.raises(sqlite3.DatabaseError):
-        connection.execute("DELETE FROM med_artifact WHERE kind = 'inputs'")
+        connection.execute("DELETE FROM medicines_artifact WHERE kind = 'inputs'")
     with sqlite3.connect(st.db.path) as connection:
-        connection.execute("DROP TRIGGER med_artifact_no_update")
+        connection.execute("DROP TRIGGER medicines_artifact_no_update")
         connection.execute(
-            "UPDATE med_artifact SET bytes = CAST('{}' AS BLOB), size_bytes = 2 WHERE kind = 'inputs'"
+            "UPDATE medicines_artifact SET bytes = CAST('{}' AS BLOB), size_bytes = 2 WHERE kind = 'inputs'"
         )
     assert assessments.replay(st.deps, runs[4]).status == "artifact_corrupt"
 
@@ -522,14 +524,7 @@ class _Records:
         return tuple(self.rows)
 
     def __getattr__(self, name: str) -> object:  # the rest of RecordsStore: never called by medicines
-        if name not in {
-            "observation",
-            "answer",
-            "add_observation",
-            "add_answer",
-            "answers",
-            "observation_accepted",
-        }:
+        if name not in get_protocol_members(RecordsStore):  # main's whole store seam, whatever it grows to
             raise AttributeError(name)
 
         def refuse(*args: object, **kwargs: object) -> None:

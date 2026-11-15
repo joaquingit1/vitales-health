@@ -8,7 +8,7 @@ from . import common_schema, ground_link_schema, sensor_status_schema, warning_s
 
 class Environment(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     environment_id: common_schema.EnvironmentId
     label: str = Field(..., min_length=1)
@@ -17,7 +17,7 @@ class Environment(BaseModel):
     eva_word: str = Field(..., min_length=1)
     ground_delay_text: str = Field(
         ...,
-        description='Same as GroundLink.delay_text: earth_delay from environment-hazards.json.',
+        description="Same as GroundLink.delay_text: earth_delay from environment-hazards.json.",
         min_length=1,
     )
 
@@ -32,7 +32,7 @@ class TodoItem(RootModel[str]):
 
 class LivingHereItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     hazard_id: common_schema.ConfigId
     name: str = Field(..., min_length=1)
@@ -44,7 +44,7 @@ class LivingHereItem(BaseModel):
 
 class HabitatView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     as_of: common_schema.Instant
     environment: Environment

@@ -68,10 +68,10 @@ def st(tmp_path: Path) -> Station:
 
 def _written(st: Station) -> tuple[object, ...]:
     return (
-        st.rows("SELECT count(*) FROM med_record WHERE kind='administration'")[0][0],
-        st.rows("SELECT count(*) FROM med_movement")[0][0],
-        st.rows("SELECT count(*) FROM med_admin_ingredient")[0][0],
-        st.rows("SELECT state FROM med_proposal_terminal"),
+        st.rows("SELECT count(*) FROM medicines_record WHERE kind='administration'")[0][0],
+        st.rows("SELECT count(*) FROM medicines_movement")[0][0],
+        st.rows("SELECT count(*) FROM medicines_admin_ingredient")[0][0],
+        st.rows("SELECT state FROM medicines_proposal_terminal"),
     )
 
 

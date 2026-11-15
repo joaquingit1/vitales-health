@@ -206,8 +206,8 @@ class SuppliesProvided:
         with provided.port_boundary():
             return provided.cover_facts(self._runtime.need(), view, partition, after_supply_id, limit)
 
-    def cover_changed(
-        self, ctx: KitMapContext, *, add_supplies: Sequence[SupplyAddition]
+    def cover_changed[Document](
+        self, ctx: KitMapContext[Document], *, add_supplies: Sequence[SupplyAddition]
     ) -> Sequence[CoverChange]:
         with provided.port_boundary():
             return provided.cover_changed(self._runtime.need(), ctx, add_supplies)

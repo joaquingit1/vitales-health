@@ -14,10 +14,10 @@ class LotId(RootModel[str]):
 
 class Amount(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., ge=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class AmountText(RootModel[str]):
@@ -26,47 +26,47 @@ class AmountText(RootModel[str]):
 
 class Target(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., ge=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class Accounting(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., ge=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class ExpectedMedian(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., ge=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class ExpectedLow(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., ge=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class RemainingAllowance(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., ge=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class Ingredient(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     ingredient_id: str = Field(..., min_length=1)
     target: Target
@@ -82,7 +82,7 @@ class AssessmentRunId(RootModel[str]):
 
 class Interval(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     ingredient_id: str = Field(..., min_length=1)
     low: float
@@ -92,10 +92,10 @@ class Interval(BaseModel):
 
 class Potency(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    path: Literal['labeled', 'labeled_with_estimate', 'compensated']
-    status: Literal['estimated', 'stale', 'none']
+    path: Literal["labeled", "labeled_with_estimate", "compensated"]
+    status: Literal["estimated", "stale", "none"]
     assessment_run_id: AssessmentRunId | None
     intervals: list[Interval]
 
@@ -106,7 +106,7 @@ class ProductId(RootModel[str]):
 
 class Alternatives(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     lot_ids: list[LotId]
     product_ids: list[ProductId]
@@ -114,7 +114,7 @@ class Alternatives(BaseModel):
 
 class Refusal(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     code: str = Field(..., min_length=1)
     detail_text: str = Field(..., min_length=1)
@@ -131,11 +131,11 @@ class OverrideRole(RootModel[str]):
 
 class Alert(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     alert_id: str = Field(..., min_length=1)
     kind: str = Field(..., min_length=1)
-    level: Literal['override_required', 'acknowledge', 'info']
+    level: Literal["override_required", "acknowledge", "info"]
     text: str = Field(..., min_length=1)
     reason_codes: list[ReasonCode]
     override_roles: list[OverrideRole]
@@ -143,7 +143,7 @@ class Alert(BaseModel):
 
 class TraceItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     step: str = Field(..., min_length=1)
     source: str = Field(..., min_length=1)
@@ -152,12 +152,12 @@ class TraceItem(BaseModel):
 
 class DoseProposal(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     proposal_id: common_schema.Id
     revision: int = Field(..., ge=1)
-    outcome: Literal['proposal', 'refusal']
-    state: Literal['proposed', 'confirmed', 'expired', 'superseded', 'refusal']
+    outcome: Literal["proposal", "refusal"]
+    state: Literal["proposed", "confirmed", "expired", "superseded", "refusal"]
     subject_person_id: common_schema.Id
     working_diagnosis_id: common_schema.Id
     product_id: str = Field(..., min_length=1)
@@ -169,7 +169,7 @@ class DoseProposal(BaseModel):
     refusal: Refusal | None
     alerts: list[Alert]
     trace: list[TraceItem]
-    review_state: Literal['draft', 'reviewed', 'approved'] | None
+    review_state: Literal["draft", "reviewed", "approved"] | None
     next_dose_earliest_at: common_schema.Instant | None
     created_at: common_schema.Instant
     expires_at: common_schema.Instant

@@ -41,7 +41,7 @@ def test_a_forward_jump_refuses_the_next_proposal_until_a_correction_is_recorded
     st.clock.jump(timedelta(hours=4))  # wall time moves 4 hours, no time elapsed
     assert _code(_propose(st, _diagnose(st))) == "clock_discontinuity"
     ((reference, wall, monotonic, head),) = st.rows(
-        "SELECT reference_seq, wall_delta_ms, monotonic_delta_ms, correction_version FROM med_clock_check"
+        "SELECT reference_seq, wall_delta_ms, monotonic_delta_ms, correction_version FROM medicines_clock_check"
         " WHERE kind = 'discontinuity'"
     )
     assert reference is not None and cast(int, wall) - cast(int, monotonic) >= 4 * 3600 * 1000 - 1000
@@ -58,7 +58,7 @@ def test_real_elapsed_time_is_not_a_jump(st: Station) -> None:
     st.clock.at += timedelta(hours=7)  # wall and monotonic move together
     proposal = _propose(st, _diagnose(st))
     assert proposal["outcome"] == "proposal", proposal
-    assert st.rows("SELECT count(*) FROM med_clock_check WHERE kind = 'discontinuity'") == [(0,)]
+    assert st.rows("SELECT count(*) FROM medicines_clock_check WHERE kind = 'discontinuity'") == [(0,)]
 
 
 @pytest.mark.trace("REVIEW-B3", "E32-C4")
@@ -67,7 +67,7 @@ def test_a_jump_between_proposal_and_confirmation_supersedes_it(st: Station) -> 
     st.clock.jump(timedelta(minutes=5))
     response = _confirm(st, proposal, client_time="2028-03-01T08:04:00Z")
     assert response.status_code == 409 and response.json()["current_state"]["state"] == "superseded"
-    assert st.rows("SELECT count(*) FROM med_movement") == [(0,)]
+    assert st.rows("SELECT count(*) FROM medicines_movement") == [(0,)]
 
 
 @pytest.mark.trace("REVIEW-B3", "E32-C3")
@@ -80,7 +80,7 @@ def test_a_jump_within_the_tolerance_or_across_a_restart_is_not_marked(tmp_path:
     st.clock.jump(timedelta(hours=3))
     restarted = build_station(tmp_path, clock=st.clock)
     assert _propose(restarted, _diagnose(restarted))["outcome"] == "proposal"
-    assert restarted.rows("SELECT count(*) FROM med_clock_check WHERE kind = 'discontinuity'") == [(0,)]
+    assert restarted.rows("SELECT count(*) FROM medicines_clock_check WHERE kind = 'discontinuity'") == [(0,)]
 
 
 @pytest.mark.trace("REVIEW-B3", "E32-C4", "AGENTS-3")

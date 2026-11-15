@@ -52,7 +52,12 @@ def test_an_invalid_what_if_raises_a_port_error_kitmap_renders_as_422(tmp_path: 
     planning = station.resolver.require(CoverPlanningPort)  # type: ignore[type-abstract]
     unlisted = kitmap_ports.SupplyAddition("not_in_the_kit_map", Quantity(Decimal(1), Unit("{x}")))
     with station.db.snapshot() as view:
-        context = kitmap_ports.KitMapContext(view, _Release("release_1"), "station_leo", AT)  # type: ignore[arg-type]
+        context: kitmap_ports.KitMapContext[object] = kitmap_ports.KitMapContext(
+            view,
+            _Release("release_1"),  # type: ignore[arg-type]
+            "station_leo",
+            AT,
+        )
         with pytest.raises(ProblemError) as raised:  # kitmap's what-if route catches exactly this type
             planning.cover_changed(context, add_supplies=[unlisted])
     assert isinstance(raised.value, SupplyInputInvalid)

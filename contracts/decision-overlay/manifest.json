@@ -1,8 +1,8 @@
 {
-  "base_inventory_sha256": "f45073c23a2873de7e733a20b1effb1b517bce5d2b6313d728005f990d2a144f",
+  "base_inventory_sha256": "14c3cdb47c42532da1a60098bf0fab04232dda4f2be1ab144b1a0373f0bb3a91",
   "files": {
     "config-unit-mapping.schema.json": "9dbf8ad2701999e9adc837d677fc8face8f26a0d7270a6bff2312ec0afec3480",
-    "part-a.json": "51d6fe596f1a31bcf6e1256d4184d485d5d9ab2f51a2f66789742152aeadc468"
+    "part-a.json": "f6928d6dcb6ea7a4878374e0eca8c9c29c2d2cff54e5dd78183f478f916071ea"
   },
-  "version": "part-a-d12-1"
+  "version": "part-a-d12-2"
 }

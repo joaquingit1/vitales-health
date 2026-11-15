@@ -10,7 +10,7 @@ from . import common_schema
 
 class Assessment(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     run_id: str = Field(..., min_length=1)
     as_of: common_schema.Instant
@@ -20,10 +20,10 @@ class Assessment(BaseModel):
 
 class QuantityNow(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float = Field(..., ge=0.0)
-    ucum: str = Field(..., pattern='^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$')
+    ucum: str = Field(..., pattern="^(kg|g|mg|ug|L|mL|\\{[a-z_]+\\})$")
 
 
 class ExcludedByItem(RootModel[str]):
@@ -32,7 +32,7 @@ class ExcludedByItem(RootModel[str]):
 
 class PotencyItem(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     ingredient_id: str = Field(..., min_length=1)
     low: float
@@ -42,15 +42,15 @@ class PotencyItem(BaseModel):
 
 class Lot(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     lot_id: str = Field(..., min_length=1)
     product_id: str = Field(..., min_length=1)
     name: str = Field(..., min_length=1)
     quantity_now: QuantityNow
-    lot_status: Literal['active', 'recalled', 'consumed']
+    lot_status: Literal["active", "recalled", "consumed"]
     excluded_by: list[ExcludedByItem]
-    state: Literal['in_specification', 'adjust', 'do_not_use'] | None
+    state: Literal["in_specification", "adjust", "do_not_use"] | None
     potency: list[PotencyItem]
     crossing_utc: common_schema.Instant | None
     labeled_expiry: common_schema.Instant
@@ -58,7 +58,7 @@ class Lot(BaseModel):
 
 class MedicineLotsView(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     environment_id: str = Field(..., min_length=1)
     assessment: Assessment | None

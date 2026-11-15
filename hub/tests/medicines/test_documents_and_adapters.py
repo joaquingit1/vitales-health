@@ -13,6 +13,8 @@ import pytest
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
+from crew_health.contracts_gen.enums import ErrorCode
+from crew_health.kernel.errors import ProblemError
 from crew_health.medicines.adapters.documents import load, read_pharmacy
 from crew_health.medicines.adapters.potency import PotencyWorker
 from crew_health.medicines.domain.documents import DocumentsInvalid
@@ -108,6 +110,16 @@ def test_the_module_does_not_start_on_an_invalid_document(tmp_path: Path) -> Non
     directory = config_copy(tmp_path, _edit_rule("cap_below_dose"))  # type: ignore[arg-type]
     with pytest.raises(DocumentsInvalid):
         build_station(tmp_path / "hub", config_dir=directory)
+
+
+@pytest.mark.trace("E32-8.4", "AGENTS-2")
+def test_without_a_configuration_directory_the_module_composes_and_fails_closed(tmp_path: Path) -> None:
+    """An empty `medicines.config_dir` (a hub that carries no medicines) never stops the hub: the module binds and
+    every use of the documents refuses with CAPABILITY_UNAVAILABLE instead of reading a default."""
+    station = build_station(tmp_path / "hub", own={"medicines.config_dir": ""})
+    with pytest.raises(ProblemError) as raised:
+        station.runtime_deps().documents()
+    assert raised.value.code == ErrorCode.CAPABILITY_UNAVAILABLE and not raised.value.retryable
 
 
 @pytest.mark.trace("E32-8.4", "AGENTS-1")

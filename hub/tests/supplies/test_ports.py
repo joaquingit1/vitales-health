@@ -226,7 +226,12 @@ def test_the_station_what_if_moves_eye_shield_cover_from_null_to_two_and_writes_
     with closing(sqlite3.connect(station.db.path)) as watcher:
         before = _write_marks(station, watcher)
         with station.db.snapshot() as view:
-            context = kitmap_ports.KitMapContext(view, _Release("release_1"), "station_leo", AT)  # type: ignore[arg-type]
+            context: kitmap_ports.KitMapContext[object] = kitmap_ports.KitMapContext(
+                view,
+                _Release("release_1"),  # type: ignore[arg-type]
+                "station_leo",
+                AT,
+            )
             additions = [kitmap_ports.SupplyAddition("eye_shield", Quantity(Decimal(2), Unit("shield")))]
             changes = planning.cover_changed(context, add_supplies=additions)
         assert [(c.supply_id, c.from_uses, c.to_uses) for c in changes] == [("eye_shield", None, 2)]
@@ -248,6 +253,11 @@ def test_the_what_if_refuses_repeats_bounds_and_other_releases(station: Station)
             ),
             ("release_0", [shield]),
         ):
-            context = kitmap_ports.KitMapContext(view, _Release(release_id), "station_leo", AT)  # type: ignore[arg-type]
+            context: kitmap_ports.KitMapContext[object] = kitmap_ports.KitMapContext(
+                view,
+                _Release(release_id),  # type: ignore[arg-type]
+                "station_leo",
+                AT,
+            )
             with pytest.raises(SupplyInputInvalid):
                 planning.cover_changed(context, add_supplies=additions)

@@ -7,11 +7,13 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable, Mapping
+from datetime import datetime
 from pathlib import Path
-from typing import Protocol, cast
+from typing import NoReturn, Protocol, cast
 
 from fastapi import APIRouter, Request
 
+from crew_health.app.registry import StartupPhase
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode
 from crew_health.kernel.clock import Clock, ClockCorrections
 from crew_health.kernel.commands import IdempotencyStore
@@ -61,6 +63,7 @@ class ModuleRegistry(Protocol):
     def task(self, registration: TaskRegistration) -> None: ...
     def audience_rule(self, name: str, rule: AudienceRule) -> None: ...
     def local_projection(self, registration: LocalProjectionRegistration) -> None: ...
+    def on_startup(self, phase: StartupPhase, fn: Callable[[], None]) -> None: ...
 
 
 # Provided by E02 (crew_health.identity); structural copy until it is on main.
@@ -81,11 +84,30 @@ class DocumentsHolder:
 
     def __init__(self) -> None:
         self.current: Documents | None = None
+        self.configured = True
 
     def __call__(self) -> Documents:
+        if not self.configured:  # `medicines.config_dir` empty: this hub carries no medicines documents
+            raise ProblemError(
+                ErrorCode.CAPABILITY_UNAVAILABLE, "no medicines configuration on this hub", retryable=False
+            )
         if self.current is None:
             raise ProblemError(ErrorCode.INTERNAL_ERROR, "medicines documents not loaded", retryable=True)
         return self.current
+
+
+class NoMission:
+    """No mission state provider (E23) is composed: no mission is current, so every partitioned command refuses
+    with CONTEXT_INAPPLICABLE and start-up schedules no run (fail closed, AGENTS 6), instead of the hub failing to
+    start. Day boundaries need the mission's day length, so asking for one fails closed too."""
+
+    def current(self, uow: object = None) -> None:
+        return None
+
+    def day_end(self, instant: datetime) -> NoReturn:
+        raise ProblemError(
+            ErrorCode.CAPABILITY_UNAVAILABLE, ErrorCode.CAPABILITY_UNAVAILABLE.value, retryable=False
+        )
 
 
 def _weights(resolver: Resolver) -> WeightReader | None:
@@ -96,11 +118,7 @@ def _weights(resolver: Resolver) -> WeightReader | None:
 
 def build_deps(resolver: Resolver, documents: DocumentsHolder) -> Deps:
     settings = resolver.require(HubSettings)
-    mission = resolver.optional(MissionStatePort)
-    if mission is None:
-        raise ProblemError(
-            ErrorCode.INTERNAL_ERROR, "medicines needs the mission state port", retryable=False
-        )
+    mission = resolver.optional(MissionStatePort) or NoMission()
     python = settings.text(ENGINE_PYTHON)
     limits = read_limits(settings)
     clock = resolver.require(Clock)
@@ -189,12 +207,23 @@ def register(registry: ModuleRegistry) -> None:
     runtime = MedicinesRuntime()
     documents = DocumentsHolder()
 
+    config_dir: list[str] = []
+
     def bind(resolver: Resolver) -> None:
         runtime.authenticator = resolver.optional(RequestAuthenticator)
-        deps = build_deps(resolver, documents)
-        settings = resolver.require(HubSettings)
-        start(deps, documents, Path(settings.text(CONFIG_DIR)), condition_ids(deps.snapshots))
-        runtime.deps = deps
+        runtime.deps = build_deps(resolver, documents)
+        config_dir.append(resolver.require(HubSettings).text(CONFIG_DIR))
+
+    def load() -> None:
+        """After the CONFIG phase (SYSTEM 5.12): the kit map's condition IDs come from the active release, which
+        the first start only activates in that phase, after every binding resolved. An empty
+        `medicines.config_dir` means no medicines on this hub, like an empty `medicines.engine_python`: the module
+        composes and every medicines call fails closed with CAPABILITY_UNAVAILABLE (AGENTS 2, contain failures)."""
+        deps = runtime.need()
+        if not config_dir[-1]:
+            documents.configured = False
+            return
+        start(deps, documents, Path(config_dir[-1]), condition_ids(deps.snapshots))
 
     for record_type, prefix in (
         ("medicine_inspection", "medi"),
@@ -226,3 +255,4 @@ def register(registry: ModuleRegistry) -> None:
     registry.router(build_router(runtime.need, runtime.authenticate))
     registry.provide(MedicationRecordReader, lambda _: MedicinesProvided(runtime))
     registry.bind("medicines", bind)
+    registry.on_startup(StartupPhase.CONFIG, load)
