@@ -167,7 +167,19 @@ class ReportWorkflows:
         report_id = self.p.ids.derived("rpt", person, key)
         existing = self.p.store.load(session, report_id)
         if existing is not None:
-            if existing.file_sha256 != digest:
+            if (
+                existing.file_sha256,
+                existing.original_name,
+                existing.access_scope,
+                existing.examination_date,
+                existing.report_date,
+            ) != (
+                digest,
+                original_name,
+                scope,
+                parse_source_date(examination_date),
+                parse_source_date(report_date),
+            ):
                 raise ReportError(ErrorCode.DUPLICATE_COMMAND, "key_reused")
             return existing
         report = Report(

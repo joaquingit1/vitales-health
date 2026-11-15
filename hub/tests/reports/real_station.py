@@ -11,20 +11,22 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from typing import cast
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
+from httpx import Response
 
 from crew_health.app.errors import to_envelope
-from crew_health.contracts_gen.enums import ConfigName, Role
+from crew_health.contracts_gen.enums import ConfigName, ErrorCode, Role
 from crew_health.kernel.clock import TimeInput
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.config import ConfigDocumentView
 from crew_health.kernel.errors import ProblemError, StorageUnavailable
 from crew_health.kernel.private import PrivateReceipt, SealedPrivateRef
 from crew_health.kernel.settings import SettingSpec
-from crew_health.kernel.tasks import TaskRegistration
+from crew_health.kernel.tasks import TaskLease, TaskRegistration, TaskResult
 from crew_health.kernel.testing import (
     MemoryClock,
     MemoryConfig,
@@ -33,7 +35,7 @@ from crew_health.kernel.testing import (
     MemorySettings,
     MemoryVault,
 )
-from crew_health.kernel.uow import Actor, SessionContext
+from crew_health.kernel.uow import Actor, SessionContext, UnitOfWork
 from crew_health.platform.adapters.intents import IntentRepository
 from crew_health.platform.adapters.ledger import CommandLedger
 from crew_health.platform.adapters.private import PrivateReferences
@@ -195,8 +197,9 @@ class Rig:
     settings: MemorySettings
     parse_calls: list[str] = field(default_factory=list)
 
-    def get(self, who: str, path: str, **kw: object) -> object:
-        return self.client.get(path, headers={"X-Person": who}, **kw)  # type: ignore[arg-type]
+    def get(self, who: str, path: str) -> Response:
+        response: Response = self.client.get(path, headers={"X-Person": who})
+        return response
 
     def upload(
         self,
@@ -207,19 +210,25 @@ class Rig:
         name: str = "report.pdf",
         ctype: str = "application/pdf",
         **fields: str,
-    ):  # type: ignore[no-untyped-def]
-        return self.client.post(
+    ) -> Response:
+        response: Response = self.client.post(
             "/v1/reports",
             headers={"X-Person": who, "Idempotency-Key": key},
             files={"file": (name, data, ctype)},
             data=fields,
         )
+        return response
 
-    def confirm(self, who: str, report_id: str, body: dict[str, object], *, key: str, etag: str | None):  # type: ignore[no-untyped-def]
+    def confirm(
+        self, who: str, report_id: str, body: dict[str, object], *, key: str, etag: str | None
+    ) -> Response:
         headers = {"X-Person": who, "Idempotency-Key": key}
         if etag is not None:
             headers["If-Match"] = etag
-        return self.client.post(f"/v1/reports/{report_id}/confirmations", headers=headers, json=body)
+        response: Response = self.client.post(
+            f"/v1/reports/{report_id}/confirmations", headers=headers, json=body
+        )
+        return response
 
     def crash_and_restart(self) -> int:
         """Process restart: every in-memory piece is dropped except what is durable (hub file, sealed store)."""
@@ -249,11 +258,11 @@ def build(tmp: Path, *, in_process_parser: bool = True, catalog: dict[str, objec
     settings = MemorySettings(specs, {**REPORT_VALUES, **private})
     vault = MemoryVault(
         ids=db.ids,
-        settings=db.settings,
+        settings=cast(MemorySettings, db.settings),
         secrets={OWNER: b"owner-key", OTHER: b"other-key", OFFICER: b"doc-key"},
         authorize=lambda session, ref: session.person_id == ref.owner_person_id and session.kind == "crew",
     )
-    faults = FaultStore(vault=vault, settings=db.settings)
+    faults = FaultStore(vault=vault, settings=cast(MemorySettings, db.settings))
     ledger = CommandLedger(db.ids)
     coordinator = PrivateCoordinator(
         transactions=db,
@@ -309,7 +318,7 @@ def build(tmp: Path, *, in_process_parser: bool = True, catalog: dict[str, objec
         lineage=SqliteConfirmationLineage(),
         recorder=DeferredObservationRecorder(),
         policies=ConfigFindingPolicies(),
-        forms=_NoForms(),  # type: ignore[arg-type]
+        forms=_NoForms(),
         units=UcumUnitRegistry(max_cached=64),
         tasks=tasks,
         uow=db,
@@ -385,13 +394,14 @@ def _contained(
 
 
 class _Noop:
-    def execute(self, lease):  # type: ignore[no-untyped-def]
-        raise ProblemError  # never called: the runner parses outside the unit of work
+    def execute(self, lease: TaskLease) -> TaskResult:
+        # never called: the runner parses outside the unit of work
+        raise ProblemError(ErrorCode.CAPABILITY_UNAVAILABLE, ErrorCode.CAPABILITY_UNAVAILABLE.value)
 
-    def apply(self, uow, lease, result) -> None:  # type: ignore[no-untyped-def]
+    def apply(self, uow: UnitOfWork, lease: TaskLease, result: TaskResult) -> None:
         return
 
-    def discard(self, result) -> None:  # type: ignore[no-untyped-def]
+    def discard(self, result: TaskResult) -> None:
         return
 
 

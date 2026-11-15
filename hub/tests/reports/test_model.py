@@ -11,7 +11,6 @@ from pathlib import Path
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
-from reports_harness import AT
 
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.reports.domain.model import (
@@ -26,6 +25,8 @@ from crew_health.reports.domain.model import (
     origin_mode_of,
     parse_source_date,
 )
+
+from .reports_harness import AT
 
 pytestmark = pytest.mark.trace("T-E09-01", "R14", "E09-01")
 

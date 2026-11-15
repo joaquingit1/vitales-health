@@ -5,10 +5,9 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
-import builders
 import pytest
-from real_station import OFFICER, OTHER, OWNER, Rig, build, person, release_documents
 
 from crew_health.contracts_gen.enums import ConfigName, ErrorCode, Role
 from crew_health.kernel.config import ConfigDocumentView
@@ -19,6 +18,9 @@ from crew_health.platform.adapters.audit import SQLiteAuditVerifier
 from crew_health.platform.application.private import private_identity_bytes as platform_identity_bytes
 from crew_health.reports.adapters.store import private_identity_bytes
 
+from . import builders
+from .real_station import OFFICER, OTHER, OWNER, Rig, build, person, release_documents
+
 LINES = [["Pulse at rest 72 bpm"]]
 CANARY_TEXT = "CANARYWORD-7731"
 pytestmark = [pytest.mark.trace("R14", "R16", "V25", "V69", "V75")]
@@ -26,12 +28,12 @@ pytestmark = [pytest.mark.trace("R14", "R16", "V25", "V69", "V75")]
 
 def ready(
     rig: Rig, lines: list[list[str]] | None = None, key: str = "up1", name: str = "report.pdf"
-) -> tuple[str, dict[str, object], str]:
+) -> tuple[str, dict[str, Any], str]:
     response = rig.upload(builders.pdf(lines or LINES), key=key, name=name, examination_date="2026-11-10")
     report_id = str(response.json()["report_id"])
     rig.runner.drain()
     got = rig.get(OWNER, f"/v1/reports/{report_id}")
-    return report_id, got.json(), got.headers["ETag"]  # type: ignore[attr-defined]
+    return report_id, got.json(), got.headers["ETag"]
 
 
 def dump(rig: Rig) -> str:
@@ -40,6 +42,7 @@ def dump(rig: Rig) -> str:
     with rig.db.snapshot() as view:
         names = view.connection.rows("SELECT name FROM sqlite_master WHERE type='table'", (), limit=500)
         for (name,) in names:
+            assert isinstance(name, str)
             chunks.append(str(view.connection.rows(f"SELECT * FROM {name}", (), limit=1000)))
     return "\n".join(chunks)
 
@@ -50,7 +53,7 @@ def dump(rig: Rig) -> str:
 def test_routes_status_codes_and_error_envelopes_follow_the_contract(tmp_path: Path) -> None:
     rig = build(tmp_path)
     assert rig.client.get("/v1/reports/rpt_x").json()["code"] == "UNAUTHENTICATED"
-    assert rig.get(OWNER, "/v1/reports/rpt_missing").status_code == 404  # type: ignore[attr-defined]
+    assert rig.get(OWNER, "/v1/reports/rpt_missing").status_code == 404
     no_key = rig.client.post(
         "/v1/reports", headers={"X-Person": OWNER}, files={"file": ("a.pdf", b"x", "application/pdf")}
     )
@@ -110,14 +113,14 @@ def test_a_report_with_no_dates_keeps_them_null_and_a_number_cannot_then_be_conf
     assert body["examination_date"] is None and body["report_date"] is None and body["author"] is None
     rig.runner.drain()
     got = rig.get(OWNER, f"/v1/reports/{body['report_id']}")
-    draft = got.json()["extraction_drafts"][0]  # type: ignore[attr-defined]
+    draft = got.json()["extraction_drafts"][0]
     assert draft["date"] is None
     refused = rig.confirm(
         OWNER,
         body["report_id"],
         {"confirmations": [{"draft_id": draft["draft_id"], "decision": "confirm"}]},
         key="c1",
-        etag=got.headers["ETag"],  # type: ignore[attr-defined]
+        etag=got.headers["ETag"],
     )
     assert refused.status_code == 422 and refused.json()["code"] == "INVALID_VALUE"
     with rig.db.snapshot() as view:
@@ -131,7 +134,7 @@ def test_another_crew_member_and_an_officer_without_a_grant_cannot_see_or_act(tm
     rig = build(tmp_path)
     report_id, body, etag = ready(rig)
     for who in (OTHER, OFFICER):
-        assert rig.get(who, f"/v1/reports/{report_id}").status_code == 404  # type: ignore[attr-defined]
+        assert rig.get(who, f"/v1/reports/{report_id}").status_code == 404
         refused = rig.confirm(
             who,
             report_id,
@@ -145,7 +148,7 @@ def test_another_crew_member_and_an_officer_without_a_grant_cannot_see_or_act(tm
         rig.store.read_source(person(OFFICER, roles=frozenset({Role.CREW_MEDICAL_OFFICER})), report_id)
         is None
     )
-    assert rig.get(OWNER, f"/v1/reports/{report_id}").status_code == 200  # type: ignore[attr-defined]
+    assert rig.get(OWNER, f"/v1/reports/{report_id}").status_code == 200
 
 
 @pytest.mark.parametrize("kind", ["station", "ground", "adapter"])
@@ -173,7 +176,7 @@ def test_no_private_text_reaches_hub_tables_audit_events_or_error_bodies(tmp_pat
             "confirmations": [
                 {"draft_id": body["extraction_drafts"][0]["draft_id"], "decision": "confirm", "unit": "kg"}
             ]
-        },  # type: ignore[index]
+        },
         key="bad",
         etag=etag,
     )
@@ -181,7 +184,7 @@ def test_no_private_text_reaches_hub_tables_audit_events_or_error_bodies(tmp_pat
     ok = rig.confirm(
         OWNER,
         report_id,
-        {"confirmations": [{"draft_id": body["extraction_drafts"][0]["draft_id"], "decision": "confirm"}]},  # type: ignore[index]
+        {"confirmations": [{"draft_id": body["extraction_drafts"][0]["draft_id"], "decision": "confirm"}]},
         key="good",
         etag=etag,
     )
@@ -206,7 +209,7 @@ def test_the_audit_chain_stays_intact_across_upload_confirm_and_delete(tmp_path:
     rig.confirm(
         OWNER,
         report_id,
-        {"confirmations": [{"draft_id": body["extraction_drafts"][0]["draft_id"], "decision": "confirm"}]},  # type: ignore[index]
+        {"confirmations": [{"draft_id": body["extraction_drafts"][0]["draft_id"], "decision": "confirm"}]},
         key="c1",
         etag=etag,
     )
@@ -282,7 +285,7 @@ def test_confirmation_judges_by_the_pinned_release_and_fails_closed_when_it_is_g
     )
     rig.releases.releases["release_2"] = MemoryRelease("release_2", broken)
     rig.releases.active_id = "release_2"
-    draft_id = body["extraction_drafts"][0]["draft_id"]  # type: ignore[index]
+    draft_id = body["extraction_drafts"][0]["draft_id"]
     ok = rig.confirm(
         OWNER,
         report_id,
@@ -300,7 +303,7 @@ def test_confirmation_judges_by_the_pinned_release_and_fails_closed_when_it_is_g
             "confirmations": [
                 {"draft_id": other_body["extraction_drafts"][0]["draft_id"], "decision": "confirm"}
             ]
-        },  # type: ignore[index]
+        },
         key="c2",
         etag=other_etag,
     )
@@ -349,3 +352,26 @@ def test_the_migration_is_expand_only_and_names_only_report_tables() -> None:
         "reports_confirmation",
         "reports_finding",
     }
+
+
+def test_a_form_field_that_is_not_utf8_is_a_malformed_request_not_a_500(tmp_path: Path) -> None:
+    rig = build(tmp_path)
+    boundary = "b0undary"
+    body = (
+        f'--{boundary}\r\nContent-Disposition: form-data; name="access_scope"\r\n\r\n'.encode()
+        + b"\xff\xfe\r\n"
+        + f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="a.pdf"\r\n'.encode()
+        + b"Content-Type: application/pdf\r\n\r\n"
+        + builders.pdf(LINES)
+        + f"\r\n--{boundary}--\r\n".encode()
+    )
+    response = rig.client.post(
+        "/v1/reports",
+        headers={
+            "X-Person": OWNER,
+            "Idempotency-Key": "k_bad",
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+        },
+        content=body,
+    )
+    assert response.status_code == 400 and response.json()["code"] == "MALFORMED_REQUEST"

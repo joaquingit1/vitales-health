@@ -5,10 +5,11 @@ from __future__ import annotations
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
-from reports_harness import JPEG, MAX_REPORT, PDF, PNG
 
 from crew_health.kernel.errors import ErrorCode, ProblemError
 from crew_health.reports.domain.media import check_media, detect_kind, sha256_hex
+
+from .reports_harness import JPEG, MAX_REPORT, PDF, PNG
 
 pytestmark = pytest.mark.trace("T-E09-01", "R14", "V21", "E09-01")
 

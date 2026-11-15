@@ -7,21 +7,22 @@ import io
 import struct
 import sys
 import zlib
+from collections.abc import Callable
 from dataclasses import replace
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from pathlib import Path
+from typing import Literal, cast
 
-import builders
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
-from real_station import OTHER, OWNER, Rig, build, person
 
 from crew_health.contracts_gen.enums import ErrorCode
 from crew_health.kernel.commands import command_identity
 from crew_health.kernel.errors import ProblemError, StorageUnavailable
 from crew_health.kernel.private import PrivateIntent, SealedPrivateRef
+from crew_health.kernel.uow import UnitOfWork
 from crew_health.reports.adapters import parsing as P
 from crew_health.reports.adapters import worker
 from crew_health.reports.adapters.codec import decode_version, encode_version, read_header
@@ -31,6 +32,9 @@ from crew_health.reports.adapters.lineage import SqliteConfirmationLineage, _fin
 from crew_health.reports.adapters.store import StoreLimits
 from crew_health.reports.adapters.writer import ReportReferenceWriter
 from crew_health.reports.domain.model import ConfirmedFinding, ExtractionDraft, Report, SourceSpan
+
+from . import builders
+from .real_station import OTHER, OWNER, Rig, build, person
 
 AT = datetime(2026, 11, 14, 9, 0, tzinfo=UTC)
 LIMITS = P.ParseLimits(10, 1000000, 100000, 1000000, 1000)
@@ -185,7 +189,12 @@ def test_a_header_with_a_non_integer_revision_or_missing_field_is_corrupt() -> N
 
 
 def finding(
-    finding_id: str, value: object, *, role: str = "result", unit: str | None = "mmol/L", **kw: object
+    finding_id: str,
+    value: Decimal | str,
+    *,
+    role: Literal["result", "interpretation"] = "result",
+    unit: str | None = "mmol/L",
+    **kw: object,
 ) -> ConfirmedFinding:
     base = ConfirmedFinding(
         finding_id,
@@ -195,7 +204,7 @@ def finding(
         "glucose",
         value,
         unit,
-        date(2026, 11, 10),  # type: ignore[arg-type]
+        date(2026, 11, 10),
         None,
         "clinician",
         role,
@@ -204,7 +213,7 @@ def finding(
         AT,
         3,
         "ver_1",
-        (("method", "venous"), ("instrument", "x1")),  # type: ignore[arg-type]
+        (("method", "venous"), ("instrument", "x1")),
         (Decimal("3.9"), Decimal("5.6")),
         None,
     )
@@ -381,10 +390,10 @@ def test_store_level_replay_by_command_key_returns_the_committed_receipt_and_wri
     assert again.command_key == "up1"
     updated = replace(rep, revision=2)
 
-    def advance(uow: object) -> bool:
+    def advance(uow: UnitOfWork) -> bool:
         return SqliteConfirmationLineage().advance(
             uow, report_id=created, expected_revision=1, new_revision=2
-        )  # type: ignore[arg-type]
+        )
 
     first = rig.store.publish_version(
         session, key="v2", operation="reportExtraction", report=updated, apply=advance
@@ -594,7 +603,7 @@ def test_pdf_text_escapes_nesting_and_split_lines_are_read_as_written() -> None:
 
 
 def test_proposals_respect_labels_separators_units_and_the_cap() -> None:
-    vocab = {"pulse at rest": {"code": "pulse", "units": {"bpm": "/min"}}}
+    vocab: dict[str, dict[str, object]] = {"pulse at rest": {"code": "pulse", "units": {"bpm": "/min"}}}
     assert P.propose(("Pulse at rest",), vocab, 5) == ()  # no number
     assert P.propose(("xPulse at rest 72",), vocab, 5) == ()  # label inside a word
     assert P.propose(("Pulse at restful 72",), vocab, 5) == ()  # label is a prefix of another word
@@ -684,7 +693,7 @@ def test_a_report_deleted_after_the_claim_fails_the_task_with_not_found(tmp_path
         return real(kind, data, vocabulary)
 
     assert drain_with(rig, delete_then_parse) == 0  # late work finds the report gone: nothing is published
-    assert rig.get(OWNER, f"/v1/reports/{created}").status_code == 404  # type: ignore[attr-defined]
+    assert rig.get(OWNER, f"/v1/reports/{created}").status_code == 404
 
 
 def test_a_parser_that_reports_failure_fails_the_task_without_a_draft(tmp_path: Path) -> None:
@@ -700,12 +709,12 @@ def test_a_parser_that_reports_failure_fails_the_task_without_a_draft(tmp_path: 
 
 
 def test_missing_or_invalid_configuration_documents_fail_closed() -> None:
-    from real_station import release_documents
-
     from crew_health.contracts_gen.enums import ConfigName
     from crew_health.kernel.config import ConfigDocumentView
     from crew_health.kernel.testing import MemoryRelease
     from crew_health.reports.adapters.policies import ConfigFindingPolicies, ConfigVocabulary
+
+    from .real_station import release_documents
 
     empty = MemoryRelease("release_empty", {})
     with pytest.raises(ProblemError) as no_mapping:
@@ -727,10 +736,10 @@ def test_missing_or_invalid_configuration_documents_fail_closed() -> None:
 
 
 def test_a_scale_converted_indicator_proposes_no_unit_and_an_unmapped_code_has_no_policy() -> None:
-    from real_station import release_documents
-
     from crew_health.kernel.testing import MemoryRelease
     from crew_health.reports.adapters.policies import ConfigFindingPolicies, _tokens
+
+    from .real_station import release_documents
 
     release = MemoryRelease("release_1", release_documents())
     assert ConfigFindingPolicies().for_code(release, "no_such_indicator") is None
@@ -770,13 +779,14 @@ def test_malformed_uploads_and_confirmations_are_400_and_store_nothing(tmp_path:
     for response in (two_files, unknown_field, repeated_field, not_multipart):
         assert response.status_code == 400 and response.json()["code"] == "MALFORMED_REQUEST"
     report_id = rig.upload(builders.pdf(LINES), key="up1").json()["report_id"]
-    for body in (
+    bodies: tuple[object, ...] = (
         {},
         {"confirmations": []},
         {"confirmations": [{"draft_id": "d", "decision": "maybe"}]},
         [1],
         {"confirmations": [{"draft_id": "d"}]},
-    ):
+    )
+    for body in bodies:
         bad = rig.client.post(
             f"/v1/reports/{report_id}/confirmations",
             headers={"X-Person": OWNER, "Idempotency-Key": "c1", "If-Match": '"1:ver_x"'},
@@ -826,12 +836,13 @@ def test_without_a_task_runner_upload_stores_but_extraction_is_unavailable(tmp_p
     with pytest.raises(ProblemError) as claim:
         runner.claim(None, worker_id="w", handlers=frozenset(), limit=1)  # type: ignore[arg-type]
     assert code(claim) is ErrorCode.CAPABILITY_UNAVAILABLE
-    for call in (
+    calls: tuple[Callable[[], object], ...] = (
         lambda: runner.progress(None, lease, None),  # type: ignore[arg-type]
         lambda: runner.complete(None, lease, None),  # type: ignore[arg-type]
         lambda: runner.fail(None, lease, code=ErrorCode.INTERNAL_ERROR, retryable=False),  # type: ignore[arg-type]
         lambda: runner.recover(None, limit=1),  # type: ignore[arg-type]
-    ):
+    )
+    for call in calls:
         with pytest.raises(ProblemError) as refused:
             call()
         assert code(refused) is ErrorCode.CAPABILITY_UNAVAILABLE
@@ -843,26 +854,26 @@ def test_the_extraction_handler_never_runs_inside_the_unit_of_work(tmp_path: Pat
     with pytest.raises(ProblemError) as error:
         _NoopHandler().execute(None)  # type: ignore[arg-type]
     assert code(error) is ErrorCode.CAPABILITY_UNAVAILABLE
-    assert _NoopHandler().apply(None, None, None) is None and _NoopHandler().discard(None) is None  # type: ignore[arg-type]
+    _NoopHandler().apply(None, None, None)  # type: ignore[arg-type]
+    _NoopHandler().discard(None)  # type: ignore[arg-type]
 
 
 def test_a_refused_startup_drain_degrades_health_instead_of_failing_the_start(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    import test_module as composed
-
     from crew_health.app.registry import StartupPhase
     from crew_health.kernel.testing import MemoryHealth
     from crew_health.reports.application.extraction import ExtractionRunner
+
+    from . import test_module as composed
 
     rig = build(tmp_path)
     registry = composed.declared()
     health = MemoryHealth(maximum=8)
     composed.provide_all(registry, rig, health)
     registry.resolve()
-    (start,) = [
-        fn for key, fn in registry.declarations["startup"].items() if key[0] == StartupPhase.STATE_SWEEP
-    ]
+    startup = cast(dict[tuple[StartupPhase, str, str], Callable[[], None]], registry.declarations["startup"])
+    (start,) = [fn for key, fn in startup.items() if key[0] == StartupPhase.STATE_SWEEP]
     start()  # nothing queued: a clean drain leaves health alone
     assert health.components == {}
 
@@ -879,7 +890,7 @@ def test_an_unavailable_parser_parks_the_extraction_and_quarantines_the_upload_a
 ) -> None:
     from crew_health.reports import module as reports_module
 
-    parser = reports_module.ContainedParser(reports_module.ParserBounds(LIMITS, 1000, 1000, 5))
+    parser = ContainedParser(ParserBounds(LIMITS, 1000, 1000, 5))
     monkeypatch.setattr(
         "crew_health.reports.adapters.contained.subprocess.run",
         lambda *a, **k: (_ for _ in ()).throw(OSError("none")),

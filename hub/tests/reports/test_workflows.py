@@ -5,12 +5,23 @@ structured-entry backup path, owner-only authorization and the private-text cana
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import replace
 from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
-from reports_harness import (
+
+from crew_health.contracts_gen.enums import Role
+from crew_health.kernel.commands import CommandIdentity, command_identity
+from crew_health.kernel.errors import ErrorCode, ProblemError, StorageUnavailable
+from crew_health.kernel.uow import Actor, SessionContext
+from crew_health.reports.domain.confirmation import ConfirmationCommand, Decision, ReportVersion
+from crew_health.reports.domain.extraction import DraftProposal, ExtractionResult
+from crew_health.reports.domain.findings import FieldEntry, SpecialistEntry
+from crew_health.reports.domain.model import ConfirmedFinding, Report, SourceSpan
+
+from .reports_harness import (
     AT,
     JPEG,
     OTHER,
@@ -24,15 +35,6 @@ from reports_harness import (
     station,
     text,
 )
-
-from crew_health.contracts_gen.enums import Role
-from crew_health.kernel.commands import CommandIdentity, command_identity
-from crew_health.kernel.errors import ErrorCode, ProblemError, StorageUnavailable
-from crew_health.kernel.uow import Actor, SessionContext
-from crew_health.reports.domain.confirmation import ConfirmationCommand, Decision, ReportVersion
-from crew_health.reports.domain.extraction import DraftProposal, ExtractionResult
-from crew_health.reports.domain.findings import FieldEntry, SpecialistEntry
-from crew_health.reports.domain.model import ConfirmedFinding, Report, SourceSpan
 
 pytestmark = pytest.mark.trace(
     "T-E09-01", "T-E09-02", "T-E09-04", "T-E09-05", "R14", "R16", "V21", "D17", "D18"
@@ -722,3 +724,24 @@ def test_deleting_a_report_hides_it_and_a_late_extraction_finds_nothing() -> Non
     with pytest.raises(ProblemError) as stranger:
         st.workflows.delete_report(session(OTHER), key="del2", report_id=report.report_id)
     assert code(stranger) in (ErrorCode.NOT_FOUND, ErrorCode.UNAUTHORIZED_SCOPE)
+
+
+def test_a_retried_upload_with_any_other_body_field_conflicts_in_both_directions() -> None:
+    narrow = fresh()
+    first = narrow.upload(access_scope=None)
+    changes: tuple[Callable[[], Report], ...] = (
+        lambda: narrow.upload(access_scope="self_and_ground"),
+        lambda: narrow.upload(report_date="2026-10-02"),
+        lambda: narrow.upload(examination_date="2026-10-01"),
+        lambda: narrow.upload(original_name="other.pdf"),
+    )
+    for change in changes:
+        with pytest.raises(ProblemError) as clash:
+            change()
+        assert code(clash) is ErrorCode.DUPLICATE_COMMAND
+    assert narrow.upload() == first
+    broad = fresh()
+    broad.upload(access_scope="self_and_ground")
+    with pytest.raises(ProblemError) as narrowed:
+        broad.upload(access_scope=None)
+    assert code(narrowed) is ErrorCode.DUPLICATE_COMMAND
