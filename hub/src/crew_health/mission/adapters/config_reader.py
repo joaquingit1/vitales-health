@@ -252,7 +252,7 @@ class Check7Profiles:
 class Check12EffectFilters:
     """CONTRACTS 11 check 12, effect filter half."""
 
-    check_id: str = CHECK_12 + ".effect_filters"
+    check_id: str = CHECK_12 + ".effect"  # the contributor id E01 requires (config loader)
 
     def check(self, candidate: CandidateRelease) -> tuple[Finding, ...]:
         profiles_raw = _raw(candidate, ConfigName.ENVIRONMENT_PROFILES)

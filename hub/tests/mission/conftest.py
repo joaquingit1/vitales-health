@@ -138,6 +138,11 @@ class FakeStore:
     ) -> Sequence[EventRecord]:
         return tuple(e for e in self.event_rows if e.occurred_at >= since)[:limit]
 
+    def events_before(
+        self, view: object, *, before_event_id: str | None, limit: int
+    ) -> Sequence[EventRecord]:
+        return tuple(reversed(self.event_rows))[:limit]
+
     def fact_states(self, view: object) -> Mapping[str, FactState]:
         return dict(self.fact_rows)
 

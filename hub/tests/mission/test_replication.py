@@ -76,7 +76,12 @@ def test_every_mutation_is_accounted_locally_with_references_only_and_nothing_ex
             time=EventTimeFacts("known", START + timedelta(hours=1)),
         )
     changes = station.factory.state.replication
-    assert {c.record_type for c in changes} == {"mission_environment", "mission_overlay", "mission_event"}
+    assert {c.record_type for c in changes} == {
+        "mission_identity",
+        "mission_environment",
+        "mission_overlay",
+        "mission_event",
+    }
     assert all(c.export_projection is None for c in changes)  # only mission/context/1 may ever export
     assert all(set(json.loads(c.payload_json)) == {"id"} for c in changes)  # a safe reference, never fields
     text = " ".join(c.payload_json.decode() + c.audience.rule for c in changes)

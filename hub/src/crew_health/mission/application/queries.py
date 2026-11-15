@@ -56,6 +56,9 @@ class MissionReader(Protocol):
     def events(
         self, view: Snap, *, since: datetime, after_event_id: str | None, limit: int
     ) -> Sequence[EventRecord]: ...
+    def events_before(
+        self, view: Snap, *, before_event_id: str | None, limit: int
+    ) -> Sequence[EventRecord]: ...  # newest first, strictly before the cursor event: the list operation's order
     def fact_states(self, view: Snap) -> Mapping[str, FactState]: ...
 
 

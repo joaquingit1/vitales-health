@@ -13,6 +13,7 @@ from crew_health.mission.application.use_cases import (
     emit,
     note_audit,
     put_profile,
+    replicate_local,
 )
 from crew_health.mission.domain import profile as profile_rules
 from crew_health.mission.domain.errors import InvalidTransition, InvalidValue, UnauthorizedScope
@@ -48,6 +49,7 @@ def initialize_mission(
     services.store.create_identity(
         uow, MissionIdentity(mission_id, mission_mode, planned_length_days, site_node_id, uow.now)
     )
+    replicate_local(uow, "mission_identity", mission_id, "create")
     record = profile_rules.start_profile(
         profile_id=services.ids.new("env"),
         template=profile.template,

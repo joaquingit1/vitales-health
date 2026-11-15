@@ -99,3 +99,10 @@ class ActivationParticipant(Protocol):  # declared in mission, implemented by se
 class HabitatParts(Protocol):  # E03 Today
     def today_part(self, snapshot: ReadSnapshot, at: datetime) -> TodayEnvironment: ...
     def today_sensors(self, snapshot: ReadSnapshot, at: datetime) -> Sequence[SensorStatusModel]: ...
+
+
+# Provided by E02 (crew_health.identity); structural copy of E02 section 2 until it is on main (same shape as
+# the copies in help and measurement). Absent roster: no person ID can be named by a mission event (fail closed).
+class RosterPort(Protocol):
+    def person_ids(self) -> frozenset[str]: ...
+

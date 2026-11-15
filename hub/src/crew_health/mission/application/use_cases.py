@@ -142,7 +142,7 @@ def note_audit(uow: UnitOfWork, ids: IdFactory, event_type: str, refs: dict[str,
     uow.audit(AuditEntry(ids.new("aud"), event_type, 1, uow.actor, refs, uow.correlation_id, None, {}))
 
 
-def _replicate(
+def replicate_local(
     uow: UnitOfWork, record_type: str, record_id: str, operation: Literal["create", "version", "append"]
 ) -> None:
     """Local-only accounting (S5.7 export_projection=None): references only, never fields, notes or person IDs."""
@@ -163,22 +163,22 @@ def _replicate(
 
 def put_profile(services: Services, uow: UnitOfWork, record: ProfileRecord) -> None:
     services.store.save_profile(uow, record)
-    _replicate(uow, "mission_environment", record.profile_id, "create" if record.revision == 1 else "version")
+    replicate_local(uow, "mission_environment", record.profile_id, "create" if record.revision == 1 else "version")
 
 
 def put_overlay(services: Services, uow: UnitOfWork, record: OverlayRecord) -> None:
     services.store.save_overlay(uow, record)
-    _replicate(uow, "mission_overlay", record.overlay_id, "create" if record.revision == 1 else "version")
+    replicate_local(uow, "mission_overlay", record.overlay_id, "create" if record.revision == 1 else "version")
 
 
 def put_event(services: Services, uow: UnitOfWork, record: EventRecord) -> None:
     services.store.add_event(uow, record)
-    _replicate(uow, "mission_event", record.event_id, "append")
+    replicate_local(uow, "mission_event", record.event_id, "append")
 
 
 def put_fact(services: Services, uow: UnitOfWork, fact: FactState) -> None:
     services.store.save_fact(uow, fact)
-    _replicate(uow, "mission_state_fact", fact.fact + ":" + fact.environment_id, "version")
+    replicate_local(uow, "mission_state_fact", fact.fact + ":" + fact.environment_id, "version")
 
 
 def _identity(services: Services, uow: UnitOfWork) -> MissionIdentity:
