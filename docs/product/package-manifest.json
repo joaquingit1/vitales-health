@@ -25,8 +25,8 @@
     },
     {
       "path": "DEMO-CONDITIONS.md",
-      "bytes": 85945,
-      "sha256": "cf7a27882ecbfd33c2c3aa1719f7ddc6319fdfa08b02b759fc5e5fdfd0451d6c"
+      "bytes": 85872,
+      "sha256": "b85061a0e9ced542875f30c232c3ba61fae99b5024fa7e72cfff136eecf139de"
     },
     {
       "path": "ENVIRONMENTS.html",
@@ -35,8 +35,8 @@
     },
     {
       "path": "ENVIRONMENTS.md",
-      "bytes": 104556,
-      "sha256": "da9ba0572ff470a6c6b13c4828ba515656ab5c4d84cbe5e5119e18e50d9d21fc"
+      "bytes": 103634,
+      "sha256": "8ca2de0f2eeddc01470d84fa06f63d9f1f56c54b674909114d06bd2c4feab186"
     },
     {
       "path": "KICKOFF.html",
@@ -45,8 +45,8 @@
     },
     {
       "path": "KICKOFF.md",
-      "bytes": 21154,
-      "sha256": "12bb43a8f9c8ac63f9c1546468c5c2d375bee59f51fedaa2aa85a73a78b1e908"
+      "bytes": 18878,
+      "sha256": "391145c86ecaca727733263d2dc56ceb48d31dbe11f7a6371133f388d0e9a160"
     },
     {
       "path": "LLM-ARCHITECTURE.html",
@@ -55,8 +55,8 @@
     },
     {
       "path": "LLM-ARCHITECTURE.md",
-      "bytes": 38831,
-      "sha256": "920188ae47e2a827faf534f327372d973f6f39a0047437d391705af993fc75cf"
+      "bytes": 38541,
+      "sha256": "6594e57b27b77a55da8500472f3540accf0250dadabf1cbf5d0bd244bac4122d"
     },
     {
       "path": "NASA-SOURCES.html",
@@ -65,8 +65,8 @@
     },
     {
       "path": "NASA-SOURCES.md",
-      "bytes": 123387,
-      "sha256": "d092389d58cf36cf254a8c2ef43ff8ca99853052a62b8fd43a5e30c3ee43f417"
+      "bytes": 123240,
+      "sha256": "eb79586c233559af33d10ab0f78d622c2118ddffcb64f3a543608fc862def518"
     },
     {
       "path": "PACKAGE-CHECKS.html",
@@ -75,8 +75,8 @@
     },
     {
       "path": "PACKAGE-CHECKS.md",
-      "bytes": 7054,
-      "sha256": "f4dfc287638489adb3f628da30fc7ea269f42e5517ebf643d446fc5b6e4346d6"
+      "bytes": 6859,
+      "sha256": "5fbdc2ae687f20ff14c20708f71ba3726d44c0795b5249cc13b598086aec932b"
     },
     {
       "path": "PITCH.html",
@@ -85,8 +85,8 @@
     },
     {
       "path": "PITCH.md",
-      "bytes": 43006,
-      "sha256": "224a8da3a61a44065be802d63321f20eb9825b13bf1fa47cc6f97795b84c699b"
+      "bytes": 42758,
+      "sha256": "1fab21ce30864a0ed1f05512515ac66bf688e433177327dc06a8f2d3d5ce6d04"
     },
     {
       "path": "PRD.docx",
@@ -100,8 +100,8 @@
     },
     {
       "path": "PRD.md",
-      "bytes": 119404,
-      "sha256": "e46ed76e6a53f33eec2c4b99c4557a37d7fcfcd0e20447656362e641c240fb04"
+      "bytes": 118823,
+      "sha256": "3d34786bec055b0f836d1f6301123c3f41dd26d880ccfd8fe8459b219084cb1f"
     },
     {
       "path": "README.html",
@@ -110,8 +110,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 8543,
-      "sha256": "7d4760622055569e996dec4cf82d0bb0e9a542b8756e76cee06b47c23ff852b0"
+      "bytes": 7999,
+      "sha256": "f8b30491f832df4e31e324a582e944a3fee52d04ab26d756f56e17a9bac22c64"
     },
     {
       "path": "RESEARCH-ANNEX.html",
@@ -120,8 +120,8 @@
     },
     {
       "path": "RESEARCH-ANNEX.md",
-      "bytes": 20584,
-      "sha256": "b28f37f8d66f10633a97c7843c4edc994e868b0a43d97e837f0d0b3836614d65"
+      "bytes": 18717,
+      "sha256": "1f8f5c003cb3cd308445d7b22f53862cd974ae86d474a0e2607712109c0c9261"
     },
     {
       "path": "RESPONDER-FLOWS.html",
@@ -131,7 +131,7 @@
     {
       "path": "RESPONDER-FLOWS.md",
       "bytes": 150348,
-      "sha256": "7f71ee40c89a58387ad60fa21f5d5351ec70be430a40408cd40ed3899482ea54"
+      "sha256": "623b5eafb4636ce44ec01c03b910e7c7d01934275d0648879533e4bc1b69f0c6"
     },
     {
       "path": "ROUTINE.html",
@@ -141,7 +141,7 @@
     {
       "path": "ROUTINE.md",
       "bytes": 112740,
-      "sha256": "9ef506557b01a5d498aa635da6514e9e8c5ac3ff197500efc9432d6458ab5702"
+      "sha256": "be045a8da55c607b0e1cac0e8e44d94db0477a38fc99da67009fbd74249a0128"
     },
     {
       "path": "USE-CASES.html",
@@ -160,8 +160,8 @@
     },
     {
       "path": "UX-DESIGN.md",
-      "bytes": 94067,
-      "sha256": "9c4be659c8fadb962ff4955ea38015784d06beee1fc9c847f63d7c01d11720a1"
+      "bytes": 94038,
+      "sha256": "7084cd06152b237fe54c34b9f83648a12dbc632ee461e3bced476e4b95d3efb7"
     },
     {
       "path": "VALIDATION.html",
@@ -2015,8 +2015,8 @@
     },
     {
       "path": "design/config-bundle.js",
-      "bytes": 351570,
-      "sha256": "71b49efe0c66ad9e03d7d9404b3bb5b518321145d94e02a575bbd5eb8d5824e1"
+      "bytes": 350708,
+      "sha256": "a6a6a1a236ff9f8087ea7cab28d758048ae1bb2f8faea3c3e4e5fd847186dfc6"
     },
     {
       "path": "design/crew-data.js",
@@ -2045,8 +2045,8 @@
     },
     {
       "path": "design/interaction-prototype.html",
-      "bytes": 186136,
-      "sha256": "053f24a8323b62a5b566e6be97f5368d95ae70ae1aa7bb0dfee87b656804dc34"
+      "bytes": 186122,
+      "sha256": "d595375a0f52369add1ef92f6323bfca982c9a1c8d22d73c85af29616842c1e9"
     },
     {
       "path": "design/reader.css",
@@ -2105,8 +2105,8 @@
     },
     {
       "path": "environment-hazards.json",
-      "bytes": 117028,
-      "sha256": "3b2a48135467ae678d32841adf5f320b8ef183733f0933000c07d177aff87c24"
+      "bytes": 116106,
+      "sha256": "da78aa550e9cc71b879b5430f791c24e5d6e5de7ce388eee790fa98946566cfd"
     },
     {
       "path": "epics.json",
@@ -2291,7 +2291,7 @@
     {
       "path": "nasa-data/habitat-environment/eda_rr1_provenance.json",
       "bytes": 7234,
-      "sha256": "5e5381cdfdb3166cebf1faab322152e9d9a302618b416b1a9f9b56fe78fa879e"
+      "sha256": "291d98fa186d9f18b702cc45c8f4d6fa23a9f6fb81e819701fa09a346b98662c"
     },
     {
       "path": "nasa-data/habitat-environment/eda_rr1_telemetry.csv",
@@ -2361,7 +2361,7 @@
     {
       "path": "nasa-data/radiation/radlab_dostel_sample.provenance.json",
       "bytes": 2625,
-      "sha256": "8aceca3a0e8b3aeb3e83d7d67c5065fefba7b29da614bcb7823a0f5482edd9e5"
+      "sha256": "a8b5b8ad8d7ef7b11e7c6e709b88672ad69d13238086e1f6bcf84213f2b4482e"
     },
     {
       "path": "nasa-data/radiation/radlab_iss_2017-09_spe.csv",
@@ -3126,7 +3126,7 @@
     {
       "path": "responder-flows.json",
       "bytes": 135559,
-      "sha256": "23865cf8acfbfa869df24a8b0fee732e386ddbb9e4735d19d0920873d92cee64"
+      "sha256": "6fb0ac62690cbd74b0ad7f14f96bf89e60f9fb10bb09ad3b807372999b543e2d"
     },
     {
       "path": "routine-schedule.json",
@@ -3135,8 +3135,8 @@
     },
     {
       "path": "sources.csv",
-      "bytes": 4721,
-      "sha256": "8fe14d16da37b9ade5f3fde81a31155b48fbc5a170b1b83374b42e661da14df5"
+      "bytes": 4685,
+      "sha256": "c16c6bf47799884567338e4fc726d4315b45a3f790047734754c1aedb6d5cd10"
     },
     {
       "path": "sources/L01.json",
