@@ -11,6 +11,8 @@ import { todayCards } from "../../shell/todaySlots";
 import { KIT_STATES, STATE_MK, loadKitMap, type KitMapView } from "../kit/kitMap";
 import { linkLine, linkOrigin, type GroundLink } from "./groundLink";
 import { placeOf } from "./place";
+import { ASSISTANT_TITLE } from "../help/labels";
+import { assistantWords } from "../help/helpModel";
 
 const api = useCrewApi();
 const stage = useStage();
@@ -23,6 +25,8 @@ const link = ref<GroundLink | null>(null);
 const linkFailed = ref(false);
 const hubNow = ref<number>(Number.NaN);
 const place = ref<string | null>(null);
+const assistantState = ref<string | null>(null);
+const assistant = computed(() => (assistantState.value === null ? null : assistantWords(assistantState.value)));
 const LINK_POLL_MS = 2000;
 let poll = 0;
 
@@ -32,8 +36,10 @@ const name = computed(() => {
 });
 const line = computed(() => (link.value === null ? "" : linkLine(link.value, hubNow.value)));
 
-/* Slot positions in the reference grid: the prototype's How you are, Daily check and Assistant places. */
-const SLOT_AREAS = ["11 / span 14 | 1", "9 / span 7 | 3", "16 / span 9 | 3", "11 / span 14 | 3"];
+/* Slot positions in the reference grid: the prototype's How you are and Daily check places. The Assistant place
+   holds the assistant card. A reading about you takes the How you are card's sun gradient (UX-DESIGN 1.5). */
+const SLOT_AREAS = ["11 / span 14 | 1", "9 / span 7 | 3"];
+const SLOT_KIND = ["g g-sun", "paper"];
 function slotStyle(index: number): Record<string, string> {
   const [column = "auto", row = "auto"] = (SLOT_AREAS[index] ?? "auto | auto").split(" | ");
   return { gridColumn: column, gridRow: row };
@@ -42,8 +48,9 @@ function slotStyle(index: number): Record<string, string> {
 function setStage(): void {
   stage.marks = [];
   stage.focus = null;
-  stage.subline = name.value;
-  stage.headline = place.value ?? "";
+  /* the reference's who-line: the person, then the place; the headline names the view */
+  stage.subline = place.value === null || name.value === "" ? name.value : `${name.value}, ${place.value}`;
+  stage.headline = copy("display_group_labels.today");
 }
 
 onMounted(async () => {
@@ -63,6 +70,7 @@ onMounted(async () => {
   const health = api.get<Health>("/v1/health").then(
     (value) => {
       hubNow.value = Date.parse(value.server_time ?? "");
+      assistantState.value = value.assistant_state ?? null;
     },
     () => undefined,
   );
@@ -197,11 +205,27 @@ onBeforeUnmount(() => {
     <article
       v-for="(slot, index) in slots"
       :key="slot.id"
-      class="card paper slot-card"
+      class="card slot-card"
+      :class="SLOT_KIND[index] ?? 'paper'"
       :style="slotStyle(index)"
       :data-slot="slot.id"
     >
       <component :is="slot.component" />
+    </article>
+
+    <article
+      v-if="assistant"
+      class="card g g-deep assistant"
+      data-testid="assistant-card"
+    >
+      <div class="card-head">
+        <h2 class="card-title">
+          {{ ASSISTANT_TITLE }}
+        </h2>
+      </div>
+      <p class="say">
+        {{ assistant.line }}
+      </p>
     </article>
   </section>
 </template>
@@ -218,5 +242,9 @@ onBeforeUnmount(() => {
 }
 .env-line .src {
   margin-left: 6px;
+}
+/* a feature card with nothing to show today leaves its place empty, never an empty frame */
+.slot-card:empty {
+  display: none;
 }
 </style>

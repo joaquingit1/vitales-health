@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import type { components } from "@crew-health/contracts";
+import { computed, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
 import BodyFigure from "../design/BodyFigure.vue";
 import { CHROME } from "../design/chrome";
 import { copy } from "../design/copy";
+import { useCrewApi } from "./api/client";
 import { useSession } from "./session";
 import { useStage } from "./stage";
 
@@ -23,6 +25,25 @@ const initials = computed(() =>
     .slice(0, 2),
 );
 const kitMode = computed(() => stage.marks.length > 0);
+
+type Capability = components["schemas"]["capability.schema"];
+const api = useCrewApi();
+/* The stage's three readings (UX-DESIGN 1.2): the first three measurements this place can take, from the hub.
+   The hub serves no recent value to the stage, so each reads as the designed state "No reading". */
+const readings = ref<{ code: string; label: string }[]>([]);
+onMounted(() => {
+  api
+    .get<{ items: Capability[] }>("/v1/capabilities")
+    .then((value) => {
+      readings.value = value.items
+        .filter((item) => item.status === "available" && item.body_region !== null)
+        .slice(0, 3)
+        .map((item) => ({ code: item.code, label: item.label }));
+    })
+    .catch(() => {
+      readings.value = [];
+    });
+});
 </script>
 
 <template>
@@ -90,6 +111,20 @@ const kitMode = computed(() => stage.marks.length > 0);
           {{ stage.headline }}
         </h1>
       </div>
+      <div
+        v-if="readings.length > 0"
+        class="vitals"
+        data-testid="stage-readings"
+      >
+        <div
+          v-for="reading in readings"
+          :key="reading.code"
+          class="vital"
+        >
+          <span class="v-num word">{{ copy("designed_states.no_reading") }}</span>
+          <span class="v-label">{{ reading.label }}</span>
+        </div>
+      </div>
     </section>
     <div class="side">
       <slot />
@@ -106,6 +141,10 @@ const kitMode = computed(() => stage.marks.length > 0);
 .who {
   display: grid;
   place-items: center;
+}
+.v-num.word {
+  font-size: 20px;
+  color: var(--ink-3);
 }
 .urgent-btn {
   margin-left: auto;

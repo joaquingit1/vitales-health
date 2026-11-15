@@ -52,6 +52,8 @@ const linkLine = computed(() => {
   const word = copy(`ground_link_words.${current.status}`);
   return current.source === "demo_switch" ? `${word}, ${originWord("SIM")}` : word;
 });
+/* the link's swatch: only an adapter measures it; the schedule and the demo switch are simulated */
+const linkKind = computed(() => (link.value === null ? "" : link.value.source === "measured" ? "s-live" : "s-sim"));
 const logLines = computed(() =>
   (help.value?.log ?? []).map((entry) => {
     const at = new Date(entry.at);
@@ -287,9 +289,11 @@ onMounted(() => {
           {{ GROUND_TITLE }}
         </h2>
         <span
+          v-if="linkLine !== ''"
           class="src"
+          :class="linkKind"
           data-test="help-link"
-        >{{ linkLine }}</span>
+        ><i aria-hidden="true" />{{ linkLine }}</span>
       </div>
       <div
         class="log"
@@ -308,8 +312,6 @@ onMounted(() => {
 
 <style scoped>
 .hp-asst .swatches i.off { background: rgba(255, 255, 255, 0.4); }
-.hp-asst .say { font-size: 28px; line-height: 34px; }
 .nsteps button.li { width: 100%; text-align: left; background: none; border-left: 0; border-right: 0; border-bottom: 0; cursor: pointer; }
 .help-notice { margin-top: auto; padding-top: 14px; }
-.src { font-size: 12px; line-height: 16px; color: var(--ink-3); white-space: nowrap; }
 </style>
