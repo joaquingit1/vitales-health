@@ -384,8 +384,12 @@ def enum_source(root: Path, schemas: Path) -> bytes:
 
 
 def run(command: list[str], *, cwd: Path) -> None:
+    # Resolve through PATH and PATHEXT: on Windows pnpm is a .cmd shim that CreateProcess never finds by bare name.
+    executable = shutil.which(command[0])
+    if executable is None:
+        raise FileNotFoundError(f"{command[0]} not found on PATH")
     # E01 11 registry.startup_timeout_ms ceiling, converted to seconds.
-    subprocess.run(command, cwd=cwd, check=True, timeout=300)
+    subprocess.run([executable, *command[1:]], cwd=cwd, check=True, timeout=300)
 
 
 def python_outputs(root: Path, api: Path, destination: Path) -> None:

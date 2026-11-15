@@ -130,7 +130,7 @@ def test_repeated_python_generation_is_byte_identical(tmp_path: Path) -> None:
         "api/schemas/config-index.schema.json",
     }
     assert "schemas/config_unit_mapping_schema.py" in manifest["outputs"]
-    assert set(manifest["outputs"]) == {str(p) for p in left if str(p) != "manifest.json"}
+    assert set(manifest["outputs"]) == {p.as_posix() for p in left if p.as_posix() != "manifest.json"}
 
 
 def test_generated_python_imports_are_sorted(tmp_path: Path) -> None:
@@ -169,7 +169,7 @@ def test_unallocated_overlay_and_unlisted_output_fail(tmp_path: Path) -> None:
     (tmp_path / "destination/unlisted.py").write_text("unowned")
     with pytest.raises(ValueError):
         publish(tmp_path / "destination", tmp_path / "staging", {}, modules={}, source_hashes={})
-    assert (tmp_path / "destination/unlisted.py").read_text() == "unowned"
+    assert (tmp_path / "destination/unlisted.py").read_text(encoding="utf-8") == "unowned"
 
 
 def test_generated_enums_and_closed_error_model() -> None:
@@ -338,7 +338,7 @@ def test_generated_leaves_are_not_hidden_by_repository_ignores() -> None:
     manifest = json.loads((ROOT / "hub/src/crew_health/contracts_gen/manifest.json").read_bytes())
     ignored_directories = {
         line[:-1]
-        for line in (ROOT / ".gitignore").read_text().splitlines()
+        for line in (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
         if line.endswith("/") and "/" not in line[:-1]
     }
     components = {part for name in manifest["outputs"] for part in Path(name).parts[:-1]}
@@ -364,7 +364,7 @@ def test_enum_status_source_must_match_package_inventory(tmp_path: Path) -> None
     shutil.copytree(ROOT / "contracts/api", tmp_path / "contracts/api")
     (tmp_path / "docs/product").mkdir(parents=True)
     shutil.copy(ROOT / "docs/product/package-manifest.json", tmp_path / "docs/product/package-manifest.json")
-    source = (ROOT / "docs/product/CONTRACTS.md").read_text()
+    source = (ROOT / "docs/product/CONTRACTS.md").read_text(encoding="utf-8")
     (tmp_path / "docs/product/CONTRACTS.md").write_text(
         source.replace("| `INTERNAL_ERROR` | 500 |", "| `INTERNAL_ERROR` | 200 |")
     )
