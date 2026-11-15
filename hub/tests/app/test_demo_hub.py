@@ -116,6 +116,29 @@ def served(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Served]:
         thread.join(60)
 
 
+def test_the_camera_reads_ready_as_soon_as_its_worker_answers(served: Served) -> None:
+    """The worker starts after the hub serves; the hub probes it every workers.camera.startup_probe_ms until it
+    answers, so the camera-only capability turns available within that, not one 5 s health interval later."""
+    state = json.loads((served.directory / demo.STATE).read_text(encoding="utf-8"))
+    token = served.sign_in("mara")
+    deadline = time.monotonic() + 240
+    while time.monotonic() < deadline:
+        with socket.socket() as probe:
+            if probe.connect_ex(("127.0.0.1", int(state["camera_port"]))) == 0:
+                break
+        time.sleep(0.05)
+    listening = time.monotonic()
+    while True:
+        items = served.get("/v1/capabilities", token)[1]["items"]
+        assert isinstance(items, list)
+        camera_only = next(item for item in items if item["methods"] == ["camera_estimate"])
+        waited = time.monotonic() - listening
+        if camera_only["status"] == "available" or waited > 5:
+            break
+        time.sleep(0.05)
+    assert camera_only["status"] == "available" and waited < 2, (waited, camera_only)
+
+
 def test_the_hub_serves_ready_with_the_presenter_and_tomas_signed_in(served: Served) -> None:
     status, health = served.hub.call("GET", "/v1/health")
     assert status == 200 and isinstance(health, dict) and health["status"] == "ok"

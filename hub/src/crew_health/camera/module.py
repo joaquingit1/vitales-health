@@ -78,6 +78,14 @@ _INTEGERS: tuple[tuple[str, int, int, str], ...] = (
         60_000,
         _HEALTH + "; also the probe, reconciliation and task pass interval",
     ),
+    (
+        "workers.camera.startup_probe_ms",
+        50,
+        500,
+        _E06
+        + ": probe interval from hub start until the worker first answers, so the camera reads ready as soon as"
+        " it does instead of one health interval later; the probes stop at the first answer or after stale_ms",
+    ),
     ("workers.camera.stale_ms", 1, 600_000, _E06 + ": a probe older than this is unknown readiness"),
     ("workers.camera.dispatch_batch", 1, 64, _E06 + ": tasks run and acquisitions reconciled per pass"),
     (
@@ -295,8 +303,14 @@ def _bind(live: Live) -> Callable[[Resolver], None]:
             store=store, link=link, queue=queue, runner=runner, reports=reports, uows=uows, snapshots=snapshots,
             ids=ids, clock=clock, limits=limits,
         )  # fmt: skip
+        startup_ms = value("workers.camera.startup_probe_ms")
         live.loop = CameraLoop(
-            link, live.dispatcher, live.tasks, interval_ms=value("workers.camera.health_ms")
+            link,
+            live.dispatcher,
+            live.tasks,
+            interval_ms=value("workers.camera.health_ms"),
+            startup_probe_ms=startup_ms,
+            startup_probes=max(1, value("workers.camera.stale_ms") // startup_ms),
         )
         if enabled:
             lifecycle = resolver.optional(WorkerLifecycle)

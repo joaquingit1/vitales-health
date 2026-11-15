@@ -14,6 +14,7 @@ from typing import Any, cast
 import pytest
 from camera_harness import (
     ADAPTER,
+    CAMERA_SETTINGS,
     PROTOCOL,
     START,
     Mission,
@@ -38,6 +39,7 @@ from crew_health.camera.application.ports import (
     CameraReferencePort,
     ReferenceWindowRequest,
     WorkerTransport,
+    WorkerUnreachable,
 )
 from crew_health.contracts_gen.enums import ErrorCode, EventType
 from crew_health.kernel.clock import Clock
@@ -344,3 +346,36 @@ def test_a_failed_loop_pass_is_logged_loudly_without_record_text(
     assert [r.getMessage() for r in caplog.records] == [
         "camera link pass failed: RuntimeError"
     ]  # no record text
+
+
+def test_the_loop_probes_until_the_worker_first_answers_instead_of_waiting_one_health_interval(
+    tmp_path: Path,
+) -> None:
+    """Fix for the camera reading unavailable for one health interval after serve: the worker starts after the hub,
+    so the startup probes repeat every workers.camera.startup_probe_ms until it answers, then stop."""
+    transport = ScriptedTransport([WorkerUnreachable("refused"), WorkerUnreachable("refused"), describe()])
+    registry, live, store = _bound(tmp_path, transport)
+    readiness = _port(registry, AdapterReadinessPort)
+    loop = live.loop
+    assert loop is not None
+    loop._await_worker()  # noqa: SLF001
+    assert [p for _, p, _, _ in transport.calls] == ["/v1/describe"] * 3  # stopped at the first answer
+    with store.uows.snapshot() as view:
+        assert readiness.ready_methods(view) == frozenset({"camera_estimate"})
+
+
+def test_the_startup_probes_are_bounded_when_the_worker_never_answers(tmp_path: Path) -> None:
+    transport = ScriptedTransport()
+    registry, live, store = _bound(tmp_path, transport)
+    loop = live.loop
+    assert loop is not None
+    loop._startup = 0.0  # noqa: SLF001  # no real waiting; the bound is the probe count
+    loop._await_worker()  # noqa: SLF001
+    assert (
+        len(transport.calls)
+        == CAMERA_SETTINGS["workers.camera.stale_ms"] // CAMERA_SETTINGS["workers.camera.startup_probe_ms"]
+    )
+    with store.uows.snapshot() as view:
+        assert (
+            _port(registry, AdapterReadinessPort).ready_methods(view) is None
+        )  # never ready without an answer
