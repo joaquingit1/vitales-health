@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import { RouterLink } from "vue-router";
 import BodyFigure from "../design/BodyFigure.vue";
 import { CHROME } from "../design/chrome";
+import { copy } from "../design/copy";
 import { useSession } from "./session";
 import { useStage } from "./stage";
 
@@ -44,7 +45,7 @@ const kitMode = computed(() => stage.marks.length > 0);
         <RouterLink
           class="brand-mark"
           :to="{ name: 'today' }"
-          aria-label="Today"
+          :aria-label="copy('display_group_labels.today')"
         >
           <svg
             viewBox="0 0 18 18"
