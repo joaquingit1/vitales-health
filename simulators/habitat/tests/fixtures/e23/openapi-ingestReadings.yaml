@@ -1,0 +1,107 @@
+  /v1/adapters/{adapter_id}/readings:
+    post:
+      operationId: ingestReadings
+      tags:
+        - Sensors
+      summary: Send a batch of readings
+      description: "Each reading is accepted, a duplicate (same channel and adapter_sequence, ignored) or rejected with a code. A batch is never rejected as a whole for one bad reading. The path adapter_id must match the adapter token. Roles: adapter."
+      x-roles:
+        - adapter
+      security:
+        - adapterToken: []
+      parameters:
+        - $ref: "#/components/parameters/path_adapter_id"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/ConfigReleaseIn"
+        - $ref: "#/components/parameters/CorrelationIdIn"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "schemas/requests.schema.json#/$defs/AdapterReadingBatch"
+            examples:
+              adapter_batch:
+                $ref: examples/requests/adapter-batch.json
+      responses:
+        "200":
+          description: OK.
+          headers:
+            Config-Release:
+              $ref: "#/components/headers/ConfigRelease"
+            X-Correlation-Id:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: schemas/ingest-result.schema.json
+              examples:
+                sensors_ingest_result:
+                  $ref: examples/sensors/ingest-result.json
+                sensors_ingest_result_rejected:
+                  $ref: examples/sensors/ingest-result-rejected.json
+        "400":
+          description: "Bad request: MALFORMED_REQUEST."
+          x-error-codes:
+            - MALFORMED_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "401":
+          description: "Not signed in: UNAUTHENTICATED."
+          x-error-codes:
+            - UNAUTHENTICATED
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "403":
+          description: "Not allowed: ADAPTER_NOT_TRUSTED, UNAUTHORIZED_SCOPE."
+          x-error-codes:
+            - ADAPTER_NOT_TRUSTED
+            - UNAUTHORIZED_SCOPE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "404":
+          description: "Not found: NOT_FOUND."
+          x-error-codes:
+            - NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "409":
+          description: "Conflict: DUPLICATE_COMMAND."
+          x-error-codes:
+            - DUPLICATE_COMMAND
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "413":
+          description: "Payload too large: PAYLOAD_TOO_LARGE."
+          x-error-codes:
+            - PAYLOAD_TOO_LARGE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        "415":
+          description: "Unsupported media type: UNSUPPORTED_MEDIA_TYPE."
+          x-error-codes:
+            - UNSUPPORTED_MEDIA_TYPE
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json
+        default:
+          description: "Unexpected failure: INTERNAL_ERROR."
+          x-error-codes:
+            - INTERNAL_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: schemas/error.schema.json

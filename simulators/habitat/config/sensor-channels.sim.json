@@ -1,0 +1,210 @@
+{
+  "notice": "Simulator channels for the hub's channel registry (E23 design 5.3). Static fields of sensor-channel.schema.json; the hub fills last_received_at, last_observed_at and freshness.",
+  "channels": [
+    {
+      "channel_id": "ch_co2_cabin_sim",
+      "sensor_type_id": "co2",
+      "hazard_id": "co2",
+      "environment_ids": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "location": "cabin",
+      "location_label": null,
+      "adapter_id": "adp_sim_habitat",
+      "origin_mode": "SIM",
+      "input_unit": "ppm",
+      "expected_interval_seconds": 5,
+      "stale_after_seconds": 300,
+      "source_label": "Sim",
+      "dataset": null,
+      "display_note": "Simulated NDIR CO2 module",
+      "trusted": true
+    },
+    {
+      "channel_id": "ch_o2_cabin_sim",
+      "sensor_type_id": "o2",
+      "hazard_id": "oxygen",
+      "environment_ids": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "location": "cabin",
+      "location_label": null,
+      "adapter_id": "adp_sim_habitat",
+      "origin_mode": "SIM",
+      "input_unit": "kPa",
+      "expected_interval_seconds": 5,
+      "stale_after_seconds": 300,
+      "source_label": "Sim",
+      "dataset": null,
+      "display_note": "Simulated oxygen cell",
+      "trusted": true
+    },
+    {
+      "channel_id": "ch_noise_cabin_sim",
+      "sensor_type_id": "noise",
+      "hazard_id": "noise",
+      "environment_ids": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "location": "cabin",
+      "location_label": null,
+      "adapter_id": "adp_sim_habitat",
+      "origin_mode": "SIM",
+      "input_unit": "dBA",
+      "expected_interval_seconds": null,
+      "stale_after_seconds": 600,
+      "source_label": "Sim",
+      "dataset": null,
+      "display_note": "Simulated sound level meter",
+      "trusted": true
+    },
+    {
+      "channel_id": "ch_dust_cabin_sim",
+      "sensor_type_id": "dust",
+      "hazard_id": "dust",
+      "environment_ids": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "location": "cabin",
+      "location_label": null,
+      "adapter_id": "adp_sim_habitat",
+      "origin_mode": "SIM",
+      "input_unit": "µg/m3",
+      "expected_interval_seconds": 60,
+      "stale_after_seconds": 600,
+      "source_label": "Sim",
+      "dataset": null,
+      "display_note": "Simulated optical particle sensor, PM10",
+      "trusted": true
+    },
+    {
+      "channel_id": "ch_rad_cabin_sim",
+      "sensor_type_id": "rad",
+      "hazard_id": "radiation",
+      "environment_ids": [
+        "station_leo",
+        "transit",
+        "lunar_surface",
+        "mars_surface"
+      ],
+      "location": "cabin",
+      "location_label": null,
+      "adapter_id": "adp_sim_habitat",
+      "origin_mode": "SIM",
+      "input_unit": "µGy/h",
+      "expected_interval_seconds": null,
+      "stale_after_seconds": 600,
+      "source_label": "Sim",
+      "dataset": null,
+      "display_note": "Simulated area radiation monitor",
+      "trusted": true
+    },
+    {
+      "channel_id": "ch_co2_cabin_replay",
+      "sensor_type_id": "co2",
+      "hazard_id": "co2",
+      "environment_ids": [
+        "station_leo"
+      ],
+      "location": "cabin",
+      "location_label": null,
+      "adapter_id": "adp_replay_habitat",
+      "origin_mode": "REPLAY",
+      "input_unit": "ppm",
+      "expected_interval_seconds": 300,
+      "stale_after_seconds": 600,
+      "source_label": "Replay, ISS 2014",
+      "dataset": "OSDR Rodent Research-1 ISS environmental telemetry, 2014",
+      "display_note": null,
+      "trusted": true
+    },
+    {
+      "channel_id": "ch_rad_columbus_replay",
+      "sensor_type_id": "rad",
+      "hazard_id": "radiation",
+      "environment_ids": [
+        "station_leo"
+      ],
+      "location": "columbus",
+      "location_label": "Columbus module",
+      "adapter_id": "adp_replay_habitat",
+      "origin_mode": "REPLAY",
+      "input_unit": "µGy/h",
+      "expected_interval_seconds": null,
+      "stale_after_seconds": 600,
+      "source_label": "Replay, ISS 2022",
+      "dataset": "OSDR RadLab DosTel1, 1 to 2 Apr 2022",
+      "display_note": null,
+      "trusted": true
+    },
+    {
+      "channel_id": "ch_co2_cabin_rr5_replay",
+      "sensor_type_id": "co2",
+      "hazard_id": "co2",
+      "environment_ids": [
+        "station_leo"
+      ],
+      "location": "cabin",
+      "location_label": null,
+      "adapter_id": "adp_replay_habitat",
+      "origin_mode": "REPLAY",
+      "input_unit": "ppm",
+      "expected_interval_seconds": 300,
+      "stale_after_seconds": 600,
+      "source_label": "Replay, ISS 2017",
+      "dataset": "OSDR Rodent Research-5 ISS environmental telemetry, 2017",
+      "display_note": null,
+      "trusted": true
+    },
+    {
+      "channel_id": "ch_rad_columbus_spe_replay",
+      "sensor_type_id": "rad",
+      "hazard_id": "radiation",
+      "environment_ids": [
+        "station_leo"
+      ],
+      "location": "columbus",
+      "location_label": "Columbus module",
+      "adapter_id": "adp_replay_habitat",
+      "origin_mode": "REPLAY",
+      "input_unit": "µGy/h",
+      "expected_interval_seconds": null,
+      "stale_after_seconds": 600,
+      "source_label": "Replay, ISS Sep 2017",
+      "dataset": "OSDR RadLab DosTel2, ISS Columbus, 3 to 16 Sep 2017 (solar particle event of 10 and 11 Sep)",
+      "display_note": null,
+      "trusted": true
+    },
+    {
+      "channel_id": "ch_rad_mars_surface_replay",
+      "sensor_type_id": "rad",
+      "hazard_id": "radiation",
+      "environment_ids": [
+        "mars_surface"
+      ],
+      "location": "surface",
+      "location_label": "Mars surface, Gale crater",
+      "adapter_id": "adp_replay_habitat",
+      "origin_mode": "REPLAY",
+      "input_unit": "µGy/h",
+      "expected_interval_seconds": null,
+      "stale_after_seconds": 2100,
+      "source_label": "Replay, Mars Sep 2017",
+      "dataset": "OSDR RadLab MSL-RAD on the surface of Mars, 5 to 19 Sep 2017",
+      "display_note": null,
+      "trusted": true
+    }
+  ]
+}
