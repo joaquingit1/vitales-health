@@ -38,8 +38,10 @@ from crew_health.identity.domain.session import SignInRequest
 from crew_health.kernel.clock import TimeInput
 from crew_health.kernel.commands import canonical_json
 from crew_health.kernel.errors import ProblemError
+from crew_health.kernel.ids import IdFactory
+from crew_health.kernel.met import MissionClock, MissionClockVersion
 from crew_health.kernel.scheduler import ElapsedDeadline
-from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext
+from crew_health.kernel.uow import Actor, ReadSnapshot, SessionContext, UnitOfWorkFactory
 from crew_health.knowledge.application.dto import AllowedUse
 from crew_health.knowledge.application.ports import (  # type: ignore[attr-defined]
     EvidenceQueryPort,
@@ -280,7 +282,15 @@ def credential(person_id: str) -> str:
 
 
 def sign_in(resolver: object, person_id: str) -> SessionContext:
-    """E02's own operator path: the roster document, a credential, then the crew member's sign-in."""
+    """E02's own operator path: the first mission clock version, the roster document, a credential, then the crew
+    member's sign-in. Without a mission clock version no roster member is current (R-E02-32), so sign-in refuses;
+    a served hub appends it at its first start (app.cli confirm_time), this harness does it here."""
+    clock = resolver.require(MissionClock)  # type: ignore[attr-defined]
+    uows: UnitOfWorkFactory = resolver.require(UnitOfWorkFactory)  # type: ignore[attr-defined]
+    ids: IdFactory = resolver.require(IdFactory)  # type: ignore[attr-defined]
+    with uows.begin(actor=OPERATOR.actor, correlation_id="sim_mission_clock") as uow:
+        if not uow.connection.rows("SELECT clock_version FROM clock_mission_version", (), limit=1):
+            clock.append(uow, MissionClockVersion("mcv_sim", 1, uow.now, uow.now, None, "Day {day}"), ids=ids)
     admin: IdentityAdmin = resolver.require(IdentityAdmin)  # type: ignore[attr-defined]
     identity: IdentityService = resolver.require(IdentityService)  # type: ignore[attr-defined]
     roster = RosterBootstrap(

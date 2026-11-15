@@ -4,6 +4,7 @@ denial, a positive pinned read and fail-closed unavailability."""
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -57,8 +58,14 @@ def started(hub: E12Hub) -> tuple[object, object]:
 
 
 def anchor(runtime: object, hub: E12Hub) -> TimeInput:
+    """The turn anchor at the newest clock correction version, as the composer's TurnAnchor captures it: the
+    segment's opening version can be superseded at startup, which would leave the start unknown."""
+    from crew_health.kernel.clock import ClockCorrections
+    from crew_health.tools.adapters.clock_capture import CorrectedCapture
+
     segment = runtime.hub_segment  # type: ignore[attr-defined]
-    return TimeInput(
+    corrections = runtime.resolver.require(ClockCorrections)  # type: ignore[attr-defined]
+    start = TimeInput(
         hub.station.db.clock.now(),
         segment.source_clock_id,
         segment.segment_id,
@@ -66,16 +73,21 @@ def anchor(runtime: object, hub: E12Hub) -> TimeInput:
         "hub_corrected",
         "SIM",
     )
+    with hub.station.db.snapshot() as view:
+        captured = CorrectedCapture(hub.station.db.clock, lambda: corrections, page=100)(view, start)
+    assert captured is not None
+    return captured
 
 
 def audits(hub: E12Hub) -> list[tuple[str, str]]:
     with hub.station.db.snapshot() as view:
-        rows = view.connection.rows(
-            "SELECT event_type, metadata FROM platform_audit WHERE event_type LIKE 'tools.%' ORDER BY rowid",
-            (),
-            limit=100,
-        )
-    return [(str(row[0]), str(row[1])) for row in rows]
+        rows = view.connection.rows("SELECT envelope FROM platform_audit ORDER BY seq", (), limit=1000)
+    entries = [json.loads(bytes(row[0]))["entry"] for row in rows]
+    return [
+        (str(entry["event_type"]), json.dumps(entry["safe_metadata"], sort_keys=True, separators=(",", ":")))
+        for entry in entries
+        if str(entry["event_type"]).startswith("tools.")
+    ]
 
 
 def release(hub: E12Hub) -> str:
