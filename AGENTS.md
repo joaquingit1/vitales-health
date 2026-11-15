@@ -9,12 +9,12 @@ real system, not a demo shell. It must be fully usable with one laptop and its w
 sensor feeds, the local medical model, the forecasting model and the ground link only add capability.
 
 **Where truth lives.** Product behavior: the product package in `docs/product/` (PRD.md, CONTRACTS.md,
-`api/openapi.yaml`, USE-CASES.md, the epic briefs in `tdd/`). It is the only living copy; accepted requests are applied
+`api/openapi.yaml`, USE-CASES.md, the epic briefs in `tdd/`). It is the only living copy; accepted changes are applied
 there. How we build: `docs/BUILD-CHARTER.md` (stack, architecture, gates). Shared seams between epics (identities,
 events, transactions, clock, configuration activation, ownership): `docs/SYSTEM.md`. Deployment: `docs/DEPLOYMENT.md`.
 What each epic builds: its design in `docs/tdd/Exx.md`. Runtime configuration lives in `config/`; the JSON documents in
 `docs/product/` are its specification. If this file and the package disagree on product behavior, the package wins and
-you file a request.
+you say so in your PR.
 
 ## 1. Hard rules
 
@@ -51,14 +51,13 @@ you file a request.
    start, and build in the paths your epic owns (its design, section 13). When something you need does not exist yet
    (another epic's port, adapter, contract, schema, configuration document, generated file, gate tooling or the UI
    shell), build it yourself, for real: where and as its owner's design (or SYSTEM.md) places and names it, with its
-   tests, so it stops being a blocker and everyone else can use it. Build the part you need, and list each file in
-   `docs/build/<owner>/BUILT-BY-OTHERS.md` (path, what it is, design section, your epic and task); the owner reads that
-   file when its turn comes and edits or completes the piece. An open request in `docs/requests/<epic>.md` that nobody
-   answered does not stop you either: take the answer the design, SYSTEM.md and the decisions best support (the safest
-   one where they are silent), build it, and record it in the request file and your report. Never edit files another
-   person or agent is building at that moment, and never edit the designs, SYSTEM.md, DEPLOYMENT.md or
-   COORDINATOR-DECISIONS.md to fit your code: a spec that is wrong goes in your report or in a request. Nothing you
-   build this way switches off a safety check, a validation or an acceptance criterion.
+   tests, so it stops being a blocker and everyone else can use it. Build the part you need and list each such file in
+   your PR description so the owner can complete it. An open question does not stop you either: take the answer the
+   design, SYSTEM.md and the decisions best support (the safest one where they are silent), build it, and state it in
+   your PR. Never edit files another person or agent is building at that moment, and never edit the designs,
+   SYSTEM.md, DEPLOYMENT.md or COORDINATOR-DECISIONS.md to fit your code: a spec that is wrong goes in your PR, and
+   the coordinator decides. Nothing you build this way switches off a safety check, a validation or an acceptance
+   criterion.
 
 ## 2. Redundancy: every critical path has a second way
 
@@ -146,19 +145,18 @@ version stays active. Updates arrive as signed bundles through the ground link, 
    design's section 13 gives it.
 2. **Shared mechanisms come from SYSTEM.md; decisions come from COORDINATOR-DECISIONS.md.** A design uses SYSTEM.md's
    identifiers, clock, units, errors, configuration loading, unit of work, events, idempotency, settings and seam
-   resolutions by section number and never defines its own. A seam SYSTEM.md does not cover is a request, never a
-   guess; a coder who needs it before anyone answers builds the answer they best support (section 1, rule 9) and
-   records it in that request. Anything decided in `docs/requests/COORDINATOR-DECISIONS.md` is settled for every epic. Before hand-in, a
-   design passes `scripts/design_lint.py`, and every piece of work is checked against section 6: get it right the
-   first time instead of waiting for a review to find it.
-3. **Read the epic's design** (`docs/tdd/Exx.md`): it is the spec. If it is wrong or missing something, fix the design
-   or file a request. Do not route around it in code.
+   resolutions by section number and never defines its own. A seam SYSTEM.md does not cover is never a silent
+   guess: build the answer you best support (section 1, rule 9) and state it in your PR. Anything decided in
+   `docs/requests/COORDINATOR-DECISIONS.md` is settled for every epic. Every piece of work is checked against section 6
+   before hand-in: get it right the first time instead of waiting for a review to find it.
+3. **Read the epic's design** (`docs/tdd/Exx.md`): it is the spec. If it is wrong or missing something, say so in your PR
+   with the evidence. Do not silently route around it in code.
 4. **Build inside the epic's owned paths, tests first on its critical paths.** Unit tests use the kernel fakes of the
    ports you depend on. When your acceptance needs a dependency that is not built yet, build that piece (section 1,
    rule 9) instead of stopping; its owner completes it later.
 5. **Run the gates** (charter section 8, and the epic's design section 15) before you hand in. Local green is required,
    not sufficient: CI must be green too. A finding you believe is wrong is a defect in the gate: show why with the
-   evidence, then fix the gate with a regression test or file a request. Never bend the work to silence it, and never
+   evidence, then fix the gate with a regression test or raise it in your PR. Never bend the work to silence it, and never
    skip the gate. Gates pass in a clean shell on any machine: every runtime comes from the repository's pins (uv for
    Python, `devEngines` in `package.json` for Node, run through pnpm), never from a PATH workaround or a tool that
    only your machine has. A gate that passes only in your shell fails for everyone else.
@@ -170,11 +168,8 @@ version stays active. Updates arrive as signed bundles through the ground link, 
    --only-binary :all:`.
 6. **Independent review.** Someone other than the author reviews the work and its evidence. Resolve every comment or
    answer it with evidence: say fixed, partly fixed or answered, and show the line that now says it, or the package
-   line that proves the reviewer wrong. "Fixed" without evidence counts as not fixed. A problem in the package itself
-   is raised once, as a request, not in every design. A later round first checks that each comment is resolved, then
-   reviews the whole artifact again and reports every real defect, marking each new one as introduced by the revision
-   or present before. A review is never narrowed to make rounds converge. Reviews, responses and fix notes are kept in
-   `docs/tdd/reviews/` so every agent has the context of what was found and why.
+   line that proves the reviewer wrong. "Fixed" without evidence counts as not fixed. Findings and answers live in the
+   PR; no separate review documents.
 7. **Done** means: the gates pass, the critical path tests pass, the review is resolved and `AI-USE-LOG.md` has a row
    for every AI run that produced the work. Its "Who", like "Claimed by" on the board, names the person who ran the
    tool: an agent or model is the tool, never the who. "The coordinator" in these documents is Joaquin Castellano. Say what you verified and how; report failing tests, skipped
@@ -184,7 +179,7 @@ version stays active. Updates arrive as signed bundles through the ground link, 
 9. **Research starts in the package.** Before searching the web for any domain fact (NASA programs and documents,
    prior art, competitors, numbers), read `docs/product/RESEARCH-ANNEX.md`, `docs/product/NASA-SOURCES.md` and the rest
    of `docs/product/`; the team already researched most of it, with sources linked. Search the web only for what they
-   lack or to check for something newer, and file what you find, with its source, as a request to add it to the annex.
+   lack or to check for something newer, and add what you find, with its source, to the catalog (rule 12).
 10. **Turn your own mistakes into rules.** When you notice a mistake of yours that cost the team time or rework (a
     wrong assumption, a skipped check, a source not read, work done twice), name the behaviour that caused it and write
     the rule that prevents it: in section 6 when it can happen to any agent working here, otherwise in your own tool's
@@ -218,10 +213,8 @@ version stays active. Updates arrive as signed bundles through the ground link, 
   proves a design wrong, the coder follows SYSTEM.md and the decisions and lists a design correction with evidence in
   its report; the build review judges it, and the design is corrected afterwards. Count the steps to the first line of
   code before adding one.
-- **Stop at zero blockers.** A review passes when it finds no blocker; majors and minors get fixed but never start
-  another round. Every review loop has a cap (SYSTEM.md two reviews, a design one cold review, a build one
-  review followed by one fix pass, then the coordinator checks the code); at the cap the coordinator decides, the loop
-  does not continue.
+- **Stop at zero blockers.** A build gets one independent review and one fix pass; majors and minors get fixed but
+  never start another round. Then the coordinator checks the gates and merges.
 - **Settle shared things before fanning out.** Seams, package contradictions and product questions are decided once,
   before the agents that depend on them start. Thirty agents each deciding a contradiction their own way produce
   thirty findings.
@@ -334,6 +327,8 @@ first two are things we can earn this weekend.
 Ceremony that costs time and buys no safety:
 
 - separate requirement documents beyond the package;
+- request files, review documents and ledgers of who built what: decisions and findings live in the PR;
+- design lint loops and design review rounds before code;
 - change boards;
 - status reports;
 - revision histories inside documents;
