@@ -14,7 +14,7 @@ import re
 from dataclasses import dataclass
 
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import ValidationError
 
 from crew_health.contracts_gen.enums import ErrorCode
@@ -169,7 +169,12 @@ def build_router(api: RulesApi) -> APIRouter:
             if_match=revision,
             config_release=request.headers.get("Config-Release"),
         )
-        return JSONResponse(result, headers={"ETag": f'"{new_revision}"'})
+        # Sorted keys: the first answer and a replay of it are the same bytes (S8.6).
+        return Response(
+            json.dumps(result, sort_keys=True),
+            media_type="application/json",
+            headers={"ETag": f'"{new_revision}"'},
+        )
 
     router.add_api_route(
         "/v1/warnings/{warning_id}/actions", act, methods=["POST"], operation_id="actOnWarning"

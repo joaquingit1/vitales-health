@@ -11,10 +11,10 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
+import e23_station as base
 import pytest
 from e24_station import build, patched, post, seconds  # noqa: F401
 
-import e23_station as base
 from crew_health.kernel.errors import StorageUnavailable
 from crew_health.kernel.scheduler import HealthState
 from crew_health.rules.application import core
@@ -24,7 +24,9 @@ pytestmark = pytest.mark.E24
 
 
 def _rows(st: base.Station, value: float, start: int, count: int) -> list[Any]:
-    return [base.reading("ch_co2", start + n, value, "mmHg", seconds(st, (count - n) * 5)) for n in range(count)]
+    return [
+        base.reading("ch_co2", start + n, value, "mmHg", seconds(st, (count - n) * 5)) for n in range(count)
+    ]
 
 
 def station(tmp: Path, *, send: bool = True) -> base.Station:
@@ -51,7 +53,9 @@ def table(st: base.Station, sql: str) -> list[tuple[Any, ...]]:
         connection.close()
 
 
-def act(st: base.Station, who: str, warning_id: str, body: dict[str, Any], key: str, match: str | None) -> Any:
+def act(
+    st: base.Station, who: str, warning_id: str, body: dict[str, Any], key: str, match: str | None
+) -> Any:
     extra = {} if match is None else {"If-Match": match}
     return st.client.post(
         f"/v1/warnings/{warning_id}/actions", json=body, headers=st.headers(who, key, **extra)
@@ -68,11 +72,15 @@ def test_limit_crossing_raises_one_act_warning_visible_to_crew(patched: None, tm
         "act", "sensor_limit", "SIM", "acknowledged" if False else "raised",
     )  # fmt: skip
     assert one["steps"] and one["allowed_actions"] == ["acknowledge", "add_note"]
-    assert by_definition["sensor_quiet"]["level"] == "watch"  # the channel was silent before its first reading
+    assert (
+        by_definition["sensor_quiet"]["level"] == "watch"
+    )  # the channel was silent before its first reading
     fetched = st.client.get(f"/v1/warnings/{one['warning_id']}", headers=st.headers("crew_a"))
     assert fetched.headers["ETag"] == '"1"' and fetched.json() == one
     again = [i for i in st.client.get("/v1/warnings", headers=st.headers("crew_b")).json()["items"]]
-    assert {i["warning_id"] for i in again} == {i["warning_id"] for i in items}  # habitat scope: every crew screen
+    assert {i["warning_id"] for i in again} == {
+        i["warning_id"] for i in items
+    }  # habitat scope: every crew screen
 
 
 def test_more_readings_never_duplicate_the_active_warning(patched: None, tmp_path: Path) -> None:  # noqa: F811
@@ -120,7 +128,9 @@ def test_unknown_warning_is_not_found(patched: None, tmp_path: Path) -> None:  #
 
 @pytest.mark.trace("T-E24-072")
 def test_evaluator_fault_keeps_the_reading_and_freezes_clears(
-    patched: None, tmp_path: Path, monkeypatch: pytest.MonkeyPatch  # noqa: F811
+    patched: None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,  # noqa: F811
 ) -> None:
     st = station(tmp_path)
     before = table(st, "SELECT warning_id, revision, state FROM rules_warning ORDER BY 1")
@@ -140,7 +150,9 @@ def test_evaluator_fault_keeps_the_reading_and_freezes_clears(
 
 @pytest.mark.trace("T-E24-106", "T-E24-123")
 def test_storage_fault_commits_nothing_and_is_never_converted(
-    patched: None, tmp_path: Path, monkeypatch: pytest.MonkeyPatch  # noqa: F811
+    patched: None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,  # noqa: F811
 ) -> None:
     st = station(tmp_path, send=False)
 
@@ -166,6 +178,8 @@ def test_the_assistant_cannot_raise_act_or_touch_a_warning(patched: None, tmp_pa
         assert guard.propose_level(uow, ctx, "emergency", None).code == "LEVEL_NOT_ALLOWED"  # type: ignore[union-attr]
         assert guard.propose_action(uow, ctx, wid, "clear").code == "ACTION_NOT_ALLOWED"
         assert guard.propose_level(uow, ctx, "watch", "sleep_reaction").level == "watch"  # type: ignore[union-attr]
-    assert table(st, f"SELECT revision, state FROM rules_warning WHERE warning_id = '{wid}'") == [(1, "raised")]
+    assert table(st, f"SELECT revision, state FROM rules_warning WHERE warning_id = '{wid}'") == [
+        (1, "raised")
+    ]
     audited = table(st, "SELECT count(*) FROM platform_audit WHERE event_id IS NOT NULL")[0][0]
     assert audited > 0

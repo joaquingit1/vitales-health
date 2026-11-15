@@ -17,10 +17,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "sensors"))
 import e23_station as base  # noqa: E402
 
 from crew_health.rules import module as rules_module  # noqa: E402
-from crew_health.sensors.application import evaluate as evaluate_module  # noqa: E402
-from crew_health.sensors.domain.plausibility import PlausibilityResult  # noqa: E402
 from crew_health.rules.settings import DEFAULTS as RULE_DEFAULTS  # noqa: E402
 from crew_health.rules.settings import specifications as rule_specs  # noqa: E402
+from crew_health.sensors.application import evaluate as evaluate_module  # noqa: E402
+from crew_health.sensors.domain.plausibility import PlausibilityResult  # noqa: E402
 
 ADAPTER = base.ADAPTER
 _SENSORS = base.sensors_module
@@ -42,7 +42,9 @@ def patched(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     # R-E23-2: E23 has no sourced plausibility criteria, so it evaluates nothing in any origin. These tests exercise
     # E24 on an evaluated channel, so the gate is answered "passed" here, in the test only, labeled as such.
     monkeypatch.setattr(
-        evaluate_module, "assess", lambda kind, reading: PlausibilityResult("passed", "test_fixture_r_e23_2", None)
+        evaluate_module,
+        "assess",
+        lambda kind, reading: PlausibilityResult("passed", "test_fixture_r_e23_2", None),
     )
     yield
 
